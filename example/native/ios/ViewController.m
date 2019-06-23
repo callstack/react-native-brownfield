@@ -17,8 +17,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[BridgeManager new] test];
-    // Do any additional setup after loading the view, typically from a nib.
+    [[BridgeManager shared] startReactNative:^(void){
+        NSLog(@"RN Loaded");
+    }];
 }
 
 
