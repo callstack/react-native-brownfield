@@ -1,0 +1,20 @@
+{
+  "name": "react-native-brownfield",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": "Michal Chudziak",
+  "homepage": "https://github.com/michalchudziak/react-native-brownfield",
+  "description": "BBrownfield helpers for React Native",
+  "scripts": {},
+  "keywords": [
+    "react-native-brownfield",
+    "react native brownfield",
+    "native",
+    "react native integration"
+  ],
+  "dependencies": {},
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  }
+}
