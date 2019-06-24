@@ -8,18 +8,22 @@
 
 #import "ViewController.h"
 #import <ReactNativeBrownfield/BridgeManager.h>
-
-@interface ViewController ()
-
-@end
+#import <ReactNativeBrownfield/ReactNativeViewController.h>
 
 @implementation ViewController
+
+@synthesize isReactNativeLoaded;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[BridgeManager shared] startReactNative:^(void){
-        NSLog(@"RN Loaded");
+        self.isReactNativeLoaded = true;
     }];
+}
+- (IBAction)openReactNative:(UIButton *)sender {
+    if (isReactNativeLoaded) {
+        [[self navigationController] pushViewController:[[ReactNativeViewController alloc] initWithModuleName:@"ReactNative"] animated:TRUE];
+    }
 }
 
 

@@ -45,7 +45,7 @@
     
     bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
     
-    if (_onBundleLoaded != nil) {
+    if (onBundleLoaded != nil) {
         _onBundleLoaded = [onBundleLoaded copy];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(jsLoaded:) name:RCTJavaScriptDidLoadNotification object:nil];
