@@ -1,11 +1,20 @@
 import React from 'react';
-import {AppRegistry, StyleSheet, Text, View} from 'react-native';
+import {AppRegistry, StyleSheet, Text, View, NativeModules, Button} from 'react-native';
 
 class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Hi React Native</Text>
+        <Button
+          onPress={() => { NativeModules.ReactNativeBrownfield.setPopGestureRecognizer(false) }}
+          title="Disable back gesture"
+        />
+
+        <Button
+          onPress={() => { NativeModules.ReactNativeBrownfield.popToNative(true) }}
+          title="Pop to native"
+        />
       </View>
     );
   }

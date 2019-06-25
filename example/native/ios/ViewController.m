@@ -17,12 +17,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[BridgeManager shared] startReactNative:^(void){
-        self.isReactNativeLoaded = true;
+        self.isReactNativeLoaded = YES;
     }];
 }
+
 - (IBAction)openReactNative:(UIButton *)sender {
     if (isReactNativeLoaded) {
-        [[self navigationController] pushViewController:[[ReactNativeViewController alloc] initWithModuleName:@"ReactNative"] animated:TRUE];
+        [[self navigationController] pushViewController:[[ReactNativeViewController alloc] initWithModuleName:@"ReactNative"] animated:YES];
     }
 }
 
