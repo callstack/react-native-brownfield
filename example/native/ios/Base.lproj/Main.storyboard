@@ -18,28 +18,34 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QqJ-lk-RpM">
-                                <rect key="frame" x="77" y="315.5" width="221" height="36"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="Push React Native screen"/>
-                                <connections>
-                                    <action selector="openReactNative:" destination="BYZ-38-t0r" eventType="touchUpInside" id="y3i-ZA-FzQ"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="React Native Brownfield" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B5S-4T-aLa">
-                                <rect key="frame" x="10" y="84" width="355" height="81.5"/>
-                                <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="34"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="c1z-PC-pPF">
+                                <rect key="frame" x="10" y="292.5" width="355" height="82"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="React Native Brownfield" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B5S-4T-aLa">
+                                        <rect key="frame" x="3" y="0.0" width="349" height="36"/>
+                                        <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="30"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QqJ-lk-RpM">
+                                        <rect key="frame" x="67" y="46" width="221" height="36"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                        <state key="normal" title="Push React Native screen">
+                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="openReactNative:" destination="BYZ-38-t0r" eventType="touchUpInside" id="y3i-ZA-FzQ"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="QqJ-lk-RpM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="16U-Xy-uqm"/>
-                            <constraint firstAttribute="trailing" secondItem="B5S-4T-aLa" secondAttribute="trailing" constant="10" id="727-te-IoF"/>
-                            <constraint firstItem="QqJ-lk-RpM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="JRS-D7-GJ7"/>
-                            <constraint firstItem="B5S-4T-aLa" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="ufX-T5-YUZ"/>
-                            <constraint firstItem="B5S-4T-aLa" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="zQ9-Qz-ynJ"/>
+                            <constraint firstItem="c1z-PC-pPF" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="8oW-3y-pgW"/>
+                            <constraint firstAttribute="trailing" secondItem="c1z-PC-pPF" secondAttribute="trailing" constant="10" id="aL3-LR-3dp"/>
+                            <constraint firstItem="c1z-PC-pPF" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="gYJ-YG-ZmI"/>
+                            <constraint firstItem="c1z-PC-pPF" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="hDr-K4-zd6"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
