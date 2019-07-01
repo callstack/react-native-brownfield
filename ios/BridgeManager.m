@@ -5,9 +5,9 @@
 
 @implementation BridgeManager
 
-@synthesize jsBundleURLForBundleRoot;
-@synthesize fallbackResource;
-@synthesize URLForReleaseBundleResource;
+@synthesize jsBundleURLForBundleRoot = _jsBundleURLForBundleRoot;
+@synthesize fallbackResource = _fallbackResource;
+@synthesize URLForReleaseBundleResource = _URLForReleaseBundleResource;
 @synthesize bridge;
 
 + (id)shared {
@@ -23,9 +23,9 @@
 
 - (id)init {
     if (self = [super init]) {
-        jsBundleURLForBundleRoot = @"index";
-        fallbackResource = nil;
-        URLForReleaseBundleResource = @"main.jsbundle";
+        _jsBundleURLForBundleRoot = @"index";
+        _fallbackResource = nil;
+        _URLForReleaseBundleResource = @"main.jsbundle";
     }
     return self;
 }
@@ -57,14 +57,14 @@
     _onBundleLoaded = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
-    
+
 #pragma mark - RCTBridgeDelegate Methods
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge {
     #if DEBUG
-        return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+        return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:_jsBundleURLForBundleRoot fallbackResource:nil];
     #else
-        NSArray<NSString *> *resourceURL = [URLForReleaseBundleResource URLForReleaseBundleResource];
+    NSArray<NSString *> *resourceURL = [_URLForReleaseBundleResource componentsSeparatedByString:@"."];
         return [[NSBundle mainBundle] URLForResource:resourceURL[0] withExtension:resourceURL[1]];
     #endif
 }

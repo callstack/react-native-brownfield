@@ -6,8 +6,8 @@
 
 @implementation ReactNativeViewController
 
-@synthesize _moduleName;
-@synthesize _initialProperties;
+@synthesize moduleName = _moduleName;
+@synthesize initialProperties = _initialProperties;
 
 -(instancetype)initWithModuleName:(NSString *)moduleName {
     self = [super init];

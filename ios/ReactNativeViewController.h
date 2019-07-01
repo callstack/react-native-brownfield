@@ -2,8 +2,8 @@
 
 @interface ReactNativeViewController : UIViewController
 
-@property (nonatomic, copy) NSString *_moduleName;
-@property (nonatomic, copy) NSDictionary *_initialProperties;
+@property (nonatomic, copy) NSString *moduleName;
+@property (nonatomic, copy) NSDictionary *initialProperties;
 
 -(instancetype)initWithModuleName:(NSString *)moduleName;
 
