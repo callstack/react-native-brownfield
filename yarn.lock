@@ -737,7 +737,7 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@react-native-community/cli-platform-android@2.0.0-rc.3", "@react-native-community/cli-platform-android@^2.0.0-rc.3":
+"@react-native-community/cli-platform-android@2.0.0-rc.3":
   version "2.0.0-rc.3"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-platform-android/-/cli-platform-android-2.0.0-rc.3.tgz#37894a4791b0dafdbae2f70ee7a7cba4260d20d1"
   integrity sha512-ZOBQZ3fTts1Hf0tnQIDJY52k4LW5IixyriaZhqCgNS25QgWUrMLrr3XBqqzO/kKA1ogirACGxar2cg0PR0F1qQ==
@@ -747,7 +747,17 @@
     slash "^2.0.0"
     xmldoc "^0.4.0"
 
-"@react-native-community/cli-platform-ios@2.0.0-rc.3", "@react-native-community/cli-platform-ios@^2.0.0-rc.3":
+"@react-native-community/cli-platform-android@^2.0.0-rc.3":
+  version "2.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@react-native-community/cli-platform-android/-/cli-platform-android-2.0.0-rc.5.tgz#c488ba470cefdcbbb51cd5f4db012dd5b984dd37"
+  integrity sha512-jyfKpicz+RAusr/aZ8o4PfCr2cwVoj+RB7TG/KEJRkzFEt9FwmL4E4uHsHAMMtFO0nWslXohE8KeTuFE8x3xTQ==
+  dependencies:
+    "@react-native-community/cli-tools" "^2.0.0-rc.5"
+    logkitty "^0.4.0"
+    slash "^2.0.0"
+    xmldoc "^0.4.0"
+
+"@react-native-community/cli-platform-ios@2.0.0-rc.3":
   version "2.0.0-rc.3"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-platform-ios/-/cli-platform-ios-2.0.0-rc.3.tgz#076d3e7b4d4952421877f7e3477fa07ced049b49"
   integrity sha512-DOIJnqAwraBDsCCZaanZDbdTSn45ldZo0X41YMk3875HvNb9b0e9si1MI7qLSf4E+/ntyUYkJZ8CW8AYY9/9pA==
@@ -756,10 +766,29 @@
     chalk "^1.1.1"
     xcode "^2.0.0"
 
+"@react-native-community/cli-platform-ios@^2.0.0-rc.3":
+  version "2.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@react-native-community/cli-platform-ios/-/cli-platform-ios-2.0.0-rc.5.tgz#6accc2f4dd0dedd540fab6e84b4f0afdf72fa8cf"
+  integrity sha512-3Q2kuJS+qBYVm1MvW4gxKZKcIyUkhQ6xU8R/vtkvTRNLTtZUad54lUsmGb+eUKUAbbs5lWYLKklJYCopAe6Yvw==
+  dependencies:
+    "@react-native-community/cli-tools" "^2.0.0-rc.5"
+    chalk "^1.1.1"
+    xcode "^2.0.0"
+
 "@react-native-community/cli-tools@^2.0.0-rc.3":
   version "2.0.0-rc.3"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-tools/-/cli-tools-2.0.0-rc.3.tgz#4b37779081bf2e247a8865f6bd71c29adb88ed47"
   integrity sha512-KG6GhmvIiLrwLGNBs3zmslnhTutm9EPwQDB3TztDU8uGn/50wPwflybS0mzT9lPzTqMcyEP7KcGtpnKqant1vA==
+  dependencies:
+    chalk "^1.1.1"
+    lodash "^4.17.5"
+    mime "^2.4.1"
+    node-fetch "^2.5.0"
+
+"@react-native-community/cli-tools@^2.0.0-rc.5":
+  version "2.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@react-native-community/cli-tools/-/cli-tools-2.0.0-rc.5.tgz#caa2cf6d1bf4700a22b3c0058554714870ede00c"
+  integrity sha512-3y0vJarRO1U80AG22khDEbcsatlItSHcvaHIUWk5mitQagOCzDy2kRFvu5u2VbK/MCm64NJ1oAienfF3JB8JYg==
   dependencies:
     chalk "^1.1.1"
     lodash "^4.17.5"
@@ -2450,6 +2479,11 @@ jest-worker@^24.6.0:
   dependencies:
     merge-stream "^1.0.1"
     supports-color "^6.1.0"
+
+jetifier@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/jetifier/-/jetifier-1.6.1.tgz#4aa50dd35c5f6893c35c2278c53972852fd0e877"
+  integrity sha512-EF55MQWvFRaTA8LwHW15N4qnYm2a1Crg95YcVI7cTTzS9iNkBFgJ/f+o0OeJ62U1Laidrq/WG7HkYKoGwwPRRQ==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
