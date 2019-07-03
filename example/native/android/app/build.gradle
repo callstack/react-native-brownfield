@@ -1,6 +1,4 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'kotlin-android'
-//apply plugin: 'kotlin-android-extensions'
 
 project.ext.react = [
         entryFile: "index.js"
@@ -31,36 +29,16 @@ android {
         }
     }
 
-//    sourceSets {
-////        /Users/michalchudziak/Projects/react_native/react-native-brownfield/example/native/android/app/build/generated/rncli/src/main/java/com/facebook/react/PackageList.java
-//        main.java.srcDirs += 'build/generated/rncli/src/main/java/com/facebook/react/PackageList.java'
-//    }
-
-//    sourceSets {
-//        main {
-//            java.srcDirs += 'build/generated/rncli/src/main/java/com/facebook/react'
-//        }
-//    }
-
-//    sourceSets {
-//        external {
-//            java {
-//                srcDir "$projectDir/.."
-//                include 'build/generated/rncli/src/main/java/com/facebook/react/PackageList.java'
-//            }
-//        }
-//        main {
-//            java {
-//                compileClasspath += external.classes
-//            }
-//        }
-//    }
+    sourceSets {
+        main.java.srcDirs += 'build/generated/rncli/src/main/java/com/facebook/react'
+    }
 }
 
 dependencies {
     implementation project(':react-native-brownfield')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.facebook.react:react-native:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlinVersion}"
     implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
     implementation 'org.webkit:android-jsc:+'
@@ -73,8 +51,6 @@ task copyDownloadableDepsToLibs(type: Copy) {
 
 apply from: file("../../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
-//sourceSets {
-//    debug.java.srcDirs += 'build/generated/rncli'
-//    release.java.srcDirs += 'build/generated/rncli'
-//}
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
