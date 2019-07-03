@@ -1,6 +1,4 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'kotlin-android'
-//apply plugin: 'kotlin-android-extensions'
 
 project.ext.react = [
         entryFile: "index.js"
@@ -30,31 +28,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-//    sourceSets {
-////        /Users/michalchudziak/Projects/react_native/react-native-brownfield/example/native/android/app/build/generated/rncli/src/main/java/com/facebook/react/PackageList.java
-//        main.java.srcDirs += 'build/generated/rncli/src/main/java/com/facebook/react/PackageList.java'
-//    }
-
-//    sourceSets {
-//        main {
-//            java.srcDirs += 'build/generated/rncli/src/main/java/com/facebook/react'
-//        }
-//    }
-
-//    sourceSets {
-//        external {
-//            java {
-//                srcDir "$projectDir/.."
-//                include 'build/generated/rncli/src/main/java/com/facebook/react/PackageList.java'
-//            }
-//        }
-//        main {
-//            java {
-//                compileClasspath += external.classes
-//            }
-//        }
-//    }
 }
 
 dependencies {
@@ -72,9 +45,3 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply from: file("../../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
-
-//sourceSets {
-//    debug.java.srcDirs += 'build/generated/rncli'
-//    release.java.srcDirs += 'build/generated/rncli'
-//}
-

@@ -1,11 +1,13 @@
 package com.callstack.nativeexample;
 
 import android.app.Application;
+import android.util.Log;
+import com.callstack.reactnativebrownfield.BridgeManager;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
-import com.callstack.reactnativebrownfield.BridgeManager;
+import com.callstack.reactnativebrownfield.BridgeManagerJava;
 
 import java.util.List;
 
@@ -35,7 +37,10 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        BridgeManager.Companion.initialize(mReactNativeHost);
-        SoLoader.init(this, /* native exopackage */ false);
+        BridgeManagerJava.initialize(mReactNativeHost, this);
+        BridgeManagerJava.getShared().startReactNative(init -> {
+            Log.d("test", "test");
+        });
+
     }
 }
