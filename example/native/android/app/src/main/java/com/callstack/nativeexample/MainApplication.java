@@ -30,7 +30,7 @@ public class MainApplication extends Application {
 
         @Override
         protected String getJSMainModuleName() {
-            return "index";
+            return "example/native/index";
         }
     };
 

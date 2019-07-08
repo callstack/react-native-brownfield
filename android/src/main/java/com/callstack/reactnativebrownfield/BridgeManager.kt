@@ -17,6 +17,8 @@ class BridgeManager private constructor(val rnHost: ReactNativeHost, val applica
     fun initialize(rnHost: ReactNativeHost, application: Application) {
       if(!initialized.getAndSet(true)) {
         instance = BridgeManager(rnHost, application)
+        SoLoader.init(application.applicationContext,false)
+
       }
     }
   }
@@ -24,9 +26,8 @@ class BridgeManager private constructor(val rnHost: ReactNativeHost, val applica
   private var reactInstanceManager: ReactInstanceManager? = null
 
   fun startReactNative(listener: ((initialized: Boolean) -> Unit)?) {
-    reactInstanceManager = rnHost.reactInstanceManager
 
-    SoLoader.init(application.applicationContext,false)
+    reactInstanceManager = rnHost.reactInstanceManager
 
     if (listener != null) {
       reactInstanceManager?.addReactInstanceEventListener(object: ReactInstanceManager.ReactInstanceEventListener {
@@ -35,5 +36,7 @@ class BridgeManager private constructor(val rnHost: ReactNativeHost, val applica
         }
       })
     }
+
+    reactInstanceManager?.createReactContextInBackground()
   }
 }
