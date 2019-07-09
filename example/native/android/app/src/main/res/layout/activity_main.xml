@@ -10,10 +10,20 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
+            android:text="I'm a Native Activity"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" android:textSize="14sp" android:id="@+id/textView"
+            android:textAlignment="center"/>
+
+    <Button
+            android:text="Open React Native"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:id="@+id/button" android:layout_marginTop="50dp"
+            app:layout_constraintTop_toBottomOf="@+id/textView" android:onClick="startReactNative"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="125dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="125dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

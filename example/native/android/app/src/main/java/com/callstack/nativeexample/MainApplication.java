@@ -2,42 +2,23 @@ package com.callstack.nativeexample;
 
 import android.app.Application;
 import android.util.Log;
-import com.callstack.reactnativebrownfield.BridgeManager;
 import com.facebook.react.PackageList;
-import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.soloader.SoLoader;
 import com.callstack.reactnativebrownfield.BridgeManagerJava;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class MainApplication extends Application {
-
-    private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-        @Override
-        public boolean getUseDeveloperSupport() {
-            return BuildConfig.DEBUG;
-        }
-
-        @Override
-        protected List<ReactPackage> getPackages() {
-            @SuppressWarnings("UnnecessaryLocalVariable")
-            List<ReactPackage> packages = new PackageList(this).getPackages();
-            // Packages that cannot be autolinked yet can be added manually here, for example:
-            // packages.add(new MyReactNativePackage());
-            return packages;
-        }
-
-        @Override
-        protected String getJSMainModuleName() {
-            return "example/native/index";
-        }
-    };
-
     @Override
     public void onCreate() {
         super.onCreate();
-        BridgeManagerJava.initialize(mReactNativeHost, this);
+        List<ReactPackage> packages = new PackageList(this).getPackages();
+        HashMap<String, Object> options = new HashMap<>();
+        options.put("packages", packages);
+        options.put("mainModuleName", "example/native/index");
+
+        BridgeManagerJava.initialize(options, this);
         BridgeManagerJava.getShared().startReactNative(init -> {
             Log.d("test", "test");
         });

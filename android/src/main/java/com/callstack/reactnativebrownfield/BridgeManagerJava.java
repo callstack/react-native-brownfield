@@ -1,9 +1,14 @@
 package com.callstack.reactnativebrownfield;
 
 import android.app.Application;
+import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
+import com.facebook.react.ReactPackage;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class BridgeManagerJava {
     private BridgeManagerJava() {}
@@ -16,8 +21,20 @@ public class BridgeManagerJava {
         private static final BridgeManagerJava INSTANCE = new BridgeManagerJava();
     }
 
+    public ReactInstanceManager getReactInstanceManager() {
+        return BridgeManager.Companion.getShared().getReactInstanceManager();
+    }
+
     public static void initialize(ReactNativeHost rnHost, Application application) {
         BridgeManager.Companion.initialize(rnHost, application);
+    }
+
+    public static void initialize(HashMap<String, Object> options, Application application) {
+        BridgeManager.Companion.initialize(options, application);
+    }
+
+    public static void initialize(List<ReactPackage> packages, Application application) {
+        BridgeManager.Companion.initialize(packages, application);
     }
 
     public void startReactNative(final CallbackInterface listener) {
