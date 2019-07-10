@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Michal Chudziak",
   "homepage": "https://github.com/michalchudziak/react-native-brownfield",
-  "description": "BBrownfield helpers for React Native",
+  "description": "Brownfield helpers for React Native",
   "main": "src/index.js",
   "scripts": {},
   "keywords": [
