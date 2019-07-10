@@ -1,9 +1,7 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 project.ext.react = [
-        entryFile: "index.js"
+        entryFile: "example/native/index.js"
 ]
 
 apply from: "../../../../node_modules/react-native/react.gradle"
@@ -35,8 +33,17 @@ android {
 dependencies {
     implementation project(':react-native-brownfield')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "com.facebook.react:react-native:+"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
     implementation 'org.webkit:android-jsc:+'
 }
+
+task copyDownloadableDepsToLibs(type: Copy) {
+    from configurations.compile
+    into 'libs'
+}
+
+apply from: file("../../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle");
+applyNativeModulesAppBuildGradle(project, "../../..")
