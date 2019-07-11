@@ -1,5 +1,5 @@
 import React from 'react';
-import {AppRegistry, StyleSheet, Text, View, NativeModules, Button, Image} from 'react-native';
+import {AppRegistry, StyleSheet, Text, View, NativeModules, Button, Image, BackHandler} from 'react-native';
 import {createStackNavigator, createAppContainer, NavigationEvents} from 'react-navigation';
 
 const getRandomTheme = () => {
