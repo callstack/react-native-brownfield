@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 project.ext.react = [
         entryFile: "example/native/index.js"
+//        cliPath: "../../../../node_modules/react-native"
 ]
 
 apply from: "../../../../node_modules/react-native/react.gradle"

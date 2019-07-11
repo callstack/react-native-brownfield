@@ -3,13 +3,15 @@ package com.callstack.nativeexample;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.PackageList;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.callstack.reactnativebrownfield.BridgeManagerJava;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class MainApplication extends Application {
+public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
@@ -23,5 +25,10 @@ public class MainApplication extends Application {
             Log.d("test", "test");
         });
 
+    }
+
+    @Override
+    public ReactNativeHost getReactNativeHost() {
+        return BridgeManagerJava.getShared().getReactNativeHost();
     }
 }

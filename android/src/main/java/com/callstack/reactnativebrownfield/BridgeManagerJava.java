@@ -21,8 +21,8 @@ public class BridgeManagerJava {
         private static final BridgeManagerJava INSTANCE = new BridgeManagerJava();
     }
 
-    public ReactInstanceManager getReactInstanceManager() {
-        return BridgeManager.Companion.getShared().getReactInstanceManager();
+    public ReactNativeHost getReactNativeHost() {
+        return BridgeManager.Companion.getShared().getReactNativeHost();
     }
 
     public static void initialize(ReactNativeHost rnHost, Application application) {

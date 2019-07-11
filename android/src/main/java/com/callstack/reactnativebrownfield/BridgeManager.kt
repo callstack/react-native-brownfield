@@ -8,7 +8,7 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.soloader.SoLoader
 import java.util.concurrent.atomic.AtomicBoolean
 
-class BridgeManager private constructor(val rnHost: ReactNativeHost, val application: Application) {
+class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
   companion object {
     private lateinit var instance: BridgeManager
     private val initialized = AtomicBoolean()
@@ -17,7 +17,7 @@ class BridgeManager private constructor(val rnHost: ReactNativeHost, val applica
 
     fun initialize(rnHost: ReactNativeHost, application: Application) {
       if(!initialized.getAndSet(true)) {
-        instance = BridgeManager(rnHost, application)
+        instance = BridgeManager(rnHost)
         SoLoader.init(application.applicationContext,false)
       }
     }
@@ -48,16 +48,12 @@ class BridgeManager private constructor(val rnHost: ReactNativeHost, val applica
     }
   }
 
-  var reactInstanceManager: ReactInstanceManager? = null
 
   fun startReactNative(listener: ((initialized: Boolean) -> Unit)?) {
-
-    reactInstanceManager = rnHost.reactInstanceManager
-
     if (listener != null) {
-      reactInstanceManager?.addReactInstanceEventListener { listener(true) }
+      reactNativeHost.reactInstanceManager?.addReactInstanceEventListener { listener(true) }
     }
 
-    reactInstanceManager?.createReactContextInBackground()
+    reactNativeHost.reactInstanceManager?.createReactContextInBackground()
   }
 }
