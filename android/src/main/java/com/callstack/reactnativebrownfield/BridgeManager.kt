@@ -25,24 +25,16 @@ class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
     fun initialize(options: HashMap<String, Any>, application: Application) {
       val rnHost = object : ReactNativeHost(application) {
         override fun getUseDeveloperSupport(): Boolean {
-          return when(options.get("useDeveloperSupport")) {
-            is Boolean -> options.get("useDeveloperSupport") as Boolean
-            else -> BuildConfig.DEBUG
-          }
+          return options["useDeveloperSupport"] as? Boolean ?: BuildConfig.DEBUG
         }
 
         override fun getPackages(): List<ReactPackage> {
-          return when(options.get("packages")) {
-            is List<*> -> options.get("packages") as List<ReactPackage>
-            else -> emptyList()
-          }
+          return (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
+            .filterIsInstance<ReactPackage>()
         }
 
         override fun getJSMainModuleName(): String {
-          return when(options.get("mainModuleName")) {
-            is String -> options.get("mainModuleName") as String
-            else -> super.getJSMainModuleName()
-          }
+          return options["mainModuleName"] as? String ?: super.getJSMainModuleName()
         }
       }
 
@@ -59,11 +51,7 @@ class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
 
   fun startReactNative(listener: ((initialized: Boolean) -> Unit)?) {
     if (listener != null) {
-      reactNativeHost.reactInstanceManager?.addReactInstanceEventListener(object: ReactInstanceManager.ReactInstanceEventListener {
-        override fun onReactContextInitialized(context: ReactContext?) {
-          listener(true)
-        }
-      })
+      reactNativeHost.reactInstanceManager?.addReactInstanceEventListener { listener(true) }
     }
 
     reactNativeHost.reactInstanceManager?.createReactContextInBackground()
