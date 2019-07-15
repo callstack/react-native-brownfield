@@ -77,6 +77,10 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed()
+            return true
+        }
         if (BridgeManager.shared.reactNativeHost.hasInstance()
             && BridgeManager.shared.reactNativeHost.useDeveloperSupport) {
             if (keyCode == KeyEvent.KEYCODE_MENU) {
@@ -105,10 +109,11 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
     }
 
     override fun onBackPressed() {
-        super.invokeDefaultOnBackPressed()
-//        if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-//            BridgeManager.shared.reactNativeHost.reactInstanceManager.onBackPressed()
-//        }
+        if(ReactNativeBrownfieldModule.shouldPopToNative) {
+            super.invokeDefaultOnBackPressed()
+        } else if (BridgeManager.shared.reactNativeHost.hasInstance()) {
+            BridgeManager.shared.reactNativeHost.reactInstanceManager.onBackPressed()
+        }
     }
 
     override fun invokeDefaultOnBackPressed() {
