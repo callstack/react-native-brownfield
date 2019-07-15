@@ -47,7 +47,7 @@ class HomeScreen extends React.Component {
           <Button
             onPress={() => {
               if (isFirstRoute) {
-                NativeModules.ReactNativeBrownfield.popToNative(true); 
+                NativeModules.ReactNativeBrownfield.popToNative(true);
               } else {
                 this.props.navigation.goBack();
               }      
