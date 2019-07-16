@@ -1,6 +1,7 @@
 package com.callstack.reactnativebrownfield
 
 import android.annotation.TargetApi
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +18,12 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, PermissionAwareActivity {
     companion object {
         const val MODULE_NAME = "com.callstack.reactnativebrownfield.MODULE_NAME"
+
+        fun createReactActivityIntent(context: Context, moduleName: String): Intent {
+            val intent = Intent(context, ReactNativeActivity::class.java)
+            intent.putExtra(ReactNativeActivity.MODULE_NAME, "ReactNative")
+            return intent
+        }
     }
 
     private var reactRootView: ReactRootView? = null

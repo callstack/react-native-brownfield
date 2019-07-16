@@ -15,11 +15,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
-        <activity
-                android:name=".ReactNativeFragmentActivity"
-                android:label="@string/title_activity_react_native_fragment"
-                android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+        <activity android:name=".ReactNativeFragmentActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
