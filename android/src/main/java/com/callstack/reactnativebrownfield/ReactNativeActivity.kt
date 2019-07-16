@@ -1,16 +1,12 @@
 package com.callstack.reactnativebrownfield
 
 import android.annotation.TargetApi
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.appcompat.app.AppCompatActivity
 import com.facebook.infer.annotation.Assertions
 import com.facebook.react.ReactActivity
-import com.facebook.react.ReactActivityDelegate
-import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactRootView
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.PermissionListener
@@ -55,6 +51,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
         if (BridgeManager.shared.reactNativeHost.hasInstance()) {
             BridgeManager.shared.reactNativeHost.reactInstanceManager?.onHostDestroy(this)
+            BridgeManager.shared.reactNativeHost.clear()
         }
     }
 
@@ -88,7 +85,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
                 return true
             }
             val didDoubleTapR = Assertions.assertNotNull(doubleTapReloadRecognizer)
-                .didDoubleTapR(keyCode, this.getCurrentFocus())
+                .didDoubleTapR(keyCode, this.currentFocus)
             if (didDoubleTapR) {
                 BridgeManager.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
                 return true

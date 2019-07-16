@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.callstack.reactnativebrownfield.BridgeManagerJava;
 import com.callstack.reactnativebrownfield.ReactNativeActivity;
+import com.callstack.reactnativebrownfield.ReactNativeFragment;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -22,6 +23,11 @@ public class MainActivity extends AppCompatActivity {
     public void startReactNative(View view) {
         Intent intent = new Intent(this, ReactNativeActivity.class);
         intent.putExtra(ReactNativeActivity.MODULE_NAME, "ReactNative");
+        startActivity(intent);
+    }
+
+    public void startReactNativeFragment(View view) {
+        Intent intent = new Intent(this, ReactNativeFragmentActivity.class);
         startActivity(intent);
     }
 }
