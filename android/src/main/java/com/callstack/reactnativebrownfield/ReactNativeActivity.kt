@@ -15,17 +15,9 @@ import com.facebook.react.bridge.Callback
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 
+private const val MODULE_NAME = "com.callstack.reactnativebrownfield.ACTIVITY_MODULE_NAME"
+
 class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, PermissionAwareActivity {
-    companion object {
-        const val MODULE_NAME = "com.callstack.reactnativebrownfield.MODULE_NAME"
-
-        fun createReactActivityIntent(context: Context, moduleName: String): Intent {
-            val intent = Intent(context, ReactNativeActivity::class.java)
-            intent.putExtra(ReactNativeActivity.MODULE_NAME, "ReactNative")
-            return intent
-        }
-    }
-
     private var reactRootView: ReactRootView? = null
     private lateinit var moduleName: String
     private lateinit var doubleTapReloadRecognizer: DoubleTapReloadRecognizer
@@ -149,6 +141,15 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
                 permissionListener = null
             }
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun createReactActivityIntent(context: Context, moduleName: String): Intent {
+            val intent = Intent(context, ReactNativeActivity::class.java)
+            intent.putExtra(MODULE_NAME, moduleName)
+            return intent
         }
     }
 }

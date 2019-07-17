@@ -22,7 +22,7 @@ public class ReactNativeFragmentActivity extends AppCompatActivity implements De
         setContentView(R.layout.activity_react_native_fragment);
 
         if (savedInstanceState == null) {
-            ReactNativeFragment reactNativeFragment = ReactNativeFragment.Companion.createReactNativeFragment("ReactNative");
+            ReactNativeFragment reactNativeFragment = ReactNativeFragment.createReactNativeFragment("ReactNative");
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container_main, reactNativeFragment)
                     .commit();

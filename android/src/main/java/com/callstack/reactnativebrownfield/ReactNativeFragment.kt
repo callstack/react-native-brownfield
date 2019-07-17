@@ -17,6 +17,8 @@ import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 
+private const val MODULE_NAME = "com.callstack.reactnativebrownfield.FRAGMENT_MODULE_NAME"
+
 class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     private var reactRootView: ReactRootView? = null
@@ -145,8 +147,7 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
     }
 
     companion object {
-        const val MODULE_NAME = "com.callstack.reactnativebrownfield.MODULE_NAME"
-
+        @JvmStatic
         fun createReactNativeFragment(moduleName: String): ReactNativeFragment {
             val fragment = ReactNativeFragment()
             val args = Bundle()

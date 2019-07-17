@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startReactNative(View view) {
-        Intent intent = ReactNativeActivity.Companion.createReactActivityIntent(
+        Intent intent = ReactNativeActivity.createReactActivityIntent(
                 this,
                 "ReactNative"
         );

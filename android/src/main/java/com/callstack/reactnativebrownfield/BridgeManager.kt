@@ -1,10 +1,8 @@
 package com.callstack.reactnativebrownfield
 
 import android.app.Application
-import com.facebook.react.ReactInstanceManager
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
-import com.facebook.react.bridge.ReactContext
 import com.facebook.soloader.SoLoader
 import java.util.concurrent.atomic.AtomicBoolean
 
