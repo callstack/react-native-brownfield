@@ -1,6 +1,8 @@
 package com.callstack.reactnativebrownfield;
 
 import android.annotation.TargetApi
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,6 +13,9 @@ import android.view.ViewGroup
 import com.facebook.infer.annotation.Assertions
 import com.facebook.react.ReactRootView
 import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.common.LifecycleState
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
@@ -18,6 +23,7 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 
 private const val MODULE_NAME = "com.callstack.reactnativebrownfield.FRAGMENT_MODULE_NAME"
+private const val INITIAL_PROPS = "com.callstack.reactnativebrownfield.FRAGMENT_INITIAL_PROPS"
 
 class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
@@ -29,9 +35,17 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        moduleName = arguments!!.getString(MODULE_NAME)!!
+        moduleName = arguments?.getString(MODULE_NAME)!!
+        val initialProps = arguments?.getBundle(INITIAL_PROPS)
 
         doubleTapReloadRecognizer = DoubleTapReloadRecognizer()
+
+        reactRootView = ReactRootView(context)
+        reactRootView?.startReactApplication(
+            BridgeManager.shared.reactNativeHost.reactInstanceManager,
+            moduleName,
+            null
+        )
     }
 
 
@@ -40,14 +54,6 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        reactRootView = ReactRootView(context)
-        reactRootView?.startReactApplication(
-            BridgeManager.shared.reactNativeHost.reactInstanceManager,
-            moduleName,
-            null
-        )
-
         return reactRootView!!
     }
 
@@ -148,12 +154,49 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     companion object {
         @JvmStatic
-        fun createReactNativeFragment(moduleName: String): ReactNativeFragment {
+        @JvmOverloads
+        fun createReactNativeFragment(moduleName: String, initialProps: Bundle? = null): ReactNativeFragment {
             val fragment = ReactNativeFragment()
             val args = Bundle()
             args.putString(MODULE_NAME, moduleName)
+            if (initialProps != null) {
+                args.putBundle(INITIAL_PROPS, initialProps)
+            }
             fragment.arguments = args
             return fragment
+        }
+
+        @JvmStatic
+        fun createReactNativeFragment(moduleName: String, initialProps: WritableMap): ReactNativeFragment {
+            val bundle = Bundle()
+            initialProps.toHashMap().forEach {
+                when (it.value) {
+                    // Should we go recursively with arrays and maps?
+                    is ReadableArray -> {
+                        bundle.putSerializable(it.key, (it.value as ReadableArray).toArrayList())
+                    }
+                    is ReadableMap -> {
+                        bundle.putSerializable(it.key, (it.value as ReadableMap).toHashMap())
+                    }
+                    is Boolean -> {
+                        bundle.putBoolean(it.key, it.value as Boolean)
+                    }
+                    is Int -> {
+                        bundle.putInt(it.key, it.value as Int)
+                    }
+                    is String -> {
+                        bundle.putString(it.key, it.value as String)
+                    }
+                    is Double -> {
+                        bundle.putDouble(it.key, it.value as Double)
+                    }
+                    else -> {
+                        bundle.putSerializable(it.key, null)
+                    }
+                }
+            }
+
+            return createReactNativeFragment(moduleName, bundle)
         }
     }
 

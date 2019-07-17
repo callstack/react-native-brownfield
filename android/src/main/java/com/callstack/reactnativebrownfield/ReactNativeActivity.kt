@@ -12,10 +12,14 @@ import com.facebook.react.ReactRootView
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 
 private const val MODULE_NAME = "com.callstack.reactnativebrownfield.ACTIVITY_MODULE_NAME"
+private const val INITIAL_PROPS = "com.callstack.reactnativebrownfield.ACTIVITY_INITIAL_PROPS"
 
 class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, PermissionAwareActivity {
     private var reactRootView: ReactRootView? = null
@@ -28,12 +32,13 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
         super.onCreate(savedInstanceState)
 
         moduleName = intent.getStringExtra(MODULE_NAME)
+        val initialProps = intent.getBundleExtra(INITIAL_PROPS)
 
         reactRootView = ReactRootView(this)
         reactRootView?.startReactApplication(
             BridgeManager.shared.reactNativeHost.reactInstanceManager,
             moduleName,
-            null
+            initialProps
         )
 
         supportActionBar?.hide()
@@ -146,10 +151,47 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
     companion object {
         @JvmStatic
-        fun createReactActivityIntent(context: Context, moduleName: String): Intent {
+        @JvmOverloads
+        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: Bundle? = null): Intent {
             val intent = Intent(context, ReactNativeActivity::class.java)
             intent.putExtra(MODULE_NAME, moduleName)
+            if (initialProps != null) {
+                intent.putExtra(INITIAL_PROPS, initialProps)
+            }
             return intent
+        }
+
+        @JvmStatic
+        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: WritableMap): Intent {
+            val bundle = Bundle()
+            initialProps.toHashMap().forEach {
+                when (it.value) {
+                    // Should we go recursively with arrays and maps?
+                    is ReadableArray -> {
+                       bundle.putSerializable(it.key, (it.value as ReadableArray).toArrayList())
+                    }
+                    is ReadableMap -> {
+                        bundle.putSerializable(it.key, (it.value as ReadableMap).toHashMap())
+                    }
+                    is Boolean -> {
+                        bundle.putBoolean(it.key, it.value as Boolean)
+                    }
+                    is Int -> {
+                        bundle.putInt(it.key, it.value as Int)
+                    }
+                    is String -> {
+                        bundle.putString(it.key, it.value as String)
+                    }
+                    is Double -> {
+                        bundle.putDouble(it.key, it.value as Double)
+                    }
+                    else -> {
+                        bundle.putSerializable(it.key, null)
+                    }
+                }
+            }
+
+            return createReactActivityIntent(context, moduleName, bundle)
         }
     }
 }
