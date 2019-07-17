@@ -1,16 +1,13 @@
 package com.callstack.reactnativebrownfield
 
 import android.annotation.TargetApi
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.appcompat.app.AppCompatActivity
 import com.facebook.infer.annotation.Assertions
 import com.facebook.react.ReactActivity
-import com.facebook.react.ReactActivityDelegate
-import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactRootView
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.PermissionListener
@@ -18,11 +15,9 @@ import com.facebook.react.bridge.Callback
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 
-class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, PermissionAwareActivity {
-    companion object {
-        const val MODULE_NAME = "com.callstack.reactnativebrownfield.MODULE_NAME"
-    }
+private const val MODULE_NAME = "com.callstack.reactnativebrownfield.ACTIVITY_MODULE_NAME"
 
+class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, PermissionAwareActivity {
     private var reactRootView: ReactRootView? = null
     private lateinit var moduleName: String
     private lateinit var doubleTapReloadRecognizer: DoubleTapReloadRecognizer
@@ -55,6 +50,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
         if (BridgeManager.shared.reactNativeHost.hasInstance()) {
             BridgeManager.shared.reactNativeHost.reactInstanceManager?.onHostDestroy(this)
+            BridgeManager.shared.reactNativeHost.clear()
         }
     }
 
@@ -88,7 +84,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
                 return true
             }
             val didDoubleTapR = Assertions.assertNotNull(doubleTapReloadRecognizer)
-                .didDoubleTapR(keyCode, this.getCurrentFocus())
+                .didDoubleTapR(keyCode, this.currentFocus)
             if (didDoubleTapR) {
                 BridgeManager.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
                 return true
@@ -145,6 +141,15 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
                 permissionListener = null
             }
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun createReactActivityIntent(context: Context, moduleName: String): Intent {
+            val intent = Intent(context, ReactNativeActivity::class.java)
+            intent.putExtra(MODULE_NAME, moduleName)
+            return intent
         }
     }
 }
