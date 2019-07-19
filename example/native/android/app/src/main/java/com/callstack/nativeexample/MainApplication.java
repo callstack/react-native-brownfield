@@ -2,11 +2,11 @@ package com.callstack.nativeexample;
 
 import android.app.Application;
 import android.util.Log;
+import com.callstack.reactnativebrownfield.BridgeManager;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.callstack.reactnativebrownfield.BridgeManagerJava;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,15 +20,14 @@ public class MainApplication extends Application implements ReactApplication {
         options.put("packages", packages);
         options.put("mainModuleName", "example/native/index");
 
-        BridgeManagerJava.initialize(options, this);
-        BridgeManagerJava.getShared().startReactNative(init -> {
+        BridgeManager.initialize(options, this);
+        BridgeManager.getShared().startReactNative(init -> {
             Log.d("test", "test");
         });
-
     }
 
     @Override
     public ReactNativeHost getReactNativeHost() {
-        return BridgeManagerJava.getShared().getReactNativeHost();
+        return BridgeManager.getShared().getReactNativeHost();
     }
 }

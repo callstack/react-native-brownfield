@@ -6,13 +6,19 @@ import com.facebook.react.ReactPackage
 import com.facebook.soloader.SoLoader
 import java.util.concurrent.atomic.AtomicBoolean
 
+interface InitializedCallback {
+  operator fun invoke(initialized: Boolean)
+}
+
 class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
   companion object {
     private lateinit var instance: BridgeManager
     private val initialized = AtomicBoolean()
 
+    @JvmStatic
     val shared: BridgeManager get() = instance
 
+    @JvmStatic
     fun initialize(rnHost: ReactNativeHost, application: Application) {
       if(!initialized.getAndSet(true)) {
         instance = BridgeManager(rnHost)
@@ -20,6 +26,7 @@ class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
       }
     }
 
+    @JvmStatic
     fun initialize(options: HashMap<String, Any>, application: Application) {
       val rnHost = object : ReactNativeHost(application) {
         override fun getUseDeveloperSupport(): Boolean {
@@ -39,6 +46,7 @@ class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
       initialize(rnHost, application)
     }
 
+    @JvmStatic
     fun initialize(packages: List<ReactPackage>, application: Application) {
       val options = hashMapOf("packages" to packages, "mainModuleName" to "index")
 
@@ -46,10 +54,14 @@ class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
     }
   }
 
+  fun startReactNative(callback: InitializedCallback?) {
+    startReactNative { callback?.invoke(it) }
+  }
 
-  fun startReactNative(listener: ((initialized: Boolean) -> Unit)?) {
-    if (listener != null) {
-      reactNativeHost.reactInstanceManager?.addReactInstanceEventListener { listener(true) }
+  @JvmName("startReactNativeKotlin")
+  fun startReactNative(callback: ((initialized: Boolean) -> Unit)?) {
+    if (callback != null) {
+      reactNativeHost.reactInstanceManager?.addReactInstanceEventListener { callback(true) }
     }
 
     reactNativeHost.reactInstanceManager?.createReactContextInBackground()

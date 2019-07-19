@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import com.facebook.infer.annotation.Assertions
 import com.facebook.react.ReactRootView
 import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.common.LifecycleState
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
@@ -18,20 +19,28 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 
 private const val MODULE_NAME = "com.callstack.reactnativebrownfield.FRAGMENT_MODULE_NAME"
+private const val INITIAL_PROPS = "com.callstack.reactnativebrownfield.FRAGMENT_INITIAL_PROPS"
 
 class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     private var reactRootView: ReactRootView? = null
-    private lateinit var moduleName: String
     private lateinit var doubleTapReloadRecognizer: DoubleTapReloadRecognizer
     private lateinit var permissionsCallback: Callback
     private var permissionListener: PermissionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        moduleName = arguments!!.getString(MODULE_NAME)!!
+        val moduleName = arguments?.getString(MODULE_NAME)!!
+        val initialProps = arguments?.getBundle(INITIAL_PROPS)
 
         doubleTapReloadRecognizer = DoubleTapReloadRecognizer()
+
+        reactRootView = ReactRootView(context)
+        reactRootView?.startReactApplication(
+            BridgeManager.shared.reactNativeHost.reactInstanceManager,
+            moduleName,
+            initialProps
+        )
     }
 
 
@@ -40,14 +49,6 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        reactRootView = ReactRootView(context)
-        reactRootView?.startReactApplication(
-            BridgeManager.shared.reactNativeHost.reactInstanceManager,
-            moduleName,
-            null
-        )
-
         return reactRootView!!
     }
 
@@ -148,12 +149,26 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     companion object {
         @JvmStatic
-        fun createReactNativeFragment(moduleName: String): ReactNativeFragment {
+        @JvmOverloads
+        fun createReactNativeFragment(moduleName: String, initialProps: Bundle? = null): ReactNativeFragment {
             val fragment = ReactNativeFragment()
             val args = Bundle()
             args.putString(MODULE_NAME, moduleName)
+            if (initialProps != null) {
+                args.putBundle(INITIAL_PROPS, initialProps)
+            }
             fragment.arguments = args
             return fragment
+        }
+
+        @JvmStatic
+        fun createReactNativeFragment(moduleName: String, initialProps: HashMap<String, *>): ReactNativeFragment {
+            return createReactNativeFragment(moduleName, PropsBundle.fromHashMap(initialProps))
+        }
+
+        @JvmStatic
+        fun createReactNativeFragment(moduleName: String, initialProps: WritableMap): ReactNativeFragment {
+            return createReactNativeFragment(moduleName, initialProps.toHashMap())
         }
     }
 

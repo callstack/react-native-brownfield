@@ -12,14 +12,15 @@ import com.facebook.react.ReactRootView
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 
 private const val MODULE_NAME = "com.callstack.reactnativebrownfield.ACTIVITY_MODULE_NAME"
+private const val INITIAL_PROPS = "com.callstack.reactnativebrownfield.ACTIVITY_INITIAL_PROPS"
 
 class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, PermissionAwareActivity {
     private var reactRootView: ReactRootView? = null
-    private lateinit var moduleName: String
     private lateinit var doubleTapReloadRecognizer: DoubleTapReloadRecognizer
     private lateinit var permissionsCallback: Callback
     private var permissionListener: PermissionListener? = null
@@ -27,13 +28,14 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        moduleName = intent.getStringExtra(MODULE_NAME)
+        val moduleName = intent.getStringExtra(MODULE_NAME)
+        val initialProps = intent.getBundleExtra(INITIAL_PROPS)
 
         reactRootView = ReactRootView(this)
         reactRootView?.startReactApplication(
             BridgeManager.shared.reactNativeHost.reactInstanceManager,
             moduleName,
-            null
+            initialProps
         )
 
         supportActionBar?.hide()
@@ -146,10 +148,24 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
     companion object {
         @JvmStatic
-        fun createReactActivityIntent(context: Context, moduleName: String): Intent {
+        @JvmOverloads
+        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: Bundle? = null): Intent {
             val intent = Intent(context, ReactNativeActivity::class.java)
             intent.putExtra(MODULE_NAME, moduleName)
+            if (initialProps != null) {
+                intent.putExtra(INITIAL_PROPS, initialProps)
+            }
             return intent
+        }
+
+        @JvmStatic
+        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: HashMap<String, *>): Intent {
+            return createReactActivityIntent(context, moduleName, PropsBundle.fromHashMap(initialProps))
+        }
+
+        @JvmStatic
+        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: ReadableMap): Intent {
+            return createReactActivityIntent(context, moduleName, initialProps.toHashMap())
         }
     }
 }
