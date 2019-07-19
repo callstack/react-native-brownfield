@@ -12,9 +12,7 @@ import com.facebook.react.ReactRootView
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.bridge.Callback
-import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 
@@ -23,7 +21,6 @@ private const val INITIAL_PROPS = "com.callstack.reactnativebrownfield.ACTIVITY_
 
 class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, PermissionAwareActivity {
     private var reactRootView: ReactRootView? = null
-    private lateinit var moduleName: String
     private lateinit var doubleTapReloadRecognizer: DoubleTapReloadRecognizer
     private lateinit var permissionsCallback: Callback
     private var permissionListener: PermissionListener? = null
@@ -31,7 +28,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        moduleName = intent.getStringExtra(MODULE_NAME)
+        val moduleName = intent.getStringExtra(MODULE_NAME)
         val initialProps = intent.getBundleExtra(INITIAL_PROPS)
 
         reactRootView = ReactRootView(this)
@@ -162,36 +159,13 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
         }
 
         @JvmStatic
-        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: WritableMap): Intent {
-            val bundle = Bundle()
-            initialProps.toHashMap().forEach {
-                when (it.value) {
-                    // Should we go recursively with arrays and maps?
-                    is ReadableArray -> {
-                       bundle.putSerializable(it.key, (it.value as ReadableArray).toArrayList())
-                    }
-                    is ReadableMap -> {
-                        bundle.putSerializable(it.key, (it.value as ReadableMap).toHashMap())
-                    }
-                    is Boolean -> {
-                        bundle.putBoolean(it.key, it.value as Boolean)
-                    }
-                    is Int -> {
-                        bundle.putInt(it.key, it.value as Int)
-                    }
-                    is String -> {
-                        bundle.putString(it.key, it.value as String)
-                    }
-                    is Double -> {
-                        bundle.putDouble(it.key, it.value as Double)
-                    }
-                    else -> {
-                        bundle.putSerializable(it.key, null)
-                    }
-                }
-            }
+        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: HashMap<String, *>): Intent {
+            return createReactActivityIntent(context, moduleName, PropsBundle.fromHashMap(initialProps))
+        }
 
-            return createReactActivityIntent(context, moduleName, bundle)
+        @JvmStatic
+        fun createReactActivityIntent(context: Context, moduleName: String, initialProps: ReadableMap): Intent {
+            return createReactActivityIntent(context, moduleName, initialProps.toHashMap())
         }
     }
 }
