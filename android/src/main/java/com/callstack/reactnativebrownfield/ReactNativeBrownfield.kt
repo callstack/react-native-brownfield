@@ -10,18 +10,18 @@ interface InitializedCallback {
   operator fun invoke(initialized: Boolean)
 }
 
-class BridgeManager private constructor(val reactNativeHost: ReactNativeHost) {
+class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNativeHost) {
   companion object {
-    private lateinit var instance: BridgeManager
+    private lateinit var instance: ReactNativeBrownfield
     private val initialized = AtomicBoolean()
 
     @JvmStatic
-    val shared: BridgeManager get() = instance
+    val shared: ReactNativeBrownfield get() = instance
 
     @JvmStatic
     fun initialize(rnHost: ReactNativeHost, application: Application) {
       if(!initialized.getAndSet(true)) {
-        instance = BridgeManager(rnHost)
+        instance = ReactNativeBrownfield(rnHost)
         SoLoader.init(application.applicationContext,false)
       }
     }

@@ -37,7 +37,7 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
         reactRootView = ReactRootView(context)
         reactRootView?.startReactApplication(
-            BridgeManager.shared.reactNativeHost.reactInstanceManager,
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager,
             moduleName,
             initialProps
         )
@@ -54,8 +54,8 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     override fun onResume() {
         super.onResume()
-        if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-            BridgeManager.shared.reactNativeHost.reactInstanceManager?.onHostResume(
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager?.onHostResume(
                 activity,
                 activity as DefaultHardwareBackBtnHandler
             )
@@ -64,8 +64,8 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     override fun onPause() {
         super.onPause()
-        if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-            BridgeManager.shared.reactNativeHost.reactInstanceManager?.onHostPause(
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager?.onHostPause(
                 activity
             )
         }
@@ -75,12 +75,12 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
         super.onDestroy()
         reactRootView?.unmountReactApplication()
         reactRootView = null
-        if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-            val reactInstanceMgr = BridgeManager.shared.reactNativeHost.reactInstanceManager
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+            val reactInstanceMgr = ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager
 
             if (reactInstanceMgr.lifecycleState != LifecycleState.RESUMED) {
                 reactInstanceMgr.onHostDestroy(activity)
-                BridgeManager.shared.reactNativeHost.clear()
+                ReactNativeBrownfield.shared.reactNativeHost.clear()
             }
         }
     }
@@ -124,15 +124,15 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
     fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         var handled = false
-        if (BridgeManager.shared.reactNativeHost.useDeveloperSupport && BridgeManager.shared.reactNativeHost.hasInstance()) {
+        if (ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport && ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
             if (keyCode == KeyEvent.KEYCODE_MENU) {
-                BridgeManager.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
+                ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
                 handled = true
             }
             val didDoubleTapR = Assertions.assertNotNull(doubleTapReloadRecognizer)
                 .didDoubleTapR(keyCode, activity?.currentFocus)
             if (didDoubleTapR) {
-                BridgeManager.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
+                ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
                 handled = true
             }
         }
@@ -142,8 +142,8 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
     fun onBackPressed(backBtnHandler: DefaultHardwareBackBtnHandler) {
         if(ReactNativeBrownfieldModule.shouldPopToNative) {
             backBtnHandler.invokeDefaultOnBackPressed()
-        } else if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-            BridgeManager.shared.reactNativeHost.reactInstanceManager.onBackPressed()
+        } else if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.onBackPressed()
         }
     }
 

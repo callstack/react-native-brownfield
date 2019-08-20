@@ -1,6 +1,11 @@
 import React from 'react';
-import {AppRegistry, StyleSheet, Text, View, NativeModules, Button, Image, BackHandler} from 'react-native';
-import {createStackNavigator, createAppContainer, NavigationEvents} from 'react-navigation';
+import {AppRegistry, StyleSheet, Text, View, Button} from 'react-native';
+import {
+  createStackNavigator,
+  createAppContainer,
+  NavigationEvents,
+} from 'react-navigation';
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 
 const getRandomTheme = () => {
   const getRandomValue = () => Math.round(Math.random() * 255);
@@ -12,12 +17,12 @@ const getRandomTheme = () => {
     primary: `rgb(${primary[0]}, ${primary[1]}, ${primary[2]})`,
     secondary: `rgb(${secondary[0]}, ${secondary[1]}, ${secondary[2]})`,
   };
-}
+};
 
 class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
-  }
+  };
 
   render() {
     const colors = this.props.navigation.getParam('theme', getRandomTheme());
@@ -27,12 +32,15 @@ class HomeScreen extends React.Component {
       <>
         <NavigationEvents
           onWillFocus={() => {
-            const isFirstRoute = this.props.navigation.isFirstRouteInParent();
-            NativeModules.ReactNativeBrownfield.setPopGestureRecognizer(isFirstRoute);
+            ReactNativeBrownfield.setNativeGesturesAndButtonsEnabled(
+              isFirstRoute,
+            );
           }}
         />
         <View style={[styles.container, {backgroundColor: colors.primary}]}>
-          <Text style={[styles.text, {color: colors.secondary}]}>React Native Screen</Text>
+          <Text style={[styles.text, {color: colors.secondary}]}>
+            React Native Screen
+          </Text>
 
           <Button
             onPress={() => {
@@ -47,10 +55,10 @@ class HomeScreen extends React.Component {
           <Button
             onPress={() => {
               if (isFirstRoute) {
-                NativeModules.ReactNativeBrownfield.popToNative(true);
+                ReactNativeBrownfield.popToNative(true);
               } else {
                 this.props.navigation.goBack();
-              }      
+              }
             }}
             color={colors.secondary}
             title="Go back"
@@ -76,8 +84,8 @@ const styles = StyleSheet.create({
 
 const AppNavigator = createStackNavigator({
   Home: {
-    screen: HomeScreen
-  }
+    screen: HomeScreen,
+  },
 });
 
 const App = createAppContainer(AppNavigator);

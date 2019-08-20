@@ -1,8 +1,8 @@
 #import "ReactNativeViewController.h"
 #import <React/RCTRootView.h>
 #import <React/RCTBridge.h>
-#import "BridgeManager.h"
-#import "RNBrownfieldNotifications.h"
+#import "ReactNativeBrownfield.h"
+#import "ReactNativeBrownfieldNotifications.h"
 
 @implementation ReactNativeViewController
 
@@ -17,7 +17,7 @@
 }
 
 -(void)viewDidLoad {
-    RCTBridge *bridge = [[BridgeManager shared] bridge];
+    RCTBridge *bridge = [[ReactNativeBrownfield shared] bridge];
     if (bridge == nil) {
         NSLog(@"Error: You need to start React Native in order to use ReactNativeViewController, make sure to run [[BridgeManager shared] startReactNative] before instantiating it.");
         return;

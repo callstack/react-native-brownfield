@@ -10,13 +10,13 @@ class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) : React
     }
 
     @ReactMethod
-    fun popToNative(test: Boolean) {
+    fun popToNative() {
         shouldPopToNative = true
         onBackPressed()
     }
 
     @ReactMethod
-    fun setPopGestureRecognizer(isFirstRoute: Boolean) {
+    fun setHardwareBackButtonEnabled(isFirstRoute: Boolean) {
         shouldPopToNative = isFirstRoute
     }
 

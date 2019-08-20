@@ -2,7 +2,7 @@ package com.callstack.nativeexample;
 
 import android.app.Application;
 import android.util.Log;
-import com.callstack.reactnativebrownfield.BridgeManager;
+import com.callstack.reactnativebrownfield.ReactNativeBrownfield;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
@@ -20,14 +20,14 @@ public class MainApplication extends Application implements ReactApplication {
         options.put("packages", packages);
         options.put("mainModuleName", "example/index");
 
-        BridgeManager.initialize(options, this);
-        BridgeManager.getShared().startReactNative(init -> {
+        ReactNativeBrownfield.initialize(options, this);
+        ReactNativeBrownfield.getShared().startReactNative(init -> {
             Log.d("test", "test");
         });
     }
 
     @Override
     public ReactNativeHost getReactNativeHost() {
-        return BridgeManager.getShared().getReactNativeHost();
+        return ReactNativeBrownfield.getShared().getReactNativeHost();
     }
 }

@@ -33,7 +33,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
         reactRootView = ReactRootView(this)
         reactRootView?.startReactApplication(
-            BridgeManager.shared.reactNativeHost.reactInstanceManager,
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager,
             moduleName,
             initialProps
         )
@@ -50,22 +50,22 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
         reactRootView?.unmountReactApplication()
         reactRootView = null
 
-        if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-            BridgeManager.shared.reactNativeHost.reactInstanceManager?.onHostDestroy(this)
-            BridgeManager.shared.reactNativeHost.clear()
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager?.onHostDestroy(this)
+            ReactNativeBrownfield.shared.reactNativeHost.clear()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-            BridgeManager.shared.reactNativeHost.reactInstanceManager?.onActivityResult(this, requestCode, resultCode, data)
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager?.onActivityResult(this, requestCode, resultCode, data)
         }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (BridgeManager.shared.reactNativeHost.hasInstance()
-            && BridgeManager.shared.reactNativeHost.useDeveloperSupport
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()
+            && ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport
             && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
         ) {
             event.startTracking()
@@ -79,16 +79,16 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
             onBackPressed()
             return true
         }
-        if (BridgeManager.shared.reactNativeHost.hasInstance()
-            && BridgeManager.shared.reactNativeHost.useDeveloperSupport) {
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()
+            && ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport) {
             if (keyCode == KeyEvent.KEYCODE_MENU) {
-                BridgeManager.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
+                ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
                 return true
             }
             val didDoubleTapR = Assertions.assertNotNull(doubleTapReloadRecognizer)
                 .didDoubleTapR(keyCode, this.currentFocus)
             if (didDoubleTapR) {
-                BridgeManager.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
+                ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
                 return true
             }
         }
@@ -96,11 +96,11 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
-        if (BridgeManager.shared.reactNativeHost.hasInstance()
-            && BridgeManager.shared.reactNativeHost.useDeveloperSupport
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()
+            && ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport
             && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
         ) {
-            BridgeManager.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
             return true
         }
         return false
@@ -109,8 +109,8 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
     override fun onBackPressed() {
         if(ReactNativeBrownfieldModule.shouldPopToNative) {
             super.invokeDefaultOnBackPressed()
-        } else if (BridgeManager.shared.reactNativeHost.hasInstance()) {
-            BridgeManager.shared.reactNativeHost.reactInstanceManager.onBackPressed()
+        } else if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+            ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.onBackPressed()
         }
     }
 
