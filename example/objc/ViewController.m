@@ -17,7 +17,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     BridgeManager *bridgeManager = [BridgeManager shared];
-    bridgeManager.jsBundleURLForBundleRoot = @"example/native/index";
+    bridgeManager.jsBundleURLForBundleRoot = @"example/index";
     [bridgeManager startReactNative:^(void){
         self.isReactNativeLoaded = YES;
     }];

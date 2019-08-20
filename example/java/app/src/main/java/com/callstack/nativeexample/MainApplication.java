@@ -18,7 +18,7 @@ public class MainApplication extends Application implements ReactApplication {
         List<ReactPackage> packages = new PackageList(this).getPackages();
         HashMap<String, Object> options = new HashMap<>();
         options.put("packages", packages);
-        options.put("mainModuleName", "example/native/index");
+        options.put("mainModuleName", "example/index");
 
         BridgeManager.initialize(options, this);
         BridgeManager.getShared().startReactNative(init -> {
