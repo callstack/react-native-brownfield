@@ -47,15 +47,8 @@ yarn add @callstack/react-native-brownfield
 React Native Brownfield library works with all major native programming languages.
 Click on the logo to choose the one that interests you:
 
-[<img src="https://user-images.githubusercontent.com/7837457/63374769-cafd1e80-c38a-11e9-9724-e797a199ebab.png" width="100px;" alt="Objective-C"/><br /><sub><b>Objective-C</b></sub>](docs/OBJECTIVE_C.md)
-
-[<img src="https://user-images.githubusercontent.com/7837457/63374778-ce90a580-c38a-11e9-8f37-72a9a5b9a52f.png" width="100px;" alt="Swift"/><br /><sub><b>Swift</b></sub>](docs/SWIFT.md)
-
-[<img src="https://user-images.githubusercontent.com/7837457/63374794-d2bcc300-c38a-11e9-9a7f-d538563b75db.png" width="100px;" alt="Java"/><br /><sub><b>Java</b></sub>](docs/JAVA.md)
-
-[<img src="https://user-images.githubusercontent.com/7837457/63374783-d0f2ff80-c38a-11e9-9790-041cad53b259.png" width="100px;" alt="Kotlin"/><br /><sub><b>Kotlin</b></sub>](docs/KOTLIN.md)
-
-
+| [<img src="https://user-images.githubusercontent.com/7837457/63374769-cafd1e80-c38a-11e9-9724-e797a199ebab.png" width="100px;" alt="Objective-C"/><br /><sub><b>Objective-C</b></sub>](docs/OBJECTIVE_C.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374778-ce90a580-c38a-11e9-8f37-72a9a5b9a52f.png" width="100px;" alt="Swift"/><br /><sub><b>Swift</b></sub>](docs/SWIFT.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374794-d2bcc300-c38a-11e9-9a7f-d538563b75db.png" width="100px;" alt="Java"/><br /><sub><b>Java</b></sub>](docs/JAVA.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374783-d0f2ff80-c38a-11e9-9790-041cad53b259.png" width="100px;" alt="Kotlin"/><br /><sub><b>Kotlin</b></sub>](docs/KOTLIN.md) |
+| :---: | :---: | :---: | :---: |
 
 ## Made with ❤️ at Callstack
 
@@ -68,6 +61,8 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
 | [<img src="https://avatars0.githubusercontent.com/u/7837457?s=460&v=4" width="100px;" alt="Michał Chudziak"/><br /><sub><b>Michał Chudziak</b></sub>](https://twitter.com/michalchudziak)<br />[💻](https://github.com/callstack/linaria/commits?author=michalchudziak "Code") [📖](https://github.com/callstack/linaria/commits?author=michalchudziak "Documentation") [🤔](#ideas-michalchudziak "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/16336501?s=400&v=4" width="100px;" alt="Piotr Drapich"/><br /><sub><b>Piotr Drapich</b></sub>](https://twitter.com/dratwas)<br />[💻](https://github.com/callstack/linaria/commits?author=dratwas "Code") [🤔](#ideas-dratwas "Ideas, Planning, & Feedback") |
+| :---: | :---: | :---: | :---: |
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
