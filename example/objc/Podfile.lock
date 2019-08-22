@@ -109,7 +109,7 @@ DEPENDENCIES:
   - React-RCTText (from `../../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../../node_modules/react-native/Libraries/Vibration`)
   - React-RCTWebSocket (from `../../node_modules/react-native/Libraries/WebSocket`)
-  - ReactNativeBrownfield (from `../../ios`)
+  - ReactNativeBrownfield (from `../../`)
   - RNGestureHandler (from `../../node_modules/react-native-gesture-handler`)
   - yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -161,7 +161,7 @@ EXTERNAL SOURCES:
   React-RCTWebSocket:
     :path: "../../node_modules/react-native/Libraries/WebSocket"
   ReactNativeBrownfield:
-    :path: "../../ios"
+    :path: "../../"
   RNGestureHandler:
     :path: "../../node_modules/react-native-gesture-handler"
   yoga:
@@ -190,10 +190,10 @@ SPEC CHECKSUMS:
   React-RCTText: 685fca2e13b024271048e7e247ef24476f28a41e
   React-RCTVibration: 4ee1cf208ab17a50fafb1c16ffe28fe594a64e4f
   React-RCTWebSocket: fca087d583724aa0e5fef7d911f0f2a28d0f2736
-  ReactNativeBrownfield: 9ea6e9bee9cbe4389598631670e815997024ff2a
+  ReactNativeBrownfield: af3caba0d9116aaec5964348258636293fa94f7c
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   yoga: 616fde658be980aa60a2158835170f3f9c2d04b4
 
-PODFILE CHECKSUM: 9eb067650fd7e3b5b51f03a2fce8acb6f2d9b5f3
+PODFILE CHECKSUM: ba373afec6fc96ea314dd755df3ac5ef81b30999
 
 COCOAPODS: 1.7.3

@@ -29,6 +29,4 @@ target 'NativeExample' do
 
   use_native_modules!('../..')
 
-  pod 'ReactNativeBrownfield', :path => '../../ios'
-
 end
