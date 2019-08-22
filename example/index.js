@@ -32,7 +32,7 @@ class HomeScreen extends React.Component {
       <>
         <NavigationEvents
           onWillFocus={() => {
-            ReactNativeBrownfield.setNativeGesturesAndButtonsEnabled(
+            ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(
               isFirstRoute,
             );
           }}

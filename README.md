@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="React Native Brownfield" src="https://user-images.githubusercontent.com/7837457/63517391-33651080-c4ef-11e9-88ca-a14374400ed4.png" width="496">
+  <img alt="React Native Brownfield" src="https://user-images.githubusercontent.com/7837457/63517391-33651080-c4ef-11e9-88ca-a14374400ed4.png" width="800">
 </p>
 
 <p align="center">
@@ -59,7 +59,7 @@ To use the module, simply import it:
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 ```
 
-#### JavaScript API Reference:
+### JavaScript API Reference:
 
 **setNativeBackGestureAndButtonEnabled(enabled: boolean)**
 

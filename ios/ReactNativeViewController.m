@@ -10,8 +10,14 @@
 @synthesize initialProperties = _initialProperties;
 
 -(instancetype)initWithModuleName:(NSString *)moduleName {
+    return [self initWithModuleName:moduleName andInitialProperties:nil];
+}
+
+-(instancetype)initWithModuleName:(NSString *)moduleName
+             andInitialProperties:(NSDictionary*)initialProperties {
     self = [super init];
     _moduleName = moduleName;
+    _initialProperties = initialProperties;
     
     return self;
 }
