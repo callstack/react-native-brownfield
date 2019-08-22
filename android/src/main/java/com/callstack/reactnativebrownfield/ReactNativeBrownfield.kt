@@ -19,7 +19,7 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     val shared: ReactNativeBrownfield get() = instance
 
     @JvmStatic
-    fun initialize(rnHost: ReactNativeHost, application: Application) {
+    fun initialize(application: Application, rnHost: ReactNativeHost) {
       if(!initialized.getAndSet(true)) {
         instance = ReactNativeBrownfield(rnHost)
         SoLoader.init(application.applicationContext,false)
@@ -27,7 +27,7 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     }
 
     @JvmStatic
-    fun initialize(options: HashMap<String, Any>, application: Application) {
+    fun initialize(application: Application, options: HashMap<String, Any>) {
       val rnHost = object : ReactNativeHost(application) {
         override fun getUseDeveloperSupport(): Boolean {
           return options["useDeveloperSupport"] as? Boolean ?: BuildConfig.DEBUG
@@ -43,14 +43,14 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
         }
       }
 
-      initialize(rnHost, application)
+      initialize(application, rnHost)
     }
 
     @JvmStatic
-    fun initialize(packages: List<ReactPackage>, application: Application) {
+    fun initialize(application: Application, packages: List<ReactPackage>) {
       val options = hashMapOf("packages" to packages, "mainModuleName" to "index")
 
-      initialize(options, application)
+      initialize(application, options)
     }
   }
 

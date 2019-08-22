@@ -1,6 +1,6 @@
 ## Objective-C
 
-React Native brownfield provides first-class support for Objective-C.
+React Native Brownfield provides first-class support for Objective-C.
 
 ### Linking
 
@@ -16,6 +16,7 @@ Run the following command in your terminal:
 </details>
 
 <details>
+<summary>CocoaPods</summary>
 Add the following line to your `Podfile`:
 
 ```ruby
@@ -51,9 +52,13 @@ You can import the object from:
 
 ---
 
-**`shared` instance**
+**Statics:**
+
+`shared`
 
 A singleton that keeps an instance of ReactNativeBrownfield object.
+
+Examples:
 
 ```objc
   [ReactNativeBrownfield shared]

@@ -20,7 +20,7 @@ public class MainApplication extends Application implements ReactApplication {
         options.put("packages", packages);
         options.put("mainModuleName", "example/index");
 
-        ReactNativeBrownfield.initialize(options, this);
+        ReactNativeBrownfield.initialize(this, options);
         ReactNativeBrownfield.getShared().startReactNative(init -> {
             Log.d("test", "test");
         });
