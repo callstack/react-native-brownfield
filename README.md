@@ -1,5 +1,5 @@
 <p align="center">
-  <!-- <img alt="React Native Brownfield" src="assets/brownfield-logo@2x.png" width="496"> -->
+  <img alt="React Native Brownfield" src="https://user-images.githubusercontent.com/7837457/63517391-33651080-c4ef-11e9-88ca-a14374400ed4.png" width="496">
 </p>
 
 <p align="center">
@@ -44,11 +44,40 @@ yarn add @callstack/react-native-brownfield
 
 ## Usage
 
-React Native Brownfield library works with all major native programming languages.
-Click on the logo to choose the one that interests you:
+React Native Brownfield library works with all major native programming languages. Majority of its API is exposed on the native side. Click on the logo to choose the one that interests you:
 
 | [<img src="https://user-images.githubusercontent.com/7837457/63374769-cafd1e80-c38a-11e9-9724-e797a199ebab.png" width="100px;" alt="Objective-C"/><br /><sub><b>Objective-C</b></sub>](docs/OBJECTIVE_C.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374778-ce90a580-c38a-11e9-8f37-72a9a5b9a52f.png" width="100px;" alt="Swift"/><br /><sub><b>Swift</b></sub>](docs/SWIFT.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374794-d2bcc300-c38a-11e9-9a7f-d538563b75db.png" width="100px;" alt="Java"/><br /><sub><b>Java</b></sub>](docs/JAVA.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374783-d0f2ff80-c38a-11e9-9790-041cad53b259.png" width="100px;" alt="Kotlin"/><br /><sub><b>Kotlin</b></sub>](docs/KOTLIN.md) |
 | :---: | :---: | :---: | :---: |
+
+### JavaScript Module
+
+Besides native components, we are exposing JavaScript functions to control the behavior of those components.
+
+To use the module, simply import it:
+
+```js
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+```
+
+#### JavaScript API Reference:
+
+**setNativeBackGestureAndButtonEnabled(enabled: boolean)**
+
+A method used to toggle iOS native back gesture and Android hardware back button. 
+
+```js
+ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(true);
+```
+
+**popToNative(animated[iOS only]: boolean)**
+
+A method to pop to native screen used to push React Native experience. 
+
+```js
+ReactNativeBrownfield.popToNative(true);
+```
+
+> NOTE: Those methods works only with native components provided by this library.
 
 ## Made with ❤️ at Callstack
 
