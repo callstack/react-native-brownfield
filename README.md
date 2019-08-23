@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="React Native Brownfield" src="https://user-images.githubusercontent.com/7837457/63517391-33651080-c4ef-11e9-88ca-a14374400ed4.png" width="800">
+  <img alt="React Native Brownfield" src="https://user-images.githubusercontent.com/7837457/63594721-7f7b8800-c5b7-11e9-87ef-a0898cd22fcc.png" width="800">
 </p>
 
 <p align="center">

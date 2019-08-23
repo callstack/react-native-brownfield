@@ -1,4 +1,4 @@
-## Objective-C
+## Java
 
 React Native Brownfield provides first-class support for Java.
 
@@ -72,12 +72,12 @@ A function used to initialize a React Native Brownfield singleton. Keep in mind 
 
 Params:
 
-| Param                   | Required | Type                 | Description                                             |
-| ----------------------- | -------- | -------------------- | ------------------------------------------------------- |
-| application             | Yes      | Application          | Main application.                                       |
-| rnHost                  | No*      | ReactNativeHost      | A instance of [ReactNativeHost](https://bit.ly/2ZnwgnA). |
-| packages                | No*      | List<ReactPackage>   | List of your React Native Native modules. |
-| options                 | No*      | HashMap<String, Any> | Map of initial options. __Options listed below.__ |
+| Param                   | Required | Type                 | Description                                               |
+| ----------------------- | -------- | -------------------- | --------------------------------------------------------- |
+| application             | Yes      | Application          | Main application.                                         |
+| rnHost                  | No*      | ReactNativeHost      | An instance of [ReactNativeHost](https://bit.ly/2ZnwgnA). |
+| packages                | No*      | List<ReactPackage>   | List of your React Native Native modules.                 |
+| options                 | No*      | HashMap<String, Any> | Map of initial options. __Options listed below.__         |
 
 > * - Those fields aren't itself required, but at least one of them is. See examples below.
 
@@ -144,12 +144,9 @@ Examples:
 
 **Properties:**
 
-| Property                   | Type      | Default        | Description                                        |
-| --------------------       | --------- | -------------- | -------------------------------------------------- |
-| bridge                     | RCTBridge | nil            | Launch options, typically passed from AppDelegate. |
-| entryFile                  | NSString  | index          | Path to JavaScript root.                           |
-| fallbackResource           | NSString  | nil            | Path to bundle fallback resource.                  |
-| bundlePath                 | NSString  | main.jsbundle  | Path to bundle fallback resource.                  |
+| Property        | Type            | Default        | Description                                               |
+| --------------- | --------------- | -------------- | --------------------------------------------------------- |
+| reactNativeHost | ReactNativeHost | null           | An instance of [ReactNativeHost](https://bit.ly/2ZnwgnA). |
 
 ---
 
@@ -175,6 +172,111 @@ Examples:
     ReactNativeBrownfield.getShared().startReactNative(init -> {
         Log.d("loaded", "React Native loaded");
     });
+```
+
+---
+
+#### ReactNativeActivity
+
+An activity rendering `ReactRootView` with a given module name.  It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`.
+
+```java
+  import com.callstack.reactnativebrownfield.ReactNativeActivity;
+```
+
+---
+
+**Statics:**
+
+`createReactActivityIntent`
+
+Creates an Intent with ReactNativeActivity, you can use it as a parameter in the `startActivity` method in order to push a new activity with embedded React Native.
+
+Params:
+
+| Param                   | Required | Type                 | Description                                                 |
+| ----------------------- | -------- | ------------------------------------------- | ----------------------------------------------------------- |
+| context                 | Yes      | Context                                     | Application context.                                        |
+| moduleName              | Yes      | String                                      | Name of React Native component registered to `AppRegistry`. |
+| initialProps            | No       | Bundle || HashMap<String, *> || ReadableMap | Initial properties to be passed to React Native component.  |
+
+Examples: 
+
+```java
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative");
+```
+
+```java
+  Bundle bundle = new Bundle();
+  bundle.putInt("score", 12);
+
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", bundle);
+```
+
+```java
+  HashMap map = new HashMap<String, *>();
+  map.put("score", 12);
+
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map);
+```
+
+```java
+  WritableMap map = new WritableMap();
+  map.putInt("score", 12);
+
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map);
+```
+
+---
+
+#### ReactNativeFragment
+
+An fragment rendering `ReactRootView` with a given module name.  It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
+
+```java
+  import com.callstack.reactnativebrownfield.ReactNativeActivity;
+```
+
+---
+
+**Statics:**
+
+`createReactNativeFragment`
+
+Creates a Fragment with ReactNativeActivity, you can use it as a parameter in the `startActivity` method in order to push a new activity with embedded React Native.
+
+Params:
+
+| Param                   | Required | Type                 | Description                                                 |
+| ----------------------- | -------- | ------------------------------------------- | ----------------------------------------------------------- |
+| moduleName              | Yes      | String                                      | Name of React Native component registered to `AppRegistry`. |
+| initialProps            | No       | Bundle || HashMap<String, *> || ReadableMap | Initial properties to be passed to React Native component.  |
+
+Examples: 
+
+```java
+  ReactNativeActivity.createReactNativeFragment("ReactNative");
+```
+
+```java
+  Bundle bundle = new Bundle();
+  bundle.putInt("score", 12);
+
+  ReactNativeActivity.createReactNativeFragment("ReactNative", bundle);
+```
+
+```java
+  HashMap map = new HashMap<String, *>();
+  map.put("score", 12);
+
+  ReactNativeActivity.createReactNativeFragment("ReactNative", map);
+```
+
+```java
+  WritableMap map = new WritableMap();
+  map.putInt("score", 12);
+
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map);
 ```
 
 ---

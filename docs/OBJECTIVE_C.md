@@ -112,7 +112,7 @@ Examples:
 
 #### ReactNativeViewController
 
-A view controller that's rendering `RCTRootView` within its bounds. It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript method. It's the simplest way to embed React Native into your navigation stack.
+A view controller that's rendering `RCTRootView` within its bounds. It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript module. It's the simplest way to embed React Native into your navigation stack.
 
 You can import it from:
 
