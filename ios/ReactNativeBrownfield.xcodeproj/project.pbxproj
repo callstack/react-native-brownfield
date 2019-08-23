@@ -7,31 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		28B1707222BF9F5700C4A94C /* ReactNativeBrownfield.m in Sources */ = {isa = PBXBuildFile; fileRef = 28B1707122BF9F5700C4A94C /* ReactNativeBrownfield.m */; };
-		28B1707322BF9F5700C4A94C /* ReactNativeBrownfield.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 28B1707022BF9F5700C4A94C /* ReactNativeBrownfield.h */; };
+		696CB249230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB243230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m */; };
+		696CB24A230EF9EA000207AF /* ReactNativeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB244230EF9EA000207AF /* ReactNativeViewController.m */; };
+		696CB24B230EF9EA000207AF /* ReactNativeBrownfield.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB245230EF9EA000207AF /* ReactNativeBrownfield.m */; };
+		696CB24C230EF9EA000207AF /* ReactNativeBrownfieldModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB246230EF9EA000207AF /* ReactNativeBrownfieldModule.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		28B1706B22BF9F5700C4A94C /* CopyFiles */ = {
+		696CB227230EF910000207AF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				28B1707322BF9F5700C4A94C /* ReactNativeBrownfield.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		28B1706D22BF9F5700C4A94C /* libReactNativeBrownfield.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeBrownfield.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		28B1707022BF9F5700C4A94C /* ReactNativeBrownfield.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfield.h; sourceTree = "<group>"; };
-		28B1707122BF9F5700C4A94C /* ReactNativeBrownfield.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReactNativeBrownfield.m; sourceTree = "<group>"; };
+		696CB229230EF910000207AF /* libReactNativeBrownfield.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeBrownfield.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		696CB241230EF9EA000207AF /* ReactNativeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeViewController.h; sourceTree = "<group>"; };
+		696CB242230EF9EA000207AF /* ReactNativeBrownfieldModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfieldModule.h; sourceTree = "<group>"; };
+		696CB243230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeBrownfieldNotifications.m; sourceTree = "<group>"; };
+		696CB244230EF9EA000207AF /* ReactNativeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeViewController.m; sourceTree = "<group>"; };
+		696CB245230EF9EA000207AF /* ReactNativeBrownfield.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeBrownfield.m; sourceTree = "<group>"; };
+		696CB246230EF9EA000207AF /* ReactNativeBrownfieldModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeBrownfieldModule.m; sourceTree = "<group>"; };
+		696CB247230EF9EA000207AF /* ReactNativeBrownfieldNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfieldNotifications.h; sourceTree = "<group>"; };
+		696CB248230EF9EA000207AF /* ReactNativeBrownfield.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfield.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		28B1706A22BF9F5700C4A94C /* Frameworks */ = {
+		696CB226230EF910000207AF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -41,19 +48,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		28B1706422BF9F5700C4A94C = {
+		696CB220230EF910000207AF = {
 			isa = PBXGroup;
 			children = (
-				28B1707022BF9F5700C4A94C /* ReactNativeBrownfield.h */,
-				28B1707122BF9F5700C4A94C /* ReactNativeBrownfield.m */,
-				28B1706E22BF9F5700C4A94C /* Products */,
+				696CB248230EF9EA000207AF /* ReactNativeBrownfield.h */,
+				696CB245230EF9EA000207AF /* ReactNativeBrownfield.m */,
+				696CB242230EF9EA000207AF /* ReactNativeBrownfieldModule.h */,
+				696CB246230EF9EA000207AF /* ReactNativeBrownfieldModule.m */,
+				696CB247230EF9EA000207AF /* ReactNativeBrownfieldNotifications.h */,
+				696CB243230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m */,
+				696CB241230EF9EA000207AF /* ReactNativeViewController.h */,
+				696CB244230EF9EA000207AF /* ReactNativeViewController.m */,
+				696CB22A230EF910000207AF /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		28B1706E22BF9F5700C4A94C /* Products */ = {
+		696CB22A230EF910000207AF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				28B1706D22BF9F5700C4A94C /* libReactNativeBrownfield.a */,
+				696CB229230EF910000207AF /* libReactNativeBrownfield.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,13 +74,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		28B1706C22BF9F5700C4A94C /* ReactNativeBrownfield */ = {
+		696CB228230EF910000207AF /* ReactNativeBrownfield */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 28B1707622BF9F5700C4A94C /* Build configuration list for PBXNativeTarget "ReactNativeBrownfield" */;
+			buildConfigurationList = 696CB232230EF910000207AF /* Build configuration list for PBXNativeTarget "ReactNativeBrownfield" */;
 			buildPhases = (
-				28B1706922BF9F5700C4A94C /* Sources */,
-				28B1706A22BF9F5700C4A94C /* Frameworks */,
-				28B1706B22BF9F5700C4A94C /* CopyFiles */,
+				696CB225230EF910000207AF /* Sources */,
+				696CB226230EF910000207AF /* Frameworks */,
+				696CB227230EF910000207AF /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -75,53 +88,56 @@
 			);
 			name = ReactNativeBrownfield;
 			productName = ReactNativeBrownfield;
-			productReference = 28B1706D22BF9F5700C4A94C /* libReactNativeBrownfield.a */;
+			productReference = 696CB229230EF910000207AF /* libReactNativeBrownfield.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		28B1706522BF9F5700C4A94C /* Project object */ = {
+		696CB221230EF910000207AF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1010;
-				ORGANIZATIONNAME = Callstack;
+				LastUpgradeCheck = 1020;
+				ORGANIZATIONNAME = callstack;
 				TargetAttributes = {
-					28B1706C22BF9F5700C4A94C = {
-						CreatedOnToolsVersion = 10.1;
+					696CB228230EF910000207AF = {
+						CreatedOnToolsVersion = 10.2.1;
 					};
 				};
 			};
-			buildConfigurationList = 28B1706822BF9F5700C4A94C /* Build configuration list for PBXProject "ReactNativeBrownfield" */;
+			buildConfigurationList = 696CB224230EF910000207AF /* Build configuration list for PBXProject "ReactNativeBrownfield" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 28B1706422BF9F5700C4A94C;
-			productRefGroup = 28B1706E22BF9F5700C4A94C /* Products */;
+			mainGroup = 696CB220230EF910000207AF;
+			productRefGroup = 696CB22A230EF910000207AF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				28B1706C22BF9F5700C4A94C /* ReactNativeBrownfield */,
+				696CB228230EF910000207AF /* ReactNativeBrownfield */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		28B1706922BF9F5700C4A94C /* Sources */ = {
+		696CB225230EF910000207AF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				28B1707222BF9F5700C4A94C /* ReactNativeBrownfield.m in Sources */,
+				696CB24C230EF9EA000207AF /* ReactNativeBrownfieldModule.m in Sources */,
+				696CB24B230EF9EA000207AF /* ReactNativeBrownfield.m in Sources */,
+				696CB249230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m in Sources */,
+				696CB24A230EF9EA000207AF /* ReactNativeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		28B1707422BF9F5700C4A94C /* Debug */ = {
+		696CB230230EF910000207AF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -172,7 +188,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -180,7 +196,7 @@
 			};
 			name = Debug;
 		};
-		28B1707522BF9F5700C4A94C /* Release */ = {
+		696CB231230EF910000207AF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -225,7 +241,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -233,7 +249,7 @@
 			};
 			name = Release;
 		};
-		28B1707722BF9F5700C4A94C /* Debug */ = {
+		696CB233230EF910000207AF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -245,7 +261,7 @@
 			};
 			name = Debug;
 		};
-		28B1707822BF9F5700C4A94C /* Release */ = {
+		696CB234230EF910000207AF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -260,25 +276,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		28B1706822BF9F5700C4A94C /* Build configuration list for PBXProject "ReactNativeBrownfield" */ = {
+		696CB224230EF910000207AF /* Build configuration list for PBXProject "ReactNativeBrownfield" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				28B1707422BF9F5700C4A94C /* Debug */,
-				28B1707522BF9F5700C4A94C /* Release */,
+				696CB230230EF910000207AF /* Debug */,
+				696CB231230EF910000207AF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		28B1707622BF9F5700C4A94C /* Build configuration list for PBXNativeTarget "ReactNativeBrownfield" */ = {
+		696CB232230EF910000207AF /* Build configuration list for PBXNativeTarget "ReactNativeBrownfield" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				28B1707722BF9F5700C4A94C /* Debug */,
-				28B1707822BF9F5700C4A94C /* Release */,
+				696CB233230EF910000207AF /* Debug */,
+				696CB234230EF910000207AF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 28B1706522BF9F5700C4A94C /* Project object */;
+	rootObject = 696CB221230EF910000207AF /* Project object */;
 }
