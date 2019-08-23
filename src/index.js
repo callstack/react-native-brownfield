@@ -12,7 +12,7 @@ module.exports = {
     }
   },
 
-  setNativeGesturesAndButtonsEnabled: (enabled: boolean): void => {
+  setNativeBackGestureAndButtonEnabled: (enabled: boolean): void => {
     if (Platform.OS === 'ios') {
       NativeModules.ReactNativeBrownfield.setPopGestureRecognizerEnabled(
         enabled,
