@@ -1,6 +1,6 @@
-## Objective-C
+## Swift
 
-React Native Brownfield provides first-class support for Objective-C.
+React Native Brownfield provides first-class support for Swift. You just need to add `use_frameworks!` on top of your `Podfile`, however if you'd like to use Objective-C API via bridging header, you can omit that step.
 
 ### Linking
 
@@ -46,22 +46,22 @@ Click on your main project file (the one that represents the `.xcodeproj`) selec
 
 You can import the object from:
 
-```objc
-  #import <ReactNativeBrownfield/ReactNativeBrownfield.h>
+```swift
+  import ReactNativeBrownfield
 ```
 
 ---
 
 **Statics:**
 
-`shared`
+`shared()`
 
 A singleton that keeps an instance of ReactNativeBrownfield object.
 
 Examples:
 
-```objc
-  [ReactNativeBrownfield shared]
+```swift
+  ReactNativeBrownfield.shared()
 ```
 
 ---
@@ -87,25 +87,25 @@ Params:
 
 | Param                   | Required | Type          | Description                                           |
 | ----------------------- | -------- | ------------- | ----------------------------------------------------- |
-| onBundleLoaded          | No       | void(^)(void) | Callback invoked after JS bundle is fully loaded.     |
+| onBundleLoaded          | No       | () -> void | Callback invoked after JS bundle is fully loaded.     |
 | launchOptions           | No       | NSDictionary  | Launch options, typically passed from AppDelegate.    |
 
 Examples:
 
-```objc
-    [[ReactNativeBrownfield shared] startReactNative];
+```swift
+    ReactNativeBrownfield.shared().startReactNative()
 ```
 
-```objc
-    [[ReactNativeBrownfield shared] startReactNative:^(void){
-        NSLog(@"React Native started");
-    }];
+```swift
+   ReactNativeBrownfield.shared().startReactNative {
+     print("React Native started")
+   }
 ```
 
-```objc
-    [[ReactNativeBrownfield shared] startReactNative:^(void){
-        NSLog(@"React Native started");
-    }, launchOptions];
+```swift
+    ReactNativeBrownfield.shared().startReactNative({
+      print("React Native started")
+    }, launchOptions)
 ```
 
 ---
@@ -116,15 +116,15 @@ A view controller that's rendering `RCTRootView` within its bounds. It automatic
 
 You can import it from:
 
-```objc
-  #import <ReactNativeBrownfield/ReactNativeViewController.h>
+```swift
+  import ReactNativeBrownfield
 ```
 
 ---
 
 **Constructors:**
 
-`[ReactNativeViewController initWithModuleName:moduleName andInitialProperties:initialProps]`
+`ReactNativeViewController(moduleName: moduleName, initialProperites:initialProperties)`
 
 | Param              | Required  | Type          | Description                                                   |
 | ------------------ | --------- | ------------- | ------------------------------------------------------------- |
@@ -133,18 +133,18 @@ You can import it from:
 
 Examples:
 
-```objc
-  [[ReactNativeViewController alloc] initWithModuleName:@"ReactNative"]
+```swift
+  ReactNativeViewController(moduleName: "ReactNative")
 ```
 
-```objc
-  [[ReactNativeViewController alloc] initWithModuleName:@"ReactNative" andInitialProperties:@{@"score": 12}]
+```swift
+  ReactNativeViewController(moduleName: "ReactNative", initialProperites:["score": 12])
 ```
 
 ---
 
 ### Linking
 
-You can find an example app [here](../example/objc).
+You can find an example app [here](../example/swift).
 
 
