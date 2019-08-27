@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import ReactNativeBrownfield
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

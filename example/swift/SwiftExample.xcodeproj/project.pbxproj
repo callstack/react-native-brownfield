@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,7 +12,7 @@
 		2869186123129ECF00458242 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2869185F23129ECF00458242 /* Main.storyboard */; };
 		2869186323129ED100458242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2869186223129ED100458242 /* Assets.xcassets */; };
 		2869186623129ED100458242 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2869186423129ED100458242 /* LaunchScreen.storyboard */; };
-		DB51779A20C0B25AAB3995DC /* Pods_SwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFBF6814E0C9764EF10209 /* Pods_SwiftExample.framework */; };
+		AC7E040409DFEE553311B27E /* libPods-SwiftExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF9653D1882655DA02862F71 /* libPods-SwiftExample.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,8 +23,9 @@
 		2869186223129ED100458242 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2869186523129ED100458242 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2869186723129ED100458242 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		37CFBF6814E0C9764EF10209 /* Pods_SwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		28C192112315C4D50049A702 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		5BE9069F7C8AF5853F650B68 /* Pods-SwiftExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftExample.debug.xcconfig"; path = "Target Support Files/Pods-SwiftExample/Pods-SwiftExample.debug.xcconfig"; sourceTree = "<group>"; };
+		CF9653D1882655DA02862F71 /* libPods-SwiftExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SwiftExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E74DC3AFAC0967529ED1C063 /* Pods-SwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftExample.release.xcconfig"; path = "Target Support Files/Pods-SwiftExample/Pods-SwiftExample.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -33,7 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DB51779A20C0B25AAB3995DC /* Pods_SwiftExample.framework in Frameworks */,
+				AC7E040409DFEE553311B27E /* libPods-SwiftExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,6 +46,7 @@
 			children = (
 				2869185B23129ECF00458242 /* AppDelegate.swift */,
 				2869185D23129ECF00458242 /* ViewController.swift */,
+				28C192112315C4D50049A702 /* BridgingHeader.h */,
 				2869185F23129ECF00458242 /* Main.storyboard */,
 				2869186223129ED100458242 /* Assets.xcassets */,
 				2869186423129ED100458242 /* LaunchScreen.storyboard */,
@@ -75,7 +77,7 @@
 		F4733EE8C5738566111C3C12 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				37CFBF6814E0C9764EF10209 /* Pods_SwiftExample.framework */,
+				CF9653D1882655DA02862F71 /* libPods-SwiftExample.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -91,7 +93,6 @@
 				2869185423129ECF00458242 /* Sources */,
 				2869185523129ECF00458242 /* Frameworks */,
 				2869185623129ECF00458242 /* Resources */,
-				EB94B77E2E587D90A12D72A9 /* [CP] Embed Pods Frameworks */,
 				28EDEAEB2312D0720007552C /* Start Packager */,
 				28EDEAEC2312D0910007552C /* Bundle React Native code and images */,
 			);
@@ -207,23 +208,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		EB94B77E2E587D90A12D72A9 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwiftExample/Pods-SwiftExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwiftExample/Pods-SwiftExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwiftExample/Pods-SwiftExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -390,6 +374,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.callstack.reactnativebrownfield.SwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = BridgingHeader.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -409,6 +394,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.callstack.reactnativebrownfield.SwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = BridgingHeader.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

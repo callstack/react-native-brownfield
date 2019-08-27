@@ -1,6 +1,20 @@
 ## Swift
 
-React Native Brownfield provides first-class support for Swift. You just need to add `use_frameworks!` on top of your `Podfile`, however if you'd like to use Objective-C API via bridging header, you can omit that step.
+React Native Brownfield provides first-class support for Swift. 
+
+### `use_frameworks!` support
+
+It is possible to build `react-native-brownfield` with `use_frameworks!` directive in CocoaPods as long as `React` can be built this way.
+
+| React Native version       | `use_frameworks!` compatibility |
+| -------------------------- | ------------------------------- | 
+| <= 0.59.X                  | Compatible                      |
+| 0.60.X                     | Not compatible                  |
+| 0.61.0-rc.0                | Not compatible                  |
+
+Please reffer to [this issue](https://github.com/facebook/react-native/issues/25349) to learn more about `use_frameworks!` state in React Native.
+
+Until this behavior is fixed, you can access `react-native-brownfield` API in Swift via [Bridging Header](../example/swift/BridgingHeader.h).
 
 ### Linking
 

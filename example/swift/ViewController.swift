@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import ReactNativeBrownfield
 
 class ViewController: UIViewController {
     override func viewDidLoad() {
