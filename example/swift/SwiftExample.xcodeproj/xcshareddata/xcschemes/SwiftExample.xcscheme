@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1100"
+   LastUpgradeVersion = "1030"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "28B1704A22BF9EDC00C4A94C"
-               BuildableName = "NativeExample.app"
-               BlueprintName = "NativeExample"
-               ReferencedContainer = "container:NativeExample.xcodeproj">
+               BlueprintIdentifier = "2869185723129ECF00458242"
+               BuildableName = "SwiftExample.app"
+               BlueprintName = "SwiftExample"
+               ReferencedContainer = "container:SwiftExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,6 +29,15 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "2869185723129ECF00458242"
+            BuildableName = "SwiftExample.app"
+            BlueprintName = "SwiftExample"
+            ReferencedContainer = "container:SwiftExample.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -46,10 +55,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "28B1704A22BF9EDC00C4A94C"
-            BuildableName = "NativeExample.app"
-            BlueprintName = "NativeExample"
-            ReferencedContainer = "container:NativeExample.xcodeproj">
+            BlueprintIdentifier = "2869185723129ECF00458242"
+            BuildableName = "SwiftExample.app"
+            BlueprintName = "SwiftExample"
+            ReferencedContainer = "container:SwiftExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -65,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "28B1704A22BF9EDC00C4A94C"
-            BuildableName = "NativeExample.app"
-            BlueprintName = "NativeExample"
-            ReferencedContainer = "container:NativeExample.xcodeproj">
+            BlueprintIdentifier = "2869185723129ECF00458242"
+            BuildableName = "SwiftExample.app"
+            BlueprintName = "SwiftExample"
+            ReferencedContainer = "container:SwiftExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
