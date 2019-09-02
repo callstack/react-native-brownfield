@@ -20,10 +20,12 @@ class MainActivity : AppCompatActivity() {
             "ReactNative"
         )
         startActivity(intent)
+        overridePendingTransition(R.anim.slide_fade_in, android.R.anim.fade_out);
     }
 
     fun startReactNativeFragment(view: View) {
         val intent = Intent(this, ReactNativeFragmentActivity::class.java)
         startActivity(intent)
+        overridePendingTransition(R.anim.slide_fade_in, android.R.anim.fade_out);
     }
 }

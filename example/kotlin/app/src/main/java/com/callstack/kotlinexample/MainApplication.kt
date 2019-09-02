@@ -17,7 +17,7 @@ class MainApplication : Application(), ReactApplication {
         options["packages"] = packages
         options["mainModuleName"] = "example/index"
 
-        ReactNativeBrownfield.initialize(options, this)
+        ReactNativeBrownfield.initialize(this, options)
         ReactNativeBrownfield.shared.startReactNative { init -> Log.d("test", "test") }
     }
 

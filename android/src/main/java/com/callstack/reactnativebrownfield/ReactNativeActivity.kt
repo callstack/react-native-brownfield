@@ -52,7 +52,6 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
 
         if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
             ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager?.onHostDestroy(this)
-            ReactNativeBrownfield.shared.reactNativeHost.clear()
         }
     }
 

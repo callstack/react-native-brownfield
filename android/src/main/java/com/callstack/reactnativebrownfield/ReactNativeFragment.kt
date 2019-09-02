@@ -80,7 +80,6 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
 
             if (reactInstanceMgr.lifecycleState != LifecycleState.RESUMED) {
                 reactInstanceMgr.onHostDestroy(activity)
-                ReactNativeBrownfield.shared.reactNativeHost.clear()
             }
         }
     }
