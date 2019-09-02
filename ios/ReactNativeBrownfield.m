@@ -10,7 +10,7 @@
 @synthesize bundlePath = _bundlePath;
 @synthesize bridge;
 
-+ (id)shared {
++ (ReactNativeBrownfield*)shared {
     static ReactNativeBrownfield *sharedBridgeManager = nil;
     
     static dispatch_once_t onceToken;
