@@ -1,6 +1,6 @@
-## Java
+## Kotlin
 
-React Native Brownfield provides first-class support for Java.
+React Native Brownfield provides first-class support for Kotlin.
 
 ### Linking
 
@@ -32,23 +32,17 @@ dependencies {
 }
 ```
 
-#### `android/app/src/main/.../MainApplication.java`
+#### `android/app/src/main/.../MainApplication.kt`
 On top, where imports are:
 
-```java
-import com.callstack.reactnativebrownfield.ReactNativeBrownfieldPackage;
+```kotlin
+import com.callstack.reactnativebrownfield.ReactNativeBrownfieldPackage
 ```
 
 Add the `ReactNativeBrownfieldPackage` class to your list of exported packages.
 
-```java
-@Override
-protected List<ReactPackage> getPackages() {
-    return Arrays.asList(
-            new MainReactPackage(),
-            new ReactNativeBrownfieldPackage()
-    );
-}
+```kotlin
+val packages = listOf<ReactPackage>(MainReactPackage(), ReactNativeBrownfieldPackage()) 
 ```
 </details>
 
@@ -59,7 +53,7 @@ protected List<ReactPackage> getPackages() {
 You can import the object from:
 
 ```java
-  import com.callstack.reactnativebrownfield.ReactNativeBrownfield;
+  import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 ```
 
 ---
@@ -88,56 +82,50 @@ Available options:
 
 Examples:
 
-```java
-  private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-    @Override
-    public boolean getUseDeveloperSupport() {
-      return BuildConfig.DEBUG;
+```kotlin
+  val mReactNativeHost = object : ReactNativeHost(application) {
+    override fun getUseDeveloperSupport(): Boolean {
+      return BuildConfig.DEBUG
     }
 
-    @Override
-    protected List<ReactPackage> getPackages() {
-      @SuppressWarnings("UnnecessaryLocalVariable")
-      List<ReactPackage> packages = new PackageList(this).getPackages();
-      // Packages that cannot be autolinked yet can be added manually here, for example:
-      // packages.add(new MyReactNativePackage());
-      return packages;
+    override fun getPackages(): List<ReactPackage> {
+      return listOf<ReactPackage>(PackageList(this).getPackages())
     }
 
-    @Override
-    protected String getJSMainModuleName() {
-      return "index";
+    override fun getJSMainModuleName(): String {
+      return "index"
     }
-  };
+  }
 
-  ReactNativeBrownfield.initialize(this, mReactNativeHost);
+  ReactNativeBrownfield.initialize(this, mReactNativeHost)
 ```
 
-```java
-  List<ReactPackage> packages = new PackageList(this).getPackages();
+```kotlin
+  val packages = PackageList(this).getPackages()
 
-  ReactNativeBrownfield.initialize(this, packages);
+  ReactNativeBrownfield.initialize(this, packages)
 ```
 
-```java
-  List<ReactPackage> packages = new PackageList(this).getPackages();
-  HashMap<String, Object> options = new HashMap<String, Any>();
-  options.put("packages", packages);
-  options.put("mainModuleName", "example/index");
+```kotlin
+  val packages = PackageList(this).getPackages()
+  val options = hashMapOf<String, Any>(
+    "packages" to packages, 
+    "mainModuleName" to "example/index"
+  )
 
-  ReactNativeBrownfield.initialize(this, options);
+  ReactNativeBrownfield.initialize(this, options)
 ```
 
 ---
 
-`getShared`
+`shared`
 
 A singleton that keeps an instance of ReactNativeBrownfield object.
 
 Examples: 
 
-```java
-  ReactNativeBrownfield.getShared()
+```kotlin
+  ReactNativeBrownfield.shared
 ```
 
 ---
@@ -160,18 +148,18 @@ Params:
 
 | Param                   | Required | Type          | Description                                           |
 | ----------------------- | -------- | ------------- | ----------------------------------------------------- |
-| startReactNative        | No       | Lambda        | Callback invoked after JS bundle is fully loaded.     |
+| startReactNative        | No       | (loaded: boolean) -> Unit | Callback invoked after JS bundle is fully loaded.     |
 
 Examples:
 
-```java
-    ReactNativeBrownfield.getShared().startReactNative();
+```kotlin
+    ReactNativeBrownfield.shared.startReactNative()
 ```
 
-```java
-    ReactNativeBrownfield.getShared().startReactNative(init -> {
+```kotlin
+    ReactNativeBrownfield.shared.startReactNative {
         Log.d("loaded", "React Native loaded");
-    });
+    }
 ```
 
 ---
@@ -180,8 +168,8 @@ Examples:
 
 An activity rendering `ReactRootView` with a given module name.  It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`.
 
-```java
-  import com.callstack.reactnativebrownfield.ReactNativeActivity;
+```kotlin
+  import com.callstack.reactnativebrownfield.ReactNativeActivity
 ```
 
 ---
@@ -202,29 +190,28 @@ Params:
 
 Examples: 
 
-```java
-  ReactNativeActivity.createReactActivityIntent(context, "ReactNative");
+```kotlin
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative")
 ```
 
-```java
-  Bundle bundle = new Bundle();
-  bundle.putInt("score", 12);
+```kotlin
+  val bundle = Bundle()
+  bundle.putInt("score", 12)
 
-  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", bundle);
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", bundle)
 ```
 
-```java
-  HashMap map = new HashMap<String, *>();
-  map.put("score", 12);
+```kotlin
+  val map =  hasnMapOf<String, *>("score" to 12)
 
-  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map);
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map)
 ```
 
-```java
-  WritableMap map = new WritableMap();
+```kotlin
+  val map = WritableMap();
   map.putInt("score", 12);
 
-  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map);
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map)
 ```
 
 ---
@@ -233,8 +220,8 @@ Examples:
 
 An fragment rendering `ReactRootView` with a given module name.  It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
 
-```java
-  import com.callstack.reactnativebrownfield.ReactNativeActivity;
+```kotlin
+  import com.callstack.reactnativebrownfield.ReactNativeActivity
 ```
 
 ---
@@ -254,29 +241,28 @@ Params:
 
 Examples: 
 
-```java
-  ReactNativeActivity.createReactNativeFragment("ReactNative");
+```kotlin
+  ReactNativeActivity.createReactNativeFragment("ReactNative")
 ```
 
-```java
-  Bundle bundle = new Bundle();
-  bundle.putInt("score", 12);
+```kotlin
+  val bundle = new Bundle()
+  bundle.putInt("score", 12)
 
-  ReactNativeActivity.createReactNativeFragment("ReactNative", bundle);
+  ReactNativeActivity.createReactNativeFragment("ReactNative", bundle)
 ```
 
-```java
-  HashMap map = new HashMap<String, *>();
-  map.put("score", 12);
+```kotlin
+  val map = hashMapOf<String, *>("score" to 12)
 
-  ReactNativeActivity.createReactNativeFragment("ReactNative", map);
+  ReactNativeActivity.createReactNativeFragment("ReactNative", map)
 ```
 
-```java
-  WritableMap map = new WritableMap();
-  map.putInt("score", 12);
+```kotlin
+  val map = WritableMap()
+  map.putInt("score", 12)
 
-  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map);
+  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map)
 ```
 
 ---
