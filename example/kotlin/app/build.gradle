@@ -5,7 +5,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 project.ext.react = [
-        entryFile: "example/index.js"
+    entryFile: "example/index.js",
+    root: "../../.."
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"
