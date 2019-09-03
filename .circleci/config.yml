@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 jobs:
   analyse:
@@ -25,7 +25,4 @@ jobs:
 workflows:
   test:
     jobs:
-      - checkout_code
-      - analyse:
-          requires:
-            - checkout_code
+      - analyse
