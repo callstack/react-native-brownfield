@@ -1,22 +1,20 @@
-version: 2.1
-
-orbs:
-  rn: react-native-community/react-native@1.2.1
+version: 2
 
 jobs:
-  checkout_code:
-    executor: rn/linux_js
+  analyse:
+    docker:
+      - image: circleci/node:10
     steps:
       - checkout
-      - persist_to_workspace:
-          root: .
-          paths: .
-  analyse:
-    executor: rn/linux_js
-    steps:
-      - attach_workspace:
-          at: .
-      - rn/yarn_install
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
       - run:
           name: Lint JS Code (ESLint)
           command: yarn run lint
