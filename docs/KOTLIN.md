@@ -267,7 +267,7 @@ Examples:
 
 ---
 
-### Linking
+### Example
 
 You can find an example app [here](../example/java).
 
