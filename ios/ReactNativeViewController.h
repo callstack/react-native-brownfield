@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ReactNativeViewController : UIViewController
 
 @property (nonatomic, copy) NSString *moduleName;
-@property (nonatomic, copy) NSDictionary *initialProperties;
+@property (nonatomic, copy, nullable) NSDictionary *initialProperties;
 
 -(instancetype)initWithModuleName:(NSString *)moduleName;
 -(instancetype)initWithModuleName:(NSString *)moduleName andInitialProperties:(NSDictionary*)initialProperties;

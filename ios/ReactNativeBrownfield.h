@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @property (nonatomic, copy) NSString *entryFile;
-@property (nonatomic, copy) NSString *fallbackResource;
+@property (nonatomic, copy, nullable) NSString *fallbackResource;
 @property (nonatomic, copy) NSString *bundlePath;
 @property (nonatomic) RCTBridge *bridge;
 
