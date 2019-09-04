@@ -12,8 +12,7 @@
   "scripts": {
     "start": "react-native start --reset-cache",
     "flow": "flow",
-    "lint": "eslint . --fix",
-    "postinstall": "jetify"
+    "lint": "eslint . --fix"
   },
   "keywords": [
     "react-native-brownfield",
@@ -33,11 +32,10 @@
     "babel-plugin-module-resolver": "3.1.3",
     "eslint": "6.0.1",
     "flow-bin": "0.98.0",
-    "jetifier": "1.6.1",
     "metro-react-native-babel-preset": "0.54.1",
     "react": "16.8.6",
     "react-native": "0.60.5",
-    "react-native-gesture-handler": "1.3.0",
+    "react-native-gesture-handler": "1.4.1",
     "react-navigation": "3.11.0"
   }
 }
