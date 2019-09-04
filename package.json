@@ -6,7 +6,7 @@
   "contributors": [
     "Piotr Drapich <piotr.drapich@callstack.com>"
   ],
-  "homepage": "https://github.com/michalchudziak/react-native-brownfield",
+  "homepage": "https://github.com/callstack/react-native-brownfield",
   "description": "Brownfield helpers for React Native",
   "main": "src/index.js",
   "scripts": {
