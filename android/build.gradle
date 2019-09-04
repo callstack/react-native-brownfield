@@ -10,14 +10,13 @@ repositories {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion safeExtGet('compileSdkVersion', 28)
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0.0"
+        minSdkVersion safeExtGet('minSdkVersion', 21)
+        targetSdkVersion safeExtGet('targetSdkVersion', 28)
     }
+
     lintOptions {
         abortOnError false
     }

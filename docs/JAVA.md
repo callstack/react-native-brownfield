@@ -2,6 +2,23 @@
 
 React Native Brownfield provides first-class support for Java.
 
+### Kotlin setup
+
+Even though the library provides a first-class Java support, it's written in Kotlin. To compile the project with React Native Brownfield, we need to make sure that our project's `build.gradle` file contains the required Gradle plugin. 
+
+```java
+buildscript {
+    ext {
+        ...
+        kotlinVersion = '1.3.31'
+    }
+    dependencies {
+        ...
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+```
+
 ### Linking
 
 The library is meant to work with [auto linking](https://github.com/react-native-community/cli/blob/master/docs/autolinking.md). In case you can't use this feature, please check out the following options:
