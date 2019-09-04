@@ -1,6 +1,6 @@
 {
   "name": "@callstack/react-native-brownfield",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
   "contributors": [
@@ -20,6 +20,9 @@
     "native",
     "react native integration"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {},
   "peerDependencies": {
     "react": "*",
