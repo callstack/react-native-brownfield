@@ -13,6 +13,7 @@ import com.facebook.react.devsupport.DoubleTapReloadRecognizer
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.common.DebugServerException
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 
@@ -39,10 +40,9 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
         )
 
         supportActionBar?.hide()
-
         setContentView(reactRootView)
-
         doubleTapReloadRecognizer = DoubleTapReloadRecognizer()
+        checkPackagerConnection()
     }
 
     override fun onDestroy() {
@@ -141,6 +141,21 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
                 )
 
                 permissionListener = null
+            }
+        }
+    }
+
+    private fun checkPackagerConnection() {
+        if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance() && ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport) {
+            val devSupportManager =
+                    ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.devSupportManager
+            val url = devSupportManager.sourceUrl
+            devSupportManager?.isPackagerRunning { isRunning ->
+                if (!isRunning) {
+                    val error = Error()
+                    val message = DebugServerException.makeGeneric(url, "Could not connect to development server.", "URL: $url", error).message
+                    devSupportManager.showNewJavaError(message, error)
+                }
             }
         }
     }
