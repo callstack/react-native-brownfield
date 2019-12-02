@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pMa-hG-QlW">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pMa-hG-QlW">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -39,17 +37,41 @@
                                     </button>
                                 </subviews>
                             </stackView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PmD-6T-cR8">
+                                <rect key="frame" x="20" y="394.5" width="335" height="100"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="NdX-ir-OjU"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f8u-p5-KjM">
+                                <rect key="frame" x="20" y="172.5" width="335" height="100"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="ONE-ss-BRj"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="PmD-6T-cR8" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="2af-0y-L2G"/>
+                            <constraint firstItem="f8u-p5-KjM" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="42Y-yC-JFe"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="f8u-p5-KjM" secondAttribute="trailing" constant="20" id="5CK-t4-MOp"/>
+                            <constraint firstItem="PmD-6T-cR8" firstAttribute="top" secondItem="c1z-PC-pPF" secondAttribute="bottom" constant="20" id="68X-o3-td5"/>
                             <constraint firstItem="c1z-PC-pPF" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="8oW-3y-pgW"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="PmD-6T-cR8" secondAttribute="trailing" constant="20" id="IjJ-DO-iOG"/>
                             <constraint firstAttribute="trailing" secondItem="c1z-PC-pPF" secondAttribute="trailing" constant="10" id="aL3-LR-3dp"/>
                             <constraint firstItem="c1z-PC-pPF" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="gYJ-YG-ZmI"/>
                             <constraint firstItem="c1z-PC-pPF" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="hDr-K4-zd6"/>
+                            <constraint firstItem="c1z-PC-pPF" firstAttribute="top" secondItem="f8u-p5-KjM" secondAttribute="bottom" constant="20" id="q3T-aX-0Qu"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="21c-CA-hJb"/>
+                    <connections>
+                        <outlet property="greenSquare" destination="PmD-6T-cR8" id="o5B-B5-Toz"/>
+                        <outlet property="redSquare" destination="f8u-p5-KjM" id="1q3-ss-RQc"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
@@ -61,7 +83,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="pMa-hG-QlW" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" hidden="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="pZ1-gH-TZ2">
-                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

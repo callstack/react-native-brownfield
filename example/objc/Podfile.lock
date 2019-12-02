@@ -79,7 +79,7 @@ PODS:
     - React-Core (= 0.60.5)
   - React-RCTWebSocket (0.60.5):
     - React-Core (= 0.60.5)
-  - ReactNativeBrownfield (0.0.1):
+  - ReactNativeBrownfield (0.0.3):
     - React
   - RNGestureHandler (1.4.1):
     - React
@@ -111,7 +111,7 @@ DEPENDENCIES:
   - yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - boost-for-react-native
 
 EXTERNAL SOURCES:
@@ -184,10 +184,10 @@ SPEC CHECKSUMS:
   React-RCTText: b074d89033583d4f2eb5faf7ea2db3a13c7553a2
   React-RCTVibration: 2105b2e0e2b66a6408fc69a46c8a7fb5b2fdade0
   React-RCTWebSocket: cd932a16b7214898b6b7f788c8bddb3637246ac4
-  ReactNativeBrownfield: af3caba0d9116aaec5964348258636293fa94f7c
+  ReactNativeBrownfield: 0bc504532635a5bd52357da90809911304b3a5cd
   RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
 PODFILE CHECKSUM: 541e978e6a4fefed1c7c2bea17db0e7f75ff0c68
 
-COCOAPODS: 1.7.3
+COCOAPODS: 1.8.4

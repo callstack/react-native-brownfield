@@ -11,6 +11,8 @@
 @interface ViewController : UIViewController
 
 @property (nonatomic) BOOL isReactNativeLoaded;
+@property (weak, nonatomic) IBOutlet UIView *greenSquare;
+@property (weak, nonatomic) IBOutlet UIView *redSquare;
 
 @end
 

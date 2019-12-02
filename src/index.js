@@ -1,5 +1,22 @@
 /* @flow */
-import {NativeModules, Platform} from 'react-native';
+import {NativeModules, Platform, AppRegistry, View, Text} from 'react-native';
+
+// Testing
+import React from 'react';
+
+const GreenSquare = ({style, ...passProps}) => (
+  <View style={[{flex: 1, backgroundColor: 'green'}, style]} {...passProps} />
+);
+
+const RedSquare = ({style, ...passProps}) => (
+  <View style={[{flex: 1, backgroundColor: 'red'}, style]} {...passProps} />
+);
+// End Testing
+
+const componentsMap = {
+  GreenSquare,
+  RedSquare,
+};
 
 module.exports = {
   popToNative: (animated?: boolean): void => {
@@ -22,5 +39,16 @@ module.exports = {
     } else {
       console.warn('Not implemented: setNativeGesturesAndButtonsEnabled');
     }
+  },
+
+  registerNativeComponents: (): void => {
+    /* $FlowFixMe */
+    console.disableYellowBox = true;
+
+    Object.entries(componentsMap).forEach(
+      ([name, Component]: [string, any]) => {
+        AppRegistry.registerComponent(name, () => Component);
+      },
+    );
   },
 };
