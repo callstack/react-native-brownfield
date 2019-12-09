@@ -10,42 +10,64 @@ enum class ComponentTypes {
     RedSquare,
 }
 
+val pressHandlers = arrayOf("onPress")
+
 class ReactNativeComponentFactory {
     companion object {
-        @JvmStatic
-        @JvmOverloads
-        fun create(type: ComponentTypes, context: Context, initialProps: Bundle? = null): ReactRootView {
+        private fun createComponent(
+            type: ComponentTypes,
+            context: Context,
+            initialProps: Bundle? = null,
+            pressHandlers: HashMap<String, ReactNativeCallback>? = null
+        ): ReactRootView {
             return when (type) {
                 ComponentTypes.GreenSquare ->
-                         createReactNativeComponent("GreenSquare", context, initialProps)
+                         createReactNativeComponent("GreenSquare", context, initialProps, pressHandlers)
                 ComponentTypes.RedSquare ->
-                         createReactNativeComponent("RedSquare", context, initialProps)
+                         createReactNativeComponent("RedSquare", context, initialProps, pressHandlers)
             }
         }
 
         @JvmStatic
-        fun create(type: ComponentTypes, context: Context, initialProps: HashMap<String, *>): ReactRootView {
-            return create(type, context, PropsBundle.fromHashMap(initialProps))
-        }
+        @JvmOverloads
+        fun create(
+            type: ComponentTypes,
+            context: Context,
+            initialProps: HashMap<String, *>? = null
+        ): ReactRootView {
+            if (initialProps == null) {
+                return createComponent(type, context)
+            }
 
-        @JvmStatic
-        fun create(type: ComponentTypes, context: Context, initialProps: WritableMap): ReactRootView {
-            return create(type, context, initialProps.toHashMap())
-        }
+            val pressHandlerProps = hashMapOf<String, ReactNativeCallback>()
 
+            pressHandlers.forEach {
+                val value = initialProps[it]
+                if (value != null) {
+                    pressHandlerProps[it] = value as ReactNativeCallback
+                    initialProps.remove(it)
+                }
+            }
+
+            return createComponent(type, context, PropsBundle.fromHashMap(initialProps), pressHandlerProps)
+        }
     }
 }
+
+
 
 private fun createReactNativeComponent(
     moduleName: String,
     context: Context,
-    initialProps: Bundle? = null
+    initialProps: Bundle? = null,
+    pressHandlers: HashMap<String, ReactNativeCallback>? = null
 ): ReactRootView {
-    val reactRootView = ReactRootView(context)
+    val reactRootView = ReactNativeComponent(context)
     reactRootView?.startReactApplication(
         ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager,
         moduleName,
-        initialProps
+        initialProps,
+        pressHandlers
     )
 
     return reactRootView

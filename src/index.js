@@ -4,8 +4,15 @@ import {NativeModules, Platform, AppRegistry, View, Text} from 'react-native';
 // Testing
 import React from 'react';
 
-const GreenSquare = ({style, ...passProps}) => (
-  <View style={[{flex: 1, backgroundColor: 'green'}, style]} {...passProps} />
+const GreenSquare = ({style, uuid, text, ...passProps}) => (
+  <View style={[{flex: 1, backgroundColor: 'green'}, style]} {...passProps}>
+    <Text
+      onPress={() => {
+        NativeModules.ReactNativeBrownfield.handleCallback(uuid, 'onPress');
+      }}>
+      {text}
+    </Text>
+  </View>
 );
 
 const RedSquare = ({style, ...passProps}) => (

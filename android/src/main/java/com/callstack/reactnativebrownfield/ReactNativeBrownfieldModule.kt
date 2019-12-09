@@ -20,6 +20,11 @@ class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) : React
         shouldPopToNative = isFirstRoute
     }
 
+    @ReactMethod
+    fun handleCallback(uuid: String, handler: String) {
+        ReactNativeCallbackRegistry.invokeCallback(uuid, handler)
+    }
+
     private fun onBackPressed() {
         reactApplicationContext.currentActivity?.runOnUiThread {
             reactApplicationContext.currentActivity?.onBackPressed()

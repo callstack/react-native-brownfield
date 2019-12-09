@@ -2,8 +2,6 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeDelegate.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface ReactNativeBrownfield : NSObject<RCTBridgeDelegate> {
     void (^_onBundleLoaded)(void);
 }
@@ -21,4 +19,3 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-NS_ASSUME_NONNULL_END

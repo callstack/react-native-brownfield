@@ -21,4 +21,14 @@ RCT_EXPORT_METHOD(popToNative:(BOOL)animated) {
      object:nil userInfo:userInfo];
 }
 
+RCT_EXPORT_METHOD(handleCallback:(NSString *)uuid handler:(NSString *)handler) {
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    userInfo[@"uuid"] = uuid;
+    userInfo[@"handler"] = handler;
+    
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:OnPressNotification
+     object:nil userInfo:userInfo];
+}
+
 @end

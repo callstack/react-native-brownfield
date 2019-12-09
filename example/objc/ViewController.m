@@ -14,7 +14,12 @@
 
 
 - (void)viewDidLayoutSubviews {
-    [[ReactNativeComponentFactory create:GreenSquare withInitialProperties:nil] attachToSuperview:self.greenSquare];
+    [[ReactNativeComponentFactory create:GreenSquare withInitialProperties:@{
+        @"text": @"TEXTXD",
+        @"onPress": ^(void) {
+            NSLog(@"TEEEEEST");
+        }
+    }] attachToSuperview:self.greenSquare];
     [[ReactNativeComponentFactory create:RedSquare withInitialProperties:nil] attachToSuperview:self.redSquare];
 }
 

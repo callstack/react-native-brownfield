@@ -1,12 +1,14 @@
 #import <UIKit/UIKit.h>
 #import <React/RCTRootView.h>
-
-NS_ASSUME_NONNULL_BEGIN
+#import <React/RCTBridge.h>
 
 @interface ReactNativeComponent : RCTRootView
 
+@property (nonatomic, copy) NSString *uuid;
+@property (nonatomic, copy) NSMutableDictionary *handlersRegistry;
+
+-(instancetype)initWithBridge:(RCTBridge *)bridge moduleName:(NSString *)name initialProperties:(NSDictionary *)initialProperties;
 -(void)attachToSuperview:(UIView *)parent;
 
 @end
 
-NS_ASSUME_NONNULL_END
