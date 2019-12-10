@@ -6,9 +6,9 @@
 
 +(ReactNativeComponent *)create:(ComponentTypes)type withInitialProperties:(NSDictionary*)initialProperties {
     switch (type) {
-        case RedSquare:
+        case RedSquareReactComponent:
             return [ReactNativeComponentFactory instantiateReactNativeComponent:@"RedSquare" withInitialProperties:initialProperties];
-        case GreenSquare:
+        case GreenSquareReactComponent:
             return  [ReactNativeComponentFactory instantiateReactNativeComponent:@"GreenSquare" withInitialProperties:initialProperties];
     }
 }

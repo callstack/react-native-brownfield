@@ -1,8 +1,6 @@
 #import "ReactNativeComponent.h"
 #import "ReactNativeBrownfieldNotifications.h"
 
-
-
 @implementation ReactNativeComponent
 
 -(instancetype)initWithBridge:(RCTBridge *)bridge moduleName:(NSString *)name initialProperties:(NSDictionary *)initialProperties {
@@ -28,13 +26,11 @@
     return [super initWithBridge:bridge moduleName:name initialProperties:newProps];
 }
 
--(void)attachToSuperview:(UIView *)parent {
-    self.bounds = parent.bounds;
-    self.layer.anchorPoint = CGPointMake(0, 0);
-    [parent addSubview:self];
+-(void)willMoveToSuperview:(UIView *)newSuperview {
+    self.frame = newSuperview.bounds;
 }
 
-- (void)handleCallback:(NSNotification*)notification {
+-(void)handleCallback:(NSNotification*)notification {
     NSDictionary *userInfo = notification.userInfo;
     NSString *uuid = [userInfo objectForKey:@"uuid"];
     NSString *handler = [userInfo objectForKey:@"handler"];

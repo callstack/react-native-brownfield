@@ -7,24 +7,21 @@
 //
 
 #import "ViewController.h"
-#import <ReactNativeBrownfield/ReactNativeViewController.h>
-#import <ReactNativeBrownfield/ReactNativeComponentFactory.h>
+#import <ReactNativeBrownfield/GreenSquare.h>
 
 @implementation ViewController
 
+@synthesize green = _green;
 
-- (void)viewDidLayoutSubviews {
-    [[ReactNativeComponentFactory create:GreenSquare withInitialProperties:@{
-        @"text": @"TEXTXD",
-        @"onPress": ^(void) {
-            NSLog(@"TEEEEEST");
-        }
-    }] attachToSuperview:self.greenSquare];
-    [[ReactNativeComponentFactory create:RedSquare withInitialProperties:nil] attachToSuperview:self.redSquare];
+- (void)viewWillLayoutSubviews {
+    _green = [[GreenSquare alloc] initWithFrame:self.greenSquare.bounds andText:@"WYGRYW"];
+    
+    [self.redSquare addSubview:_green];
 }
 
 - (IBAction)openReactNative:(UIButton *)sender {
-    [[self navigationController] pushViewController:[[ReactNativeViewController alloc] initWithModuleName:@"ReactNative"] animated:YES];
+    _green.text = @"JAJEBIE";
+    [_green setNeedsLayout];
 }
 
 @end

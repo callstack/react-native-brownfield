@@ -1,8 +1,8 @@
 #import "ReactNativeComponent.h"
 
 typedef enum ouputTypes {
-    RedSquare,
-    GreenSquare
+    RedSquareReactComponent,
+    GreenSquareReactComponent
 } ComponentTypes;
 
 @interface ReactNativeComponentFactory : NSObject

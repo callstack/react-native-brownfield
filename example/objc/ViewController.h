@@ -7,12 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <ReactNativeBrownfield/GreenSquare.h>
 
 @interface ViewController : UIViewController
 
 @property (nonatomic) BOOL isReactNativeLoaded;
 @property (weak, nonatomic) IBOutlet UIView *greenSquare;
 @property (weak, nonatomic) IBOutlet UIView *redSquare;
+@property (nonatomic) GreenSquare *green;
 
 @end
 

@@ -8,7 +8,6 @@
 @property (nonatomic, copy) NSMutableDictionary *handlersRegistry;
 
 -(instancetype)initWithBridge:(RCTBridge *)bridge moduleName:(NSString *)name initialProperties:(NSDictionary *)initialProperties;
--(void)attachToSuperview:(UIView *)parent;
 
 @end
 
