@@ -19,7 +19,7 @@ class ReactNativeComponentFactory {
             context: Context,
             initialProps: Bundle? = null,
             pressHandlers: HashMap<String, ReactNativeCallback>? = null
-        ): ReactRootView {
+        ): ReactNativeComponent {
             return when (type) {
                 ComponentTypes.GreenSquare ->
                          createReactNativeComponent("GreenSquare", context, initialProps, pressHandlers)
@@ -34,7 +34,7 @@ class ReactNativeComponentFactory {
             type: ComponentTypes,
             context: Context,
             initialProps: HashMap<String, *>? = null
-        ): ReactRootView {
+        ): ReactNativeComponent {
             if (initialProps == null) {
                 return createComponent(type, context)
             }
@@ -61,7 +61,7 @@ private fun createReactNativeComponent(
     context: Context,
     initialProps: Bundle? = null,
     pressHandlers: HashMap<String, ReactNativeCallback>? = null
-): ReactRootView {
+): ReactNativeComponent {
     val reactRootView = ReactNativeComponent(context)
     reactRootView?.startReactApplication(
         ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager,
