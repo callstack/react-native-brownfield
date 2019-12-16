@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -49,7 +50,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startReactNative(View view) {
-        gs.setText("aaa");
+//        gs.setText("aaa");
+        TextView textView = new TextView(getApplicationContext());
+        textView.append("WWWWW");
+        gs.addView(textView);
         gs.requestLayout();
 //        Intent intent = ReactNativeActivity.createReactActivityIntent(
 //                this,

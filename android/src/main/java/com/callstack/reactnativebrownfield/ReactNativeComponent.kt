@@ -8,13 +8,14 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class ReactNativeComponent(context: Context): ReactRootView(context) {
+    val uuid = UUID.randomUUID().toString()
+
     fun startReactApplication(
         reactInstanceManager: ReactInstanceManager?,
         moduleName: String?,
         initialProperties: Bundle?,
         pressHandlers: HashMap<String, ReactNativeCallback>?
     ) {
-        val uuid: String = UUID.randomUUID().toString()
         initialProperties?.putString("uuid", uuid)
 
         pressHandlers?.forEach {

@@ -15,6 +15,7 @@ import React from 'react';
 
 const GreenSquare = ({style, uuid, text, hasChildren, ...passProps}) => (
   <View style={[{flex: 1, backgroundColor: 'green'}, style]} {...passProps}>
+    {console.log(uuid, hasChildren)}
     {hasChildren && <NativeChildren style={{flex: 1}} uuid={uuid} />}
   </View>
 );

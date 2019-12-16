@@ -1,6 +1,7 @@
 package com.callstack.reactnativebrownfield
 
 import android.app.Application
+import android.view.View
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.soloader.SoLoader
@@ -52,6 +53,19 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
 
       initialize(application, options)
     }
+  }
+  private val childrenRegistry: HashMap<String, View> = hashMapOf()
+
+  fun registerView(id: String, view: View) {
+    childrenRegistry[id] = view
+  }
+
+  fun unregisterView(id: String) {
+    childrenRegistry.remove(id)
+  }
+
+  fun getRegisteredView(id: String): View? {
+    return childrenRegistry[id]
   }
 
   fun startReactNative(callback: InitializedCallback?) {

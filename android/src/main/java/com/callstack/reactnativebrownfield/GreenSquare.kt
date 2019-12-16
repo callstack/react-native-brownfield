@@ -12,7 +12,7 @@ class GreenSquare
     }
 
     override fun getProps(): HashMap<String, Any> {
-        val map = hashMapOf<String, Any>()
+        val map = super.getProps()
 
         if (text != null) {
             map["text"] = text!!
@@ -27,8 +27,6 @@ class GreenSquare
             context,
             getProps()
         )
-        addView(reactComponent)
+        initializeReactSubview()
     }
 }
-
-
