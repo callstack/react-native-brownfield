@@ -20,7 +20,12 @@
 }
 
 - (IBAction)openReactNative:(UIButton *)sender {
-    _green.text = @"JAJEBIE";
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
+    label.backgroundColor = [UIColor clearColor];
+    label.numberOfLines = 0;
+    label.text = @"Your Text";
+    
+    [_green addSubview:label];
     [_green setNeedsLayout];
 }
 

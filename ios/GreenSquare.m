@@ -11,15 +11,8 @@
     return [super initWithFrame:frame];
 }
 
-- (void)awakeFromNib {
-    [super awakeFromNib];
-    [self setNeedsDisplay];
-    [self setNeedsLayout];
-    [self layoutIfNeeded];
-}
-
 -(NSDictionary*)getProps {
-    NSMutableDictionary *propsMap = [NSMutableDictionary new];
+    NSMutableDictionary *propsMap = [[super getProps] mutableCopy];
     
     if (_text != nil) {
         propsMap[@"text"] = _text;
@@ -31,7 +24,7 @@
 -(void)addReactSubview {
     self.reactComponent = [ReactNativeComponentFactory create:GreenSquareReactComponent withInitialProperties:[self getProps]];
      
-     [self addSubview: self.reactComponent];
+     [super initializeReactSubview: self.reactComponent];
 }
 
 @end

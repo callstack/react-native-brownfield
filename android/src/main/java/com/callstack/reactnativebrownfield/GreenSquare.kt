@@ -1,7 +1,6 @@
 package com.callstack.reactnativebrownfield
 
 import android.content.Context
-import android.util.AttributeSet
 
 class GreenSquare
     @JvmOverloads constructor (

@@ -1,11 +1,26 @@
 /* @flow */
-import {NativeModules, Platform, AppRegistry, View, Text} from 'react-native';
+import {
+  NativeModules,
+  Platform,
+  AppRegistry,
+  View,
+  Text,
+  requireNativeComponent,
+} from 'react-native';
+
+const NativeChildren = requireNativeComponent('ChildrenView');
 
 // Testing
 import React from 'react';
 
-const GreenSquare = ({style, uuid, text, ...passProps}) => (
+const GreenSquare = ({style, uuid, text, hasChildren, ...passProps}) => (
   <View style={[{flex: 1, backgroundColor: 'green'}, style]} {...passProps}>
+    {hasChildren && <NativeChildren style={{flex: 1}} uuid={uuid} />}
+  </View>
+);
+
+const RedSquare = ({style, uuid, text, ...passProps}) => (
+  <View style={[{flex: 1, backgroundColor: 'red'}, style]} {...passProps}>
     <Text
       onPress={() => {
         NativeModules.ReactNativeBrownfield.handleCallback(uuid, 'onPress');
@@ -13,10 +28,6 @@ const GreenSquare = ({style, uuid, text, ...passProps}) => (
       {text}
     </Text>
   </View>
-);
-
-const RedSquare = ({style, ...passProps}) => (
-  <View style={[{flex: 1, backgroundColor: 'red'}, style]} {...passProps} />
 );
 // End Testing
 

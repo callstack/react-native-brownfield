@@ -8,7 +8,8 @@
 @synthesize entryFile = _entryFile;
 @synthesize fallbackResource = _fallbackResource;
 @synthesize bundlePath = _bundlePath;
-@synthesize bridge;
+@synthesize bridge = _bridge;
+@synthesize childrenRegistry = _childrenRegistry;
 
 + (ReactNativeBrownfield*)shared {
     static ReactNativeBrownfield *sharedBridgeManager = nil;
@@ -26,6 +27,7 @@
         _entryFile = @"index";
         _fallbackResource = nil;
         _bundlePath = @"main.jsbundle";
+        _childrenRegistry = [NSMutableDictionary new];
     }
     return self;
 }
@@ -39,11 +41,11 @@
 }
 
 - (void)startReactNative:(void(^)(void))onBundleLoaded launchOptions:(NSDictionary *)launchOptions {
-    if (bridge != nil) {
+    if (_bridge != nil) {
         return;
     }
     
-    bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+    _bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
     
     if (onBundleLoaded != nil) {
         _onBundleLoaded = [onBundleLoaded copy];
@@ -56,6 +58,18 @@
     _onBundleLoaded();
     _onBundleLoaded = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)registerView:(NSString*)idx view:(UIView*)view {
+    _childrenRegistry[idx] = view;
+}
+
+- (void)unregisterView:(NSString*)idx{
+    [_childrenRegistry removeObjectForKey:idx];
+}
+
+- (nullable UIView*)getRegisteredView:(NSString*)idx {
+    return [_childrenRegistry objectForKey:idx];
 }
 
 #pragma mark - RCTBridgeDelegate Methods
