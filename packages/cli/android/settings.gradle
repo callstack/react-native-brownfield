@@ -1,0 +1,7 @@
+rootProject.name='ReactNativeBrownfield'
+
+include ':react-native-brownfield'
+
+include ':react-native-brownfield-core'
+project(':react-native-brownfield-core').projectDir = new File(rootProject.projectDir, '../../../node_modules/@callstack/react-native-brownfield/android')
+

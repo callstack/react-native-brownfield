@@ -1,0 +1,36 @@
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.kezong.fat-aar'
+
+project.ext.react = [
+    entryFile: "index.js",
+    root: "../..",
+    jsBundleDirRelease: "$buildDir/generated/assets/react/release",
+    enableHermes: false,
+    enableVmCleanup: false
+]
+
+apply from: "../../node_modules/react-native/react.gradle"
+
+android {
+    sourceSets {
+        main {
+            assets.srcDirs = [
+                    "$buildDir/generated/assets/react/release"
+            ]
+        }
+    }
+}
+
+configurations.embed.transitive = true
+
+dependencies {
+    embed ("com.facebook.react:react-native:+") {
+        exclude(group:'androidx.appcompat')
+        exclude(group:'androidx.core')
+    }
+    embed "org.webkit:android-jsc:+"
+
+    embed project(path: ":react-native-brownfield-core", configuration: "default")
+}
