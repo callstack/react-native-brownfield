@@ -6,9 +6,9 @@
   "private": true,
   "workspaces": {
     "nohoist": [
-      "react", 
+      "react",
       "react/**",
-      "react-native", 
+      "react-native",
       "react-native/**",
       "**/@callstack/react-native-brownfield"
     ]
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@callstack/react-native-brownfield": "1.0.0",
+    "commander": "^4.0.1",
     "react": "16.9.0",
     "react-native": "^0.61.5"
   }
