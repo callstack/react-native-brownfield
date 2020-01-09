@@ -1,25 +1,22 @@
 {
-  "name": "@react-native-brownfield/bridge",
+  "name": "@react-native-brownfield/bundler",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
-  "contributors": [
-    "Piotr Drapich <piotr.drapich@callstack.com>"
-  ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
-  "description": "Brownfield helpers for React Native",
-  "main": "src/index.js",
+  "description": "An engine to encapsulate React Native to native artifacts",
   "keywords": [
     "react-native-brownfield",
     "react native brownfield",
-    "native",
+    "native artifacts",
+    "react native framework",
+    "react native aar",
     "react native integration"
   ],
   "publishConfig": {
     "access": "public"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
+    "@react-native-brownfield/bridge": "*"
   }
 }

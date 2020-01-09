@@ -1,28 +1,12 @@
 {
-  "name": "@callstack/react-native-brownfield-cli",
+  "name": "@react-native-brownfield/cli",
   "version": "1.0.0",
   "description": "",
-  "react-native": "src/index",
   "private": true,
-  "workspaces": {
-    "nohoist": [
-      "react",
-      "react/**",
-      "react-native",
-      "react-native/**",
-      "**/@callstack/react-native-brownfield"
-    ]
-  },
-  "scripts": {
-    "start": "react-native start"
-  },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@callstack/react-native-brownfield": "1.0.0",
-    "commander": "^4.0.1",
-    "react": "16.9.0",
-    "react-native": "^0.61.5"
+    "commander": "^4.0.1"
   }
 }
