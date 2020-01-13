@@ -1,8 +1,10 @@
 const fs = require('fs');
+const path = require('path');
 const execSync = require('child_process').execSync;
 
 module.exports = function buildArtifact({entryFile}) {
-  const buildDir = `${__dirname}/../../build`;
+  const buildDir = process.cwd();
+  console.log(__dirname);
 
   if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir);
@@ -10,8 +12,21 @@ module.exports = function buildArtifact({entryFile}) {
 
   try {
     const result = execSync(
-      `react-native bundle --platform ios --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/main.jsbundle --assets-dest ${buildDir}`,
+      `yarn react-native bundle --platform ios --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/main.jsbundle --assets-dest ${buildDir}`,
     );
+    console.log(result.toString());
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+
+  try {
+    execSync(
+      `pushd ${path.resolve(
+        './node_modules/@react-native-brownfield/cli/ios',
+      )}`,
+    );
+    const result = execSync('pod install');
     console.log(result.toString());
   } catch (e) {
     console.error(e);
@@ -23,6 +38,7 @@ module.exports = function buildArtifact({entryFile}) {
       'xcodebuild -workspace ReactNativeBrownfield.xcworkspace -scheme ReactNativeBrownfield -sdk iphoneos -derivedDataPath build',
     );
     console.log(result.toString());
+    execSync('popd');
   } catch (e) {
     console.error(e);
     return;

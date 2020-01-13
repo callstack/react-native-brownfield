@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const commander = require('commander');
 const buildIOSArtifact = require('./commands/build-ios');
 

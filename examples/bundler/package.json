@@ -1,0 +1,14 @@
+{
+  "name": "@react-native-brownfield/example-bundler",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "yarn react-native start"
+  },
+  "dependencies": {
+    "@react-native-brownfield/bridge": "../../packages/bridge",
+    "@react-native-brownfield/cli": "../../packages/cli",
+    "react": "16.9.0",
+    "react-native": "0.61.5"
+  }
+}

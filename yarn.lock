@@ -950,8 +950,8 @@
 
 "@react-navigation/core@~3.4.1":
   version "3.4.2"
-  resolved "https://registry.yarnpkg.com/@react-navigation/core/-/core-3.4.2.tgz#bec563e94fde40fbab3730cdc97f22afbb2a1498"
-  integrity sha512-7G+iDzLSTeOUU4vVZeRZKJ+Bd7ds7ZxYNqZcB8i0KlBeQEQfR74Ounfu/p0KIEq2RiNnaE3QT7WVP3C87sebzw==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/@react-navigation/core/-/core-3.4.2.tgz#bec563e94fde40fbab3730cdc97f22afbb2a1498"
+  integrity sha1-vsVj6U/eQPurNzDNyX8ir7sqFJg=
   dependencies:
     hoist-non-react-statics "^3.3.0"
     path-to-regexp "^1.7.0"
@@ -960,8 +960,8 @@
 
 "@react-navigation/native@~3.5.0":
   version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@react-navigation/native/-/native-3.5.0.tgz#f5d16e0845ac26d1147d1caa481f18a00740e7ae"
-  integrity sha512-TmGOis++ejEXG3sqNJhCSKqB0/qLu3FQgDtO959qpqif36R/diR8SQwJqeSdofoEiK3CepdhFlTCeHdS1/+MsQ==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/@react-navigation/native/-/native-3.5.0.tgz#f5d16e0845ac26d1147d1caa481f18a00740e7ae"
+  integrity sha1-9dFuCEWsJtEUfRyqSB8YoAdA564=
   dependencies:
     hoist-non-react-statics "^3.0.1"
     react-native-safe-area-view "^0.14.1"
@@ -1970,8 +1970,8 @@ dayjs@^1.8.15:
 
 debounce@^1.2.0:
   version "1.2.0"
-  resolved "https://registry.yarnpkg.com/debounce/-/debounce-1.2.0.tgz#44a540abc0ea9943018dc0eaa95cce87f65cd131"
-  integrity sha512-mYtLl1xfZLi1m4RtQYlZgJUNQjl4ZxVnHzIR8nLLgi4q1YT8o/WM+MK/f8yfcc9s5Ir5zRaPZyZU6xs1Syoocg==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/debounce/-/debounce-1.2.0.tgz#44a540abc0ea9943018dc0eaa95cce87f65cd131"
+  integrity sha1-RKVAq8DqmUMBjcDqqVzOh/Zc0TE=
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
@@ -2862,7 +2862,7 @@ growly@^1.3.0:
 
 hammerjs@^2.0.8:
   version "2.0.8"
-  resolved "https://registry.yarnpkg.com/hammerjs/-/hammerjs-2.0.8.tgz#04ef77862cff2bb79d30f7692095930222bf60f1"
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/hammerjs/-/hammerjs-2.0.8.tgz#04ef77862cff2bb79d30f7692095930222bf60f1"
   integrity sha1-BO93hiz/K7edMPdpIJWTAiK/YPE=
 
 handlebars@^4.1.2:
@@ -2944,13 +2944,13 @@ hermes-engine@^0.2.1:
 
 hoist-non-react-statics@^2.3.1, hoist-non-react-statics@^2.5.0:
   version "2.5.5"
-  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
-  integrity sha512-rqcy4pJo55FTTLWt+bU8ukscqHeE/e9KWvsOW2b/a3afxQZhwkQdT1rPPCJ0rYXdj4vNcasY8zHTH+jF/qStxw==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
+  integrity sha1-xZA89AnA39kI84jmGdhrnBF0y0c=
 
 hoist-non-react-statics@^3.0.1, hoist-non-react-statics@^3.3.0:
   version "3.3.1"
-  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#101685d3aff3b23ea213163f6e8e12f4f111e19f"
-  integrity sha512-wbg3bpgA/ZqWrZuMOeJi8+SKMhr7X9TesL/rXMjTzh0p0JUBo3II8DHboYbuIXWRlttrUFxwcu/5kygrCw8fJw==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#101685d3aff3b23ea213163f6e8e12f4f111e19f"
+  integrity sha1-EBaF06/zsj6iExY/bo4S9PER4Z8=
   dependencies:
     react-is "^16.7.0"
 
@@ -3290,7 +3290,7 @@ is-wsl@^1.1.0:
 
 isarray@0.0.1:
   version "0.0.1"
-  resolved "https://registry.yarnpkg.com/isarray/-/isarray-0.0.1.tgz#8a18acfca9a8f4177e09abfc6038939b05d1eedf"
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/isarray/-/isarray-0.0.1.tgz#8a18acfca9a8f4177e09abfc6038939b05d1eedf"
   integrity sha1-ihis/Kmo9Bd+Cav8YDiTmwXR7t8=
 
 isarray@1.0.0, isarray@~1.0.0:
@@ -4934,8 +4934,8 @@ path-parse@^1.0.6:
 
 path-to-regexp@^1.7.0:
   version "1.8.0"
-  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.8.0.tgz#887b3ba9d84393e87a0a0b9f4cb756198b53548a"
-  integrity sha512-n43JRhlUKUAlibEJhPeir1ncUID16QnEjNpwzNdO3Lm4ywrBpBZ5oLD0I6br9evr1Y9JTqwRtAh7JLoOzAQdVA==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/path-to-regexp/-/path-to-regexp-1.8.0.tgz#887b3ba9d84393e87a0a0b9f4cb756198b53548a"
+  integrity sha1-iHs7qdhDk+h6CgufTLdWGYtTVIo=
   dependencies:
     isarray "0.0.1"
 
@@ -5111,8 +5111,8 @@ qs@~6.5.2:
 
 query-string@^6.4.2:
   version "6.9.0"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.9.0.tgz#1c3b727c370cf00f177c99f328fda2108f8fa3dd"
-  integrity sha512-KG4bhCFYapExLsUHrFt+kQVEegF2agm4cpF/VNc6pZVthIfCc/GK8t8VyNIE3nyXG9DK3Tf2EGkxjR6/uRdYsA==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/query-string/-/query-string-6.9.0.tgz#1c3b727c370cf00f177c99f328fda2108f8fa3dd"
+  integrity sha1-HDtyfDcM8A8XfJnzKP2iEI+Po90=
   dependencies:
     decode-uri-component "^0.2.0"
     split-on-first "^1.0.0"
@@ -5138,13 +5138,13 @@ react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4, react-is@^16.8.6, react-is
 
 react-lifecycles-compat@^3.0.4:
   version "3.0.4"
-  resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
-  integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
+  integrity sha1-TxonOv38jzSIqMUWv9p4+HI1I2I=
 
 react-native-gesture-handler@1.4.1:
   version "1.4.1"
-  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.4.1.tgz#c38d9e57637b95e221722a79f2bafac62e3aeb21"
-  integrity sha512-Ffcs+SbEbkGaal0CClYL+v7A9y4OA5G5lW01qrzjxaqASp5C8BfnWSKuqYKE00s6bLwE5L4xnlHkG0yIxAtbrQ==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-native-gesture-handler/-/react-native-gesture-handler-1.4.1.tgz#c38d9e57637b95e221722a79f2bafac62e3aeb21"
+  integrity sha1-w42eV2N7leIhcip58rr6xi466yE=
   dependencies:
     hammerjs "^2.0.8"
     hoist-non-react-statics "^2.3.1"
@@ -5153,29 +5153,29 @@ react-native-gesture-handler@1.4.1:
 
 react-native-safe-area-view@^0.14.1:
   version "0.14.8"
-  resolved "https://registry.yarnpkg.com/react-native-safe-area-view/-/react-native-safe-area-view-0.14.8.tgz#ef33c46ff8164ae77acad48c3039ec9c34873e5b"
-  integrity sha512-MtRSIcZNstxv87Jet+UsPhEd1tpGe8cVskDXlP657x6rHpSrbrc+y13ZNXrwAgGNNhqQNX7UJT68ZIq//ZRmvw==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-native-safe-area-view/-/react-native-safe-area-view-0.14.8.tgz#ef33c46ff8164ae77acad48c3039ec9c34873e5b"
+  integrity sha1-7zPEb/gWSud6ytSMMDnsnDSHPls=
   dependencies:
     hoist-non-react-statics "^2.3.1"
 
 "react-native-screens@^1.0.0 || ^1.0.0-alpha":
   version "1.0.0-alpha.23"
-  resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-1.0.0-alpha.23.tgz#25d7ea4d11bda4fcde2d1da7ae50271c6aa636e0"
-  integrity sha512-tOxHGQUN83MTmQB4ghoQkibqOdGiX4JQEmeyEv96MKWO/x8T2PJv84ECUos9hD3blPRQwVwSpAid1PPPhrVEaw==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-native-screens/-/react-native-screens-1.0.0-alpha.23.tgz#25d7ea4d11bda4fcde2d1da7ae50271c6aa636e0"
+  integrity sha1-JdfqTRG9pPzeLR2nrlAnHGqmNuA=
   dependencies:
     debounce "^1.2.0"
 
 react-native-tab-view@^1.2.0, react-native-tab-view@^1.4.1:
   version "1.4.1"
-  resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-1.4.1.tgz#f113cd87485808f0c991abec937f70fa380478b9"
-  integrity sha512-Bke8KkDcDhvB/z0AS7MnQKMD2p6Kwfc1rSKlMOvg9CC5CnClQ2QEnhPSbwegKDYhUkBI92iH/BYy7hNSm5kbUQ==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-native-tab-view/-/react-native-tab-view-1.4.1.tgz#f113cd87485808f0c991abec937f70fa380478b9"
+  integrity sha1-8RPNh0hYCPDJkavsk39w+jgEeLk=
   dependencies:
     prop-types "^15.6.1"
 
-react-native@^0.61.5:
+react-native@0.61.5, react-native@^0.61.5:
   version "0.61.5"
-  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.61.5.tgz#6e21acb56cbd75a3baeb1f70201a66f42600bba8"
-  integrity sha512-MXqE3NoGO0T3dUKIKkIppijBhRRMpfN6ANbhMXHDuyfA+fSilRWgCwYgR/YNCC7ntECoJYikKaNTUBB0DeQy6Q==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-native/-/react-native-0.61.5.tgz#6e21acb56cbd75a3baeb1f70201a66f42600bba8"
+  integrity sha1-biGstWy9daO66x9wIBpm9CYAu6g=
   dependencies:
     "@babel/runtime" "^7.0.0"
     "@react-native-community/cli" "^3.0.0"
@@ -5209,20 +5209,20 @@ react-native@^0.61.5:
 
 react-navigation-drawer@~1.2.1:
   version "1.2.1"
-  resolved "https://registry.yarnpkg.com/react-navigation-drawer/-/react-navigation-drawer-1.2.1.tgz#7bd5efeee7d2f611d3ebb0933e0c8e8eb7cafe52"
-  integrity sha512-T2kaBjY2c4/3I6noWFnaf/c18ntNH5DsST38i+pdc2NPxn5Yi5lkK+ZZTeKuHSFD4a7G0jWY9OGf1iRkHWLMAQ==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-navigation-drawer/-/react-navigation-drawer-1.2.1.tgz#7bd5efeee7d2f611d3ebb0933e0c8e8eb7cafe52"
+  integrity sha1-e9Xv7ufS9hHT67CTPgyOjrfK/lI=
   dependencies:
     react-native-tab-view "^1.2.0"
 
 react-navigation-stack@~1.4.0:
   version "1.4.0"
-  resolved "https://registry.yarnpkg.com/react-navigation-stack/-/react-navigation-stack-1.4.0.tgz#69cdb029ea4ee5877d7e933b3117dc90bc841eb2"
-  integrity sha512-zEe9wCA0Ot8agarYb//0nSWYW1GM+1R0tY/nydUV0EizeJ27At0EklYVWvYEuYU6C48va6cu8OPL7QD/CcJACw==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-navigation-stack/-/react-navigation-stack-1.4.0.tgz#69cdb029ea4ee5877d7e933b3117dc90bc841eb2"
+  integrity sha1-ac2wKepO5Yd9fpM7MRfckLyEHrI=
 
 react-navigation-tabs@~1.1.4:
   version "1.1.4"
-  resolved "https://registry.yarnpkg.com/react-navigation-tabs/-/react-navigation-tabs-1.1.4.tgz#00a312250df3c519c60b7815a523ace5ee11163a"
-  integrity sha512-py2hLCRxPwXOzmY1W9XcY1rWXxdK6RGW/aXh56G9gIf8cpHNDhy/bJV4e46/JrVcse3ybFaN0liT09/DM/NdwQ==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-navigation-tabs/-/react-navigation-tabs-1.1.4.tgz#00a312250df3c519c60b7815a523ace5ee11163a"
+  integrity sha1-AKMSJQ3zxRnGC3gVpSOs5e4RFjo=
   dependencies:
     hoist-non-react-statics "^2.5.0"
     prop-types "^15.6.1"
@@ -5231,8 +5231,8 @@ react-navigation-tabs@~1.1.4:
 
 react-navigation@3.11.0:
   version "3.11.0"
-  resolved "https://registry.yarnpkg.com/react-navigation/-/react-navigation-3.11.0.tgz#2c82217c452d07d8b9b0929bc7e77e2bcfaf9388"
-  integrity sha512-wlPcDtNiIdPeYxNQ/MN4arY5Xe9EphD2QVpRuvvuPWW+BamF3AJaIy060r3Yz59DODAoWllscabat/yqnih8Tg==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/react-navigation/-/react-navigation-3.11.0.tgz#2c82217c452d07d8b9b0929bc7e77e2bcfaf9388"
+  integrity sha1-LIIhfEUtB9i5sJKbx+d+K8+vk4g=
   dependencies:
     "@react-navigation/core" "~3.4.1"
     "@react-navigation/native" "~3.5.0"
@@ -5854,8 +5854,8 @@ spdx-license-ids@^3.0.0:
 
 split-on-first@^1.0.0:
   version "1.1.0"
-  resolved "https://registry.yarnpkg.com/split-on-first/-/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"
-  integrity sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/split-on-first/-/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"
+  integrity sha1-9hCv7uOxK84dDDBCXnY5i3gkml8=
 
 split-string@^3.0.1, split-string@^3.0.2:
   version "3.1.0"
@@ -5921,7 +5921,7 @@ stream-buffers@~2.2.0:
 
 strict-uri-encode@^2.0.0:
   version "2.0.0"
-  resolved "https://registry.yarnpkg.com/strict-uri-encode/-/strict-uri-encode-2.0.0.tgz#b9c7330c7042862f6b142dc274bbcc5866ce3546"
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/strict-uri-encode/-/strict-uri-encode-2.0.0.tgz#b9c7330c7042862f6b142dc274bbcc5866ce3546"
   integrity sha1-ucczDHBChi9rFC3CdLvMWGbONUY=
 
 string-length@^2.0.0:

@@ -18,7 +18,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     ReactNativeBrownfield *reactNativeBrownfieldManager = [ReactNativeBrownfield shared];
-    reactNativeBrownfieldManager.entryFile = @"packages/example-bridge/index";
+    reactNativeBrownfieldManager.entryFile = @"examples/bridge/index";
     [reactNativeBrownfieldManager startReactNative:^(void){
         NSLog(@"React Native started");
     }];

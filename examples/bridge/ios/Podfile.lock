@@ -251,7 +251,7 @@ DEPENDENCIES:
   - React-RCTVibration (from `../../../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/jscallinvoker (from `../../../node_modules/react-native/ReactCommon`)
   - ReactCommon/turbomodule/core (from `../../../node_modules/react-native/ReactCommon`)
-  - ReactNativeBrownfield (from `../../bridge`)
+  - ReactNativeBrownfield (from `../../../packages/bridge`)
   - RNGestureHandler (from `../../../node_modules/react-native-gesture-handler`)
   - Yoga (from `../../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -309,7 +309,7 @@ EXTERNAL SOURCES:
   ReactCommon:
     :path: "../../../node_modules/react-native/ReactCommon"
   ReactNativeBrownfield:
-    :path: "../../bridge"
+    :path: "../../../packages/bridge"
   RNGestureHandler:
     :path: "../../../node_modules/react-native-gesture-handler"
   Yoga:
