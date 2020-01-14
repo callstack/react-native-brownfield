@@ -1,8 +1,7 @@
-/* @flow */
 import {NativeModules, Platform} from 'react-native';
 
 module.exports = {
-  popToNative: (animated?: boolean): void => {
+  popToNative: (animated: boolean): void => {
     if (Platform.OS === 'ios') {
       NativeModules.ReactNativeBrownfield.popToNative(animated);
     } else if (Platform.OS === 'android') {
