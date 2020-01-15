@@ -2,9 +2,9 @@ import React from 'react';
 import {AppRegistry, StyleSheet, Text, View, Button} from 'react-native';
 import {
   createStackNavigator,
-  createAppContainer,
-  NavigationEvents,
-} from 'react-navigation';
+  NavigationStackScreenProps,
+} from 'react-navigation-stack';
+import {createAppContainer, NavigationEvents} from 'react-navigation';
 import ReactNativeBrownfield from '@react-native-brownfield/bridge';
 
 const getRandomTheme = () => {
@@ -19,7 +19,7 @@ const getRandomTheme = () => {
   };
 };
 
-class HomeScreen extends React.Component {
+class HomeScreen extends React.Component<NavigationStackScreenProps> {
   static navigationOptions = {
     header: null,
   };
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
 });
 
 const AppNavigator = createStackNavigator({
+  // @ts-ignore
   Home: {
     screen: HomeScreen,
   },

@@ -18,7 +18,7 @@ public class MainApplication extends Application implements ReactApplication {
         List<ReactPackage> packages = new PackageList(this).getPackages();
         HashMap<String, Object> options = new HashMap<>();
         options.put("packages", packages);
-        options.put("mainModuleName", "packages/example-bridge/index");
+        options.put("mainModuleName", "examples/bridge/index.tsx");
 
         ReactNativeBrownfield.initialize(this, options);
         ReactNativeBrownfield.getShared().startReactNative(init -> {

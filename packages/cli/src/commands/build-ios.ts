@@ -1,8 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const execSync = require('child_process').execSync;
+import fs from 'fs';
+import path from 'path';
+import {execSync} from 'child_process';
+import {BuildArtifact} from '@react-native-brownfield/cli-types';
 
-module.exports = function buildArtifact({entryFile}) {
+export default function buildArtifact({entryFile}: BuildArtifact) {
   const buildDir = process.cwd();
   console.log(__dirname);
 
@@ -43,4 +44,4 @@ module.exports = function buildArtifact({entryFile}) {
     console.error(e);
     return;
   }
-};
+}
