@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const execSync = require('child_process').execSync;
 
-module.exports = function buildArtifact({entryFile}) {
+export default function buildArtifact({entryFile}: any) {
   const buildDir = process.cwd();
   console.log(__dirname);
 
@@ -43,4 +43,4 @@ module.exports = function buildArtifact({entryFile}) {
     console.error(e);
     return;
   }
-};
+}

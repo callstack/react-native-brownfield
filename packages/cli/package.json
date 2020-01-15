@@ -18,11 +18,12 @@
     "access": "public"
   },
   "peerDependencies": {
+    "@react-native-brownfield/bridge": "*",
     "react": "16.9.0",
-    "react-native": "0.61.5",
-    "@react-native-brownfield/bridge": "*"
+    "react-native": "0.61.5"
   },
   "dependencies": {
+    "@types/node": "^13.1.7",
     "commander": "^4.0.1"
   }
 }
