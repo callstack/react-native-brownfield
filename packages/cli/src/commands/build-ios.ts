@@ -1,15 +1,19 @@
 import fs from 'fs';
-import path from 'path';
+// import path from 'path';
 import {execSync} from 'child_process';
-import {BuildArtifact} from '@react-native-brownfield/cli-types';
+import {BuildArtifact} from '../types';
 
 export default function buildArtifact({entryFile}: BuildArtifact) {
-  const buildDir = process.cwd();
-  console.log(__dirname);
+  const buildDir = `${process.cwd()}/build/brownfield`;
 
   if (!fs.existsSync(buildDir)) {
-    fs.mkdirSync(buildDir);
+    fs.mkdirSync(buildDir, {recursive: true});
   }
+
+  // const libraryPath = path.join(
+  //   path.dirname(require.resolve('@react-native-brownfield/cli')),
+  //   '..',
+  // );
 
   try {
     const result = execSync(
@@ -22,11 +26,6 @@ export default function buildArtifact({entryFile}: BuildArtifact) {
   }
 
   try {
-    execSync(
-      `pushd ${path.resolve(
-        './node_modules/@react-native-brownfield/cli/ios',
-      )}`,
-    );
     const result = execSync('pod install');
     console.log(result.toString());
   } catch (e) {
