@@ -11,6 +11,7 @@
     "build-clean": "rm -rf ./packages/*/build",
     "build-clean-all": "rm -rf ./packages/*/build ./packages/*/tsconfig.tsbuildinfo",
     "watch": "node ./scripts/watch.js",
+    "lint": "eslint --ext '.js,.ts,.tsx' .",
     "typescript": "tsc --noEmit"
   },
   "devDependencies": {
