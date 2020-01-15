@@ -5,6 +5,12 @@
     "examples/bridge"
   ],
   "scripts": {
+    "prebuild": "yarn build:ts",
+    "build": "node ./scripts/build.js",
+    "build:ts": "node ./scripts/buildTs.js",
+    "build-clean": "rm -rf ./packages/*/build",
+    "build-clean-all": "rm -rf ./packages/*/build ./packages/*/tsconfig.tsbuildinfo",
+    "watch": "node ./scripts/watch.js",
     "typescript": "tsc --noEmit"
   },
   "devDependencies": {

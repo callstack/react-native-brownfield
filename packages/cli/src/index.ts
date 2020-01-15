@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const commander = require('commander');
-const buildIOSArtifact = require('./commands/build-ios');
+import commander from 'commander';
+import buildIOSArtifact from './commands/build-ios';
 
 const program = new commander.Command();
 program.version(
