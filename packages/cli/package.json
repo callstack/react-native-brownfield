@@ -4,15 +4,7 @@
   "description": "",
   "private": true,
   "bin": {
-    "react-native-brownfield": "src/index.ts"
-  },
-  "workspaces": {
-    "nohoist": [
-      "react",
-      "react-native",
-      "react-native/**",
-      "@react-native-brownfield/**"
-    ]
+    "react-native-brownfield": "build/index.js"
   },
   "publishConfig": {
     "access": "public"

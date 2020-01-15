@@ -8,7 +8,7 @@
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "description": "Brownfield helpers for React Native",
-  "main": "src/index.js",
+  "main": "build/index.js",
   "keywords": [
     "react-native-brownfield",
     "react native brownfield",

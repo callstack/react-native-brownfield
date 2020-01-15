@@ -746,6 +746,7 @@
 "@react-native-brownfield/cli@../../packages/cli":
   version "1.0.0"
   dependencies:
+    "@types/node" "^13.1.7"
     commander "^4.0.1"
 
 "@react-native-community/cli-debugger-ui@^3.0.0":
@@ -856,6 +857,11 @@
   dependencies:
     "@types/istanbul-lib-coverage" "*"
     "@types/istanbul-lib-report" "*"
+
+"@types/node@^13.1.7":
+  version "13.1.7"
+  resolved "https://artifacts.werally.in:443/artifactory/api/npm/npm/@types/node/-/node-13.1.7.tgz#db51d28b8dfacfe4fb2d0da88f5eb0a2eca00675"
+  integrity sha1-21HSi436z+T7LQ2oj16wouygBnU=
 
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
