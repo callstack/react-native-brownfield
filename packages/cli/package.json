@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "bin": {
-    "react-native-brownfield": "build/index.js"
+    "react-native-brownfield": "index.js"
   },
   "publishConfig": {
     "access": "public"
