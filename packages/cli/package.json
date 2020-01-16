@@ -5,7 +5,7 @@
   "private": true,
   "main": "build/index.js",
   "bin": {
-    "react-native-brownfield": "build/index.js"
+    "react-native-brownfield": "index.js"
   },
   "publishConfig": {
     "access": "public"
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@types/node": "^13.1.7",
-    "commander": "^4.0.1"
+    "commander": "^4.0.1",
+    "find-up": "^4.1.0"
   }
 }

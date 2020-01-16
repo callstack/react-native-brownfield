@@ -1,20 +1,19 @@
-import fs from 'fs';
 import path from 'path';
 import {execSync} from 'child_process';
 import copyFiles from '../tools/copyFiles';
-import {BuildArtifact} from '../types';
+import {BuildPlatform} from '../types';
+import {createBuildDir, bundleJS, getBuildDir} from '../tools/helpers';
 
-export default async function buildArtifact({entryFile}: BuildArtifact) {
-  const buildDir = `${process.cwd()}/build/brownfield`;
+export default async function buildArtifact(args: BuildPlatform) {
+  const rootDir = process.cwd();
+  const buildDir = getBuildDir(rootDir);
   const libraryPath = path.join(
     path.dirname(require.resolve('@react-native-brownfield/cli')),
     '..',
     'ios',
   );
 
-  if (!fs.existsSync(buildDir)) {
-    fs.mkdirSync(buildDir, {recursive: true});
-  }
+  createBuildDir(buildDir);
 
   try {
     await copyFiles(libraryPath, `${buildDir}/ios`);
@@ -23,15 +22,12 @@ export default async function buildArtifact({entryFile}: BuildArtifact) {
     return;
   }
 
-  try {
-    const result = execSync(
-      `yarn react-native bundle --platform ios --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/main.jsbundle --assets-dest ${buildDir}`,
-    );
-    console.log(result.toString());
-  } catch (e) {
-    console.error(e);
-    return;
-  }
+  bundleJS({
+    ...args,
+    platform: 'ios',
+    rootDir,
+    buildDir,
+  });
 
   try {
     const result = execSync('pod install');
