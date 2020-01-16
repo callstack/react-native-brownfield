@@ -2,22 +2,27 @@ import fs from 'fs';
 // import path from 'path';
 import {execSync} from 'child_process';
 import {BuildArtifact} from '../types';
+import findUp from 'find-up';
 
-export default function buildArtifact({entryFile}: BuildArtifact) {
-  const buildDir = `${process.cwd()}/build/brownfield`;
+export default async function buildArtifact({
+  entryFile,
+  useNpm,
+}: BuildArtifact) {
+  const rootDir = process.cwd();
+  const buildDir = `${rootDir}/build/brownfield`;
 
   if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir, {recursive: true});
   }
 
-  // const libraryPath = path.join(
-  //   path.dirname(require.resolve('@react-native-brownfield/cli')),
-  //   '..',
-  // );
+  const packageManagerCmd =
+    useNpm || (await isProjectUsingNpm(rootDir))
+      ? 'node node_modules/.bin/react-native'
+      : 'yarn react-native';
 
   try {
     const result = execSync(
-      `yarn react-native bundle --platform ios --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/main.jsbundle --assets-dest ${buildDir}`,
+      `${packageManagerCmd} bundle --platform ios --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/main.jsbundle --assets-dest ${buildDir}`,
     );
     console.log(result.toString());
   } catch (e) {
@@ -43,4 +48,8 @@ export default function buildArtifact({entryFile}: BuildArtifact) {
     console.error(e);
     return;
   }
+}
+
+export function isProjectUsingNpm(cwd: string) {
+  return findUp.exists(`${cwd}/package-lock.json`);
 }
