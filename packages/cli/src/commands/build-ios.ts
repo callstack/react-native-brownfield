@@ -9,18 +9,10 @@ export default async function buildArtifact(args: BuildPlatform) {
   const buildDir = getBuildDir(rootDir);
   const libraryPath = path.join(
     path.dirname(require.resolve('@react-native-brownfield/cli')),
-    '..',
     'ios',
   );
 
   createBuildDir(buildDir);
-
-  try {
-    await copyFiles(libraryPath, `${buildDir}/ios`);
-  } catch (e) {
-    console.log(e);
-    return;
-  }
 
   bundleJS({
     ...args,
@@ -28,6 +20,13 @@ export default async function buildArtifact(args: BuildPlatform) {
     rootDir,
     buildDir,
   });
+
+  try {
+    await copyFiles(libraryPath, `${buildDir}/ios`);
+  } catch (e) {
+    console.log(e);
+    return;
+  }
 
   try {
     const result = execSync('pod install');
