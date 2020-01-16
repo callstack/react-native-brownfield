@@ -16,6 +16,13 @@ export default async function buildIOS(args: BuildPlatform) {
   });
 
   try {
+    await copyFiles(libraryPath, `${buildDir}/ios`);
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+
+  try {
     const result = execSync('pod install');
     console.log(result.toString());
   } catch (e) {
