@@ -1,34 +1,19 @@
-import fs from 'fs';
-// import path from 'path';
 import {execSync} from 'child_process';
-import {BuildArtifact} from '../types';
-import findUp from 'find-up';
+import {BuildPlatform} from '../types';
+import {createBuildDir, bundleJS, getBuildDir} from '../tools/helpers';
 
-export default async function buildArtifact({
-  entryFile,
-  useNpm,
-}: BuildArtifact) {
+export default async function buildIOS(args: BuildPlatform) {
   const rootDir = process.cwd();
-  const buildDir = `${rootDir}/build/brownfield`;
+  const buildDir = getBuildDir(rootDir);
 
-  if (!fs.existsSync(buildDir)) {
-    fs.mkdirSync(buildDir, {recursive: true});
-  }
+  createBuildDir(buildDir);
 
-  const packageManagerCmd =
-    useNpm || (await isProjectUsingNpm(rootDir))
-      ? 'node node_modules/.bin/react-native'
-      : 'yarn react-native';
-
-  try {
-    const result = execSync(
-      `${packageManagerCmd} bundle --platform ios --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/main.jsbundle --assets-dest ${buildDir}`,
-    );
-    console.log(result.toString());
-  } catch (e) {
-    console.error(e);
-    return;
-  }
+  bundleJS({
+    ...args,
+    platform: 'ios',
+    rootDir,
+    buildDir,
+  });
 
   try {
     const result = execSync('pod install');
@@ -48,8 +33,4 @@ export default async function buildArtifact({
     console.error(e);
     return;
   }
-}
-
-export function isProjectUsingNpm(cwd: string) {
-  return findUp.exists(`${cwd}/package-lock.json`);
 }
