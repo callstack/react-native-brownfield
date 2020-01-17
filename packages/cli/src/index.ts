@@ -2,7 +2,6 @@
 
 import commander from 'commander';
 import buildIOSArtifact from './commands/build-ios';
-import buildAndroid from './commands/build-android';
 
 const program = new commander.Command();
 program.version(
@@ -17,12 +16,5 @@ program
   .option('-e, --entryFile <entryFile>', 'Remove recursively')
   .option('--useNpm', 'use npm instead of yarn')
   .action(buildIOSArtifact);
-
-program
-  .command('build-android')
-  .description('build android')
-  .option('-e, --entryFile <entryFile>', 'Remove recursively')
-  .option('--useNpm', 'use npm instead of yarn')
-  .action(buildAndroid);
 
 program.parse(process.argv);
