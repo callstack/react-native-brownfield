@@ -46,4 +46,14 @@ export default async function buildArtifact(args: BuildPlatform) {
     console.error(e);
     return;
   }
+
+  if (args.outputDir) {
+    try {
+      execSync(
+        `cp ${buildDir}/ios/build/Build/Products/Release-iphoneos/ReactNativeBrownfield.framework ${rootDir}/${args.outputDir}`,
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
