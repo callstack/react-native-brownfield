@@ -47,7 +47,5 @@ target 'ReactNativeBrownfield' do
   pod 'glog', :podspec => '../../../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../../../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
-  get_config
-
-  use_native_modules!
+  use_native_modules!(get_config)
 end
