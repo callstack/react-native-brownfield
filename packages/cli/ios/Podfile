@@ -1,6 +1,20 @@
 platform :ios, '9.0'
 require_relative '../../../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
+def get_config
+  json = []
+
+  IO.popen("npx --quiet react-native config") do |data|
+    while line = data.gets
+      json << line
+    end
+  end
+
+  config = JSON.parse(json.join("\n"))
+  config["dependencies"]["@react-native-brownfield/bridge"]["platforms"]["ios"] = nil
+  config
+end
+
 target 'ReactNativeBrownfield' do
   pod 'FBLazyVector', :path => "../../../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../../../node_modules/react-native/Libraries/FBReactNativeSpec"
@@ -33,5 +47,29 @@ target 'ReactNativeBrownfield' do
   pod 'glog', :podspec => '../../../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../../../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  get_config
+
   use_native_modules!
 end
+
+# post_install do |installer|
+#   puts installer.pods_project.to_yaml
+#   installer.pods_project.targets.each do |target|
+#     # puts target.name
+#     # puts
+#     if target.name == 'ReactNativeBrownfield'
+#         # target.source_build_phase.files.clear
+#         source_files = target.source_build_phase.files
+#         source_files.each do |file|
+#           puts file.file_ref.name
+#           source_files.delete file
+#         end
+#     #     dummy = source_files.find do |file|
+#     #         #puts "File: #{file.file_ref.name}"
+#     #         file.file_ref.name == 'SRWebSocket.m'
+#     #     end
+#     #     source_files.delete dummy
+#     #     puts "Deleting source file #{dummy.inspect} from target #{target.inspect}."
+#     end
+#   end
+# end
