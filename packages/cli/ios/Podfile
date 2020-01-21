@@ -51,25 +51,3 @@ target 'ReactNativeBrownfield' do
 
   use_native_modules!
 end
-
-# post_install do |installer|
-#   puts installer.pods_project.to_yaml
-#   installer.pods_project.targets.each do |target|
-#     # puts target.name
-#     # puts
-#     if target.name == 'ReactNativeBrownfield'
-#         # target.source_build_phase.files.clear
-#         source_files = target.source_build_phase.files
-#         source_files.each do |file|
-#           puts file.file_ref.name
-#           source_files.delete file
-#         end
-#     #     dummy = source_files.find do |file|
-#     #         #puts "File: #{file.file_ref.name}"
-#     #         file.file_ref.name == 'SRWebSocket.m'
-#     #     end
-#     #     source_files.delete dummy
-#     #     puts "Deleting source file #{dummy.inspect} from target #{target.inspect}."
-#     end
-#   end
-# end
