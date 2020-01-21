@@ -38,7 +38,7 @@ export default async function buildArtifact(args: BuildPlatform) {
 
   try {
     const result = execSync(
-      'xcodebuild -workspace ReactNativeBrownfield.xcworkspace -scheme ReactNativeBrownfield -sdk iphoneos -derivedDataPath build',
+      `cd ${buildDir}/ios && xcodebuild -workspace ReactNativeBrownfield.xcworkspace -scheme ReactNativeBrownfield -sdk iphoneos -derivedDataPath build`,
     );
     console.log(result.toString());
     execSync('popd');
