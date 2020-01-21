@@ -29,7 +29,7 @@ export default async function buildArtifact(args: BuildPlatform) {
   }
 
   try {
-    const result = execSync('pod install');
+    const result = execSync(`cd ${buildDir}/ios && pod install`);
     console.log(result.toString());
   } catch (e) {
     console.error(e);
