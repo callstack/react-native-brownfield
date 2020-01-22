@@ -41,9 +41,18 @@ export default async function buildArtifact(args: BuildPlatform) {
       `cd ${buildDir}/ios && xcodebuild -workspace ReactNativeBrownfield.xcworkspace -scheme ReactNativeBrownfield -sdk iphoneos -derivedDataPath build`,
     );
     console.log(result.toString());
-    execSync('popd');
   } catch (e) {
     console.error(e);
     return;
+  }
+
+  const copyDir = args.outputDir ? `${rootDir}/${args.outputDir}` : rootDir;
+
+  try {
+    execSync(
+      `cp -r ${buildDir}/ios/build/Build/Products/Release-iphoneos/ReactNativeBrownfield.framework ${copyDir}/ReactNativeBrownfield.framework`,
+    );
+  } catch (e) {
+    console.log(e);
   }
 }
