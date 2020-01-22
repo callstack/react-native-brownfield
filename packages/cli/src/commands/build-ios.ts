@@ -50,7 +50,7 @@ export default async function buildArtifact(args: BuildPlatform) {
 
   try {
     execSync(
-      `cp -r ${buildDir}/ios/build/Build/Products/Release-iphoneos/ReactNativeBrownfield.framework ${copyDir}`,
+      `cp -r ${buildDir}/ios/build/Build/Products/Release-iphoneos/ReactNativeBrownfield.framework ${copyDir}/ReactNativeBrownfield.framework`,
     );
   } catch (e) {
     console.log(e);
