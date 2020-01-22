@@ -46,13 +46,13 @@ export default async function buildArtifact(args: BuildPlatform) {
     return;
   }
 
-  if (args.outputDir) {
-    try {
-      execSync(
-        `cp -r ${buildDir}/ios/build/Build/Products/Release-iphoneos/ReactNativeBrownfield.framework ${rootDir}/${args.outputDir}`,
-      );
-    } catch (e) {
-      console.log(e);
-    }
+  const copyDir = args.outputDir ? `${rootDir}/${args.outputDir}` : rootDir;
+
+  try {
+    execSync(
+      `cp -r ${buildDir}/ios/build/Build/Products/Release-iphoneos/ReactNativeBrownfield.framework ${copyDir}`,
+    );
+  } catch (e) {
+    console.log(e);
   }
 }
