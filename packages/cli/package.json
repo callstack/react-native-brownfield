@@ -16,6 +16,7 @@
   "dependencies": {
     "@types/node": "^13.1.7",
     "commander": "^4.0.1",
-    "find-up": "^4.1.0"
+    "find-up": "^4.1.0",
+    "terminal-kit": "^1.32.3"
   }
 }

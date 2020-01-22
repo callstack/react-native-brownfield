@@ -25,7 +25,7 @@ export async function bundleJS({
     const result = execSync(
       `${packageManagerCmd} bundle --platform ${platform} --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/js/main.jsbundle --assets-dest ${buildDir}/js`,
     );
-    console.log(result.toString());
+    // console.log(result.toString());
   } catch (e) {
     console.error(e);
     return;
