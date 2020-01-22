@@ -30,7 +30,7 @@ export default async function buildAndroid(args: BuildPlatform) {
 
   try {
     const result = execSync(
-      './gradlew bundleReleaseAar -x bundleReleaseJsAndAssets',
+      `cd ${buildDir}/android && ./gradlew bundleReleaseAar -x bundleReleaseJsAndAssets`,
     );
     console.log(result.toString());
   } catch (e) {
