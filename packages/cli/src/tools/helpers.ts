@@ -23,7 +23,7 @@ export async function bundleJS({
 
   try {
     const result = execSync(
-      `${packageManagerCmd} bundle --platform ${platform} --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/js/main.jsbundle --assets-dest ${buildDir}/js`,
+      `${packageManagerCmd} bundle --platform ${platform} --dev false --entry-file ${entryFile} --bundle-output ${buildDir}/main.jsbundle --assets-dest ${buildDir}/js`,
     );
     console.log(result.toString());
   } catch (e) {
