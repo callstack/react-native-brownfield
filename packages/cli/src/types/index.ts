@@ -1,6 +1,7 @@
 export type BuildPlatform = {
   entryFile: string;
   useNpm?: boolean;
+  outputDir?: string;
 };
 
 export type Platform = 'ios' | 'android';

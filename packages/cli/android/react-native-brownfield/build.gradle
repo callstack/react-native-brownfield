@@ -5,13 +5,13 @@ apply plugin: 'com.kezong.fat-aar'
 
 project.ext.react = [
     entryFile: "index.js",
-    root: "../..",
+    root: "../../../..",
     jsBundleDirRelease: "$buildDir/generated/assets/react/release",
     enableHermes: false,
     enableVmCleanup: false
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
+apply from: "../../../../node_modules/react-native/react.gradle"
 
 android {
     sourceSets {
@@ -32,5 +32,5 @@ dependencies {
     }
     embed "org.webkit:android-jsc:+"
 
-    embed project(path: ":react-native-brownfield-core", configuration: "default")
+    embed project(path: ":react-native-brownfield-bridge", configuration: "default")
 }
