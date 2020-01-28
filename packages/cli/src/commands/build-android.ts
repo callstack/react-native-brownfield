@@ -11,6 +11,7 @@ export default async function buildAndroid(args: BuildPlatform) {
     path.dirname(require.resolve('@react-native-brownfield/cli')),
     'android',
   );
+  const copyDir = args.outputDir ? `${rootDir}/${args.outputDir}` : rootDir;
 
   createBuildDir(buildDir);
 
@@ -30,11 +31,19 @@ export default async function buildAndroid(args: BuildPlatform) {
 
   try {
     const result = execSync(
-      './gradlew bundleReleaseAar -x bundleReleaseJsAndAssets',
+      `cd ${buildDir}/android && ./gradlew bundleReleaseAar -x bundleReleaseJsAndAssets`,
     );
     console.log(result.toString());
   } catch (e) {
     console.error(e);
     return;
+  }
+
+  try {
+    execSync(
+      `mkdir ${copyDir} && mv ${buildDir}/android/react-native-brownfield/build/outputs/aar/react-native-brownfield.aar ${copyDir}`,
+    );
+  } catch (e) {
+    console.log(e);
   }
 }
