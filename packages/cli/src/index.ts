@@ -24,6 +24,7 @@ program
   .description('build android')
   .option('-e, --entryFile <entryFile>', 'Remove recursively')
   .option('--useNpm', 'Use npm instead of yarn')
+  .option('-o, --outputDir <outputDir>', 'Relative output directory')
   .action(buildAndroid);
 
 program.parse(process.argv);
