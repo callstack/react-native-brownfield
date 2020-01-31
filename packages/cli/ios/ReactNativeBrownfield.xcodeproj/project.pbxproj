@@ -20,7 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0C9771C023D72D7B00006FFA /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = ../js; sourceTree = "<group>"; };
+		0C9771C023D72D7B00006FFA /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = ./js; sourceTree = "<group>"; };
 		28F1369D23BA81FD00886944 /* ReactNativeBrownfield.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReactNativeBrownfield.h; path = "../../../node_modules/@react-native-brownfield/bridge/ios/ReactNativeBrownfield.h"; sourceTree = "<group>"; };
 		28F1369E23BA81FD00886944 /* ReactNativeBrownfield.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReactNativeBrownfield.m; path = "../../../node_modules/@react-native-brownfield/bridge/ios/ReactNativeBrownfield.m"; sourceTree = "<group>"; };
 		28F1369F23BA81FD00886944 /* ReactNativeBrownfieldNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReactNativeBrownfieldNotifications.m; path = "../../../node_modules/@react-native-brownfield/bridge/ios/ReactNativeBrownfieldNotifications.m"; sourceTree = "<group>"; };
