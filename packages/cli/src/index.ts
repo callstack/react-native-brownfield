@@ -13,7 +13,7 @@ program.version(
 
 program
   .command('build-ios')
-  .description('build native artifact')
+  .description('build ios')
   .option('-e, --entryFile <entryFile>', 'Remove recursively')
   .option('--useNpm', 'Use npm instead of yarn')
   .option('-o, --outputDir <outputDir>', 'Relative output directory')
