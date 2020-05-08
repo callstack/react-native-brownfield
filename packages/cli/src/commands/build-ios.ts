@@ -24,7 +24,7 @@ export default async function buildArtifact(args: BuildPlatform) {
   try {
     await copyFiles(libraryPath, `${buildDir}/ios`);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return;
   }
 
@@ -40,7 +40,7 @@ export default async function buildArtifact(args: BuildPlatform) {
     const result = execSync(
       `cd ${buildDir}/ios && xcodebuild -workspace ReactNativeBrownfield.xcworkspace -scheme ReactNativeBrownfield -sdk iphoneos -derivedDataPath build`,
     );
-    console.log(result.toString());
+    console.log(result);
   } catch (e) {
     console.error(e);
     return;
