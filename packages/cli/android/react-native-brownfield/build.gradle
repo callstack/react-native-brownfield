@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 project.ext.react = [
     entryFile: "index.js",
     root: "../../../..",
-    jsBundleDirRelease: "$buildDir/generated/assets/react/release",
+    jsBundleDirRelease: "$buildDir/../../../js",
     enableHermes: false,
     enableVmCleanup: false
 ]
@@ -17,7 +17,7 @@ android {
     sourceSets {
         main {
             assets.srcDirs = [
-                    "$buildDir/generated/assets/react/release"
+                    "$buildDir/../../../js"
             ]
         }
     }
