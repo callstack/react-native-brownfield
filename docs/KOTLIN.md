@@ -221,7 +221,7 @@ Examples:
 An fragment rendering `ReactRootView` with a given module name.  It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
 
 ```kotlin
-  import com.callstack.reactnativebrownfield.ReactNativeActivity
+  import com.callstack.reactnativebrownfield.ReactNativeFragment
 ```
 
 ---
@@ -242,27 +242,27 @@ Params:
 Examples: 
 
 ```kotlin
-  ReactNativeActivity.createReactNativeFragment("ReactNative")
+  ReactNativeFragment.createReactNativeFragment("ReactNative")
 ```
 
 ```kotlin
   val bundle = new Bundle()
   bundle.putInt("score", 12)
 
-  ReactNativeActivity.createReactNativeFragment("ReactNative", bundle)
+  ReactNativeFragment.createReactNativeFragment("ReactNative", bundle)
 ```
 
 ```kotlin
   val map = hashMapOf<String, *>("score" to 12)
 
-  ReactNativeActivity.createReactNativeFragment("ReactNative", map)
+  ReactNativeFragment.createReactNativeFragment("ReactNative", map)
 ```
 
 ```kotlin
   val map = WritableMap()
   map.putInt("score", 12)
 
-  ReactNativeActivity.createReactActivityIntent(context, "ReactNative", map)
+  ReactNativeFragment.createReactActivityIntent(context, "ReactNative", map)
 ```
 
 ---
