@@ -25,7 +25,7 @@ The library is meant to work with [auto linking](https://github.com/react-native
 Run the following command in your terminal:
 
 ```bash
-  react-native link @react-native-community/slider
+  react-native link @callstack/react-native-brownfield
 ```
 </details>
 
