@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#import <React/RCTBridge.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6,9 +7,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy) NSString *moduleName;
 @property (nonatomic, copy, nullable) NSDictionary *initialProperties;
+@property (nonatomic, copy, nullable) RCTBridge *currentBridge;
 
--(instancetype)initWithModuleName:(NSString *)moduleName;
--(instancetype)initWithModuleName:(NSString *)moduleName andInitialProperties:(NSDictionary*)initialProperties;
+-(instancetype)initWithModuleName:(NSString *)moduleName withBridge:(RCTBridge * _Nullable)bridge;
+-(instancetype)initWithModuleName:(NSString *)moduleName withBridge:(RCTBridge * _Nullable)bridge andInitialProperties:(NSDictionary* _Nullable)initialProperties;
 
 @end
 
