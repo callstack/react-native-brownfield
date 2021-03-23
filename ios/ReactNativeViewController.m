@@ -61,7 +61,7 @@
     BOOL animated = [[userInfo objectForKey:@"animated"] boolValue];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.navigationController popViewControllerAnimated:animated];
+        [self dismissViewControllerAnimated:YES completion:nil];
     });
 }
 
