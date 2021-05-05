@@ -4,7 +4,6 @@
       "paths": {
         "@react-native-brownfield/*": ["./packages/*/src"]
       },
-      "composite": true,
       "allowUnreachableCode": false,
       "allowUnusedLabels": false,
       "esModuleInterop": true,

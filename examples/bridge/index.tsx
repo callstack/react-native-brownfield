@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
 });
 
 const AppNavigator = createStackNavigator({
-  // @ts-ignore
   Home: {
+    // @ts-ignore TODO: Update React Navigation and fix it.
     screen: HomeScreen,
   },
 });

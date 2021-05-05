@@ -14,8 +14,8 @@
     "@react-native-brownfield/bridge": "*"
   },
   "dependencies": {
-    "@types/node": "^13.1.7",
-    "commander": "^4.0.1",
-    "find-up": "^4.1.0"
+    "@types/node": "^15.0.2",
+    "commander": "^7.2.0",
+    "find-up": "^5.0.0"
   }
 }
