@@ -1,6 +1,6 @@
 module.exports = {
   extends: '@react-native-community',
   env: {
-    es6: true
-  }
-}
+    es6: true,
+  },
+};

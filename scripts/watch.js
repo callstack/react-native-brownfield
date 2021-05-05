@@ -19,7 +19,7 @@ const BUILD_CMD = `node ${path.resolve(__dirname, './build.js')}`;
 
 let filesToBuild = new Map();
 
-const exists = filename => {
+const exists = (filename) => {
   try {
     return fs.statSync(filename).isFile();
   } catch (e) {
@@ -27,9 +27,9 @@ const exists = filename => {
   }
   return false;
 };
-const rebuild = filename => filesToBuild.set(filename, true);
+const rebuild = (filename) => filesToBuild.set(filename, true);
 
-getPackages().forEach(p => {
+getPackages().forEach((p) => {
   const srcDir = path.resolve(p, 'src');
   try {
     fs.accessSync(srcDir, fs.F_OK);
@@ -44,11 +44,10 @@ getPackages().forEach(p => {
         try {
           fs.unlinkSync(buildFile);
           process.stdout.write(
-            `${chalk.red('  \u2022 ') +
-              path.relative(
-                path.resolve(srcDir, '..', '..'),
-                buildFile,
-              )} (deleted)\n`,
+            `${
+              chalk.red('  \u2022 ') +
+              path.relative(path.resolve(srcDir, '..', '..'), buildFile)
+            } (deleted)\n`,
           );
         } catch (e) {
           // omit
