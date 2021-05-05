@@ -1,0 +1,22 @@
+{
+  "name": "@react-native-brownfield/example-bundler",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "yarn react-native start"
+  },
+  "workspaces": {
+    "nohoist": [
+      "react",
+      "react-native",
+      "react-native/**",
+      "@react-native-brownfield/**"
+    ]
+  },
+  "dependencies": {
+    "@react-native-brownfield/bridge": "1.0.0",
+    "@react-native-brownfield/cli": "1.0.0",
+    "react": "16.9.0",
+    "react-native": "0.61.5"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@react-native-brownfield/cli",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "bin": {
+    "react-native-brownfield": "index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@react-native-brownfield/bridge": "*"
+  },
+  "dependencies": {
+    "@types/node": "^13.1.7",
+    "commander": "^4.0.1",
+    "find-up": "^4.1.0"
+  }
+}

@@ -1,44 +1,30 @@
 {
-  "name": "@callstack/react-native-brownfield",
-  "version": "0.0.3",
-  "license": "MIT",
-  "author": "Michal Chudziak <mike.chudziak@callstack.com>",
-  "contributors": [
-    "Piotr Drapich <piotr.drapich@callstack.com>"
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
   ],
-  "homepage": "https://github.com/callstack/react-native-brownfield",
-  "description": "Brownfield helpers for React Native",
-  "main": "src/index.js",
   "scripts": {
-    "start": "react-native start --reset-cache",
-    "flow": "flow",
-    "lint": "eslint . --fix"
-  },
-  "keywords": [
-    "react-native-brownfield",
-    "react native brownfield",
-    "native",
-    "react native integration"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "dependencies": {},
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
+    "prebuild": "yarn build:ts",
+    "build": "node ./scripts/build.js",
+    "build:ts": "node ./scripts/buildTs.js",
+    "build-clean": "rm -rf ./packages/*/build",
+    "build-clean-all": "rm -rf ./packages/*/build ./packages/*/tsconfig.tsbuildinfo",
+    "watch": "node ./scripts/watch.js",
+    "lint": "eslint --ext '.js,.ts,.tsx' .",
+    "typescript": "tsc --noEmit"
   },
   "devDependencies": {
-    "@babel/core": "7.4.5",
-    "@babel/runtime": "7.4.5",
-    "@react-native-community/eslint-config": "0.0.5",
-    "babel-plugin-module-resolver": "3.1.3",
-    "eslint": "6.0.1",
-    "flow-bin": "0.98.0",
-    "metro-react-native-babel-preset": "0.54.1",
-    "react": "16.8.6",
-    "react-native": "0.60.5",
-    "react-native-gesture-handler": "1.4.1",
-    "react-navigation": "3.11.0"
+    "@babel/core": "^7.7.7",
+    "@babel/runtime": "^7.7.7",
+    "@react-native-community/eslint-config": "^0.0.5",
+    "@types/react": "^16.9.17",
+    "@types/react-native": "^0.60.30",
+    "babel-jest": "^24.9.0",
+    "eslint": "^6.8.0",
+    "jest": "^24.9.0",
+    "metro-react-native-babel-preset": "^0.57.0",
+    "react-test-renderer": "16.9.0",
+    "typescript": "^3.7.4"
   }
 }

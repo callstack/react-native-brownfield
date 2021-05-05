@@ -1,0 +1,25 @@
+{
+  "name": "@react-native-brownfield/bridge",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Michal Chudziak <mike.chudziak@callstack.com>",
+  "contributors": [
+    "Piotr Drapich <piotr.drapich@callstack.com>"
+  ],
+  "homepage": "https://github.com/callstack/react-native-brownfield",
+  "description": "Brownfield helpers for React Native",
+  "main": "build/index.js",
+  "keywords": [
+    "react-native-brownfield",
+    "react native brownfield",
+    "native",
+    "react native integration"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  }
+}
