@@ -1,22 +1,34 @@
 import path from 'path';
-import {execSync} from 'child_process';
-import {BuildPlatform} from '../types';
+// @ts-ignore replace logger
+import {logger} from '@react-native-community/cli-tools';
+import {BuildCommandArgs} from '../types';
 import copyFiles from '../tools/copyFiles';
-import {createBuildDir, bundleJS, getBuildDir} from '../tools/helpers';
+import {
+  createBuildDir,
+  bundleJavaScript,
+  getBuildDir,
+  spawnCommand,
+} from '../tools/helpers';
 
-export default async function buildAndroid(args: BuildPlatform) {
+export default async function buildAndroid({
+  entryFile,
+  useNpm = false,
+  // outputDir,
+  verbose = true,
+}: BuildCommandArgs) {
+  logger.setVerbose(verbose);
   const rootDir = process.cwd();
   const buildDir = getBuildDir(rootDir);
   const libraryPath = path.join(
     path.dirname(require.resolve('@react-native-brownfield/cli')),
     'android',
   );
-  const copyDir = args.outputDir ? `${rootDir}/${args.outputDir}` : rootDir;
 
   createBuildDir(buildDir);
 
-  bundleJS({
-    ...args,
+  await bundleJavaScript({
+    entryFile,
+    useNpm,
     platform: 'android',
     rootDir,
     buildDir,
@@ -29,21 +41,23 @@ export default async function buildAndroid(args: BuildPlatform) {
     return;
   }
 
-  try {
-    const result = execSync(
-      `cd ${buildDir}/android && ./gradlew bundleReleaseAar -x bundleReleaseJsAndAssets`,
-    );
-    console.log(result.toString());
-  } catch (e) {
-    console.error(e);
-    return;
-  }
+  await buildAar({rootDir, debug: false});
 
-  try {
-    execSync(
-      `mkdir -p ${copyDir} && mv ${buildDir}/android/react-native-brownfield/build/outputs/aar/react-native-brownfield.aar ${copyDir}`,
-    );
-  } catch (e) {
-    console.log(e);
-  }
+  logger.success('Done: Building Android Artifact');
+  process.exit(0);
+}
+
+type BuildAarArgs = {
+  rootDir: string;
+  debug: boolean;
+};
+
+async function buildAar({rootDir, debug}: BuildAarArgs) {
+  const result = await spawnCommand({
+    command: `./gradlew bundle${debug ? 'Debug' : 'Release'}Aar`,
+    args: ['-x', `bundle${debug ? 'Debug' : 'Release'}JsAndAssets`],
+    taskDescription: 'Building .aar file',
+    cwd: `${rootDir}/build/brownfield/android`,
+  });
+  logger.success(result);
 }

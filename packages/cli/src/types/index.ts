@@ -1,13 +1,8 @@
-export type BuildPlatform = {
+export type BuildCommandArgs = {
   entryFile: string;
   useNpm?: boolean;
   outputDir?: string;
+  verbose?: boolean;
 };
 
 export type Platform = 'ios' | 'android';
-
-export type BundleJSArgs = {
-  platform: Platform;
-  buildDir: string;
-  rootDir: string;
-} & BuildPlatform;

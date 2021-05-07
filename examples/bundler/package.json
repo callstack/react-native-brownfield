@@ -16,7 +16,7 @@
   "dependencies": {
     "@react-native-brownfield/bridge": "1.0.0",
     "@react-native-brownfield/cli": "1.0.0",
-    "react": "16.9.0",
-    "react-native": "0.61.5"
+    "react": "17.0.1",
+    "react-native": "0.64.1"
   }
 }
