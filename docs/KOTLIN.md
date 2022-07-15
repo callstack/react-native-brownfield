@@ -269,6 +269,6 @@ Examples:
 
 ### Example
 
-You can find an example app [here](../example/java).
+You can find an example app [here](../example/kotlin).
 
 
