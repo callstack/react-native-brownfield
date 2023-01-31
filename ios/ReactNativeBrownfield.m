@@ -62,7 +62,7 @@
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge {
     #if DEBUG
-        return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:_entryFile fallbackResource:_fallbackResource];
+        return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
     #else
         NSArray<NSString *> *resourceURLComponents = [_bundlePath componentsSeparatedByString:@"."];
         NSRange withoutLast;
