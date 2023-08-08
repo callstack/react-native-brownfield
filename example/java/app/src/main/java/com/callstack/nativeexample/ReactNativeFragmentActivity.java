@@ -18,7 +18,6 @@ public class ReactNativeFragmentActivity extends AppCompatActivity implements De
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
         setContentView(R.layout.activity_react_native_fragment);
 
         if (savedInstanceState == null) {
