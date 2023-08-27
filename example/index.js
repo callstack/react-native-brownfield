@@ -1,10 +1,7 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {AppRegistry, StyleSheet, Text, View, Button} from 'react-native';
-import {
-  createStackNavigator,
-  createAppContainer,
-  NavigationEvents,
-} from 'react-navigation';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 
 const getRandomTheme = () => {
@@ -19,54 +16,58 @@ const getRandomTheme = () => {
   };
 };
 
-class HomeScreen extends React.Component {
-  static navigationOptions = {
-    header: null,
-  };
+function HomeScreen({navigation}) {
+  const colors = navigation.params?.theme || getRandomTheme();
 
-  render() {
-    const colors = this.props.navigation.getParam('theme', getRandomTheme());
-    const isFirstRoute = this.props.navigation.isFirstRouteInParent();
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', (e) => {
+      const isFirstRoute = !navigation.canGoBack();
+      ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(isFirstRoute);
+    });
+    return unsubscribe;
+  }, []);
 
-    return (
-      <>
-        <NavigationEvents
-          onWillFocus={() => {
-            ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(
-              isFirstRoute,
-            );
-          }}
-        />
-        <View style={[styles.container, {backgroundColor: colors.primary}]}>
-          <Text style={[styles.text, {color: colors.secondary}]}>
-            React Native Screen
-          </Text>
+  return (
+    <View style={[styles.container, {backgroundColor: colors.primary}]}>
+      <Text style={[styles.text, {color: colors.secondary}]}>
+        React Native Screen
+      </Text>
 
-          <Button
-            onPress={() => {
-              this.props.navigation.push('Home', {
-                theme: getRandomTheme(),
-              });
-            }}
-            color={colors.secondary}
-            title="Push next screen"
-          />
+      <Button
+        onPress={() => {
+          navigation.push('Home', {
+            theme: getRandomTheme(),
+          });
+        }}
+        color={colors.secondary}
+        title="Push next screen"
+      />
 
-          <Button
-            onPress={() => {
-              if (isFirstRoute) {
-                ReactNativeBrownfield.popToNative(true);
-              } else {
-                this.props.navigation.goBack();
-              }
-            }}
-            color={colors.secondary}
-            title="Go back"
-          />
-        </View>
-      </>
-    );
-  }
+      <Button
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            ReactNativeBrownfield.popToNative(true);
+          }
+        }}
+        color={colors.secondary}
+        title="Go back"
+      />
+    </View>
+  );
+}
+
+const Stack = createNativeStackNavigator();
+
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -81,13 +82,5 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
-
-const AppNavigator = createStackNavigator({
-  Home: {
-    screen: HomeScreen,
-  },
-});
-
-const App = createAppContainer(AppNavigator);
 
 AppRegistry.registerComponent('ReactNative', () => App);

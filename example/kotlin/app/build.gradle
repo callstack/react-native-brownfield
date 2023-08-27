@@ -1,17 +1,17 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.facebook.react'
 
 apply plugin: 'kotlin-android'
 
-apply plugin: 'kotlin-android-extensions'
+react {
+    root = file("../../..")
+    entryFile = file("example/index.js")
+}
 
-project.ext.react = [
-    entryFile: "example/index.js",
-    root: "../../.."
-]
-
-apply from: "../../../node_modules/react-native/react.gradle"
+def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
+    ndkVersion rootProject.ext.ndkVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     sourceSets {
@@ -35,14 +35,21 @@ android {
 }
 
 dependencies {
+    // The version of react-native is set by the React Native Gradle Plugin
+    implementation("com.facebook.react:react-android")
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.facebook.react:react-native:+"
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
-    implementation 'org.webkit:android-jsc:+'
+
+        if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-android")
+    } else {
+        implementation jscFlavor
+    }
 }
 
 apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle");
-applyNativeModulesAppBuildGradle(project, "../..")
+applyNativeModulesAppBuildGradle(project)
