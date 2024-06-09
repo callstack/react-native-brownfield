@@ -1,14 +1,20 @@
 import React, {useEffect} from 'react';
 import {AppRegistry, StyleSheet, Text, View, Button} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {
+  createNativeStackNavigator,
+  type NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import {NavigationContainer} from '@react-navigation/native';
 
+const getRandomValue = () => Math.round(Math.random() * 255);
 const getRandomTheme = () => {
-  const getRandomValue = () => Math.round(Math.random() * 255);
-
   const primary = [getRandomValue(), getRandomValue(), getRandomValue()];
-  const secondary = [255 - primary[0], 255 - primary[1], 255 - primary[2]];
+  const secondary = [
+    255 - (primary?.[0] || 0),
+    255 - (primary?.[1] || 0),
+    255 - (primary?.[2] || 0),
+  ];
 
   return {
     primary: `rgb(${primary[0]}, ${primary[1]}, ${primary[2]})`,
@@ -16,16 +22,18 @@ const getRandomTheme = () => {
   };
 };
 
-function HomeScreen({navigation}) {
-  const colors = navigation.params?.theme || getRandomTheme();
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+function HomeScreen({navigation, route}: Props) {
+  const colors = route.params?.theme || getRandomTheme();
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', (e) => {
+    const unsubscribe = navigation.addListener('focus', () => {
       const isFirstRoute = !navigation.canGoBack();
       ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(isFirstRoute);
     });
     return unsubscribe;
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={[styles.container, {backgroundColor: colors.primary}]}>
@@ -57,8 +65,11 @@ function HomeScreen({navigation}) {
     </View>
   );
 }
+type RootStackParamList = {
+  Home: {theme: {primary: string, secondary: string}},
+};
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   return (

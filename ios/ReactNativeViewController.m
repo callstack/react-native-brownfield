@@ -49,7 +49,9 @@
 - (void)togglePopGestureRecognizer:(NSNotification*)notification {
     NSDictionary *userInfo = notification.userInfo;
     BOOL enabled = [[userInfo objectForKey:@"enabled"] boolValue];
-    self.navigationController.interactivePopGestureRecognizer.enabled = enabled;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.navigationController.interactivePopGestureRecognizer.enabled = enabled;
+    });
 }
 
 - (void)popToNative:(NSNotification*)notification {

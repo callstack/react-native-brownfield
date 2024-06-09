@@ -18,10 +18,11 @@ class MainApplication : Application(), ReactApplication {
         options["mainModuleName"] = "example/index"
 
         ReactNativeBrownfield.initialize(this, options)
-        ReactNativeBrownfield.shared.startReactNative { init -> Log.d("test", "test") }
+        ReactNativeBrownfield.shared.startReactNative {
+            Log.d("test", "test")
+        }
     }
 
-    override fun getReactNativeHost(): ReactNativeHost {
-        return ReactNativeBrownfield.shared.reactNativeHost
-    }
+    override val reactNativeHost: ReactNativeHost
+        get() = ReactNativeBrownfield.shared.reactNativeHost
 }
