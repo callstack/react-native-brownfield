@@ -16,6 +16,7 @@
     "start": "react-native start --reset-cache",
     "lint": "eslint . --fix",
     "typecheck": "tsc --noEmit",
+    "release": "release-it",
     "prepare": "bob build"
   },
   "keywords": [
