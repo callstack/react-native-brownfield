@@ -14,7 +14,6 @@ class ReactNativeFragmentActivity : AppCompatActivity(), DefaultHardwareBackBtnH
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar!!.hide()
         setContentView(R.layout.activity_react_native_fragment)
 
         if (savedInstanceState == null) {

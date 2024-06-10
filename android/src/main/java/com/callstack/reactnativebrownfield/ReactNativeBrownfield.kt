@@ -1,8 +1,10 @@
 package com.callstack.reactnativebrownfield
 
 import android.app.Application
+import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
+import com.facebook.react.bridge.ReactContext
 import com.facebook.soloader.SoLoader
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -60,10 +62,13 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
 
   @JvmName("startReactNativeKotlin")
   fun startReactNative(callback: ((initialized: Boolean) -> Unit)?) {
-    if (callback != null) {
-      reactNativeHost.reactInstanceManager?.addReactInstanceEventListener { callback(true) }
-    }
-
+    reactNativeHost.reactInstanceManager.addReactInstanceEventListener(object : ReactInstanceEventListener {
+      override fun onReactContextInitialized(reactContext: ReactContext) {
+        callback?.let { it(true) }
+        reactNativeHost.reactInstanceManager.removeReactInstanceEventListener(this)
+      }
+    })
     reactNativeHost.reactInstanceManager?.createReactContextInBackground()
   }
 }
+

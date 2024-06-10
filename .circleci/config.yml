@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   analyse:
     docker:
-      - image: circleci/node:10
+      - image: cimg/node:current
     steps:
       - checkout
       - restore_cache:
@@ -19,8 +19,8 @@ jobs:
           name: Lint JS Code (ESLint)
           command: yarn run lint
       - run:
-          name: Flow
-          command: yarn run flow
+          name: Typescript Type Checking (tsc) 
+          command: yarn run typecheck
 
 workflows:
   test:

@@ -84,9 +84,11 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
                 ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
                 return true
             }
-            val didDoubleTapR = Assertions.assertNotNull(doubleTapReloadRecognizer)
-                .didDoubleTapR(keyCode, this.currentFocus)
-            if (didDoubleTapR) {
+            val didDoubleTapR = this.currentFocus?.let {
+                Assertions.assertNotNull(doubleTapReloadRecognizer)
+                    .didDoubleTapR(keyCode, it)
+            }
+            if (didDoubleTapR == true) {
                 ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
                 return true
             }
@@ -132,6 +134,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionsCallback = Callback {
             if (permissionListener != null) {
                 permissionListener?.onRequestPermissionsResult(

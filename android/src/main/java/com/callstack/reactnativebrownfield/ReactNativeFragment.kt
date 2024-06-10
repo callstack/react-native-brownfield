@@ -103,12 +103,12 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
     }
 
     override fun checkPermission(permission: String, pid: Int, uid: Int): Int {
-        return activity!!.checkPermission(permission, pid, uid)
+        return requireActivity().checkPermission(permission, pid, uid)
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     override fun checkSelfPermission(permission: String): Int {
-        return activity!!.checkSelfPermission(permission)
+        return requireActivity().checkSelfPermission(permission)
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -128,9 +128,11 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
                 ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
                 handled = true
             }
-            val didDoubleTapR = Assertions.assertNotNull(doubleTapReloadRecognizer)
-                .didDoubleTapR(keyCode, activity?.currentFocus)
-            if (didDoubleTapR) {
+            val didDoubleTapR = activity?.currentFocus?.let {
+                Assertions.assertNotNull(doubleTapReloadRecognizer)
+                    .didDoubleTapR(keyCode, it)
+            }
+            if (didDoubleTapR == true) {
                 ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
                 handled = true
             }
