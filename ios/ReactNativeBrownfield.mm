@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBundleURLProvider.h>
+#import <React-RCTAppDelegate/RCTRootViewFactory.h>
 
 #import "ReactNativeBrownfield.h"
 
@@ -39,11 +40,22 @@
 }
 
 - (void)startReactNative:(void(^)(void))onBundleLoaded launchOptions:(NSDictionary *)launchOptions {
-    if (bridge != nil) {
+    if (_rootViewFactory != nil) {
         return;
     }
     
-    bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  __weak __typeof(self) weakSelf = self;
+  RCTBundleURLBlock bundleUrlBlock = ^{
+    ReactNativeBrownfield *strongSelf = weakSelf;
+    return strongSelf.bundleURL;
+  };
+
+  RCTRootViewFactoryConfiguration *configuration =
+      [[RCTRootViewFactoryConfiguration alloc] initWithBundleURLBlock:bundleUrlBlock
+                                                       newArchEnabled:true
+                                                   turboModuleEnabled:true
+                                                    bridgelessEnabled:true];
+  _rootViewFactory = [[RCTRootViewFactory alloc] initWithConfiguration:configuration andTurboModuleManagerDelegate:nil];
     
     if (onBundleLoaded != nil) {
         _onBundleLoaded = [onBundleLoaded copy];
@@ -60,23 +72,27 @@
 
 #pragma mark - RCTBridgeDelegate Methods
 
+- (NSURL *)bundleURL {
+#if DEBUG
+    return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:_entryFile];
+#else
+    NSArray<NSString *> *resourceURLComponents = [_bundlePath componentsSeparatedByString:@"."];
+    NSRange withoutLast;
+
+    withoutLast.location = 0;
+    withoutLast.length = [resourceURLComponents count] - 2;
+
+    NSArray<NSString *> *resourceURLComponentsWithoutExtension = [resourceURLComponents subarrayWithRange:withoutLast];
+
+    return [[NSBundle mainBundle]
+                URLForResource:[resourceURLComponentsWithoutExtension componentsJoinedByString:@""]
+                withExtension:resourceURLComponents[resourceURLComponents.count - 1]
+           ];
+#endif
+}
+
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge {
-    #if DEBUG
-        return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:_entryFile];
-    #else
-        NSArray<NSString *> *resourceURLComponents = [_bundlePath componentsSeparatedByString:@"."];
-        NSRange withoutLast;
-    
-        withoutLast.location = 0;
-        withoutLast.length = [resourceURLComponents count] - 2;
-    
-        NSArray<NSString *> *resourceURLComponentsWithoutExtension = [resourceURLComponents subarrayWithRange:withoutLast];
-    
-        return [[NSBundle mainBundle]
-                    URLForResource:[resourceURLComponentsWithoutExtension componentsJoinedByString:@""]
-                    withExtension:resourceURLComponents[resourceURLComponents.count - 1]
-               ];
-    #endif
+  return self.bundleURL;
 }
 
 @end
