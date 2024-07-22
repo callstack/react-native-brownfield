@@ -9,7 +9,6 @@
 @synthesize entryFile = _entryFile;
 @synthesize fallbackResource = _fallbackResource;
 @synthesize bundlePath = _bundlePath;
-@synthesize bridge;
 
 + (ReactNativeBrownfield*)shared {
     static ReactNativeBrownfield *sharedBridgeManager = nil;
@@ -27,9 +26,26 @@
         _entryFile = @"index";
         _fallbackResource = nil;
         _bundlePath = @"main.jsbundle";
+     
+        // Pick the default setting from RCT_NEW_ARCH_ENABLED flag.
+        BOOL newArchEnabled = [self newArchEnabled];
+        _fabricEnabled = newArchEnabled;
+        _bridgelessEnabled = newArchEnabled;
+        _turboModuleEnabled = newArchEnabled;
     }
     return self;
 }
+
+- (BOOL)newArchEnabled
+{
+#if RCT_NEW_ARCH_ENABLED
+  return YES;
+#else
+  return NO;
+#endif
+}
+
+
 
 - (void)startReactNative {
     [self startReactNative:nil];
@@ -52,9 +68,9 @@
 
   RCTRootViewFactoryConfiguration *configuration =
       [[RCTRootViewFactoryConfiguration alloc] initWithBundleURLBlock:bundleUrlBlock
-                                                       newArchEnabled:true
-                                                   turboModuleEnabled:true
-                                                    bridgelessEnabled:true];
+                                                       newArchEnabled:_fabricEnabled
+                                                   turboModuleEnabled:_turboModuleEnabled
+                                                    bridgelessEnabled:_bridgelessEnabled];
   _rootViewFactory = [[RCTRootViewFactory alloc] initWithConfiguration:configuration andTurboModuleManagerDelegate:nil];
     
     if (onBundleLoaded != nil) {
