@@ -1,5 +1,9 @@
 require 'json'
 
+is_new_arch_enabled = ENV['RCT_NEW_ARCH_ENABLED'] == '1'
+new_arch_enabled_flag = (is_new_arch_enabled ? " -DRCT_NEW_ARCH_ENABLED" : "")
+other_cflags = "$(inherited)" + new_arch_enabled_flag
+
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
 Pod::Spec.new do |spec|
@@ -14,7 +18,9 @@ Pod::Spec.new do |spec|
 
   # s.source       = { :git => "git@github.com/michalchudziak/react-native-brownfield.git", :tag => "v#{s.version}" }
   spec.source       = { :path => "." }
-  spec.source_files  = "ios/**/*.{h,m}"
+  spec.source_files  = "ios/**/*.{h,m,mm}"
+  spec.compiler_flags = new_arch_enabled_flag
+  spec.pod_target_xcconfig = { 'OTHER_CPLUSPLUSFLAGS' => other_cflags }
 
   spec.dependency 'React'
 end

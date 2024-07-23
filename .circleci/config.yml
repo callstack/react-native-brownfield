@@ -4,6 +4,8 @@ jobs:
   analyse:
     docker:
       - image: cimg/node:current
+    environment:
+      SKIP_YARN_COREPACK_CHECK: 0 
     steps:
       - checkout
       - restore_cache:

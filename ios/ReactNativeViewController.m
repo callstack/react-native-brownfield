@@ -23,15 +23,14 @@
 }
 
 -(void)viewDidLoad {
-    RCTBridge *bridge = [[ReactNativeBrownfield shared] bridge];
-    if (bridge == nil) {
+    RCTRootViewFactory *factory = [[ReactNativeBrownfield shared] rootViewFactory];
+    if (factory == nil) {
         NSLog(@"Error: You need to start React Native in order to use ReactNativeViewController, make sure to run [[BridgeManager shared] startReactNative] before instantiating it.");
         return;
     }
 
     if (_moduleName) {
-        RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:bridge moduleName:_moduleName initialProperties:_initialProperties];
-        self.view = reactView;
+        self.view = [factory viewWithModuleName:_moduleName initialProperties:_initialProperties];
         
         [[NSNotificationCenter defaultCenter]
             addObserver:self selector:@selector(togglePopGestureRecognizer:)
