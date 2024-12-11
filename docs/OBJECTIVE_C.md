@@ -20,7 +20,7 @@ Run the following command in your terminal:
 Add the following line to your `Podfile`:
 
 ```ruby
-  pod 'ReactNativeBrownfield', :path => '../node_modules/@callstack/react-native-brownfield/ios'
+  pod 'ReactNativeBrownfield', :path => '../node_modules/@callstack/react-native-brownfield'
 ```
 </details>
 
