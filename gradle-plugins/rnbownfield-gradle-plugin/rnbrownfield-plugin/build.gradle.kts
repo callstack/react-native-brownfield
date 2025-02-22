@@ -42,7 +42,16 @@ repositories {
     google()
 }
 
+dependencies {
+    implementation(libs.agp)
+    implementation(libs.common)
+    implementation(libs.asm.commons)
+}
+
+tasks.named("detekt").configure {
+    dependsOn(":ktlintFormat")
+}
+
 tasks.register("lint") {
     dependsOn(":ktlintFormat")
-    dependsOn(":detekt")
 }
