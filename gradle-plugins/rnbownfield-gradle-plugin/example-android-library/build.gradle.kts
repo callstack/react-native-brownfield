@@ -5,6 +5,8 @@ plugins {
     id("com.callstack.rnbrownfield-gradle-plugin")
 }
 
+rnbrownfield {}
+
 repositories {
     google()
     mavenCentral()
@@ -18,8 +20,20 @@ android {
         minSdk = 24
     }
 
+    flavorDimensions += "env"
+
+    productFlavors {
+        create("free") {
+            dimension = "env"
+        }
+        create("paid") {
+            dimension = "env"
+        }
+    }
+
     buildTypes {
         release {}
+        debug {}
     }
 
     compileOptions {
