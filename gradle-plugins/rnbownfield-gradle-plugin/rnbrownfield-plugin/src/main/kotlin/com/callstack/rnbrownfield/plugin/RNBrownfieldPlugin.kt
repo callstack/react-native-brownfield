@@ -20,8 +20,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
         println("Hello from RNBrownfieldPlugin!")
         this.project = project
         verifyAndroidPluginApplied()
-        Logging.set(project)
-        DirectoryManager.set(project)
+        Logging.project = project
+        DirectoryManager.project = project
         this.extension = project.extensions.create(Extension.NAME, Extension::class.java)
         projectConfigurations = ProjectConfigurations(project)
         projectConfigurations.setup()

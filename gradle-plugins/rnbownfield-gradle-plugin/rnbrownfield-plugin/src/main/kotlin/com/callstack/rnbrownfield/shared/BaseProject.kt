@@ -4,11 +4,14 @@ import org.gradle.api.Project
 import org.gradle.api.file.Directory
 
 open class BaseProject {
-    lateinit var project: Project
-    lateinit var buildDir: Directory
+    private var _project: Project? = null
 
-    fun set(project: Project) {
-        this.project = project
-        this.buildDir = project.layout.buildDirectory.get()
-    }
+    var project: Project
+        get() = _project ?: throw IllegalStateException("Project has not been initialized")
+        set(value) {
+            _project = value
+        }
+
+    val buildDir: Directory
+        get() = project.layout.buildDirectory.get()
 }
