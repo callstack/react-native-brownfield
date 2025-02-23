@@ -3,6 +3,7 @@ plugins {
     `java-gradle-plugin`
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
+    `maven-publish`
 }
 
 ktlint {
