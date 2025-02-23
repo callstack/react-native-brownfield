@@ -9,8 +9,12 @@ class ProjectConfigurations(private val project: Project) {
     private val configurations: MutableCollection<Configuration> = mutableListOf()
 
     companion object {
-        private const val CONFIG_NAME = "embed"
+        const val CONFIG_NAME = "embed"
         const val CONFIG_SUFFIX = "Embed"
+    }
+
+    fun getConfigurations(): MutableCollection<Configuration> {
+        return configurations
     }
 
     /**

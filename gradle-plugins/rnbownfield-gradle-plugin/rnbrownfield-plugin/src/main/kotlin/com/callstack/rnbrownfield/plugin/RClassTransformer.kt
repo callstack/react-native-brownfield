@@ -7,10 +7,9 @@ import com.android.build.api.instrumentation.FramesComputationMode
 import com.android.build.api.instrumentation.InstrumentationParameters
 import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.callstack.rnbrownfield.utils.AndroidArchiveLibrary
-import org.gradle.api.Project
+import com.callstack.rnbrownfield.processors.VariantPackagesProperty
+import com.callstack.rnbrownfield.shared.BaseProject
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -26,12 +25,10 @@ import java.util.stream.Collectors
  * can have it's own R class, so this redirects all
  * references to a single R class.
  */
-object RClassTransformer {
-    fun registerASMTransformation(
-        project: Project,
-        variantPackagesProperty: MapProperty<String, List<AndroidArchiveLibrary>>,
-    ) {
+object RClassTransformer : BaseProject() {
+    fun registerASMTransformation() {
         val components = project.extensions.getByType(AndroidComponentsExtension::class.java)
+        val variantPackagesProperty = VariantPackagesProperty.getVariantPackagesProperty()
         components.onVariants(components.selector().all()) { variant ->
             variant.instrumentation.transformClassesWith(
                 RClassAsmTransformerFactory::class.java,

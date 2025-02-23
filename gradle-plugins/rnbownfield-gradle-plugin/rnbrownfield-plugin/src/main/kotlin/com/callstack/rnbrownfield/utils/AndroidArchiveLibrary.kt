@@ -20,7 +20,7 @@ class AndroidArchiveLibrary(
 
     private fun getArtifactName() = artifact.moduleVersion.id.name
 
-    private fun getExplodedAarRootDir(): File {
+    fun getExplodedAarRootDir(): File {
         val explodedRootDir = File("${project.layout.buildDirectory.get()}/intermediates/exploded-aar")
         val id = artifact.moduleVersion.id
         return File(explodedRootDir, "${id.group}/${id.name}/${id.version}/$variantName")
@@ -45,5 +45,25 @@ class AndroidArchiveLibrary(
         return packageName!!
     }
 
-    private fun getManifestFile() = File(getExplodedAarRootDir(), "AndroidManifest.xml")
+    fun getManifestFile() = File(getExplodedAarRootDir(), "AndroidManifest.xml")
+
+    fun getAssetsDir(): File = File(getExplodedAarRootDir(), "assets")
+
+    fun getJniDir(): File = File(getExplodedAarRootDir(), "jni")
+
+    fun getLibsDir(): File = File(getExplodedAarRootDir(), "libs")
+
+    fun getClassesJarFile(): File = File(getExplodedAarRootDir(), "classes.jar")
+
+    fun getLocalJars(): Collection<File> {
+        return getLibsDir().listFiles()?.filter { it.isFile && it.name.endsWith(".jar") } ?: emptyList()
+    }
+
+    fun getResDir(): File = File(getExplodedAarRootDir(), "res")
+
+    fun getProguardRules(): File = File(getExplodedAarRootDir(), "proguard.txt")
+
+    fun getDataBindingFolder(): File = File(getExplodedAarRootDir(), "data-binding")
+
+    fun getDataBindingLogFolder(): File = File(getExplodedAarRootDir(), "data-binding-base-class-log")
 }
