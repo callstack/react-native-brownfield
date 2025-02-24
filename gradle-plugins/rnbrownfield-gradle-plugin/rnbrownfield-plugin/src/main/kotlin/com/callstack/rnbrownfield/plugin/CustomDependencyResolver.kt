@@ -30,19 +30,15 @@ class CustomDependencyResolver(
         val configName = getCompileOnlyConfigName(configuration.name)
         configuration.dependencies.forEach { dependency ->
             if (dependency is DefaultProjectDependency) {
-                // Ensure the target configuration is set to "default" if not already specified
                 if (dependency.targetConfiguration == null) {
                     dependency.targetConfiguration = "default"
                 }
 
-                // To support module indexing, Create a clone of the dependency without a target configuration
                 val dependencyClone = dependency.copy()
                 dependencyClone.targetConfiguration = null
 
-                // For code hints support, Add the clone to the compileOnly configuration
                 project.dependencies.add(configName, dependencyClone)
             } else {
-                // For code hints support, Add non-project dependencies to the compileOnly configuration
                 project.dependencies.add(configName, dependency)
             }
         }

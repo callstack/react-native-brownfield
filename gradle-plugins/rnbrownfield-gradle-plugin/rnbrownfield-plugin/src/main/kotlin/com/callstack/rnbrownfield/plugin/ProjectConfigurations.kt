@@ -52,7 +52,6 @@ class ProjectConfigurations(private val project: Project) {
         androidExtension.productFlavors.all { flavor ->
             createConfiguration(getConfigName(flavor.name))
 
-            // Iterate over build types to create variant-specific configurations
             androidExtension.buildTypes.all { buildType ->
                 val variantName = "${flavor.name}${buildType.name.replaceFirstChar(Char::titlecase)}"
                 createConfiguration(getConfigName(variantName))

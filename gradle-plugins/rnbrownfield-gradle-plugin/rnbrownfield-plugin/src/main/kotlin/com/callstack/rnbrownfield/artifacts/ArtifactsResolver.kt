@@ -67,17 +67,14 @@ class ArtifactsResolver(
         baseProject.project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val artifacts: MutableCollection<ResolvedArtifact> = ArrayList()
 
-            // Process each embed configuration for this variant
             configurations.forEach { configuration ->
                 if (isEmbedConfig(configuration, variant)) {
-                    // Resolve the artifacts for this configuration
                     val resolvedArtifacts = resolveArtifacts(configuration)
                     artifacts.addAll(resolvedArtifacts)
                     artifacts.addAll(handleUnResolvedArtifacts(configuration, variant, resolvedArtifacts))
                 }
             }
 
-            // If artifacts are found, process them using the VariantProcessor
             if (artifacts.isNotEmpty()) {
                 val processor = VariantProcessor(variant)
                 processor.project = baseProject.project
