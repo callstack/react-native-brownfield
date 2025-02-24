@@ -9,7 +9,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "rnbownfield-gradle-plugin"
+rootProject.name = "rnbrownfield-gradle-plugin"
 
 include(":example-android-library")
 includeBuild("rnbrownfield-plugin")
