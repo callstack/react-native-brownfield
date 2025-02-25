@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit",
     "release": "release-it",
     "prepare": "bob build",
-    "rnbrownfield:plugin:publish:local": "bash ./gradle-plugins/publish-plugin.sh"
+    "brownfield:plugin:publish:local": "bash ./gradle-plugins/publish-to-maven-local.sh"
   },
   "keywords": [
     "react-native-brownfield",
