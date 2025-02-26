@@ -17,7 +17,8 @@
     "lint": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "release": "release-it",
-    "prepare": "bob build"
+    "prepare": "bob build",
+    "brownfield:plugin:publish:local": "bash ./gradle-plugins/publish-to-maven-local.sh"
   },
   "keywords": [
     "react-native-brownfield",
