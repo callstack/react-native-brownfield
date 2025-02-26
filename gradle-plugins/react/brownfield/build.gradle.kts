@@ -38,6 +38,12 @@ gradlePlugin {
     }
 }
 
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        artifactId = property("ARTIFACT_ID").toString()
+    }
+}
+
 repositories {
     mavenCentral()
     google()
