@@ -1,0 +1,32 @@
+name: Lint & Type Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+
+    env:
+      SKIP_YARN_COREPACK_CHECK: 0
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Lint JS Code (ESLint)
+        run: yarn run lint
+
+      - name: Typescript Type Checking (tsc)
+        run: yarn run typecheck
