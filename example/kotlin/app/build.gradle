@@ -2,20 +2,20 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+
 react {
-    root = file("../../..")
-    entryFile = file("example/index.js")
+    /* Autolinking */
     autolinkLibrariesWithApp()
 }
 
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
-    namespace "com.callstack.kotlinexample"
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
+    namespace "com.callstack.kotlinexample"
     defaultConfig {
         applicationId "com.callstack.kotlinexample"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -35,15 +35,14 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
-    if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android")
+  if (hermesEnabled.toBoolean()) {
+      implementation("com.facebook.react:hermes-android")
     } else {
-        implementation jscFlavor
+      implementation jscFlavor
     }
 }

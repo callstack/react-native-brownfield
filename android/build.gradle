@@ -43,15 +43,15 @@ def supportsNamespace() {
 }
 
 android {
-  if (supportsNamespace()) {
-    namespace "com.callstack.reactnativebrownfield"
+   if (supportsNamespace()) {
+     namespace "com.callstack.reactnativebrownfield"
 
-    sourceSets {
-      main {
-        manifest.srcFile "src/main/AndroidManifest.xml"
-      }
-    }
-  }
+     sourceSets {
+       main {
+         manifest.srcFile "src/main/AndroidManifest.xml"
+       }
+     }
+   }
 
   compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
 
