@@ -1,5 +1,3 @@
-const root = process.cwd();
-
 module.exports = {
   dependencies: {
     'react-native-brownfield': {
@@ -8,7 +6,10 @@ module.exports = {
   },
   project: {
     ios: {
-      sourceDir: `./example/${root.includes('swift') ? 'swift' : 'objc'}`,
+      sourceDir: './example/swift',
     },
+    android: {
+      sourceDir: './example/kotlin',
+    }
   },
 };

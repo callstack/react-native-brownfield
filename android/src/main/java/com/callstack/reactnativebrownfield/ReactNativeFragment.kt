@@ -111,14 +111,13 @@ class ReactNativeFragment : Fragment(), PermissionAwareActivity {
         return requireActivity().checkSelfPermission(permission)
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     override fun requestPermissions(
-        permissions: Array<String>,
-        requestCode: Int,
-        listener: PermissionListener
+      permissions: Array<String>,
+      requestCode: Int,
+      listener: PermissionListener?
     ) {
-        permissionListener = listener
-        this.requestPermissions(permissions, requestCode)
+      permissionListener = listener
+      this.requestPermissions(permissions, requestCode)
     }
 
     fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {

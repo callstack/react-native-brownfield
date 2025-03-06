@@ -1,4 +1,4 @@
-import {NativeModules, Platform} from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 const ReactNativeBrownfield = {
   popToNative: (animated?: boolean): void => {
@@ -14,7 +14,7 @@ const ReactNativeBrownfield = {
   setNativeBackGestureAndButtonEnabled: (enabled: boolean): void => {
     if (Platform.OS === 'ios') {
       NativeModules.ReactNativeBrownfield.setPopGestureRecognizerEnabled(
-        enabled,
+        enabled
       );
     } else if (Platform.OS === 'android') {
       NativeModules.ReactNativeBrownfield.setHardwareBackButtonEnabled(enabled);

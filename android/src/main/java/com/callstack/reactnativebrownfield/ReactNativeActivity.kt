@@ -123,7 +123,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
     override fun requestPermissions(
         permissions: Array<String>,
         requestCode: Int,
-        listener: PermissionListener
+        listener: PermissionListener?
     ) {
         permissionListener = listener
         this.requestPermissions(permissions, requestCode)
@@ -152,7 +152,7 @@ class ReactNativeActivity : ReactActivity(), DefaultHardwareBackBtnHandler, Perm
         if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance() && ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport) {
             val devSupportManager =
                     ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.devSupportManager
-            val url = devSupportManager.sourceUrl
+            val url = devSupportManager.sourceUrl ?: ""
             devSupportManager?.isPackagerRunning { isRunning ->
                 if (!isRunning) {
                     val error = Error()

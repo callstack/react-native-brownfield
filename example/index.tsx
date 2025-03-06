@@ -1,11 +1,11 @@
-import React, {useEffect} from 'react';
-import {AppRegistry, StyleSheet, Text, View, Button} from 'react-native';
+import React, { useEffect } from 'react';
+import { AppRegistry, StyleSheet, Text, View, Button } from 'react-native';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
-import {NavigationContainer} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 
 const getRandomValue = () => Math.round(Math.random() * 255);
 const getRandomTheme = () => {
@@ -24,7 +24,7 @@ const getRandomTheme = () => {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-function HomeScreen({navigation, route}: Props) {
+function HomeScreen({ navigation, route }: Props) {
   const colors = route.params?.theme || getRandomTheme();
 
   useEffect(() => {
@@ -36,8 +36,8 @@ function HomeScreen({navigation, route}: Props) {
   }, [navigation]);
 
   return (
-    <View style={[styles.container, {backgroundColor: colors.primary}]}>
-      <Text style={[styles.text, {color: colors.secondary}]}>
+    <View style={[styles.container, { backgroundColor: colors.primary }]}>
+      <Text style={[styles.text, { color: colors.secondary }]}>
         React Native Screen
       </Text>
 
@@ -66,7 +66,7 @@ function HomeScreen({navigation, route}: Props) {
   );
 }
 type RootStackParamList = {
-  Home: {theme: {primary: string, secondary: string}},
+  Home: { theme: { primary: string; secondary: string } };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
