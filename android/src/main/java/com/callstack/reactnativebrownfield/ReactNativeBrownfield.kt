@@ -5,8 +5,11 @@ import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.defaults.DefaultReactNativeHost
+import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import java.util.concurrent.atomic.AtomicBoolean
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 
 interface InitializedCallback {
   operator fun invoke(initialized: Boolean)
@@ -24,28 +27,32 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     fun initialize(application: Application, rnHost: ReactNativeHost) {
       if(!initialized.getAndSet(true)) {
         instance = ReactNativeBrownfield(rnHost)
-        SoLoader.init(application.applicationContext,false)
+        SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+          // If you opted-in for the New Architecture, we load the native entry point for this app.
+          load()
+        }
       }
     }
 
     @JvmStatic
     fun initialize(application: Application, options: HashMap<String, Any>) {
-      val rnHost = object : ReactNativeHost(application) {
-        override fun getUseDeveloperSupport(): Boolean {
-          return options["useDeveloperSupport"] as? Boolean ?: BuildConfig.DEBUG
+      val reactNativeHost: ReactNativeHost =
+        object : DefaultReactNativeHost(application) {
+
+          override fun getJSMainModuleName(): String = "index"
+          override fun getPackages(): List<ReactPackage> {
+            return (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
+              .filterIsInstance<ReactPackage>()
+          }
+
+          override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+
+          override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+          override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
         }
 
-        override fun getPackages(): List<ReactPackage> {
-          return (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
-            .filterIsInstance<ReactPackage>()
-        }
-
-        override fun getJSMainModuleName(): String {
-          return options["mainModuleName"] as? String ?: super.getJSMainModuleName()
-        }
-      }
-
-      initialize(application, rnHost)
+      initialize(application, reactNativeHost)
     }
 
     @JvmStatic
