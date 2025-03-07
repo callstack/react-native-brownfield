@@ -18,9 +18,9 @@ Pod::Spec.new do |spec|
 
   # s.source       = { :git => "git@github.com/michalchudziak/react-native-brownfield.git", :tag => "v#{s.version}" }
   spec.source       = { :path => "." }
-  spec.source_files  = "ios/**/*.{h,m,mm}"
+  spec.source_files  = "ios/**/*.{h,m,mm,swift}"
   spec.compiler_flags = new_arch_enabled_flag
   spec.pod_target_xcconfig = { 'OTHER_CPLUSPLUSFLAGS' => other_cflags }
 
-  spec.dependency 'React'
+  install_modules_dependencies(spec)
 end

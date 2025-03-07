@@ -1,33 +1,32 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
-apply plugin: 'com.facebook.react'
+apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.plugin.compose"
 
-apply plugin: 'kotlin-android'
 
 react {
-    root = file("../../..")
-    entryFile = file("example/index.js")
+    /* Autolinking */
+    autolinkLibrariesWithApp()
 }
 
-def jscFlavor = 'org.webkit:android-jsc:+'
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
-    namespace "com.callstack.kotlinexample"
     ndkVersion rootProject.ext.ndkVersion
-
     buildToolsVersion rootProject.ext.buildToolsVersion
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk rootProject.ext.compileSdkVersion
 
-    sourceSets {
-        main.java.srcDirs += 'build/generated/rncli/src/main/java'
-    }
-
+    namespace "com.callstack.kotlinexample"
     defaultConfig {
         applicationId "com.callstack.kotlinexample"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+    }
+
+    buildFeatures {
+      compose true
     }
 
     buildTypes {
@@ -38,20 +37,22 @@ android {
     }
 }
 
+
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation "androidx.navigation:navigation-compose:2.8.8"
+    implementation "androidx.compose.material3:material3:1.3.1"
 
-    if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android")
+
+  if (hermesEnabled.toBoolean()) {
+      implementation("com.facebook.react:hermes-android")
     } else {
-        implementation jscFlavor
+      implementation jscFlavor
     }
 }
-
-apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

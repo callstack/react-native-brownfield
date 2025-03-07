@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        ReactNativeBrownfield.shared().entryFile = "example/index"
+        ReactNativeBrownfield.shared().entryFile = "index"
         ReactNativeBrownfield.shared().startReactNative {
             print("loaded")
         }
