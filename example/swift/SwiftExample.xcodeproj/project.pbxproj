@@ -7,9 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2869185C23129ECF00458242 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2869185B23129ECF00458242 /* AppDelegate.swift */; };
-		2869185E23129ECF00458242 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2869185D23129ECF00458242 /* ViewController.swift */; };
-		2869186123129ECF00458242 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2869185F23129ECF00458242 /* Main.storyboard */; };
+		2869185C23129ECF00458242 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2869185B23129ECF00458242 /* App.swift */; };
 		2869186323129ED100458242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2869186223129ED100458242 /* Assets.xcassets */; };
 		2869186623129ED100458242 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2869186423129ED100458242 /* LaunchScreen.storyboard */; };
 		AC7E040409DFEE553311B27E /* libPods-SwiftExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF9653D1882655DA02862F71 /* libPods-SwiftExample.a */; };
@@ -18,9 +16,7 @@
 
 /* Begin PBXFileReference section */
 		2869185823129ECF00458242 /* SwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		2869185B23129ECF00458242 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		2869185D23129ECF00458242 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		2869186023129ECF00458242 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		2869185B23129ECF00458242 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		2869186223129ED100458242 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2869186523129ED100458242 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2869186723129ED100458242 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -45,9 +41,7 @@
 		2869184F23129ECF00458242 = {
 			isa = PBXGroup;
 			children = (
-				2869185B23129ECF00458242 /* AppDelegate.swift */,
-				2869185D23129ECF00458242 /* ViewController.swift */,
-				2869185F23129ECF00458242 /* Main.storyboard */,
+				2869185B23129ECF00458242 /* App.swift */,
 				2869186223129ED100458242 /* Assets.xcassets */,
 				2869186423129ED100458242 /* LaunchScreen.storyboard */,
 				2869186723129ED100458242 /* Info.plist */,
@@ -148,7 +142,6 @@
 			files = (
 				2869186623129ED100458242 /* LaunchScreen.storyboard in Resources */,
 				2869186323129ED100458242 /* Assets.xcassets in Resources */,
-				2869186123129ECF00458242 /* Main.storyboard in Resources */,
 				ED52AE6E1313AAE3C968412D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -255,22 +248,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2869185E23129ECF00458242 /* ViewController.swift in Sources */,
-				2869185C23129ECF00458242 /* AppDelegate.swift in Sources */,
+				2869185C23129ECF00458242 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		2869185F23129ECF00458242 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2869186023129ECF00458242 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		2869186423129ED100458242 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -336,7 +320,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD = "";
 				LDPLUSPLUS = "";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -401,7 +385,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD = "";
 				LDPLUSPLUS = "";
 				MTL_ENABLE_DEBUG_INFO = NO;

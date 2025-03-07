@@ -2,6 +2,55 @@
 
 React Native Brownfield provides first-class support for Swift. 
 
+### SwiftUI Integration
+
+React Native Brownfield can be easily integrated with SwiftUI apps without requiring the traditional AppDelegate approach. Here's how to initialize React Native in a SwiftUI app:
+
+```swift
+import SwiftUI
+import ReactNativeBrownfield
+
+@main
+struct MyApp: App {
+  // Initialize React Native when the app launches
+  init() {
+    ReactNativeBrownfield.shared.startReactNative {
+      print("React Native bundle loaded")
+    }
+  }
+  
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}
+```
+
+To display React Native views in SwiftUI, use the provided `ReactNativeView` component:
+
+```swift
+import SwiftUI
+import ReactNativeBrownfield
+
+struct ContentView: View {
+  var body: some View {
+    NavigationView {
+      VStack {
+        // Your SwiftUI content
+        
+        NavigationLink("Push React Native Screen") {
+          ReactNativeView(moduleName: "ReactNative")
+            .navigationBarHidden(true)
+        }
+      }
+    }
+  }
+}
+```
+
+The `ReactNativeView` component is a SwiftUI wrapper around `ReactNativeViewController` that handles navigation and lifecycle events automatically.
+
 ### `use_frameworks!` support
 
 It is possible to build `react-native-brownfield` with `use_frameworks!` directive in CocoaPods as long as `React` can be built this way.
@@ -124,6 +173,54 @@ Examples:
 
 ---
 
+#### Initialization Approaches
+
+React Native Brownfield supports two main approaches for initialization:
+
+**1. UIKit AppDelegate Approach (Traditional)**
+
+```swift
+import UIKit
+import ReactNativeBrownfield
+
+class AppDelegate: UIResponder, UIApplicationDelegate {
+  var window: UIWindow?
+  
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    ReactNativeBrownfield.shared.startReactNative {
+      print("React Native bundle loaded")
+    }
+    return true
+  }
+}
+```
+
+**2. SwiftUI App Approach (Modern)**
+
+```swift
+import SwiftUI
+import ReactNativeBrownfield
+
+@main
+struct MyApp: App {
+  init() {
+    ReactNativeBrownfield.shared.startReactNative {
+      print("React Native bundle loaded")
+    }
+  }
+  
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}
+```
+
+Both approaches achieve the same result - initializing the React Native bridge when your app launches. Choose the approach that best fits your app architecture.
+
+---
+
 #### ReactNativeViewController
 
 A view controller that's rendering React Native view within its bounds. It automatically uses an instance of a factory created in `startReactNative` method. It works well with exposed JavaScript module. It's the simplest way to embed React Native into your navigation stack.
@@ -153,6 +250,48 @@ Examples:
 
 ```swift
   ReactNativeViewController(moduleName: "ReactNative", initialProperties: ["score": 12])
+```
+
+---
+
+#### ReactNativeView
+
+A SwiftUI view that wraps the ReactNativeViewController, making it easy to integrate React Native into SwiftUI navigation flows. It automatically handles navigation events like "pop to native" from React Native.
+
+You can import it from:
+
+```swift
+  import ReactNativeBrownfield
+```
+
+---
+
+**Constructors:**
+
+`ReactNativeView(moduleName: moduleName, initialProperties: initialProperties)`
+
+| Param              | Required  | Type          | Description                                                   |
+| ------------------ | --------- | ------------- | ------------------------------------------------------------- |
+| moduleName         | Yes       | String        | Name of React Native component registered to `AppRegistry`.   |
+| initialProperties  | No        | [String: Any] | Initial properties to be passed to React Native component.    |
+
+Examples:
+
+```swift
+  ReactNativeView(moduleName: "ReactNative")
+```
+
+```swift
+  ReactNativeView(moduleName: "ReactNative", initialProperties: ["score": 12])
+```
+
+Usage with SwiftUI navigation:
+
+```swift
+NavigationLink("Open React Native Screen") {
+  ReactNativeView(moduleName: "ReactNative")
+    .navigationBarHidden(true)
+}
 ```
 
 ---
