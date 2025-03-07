@@ -22,8 +22,14 @@ jobs:
           node-version: 'lts/*'
           cache: 'yarn'
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: yarn install
+
+      - name: Install example dependencies
+        run: |
+          cd example
+          yarn install
+          cd ..
 
       - name: Lint JS Code (ESLint)
         run: yarn run lint
