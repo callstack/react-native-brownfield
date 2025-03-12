@@ -7,7 +7,7 @@ open class BaseProject {
     private var _project: Project? = null
 
     var project: Project
-        get() = _project ?: throw IllegalStateException("Project has not been initialized")
+        get() = checkNotNull(_project) { "Project has not been initialized" }
         set(value) {
             _project = value
         }
