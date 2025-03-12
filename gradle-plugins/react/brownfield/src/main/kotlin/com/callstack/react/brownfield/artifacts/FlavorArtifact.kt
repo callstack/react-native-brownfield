@@ -12,6 +12,7 @@ package com.callstack.react.brownfield.artifacts
 
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import org.gradle.api.Project
@@ -41,6 +42,8 @@ class FlavorArtifact(private val variant: LibraryVariant, private val variantTas
         val artifactProject = getArtifactProject(unResolvedArtifact)
         val bundleProvider: TaskProvider<Task>? =
             artifactProject?.let { getBundleTaskProvider(it, variant) }
+
+        project.tasks.named("preBuild").dependsOn("${artifactProject?.path}:${bundleProvider?.name}")
 
         val identifier =
             DefaultModuleVersionIdentifier.newId(
