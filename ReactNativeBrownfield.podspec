@@ -20,7 +20,8 @@ Pod::Spec.new do |spec|
   spec.source       = { :path => "." }
   spec.source_files  = "ios/**/*.{h,m,mm,swift}"
   spec.compiler_flags = new_arch_enabled_flag
-  spec.pod_target_xcconfig = { 'OTHER_CPLUSPLUSFLAGS' => other_cflags }
+  spec.pod_target_xcconfig = { 'OTHER_CPLUSPLUSFLAGS' => other_cflags, 'DEFINES_MODULE' => 'YES' }
 
   install_modules_dependencies(spec)
+  spec.dependency 'ReactAppDependencyProvider'
 end

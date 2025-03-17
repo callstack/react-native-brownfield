@@ -6,5 +6,5 @@
 //  Copyright © 2019 Callstack. All rights reserved.
 //
 
-#import <ReactNativeBrownfield/ReactNativeBrownfield.h>
-#import <ReactNativeBrownfield/ReactNativeViewController.h>
+//#import <ReactNativeBrownfield/ReactNativeBrownfield.h>
+//#import <ReactNativeBrownfield/ReactNativeViewController.h>
