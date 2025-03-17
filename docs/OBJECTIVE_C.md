@@ -68,12 +68,12 @@ Examples:
 
 **Properties:**
 
-| Property                   | Type      | Default        | Description                                        |
-| --------------------       | --------- | -------------- | -------------------------------------------------- |
-| bridge                     | RCTBridge | nil            | Launch options, typically passed from AppDelegate. |
-| entryFile                  | NSString  | index          | Path to JavaScript root.                           |
-| fallbackResource           | NSString  | nil            | Path to bundle fallback resource.                  |
-| bundlePath                 | NSString  | main.jsbundle  | Path to bundle fallback resource.                  |
+| Property                   | Type                    | Default        | Description                                        |
+| -------------------------- | ----------------------- | -------------- | -------------------------------------------------- |
+| entryFile                  | NSString                | index          | Path to JavaScript root.                           |
+| fallbackResource           | NSString                | nil            | Path to bundle fallback resource.                  |
+| bundlePath                 | NSString                | main.jsbundle  | Path to bundle fallback resource.                  |
+| reactNativeFactory         | RCTReactNativeFactory   | nil            | React Native factory instance.                     |
 
 ---
 
@@ -112,7 +112,7 @@ Examples:
 
 #### ReactNativeViewController
 
-A view controller that's rendering `RCTRootView` within its bounds. It automatically uses an instance of a bridge created in `startReactNative` method. It works well with exposed JavaScript module. It's the simplest way to embed React Native into your navigation stack.
+A view controller that's rendering React Native view within its bounds. It automatically uses an instance of a factory created in `startReactNative` method. It works well with exposed JavaScript module. It's the simplest way to embed React Native into your navigation stack.
 
 You can import it from:
 
@@ -129,7 +129,7 @@ You can import it from:
 | Param              | Required  | Type          | Description                                                   |
 | ------------------ | --------- | ------------- | ------------------------------------------------------------- |
 | moduleName         | Yes       | NSString      | Name of React Native component registered to `AppRegistry`.   |
-| initialProperties  | No        | NSString      | Initial properties to be passed to React Native component.    |
+| initialProperties  | No        | NSDictionary  | Initial properties to be passed to React Native component.    |
 
 Examples:
 
@@ -138,7 +138,7 @@ Examples:
 ```
 
 ```objc
-  [[ReactNativeViewController alloc] initWithModuleName:@"ReactNative" andInitialProperties:@{@"score": 12}]
+  [[ReactNativeViewController alloc] initWithModuleName:@"ReactNative" andInitialProperties:@{@"score": @12}]
 ```
 
 ---
