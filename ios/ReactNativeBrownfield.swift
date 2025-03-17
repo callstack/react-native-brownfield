@@ -1,5 +1,4 @@
 import React
-import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
 
@@ -33,12 +32,23 @@ import ReactAppDependencyProvider
     self.dependencyProvider = RCTAppDependencyProvider()
     self.reactNativeFactory = RCTReactNativeFactory(delegate: self)
     
-    if let onBundleLoaded = onBundleLoaded {
+    if let onBundleLoaded {
       self.onBundleLoaded = onBundleLoaded
-      NotificationCenter.default.addObserver(self,
-                                             selector: #selector(jsLoaded),
-                                             name: NSNotification.Name("RCTJavaScriptDidLoadNotification"),
-                                             object: nil)
+      if RCTIsNewArchEnabled() {
+        NotificationCenter.default.addObserver(
+          self,
+          selector: #selector(jsLoaded),
+          name: NSNotification.Name("RCTInstanceDidLoadBundle"),
+          object: nil
+        )
+      } else {
+        NotificationCenter.default.addObserver(
+          self,
+          selector: #selector(jsLoaded),
+          name: NSNotification.Name("RCTJavaScriptDidLoadNotification"),
+          object: nil
+        )
+      }
     }
   }
   
