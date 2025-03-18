@@ -4,28 +4,57 @@ import ReactAppDependencyProvider
 
 @objc public class ReactNativeBrownfield: RCTDefaultReactNativeFactoryDelegate {
   @objc public static let shared = ReactNativeBrownfield()
-  
-  @objc public var entryFile: String
-  @objc public var fallbackResource: String?
-  @objc public var bundlePath: String
-  @objc public var reactNativeFactory: RCTReactNativeFactory?
   private var onBundleLoaded: (() -> Void)?
-  
-  private override init() {
-    self.entryFile = "index"
-    self.fallbackResource = nil
-    self.bundlePath = "main.jsbundle"
-    super.init()
-  }
-  
+
+  /**
+   * Path to JavaScript root.
+   * Default value: "index"
+   */
+  @objc public var entryFile: String = "index"
+  /**
+   * Path to bundle fallback resource.
+   * Default value: nil
+   */
+  @objc public var fallbackResource: String? = nil
+  /**
+   * Path to JavaScript bundle file.
+   * Default value: "main.jsbundle"
+   */
+  @objc public var bundlePath: String = "main.jsbundle"
+  /**
+   * React Native factory instance created when starting React Native.
+   * Default value: nil
+   */
+  @objc public var reactNativeFactory: RCTReactNativeFactory? = nil
+  /**
+   * Root view factory used to create React Native views.
+   */
+  @objc lazy public var rootViewFactory: RCTRootViewFactory? = {
+    return reactNativeFactory?.rootViewFactory
+  }()
+
+  /**
+   * Starts React Native with default parameters.
+   */
   @objc public func startReactNative() {
     startReactNative(onBundleLoaded: nil)
   }
   
+  /**
+   * Starts React Native with optional callback when bundle is loaded.
+   * 
+   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
+   */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?) {
     startReactNative(onBundleLoaded: onBundleLoaded, launchOptions: nil)
   }
   
+  /**
+   * Starts React Native with optional callback and launch options.
+   * 
+   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
+   * @param launchOptions Launch options, typically passed from AppDelegate.
+   */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?, launchOptions: [AnyHashable: Any]?) {
     guard reactNativeFactory == nil else { return }
     
@@ -58,7 +87,7 @@ import ReactAppDependencyProvider
     NotificationCenter.default.removeObserver(self)
   }
   
-  // MARK: - RCTBridgeDelegate Methods
+  // MARK: - RCTReactNativeFactoryDelegate Methods
   
   @objc public override func sourceURL(for bridge: RCTBridge) -> URL? {
     return bundleURL()
@@ -79,6 +108,12 @@ import ReactAppDependencyProvider
 }
 
 extension Notification.Name {
+  /**
+   * Notification sent when React Native wants to navigate back to native screen.
+   */
   public static let popToNative = Notification.Name("PopToNativeNotification")
+  /**
+   * Notification sent to enable/disable the pop gesture recognizer.
+   */
   public static let togglePopGestureRecognizer = Notification.Name("TogglePopGestureRecognizerNotification")
 }

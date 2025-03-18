@@ -1,5 +1,10 @@
 #import "ReactNativeBrownfieldModule.h"
+
+#if __has_include("ReactNativeBrownfield/ReactNativeBrownfield-Swift.h")
+#import "ReactNativeBrownfield/ReactNativeBrownfield-Swift.h"
+#else
 #import "ReactNativeBrownfield-Swift.h"
+#endif
 
 @implementation ReactNativeBrownfieldModule
 

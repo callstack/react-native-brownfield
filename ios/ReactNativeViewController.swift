@@ -18,7 +18,7 @@ import React
   public override func viewDidLoad() {
     super.viewDidLoad()
     
-    guard let factory = ReactNativeBrownfield.shared.reactNativeFactory?.rootViewFactory else {
+    guard let factory = ReactNativeBrownfield.shared.rootViewFactory else {
       print("Error: You need to start React Native in order to use ReactNativeViewController, make sure to run BridgeManager.shared.startReactNative() before instantiating it.")
       return
     }
