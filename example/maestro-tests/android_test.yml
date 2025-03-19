@@ -1,0 +1,37 @@
+appId: com.callstack.kotlinexample
+
+---
+- launchApp
+- assertVisible: "React Native Brownfield"
+- tapOn: "Navigate to React Native Fragment with Compose"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Push next screen"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Go back"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Go back"
+
+- assertVisible: "React Native Brownfield"
+
+- tapOn: "Navigate to React Native Fragment Activity"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Push next screen"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Go back"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Go back"
+
+- assertVisible: "React Native Brownfield"
+
