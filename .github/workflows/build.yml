@@ -1,0 +1,85 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  android:
+    name: Build Android App
+    runs-on: ubuntu-latest
+    
+    env:
+      SKIP_YARN_COREPACK_CHECK: 0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+
+      - name: Install root dependencies
+        run: yarn install
+
+      - name: Install example dependencies
+        run: |
+          cd example
+          yarn install
+          cd ..
+
+      - name: Build Android App
+        run: |
+          cd example/kotlin
+          ./gradlew assembleDebug
+
+  ios:
+    name: Build iOS App
+    runs-on: macos-latest
+    
+    env:
+      SKIP_YARN_COREPACK_CHECK: 0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install root dependencies
+        run: yarn install
+
+      - name: Install example dependencies
+        run: |
+          cd example
+          yarn install
+          cd ..
+
+      - name: Install pods
+        run: |
+          cd example/swift
+          pod install
+
+      - name: Build iOS App
+        run: |
+          cd example/swift
+          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' build CODE_SIGNING_ALLOWED=NO
