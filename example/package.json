@@ -5,7 +5,9 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start"
+    "start": "react-native start",
+    "test:e2e:ios": "maestro test ./maestro-tests/ios_test.yml",
+    "test:e2e:android": "maestro test ./maestro-tests/android_test.yml"
   },
   "dependencies": {
     "react": "19.0.0",
