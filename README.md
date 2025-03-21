@@ -24,11 +24,12 @@
 - **Easily integrate** React Native with existing native app
 - Start React Native with **one method** and invoke code as soon as it's loaded
 - Compatible with **both old and new React Native architecture**! 
-- Reuse the same instance of React Native **instance** between different components
+- Reuse the same instance of React Native between different components
 - Use predefined **native building blocks** - crafted for React Native
 - Disable and enable **native gestures and hardware buttons** from JavaScript
 - Works well with **any native navigation** pattern, as well as every React Native JavaScript based navigation
 - Compatible with all native languages **Objective-C**, **Swift**, **Java** and **Kotlin**
+- Supports UIKit and SwiftUI on iOS and Fragments and Jetpack Compose on Android
 
 
 ## Installation
@@ -42,6 +43,26 @@ or
 ```sh
 yarn add @callstack/react-native-brownfield
 ```
+
+## Enabling New Architecture
+
+### Android
+Add the following to your `android/gradle.properties`:
+
+```
+# Enable new architecture
+newArchEnabled=true
+```
+
+### iOS
+Install cocoapods with the flag:
+
+```
+RCT_NEW_ARCH_ENABLED=1 pod install
+```
+
+> [!NOTE]
+> New Architecture is enabled by default from React Native 0.76
 
 ## Usage
 
@@ -79,6 +100,7 @@ ReactNativeBrownfield.popToNative(true);
 ```
 
 > NOTE: Those methods works only with native components provided by this library.
+
 
 ## Made with ❤️ at Callstack
 
