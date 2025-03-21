@@ -2,44 +2,6 @@
 
 React Native Brownfield provides first-class support for Swift. 
 
-### Linking
-
-The library is meant to work with [auto linking](https://github.com/react-native-community/cli/blob/master/docs/autolinking.md). In case you can't use this feature, please check out the following options:
-
-<details>
-<summary>react-native link</summary>
-Run the following command in your terminal:
-
-```bash
-  react-native link @callstack/react-native-brownfield
-```
-</details>
-
-<details>
-<summary>CocoaPods</summary>
-Add the following line to your `Podfile`:
-
-```ruby
-  pod 'ReactNativeBrownfield', :path => '../node_modules/@callstack/react-native-brownfield'
-```
-</details>
-
-<details>
-<summary>Manually link the library on iOS</summary>
-
-### `Open project.xcodeproj in Xcode`
-
-Drag `ReactNativeBrownfield.xcodeproj` to your project on Xcode (usually under the Libraries group on Xcode):
-
-![xcode-add](https://facebook.github.io/react-native/docs/assets/AddToLibraries.png)
-
-### Link `libReactNativeBrownfield.a` binary with libraries
-
-Click on your main project file (the one that represents the `.xcodeproj`) select `Build Phases` and drag the static library from the `Products` folder inside the Library you are importing to `Link Binary With Libraries` (or use the `+` sign and choose library from the list):
-
-![xcode-link](https://facebook.github.io/react-native/docs/assets/AddToBuildPhases.png)
-</details>
-
 ### API Reference
 
 #### `ReactNativeBrownfield`
@@ -47,7 +9,7 @@ Click on your main project file (the one that represents the `.xcodeproj`) selec
 You can import the object from:
 
 ```swift
-  import ReactNativeBrownfield
+import ReactNativeBrownfield
 ```
 
 ---
@@ -61,7 +23,7 @@ A singleton that keeps an instance of `ReactNativeBrownfield` object.
 Examples:
 
 ```swift
-  ReactNativeBrownfield.shared
+ReactNativeBrownfield.shared
 ```
 
 ---
@@ -93,19 +55,19 @@ Params:
 Examples:
 
 ```swift
-    ReactNativeBrownfield.shared.startReactNative()
+ReactNativeBrownfield.shared.startReactNative()
 ```
 
 ```swift
-   ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
-     print("React Native started")
-   })
+ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
+  print("React Native started")
+})
 ```
 
 ```swift
-    ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
-      print("React Native started")
-    }, launchOptions: launchOptions)
+ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
+  print("React Native started")
+}, launchOptions: launchOptions)
 ```
 
 ---
@@ -205,7 +167,7 @@ A view controller that's rendering React Native view within its bounds. It autom
 You can import it from:
 
 ```swift
-  import ReactNativeBrownfield
+import ReactNativeBrownfield
 ```
 
 ---
@@ -222,11 +184,11 @@ You can import it from:
 Examples:
 
 ```swift
-  ReactNativeViewController(moduleName: "ReactNative")
+ReactNativeViewController(moduleName: "ReactNative")
 ```
 
 ```swift
-  ReactNativeViewController(moduleName: "ReactNative", initialProperties: ["score": 12])
+ReactNativeViewController(moduleName: "ReactNative", initialProperties: ["score": 12])
 ```
 
 ---
@@ -238,7 +200,7 @@ A SwiftUI view that wraps the `ReactNativeViewController`, making it easy to int
 You can import it from:
 
 ```swift
-  import ReactNativeBrownfield
+import ReactNativeBrownfield
 ```
 
 ---
@@ -255,11 +217,11 @@ You can import it from:
 Examples:
 
 ```swift
-  ReactNativeView(moduleName: "ReactNative")
+ReactNativeView(moduleName: "ReactNative")
 ```
 
 ```swift
-  ReactNativeView(moduleName: "ReactNative", initialProperties: ["score": 12])
+ReactNativeView(moduleName: "ReactNative", initialProperties: ["score": 12])
 ```
 
 Usage with SwiftUI navigation:
