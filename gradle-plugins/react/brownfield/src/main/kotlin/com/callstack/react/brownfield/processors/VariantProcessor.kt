@@ -119,11 +119,12 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
         prepareTask: TaskProvider<Task>,
         bundleTask: TaskProvider<Task>,
     ) {
-        val archiveLibrary = AndroidArchiveLibrary(
-            project,
-            artifact,
-            variant.name
-        )
+        val archiveLibrary =
+            AndroidArchiveLibrary(
+                project,
+                artifact,
+                variant.name,
+            )
         aarLibraries.add(archiveLibrary)
         aarLibrariesProperty.add(archiveLibrary)
 

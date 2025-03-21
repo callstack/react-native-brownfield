@@ -57,16 +57,22 @@ class JNILibsProcessor : BaseProject() {
                 .toMutableMap()
 
         files?.forEach { folder ->
-            folder.listFiles()?.forEach { file ->
-                if (existingJNILibs[folder.name]?.contains(file.name) == true) {
-                    val deleted = file.delete()
-                    if (!deleted) {
-                        Logging.log("Failed to delete: ${file.name}")
-                    }
+            val libFiles = folder.listFiles() ?: return@forEach
+            val libList = existingJNILibs[folder.name] ?: return@forEach
+
+            libFiles.forEach { file ->
+                if (file.name in libList) {
+                    deleteFile(file)
                 } else {
-                    existingJNILibs[folder.name]?.add(file.name)
+                    libList.add(file.name)
                 }
             }
+        }
+    }
+
+    private fun deleteFile(file: File) {
+        if (!file.delete()) {
+            Logging.log("Failed to delete: ${file.name}")
         }
     }
 }

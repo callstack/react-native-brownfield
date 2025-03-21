@@ -76,7 +76,7 @@ class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
                 }
             Utils.mergeFiles(files, outputFileToMerge)
         } catch (e: NoSuchFileException) {
-            Logging.log(e.printStackTrace())
+            Logging.log(e)
         }
     }
 }
