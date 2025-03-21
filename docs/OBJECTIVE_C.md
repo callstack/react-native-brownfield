@@ -2,44 +2,6 @@
 
 React Native Brownfield provides first-class support for Objective-C.
 
-### Linking
-
-The library is meant to work with [auto linking](https://github.com/react-native-community/cli/blob/master/docs/autolinking.md). In case you can't use this feature, please check out the following options:
-
-<details>
-<summary>react-native link</summary>
-Run the following command in your terminal:
-
-```bash
-  react-native link @callstack/react-native-brownfield
-```
-</details>
-
-<details>
-<summary>CocoaPods</summary>
-Add the following line to your `Podfile`:
-
-```ruby
-  pod 'ReactNativeBrownfield', :path => '../node_modules/@callstack/react-native-brownfield'
-```
-</details>
-
-<details>
-<summary>Manually link the library on iOS</summary>
-
-### `Open project.xcodeproj in Xcode`
-
-Drag `ReactNativeBrownfield.xcodeproj` to your project on Xcode (usually under the Libraries group on Xcode):
-
-![xcode-add](https://facebook.github.io/react-native/docs/assets/AddToLibraries.png)
-
-### Link `libReactNativeBrownfield.a` binary with libraries
-
-Click on your main project file (the one that represents the `.xcodeproj`) select `Build Phases` and drag the static library from the `Products` folder inside the Library you are importing to `Link Binary With Libraries` (or use the `+` sign and choose library from the list):
-
-![xcode-link](https://facebook.github.io/react-native/docs/assets/AddToBuildPhases.png)
-</details>
-
 ### API Reference
 
 #### ReactNativeBrownfield
@@ -47,7 +9,7 @@ Click on your main project file (the one that represents the `.xcodeproj`) selec
 You can import the object from:
 
 ```objc
-  #import <ReactNativeBrownfield/ReactNativeBrownfield.h>
+#import <ReactNativeBrownfield/ReactNativeBrownfield.h>
 ```
 
 ---
@@ -61,7 +23,7 @@ A singleton that keeps an instance of `ReactNativeBrownfield` object.
 Examples:
 
 ```objc
-  [ReactNativeBrownfield shared]
+[ReactNativeBrownfield shared]
 ```
 
 ---
@@ -81,7 +43,7 @@ Examples:
 
 `startReactNative`
 
-Starts React Native, produces an instance of a bridge. You can use it to initialize React Native in your app.
+Starts React Native, produces an instance of React Native. You can use it to initialize React Native in your app.
 
 Params:
 
@@ -93,19 +55,19 @@ Params:
 Examples:
 
 ```objc
-    [[ReactNativeBrownfield shared] startReactNative];
+[[ReactNativeBrownfield shared] startReactNative];
 ```
 
 ```objc
-    [[ReactNativeBrownfield shared] startReactNative:^(void){
-        NSLog(@"React Native started");
-    }];
+[[ReactNativeBrownfield shared] startReactNative:^(void){
+    NSLog(@"React Native started");
+}];
 ```
 
 ```objc
-    [[ReactNativeBrownfield shared] startReactNative:^(void){
-        NSLog(@"React Native started");
-    }, launchOptions];
+[[ReactNativeBrownfield shared] startReactNative:^(void){
+    NSLog(@"React Native started");
+}, launchOptions];
 ```
 
 ---
@@ -117,7 +79,7 @@ A view controller that's rendering React Native view within its bounds. It autom
 You can import it from:
 
 ```objc
-  #import <ReactNativeBrownfield/ReactNativeViewController.h>
+#import <ReactNativeBrownfield/ReactNativeViewController.h>
 ```
 
 ---
@@ -134,10 +96,10 @@ You can import it from:
 Examples:
 
 ```objc
-  [[ReactNativeViewController alloc] initWithModuleName:@"ReactNative"]
+[[ReactNativeViewController alloc] initWithModuleName:@"ReactNative"]
 ```
 
 ```objc
-  [[ReactNativeViewController alloc] initWithModuleName:@"ReactNative" andInitialProperties:@{@"score": @12}]
+[[ReactNativeViewController alloc] initWithModuleName:@"ReactNative" andInitialProperties:@{@"score": @12}]
 ```
 
