@@ -83,6 +83,7 @@ publishing {
     }
 
     repositories {
+        mavenLocal()
         maven {
             name = "MavenCentral"
             url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") // Maven Central URL
@@ -101,11 +102,7 @@ val localProperties = Properties().apply {
 }
 
 signing {
-    useInMemoryPgpKeys(
-        localProperties.getProperty("signingKey"), // GPG private key
-        localProperties.getProperty("signingPassword") // Passphrase
-    )
-    sign(publishing.publications["mavenCentral"]) // Sign the Maven publication
+    sign(publishing.publications["mavenCentral"])
 }
 
 repositories {
@@ -126,3 +123,19 @@ tasks.named("detekt").configure {
 tasks.register("lint") {
     dependsOn(":ktlintFormat")
 }
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+    }
+    options {
+        encoding = "UTF-8"
+        source = "8"
+    }
+}
+
