@@ -47,7 +47,7 @@ publishing {
     }
 
     publications {
-        create<MavenPublication>("mavenCentral") {
+        create<MavenPublication>("mavenLocal") {
             from(components["java"])
 
             groupId = property("GROUP").toString()
@@ -84,15 +84,6 @@ publishing {
 
     repositories {
         mavenLocal()
-        maven {
-            name = "MavenCentral"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") // Maven Central URL
-
-            credentials {
-                username = findProperty("mavenCentralUsername") as String? ?: ""
-                password = findProperty("mavenCentralToken") as String? ?: ""
-            }
-        }
     }
 }
 
@@ -102,7 +93,7 @@ val localProperties = Properties().apply {
 }
 
 signing {
-    sign(publishing.publications["mavenCentral"])
+    sign(publishing.publications["mavenLocal"])
 }
 
 repositories {
