@@ -1,9 +1,9 @@
 #import "ReactNativeBrownfieldModule.h"
 
-#if __has_include("ReactNativeBrownfield/ReactNativeBrownfield-Swift.h")
-#import "ReactNativeBrownfield/ReactNativeBrownfield-Swift.h"
+#if __has_include("ReactBrownfield/ReactBrownfield-Swift.h")
+#import "ReactBrownfield/ReactBrownfield-Swift.h"
 #else
-#import "ReactNativeBrownfield-Swift.h"
+#import "ReactBrownfield-Swift.h"
 #endif
 
 @implementation ReactNativeBrownfieldModule
@@ -16,6 +16,10 @@ RCT_EXPORT_METHOD(setPopGestureRecognizerEnabled:(BOOL)enabled) {
 
 RCT_EXPORT_METHOD(popToNative:(BOOL)animated) {
   [ReactNativeBrownfieldModuleImpl popToNativeWithAnimated:animated];
+}
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::NativeReactNativeBrownfieldModuleSpecJSI>(params);
 }
 
 @end

@@ -1,4 +1,9 @@
-#import <React/RCTBridgeModule.h>
+#ifdef __cplusplus
 
-@interface ReactNativeBrownfieldModule : NSObject <RCTBridgeModule>
+#import <React-RCTAppDelegate/RCTDefaultReactNativeFactoryDelegate.h>
+#import <ReactNativeBrownfield/ReactNativeBrownfield.h>
+
+@interface ReactNativeBrownfieldModule : NSObject <NativeReactNativeBrownfieldModuleSpec>
 @end
+
+#endif

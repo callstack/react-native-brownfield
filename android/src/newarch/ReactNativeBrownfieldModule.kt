@@ -1,24 +1,28 @@
 package com.callstack.reactnativebrownfield
 
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 
 class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext) {
+  NativeReactNativeBrownfieldModuleSpec(reactContext) {
   companion object {
     var shouldPopToNative: Boolean = false
   }
 
   @ReactMethod
-  fun popToNative() {
+  override fun popToNative(animated: Boolean) {
     shouldPopToNative = true
     onBackPressed()
   }
 
   @ReactMethod
-  fun setHardwareBackButtonEnabled(isFirstRoute: Boolean) {
-    shouldPopToNative = isFirstRoute
+  override fun setPopGestureRecognizerEnabled(enabled: Boolean) {
+    shouldPopToNative = enabled
+  }
+
+  @ReactMethod
+  override fun setHardwareBackButtonEnabled(enabled: Boolean) {
+    shouldPopToNative = enabled
   }
 
   private fun onBackPressed() {
