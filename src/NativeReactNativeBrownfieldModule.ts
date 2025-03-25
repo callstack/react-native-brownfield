@@ -5,7 +5,7 @@ export interface Spec extends TurboModule {
   /**
    * Navigate back to the native part of the application.
    */
-  popToNative(animated?: boolean): void;
+  popToNative(animated: boolean): void;
 
   /**
    * Enable or disable the iOS swipe back gesture.

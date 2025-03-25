@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require('path');
 const pkg = require('../package.json');
 
 module.exports = {
@@ -7,8 +7,8 @@ module.exports = {
       automaticPodsInstallation: true,
     },
     android: {
-      sourceDir: './kotlin'
-    }
+      sourceDir: './kotlin',
+    },
   },
   dependencies: {
     [pkg.name]: {

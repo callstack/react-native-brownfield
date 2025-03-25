@@ -1,5 +1,5 @@
 import SwiftUI
-import ReactNativeBrownfield
+import react_native_brownfield
 
 @main
 struct MyApp: App {
