@@ -9,7 +9,7 @@ React Native Brownfield provides first-class support for Swift.
 You can import the object from:
 
 ```swift
-import react_native_brownfield
+import ReactBrownfield
 ```
 
 ---
@@ -80,7 +80,7 @@ React Native Brownfield supports two main approaches for initialization:
 
 ```swift
 import UIKit
-import react_native_brownfield
+import ReactBrownfield
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
@@ -98,7 +98,7 @@ To present a React Native view in a UIKit app, use `ReactNativeViewController`:
 
 ```swift
 import UIKit
-import react_native_brownfield
+import ReactBrownfield
 
 class ViewController: UIViewController {
   @IBAction func openReactNativeScreen(_ sender: UIButton) {
@@ -113,7 +113,7 @@ class ViewController: UIViewController {
 
 ```swift
 import SwiftUI
-import react_native_brownfield
+import ReactBrownfield
 
 @main
 struct MyApp: App {
@@ -135,7 +135,7 @@ To display React Native views in SwiftUI, use the provided `ReactNativeView` com
 
 ```swift
 import SwiftUI
-import react_native_brownfield
+import ReactBrownfield
 
 struct ContentView: View {
   var body: some View {
@@ -167,7 +167,7 @@ A view controller that's rendering React Native view within its bounds. It autom
 You can import it from:
 
 ```swift
-import react_native_brownfield
+import ReactBrownfield
 ```
 
 ---
@@ -200,7 +200,7 @@ A SwiftUI view that wraps the `ReactNativeViewController`, making it easy to int
 You can import it from:
 
 ```swift
-import react_native_brownfield
+import ReactBrownfield
 ```
 
 ---
