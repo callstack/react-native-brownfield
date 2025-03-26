@@ -87,11 +87,6 @@ publishing {
     }
 }
 
-
-val localProperties = Properties().apply {
-    file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
-}
-
 signing {
     sign(publishing.publications["mavenLocal"])
 }
