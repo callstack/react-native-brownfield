@@ -18,6 +18,12 @@ object RNSourceSets {
         project: Project,
         extension: Extension,
     ) {
+        /**
+         * Do not configure sourceSets for our example library.
+         * The reason is that we expect some RN specific tasks to
+         * be present on the consuming library, which is not the case
+         * with our example library.
+         */
         if (project.name == "example-android-library") {
             return
         }
