@@ -30,6 +30,7 @@ class RNBrownfieldPlugin
             verifyAndroidPluginApplied(project)
 
             initializers(project)
+            RNSourceSets.configure(project, extension)
             projectConfigurations.setup()
             registerRClassTransformer()
 
