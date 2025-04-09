@@ -21,4 +21,12 @@ open class Extension {
      * Default value is true
      */
     var resolveLocalDependencies = true
+
+    /**
+     * Name of the module using `com.android.application`
+     * For eg, app
+     *
+     * Default value is `app`
+     */
+    var appProjectName = "app"
 }
