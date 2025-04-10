@@ -2,6 +2,9 @@
 
 To publish a signed plugin (currently to `mavenLocal` only), you need to configure the signing key data in plugin's `gradle.properties` file
 
+> [!IMPORTANT]
+> Make sure to clear `~/.m2` directory before starting publishing process
+
 ### 1. Add Signing Key Data
 Update `gradle.properties` file with the following properties:
 ```
@@ -21,3 +24,7 @@ yarn brownfield:plugin:publish:local
 
 ### 3. Output
 If everything is configured properly, the signed plugin will be published to the `~/.m2` repository.
+
+### 4. Publishing
+Go to `~/.m2/repository`, ZIP created plugin at `com` directory level (make sure there isn't any other plugin inside it) and upload it to [Maven Central](https://central.sonatype.com/)
+
