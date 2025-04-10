@@ -1,42 +1,34 @@
-### React Native Brownfield Gradle Plugin
+# React Native Brownfield Gradle Plugin
+
+![Maven Central](https://img.shields.io/maven-central/v/com.callstack.react/brownfield-gradle-plugin)
+
 
 This plugin helps you convert your react-native brownfield implementation into a fat Aar.
 
-#### Installation
+## Installation
 
-##### From Remote
+### From Remote
 
-- TBA
-
-##### From Local
-
-- From the root of this repository, run `yarn brownfield:plugin:publish:local` and it will publish the plugin to your local maven
-- Then add the following patch to your react-native brownfield `build.gradle` files:
+To your top level `build.gradle` add
 
 ```diff
-diff --git a/android/build.gradle b/android/build.gradle
-index 3dd1ac9..0db4ded 100644
---- a/android/build.gradle
-+++ b/android/build.gradle
-@@ -16,6 +16,7 @@ buildscript {
-         }
-+        mavenLocal()
-         google()
-         mavenCentral()
-     }
-@@ -23,7 +24,7 @@ buildscript {
-         classpath("com.android.tools.build:gradle")
-         classpath("com.facebook.react:react-native-gradle-plugin")
-         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-+       classpath("com.callstack.react:brownfield:0.1.0")
-     }
- }
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
++       classpath("com.callstack.react:brownfield:0.3.0")
+    }
+}
+```
+
+To your brownfield project level `build.gradle.kts` add
  
-diff --git a/android/rnbrownfield/build.gradle.kts b/android/rnbrownfield/build.gradle.kts
-index b915003..e387075 100644
---- a/android/rnbrownfield/build.gradle.kts
-+++ b/android/rnbrownfield/build.gradle.kts
-@@ -1,7 +1,7 @@
+```diff
  plugins {
      id("com.android.library")
      id("org.jetbrains.kotlin.android")
@@ -44,14 +36,53 @@ index b915003..e387075 100644
      `maven-publish`
      id("com.facebook.react")
  }
-@@ -10,8 +10,8 @@ react {
+react {
      autolinkLibrariesWithApp()
  }
  
  val appProject = project(":app")
 ```
 
-#### API Usage
+### From Local
+
+- From the root of this repository, run `yarn brownfield:plugin:publish:local` and it will publish the plugin to your local maven
+
+To your top level `build.gradle` add
+
+```diff
+buildscript {
+    repositories {
++       mavenLocal()
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
++       classpath("com.callstack.react:brownfield:0.3.0")
+    }
+}
+```
+
+To your brownfield project level `build.gradle.kts` add
+ 
+```diff
+ plugins {
+     id("com.android.library")
+     id("org.jetbrains.kotlin.android")
++    id("com.callstack.react.brownfield")
+     `maven-publish`
+     id("com.facebook.react")
+ }
+react {
+     autolinkLibrariesWithApp()
+ }
+ 
+ val appProject = project(":app")
+```
+
+## API Usage
 
 - **About Dependencies**
 
@@ -101,13 +132,13 @@ dependencies {
 
 <hr/>
 
-#### Tooling
+## Tooling
 
 - We are using `ktlint` and `detekt` for formatting and linting
 - You can run `./gradlew :brownfield:lint` to auto-format and detect linting issues
 
 
-#### Architecture
+## Architecture
 
 Below is a flow diagram of how the files are being used in this gradle plugin from an overview:
 
