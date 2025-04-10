@@ -1,9 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     `java-gradle-plugin`
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     `maven-publish`
+    signing
 }
 
 ktlint {
@@ -42,6 +45,50 @@ publishing {
     publications.withType<MavenPublication>().configureEach {
         artifactId = property("ARTIFACT_ID").toString()
     }
+
+    publications {
+        create<MavenPublication>("mavenLocal") {
+            from(components["java"])
+
+            groupId = property("GROUP").toString()
+            artifactId = property("ARTIFACT_ID").toString()
+            version = property("VERSION").toString()
+
+            pom {
+                name.set(property("DISPLAY_NAME").toString())
+                description.set(property("DESCRIPTION").toString())
+                url.set(property("GITHUB_URL").toString())
+
+                licenses {
+                    license {
+                        name.set("The MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("callstack")
+                        name.set("Callstack Team")
+                        email.set("it-admin@callstack.com")
+                    }
+                }
+                scm {
+                    connection.set(property("SCM_CONNECTION").toString())
+                    developerConnection.set(property("SCM_DEV_CONNECTION").toString())
+                    url.set(property("GITHUB_URL").toString())
+                }
+            }
+        }
+    }
+
+    repositories {
+        mavenLocal()
+    }
+}
+
+signing {
+    sign(publishing.publications["mavenLocal"])
 }
 
 repositories {
@@ -62,3 +109,19 @@ tasks.named("detekt").configure {
 tasks.register("lint") {
     dependsOn(":ktlintFormat")
 }
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+    }
+    options {
+        encoding = "UTF-8"
+        source = "8"
+    }
+}
+

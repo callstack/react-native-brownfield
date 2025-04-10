@@ -1,2 +1,8 @@
-cd ./gradle-plugins/react && ./gradlew build || exit 1
-./gradlew :brownfield:publishToMavenLocal
+#!/bin/bash
+
+set -e
+
+cd ./gradle-plugins/react
+./gradlew clean
+./gradlew build
+./gradlew :brownfield:publishMavenLocalPublicationToMavenLocalRepository
