@@ -35,11 +35,11 @@ ReactNativeBrownfield.shared
 | `entryFile`                | `String`                | index          | Path to JavaScript root.                           |
 | `fallbackResource`         | `String?`               | nil            | Path to bundle fallback resource.                  |
 | `bundlePath`               | `String`                | main.jsbundle  | Path to bundle fallback resource.                  |
-| `reactNativeFactory`       | `RCTReactNativeFactory?` | nil            | React Native factory instance.                     |
 
 ---
 
 **Methods:**
+
 
 `startReactNative`
 
@@ -68,6 +68,27 @@ ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
 ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
   print("React Native started")
 }, launchOptions: launchOptions)
+```
+
+`view`
+
+Creates a React Native view for the specified module name.
+
+Params:
+
+| Param                   | Required | Type                | Description                                           |
+| ----------------------- | -------- | ------------------- | ----------------------------------------------------- |
+| `moduleName`            | Yes      | `String`            | Name of React Native component registered to `AppRegistry`. |
+| `initialProps`          | No       | `[AnyHashable: Any]?` | Initial properties to be passed to React Native component. |
+| `launchOptions`         | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate. |
+
+Examples:
+
+```swift
+let view = ReactNativeBrownfield.shared.view(
+  moduleName: "ReactNative",
+  initialProps: ["score": 12]
+)
 ```
 
 ---
@@ -238,5 +259,3 @@ NavigationLink("Open React Native Screen") {
 ### Example
 
 You can find an example app [here](../example/swift).
-
-

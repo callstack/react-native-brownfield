@@ -1527,7 +1527,7 @@ PODS:
     - React-jsi (= 0.78.0)
   - ReactAppDependencyProvider (0.78.0):
     - ReactCodegen
-  - ReactBrownfield (1.0.0-rc.0):
+  - ReactBrownfield (1.0.0-rc.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1541,6 +1541,7 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-NativeModulesApple
+    - React-RCTAppDelegate
     - React-RCTFabric
     - React-rendererdebug
     - React-utils
@@ -1944,13 +1945,13 @@ SPEC CHECKSUMS:
   React-timing: bb220a53a795ed57976a4855c521f3de2f298fe5
   React-utils: 3b054aaebe658fc710a8d239d0e4b9fd3e0b78f9
   ReactAppDependencyProvider: a1fb08dfdc7ebc387b2e54cfc9decd283ed821d8
-  ReactBrownfield: e05f198df083698ed9942ace80fd90da6e9298de
+  ReactBrownfield: f2e119f0241af9303f55556a63385efc58ce49b7
   ReactCodegen: 008c319179d681a6a00966edfc67fda68f9fbb2e
   ReactCommon: 0c097b53f03d6bf166edbcd0915da32f3015dd90
   RNScreens: 0d4cb9afe052607ad0aa71f645a88bb7c7f2e64c
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: afd04ff05ebe0121a00c468a8a3c8080221cb14c
 
-PODFILE CHECKSUM: b5dc5f822e98018cbffd7384516e146bba9f6d99
+PODFILE CHECKSUM: dd9bed4f3821ab08d739dbded562f749348cd4d7
 
 COCOAPODS: 1.15.2
