@@ -15,8 +15,13 @@ Pod::Spec.new do |spec|
   spec.module_name = "ReactBrownfield"
   spec.source       = { :git => "git@github.com:callstack/react-native-brownfield.git", :tag => "#{spec.version}" }
   spec.source_files  = "ios/**/*.{h,m,mm,swift}"
-  spec.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+  spec.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
+    'OTHER_SWIFT_FLAGS' => "-enable-experimental-feature AccessLevelOnImport"
+  }
 
   spec.dependency 'ReactAppDependencyProvider'
+  add_dependency(spec, "React-RCTAppDelegate")
+
   install_modules_dependencies(spec)
 end

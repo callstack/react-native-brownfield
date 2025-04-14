@@ -1,4 +1,4 @@
-import React
+internal import React
 
 @objcMembers
 public class ReactNativeBrownfieldModuleImpl: NSObject {
@@ -8,7 +8,7 @@ public class ReactNativeBrownfieldModuleImpl: NSObject {
       NotificationCenter.default.post(name: Notification.Name.togglePopGestureRecognizer, object: nil, userInfo: userInfo)
     }
   }
-  
+
   static public func popToNative(animated: Bool) {
     let userInfo = ["animated": animated]
     DispatchQueue.main.async {
