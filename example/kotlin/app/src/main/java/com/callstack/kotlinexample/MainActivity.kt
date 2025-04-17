@@ -84,7 +84,7 @@ fun HomeScreen(
     verticalArrangement = Arrangement.Center
   ) {
     Text(
-      "React Native Brownfield Example",
+      "React Native Brownfield",
       fontSize = 30.sp,
       modifier = Modifier.padding(15.dp),
       textAlign = TextAlign.Center
