@@ -5,6 +5,7 @@ internal import ReactAppDependencyProvider
 
 class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"
+  var bundlePath = "main.jsbundle"
   // MARK: - RCTReactNativeFactoryDelegate Methods
   
   override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -48,7 +49,11 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * Path to JavaScript bundle file.
    * Default value: "main.jsbundle"
    */
-  @objc public var bundlePath: String = "main.jsbundle"
+  @objc public var bundlePath: String = "main.jsbundle" {
+    didSet {
+      delegate.bundlePath = bundlePath
+    }
+  }
   /**
    * React Native factory instance created when starting React Native.
    * Default value: nil
