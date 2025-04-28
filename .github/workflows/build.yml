@@ -7,57 +7,26 @@ on:
     branches: [main]
 
 jobs:
-  android:
-    name: Build Android App
-    runs-on: ubuntu-latest
-    
-    env:
-      SKIP_YARN_COREPACK_CHECK: 0
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: 'yarn'
-
-      - name: Install root dependencies
-        run: yarn install
-
-      - name: Install example dependencies
-        run: |
-          cd example
-          yarn install
-          cd ..
-
-      - name: Build Android App
-        run: |
-          cd example/kotlin
-          ./gradlew assembleDebug
-
-  ios:
-    name: Build iOS App
+  ios-build:
+    name: iOS Build
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: example
     
     env:
       SKIP_YARN_COREPACK_CHECK: 0
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: '22'
           cache: 'yarn'
+          cache-dependency-path: example/yarn.lock
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -65,21 +34,119 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            example/swift/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('example/swift/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
       - name: Install root dependencies
         run: yarn install
 
       - name: Install example dependencies
-        run: |
-          cd example
-          yarn install
-          cd ..
+        run: yarn install
 
       - name: Install pods
         run: |
-          cd example/swift
+          cd swift
           pod install
 
-      - name: Build iOS App
+      - name: Install Maestro CLI
         run: |
-          cd example/swift
-          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' build CODE_SIGNING_ALLOWED=NO
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          brew tap facebook/fb
+          brew install facebook/fb/idb-companion
+
+      - name: Add Maestro to path
+        run: echo "${HOME}/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Start packager
+        run: yarn start &
+
+      - name: Build iOS App (Release)
+        run: |
+          cd swift
+          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' build CODE_SIGNING_ALLOWED=NO
+
+      - name: Setup iOS simulator
+        run: |
+          UDID=$(xcrun simctl list devices | grep "iPhone" | grep "Booted" | head -1 | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          if [ -z "$UDID" ]; then
+            UDID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+            xcrun simctl boot "${UDID}"
+          fi
+          open -a Simulator
+          xcrun simctl launch "${UDID}" com.callstack.reactnativebrownfield.SwiftExample
+
+      - name: Run iOS tests
+        run: |
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=1500000
+          export MAESTRO_WAIT_TIMEOUT=10000
+          yarn test:e2e:ios
+
+  android-build:
+    name: Android Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: example
+    
+    env:
+      SKIP_YARN_COREPACK_CHECK: 0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+          cache-dependency-path: example/yarn.lock
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install root dependencies
+        run: yarn install
+
+      - name: Install example dependencies
+        run: yarn install
+
+      - name: Start packager
+        run: yarn start &
+
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+
+      - name: Add Maestro to path
+        run: echo "${HOME}/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Create AVD and generate snapshot for caching
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          target: aosp_atd
+          api-level: 30
+          arch: x86
+          ram-size: 4096M
+          channel: canary
+          profile: pixel
+          avd-name: Pixel_3a_API_30_AOSP
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-boot-timeout: 12000
+          disable-animations: false
+          working-directory: example/kotlin
+          script: |
+            chmod +x ./gradlew
+            ./gradlew :app:installRelease
+            cd ..
+            yarn test:e2e:android
