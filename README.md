@@ -93,10 +93,11 @@ ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(true);
 
 **popToNative(animated[iOS only]: boolean)**
 
-A method to pop to native screen used to push React Native experience. 
+A method to pop to back to the native screen.
+Can also pass back data through the second param.
 
 ```js
-ReactNativeBrownfield.popToNative(true);
+ReactNativeBrownfield.popToNative(true, { result: '👋' });
 ```
 
 > NOTE: Those methods works only with native components provided by this library.

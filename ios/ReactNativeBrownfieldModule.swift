@@ -9,8 +9,11 @@ public class ReactNativeBrownfieldModuleImpl: NSObject {
     }
   }
 
-  static public func popToNative(animated: Bool) {
-    let userInfo = ["animated": animated]
+  static public func popToNative(animated: Bool, result: [String: Any]?) {
+    var userInfo: [String : Any] = ["animated": animated]
+    if result != nil {
+      userInfo["result"] = result
+    }
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: Notification.Name.popToNative, object: nil, userInfo: userInfo)
     }

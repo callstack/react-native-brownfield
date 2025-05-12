@@ -14,8 +14,8 @@ RCT_EXPORT_METHOD(setPopGestureRecognizerEnabled:(BOOL)enabled) {
   [ReactNativeBrownfieldModuleImpl setPopGestureRecognizerEnabled:enabled];
 }
 
-RCT_EXPORT_METHOD(popToNative:(BOOL)animated) {
-  [ReactNativeBrownfieldModuleImpl popToNativeWithAnimated:animated];
+RCT_EXPORT_METHOD(popToNative:(BOOL)animated result:(NSDictionary *)result) {
+  [ReactNativeBrownfieldModuleImpl popToNativeWithAnimated:animated result:result];
 }
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
