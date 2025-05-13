@@ -56,7 +56,9 @@ function HomeScreen({ navigation, route }: Props) {
           if (navigation.canGoBack()) {
             navigation.goBack();
           } else {
-            ReactNativeBrownfield.popToNative(true);
+            ReactNativeBrownfield.popToNative(true, {
+              result: `Hello World ${Math.random()}`,
+            });
           }
         }}
         color={colors.secondary}

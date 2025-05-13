@@ -1,10 +1,15 @@
 package com.callstack.kotlinexample
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -76,6 +82,24 @@ fun HomeScreen(
   onStartReactNativeFragment: () -> Unit,
   onStartReactNativeFragmentActivity: () -> Unit
 ) {
+  val context = LocalContext.current
+  val launcher = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.StartActivityForResult(),
+    onResult = { result ->
+      val message = if (result.resultCode == Activity.RESULT_OK) {
+        "Result: ${result.data?.getExtras()?.get("result")}"
+      } else {
+        "Activity cancelled or failed. ${result.resultCode}"
+      }
+      AlertDialog.Builder(context)
+        .setTitle("Activity Result")
+        .setMessage(message)
+        .setPositiveButton("OK") { dialog, _ ->
+          dialog.dismiss()
+        }
+        .show()
+    }
+  )
   Column(
     modifier = Modifier
       .fillMaxSize()
@@ -105,6 +129,17 @@ fun HomeScreen(
       }
     ) {
       Text("Navigate to React Native Fragment Activity")
+    }
+
+    Button(
+      onClick = {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+          setClass(context, ReactNativeFragmentActivity::class.java)
+        }
+        launcher.launch(intent)
+      }
+    ) {
+      Text("Navigate to React Native Fragment Activity with Result")
     }
   }
 }
