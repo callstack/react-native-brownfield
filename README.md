@@ -1,6 +1,6 @@
-<p align="center">
-  <img alt="React Native Brownfield" src="https://user-images.githubusercontent.com/7837457/63594721-7f7b8800-c5b7-11e9-87ef-a0898cd22fcc.png" width="600">
-</p>
+<a href="https://www.callstack.com/open-source" align="center">
+  <img alt="React Native Brownfield" src="https://github.com/user-attachments/assets/55fcdff5-54f0-4081-adf6-55dfa5c29af2">
+</a>
 
 <p align="center">
   Set of helpers to make your brownfield integration smooth and easy.
