@@ -1,8 +1,13 @@
 package com.callstack.reactnativebrownfield
 
+import android.app.Activity;
+import android.content.Intent
+
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableMap
 
 class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -11,7 +16,15 @@ class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun popToNative(animated: Boolean) {
+  fun popToNative(animated: Boolean, result: ReadableMap?) {
+    if (result != null) {
+      val bundle = Arguments.toBundle(result)
+      if (bundle != null) {
+        val intent = Intent()
+        intent.putExtras(bundle)
+        reactApplicationContext.currentActivity?.setResult(Activity.RESULT_OK, intent)
+      }
+    }
     shouldPopToNative = true
     onBackPressed()
   }

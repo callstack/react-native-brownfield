@@ -1,12 +1,14 @@
 import { Platform } from 'react-native';
-import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
+import ReactNativeBrownfieldModule, {
+  type PrimitiveObject,
+} from './NativeReactNativeBrownfieldModule';
 
 const ReactNativeBrownfield = {
-  popToNative: (animated?: boolean): void => {
+  popToNative: (animated?: boolean, result?: PrimitiveObject): void => {
     if (Platform.OS === 'ios') {
-      ReactNativeBrownfieldModule.popToNative(!!animated);
+      ReactNativeBrownfieldModule.popToNative(!!animated, result);
     } else if (Platform.OS === 'android') {
-      ReactNativeBrownfieldModule.popToNative(false);
+      ReactNativeBrownfieldModule.popToNative(false, result);
     } else {
       console.warn('Not implemented: popToNative');
     }
