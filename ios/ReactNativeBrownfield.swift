@@ -6,6 +6,7 @@ internal import ReactAppDependencyProvider
 class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"
   var bundlePath = "main.jsbundle"
+  var bundle = Bundle.main
   // MARK: - RCTReactNativeFactoryDelegate Methods
   
   override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -21,7 +22,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     let resourceName = withoutLast.joined()
     let fileExtension = resourceURLComponents.last ?? ""
     
-    return Bundle.main.url(forResource: resourceName, withExtension: fileExtension)
+    return bundle.url(forResource: resourceName, withExtension: fileExtension)
 #endif
   }
 }
@@ -52,6 +53,15 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   @objc public var bundlePath: String = "main.jsbundle" {
     didSet {
       delegate.bundlePath = bundlePath
+    }
+  }
+  /**
+   * Bundle instance to lookup the JavaScript bundle.
+   * Default value: Bundle.main
+   */
+  @objc public var bundle: Bundle = Bundle.main {
+    didSet {
+      delegate.bundle = bundle
     }
   }
   /**
