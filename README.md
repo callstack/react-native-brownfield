@@ -1,4 +1,4 @@
-<a href="https://www.callstack.com/open-source" align="center">
+<a href="https://www.callstack.com/open-source?utm_campaign=generic&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield" align="center">
   <img alt="React Native Brownfield" src="https://github.com/user-attachments/assets/55fcdff5-54f0-4081-adf6-55dfa5c29af2">
 </a>
 
