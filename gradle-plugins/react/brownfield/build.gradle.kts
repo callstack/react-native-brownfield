@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.kotlinJvm)
     `java-gradle-plugin`
@@ -124,4 +122,3 @@ tasks.javadoc {
         source = "8"
     }
 }
-
