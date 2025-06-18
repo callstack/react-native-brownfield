@@ -30,11 +30,12 @@ Examples:
 
 **Properties:**
 
-| Property                   | Type                    | Default        | Description                                        |
-| -------------------------- | ----------------------- | -------------- | -------------------------------------------------- |
-| `entryFile`                | `NSString`              | `index`        | Path to JavaScript root.                           |
-| `fallbackResource`         | `NSString`              | `nil`          | Path to bundle fallback resource.                  |
-| `bundlePath`               | `NSString`              | `main.jsbundle`| Path to bundle fallback resource.                  |
+| Property           | Type       | Default         | Description                                               |
+| ------------------ | ---------- | --------------- | --------------------------------------------------------- |
+| `entryFile`        | `NSString` | `index`         | Path to JavaScript root.                                  |
+| `fallbackResource` | `NSString` | `nil`           | Path to bundle fallback resource.                         |
+| `bundlePath`       | `NSString` | `main.jsbundle` | Path to bundle fallback resource.                         |
+| `bundle`           | `NSBundle` | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource. |
 
 ---
 
@@ -46,10 +47,10 @@ Starts React Native, produces an instance of React Native. You can use it to ini
 
 Params:
 
-| Param                   | Required | Type              | Description                                           |
-| ----------------------- | -------- | ----------------- | ----------------------------------------------------- |
-| `onBundleLoaded`        | No       | `void(^)(void)`   | Callback invoked after JS bundle is fully loaded.     |
-| `launchOptions`         | No       | `NSDictionary`    | Launch options, typically passed from AppDelegate.    |
+| Param            | Required | Type            | Description                                        |
+| ---------------- | -------- | --------------- | -------------------------------------------------- |
+| `onBundleLoaded` | No       | `void(^)(void)` | Callback invoked after JS bundle is fully loaded.  |
+| `launchOptions`  | No       | `NSDictionary`  | Launch options, typically passed from AppDelegate. |
 
 Examples:
 
@@ -75,11 +76,11 @@ Creates a React Native view for the specified module name.
 
 Params:
 
-| Param                   | Required | Type              | Description                                           |
-| ----------------------- | -------- | ----------------- | ----------------------------------------------------- |
-| `moduleName`            | Yes      | `NSString`        | Name of React Native component registered to `AppRegistry`. |
-| `initialProps`          | No       | `NSDictionary`    | Initial properties to be passed to React Native component. |
-| `launchOptions`         | No       | `NSDictionary`    | Launch options, typically passed from AppDelegate. |
+| Param           | Required | Type           | Description                                                 |
+| --------------- | -------- | -------------- | ----------------------------------------------------------- |
+| `moduleName`    | Yes      | `NSString`     | Name of React Native component registered to `AppRegistry`. |
+| `initialProps`  | No       | `NSDictionary` | Initial properties to be passed to React Native component.  |
+| `launchOptions` | No       | `NSDictionary` | Launch options, typically passed from AppDelegate.          |
 
 Examples:
 
@@ -105,10 +106,10 @@ You can import it from:
 
 `[ReactNativeViewController initWithModuleName:moduleName andInitialProperties:initialProps]`
 
-| Param                 | Required  | Type            | Description                                                   |
-| --------------------- | --------- | --------------- | ------------------------------------------------------------- |
-| `moduleName`          | Yes       | `NSString`      | Name of React Native component registered to `AppRegistry`.   |
-| `initialProperties`   | No        | `NSDictionary`  | Initial properties to be passed to React Native component.    |
+| Param               | Required | Type           | Description                                                 |
+| ------------------- | -------- | -------------- | ----------------------------------------------------------- |
+| `moduleName`        | Yes      | `NSString`     | Name of React Native component registered to `AppRegistry`. |
+| `initialProperties` | No       | `NSDictionary` | Initial properties to be passed to React Native component.  |
 
 Examples:
 
@@ -119,4 +120,3 @@ Examples:
 ```objc
 [[ReactNativeViewController alloc] initWithModuleName:@"ReactNative" andInitialProperties:@{@"score": @12}]
 ```
-
