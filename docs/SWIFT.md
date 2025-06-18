@@ -30,12 +30,12 @@ ReactNativeBrownfield.shared
 
 **Properties:**
 
-| Property           | Type      | Default       | Description                                               |
-| ------------------ | --------- | ------------- | --------------------------------------------------------- |
-| `entryFile`        | `String`  | index         | Path to JavaScript root.                                  |
-| `fallbackResource` | `String?` | nil           | Path to bundle fallback resource.                         |
-| `bundlePath`       | `String`  | main.jsbundle | Path to bundle fallback resource.                         |
-| `bundle`           | `Bundle`  | `Bundle.main` | Bundle instance to lookup the JavaScript bundle resource. |
+| Property           | Type      | Default         | Description                                               |
+| ------------------ | --------- | --------------- | --------------------------------------------------------- |
+| `entryFile`        | `String`  | `index`         | Path to JavaScript root.                                  |
+| `fallbackResource` | `String?` | `nil`           | Path to bundle fallback resource.                         |
+| `bundlePath`       | `String`  | `main.jsbundle` | Path to bundle fallback resource.                         |
+| `bundle`           | `Bundle`  | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource. |
 
 ---
 
