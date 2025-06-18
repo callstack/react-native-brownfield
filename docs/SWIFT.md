@@ -1,6 +1,6 @@
 ## Swift
 
-React Native Brownfield provides first-class support for Swift. 
+React Native Brownfield provides first-class support for Swift.
 
 ### API Reference
 
@@ -30,16 +30,16 @@ ReactNativeBrownfield.shared
 
 **Properties:**
 
-| Property                   | Type                    | Default        | Description                                        |
-| -------------------------- | ----------------------- | -------------- | -------------------------------------------------- |
-| `entryFile`                | `String`                | index          | Path to JavaScript root.                           |
-| `fallbackResource`         | `String?`               | nil            | Path to bundle fallback resource.                  |
-| `bundlePath`               | `String`                | main.jsbundle  | Path to bundle fallback resource.                  |
+| Property           | Type      | Default       | Description                                               |
+| ------------------ | --------- | ------------- | --------------------------------------------------------- |
+| `entryFile`        | `String`  | index         | Path to JavaScript root.                                  |
+| `fallbackResource` | `String?` | nil           | Path to bundle fallback resource.                         |
+| `bundlePath`       | `String`  | main.jsbundle | Path to bundle fallback resource.                         |
+| `bundle`           | `Bundle`  | `Bundle.main` | Bundle instance to lookup the JavaScript bundle resource. |
 
 ---
 
 **Methods:**
-
 
 `startReactNative`
 
@@ -47,10 +47,10 @@ Starts React Native. You can use it to initialize React Native in your app.
 
 Params:
 
-| Param                   | Required | Type                | Description                                           |
-| ----------------------- | -------- | ------------------- | ----------------------------------------------------- |
-| `onBundleLoaded`        | No       | `(() -> Void)?`     | Callback invoked after JS bundle is fully loaded.     |
-| `launchOptions`         | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate. |
+| Param            | Required | Type                  | Description                                        |
+| ---------------- | -------- | --------------------- | -------------------------------------------------- |
+| `onBundleLoaded` | No       | `(() -> Void)?`       | Callback invoked after JS bundle is fully loaded.  |
+| `launchOptions`  | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate. |
 
 Examples:
 
@@ -76,11 +76,11 @@ Creates a React Native view for the specified module name.
 
 Params:
 
-| Param                   | Required | Type                | Description                                           |
-| ----------------------- | -------- | ------------------- | ----------------------------------------------------- |
-| `moduleName`            | Yes      | `String`            | Name of React Native component registered to `AppRegistry`. |
-| `initialProps`          | No       | `[AnyHashable: Any]?` | Initial properties to be passed to React Native component. |
-| `launchOptions`         | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate. |
+| Param           | Required | Type                  | Description                                                 |
+| --------------- | -------- | --------------------- | ----------------------------------------------------------- |
+| `moduleName`    | Yes      | `String`              | Name of React Native component registered to `AppRegistry`. |
+| `initialProps`  | No       | `[AnyHashable: Any]?` | Initial properties to be passed to React Native component.  |
+| `launchOptions` | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate.          |
 
 Examples:
 
@@ -105,7 +105,7 @@ import ReactBrownfield
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
-  
+
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     ReactNativeBrownfield.shared.startReactNative {
       print("React Native bundle loaded")
@@ -124,7 +124,7 @@ import ReactBrownfield
 class ViewController: UIViewController {
   @IBAction func openReactNativeScreen(_ sender: UIButton) {
     let reactNativeVC = ReactNativeViewController(moduleName: "ReactNative")
-    
+
     present(reactNativeVC, animated: true)
   }
 }
@@ -143,7 +143,7 @@ struct MyApp: App {
       print("React Native bundle loaded")
     }
   }
-  
+
   var body: some Scene {
     WindowGroup {
       ContentView()
@@ -164,7 +164,7 @@ struct ContentView: View {
       VStack {
         Text("Welcome to the Native App")
           .padding()
-        
+
         NavigationLink("Push React Native Screen") {
           ReactNativeView(moduleName: "ReactNative")
             .navigationBarHidden(true)
@@ -197,10 +197,10 @@ import ReactBrownfield
 
 `ReactNativeViewController(moduleName: moduleName, initialProperties: initialProperties)`
 
-| Param              | Required  | Type            | Description                                                   |
-| ------------------ | --------- | --------------- | ------------------------------------------------------------- |
-| `moduleName`       | Yes       | `String`        | Name of React Native component registered to `AppRegistry`.   |
-| `initialProperties`| No        | `[String: Any]?`| Initial properties to be passed to React Native component.    |
+| Param               | Required | Type             | Description                                                 |
+| ------------------- | -------- | ---------------- | ----------------------------------------------------------- |
+| `moduleName`        | Yes      | `String`         | Name of React Native component registered to `AppRegistry`. |
+| `initialProperties` | No       | `[String: Any]?` | Initial properties to be passed to React Native component.  |
 
 Examples:
 
@@ -230,10 +230,10 @@ import ReactBrownfield
 
 `ReactNativeView(moduleName: moduleName, initialProperties: initialProperties)`
 
-| Param               | Required  | Type           | Description                                                   |
-| ------------------- | --------- | -------------- | ------------------------------------------------------------- |
-| `moduleName`        | Yes       | `String`       | Name of React Native component registered to `AppRegistry`.   |
-| `initialProperties` | No        | `[String: Any]`| Initial properties to be passed to React Native component.    |
+| Param               | Required | Type            | Description                                                 |
+| ------------------- | -------- | --------------- | ----------------------------------------------------------- |
+| `moduleName`        | Yes      | `String`        | Name of React Native component registered to `AppRegistry`. |
+| `initialProperties` | No       | `[String: Any]` | Initial properties to be passed to React Native component.  |
 
 Examples:
 
