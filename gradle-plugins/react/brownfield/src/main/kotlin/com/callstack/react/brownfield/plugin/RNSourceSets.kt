@@ -68,15 +68,12 @@ object RNSourceSets {
         path: String,
     ) {
         val rnEntryPointTaskName = "generateReactNativeEntryPoint"
-        val rnEntryPointTask = appProject.tasks.named(rnEntryPointTaskName)
 
         /**
          * If `generateReactNativeEntryPoint` task does not exist, we early return. It means
          * the consumer library is running on RN version < 0.80
          */
-        if (!rnEntryPointTask.isPresent) {
-            return
-        }
+        val rnEntryPointTask = appProject.tasks.findByName(rnEntryPointTaskName) ?: return
 
         task.dependsOn(rnEntryPointTask)
         val sourceFile = File(moduleBuildDir.toString(), "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java")
