@@ -1,10 +1,13 @@
 package com.callstack.react.brownfield.plugin
 
 import com.android.build.gradle.LibraryExtension
+import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.utils.Extension
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Copy
+import java.io.File
 
 object RNSourceSets {
     private lateinit var project: Project
@@ -55,6 +58,43 @@ object RNSourceSets {
         }
     }
 
+    private fun getLibraryNameSpace(): String {
+        val nameSpace = androidExtension.namespace
+        return nameSpace ?: throw NameSpaceNotFound("namespace must be defined in your android library build.gradle")
+    }
+
+    private fun patchRNEntryPoint(
+        task: Task,
+        path: String,
+    ) {
+        val rnEntryPointTaskName = "generateReactNativeEntryPoint"
+
+        /**
+         * If `generateReactNativeEntryPoint` task does not exist, we early return. It means
+         * the consumer library is running on RN version < 0.80
+         */
+        val rnEntryPointTask = appProject.tasks.findByName(rnEntryPointTaskName) ?: return
+
+        task.dependsOn(rnEntryPointTask)
+        val sourceFile = File(moduleBuildDir.toString(), "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java")
+        task.doLast {
+            if (sourceFile.exists()) {
+                var content = sourceFile.readText()
+                val nameSpace = getLibraryNameSpace()
+
+                /**
+                 * We use look-ahead regex to replace any occurrences with Build.Config referenced via the old(app) package
+                 *
+                 * \b[\w.]+ → matches the old package
+                 * (?=\.BuildConfig) → only if it’s immediately followed by that suffix
+                 */
+                val regex = Regex("""\b[\w.]+(?=\.BuildConfig)""")
+                content = content.replace(regex, nameSpace)
+                sourceFile.writeText(content)
+            }
+        }
+    }
+
     private fun configureTasks() {
         val projectName = project.name
         val appProjectName = appProject.name
@@ -64,6 +104,8 @@ object RNSourceSets {
             it.dependsOn(":$appProjectName:generateAutolinkingPackageList")
             it.from("$appBuildDir/$path")
             it.into("$moduleBuildDir/$path")
+
+            patchRNEntryPoint(it, path)
         }
 
         androidExtension.buildTypes.forEach { buildType ->
