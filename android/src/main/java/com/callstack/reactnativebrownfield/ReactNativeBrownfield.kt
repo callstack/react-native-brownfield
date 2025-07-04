@@ -4,10 +4,10 @@ import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.facebook.react.ReactDelegate
 import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactInstanceManager
 import com.facebook.react.ReactNativeHost
@@ -99,6 +99,7 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     context: Context,
     activity: FragmentActivity?,
     moduleName: String,
+    reactDelegate: ReactDelegateWrapper? = null,
     launchOptions: Bundle? = null,
   ): FrameLayout {
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
@@ -106,25 +107,36 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
         context,
         shared.reactNativeHost
       )
-      val reactDelegate = ReactDelegate(activity, reactHost, moduleName, launchOptions)
 
-      activity?.lifecycle?.addObserver(object : DefaultLifecycleObserver {
-        override fun onResume(owner: LifecycleOwner) {
-          reactDelegate.onHostResume()
+      val resolvedDelegate = reactDelegate ?: ReactDelegateWrapper(activity, reactHost, moduleName, launchOptions)
+
+      val mBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+          // invoked for JS stack back navigation
+          resolvedDelegate.onBackPressed()
         }
+      }
 
-        override fun onPause(owner: LifecycleOwner) {
-          reactDelegate.onHostPause()
-        }
+      // Register back press callback
+      activity?.onBackPressedDispatcher?.addCallback(mBackPressedCallback)
+      // invoked on the last RN screen exit
+      resolvedDelegate.setHardwareBackHandler {
+        mBackPressedCallback.isEnabled = false
+        activity?.onBackPressedDispatcher?.onBackPressed()
+      }
 
-        override fun onDestroy(owner: LifecycleOwner) {
-          reactDelegate.onHostDestroy()
-          owner.lifecycle.removeObserver(this) // Cleanup to avoid leaks
-        }
-      })
+      /**
+       * When createView method is called in ReactNativeFragment, a reactDelegate
+       * instance is required. In such a case, we use the lifeCycle events of the fragment.
+       * When createView method is called elsewhere, then reactDelegate is not required.
+       * In such a case, we set the lifeCycle observer.
+       */
+      if (reactDelegate == null) {
+        activity?.lifecycle?.addObserver(getLifeCycleObserver(resolvedDelegate))
+      }
 
-      reactDelegate.loadApp()
-      return reactDelegate.reactRootView!!
+      resolvedDelegate.loadApp()
+      return resolvedDelegate.reactRootView!!
     }
 
     val instanceManager: ReactInstanceManager? = shared.reactNativeHost?.reactInstanceManager
@@ -136,6 +148,23 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     )
 
     return reactView
+  }
+
+  private fun getLifeCycleObserver(reactDelegate: ReactDelegateWrapper): DefaultLifecycleObserver {
+    return object : DefaultLifecycleObserver {
+      override fun onResume(owner: LifecycleOwner) {
+        reactDelegate.onHostResume()
+      }
+
+      override fun onPause(owner: LifecycleOwner) {
+        reactDelegate.onHostPause()
+      }
+
+      override fun onDestroy(owner: LifecycleOwner) {
+        reactDelegate.onHostDestroy()
+        owner.lifecycle.removeObserver(this) // Cleanup to avoid leaks
+      }
+    }
   }
 }
 

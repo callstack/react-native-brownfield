@@ -3,17 +3,19 @@ package com.callstack.reactnativebrownfield;
 import android.annotation.TargetApi
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.facebook.infer.annotation.Assertions
 import com.facebook.react.ReactFragment
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.common.LifecycleState
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.devsupport.DoubleTapReloadRecognizer
-import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 
@@ -21,10 +23,38 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
   private lateinit var doubleTapReloadRecognizer: DoubleTapReloadRecognizer
   private lateinit var permissionsCallback: Callback
   private var permissionListener: PermissionListener? = null
+  private lateinit var moduleName: String
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+    /**
+     * ReactFragment.onCreate will throw an exception if we do not provide arg_component_name as arguments.
+     * We silently catch this exception. The reason is we want to invoke the super<Fragment>.onCreate in
+     * ReactFragment. Then initialise the mReactDelegate with ReactDelegateWrapper instead of ReactDelegate.
+     *
+     * So we purposely force ReactFragment.onCreate to throw an exception, so that we can provide our own
+     * implementation for mReactDelegate: ReactDelegateWrapper
+     */
+    try{
+      super.onCreate(savedInstanceState)
+    } catch (e: IllegalStateException){
+      Log.w("ReactNativeFragment", "ReactFragment threw due to missing arg_component_name: ${e.message} - This is an expected behaviour.")
+    }
+
+    moduleName = arguments?.getString(ARG_MODULE_NAME)!!
+    this.mReactDelegate = this.reactHost?.let {
+      ReactDelegateWrapper(activity,
+        it, moduleName, arguments?.getBundle("arg_launch_options"))
+    }
+
     doubleTapReloadRecognizer = DoubleTapReloadRecognizer()
+  }
+
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    return ReactNativeBrownfield.shared.createView(this.requireContext(), activity, moduleName, this.mReactDelegate as ReactDelegateWrapper)
   }
 
   override fun getReactHost(): ReactHost? {
@@ -38,36 +68,6 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
 
   override fun getReactNativeHost(): ReactNativeHost? {
     return ReactNativeBrownfield.shared.reactNativeHost
-  }
-
-  override fun onResume() {
-    super.onResume()
-    if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
-      ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager?.onHostResume(
-        activity,
-        activity as DefaultHardwareBackBtnHandler
-      )
-    }
-  }
-
-  override fun onPause() {
-    super.onPause()
-    if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
-      ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager?.onHostPause(
-        activity
-      )
-    }
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
-      val reactInstanceMgr = ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager
-
-      if (reactInstanceMgr.lifecycleState != LifecycleState.RESUMED) {
-        reactInstanceMgr.onHostDestroy(activity)
-      }
-    }
   }
 
   override fun onRequestPermissionsResult(
@@ -125,15 +125,9 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
     return handled
   }
 
-  fun onBackPressed(backBtnHandler: DefaultHardwareBackBtnHandler) {
-    if (ReactNativeBrownfieldModule.shouldPopToNative) {
-      backBtnHandler.invokeDefaultOnBackPressed()
-    } else if (ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
-      ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.onBackPressed()
-    }
-  }
-
   companion object {
+    private const val ARG_MODULE_NAME = "arg_module_name"
+
     @JvmStatic
     @JvmOverloads
     fun createReactNativeFragment(
@@ -142,7 +136,7 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
     ): ReactNativeFragment {
       val fragment = ReactNativeFragment()
       val args = Bundle()
-      args.putString(ARG_COMPONENT_NAME, moduleName)
+      args.putString(ARG_MODULE_NAME, moduleName)
       if (initialProps != null) {
         args.putBundle(ARG_LAUNCH_OPTIONS, initialProps)
       }
