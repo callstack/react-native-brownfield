@@ -118,7 +118,7 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
           .didDoubleTapR(keyCode, it)
       }
       if (didDoubleTapR == true) {
-        ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.devSupportManager.handleReloadJS()
+        reactDelegate.reload()
         handled = true
       }
     }
