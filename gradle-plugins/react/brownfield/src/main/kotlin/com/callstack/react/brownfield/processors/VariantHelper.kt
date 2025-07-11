@@ -148,7 +148,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
             filteredSourceSets.forEach { sourceSet ->
                 val filteredAarLibs = aarLibraries.filter { it.getAssetsDir().exists() }
                 filteredAarLibs.forEach {
-                    sourceSet.assets.srcDir(it)
+                    sourceSet.assets.srcDir(it.getAssetsDir())
                 }
             }
         }
