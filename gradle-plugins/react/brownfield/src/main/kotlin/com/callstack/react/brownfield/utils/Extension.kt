@@ -29,4 +29,11 @@ open class Extension {
      * Default value is `app`
      */
     var appProjectName = "app"
+
+    /**
+     * Sets whether the consumer project is based on Expo.
+     *
+     * Default value is `false`
+     */
+    var isExpo = false
 }
