@@ -50,7 +50,48 @@ class ArtifactsResolver(
         }
     }
 
+    private fun embedExpoDependencies() {
+        /**
+         * expo project does not exist in example-android-library so doing an
+         * early exit.
+         */
+        if (baseProject.project.name == "example-android-library") {
+            return
+        }
+
+        /**
+         * The expo third party dependencies are linked to `expo` project.
+         * They are linked via `api` configuration and in two ways. In the
+         * first way, they are linked as a subProject or local dependencies.
+         * In the second way, they are linked as local maven hosted dependencies.
+         *
+         * We get those dependencies of `expo` project and add those to the consumer
+         * library project.
+         */
+        val expoProject = baseProject.project.rootProject.project("expo")
+        val expoConfig = expoProject.configurations.findByName("api")
+        expoConfig?.dependencies?.forEach {
+            if (extension.resolveLocalDependencies) {
+                if (it is DefaultProjectDependency) {
+                    baseProject.project.dependencies.add(
+                        CONFIG_NAME,
+                        expoProject.dependencies.project(mapOf("path" to ":${it.name}")),
+                    )
+                } else {
+                    baseProject.project.dependencies.add(
+                        CONFIG_NAME,
+                        it,
+                    )
+                }
+            }
+        }
+    }
+
     private fun embedDefaultDependencies(configName: String) {
+        if (extension.isExpo) {
+            embedExpoDependencies()
+        }
+
         val config = baseProject.project.configurations.findByName(configName)
         val defaultDependencies = config?.dependencies?.filterIsInstance<DefaultProjectDependency>()
         defaultDependencies?.forEach { dependency ->
@@ -95,7 +136,7 @@ class ArtifactsResolver(
     private fun resolveArtifacts(configuration: Configuration): Collection<ResolvedArtifact> {
         val artifacts = ArrayList<ResolvedArtifact>()
         configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
-            if (artifact.type != ARTIFACT_TYPE_AAR || artifact.type != ARTIFACT_TYPE_JAR) {
+            if (artifact.type != ARTIFACT_TYPE_AAR && artifact.type != ARTIFACT_TYPE_JAR) {
                 throw ProjectConfigurationException("Unsupported dependency. Please provide either Aar or Jar dependency", listOf())
             }
             artifacts.add(artifact)
