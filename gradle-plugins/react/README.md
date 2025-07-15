@@ -132,6 +132,20 @@ dependencies {
 
 <hr/>
 
+- **Expo Support**
+
+By default expo support is disabled. You can enable it by setting the following to `true`:
+
+```kts
+reactBrownfield {
+    isExpo = true
+}
+```
+
+This will take care of linking the expo dependencies like `expo-image` to your AAR.
+
+<hr/>
+
 ## Tooling
 
 - We are using `ktlint` and `detekt` for formatting and linting
