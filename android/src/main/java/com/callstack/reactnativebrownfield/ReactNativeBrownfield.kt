@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 
-interface InitializedCallback {
+fun interface InitializedCallback {
   operator fun invoke(initialized: Boolean)
 }
 
@@ -34,15 +34,19 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     val shared: ReactNativeBrownfield get() = instance
 
     @JvmStatic
-    fun initialize(application: Application, rnHost: ReactNativeHost) {
+    fun initialize(application: Application, rnHost: ReactNativeHost, callback: InitializedCallback? = null) {
       if (!initialized.getAndSet(true)) {
         instance = ReactNativeBrownfield(rnHost)
         SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
+
+        preloadReactNative {
+          callback?.invoke(true)
+        }
       }
     }
 
     @JvmStatic
-    fun initialize(application: Application, options: HashMap<String, Any>) {
+    fun initialize(application: Application, options: HashMap<String, Any>, callback: InitializedCallback? = null) {
       val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(application) {
 
@@ -61,37 +65,31 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
           override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
         }
 
-      initialize(application, reactNativeHost)
+      initialize(application, reactNativeHost, callback)
     }
 
     @JvmStatic
-    fun initialize(application: Application, packages: List<ReactPackage>) {
+    fun initialize(application: Application, packages: List<ReactPackage>, callback: InitializedCallback? = null) {
       val options = hashMapOf("packages" to packages, "mainModuleName" to "index")
 
-      initialize(application, options)
+      initialize(application, options, callback)
     }
 
+    private fun preloadReactNative(callback: ((Boolean) -> Unit)) {
+      val reactInstanceManager = shared.reactNativeHost.reactInstanceManager
+      reactInstanceManager.addReactInstanceEventListener(object :
+        ReactInstanceEventListener {
+        override fun onReactContextInitialized(reactContext: ReactContext) {
+          callback(true)
+          reactInstanceManager.removeReactInstanceEventListener(this)
+        }
+      })
+      reactInstanceManager?.createReactContextInBackground()
 
-  }
-
-  fun startReactNative(callback: InitializedCallback?) {
-    startReactNative { callback?.invoke(it) }
-  }
-
-  @JvmName("startReactNativeKotlin")
-  fun startReactNative(callback: ((initialized: Boolean) -> Unit)?) {
-    reactNativeHost.reactInstanceManager.addReactInstanceEventListener(object :
-      ReactInstanceEventListener {
-      override fun onReactContextInitialized(reactContext: ReactContext) {
-        callback?.let { it(true) }
-        reactNativeHost.reactInstanceManager.removeReactInstanceEventListener(this)
+      if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+        // If you opted-in for the New Architecture, we load the native entry point for this app.
+        load()
       }
-    })
-    reactNativeHost.reactInstanceManager?.createReactContextInBackground()
-
-    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      // If you opted-in for the New Architecture, we load the native entry point for this app.
-      load()
     }
   }
 
