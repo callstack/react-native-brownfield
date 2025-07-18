@@ -45,6 +45,7 @@ Params:
 | rnHost                  | No*      | `ReactNativeHost`      | An instance of [ReactNativeHost](https://bit.ly/2ZnwgnA). |
 | packages                | No*      | `List<ReactPackage>`   | List of your React Native Native modules.                 |
 | options                 | No*      | `HashMap<String, Any>` | Map of initial options. __Options listed below.__         |
+| onJSBundleLoaded        | No*      | `OnJSBundleLoaded`     | Callback invoked after JS bundle is fully loaded.         |
 
 > * - Those fields aren't itself required, but at least one of them is. See examples below.
 
@@ -78,12 +79,24 @@ private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
 };
 
 ReactNativeBrownfield.initialize(this, mReactNativeHost);
+
+OR
+
+ReactNativeBrownfield.initialize(this, mReactNativeHost, initialized -> {
+  // JS bundle loaded
+});
 ```
 
 ```java
 List<ReactPackage> packages = new PackageList(this).getPackages();
 
 ReactNativeBrownfield.initialize(this, packages);
+
+OR
+
+ReactNativeBrownfield.initialize(this, packages, initialized -> {
+  // JS bundle loaded
+});
 ```
 
 ```java
@@ -93,6 +106,12 @@ options.put("packages", packages);
 options.put("mainModuleName", "example/index");
 
 ReactNativeBrownfield.initialize(this, options);
+
+OR
+
+ReactNativeBrownfield.initialize(this, options, initialized -> {
+  // JS bundle loaded
+});
 ```
 
 ---
@@ -118,30 +137,6 @@ ReactNativeBrownfield.getShared()
 ---
 
 **Methods:**
-
-`startReactNative`
-
-Starts React Native, produces an instance of react native. You can use it to initialize React Native in your app.
-
-Params:
-
-| Param                   | Required | Type          | Description                                           |
-| ----------------------- | -------- | ------------- | ----------------------------------------------------- |
-| startReactNative        | No       | `Lambda`        | Callback invoked after JS bundle is fully loaded.     |
-
-Examples:
-
-```java
-ReactNativeBrownfield.getShared().startReactNative();
-```
-
-```java
-ReactNativeBrownfield.getShared().startReactNative(init -> {
-  Log.d("loaded", "React Native loaded");
-});
-```
-
----
 
 `createView`
 

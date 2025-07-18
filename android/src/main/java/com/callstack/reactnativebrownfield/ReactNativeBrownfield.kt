@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 
-fun interface InitializedCallback {
+fun interface OnJSBundleLoaded {
   operator fun invoke(initialized: Boolean)
 }
 
@@ -54,19 +54,21 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     }
 
     @JvmStatic
-    fun initialize(application: Application, rnHost: ReactNativeHost, callback: InitializedCallback? = null) {
+    @JvmOverloads
+    fun initialize(application: Application, rnHost: ReactNativeHost, onJSBundleLoaded: OnJSBundleLoaded? = null) {
       if (!initialized.getAndSet(true)) {
         loadNativeLibs(application)
         instance = ReactNativeBrownfield(rnHost)
 
         preloadReactNative {
-          callback?.invoke(true)
+          onJSBundleLoaded?.invoke(true)
         }
       }
     }
 
     @JvmStatic
-    fun initialize(application: Application, options: HashMap<String, Any>, callback: InitializedCallback? = null) {
+    @JvmOverloads
+    fun initialize(application: Application, options: HashMap<String, Any>, onJSBundleLoaded: OnJSBundleLoaded? = null) {
       val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(application) {
 
@@ -85,14 +87,15 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
           override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
         }
 
-      initialize(application, reactNativeHost, callback)
+      initialize(application, reactNativeHost, onJSBundleLoaded)
     }
 
     @JvmStatic
-    fun initialize(application: Application, packages: List<ReactPackage>, callback: InitializedCallback? = null) {
+    @JvmOverloads
+    fun initialize(application: Application, packages: List<ReactPackage>, onJSBundleLoaded: OnJSBundleLoaded? = null) {
       val options = hashMapOf("packages" to packages, "mainModuleName" to "index")
 
-      initialize(application, options, callback)
+      initialize(application, options, onJSBundleLoaded)
     }
 
     private fun preloadReactNative(callback: ((Boolean) -> Unit)) {
