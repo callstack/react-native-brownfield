@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.callstack.reactnativebrownfield.utils.VersionUtils
 import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactInstanceManager
 import com.facebook.react.ReactNativeHost
@@ -25,6 +26,13 @@ fun interface InitializedCallback {
   operator fun invoke(initialized: Boolean)
 }
 
+/**
+ * The threshold RN version based on which we decide whether to
+ * load JNI libs or not. We only load JNI libs on version less
+ * than this.
+ */
+private const val RN_THRESHOLD_VERSION = "0.80.0"
+
 class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNativeHost) {
   companion object {
     private lateinit var instance: ReactNativeBrownfield
@@ -33,11 +41,9 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     @JvmStatic
     val shared: ReactNativeBrownfield get() = instance
 
-    @JvmStatic
-    fun initialize(application: Application, rnHost: ReactNativeHost, callback: InitializedCallback? = null) {
+    private fun initialize(rnHost: ReactNativeHost, callback: InitializedCallback? = null) {
       if (!initialized.getAndSet(true)) {
         instance = ReactNativeBrownfield(rnHost)
-        SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
 
         preloadReactNative {
           callback?.invoke(true)
@@ -45,8 +51,7 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
       }
     }
 
-    @JvmStatic
-    fun initialize(application: Application, options: HashMap<String, Any>, callback: InitializedCallback? = null) {
+    private fun initialize(application: Application, options: HashMap<String, Any>, callback: InitializedCallback? = null) {
       val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(application) {
 
@@ -65,12 +70,21 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
           override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
         }
 
-      initialize(application, reactNativeHost, callback)
+      initialize(reactNativeHost, callback)
     }
 
     @JvmStatic
     fun initialize(application: Application, packages: List<ReactPackage>, callback: InitializedCallback? = null) {
       val options = hashMapOf("packages" to packages, "mainModuleName" to "index")
+      val rnVersion = BuildConfig.RN_VERSION
+
+      if (VersionUtils.isVersionLessThan(rnVersion, RN_THRESHOLD_VERSION)) {
+        SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+          // If you opted-in for the New Architecture, we load the native entry point for this app.
+          load()
+        }
+      }
 
       initialize(application, options, callback)
     }
@@ -85,11 +99,6 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
         }
       })
       reactInstanceManager?.createReactContextInBackground()
-
-      if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-        // If you opted-in for the New Architecture, we load the native entry point for this app.
-        load()
-      }
     }
   }
 
