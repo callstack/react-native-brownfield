@@ -19,6 +19,21 @@ buildscript {
 }
 ```
 
+### React Native >= 0.80.0 (extra step)
+
+With react-native >= 0.80.0, an auto-generated file was added which is responsible to load your App's native libs. If you're consuming this library in a RN project, then
+you will have this file `ReactNativeApplicationEntryPoint` available. If you're consuming this library in a RN android library which is backed by
+`com.callstack.react:brownfield-gradle-plugin`, then this file will also be available.
+
+Below is the code you need to add before you call `RNBrownfield.initialize`:
+
+```java
+import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
+
+loadReactNative(application);
+RNBrownfield.initialize(application, packages);
+```
+
 ### API Reference
 
 #### `ReactNativeBrownfield`
