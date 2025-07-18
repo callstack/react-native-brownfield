@@ -10,8 +10,7 @@ class MainApplication : Application() {
     super.onCreate()
 
     val packages = PackageList(this).packages
-    ReactNativeBrownfield.initialize(this, packages)
-    ReactNativeBrownfield.shared.startReactNative {
+    ReactNativeBrownfield.initialize(this, packages) {
       Log.d("test", "test")
     }
   }

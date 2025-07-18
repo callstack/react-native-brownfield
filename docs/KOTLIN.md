@@ -2,6 +2,21 @@
 
 React Native Brownfield provides first-class support for Kotlin.
 
+### React Native >= 0.80.0 (extra step)
+
+With react-native >= 0.80.0, an auto-generated file was added which is responsible to load your App's native libs. If you're consuming this library in a RN project, then
+you will have this file `ReactNativeApplicationEntryPoint` available. If you're consuming this library in a RN android library which is backed by
+`com.callstack.react:brownfield-gradle-plugin`, then this file will also be available.
+
+Below is the code you need to add before you call `RNBrownfield.initialize`:
+
+```kt
+import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
+
+loadReactNative(application)
+RNBrownfield.initialize(application, packages)
+```
+
 ### API Reference
 
 #### `ReactNativeBrownfield`
@@ -28,6 +43,7 @@ Params:
 | rnHost                  | No*      | `ReactNativeHost`      | An instance of [ReactNativeHost](https://bit.ly/2ZnwgnA). |
 | packages                | No*      | `List<ReactPackage>`   | List of your React Native Native modules.                 |
 | options                 | No*      | `HashMap<String, Any>` | Map of initial options. __Options listed below.__         |
+| onJSBundleLoaded        | No*      | `OnJSBundleLoaded`     | Callback invoked after JS bundle is fully loaded.         |
 
 > * - Those fields aren't itself required, but at least one of them is. See examples below.
 
@@ -56,12 +72,24 @@ val mReactNativeHost = object : ReactNativeHost(application) {
 }
 
 ReactNativeBrownfield.initialize(this, mReactNativeHost)
+
+OR
+
+ReactNativeBrownfield.initialize(this, mReactNativeHost) {
+  // onJSBundleLoaded
+}
 ```
 
 ```kotlin
 val packages = PackageList(this).getPackages()
 
 ReactNativeBrownfield.initialize(this, packages)
+
+OR
+
+ReactNativeBrownfield.initialize(this, packages) {
+  // onJSBundleLoaded
+}
 ```
 
 ```kotlin
@@ -72,6 +100,12 @@ val options = hashMapOf<String, Any>(
 )
 
 ReactNativeBrownfield.initialize(this, options)
+
+OR
+
+ReactNativeBrownfield.initialize(this, options) {
+  // onJSBundleLoaded
+}
 ```
 
 ---
@@ -97,30 +131,6 @@ ReactNativeBrownfield.shared
 ---
 
 **Methods:**
-
-`startReactNative`
-
-Starts React Native, produces an instance of React Native. You can use it to initialize React Native in your app.
-
-Params:
-
-| Param                   | Required | Type          | Description                                           |
-| ----------------------- | -------- | ------------- | ----------------------------------------------------- |
-| startReactNative        | No       | `(loaded: boolean) -> Unit` | Callback invoked after JS bundle is fully loaded.     |
-
-Examples:
-
-```kotlin
-ReactNativeBrownfield.shared.startReactNative()
-```
-
-```kotlin
-ReactNativeBrownfield.shared.startReactNative {
-  Log.d("loaded", "React Native loaded");
-}
-```
-
----
 
 `createView`
 
