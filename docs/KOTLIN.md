@@ -13,8 +13,8 @@ Below is the code you need to add before you call `RNBrownfield.initialize`:
 ```kt
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 
-loadReactNative(application);
-RNBrownfield.initialize(application, packages);
+loadReactNative(application)
+RNBrownfield.initialize(application, packages)
 ```
 
 ### API Reference
