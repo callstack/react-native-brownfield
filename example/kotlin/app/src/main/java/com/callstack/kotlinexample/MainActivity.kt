@@ -22,9 +22,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
-import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 
-class MainActivity : AppCompatActivity(), DefaultHardwareBackBtnHandler {
+class MainActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
@@ -58,10 +57,6 @@ class MainActivity : AppCompatActivity(), DefaultHardwareBackBtnHandler {
         }
       }
     }
-  }
-
-  override fun invokeDefaultOnBackPressed() {
-    super.onBackPressed()
   }
 
   fun startReactNativeFragment() {
