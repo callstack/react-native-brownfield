@@ -41,8 +41,22 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     @JvmStatic
     val shared: ReactNativeBrownfield get() = instance
 
-    private fun initialize(rnHost: ReactNativeHost, callback: InitializedCallback? = null) {
+    private fun loadNativeLibs (application: Application) {
+      val rnVersion = BuildConfig.RN_VERSION
+
+      if (VersionUtils.isVersionLessThan(rnVersion, RN_THRESHOLD_VERSION)) {
+        SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+          // If you opted-in for the New Architecture, we load the native entry point for this app.
+          load()
+        }
+      }
+    }
+
+    @JvmStatic
+    fun initialize(application: Application, rnHost: ReactNativeHost, callback: InitializedCallback? = null) {
       if (!initialized.getAndSet(true)) {
+        loadNativeLibs(application)
         instance = ReactNativeBrownfield(rnHost)
 
         preloadReactNative {
@@ -51,7 +65,8 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
       }
     }
 
-    private fun initialize(application: Application, options: HashMap<String, Any>, callback: InitializedCallback? = null) {
+    @JvmStatic
+    fun initialize(application: Application, options: HashMap<String, Any>, callback: InitializedCallback? = null) {
       val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(application) {
 
@@ -70,21 +85,12 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
           override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
         }
 
-      initialize(reactNativeHost, callback)
+      initialize(application, reactNativeHost, callback)
     }
 
     @JvmStatic
     fun initialize(application: Application, packages: List<ReactPackage>, callback: InitializedCallback? = null) {
       val options = hashMapOf("packages" to packages, "mainModuleName" to "index")
-      val rnVersion = BuildConfig.RN_VERSION
-
-      if (VersionUtils.isVersionLessThan(rnVersion, RN_THRESHOLD_VERSION)) {
-        SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
-        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-          // If you opted-in for the New Architecture, we load the native entry point for this app.
-          load()
-        }
-      }
 
       initialize(application, options, callback)
     }
