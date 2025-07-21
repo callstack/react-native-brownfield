@@ -17,6 +17,14 @@ loadReactNative(application)
 RNBrownfield.initialize(application, packages)
 ```
 
+<hr/>
+<br/>
+
+> Note: Previously, you were required to implement `DefaultHardwareBackBtnHandler` in your calling Activity. Now with > 1.1.0 you are not required to do that step. 
+If you're upgrading to the latest version then you can safely remove that interface implementation from your calling Activity.
+
+<hr/>
+
 ### API Reference
 
 #### `ReactNativeBrownfield`
