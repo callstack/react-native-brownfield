@@ -3,7 +3,7 @@
 </a>
 
 <p align="center">
-  Set of helpers to make your brownfield integration smooth and easy.
+  A set of helpers to make your brownfield integration smooth and easy.
 </p>
 
 ---
@@ -21,19 +21,19 @@
 
 ## Features
 
-- **Easily integrate** React Native with existing native app
+- **Easily integrate** React Native with an existing native app
 - Start React Native with **one method** and invoke code as soon as it's loaded
 - Compatible with **both legacy and new React Native architecture**!
 - Reuse the same instance of React Native between different components
 - Use predefined **native building blocks** - crafted for React Native
 - Disable and enable **native gestures and hardware buttons** from JavaScript
-- Works well with **any native navigation** pattern, as well as every React Native JavaScript based navigation
+- Works well with **any native navigation** pattern, as well as any React Native JavaScript-based navigation
 - Compatible with all native languages **Objective-C**, **Swift**, **Java** and **Kotlin**
 - Supports UIKit and SwiftUI on iOS and Fragments and Jetpack Compose on Android
 
 ## Installation
 
-React Native Brownfield library is intended to be installed in a React Native app, that is later consumed as a framework artifact by your native iOS or Android app.
+The React Native Brownfield library is intended to be installed in a React Native app that is later consumed as a framework artifact by your native iOS or Android app.
 
 In your React Native project run:
 
@@ -45,7 +45,7 @@ npm install @callstack/react-native-brownfield
 
 ### Packaging React Native app as a framework
 
-First we need to package our React Native app to XCFramework or Fat-AAR.
+First, we need to package our React Native app as an XCFramework or Fat-AAR.
 
 #### With RNEF
 
@@ -56,14 +56,14 @@ Follow [Integrating with Native Apps](https://www.rnef.dev/docs/brownfield/intro
 
 #### With custom scripts
 
-Instead of using RNEF, you can create your own custom packaging scripts. Here are base versions for iOS and Android, that you'll need to adjust for your project specific setup:
+Instead of using RNEF, you can create your own custom packaging scripts. Here are base versions for iOS and Android that you'll need to adjust for your project-specific setup:
 
 - [Example iOS script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-xcframework.sh)
 - [Example Android script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-aar.sh)
 
 ### Native iOS app
 
-In your native iOS app, initialize React Native thread and separately display it where you like. For example, to display React Native views in SwiftUI, use the provided `ReactNativeView` component:
+In your native iOS app, initialize the React Native thread and display it where you like. For example, to display React Native views in SwiftUI, use the provided `ReactNativeView` component:
 
 ```swift
 import SwiftUI
@@ -158,7 +158,7 @@ Update your `MainActivity` to initialize React Native and show the fragment:
 
 ```kt
 class MainActivity : AppCompatActivity() {
-private lateinit var showRNAppBtn: Button
+    private lateinit var showRNAppBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -176,7 +176,7 @@ private lateinit var showRNAppBtn: Button
 }
 ```
 
-For more detailed instructions and API for iOS, see docs for:
+For more detailed instructions and API for Android, see docs for:
 
 - [Java](docs/JAVA.md)
 - [Kotlin](docs/KOTLIN.md)
@@ -191,7 +191,7 @@ To use the module, import it:
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 ```
 
-and use available methods:
+and use the available methods:
 
 #### setNativeBackGestureAndButtonEnabled(enabled: boolean)
 
@@ -209,7 +209,7 @@ A method to pop to native screen used to push React Native experience.
 ReactNativeBrownfield.popToNative(true);
 ```
 
-> NOTE: Those methods works only with native components provided by this library.
+> **Note:** These methods work only with native components provided by this library.
 
 ## Made with ❤️ at Callstack
 
