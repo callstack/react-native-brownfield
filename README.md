@@ -23,7 +23,7 @@
 
 - **Easily integrate** React Native with existing native app
 - Start React Native with **one method** and invoke code as soon as it's loaded
-- Compatible with **both old and new React Native architecture**! 
+- Compatible with **both legacy and new React Native architecture**!
 - Reuse the same instance of React Native between different components
 - Use predefined **native building blocks** - crafted for React Native
 - Disable and enable **native gestures and hardware buttons** from JavaScript
@@ -31,82 +31,191 @@
 - Compatible with all native languages **Objective-C**, **Swift**, **Java** and **Kotlin**
 - Supports UIKit and SwiftUI on iOS and Fragments and Jetpack Compose on Android
 
-
 ## Installation
+
+React Native Brownfield library is intended to be installed in a React Native app, that is later consumed as a framework artifact by your native iOS or Android app.
+
+In your React Native project run:
 
 ```sh
 npm install @callstack/react-native-brownfield
 ```
 
-or
-
-```sh
-yarn add @callstack/react-native-brownfield
-```
-
-## Enabling New Architecture
-
-### Android
-Add the following to your `android/gradle.properties`:
-
-```
-# Enable new architecture
-newArchEnabled=true
-```
-
-### iOS
-Install cocoapods with the flag:
-
-```
-RCT_NEW_ARCH_ENABLED=1 pod install
-```
-
-> [!NOTE]
-> New Architecture is enabled by default from React Native 0.76
-
 ## Usage
 
-React Native Brownfield library works with all major native programming languages. Majority of its API is exposed on the native side. Click on the logo to choose the one that interests you:
+### Packaging React Native app as a framework
 
-| [<img src="https://user-images.githubusercontent.com/7837457/63374769-cafd1e80-c38a-11e9-9724-e797a199ebab.png" width="100px;" alt="Objective-C"/><br /><sub><b>Objective-C</b></sub>](docs/OBJECTIVE_C.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374778-ce90a580-c38a-11e9-8f37-72a9a5b9a52f.png" width="100px;" alt="Swift"/><br /><sub><b>Swift</b></sub>](docs/SWIFT.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374794-d2bcc300-c38a-11e9-9a7f-d538563b75db.png" width="100px;" alt="Java"/><br /><sub><b>Java</b></sub>](docs/JAVA.md) | [<img src="https://user-images.githubusercontent.com/7837457/63374783-d0f2ff80-c38a-11e9-9790-041cad53b259.png" width="100px;" alt="Kotlin"/><br /><sub><b>Kotlin</b></sub>](docs/KOTLIN.md) |
-| :---: | :---: | :---: | :---: |
+First we need to package our React Native app to XCFramework or Fat-AAR.
+
+#### With RNEF
+
+Follow [Integrating with Native Apps](https://www.rnef.dev/docs/brownfield/intro) steps in RNEF docs and run:
+
+- `rnef package:ios` for iOS
+- `rnef package:aar` for Android
+
+#### With custom scripts
+
+Instead of using RNEF, you can create your own custom packaging scripts. Here are base versions for iOS and Android, that you'll need to adjust for your project specific setup:
+
+- [Example iOS script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-xcframework.sh)
+- [Example Android script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-aar.sh)
+
+### Native iOS app
+
+In your native iOS app, initialize React Native thread and separately display it where you like. For example, to display React Native views in SwiftUI, use the provided `ReactNativeView` component:
+
+```swift
+import SwiftUI
+import ReactBrownfield # exposed by RN app framework
+
+@main
+struct MyApp: App {
+  init() {
+    ReactNativeBrownfield.shared.startReactNative {
+      print("React Native bundle loaded")
+    }
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}
+
+struct ContentView: View {
+  var body: some View {
+    NavigationView {
+      VStack {
+        Text("Welcome to the Native App")
+          .padding()
+
+        NavigationLink("Push React Native Screen") {
+          ReactNativeView(moduleName: "ReactNative")
+            .navigationBarHidden(true)
+        }
+      }
+    }
+  }
+}
+```
+
+For more detailed instructions and API for iOS, see docs for:
+
+- [Objective C](docs/OBJECTIVE_C.md)
+- [Swift](docs/SWIFT.md)
+
+### Native Android app
+
+In your native Android app, create a new `RNAppFragment.kt`:
+
+```kt
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.callstack.rnbrownfield.RNViewFactory # exposed by RN app framework
+
+class RNAppFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? =
+        this.context?.let {
+            RNViewFactory.createFrameLayout(it)
+        }
+}
+```
+
+Add a button to your `activity_main.xml`:
+
+```xml
+<Button
+    android:id="@+id/show_rn_app_btn"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Show RN App"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+```
+
+Add a fragment container:
+
+```xml
+<FrameLayout
+    android:id="@+id/fragmentContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+```
+
+Update your `MainActivity` to initialize React Native and show the fragment:
+
+```kt
+class MainActivity : AppCompatActivity() {
+private lateinit var showRNAppBtn: Button
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        ReactNativeHostManager.shared.initialize(this.application)
+
+        showRNAppBtn = findViewById(R.id.show_rn_app_btn)
+        showRNAppBtn.setOnClickListener {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, RNAppFragment())
+                .commit()
+        }
+    }
+
+}
+```
+
+For more detailed instructions and API for iOS, see docs for:
+
+- [Java](docs/JAVA.md)
+- [Kotlin](docs/KOTLIN.md)
 
 ### JavaScript Module
 
-Besides native components, we are exposing JavaScript functions to control the behavior of those components.
+Besides native components, we are exposing JavaScript functions to control the behavior of those components from React Native app.
 
-To use the module, simply import it:
+To use the module, import it:
 
 ```js
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 ```
 
-### JavaScript API Reference:
+and use available methods:
 
-**setNativeBackGestureAndButtonEnabled(enabled: boolean)**
+#### setNativeBackGestureAndButtonEnabled(enabled: boolean)
 
-A method used to toggle iOS native back gesture and Android hardware back button. 
+A method used to toggle iOS native back gesture and Android hardware back button.
 
-```js
+```ts
 ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(true);
 ```
 
-**popToNative(animated[iOS only]: boolean)**
+#### popToNative(animated[iOS only]: boolean)
 
-A method to pop to native screen used to push React Native experience. 
+A method to pop to native screen used to push React Native experience.
 
-```js
+```ts
 ReactNativeBrownfield.popToNative(true);
 ```
 
 > NOTE: Those methods works only with native components provided by this library.
 
-
 ## Made with ❤️ at Callstack
 
 React Native Brownfield is an open source project and will always remain free to use. If you think it's cool, please star it 🌟. [Callstack](https://callstack.com) is a group of React and React Native geeks, contact us at [hello@callstack.com](mailto:hello@callstack.com) if you need any help with these or just want to say hi!
 
-Like the project? ⚛️ [Join the team](https://callstack.com/careers/?utm_campaign=Senior_RN&utm_source=github&utm_medium=readme) who does amazing stuff for clients and drives React Native Open Source! 🔥
+Like the project? ⚛️ [Join the team](https://callstack.com/careers/?utm_campaign=Senior_RN&utm_source=github&utm_medium=readme) which does amazing stuff for clients and drives React Native Open Source! 🔥
 
 ## Contributors
 
@@ -122,6 +231,7 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
 
 <!-- badges -->
+
 [build-badge]: https://img.shields.io/circleci/build/github/callstack/react-native-brownfield/master.svg?style=flat-square
 [build]: https://circleci.com/gh/callstack/react-native-brownfield
 [version-badge]: https://img.shields.io/npm/v/@callstack/react-native-brownfield.svg?style=flat-square
