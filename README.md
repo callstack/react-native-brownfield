@@ -19,9 +19,6 @@
 
 [![tweet][tweet-badge]][tweet]
 
-> [!TIP]
-> Download a free copy of an ebook that goes step-by-step through [incremental React Native adoption in native apps](https://www.callstack.com/ebooks/incremental-react-native-adoption-in-native-apps?utm_campaign=brownfield&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield).
-
 ## Features
 
 - **Easily integrate** React Native with an existing native app
@@ -45,6 +42,10 @@ npm install @callstack/react-native-brownfield
 ```
 
 ## Usage
+
+<a href="https://www.callstack.com/ebooks/incremental-react-native-adoption-in-native-apps?utm_campaign=brownfield&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield" align="center">
+  <img alt="Download a free copy of Incremental React Native adoption in native apps ebook" src="https://github.com/user-attachments/assets/ba42bb29-1e7a-4683-80c5-2602afb1a7e6">
+</a>
 
 ### Packaging React Native app as a framework
 
