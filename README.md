@@ -66,7 +66,7 @@ Instead of using RNEF, you can create your own custom packaging scripts. Here ar
 
 ### Native iOS app
 
-In your native iOS app, initialize the React Native thread and display it where you like. For example, to display React Native views in SwiftUI, use the provided `ReactNativeView` component:
+In your native iOS app, initialize React Native and display it where you like. For example, to display React Native views in SwiftUI, use the provided `ReactNativeView` component:
 
 ```swift
 import SwiftUI
