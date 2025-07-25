@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.callstack.reactnativebrownfield.utils.VersionUtils
 import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactInstanceManager
 import com.facebook.react.ReactNativeHost
@@ -21,9 +22,16 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 
-interface InitializedCallback {
+fun interface OnJSBundleLoaded {
   operator fun invoke(initialized: Boolean)
 }
+
+/**
+ * The threshold RN version based on which we decide whether to
+ * load JNI libs or not. We only load JNI libs on version less
+ * than this.
+ */
+private const val RN_THRESHOLD_VERSION = "0.80.0"
 
 class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNativeHost) {
   companion object {
@@ -33,16 +41,34 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
     @JvmStatic
     val shared: ReactNativeBrownfield get() = instance
 
-    @JvmStatic
-    fun initialize(application: Application, rnHost: ReactNativeHost) {
-      if (!initialized.getAndSet(true)) {
-        instance = ReactNativeBrownfield(rnHost)
+    private fun loadNativeLibs (application: Application) {
+      val rnVersion = BuildConfig.RN_VERSION
+
+      if (VersionUtils.isVersionLessThan(rnVersion, RN_THRESHOLD_VERSION)) {
         SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+          // If you opted-in for the New Architecture, we load the native entry point for this app.
+          load()
+        }
       }
     }
 
     @JvmStatic
-    fun initialize(application: Application, options: HashMap<String, Any>) {
+    @JvmOverloads
+    fun initialize(application: Application, rnHost: ReactNativeHost, onJSBundleLoaded: OnJSBundleLoaded? = null) {
+      if (!initialized.getAndSet(true)) {
+        loadNativeLibs(application)
+        instance = ReactNativeBrownfield(rnHost)
+
+        preloadReactNative {
+          onJSBundleLoaded?.invoke(true)
+        }
+      }
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun initialize(application: Application, options: HashMap<String, Any>, onJSBundleLoaded: OnJSBundleLoaded? = null) {
       val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(application) {
 
@@ -61,37 +87,27 @@ class ReactNativeBrownfield private constructor(val reactNativeHost: ReactNative
           override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
         }
 
-      initialize(application, reactNativeHost)
+      initialize(application, reactNativeHost, onJSBundleLoaded)
     }
 
     @JvmStatic
-    fun initialize(application: Application, packages: List<ReactPackage>) {
+    @JvmOverloads
+    fun initialize(application: Application, packages: List<ReactPackage>, onJSBundleLoaded: OnJSBundleLoaded? = null) {
       val options = hashMapOf("packages" to packages, "mainModuleName" to "index")
 
-      initialize(application, options)
+      initialize(application, options, onJSBundleLoaded)
     }
 
-
-  }
-
-  fun startReactNative(callback: InitializedCallback?) {
-    startReactNative { callback?.invoke(it) }
-  }
-
-  @JvmName("startReactNativeKotlin")
-  fun startReactNative(callback: ((initialized: Boolean) -> Unit)?) {
-    reactNativeHost.reactInstanceManager.addReactInstanceEventListener(object :
-      ReactInstanceEventListener {
-      override fun onReactContextInitialized(reactContext: ReactContext) {
-        callback?.let { it(true) }
-        reactNativeHost.reactInstanceManager.removeReactInstanceEventListener(this)
-      }
-    })
-    reactNativeHost.reactInstanceManager?.createReactContextInBackground()
-
-    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      // If you opted-in for the New Architecture, we load the native entry point for this app.
-      load()
+    private fun preloadReactNative(callback: ((Boolean) -> Unit)) {
+      val reactInstanceManager = shared.reactNativeHost.reactInstanceManager
+      reactInstanceManager.addReactInstanceEventListener(object :
+        ReactInstanceEventListener {
+        override fun onReactContextInitialized(reactContext: ReactContext) {
+          callback(true)
+          reactInstanceManager.removeReactInstanceEventListener(this)
+        }
+      })
+      reactInstanceManager?.createReactContextInBackground()
     }
   }
 
