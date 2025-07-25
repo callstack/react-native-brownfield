@@ -8,7 +8,10 @@ struct ReactNativeViewRepresentable: UIViewControllerRepresentable {
   var initialProperties: [String: Any] = [:]
 
   func makeUIViewController(context: Context) -> UIViewController {
-    return ReactNativeViewController(moduleName: moduleName)
+    return ReactNativeViewController(
+      moduleName: moduleName,
+      initialProperties: initialProperties
+    )
   }
 
   func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
