@@ -125,6 +125,7 @@ object RNSourceSets {
                     )
                     it.into(project.rootProject.file("$projectName/libs$capitalisedBuildType"))
                     it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
+                    extension.dynamicLibs.forEach { lib -> it.include("**/$lib") }
                 }
 
             project.tasks.named("preBuild").configure {
