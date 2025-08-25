@@ -121,7 +121,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.callstack.rnbrownfield.RNViewFactory # exposed by RN app framework
+import com.callstack.rnbrownfield.RNViewFactory // exposed by RN app framework
 
 class RNAppFragment : Fragment() {
     override fun onCreateView(
