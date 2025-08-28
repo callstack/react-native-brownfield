@@ -82,4 +82,4 @@ jobs:
       - name: Build iOS App
         run: |
           cd example/swift
-          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
