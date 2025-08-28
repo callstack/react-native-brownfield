@@ -36,4 +36,13 @@ open class Extension {
      * Default value is `false`
      */
     var isExpo = false
+
+    /**
+     * List of dynamic libs (.so) files that you wish to bundle with
+     * the aar.
+     *
+     * By default only `libappmodules.so` and `libreact_codegen_*.so` are
+     * bundled.
+     */
+    var dynamicLibs = listOf<String>()
 }
