@@ -1,0 +1,21 @@
+appId: com.callstack.reactnativebrownfield.SwiftExample
+
+---
+- launchApp
+
+- assertVisible: "React Native Brownfield"
+- tapOn: "Push React Native screen"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Push next screen"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Go back"
+
+- assertVisible: "React Native Screen"
+
+- tapOn: "Go back"
+
+- assertVisible: "React Native Brownfield"
