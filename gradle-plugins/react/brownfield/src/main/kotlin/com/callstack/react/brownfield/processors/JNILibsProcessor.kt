@@ -17,6 +17,7 @@ import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import org.gradle.api.Task
+import org.gradle.api.tasks.Copy
 import java.io.File
 
 class JNILibsProcessor : BaseProject() {
@@ -34,8 +35,28 @@ class JNILibsProcessor : BaseProject() {
         }
 
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
+
+        val appBuild = project.project(":app").layout.buildDirectory.get()
+        val strippedNativeLibsPath = "$appBuild/intermediates/stripped_native_libs"
+        val strippedDebugSymbolsPath = "strip${upperCaseVariantName}DebugSymbols/out/lib"
+        val codegenTaskName = "generateCodegenSchemaFromJavaScript"
+
+        val copyTaskName = "copy${upperCaseVariantName}LibSources"
+        project.tasks.register(copyTaskName, Copy::class.java) { copyTask ->
+            copyTask.dependsOn(":app:strip${upperCaseVariantName}DebugSymbols")
+            copyTask.dependsOn(":${project.name}:$codegenTaskName")
+
+            copyTask.from(
+                "$strippedNativeLibsPath/${variant.name}/$strippedDebugSymbolsPath",
+            )
+
+            copyTask.into(project.rootProject.file("${project.name}/libs$upperCaseVariantName"))
+            copyTask.include("**/libappmodules.so", "**/libreact_codegen_*.so")
+        }
+
         mergeJniLibsTask.configure {
             it.dependsOn(explodeTasks)
+            it.dependsOn(copyTaskName)
 
             it.doFirst {
                 for (archiveLibrary in aarLibraries) {

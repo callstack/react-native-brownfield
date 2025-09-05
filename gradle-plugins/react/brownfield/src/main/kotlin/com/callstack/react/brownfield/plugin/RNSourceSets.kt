@@ -96,7 +96,6 @@ object RNSourceSets {
     }
 
     private fun configureTasks() {
-        val projectName = project.name
         val appProjectName = appProject.name
 
         project.tasks.register("copyAutolinkingSources", Copy::class.java) {
@@ -108,33 +107,13 @@ object RNSourceSets {
             patchRNEntryPoint(it, path)
         }
 
-        androidExtension.buildTypes.forEach { buildType ->
-            val capitalisedBuildType = buildType.name.replaceFirstChar { it.titlecase() }
-            val codegenTaskName = "generateCodegenSchemaFromJavaScript"
-            val strippedNativeLibsPath = "$appBuildDir/intermediates/stripped_native_libs"
-            val strippedDebugSymbolsPath = "strip${capitalisedBuildType}DebugSymbols/out/lib"
-
-            val copyLibTask =
-                project.tasks.register("copy${capitalisedBuildType}LibSources", Copy::class.java) {
-                    it.dependsOn(":$appProjectName:$codegenTaskName")
-                    it.dependsOn(":$appProjectName:strip${capitalisedBuildType}DebugSymbols")
-                    it.dependsOn(":$projectName:$codegenTaskName")
-
-                    it.from(
-                        "$strippedNativeLibsPath/${buildType.name}/$strippedDebugSymbolsPath",
-                    )
-                    it.into(project.rootProject.file("$projectName/libs$capitalisedBuildType"))
-                    it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
-                    extension.dynamicLibs.forEach { lib -> it.include("**/$lib") }
-                }
-
-            project.tasks.named("preBuild").configure {
-                it.dependsOn("copyAutolinkingSources")
-                it.dependsOn(copyLibTask)
-                if (capitalisedBuildType == "Release") {
-                    it.dependsOn(":${appProject.name}:createBundleReleaseJsAndAssets")
-                }
-            }
+        project.tasks.named("preBuild").configure {
+            /**
+             * As part of the build task, we need to make sure the auto-gen files are present.
+             * This makes sure that AutoLinking and ReactNativeEntryPoint are generated.
+             */
+            it.dependsOn("copyAutolinkingSources")
+            it.dependsOn(":${appProject.name}:createBundleReleaseJsAndAssets")
         }
     }
 }
