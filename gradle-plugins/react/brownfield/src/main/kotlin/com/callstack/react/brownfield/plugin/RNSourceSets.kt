@@ -109,11 +109,17 @@ object RNSourceSets {
 
         project.tasks.named("preBuild").configure {
             /**
-             * As part of the build task, we need to make sure the auto-gen files are present.
-             * This makes sure that AutoLinking and ReactNativeEntryPoint are generated.
+             * Ensure auto-generated sources are available before compilation.
+             *
+             * This hooks into the global `preBuild` task, so the dependency runs
+             * regardless of build variant. Use this only when the generated sources
+             * are identical for all variants (debug/release).
+             *
+             * If variant-specific
+             * files are needed, prefer `preDebugBuild` / `preReleaseBuild` under
+             * `VariantProcessor.processVariant`
              */
             it.dependsOn("copyAutolinkingSources")
-            it.dependsOn(":${appProject.name}:createBundleReleaseJsAndAssets")
         }
     }
 }
