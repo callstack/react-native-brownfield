@@ -131,8 +131,9 @@ dependencies {
 ```
 
 <hr/>
+<br/>
 
-- **Expo Support**
+**Expo Support**
 
 By default expo support is disabled. You can enable it by setting the following to `true`:
 
@@ -143,6 +144,19 @@ reactBrownfield {
 ```
 
 This will take care of linking the expo dependencies like `expo-image` to your AAR.
+
+<hr/>
+<br/>
+
+**Dynamic libs**
+
+By default only `libappmodules.so` and `libreact_codegen*.so` are bundled with the aar. If you would like to bundle other dynamic libs, you can define those in the `reactBrownfield` extension as shown below:
+
+```kts
+reactBrownfield {
+    dynamicLibs = listOf("libreact-native-mmkv.so", "libreact-native-fs-turbo.so")
+}
+```
 
 <hr/>
 
