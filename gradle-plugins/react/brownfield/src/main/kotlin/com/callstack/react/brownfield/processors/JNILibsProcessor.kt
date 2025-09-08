@@ -80,7 +80,9 @@ class JNILibsProcessor : BaseProject() {
             it.dependsOn(stripTask, codegenTask)
             it.from(fromDir)
             it.into(intoDir)
+
             it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
+            projectExt.dynamicLibs.forEach { lib -> it.include("**/$lib") }
         }
     }
 
