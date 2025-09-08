@@ -11,6 +11,7 @@
 package com.callstack.react.brownfield.processors
 
 import com.android.build.gradle.api.LibraryVariant
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver.Companion.ARTIFACT_TYPE_AAR
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver.Companion.ARTIFACT_TYPE_JAR
 import com.callstack.react.brownfield.exceptions.TaskNotFound
@@ -52,6 +53,10 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
 
         if (!prepareTask.isPresent) {
             throw TaskNotFound("Can not find $preBuildTaskPath task")
+        }
+
+        if (upperCaseVariantName == "Release") {
+            prepareTask.dependsOn(":app:createBundleReleaseJsAndAssets")
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)

@@ -16,7 +16,10 @@ import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
+import com.callstack.react.brownfield.utils.Extension
 import org.gradle.api.Task
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 class JNILibsProcessor : BaseProject() {
@@ -34,8 +37,11 @@ class JNILibsProcessor : BaseProject() {
         }
 
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
+        val copyTask = copySoLibsTask(variant)
+
         mergeJniLibsTask.configure {
             it.dependsOn(explodeTasks)
+            it.dependsOn(copyTask)
 
             it.doFirst {
                 for (archiveLibrary in aarLibraries) {
@@ -47,6 +53,36 @@ class JNILibsProcessor : BaseProject() {
                     }
                 }
             }
+        }
+    }
+
+    private fun copySoLibsTask(variant: LibraryVariant): TaskProvider<Copy> {
+        val variantName = variant.name
+        val capitalizedVariant = variantName.replaceFirstChar(Char::titlecase)
+
+        val projectExt = project.extensions.getByType(Extension::class.java)
+        val appProject = project.rootProject.project(projectExt.appProjectName)
+        val appBuildDir = appProject.layout.buildDirectory.get()
+
+        val stripTask = ":${appProject.name}:strip${capitalizedVariant}DebugSymbols"
+        val codegenTask = ":${project.name}:generateCodegenSchemaFromJavaScript"
+
+        val fromDir =
+            appBuildDir
+                .dir("intermediates/stripped_native_libs/$variantName/strip${capitalizedVariant}DebugSymbols/out/lib")
+                .asFile
+
+        val intoDir =
+            project.rootProject
+                .file("${project.name}/libs$capitalizedVariant")
+
+        return project.tasks.register("copy${capitalizedVariant}LibSources", Copy::class.java) {
+            it.dependsOn(stripTask, codegenTask)
+            it.from(fromDir)
+            it.into(intoDir)
+
+            it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
+            projectExt.dynamicLibs.forEach { lib -> it.include("**/$lib") }
         }
     }
 
