@@ -17,19 +17,27 @@ struct MyApp: App {
 }
 
 struct ContentView: View {
-    var body: some View {
+  var body: some View {
         NavigationView {
-            VStack {
-                Text("React Native Brownfield App")
-                    .font(.title)
-                    .bold()
-                    .padding()
-
-                NavigationLink("Push React Native Screen") {
-                    ReactNativeView(moduleName: "ReactNative")
-                        .navigationBarHidden(true)
-                }
+        VStack {
+            Text("React Native Brownfield App")
+            .font(.title)
+            .bold()
+            .padding()
+            .multilineTextAlignment(.center)
+            
+            NavigationLink("Push React Native Screen") {
+            ReactNativeView(moduleName: "ReactNative")
+                .navigationBarHidden(true)
             }
-        }.navigationViewStyle(StackNavigationViewStyle())
+            
+            Button("Stop React Native") {
+            ReactNativeBrownfield.shared.stopReactNative()
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.top)
+            .foregroundColor(.red)
+        }
+        }
     }
 }
