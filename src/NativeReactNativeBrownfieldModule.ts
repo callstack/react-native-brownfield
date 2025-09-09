@@ -1,4 +1,4 @@
-import type { TurboModule } from 'react-native';
+import type { TurboModule, CodegenTypes } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
@@ -18,6 +18,11 @@ export interface Spec extends TurboModule {
    * @platform android
    */
   setHardwareBackButtonEnabled(enabled: boolean): void;
+
+  nativeStoreDidChange: CodegenTypes.EventEmitter<{
+    key: string;
+    value: string;
+  }>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('ReactNativeBrownfield');

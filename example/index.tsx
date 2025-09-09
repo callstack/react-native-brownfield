@@ -26,6 +26,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 function HomeScreen({ navigation, route }: Props) {
   const colors = route.params?.theme || getRandomTheme();
+  const user = global.__brownieHostObject.user;
+  const counter = global.__brownieHostObject.counter;
+
+  console.log({ user, counter });
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {

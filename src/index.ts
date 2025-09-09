@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
 
+global.__installBrownie();
+
 const ReactNativeBrownfield = {
   popToNative: (animated?: boolean): void => {
     if (Platform.OS === 'ios') {
