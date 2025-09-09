@@ -24,11 +24,19 @@ struct ContentView: View {
           .font(.title)
           .bold()
           .padding()
+          .multilineTextAlignment(.center)
         
         NavigationLink("Push React Native Screen") {
           ReactNativeView(moduleName: "ReactNative")
             .navigationBarHidden(true)
         }
+          
+        Button("Stop React Native") {
+          ReactNativeBrownfield.shared.stopReactNative()
+        }
+        .buttonStyle(PlainButtonStyle())
+        .padding(.top)
+        .foregroundColor(.red)
       }
     }
   }
