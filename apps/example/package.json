@@ -27,5 +27,12 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "brownfield": {
+    "stores": {
+      "schema": "./brownfield-store.schema.ts",
+      "typeName": "BrownfieldStore",
+      "swift": "./swift/Generated/BrownfieldStore.swift"
+    }
   }
 }
