@@ -32,6 +32,13 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   private var onBundleLoaded: (() -> Void)?
   private var delegate = ReactNativeBrownfieldDelegate()
   
+  private func checkFactoryInitialized(launchOptions: [AnyHashable: Any]? = nil) {
+    if reactNativeFactory == nil {
+      delegate.dependencyProvider = RCTAppDependencyProvider()
+      self.reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
+    }
+  }
+  
   /**
    * Path to JavaScript root.
    * Default value: "index"
@@ -88,7 +95,9 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    reactNativeFactory?.rootViewFactory.view(
+      checkFactoryInitialized(launchOptions: launchOptions)
+      
+      return reactNativeFactory?.rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions
@@ -112,9 +121,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?, launchOptions: [AnyHashable: Any]?) {
     guard reactNativeFactory == nil else { return }
-    
-    delegate.dependencyProvider = RCTAppDependencyProvider()
-    self.reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
+      checkFactoryInitialized(launchOptions: launchOptions)
     
     if let onBundleLoaded {
       self.onBundleLoaded = onBundleLoaded
@@ -134,6 +141,25 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
         )
       }
     }
+  }
+  
+  /**
+   * Stops React Native and releases the underlying factory instance.
+   */
+  @objc public func stopReactNative() {
+    if !Thread.isMainThread {
+      DispatchQueue.main.async { [weak self] in self?.stopReactNative() }
+      return
+    }
+
+    guard let factory = reactNativeFactory else { return }
+
+    factory.bridge?.invalidate()
+
+    NotificationCenter.default.removeObserver(self)
+    onBundleLoaded = nil
+
+    reactNativeFactory = nil
   }
   
   @objc private func jsLoaded(_ notification: Notification) {
