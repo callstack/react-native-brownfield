@@ -88,7 +88,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    reactNativeFactory?.rootViewFactory.view(
+    rootViewFactory?.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions
