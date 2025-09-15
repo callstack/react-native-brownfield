@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.plugin
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
@@ -27,7 +28,7 @@ object RNSourceSets {
          * be present on the consuming library, which is not the case
          * with our example library.
          */
-        if (project.name == "example-android-library") {
+        if (Utils.isExampleLibrary(project.name)) {
             return
         }
         this.project = project

@@ -20,6 +20,7 @@ import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.GradleProps
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
@@ -55,7 +56,7 @@ class ArtifactsResolver(
          * expo project does not exist in example-android-library so doing an
          * early exit.
          */
-        if (baseProject.project.name == "example-android-library") {
+        if (Utils.isExampleLibrary(baseProject.project.name)) {
             return
         }
 
