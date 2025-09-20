@@ -7,7 +7,6 @@ import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
-import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
@@ -29,17 +28,17 @@ class RNBrownfieldPlugin
 
         override fun apply(project: Project) {
             verifyAndroidPluginApplied(project)
-
             initializers(project)
+
             /**
              * Make sure that expo project is evaluated before the android library.
              * This ensures that the expo modules are available to link with the
              * android library, when it is evaluated.
-             *
-             * this.extension.isExpo &&
              */
-            if (!Utils.isExampleLibrary(project.project.name)) {
-                project.evaluationDependsOn(":expo")
+            val expoProjectPath = ":expo"
+            val hasExpoProject = project.findProject(expoProjectPath) != null
+            if (hasExpoProject) {
+                project.evaluationDependsOn(expoProjectPath)
             }
 
             RNSourceSets.configure(project, extension)
