@@ -28,8 +28,19 @@ class RNBrownfieldPlugin
 
         override fun apply(project: Project) {
             verifyAndroidPluginApplied(project)
-
             initializers(project)
+
+            /**
+             * Make sure that expo project is evaluated before the android library.
+             * This ensures that the expo modules are available to link with the
+             * android library, when it is evaluated.
+             */
+            val expoProjectPath = ":expo"
+            val hasExpoProject = project.findProject(expoProjectPath) != null
+            if (hasExpoProject) {
+                project.evaluationDependsOn(expoProjectPath)
+            }
+
             RNSourceSets.configure(project, extension)
             projectConfigurations.setup()
             registerRClassTransformer()

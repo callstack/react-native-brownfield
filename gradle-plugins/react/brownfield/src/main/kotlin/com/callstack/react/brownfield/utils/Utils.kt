@@ -36,4 +36,8 @@ object Utils {
             output.appendText("\n${file.readText(Charsets.UTF_8)}\n")
         }
     }
+
+    fun isExampleLibrary(projectName: String): Boolean {
+        return projectName == "example-android-library"
+    }
 }
