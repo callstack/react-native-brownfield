@@ -41,10 +41,9 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
     }
 
     moduleName = arguments?.getString(ARG_MODULE_NAME)!!
-    this.mReactDelegate = this.reactHost?.let {
+    this.reactDelegate =
       ReactDelegateWrapper(activity,
-        it, moduleName, arguments?.getBundle("arg_launch_options"))
-    }
+        this.reactHost, moduleName, arguments?.getBundle("arg_launch_options"))
 
     doubleTapReloadRecognizer = DoubleTapReloadRecognizer()
   }
@@ -54,20 +53,18 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    return ReactNativeBrownfield.shared.createView(this.requireContext(), activity, moduleName, this.mReactDelegate as ReactDelegateWrapper)
+    return ReactNativeBrownfield.shared.createView(activity, moduleName, this.reactDelegate as ReactDelegateWrapper)
   }
 
-  override fun getReactHost(): ReactHost? {
-    return activity?.let {
-      getDefaultReactHost(
-        it.applicationContext,
-        ReactNativeBrownfield.shared.reactNativeHost
-      )
+  override val reactHost: ReactHost?
+    get() = ReactNativeBrownfield.shared.reactHost
+
+  override fun onResume() {
+    try {
+      super.onResume()
+    } catch (_: ClassCastException) {
+      (this.reactDelegate as ReactDelegateWrapper).onReactHostResume()
     }
-  }
-
-  override fun getReactNativeHost(): ReactNativeHost? {
-    return ReactNativeBrownfield.shared.reactNativeHost
   }
 
   override fun onRequestPermissionsResult(
@@ -108,20 +105,20 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
 
   override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
     var handled = false
-    if (ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport && ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
-      if (keyCode == KeyEvent.KEYCODE_MENU) {
-        ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
-        handled = true
-      }
-      val didDoubleTapR = activity?.currentFocus?.let {
-        Assertions.assertNotNull(doubleTapReloadRecognizer)
-          .didDoubleTapR(keyCode, it)
-      }
-      if (didDoubleTapR == true) {
-        reactDelegate.reload()
-        handled = true
-      }
-    }
+//    if (ReactNativeBrownfield.shared.reactNativeHost.useDeveloperSupport && ReactNativeBrownfield.shared.reactNativeHost.hasInstance()) {
+//      if (keyCode == KeyEvent.KEYCODE_MENU) {
+//        ReactNativeBrownfield.shared.reactNativeHost.reactInstanceManager.showDevOptionsDialog()
+//        handled = true
+//      }
+//      val didDoubleTapR = activity?.currentFocus?.let {
+//        Assertions.assertNotNull(doubleTapReloadRecognizer)
+//          .didDoubleTapR(keyCode, it)
+//      }
+//      if (didDoubleTapR == true) {
+//        reactDelegate.reload()
+//        handled = true
+//      }
+//    }
     return handled
   }
 

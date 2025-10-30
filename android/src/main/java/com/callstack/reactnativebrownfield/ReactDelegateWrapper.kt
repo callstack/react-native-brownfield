@@ -8,10 +8,10 @@ import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
 
 class ReactDelegateWrapper(
     private val activity: ComponentActivity?,
-    private val reactHost: ReactHost,
+    resolvedReactHost: ReactHost?,
     moduleName: String,
     launchOptions: Bundle?
-): ReactDelegate(activity, reactHost, moduleName, launchOptions){
+): ReactDelegate(activity!!, resolvedReactHost, moduleName, launchOptions) {
     private lateinit var hardwareBackHandler: () -> Unit
     private val backBtnHandler = DefaultHardwareBackBtnHandler {
         hardwareBackHandler()
@@ -25,7 +25,7 @@ class ReactDelegateWrapper(
         hardwareBackHandler = backHandler
     }
 
-    override fun onHostResume() {
-        reactHost.onHostResume(activity, backBtnHandler)
+    fun onReactHostResume() {
+        super.reactHost?.onHostResume(activity, backBtnHandler)
     }
 }
