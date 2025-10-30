@@ -111,7 +111,7 @@ fun ReactNativeScreen() {
 
     AndroidView(
       factory = { context ->
-        ReactNativeBrownfield.shared.createView(context, fragmentManager, "ReactNative")
+        ReactNativeBrownfield.shared.createView(fragmentManager, "ReactNative")
       },
       modifier = Modifier.fillMaxSize()
     )
