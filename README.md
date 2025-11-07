@@ -31,6 +31,13 @@
 - Compatible with all native languages **Objective-C**, **Swift**, **Java** and **Kotlin**
 - Supports UIKit and SwiftUI on iOS and Fragments and Jetpack Compose on Android
 
+## React Native version compatibility matrix
+
+| Tested React Native Version | React Native Brownfield Version |
+| --------------------------- | ------------------------------- |
+| 0.81.x, 0.82.x              | ^2.0.0-rc.0                     |
+| 0.78.x                      | ^1.2.0                          |
+
 ## Installation
 
 The React Native Brownfield library is intended to be installed in a React Native app that is later consumed as a framework artifact by your native iOS or Android app.
