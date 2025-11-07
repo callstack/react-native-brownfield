@@ -11,7 +11,12 @@ class ReactDelegateWrapper(
     resolvedReactHost: ReactHost?,
     moduleName: String,
     launchOptions: Bundle?
-): ReactDelegate(activity!!, resolvedReactHost, moduleName, launchOptions) {
+) : ReactDelegate(
+    activity = activity!!,
+    resolvedReactHost,
+    appKey = moduleName,
+    launchOptions = launchOptions,
+) {
     private lateinit var hardwareBackHandler: () -> Unit
     private val backBtnHandler = DefaultHardwareBackBtnHandler {
         hardwareBackHandler()
