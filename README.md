@@ -51,16 +51,16 @@ npm install @callstack/react-native-brownfield
 
 First, we need to package our React Native app as an XCFramework or Fat-AAR.
 
-#### With RNEF
+#### With Rock
 
-Follow [Integrating with Native Apps](https://www.rnef.dev/docs/brownfield/intro) steps in RNEF docs and run:
+Follow [Integrating with Native Apps](https://www.rockjs.dev/docs/brownfield/intro) steps in Rock docs and run:
 
-- `rnef package:ios` for iOS
-- `rnef package:aar` for Android
+- `rock package:ios` for iOS
+- `rock package:aar` for Android
 
 #### With custom scripts
 
-Instead of using RNEF, you can create your own custom packaging scripts. Here are base versions for iOS and Android that you'll need to adjust for your project-specific setup:
+Instead of using Rock, you can create your own custom packaging scripts. Here are base versions for iOS and Android that you'll need to adjust for your project-specific setup:
 
 - [Example iOS script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-xcframework.sh)
 - [Example Android script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-aar.sh)
@@ -121,17 +121,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.callstack.rnbrownfield.RNViewFactory // exposed by RN app framework
 
 class RNAppFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? =
-        this.context?.let {
-            RNViewFactory.createFrameLayout(it)
-        }
+    ): View? = ReactNativeBrownfield.shared.createView(activity, "BrownFieldTest")
 }
 ```
 
@@ -166,7 +162,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ReactNativeHostManager.shared.initialize(this.application)
+        ReactNativeHostManager.shared.initialize(this.application) {
+          println("JS bundle loaded")
+        }
 
         showRNAppBtn = findViewById(R.id.show_rn_app_btn)
         showRNAppBtn.setOnClickListener {
@@ -228,7 +226,7 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
 | [<img src="https://avatars0.githubusercontent.com/u/7837457?s=460&v=4" width="100px;" alt="Michał Chudziak"/><br /><sub><b>Michał Chudziak</b></sub>](https://twitter.com/michalchudziak)<br />[💻](https://github.com/callstack/react-native-brownfield/commits?author=michalchudziak "Code") [📖](https://github.com/callstack/react-native-brownfield/commits?author=michalchudziak "Documentation") [🤔](#ideas-michalchudziak "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/16336501?s=400&v=4" width="100px;" alt="Piotr Drapich"/><br /><sub><b>Piotr Drapich</b></sub>](https://twitter.com/dratwas)<br />[💻](https://github.com/callstack/react-native-brownfield/commits?author=dratwas "Code") [🤔](#ideas-dratwas "Ideas, Planning, & Feedback") |
-| :---: | :---: |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 

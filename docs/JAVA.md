@@ -25,13 +25,13 @@ With react-native >= 0.80.0, an auto-generated file was added which is responsib
 you will have this file `ReactNativeApplicationEntryPoint` available. If you're consuming this library in a RN android library which is backed by
 `com.callstack.react:brownfield-gradle-plugin`, then this file will also be available.
 
-Below is the code you need to add before you call `RNBrownfield.initialize`:
+Below is the code you need to add before you call `ReactNativeBrownfield.initialize`:
 
 ```java
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 
 loadReactNative(application);
-RNBrownfield.initialize(application, packages);
+ReactNativeBrownfield.initialize(application, packages);
 ```
 
 <hr/>
@@ -62,15 +62,15 @@ A function used to initialize a React Native Brownfield singleton. Keep in mind 
 
 Params:
 
-| Param                   | Required | Type                 | Description                                               |
-| ----------------------- | -------- | -------------------- | --------------------------------------------------------- |
-| application             | Yes      | `Application`          | Main application.                                         |
-| rnHost                  | No*      | `ReactNativeHost`      | An instance of [ReactNativeHost](https://bit.ly/2ZnwgnA). |
-| packages                | No*      | `List<ReactPackage>`   | List of your React Native Native modules.                 |
-| options                 | No*      | `HashMap<String, Any>` | Map of initial options. __Options listed below.__         |
-| onJSBundleLoaded        | No*      | `OnJSBundleLoaded`     | Callback invoked after JS bundle is fully loaded.         |
+| Param            | Required     | Type                   | Description                                                                                                                                                      |
+| ---------------- | ------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| application      | Yes          | `Application`          | Main application.                                                                                                                                                |
+| reactHost        | Exclusively* | `ReactHost`            | An instance of [ReactHost](https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactHost.kt). |
+| packages         | Exclusively* | `List<ReactPackage>`   | List of your React Native Native modules.                                                                                                                        |
+| options          | Exclusively* | `HashMap<String, Any>` | Map of initial options. __Options listed below.__                                                                                                                |
+| onJSBundleLoaded | Exclusively* | `OnJSBundleLoaded`     | Callback invoked after JS bundle is fully loaded.                                                                                                                |
 
-> * - Those fields aren't itself required, but at least one of them is. See examples below.
+> * - From the marked fields, exactly one must be specified, excluding the others. See examples below.
 
 Available options:
 - `useDevSupport`: `Boolean` - Flag to use dev support.
@@ -103,7 +103,7 @@ private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
 
 ReactNativeBrownfield.initialize(this, mReactNativeHost);
 
-OR
+// OR
 
 ReactNativeBrownfield.initialize(this, mReactNativeHost, initialized -> {
   // JS bundle loaded
@@ -115,7 +115,7 @@ List<ReactPackage> packages = new PackageList(this).getPackages();
 
 ReactNativeBrownfield.initialize(this, packages);
 
-OR
+// OR
 
 ReactNativeBrownfield.initialize(this, packages, initialized -> {
   // JS bundle loaded
@@ -130,7 +130,7 @@ options.put("mainModuleName", "example/index");
 
 ReactNativeBrownfield.initialize(this, options);
 
-OR
+// OR
 
 ReactNativeBrownfield.initialize(this, options, initialized -> {
   // JS bundle loaded
@@ -153,9 +153,9 @@ ReactNativeBrownfield.getShared()
 
 **Properties:**
 
-| Property        | Type            | Default        | Description                                               |
-| --------------- | --------------- | -------------- | --------------------------------------------------------- |
-| reactNativeHost | `ReactNativeHost` | null           | An instance of [ReactNativeHost](https://bit.ly/2ZnwgnA). |
+| Property  | Type        | Default | Description                                                                                                                                                      |
+| --------- | ----------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| reactHost | `ReactHost` | null    | An instance of [ReactHost](https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactHost.kt). |
 
 ---
 
@@ -163,16 +163,16 @@ ReactNativeBrownfield.getShared()
 
 `createView`
 
-Creates a React Native view with a given module name. It automatically uses an instance of React Native created in `startReactNative` method. This is useful when embedding React Native views directly in your native layouts.
+Creates a React Native view with a given module name. It automatically uses an instance of React Native created in `initialize` method. This is useful when embedding React Native views directly in your native layouts.
 
 Params:
 
-| Param          | Required | Type                | Description                                                 |
-| -------------- | -------- | ------------------- | ----------------------------------------------------------- |
-| context        | Yes      | `Context`           | Android context to create the view                          |
-| activity       | No       | `FragmentActivity`  | Activity hosting the view, used for lifecycle management    |
-| moduleName     | Yes      | `String`            | Name of React Native component registered to `AppRegistry`  |
-| launchOptions  | No       | `Bundle`            | Initial properties to be passed to React Native component   |
+| Param         | Required | Type               | Description                                                |
+| ------------- | -------- | ------------------ | ---------------------------------------------------------- |
+| context       | Yes      | `Context`          | Android context to create the view                         |
+| activity      | No       | `FragmentActivity` | Activity hosting the view, used for lifecycle management   |
+| moduleName    | Yes      | `String`           | Name of React Native component registered to `AppRegistry` |
+| launchOptions | No       | `Bundle`           | Initial properties to be passed to React Native component  |
 
 Returns:
 `FrameLayout` - A view containing the React Native component.
@@ -193,7 +193,7 @@ container.addView(reactView);
 
 #### `ReactNativeFragment`
 
-An fragment rendering `ReactRootView` with a given module name.  It automatically uses an instance of a React Native created in `startReactNative` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
+An fragment rendering `ReactRootView` with a given module name.  It automatically uses an instance of a React Native created in `initialize` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
 
 ```java
 import com.callstack.reactnativebrownfield.ReactNativeFragment;
@@ -209,10 +209,10 @@ Creates a Fragment with `ReactNativeActivity`, you can use it as a parameter in 
 
 Params:
 
-| Param                   | Required | Type                 | Description                                                 |
-| ----------------------- | -------- | ------------------------------------------- | ----------------------------------------------------------- |
-| moduleName              | Yes      | `String`                                      | Name of React Native component registered to `AppRegistry`. |
-| initialProps            | No       | `Bundle` \|\| `HashMap<String, *>` \|\| `ReadableMap` | Initial properties to be passed to React Native component.  |
+| Param        | Required | Type                                                  | Description                                                 |
+| ------------ | -------- | ----------------------------------------------------- | ----------------------------------------------------------- |
+| moduleName   | Yes      | `String`                                              | Name of React Native component registered to `AppRegistry`. |
+| initialProps | No       | `Bundle` \|\| `HashMap<String, *>` \|\| `ReadableMap` | Initial properties to be passed to React Native component.  |
 
 Examples: 
 
