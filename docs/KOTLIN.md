@@ -56,7 +56,7 @@ Params:
 > * - Those fields aren't itself required, but at least one of them is. See examples below.
 
 Available options:
-- `useDeveloperSupport`: `Boolean` - Flag to use dev support.
+- `useDevSupport`: `Boolean` - Flag to use dev support.
 - `packages`: `List<ReactPackage>` - List of your React Native Native modules.
 - `mainModuleName`: `String` - Path to react native entry file.
 
