@@ -231,7 +231,11 @@ ReactNativeFragment.createReactNativeFragment("ReactNative", map)
 
 ### Usage in Jetpack Compose
 
-You can easily wrap the `ReactNativeFragment` inside a `AndroidFragment` composable to integrate React Native into your Jetpack Compose application:
+You can easily wrap the `ReactNativeFragment` inside a `AndroidFragment` composable to integrate React Native into your Jetpack Compose application. Since the AndroidFragment itself acts as a factory for the given Fragment class, you can pass the required arguments using a Bundle.
+
+The `arguments` passed to the `AndroidFragment` match the ones that can be passed to the `ReactNativeFragment.createReactNativeFragment` factory, yet need to be packed inside a Bundle, as follows:
+- ***(required)*** the JS component name, a `String` under the `ReactNativeFragmentArgNames.ARG_MODULE_NAME` (equivalent to `"arg_module_name"`) constant
+- *(optional)* the initial properties, a `Bundle` under the `ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS` (equivalent to `"arg_launch_options"`) constant
 
 ```kotlin
 import androidx.fragment.compose.AndroidFragment
@@ -239,7 +243,8 @@ import androidx.fragment.compose.AndroidFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 
 AndroidFragment<ReactNativeFragment>(arguments = Bundle().apply {
-  putString(ReactNativeFragmentArgNames.ARG_MODULE_NAME, "RnAndroidRockApp")
+  putString(ReactNativeFragmentArgNames.ARG_MODULE_NAME, "ReactNative")
+  putBundle(ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS, initialProps)
 }, modifier = Modifier.fillMaxSize())
 ```
 
