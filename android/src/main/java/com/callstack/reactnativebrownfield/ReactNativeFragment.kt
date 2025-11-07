@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.callstack.reactnativebrownfield.constants.ReactNativeInitialPropsNames
+import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 import com.facebook.react.ReactFragment
 import com.facebook.react.ReactHost
 import com.facebook.react.bridge.Callback
@@ -36,13 +36,13 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
             )
         }
 
-        moduleName = arguments?.getString(ReactNativeInitialPropsNames.ARG_MODULE_NAME)!!
+        moduleName = arguments?.getString(ReactNativeFragmentArgNames.ARG_MODULE_NAME)!!
         this.reactDelegate =
             ReactDelegateWrapper(
                 activity,
                 this.reactHost,
                 moduleName,
-                arguments?.getBundle(ReactNativeInitialPropsNames.ARG_LAUNCH_OPTIONS)
+                arguments?.getBundle(ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS)
             )
     }
 
@@ -113,9 +113,9 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
         ): ReactNativeFragment {
             val fragment = ReactNativeFragment()
             val args = Bundle()
-            args.putString(ReactNativeInitialPropsNames.ARG_MODULE_NAME, moduleName)
+            args.putString(ReactNativeFragmentArgNames.ARG_MODULE_NAME, moduleName)
             if (initialProps != null) {
-                args.putBundle(ReactNativeInitialPropsNames.ARG_LAUNCH_OPTIONS, initialProps)
+                args.putBundle(ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS, initialProps)
             }
             fragment.arguments = args
             return fragment
