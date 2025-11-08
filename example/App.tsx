@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AppRegistry, StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
@@ -71,7 +71,7 @@ type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function App() {
+export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -93,5 +93,3 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
-
-AppRegistry.registerComponent('ReactNative', () => App);

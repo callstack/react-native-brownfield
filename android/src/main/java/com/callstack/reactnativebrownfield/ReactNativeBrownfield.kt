@@ -12,6 +12,7 @@ import com.facebook.react.ReactHost
 import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.common.build.ReactBuildConfig
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
@@ -75,6 +76,9 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                     context = application,
                     packageList = (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
                         .filterIsInstance<ReactPackage>(),
+                    jsMainModulePath = options["mainModuleName"] as? String ?: "index",
+                    useDevSupport = options["useDeveloperSupport"] as? Boolean
+                        ?: ReactBuildConfig.DEBUG,
                     jsRuntimeFactory = null
                 )
             }

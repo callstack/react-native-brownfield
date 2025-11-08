@@ -5,7 +5,7 @@ import com.facebook.react.ReactFragment
 /**
  * Convenience export of arguments that can be used
  */
-class ReactNativeInitialPropsNames private constructor() :
+class ReactNativeFragmentArgNames private constructor() :
     ReactFragment() // subclass to gain access to protected constants
 {
     companion object {
