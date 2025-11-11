@@ -58,7 +58,8 @@ Params:
 Available options:
 - `useDeveloperSupport`: `Boolean` - Flag to use dev support.
 - `packages`: `List<ReactPackage>` - List of your React Native Native modules.
-- `mainModuleName`: `String` - Path to react native entry file.
+- `mainModuleName`: `String` - Path to react native entry file (when loading from Metro).
+- `jsBundleAssetPath`: `String` - Path to react native bundle asset file (when loading from app assets), appended to `asset://`.
 
 Examples:
 

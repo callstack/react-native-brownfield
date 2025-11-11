@@ -77,6 +77,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                     packageList = (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
                         .filterIsInstance<ReactPackage>(),
                     jsMainModulePath = options["mainModuleName"] as? String ?: "index",
+                    jsBundleAssetPath = options["bundleAssetPath"] as? String ?: "index.android.bundle",
                     useDevSupport = options["useDeveloperSupport"] as? Boolean
                         ?: ReactBuildConfig.DEBUG,
                     jsRuntimeFactory = null
