@@ -4,7 +4,7 @@ React Native Brownfield provides first-class support for Java.
 
 ### Kotlin setup
 
-Even though the library provides a first-class Java support, it's written in Kotlin. To compile the project with React Native Brownfield, we need to make sure that our project's `build.gradle` file contains the required Gradle plugin. 
+Even though the library provides a first-class Java support, it's written in Kotlin. To compile the project with React Native Brownfield, we need to make sure that our project's `build.gradle` file contains the required Gradle plugin.
 
 ```java
 buildscript {
@@ -37,8 +37,8 @@ ReactNativeBrownfield.initialize(application, packages);
 <hr/>
 <br/>
 
-> Note: Previously, you were required to implement `DefaultHardwareBackBtnListener` in your calling Activity. Now with > 1.1.0 you are not required to do that step. 
-If you're upgrading to the latest version then you can safely remove that interface implementation from your calling Activity.
+> Note: Previously, you were required to implement `DefaultHardwareBackBtnListener` in your calling Activity. Now with > 1.1.0 you are not required to do that step.
+> If you're upgrading to the latest version then you can safely remove that interface implementation from your calling Activity.
 
 <hr/>
 
@@ -62,17 +62,18 @@ A function used to initialize a React Native Brownfield singleton. Keep in mind 
 
 Params:
 
-| Param            | Required     | Type                   | Description                                                                                                                                                      |
-| ---------------- | ------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| application      | Yes          | `Application`          | Main application.                                                                                                                                                |
-| reactHost        | Exclusively* | `ReactHost`            | An instance of [ReactHost](https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactHost.kt). |
-| packages         | Exclusively* | `List<ReactPackage>`   | List of your React Native Native modules.                                                                                                                        |
-| options          | Exclusively* | `HashMap<String, Any>` | Map of initial options. __Options listed below.__                                                                                                                |
-| onJSBundleLoaded | Exclusively* | `OnJSBundleLoaded`     | Callback invoked after JS bundle is fully loaded.                                                                                                                |
+| Param            | Required      | Type                   | Description                                                                                                                                                      |
+| ---------------- | ------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| application      | Yes           | `Application`          | Main application.                                                                                                                                                |
+| reactHost        | Exclusively\* | `ReactHost`            | An instance of [ReactHost](https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactHost.kt). |
+| packages         | Exclusively\* | `List<ReactPackage>`   | List of your React Native Native modules.                                                                                                                        |
+| options          | Exclusively\* | `HashMap<String, Any>` | Map of initial options. **Options listed below.**                                                                                                                |
+| onJSBundleLoaded | Exclusively\* | `OnJSBundleLoaded`     | Callback invoked after JS bundle is fully loaded.                                                                                                                |
 
-> * - From the marked fields, exactly one must be specified, excluding the others. See examples below.
+> - - From the marked fields, exactly one must be specified, excluding the others. See examples below.
 
 Available options:
+
 - `useDeveloperSupport`: `Boolean` - Flag to use dev support.
 - `packages`: `List<ReactPackage>` - List of your React Native Native modules.
 - `mainModuleName`: `String` - Path to react native entry file (when loading from Metro).
@@ -144,7 +145,7 @@ ReactNativeBrownfield.initialize(this, options, initialized -> {
 
 A singleton that keeps an instance of ReactNativeBrownfield object.
 
-Examples: 
+Examples:
 
 ```java
 ReactNativeBrownfield.getShared()
@@ -194,7 +195,7 @@ container.addView(reactView);
 
 #### `ReactNativeFragment`
 
-An fragment rendering `ReactRootView` with a given module name.  It automatically uses an instance of a React Native created in `initialize` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
+An fragment rendering `ReactRootView` with a given module name. It automatically uses an instance of a React Native created in `initialize` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
 
 ```java
 import com.callstack.reactnativebrownfield.ReactNativeFragment;
@@ -215,7 +216,7 @@ Params:
 | moduleName   | Yes      | `String`                                              | Name of React Native component registered to `AppRegistry`. |
 | initialProps | No       | `Bundle` \|\| `HashMap<String, *>` \|\| `ReadableMap` | Initial properties to be passed to React Native component.  |
 
-Examples: 
+Examples:
 
 ```java
 ReactNativeFragment.createReactNativeFragment("ReactNative");

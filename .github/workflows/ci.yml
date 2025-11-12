@@ -2,9 +2,9 @@ name: Lint & Type Check
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   analyse:

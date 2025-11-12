@@ -2,7 +2,6 @@
 
 ![Maven Central](https://img.shields.io/maven-central/v/com.callstack.react/brownfield-gradle-plugin)
 
-
 This plugin helps you convert your react-native brownfield implementation into a fat Aar.
 
 ## Installation
@@ -27,7 +26,7 @@ buildscript {
 ```
 
 To your brownfield project level `build.gradle.kts` add
- 
+
 ```diff
  plugins {
      id("com.android.library")
@@ -39,7 +38,7 @@ To your brownfield project level `build.gradle.kts` add
 react {
      autolinkLibrariesWithApp()
  }
- 
+
  val appProject = project(":app")
 ```
 
@@ -66,7 +65,7 @@ buildscript {
 ```
 
 To your brownfield project level `build.gradle.kts` add
- 
+
 ```diff
  plugins {
      id("com.android.library")
@@ -78,7 +77,7 @@ To your brownfield project level `build.gradle.kts` add
 react {
      autolinkLibrariesWithApp()
  }
- 
+
  val appProject = project(":app")
 ```
 
@@ -165,10 +164,8 @@ reactBrownfield {
 - We are using `ktlint` and `detekt` for formatting and linting
 - You can run `./gradlew :brownfield:lint` to auto-format and detect linting issues
 
-
 ## Architecture
 
 Below is a flow diagram of how the files are being used in this gradle plugin from an overview:
 
 ![react-brownfield-architecture](../../screenshots/react-brownfield-arch.png)
-
