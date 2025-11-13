@@ -226,6 +226,10 @@ React Native Brownfield is an open source project and will always remain free to
 
 Like the project? ⚛️ [Join the team](https://callstack.com/careers/?utm_campaign=Senior_RN&utm_source=github&utm_medium=readme) who does amazing stuff for clients and drives React Native Open Source! 🔥
 
+## Troubleshooting
+
+For troubleshooting common issues, please refer to [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+
 ## Contributors
 
 Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
