@@ -45,8 +45,8 @@ object RNSourceSets {
 
     private fun configureSourceSets() {
         androidExtension.sourceSets.getByName("main") {
-            it.assets.srcDirs("$appBuildDir/generated/assets/createBundleReleaseJsAndAssets")
-            it.res.srcDirs("$appBuildDir/generated/res/createBundleReleaseJsAndAssets")
+            it.assets.srcDirs("$appBuildDir/generated/assets/react/release")
+            it.res.srcDirs("$appBuildDir/generated/res/react/release")
             it.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
         }
 
