@@ -10,6 +10,12 @@ object Logging : BaseProject() {
         project.logger.error(getFormattedMessage(message), error)
     }
 
+    fun warn(
+        message: Any,
+    ) {
+        project.logger.warn(getFormattedMessage(message))
+    }
+
     fun info(message: Any) {
         project.logger.info(getFormattedMessage(message))
     }
