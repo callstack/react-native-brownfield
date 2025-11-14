@@ -31,6 +31,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   public static let shared = ReactNativeBrownfield()
   private var onBundleLoaded: (() -> Void)?
   private var delegate = ReactNativeBrownfieldDelegate()
+  private var storedLaunchOptions: [AnyHashable: Any]?
   
   /**
    * Path to JavaScript root.
@@ -94,11 +95,12 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     let resolvedFactory = factory
 
     let rootViewFactory = resolvedFactory.rootViewFactory
+    let resolvedLaunchOptions = launchOptions ?? storedLaunchOptions
 
     return rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
-      launchOptions: launchOptions
+      launchOptions: resolvedLaunchOptions
     )
   }
   
@@ -118,8 +120,8 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * @param launchOptions Launch options, typically passed from AppDelegate.
    */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?, launchOptions: [AnyHashable: Any]?) {
+    storedLaunchOptions = launchOptions
     guard reactNativeFactory == nil else { return }
-    _ = launchOptions
     _ = factory
     
     if let onBundleLoaded {
@@ -158,6 +160,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     NotificationCenter.default.removeObserver(self)
     onBundleLoaded = nil
 
+    storedLaunchOptions = nil
     reactNativeFactory = nil
   }
   
