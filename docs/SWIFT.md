@@ -70,6 +70,16 @@ ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
 }, launchOptions: launchOptions)
 ```
 
+`stopReactNative`
+
+Stops React Native and releases the underlying runtime. Safe to call multiple times. Call it after all React Native views are dismissed.
+
+Examples:
+
+```swift
+ReactNativeBrownfield.shared.stopReactNative()
+```
+
 `view`
 
 Creates a React Native view for the specified module name.
