@@ -32,13 +32,6 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   private var onBundleLoaded: (() -> Void)?
   private var delegate = ReactNativeBrownfieldDelegate()
   
-  private func checkFactoryInitialized(launchOptions: [AnyHashable: Any]? = nil) {
-    if reactNativeFactory == nil {
-      delegate.dependencyProvider = RCTAppDependencyProvider()
-      self.reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
-    }
-  }
-  
   /**
    * Path to JavaScript root.
    * Default value: "index"
@@ -76,15 +69,16 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * Default value: nil
    */
   private var reactNativeFactory: RCTReactNativeFactory? = nil
-  /**
-   * Root view factory used to create React Native views.
-   * Always proxies the currently active React Native factory so restarting
-   * React Native yields a fresh root view factory instance.
-   */
-  private var rootViewFactory: RCTRootViewFactory? {
-    reactNativeFactory?.rootViewFactory
+  private var factory: RCTReactNativeFactory {
+    if let existingFactory = reactNativeFactory {
+      return existingFactory
+    }
+
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+    let createdFactory = RCTReactNativeFactory(delegate: delegate)
+    reactNativeFactory = createdFactory
+    return createdFactory
   }
-  
   /**
    * Starts React Native with default parameters.
    */
@@ -97,9 +91,11 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-      checkFactoryInitialized(launchOptions: launchOptions)
-      
-      return rootViewFactory?.view(
+    let resolvedFactory = factory
+
+    let rootViewFactory = resolvedFactory.rootViewFactory
+
+    return rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions
@@ -123,7 +119,8 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?, launchOptions: [AnyHashable: Any]?) {
     guard reactNativeFactory == nil else { return }
-      checkFactoryInitialized(launchOptions: launchOptions)
+    _ = launchOptions
+    _ = factory
     
     if let onBundleLoaded {
       self.onBundleLoaded = onBundleLoaded
