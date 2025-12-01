@@ -5,24 +5,24 @@ Here you can find the guidelines for standard brownfield approach and advanced u
 As a golden rule of standard brownfield with react-native, your native App should never have to interact directly
 with react-native APIs. There are various reasons that doing the opposite is discouraged.
 
-- If you have different teams working on RN brownfield and the native App and you distribute your AAR/XCFramework to the native 
-team. They can use the APIs from those artifacts and interact with them. However, if the native team have to import a react native
-API, say `PackageList` then the rule of brownfield is being violated. The native team have native developers and they should not need
-to worry about and interact with react-native directly. All of the abstraction should be handled within your artifacts.
+- If you have different teams working on RN brownfield and the native App and you distribute your AAR/XCFramework to the native
+  team. They can use the APIs from those artifacts and interact with them. However, if the native team have to import a react native
+  API, say `PackageList` then the rule of brownfield is being violated. The native team have native developers and they should not need
+  to worry about and interact with react-native directly. All of the abstraction should be handled within your artifacts.
 
 - If your native App interacts with react-native directly then you could imagine how complicated the codebase would be. The native App
-should follow and worry about their native APIs rather than interacting with react-native. If in future, some react-native APIs needs to
-be changed or refactored, then the effort would be cumbersome. On the contrast, if your native App was interacting with your artifact only
-then the native App need not to worry about what happens internally. This makes things simpler for the native App team.
+  should follow and worry about their native APIs rather than interacting with react-native. If in future, some react-native APIs needs to
+  be changed or refactored, then the effort would be cumbersome. On the contrast, if your native App was interacting with your artifact only
+  then the native App need not to worry about what happens internally. This makes things simpler for the native App team.
 
 - If the native App team is using your artifact and any build, compile time or run time issue arises the stack trace would lead to your artifact
-and making it simpler for the teams to focus on their area only. On the contrary, if the native App team would interact with react-native directly,
-then any related issues would be time consuming for that team to figure out the root cause and then delegate to the team managing RN flows.
+  and making it simpler for the teams to focus on their area only. On the contrary, if the native App team would interact with react-native directly,
+  then any related issues would be time consuming for that team to figure out the root cause and then delegate to the team managing RN flows.
 
 Building upon the above points, below is how your brownfield implementation should look like if you're using `react-native-brownfield`:
 
 - In your brownfield android library or iOS xcframework, create a class following the facade pattern. The role of this class would be to encapsulate the
-initialization of `react-native-brownfield` by not asking the native App to interact with `react-native` directly. Below is how it would look like:
+  initialization of `react-native-brownfield` by not asking the native App to interact with `react-native` directly. Below is how it would look like:
 
 ```kt
 // Your artifact
@@ -63,7 +63,6 @@ ReactNativeHostManager.initialize(application)
 
 As you can see the issue here is that now we are mixing the native App with react-native APIs, which is discouraged. If we stick to
 the above approach then the native App is free of interacting with react-native directly.
-
 
 ### Advanced Use Cases:
 
