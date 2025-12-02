@@ -3,11 +3,8 @@ name: ktlint and detekt
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - "react-native-brownfield/gradle-plugins/react/**"
   pull_request:
-    paths:
-      - "react-native-brownfield/gradle-plugins/react/**"
+    branches: [main]
 
 jobs:
   lint:
