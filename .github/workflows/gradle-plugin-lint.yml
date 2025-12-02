@@ -4,10 +4,10 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "gradle-plugins/react/**"
+      - "react-native-brownfield/gradle-plugins/react/**"
   pull_request:
     paths:
-      - "gradle-plugins/react/**"
+      - "react-native-brownfield/gradle-plugins/react/**"
 
 jobs:
   lint:
