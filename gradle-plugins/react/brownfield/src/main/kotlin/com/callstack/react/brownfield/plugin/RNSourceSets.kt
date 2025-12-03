@@ -46,10 +46,12 @@ object RNSourceSets {
     private fun configureSourceSets() {
         androidExtension.sourceSets.getByName("main") { sourceSet ->
             for (bundlePathSegment in listOf(
-                "createBundleReleaseJsAndAssets", // outputs for RN <= 0.81
-                "react/release" // outputs for RN >= 0.82
+                // outputs for RN <= 0.81
+                "createBundleReleaseJsAndAssets",
+                // outputs for RN >= 0.82
+                "react/release",
             )) {
-                sourceSet.assets.srcDirs("${appBuildDir}/generated/assets/$bundlePathSegment")
+                sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
                 sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
             }
 
