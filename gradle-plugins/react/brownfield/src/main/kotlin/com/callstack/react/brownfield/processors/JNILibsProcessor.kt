@@ -44,9 +44,14 @@ class JNILibsProcessor : BaseProject() {
             it.dependsOn(copyTask)
 
             it.doFirst {
+                val existingJNILibs =
+                    listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+                        .associateWith { mutableListOf<String>() }
+                        .toMutableMap()
+
                 for (archiveLibrary in aarLibraries) {
                     val jniDir = archiveLibrary.getJniDir()
-                    processNestedLibs(jniDir.listFiles())
+                    processNestedLibs(jniDir.listFiles(), existingJNILibs)
                     if (jniDir.exists()) {
                         val filteredSourceSets = androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variant.name }
                         filteredSourceSets.forEach { sourceSet -> sourceSet.jniLibs.srcDir(jniDir) }
@@ -86,12 +91,10 @@ class JNILibsProcessor : BaseProject() {
         }
     }
 
-    private fun processNestedLibs(files: Array<File>?) {
-        val existingJNILibs =
-            listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-                .associateWith { mutableListOf<String>() }
-                .toMutableMap()
-
+    private fun processNestedLibs(
+        files: Array<File>?,
+        existingJNILibs: MutableMap<String, MutableList<String>>,
+    ) {
         files?.forEach { folder ->
             val libFiles = folder.listFiles() ?: return@forEach
             val libList = existingJNILibs[folder.name] ?: return@forEach
