@@ -55,8 +55,8 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             throw TaskNotFound("Can not find $preBuildTaskPath task")
         }
 
-        if (upperCaseVariantName == "Release") {
-            prepareTask.dependsOn(":app:createBundleReleaseJsAndAssets")
+        if (upperCaseVariantName.contains("Release")) {
+            prepareTask.dependsOn(":app:createBundle${upperCaseVariantName}JsAndAssets")
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
