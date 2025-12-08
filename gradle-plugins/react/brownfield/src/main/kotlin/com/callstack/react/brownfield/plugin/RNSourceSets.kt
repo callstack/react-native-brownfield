@@ -47,18 +47,20 @@ object RNSourceSets {
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
-            androidExtension.sourceSets.getByName("main") { sourceSet ->
-                for (bundlePathSegment in listOf(
-                    // outputs for RN <= 0.81
-                    "createBundle${upperCaseVariantName}JsAndAssets",
-                    // outputs for RN >= 0.82
-                    "react/release",
-                )) {
-                    sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
-                    sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
-                }
+            if (upperCaseVariantName.contains("Release")) {
+                androidExtension.sourceSets.getByName("main") { sourceSet ->
+                    for (bundlePathSegment in listOf(
+                        // outputs for RN <= 0.81
+                        "createBundle${upperCaseVariantName}JsAndAssets",
+                        // outputs for RN >= 0.82
+                        "react/release",
+                    )) {
+                        sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
+                        sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
+                    }
 
-                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
+                    sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
+                }
             }
         }
 
