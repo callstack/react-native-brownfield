@@ -22,13 +22,13 @@ import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
-    private val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
     fun processConsumerFiles(
         aarLibs: Collection<AndroidArchiveLibrary>,
         explodeTasks: MutableList<Task>,
     ) {
-        val mergeTaskName = "merge${upperCaseVariantName}ConsumerProguardFiles"
+        val mergeTaskName = "merge${capitalizedVariantName}ConsumerProguardFiles"
         val mergeFileTask = project.tasks.named(mergeTaskName)
 
         if (!mergeFileTask.isPresent) {
@@ -50,7 +50,7 @@ class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
         explodeTasks: MutableList<Task>,
     ) {
         val mergeGenerateProguardTask: TaskProvider<*>?
-        val mergeName = "merge${upperCaseVariantName}GeneratedProguardFiles"
+        val mergeName = "merge${capitalizedVariantName}GeneratedProguardFiles"
         mergeGenerateProguardTask = project.tasks.named(mergeName)
 
         mergeGenerateProguardTask?.configure { task ->
