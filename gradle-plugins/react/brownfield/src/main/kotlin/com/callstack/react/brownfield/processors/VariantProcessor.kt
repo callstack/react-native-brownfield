@@ -56,7 +56,7 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
         }
 
         if (capitalizedVariantName.contains("Release")) {
-            prepareTask.dependsOn(":app:createBundle${upperCaseVariantName}JsAndAssets")
+            prepareTask.dependsOn(":app:createBundle${capitalizedVariantName}JsAndAssets")
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)

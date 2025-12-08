@@ -45,12 +45,12 @@ object RNSourceSets {
 
     private fun configureSourceSets() {
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
+            val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
             androidExtension.sourceSets.getByName("main") { sourceSet ->
                 for (bundlePathSegment in listOf(
                     // outputs for RN <= 0.81
-                    "createBundle${upperCaseVariantName}JsAndAssets",
+                    "createBundle${capitalizedVariantName}JsAndAssets",
                     // outputs for RN >= 0.82
                     "react/release",
                 )) {
