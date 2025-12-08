@@ -15,15 +15,15 @@ import java.io.File
 
 class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProject() {
     private val variant = variantHelper.getVariant()
-    private val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
     fun classesMergeTask(
         aarLibraries: Collection<AndroidArchiveLibrary>,
         jarFiles: MutableList<File>,
         explodeTasks: MutableList<Task>,
     ): TaskProvider<Task> {
-        val mergeClassesTaskName = "mergeClasses$upperCaseVariantName"
-        val kotlinCompileTaskName = "compile${upperCaseVariantName}Kotlin"
+        val mergeClassesTaskName = "mergeClasses$capitalizedVariantName"
+        val kotlinCompileTaskName = "compile${capitalizedVariantName}Kotlin"
 
         return project.tasks.register(mergeClassesTaskName) {
             it.outputs.upToDateWhen { false }
@@ -54,7 +54,7 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         jarFiles: MutableList<File>,
         explodeTasks: MutableList<Task>,
     ): TaskProvider<Task> {
-        return project.tasks.register("mergeJars$upperCaseVariantName") {
+        return project.tasks.register("mergeJars$capitalizedVariantName") {
             it.dependsOn(explodeTasks)
             it.dependsOn(variantHelper.getJavaCompileTask())
             it.mustRunAfter(syncLibTask)
@@ -92,14 +92,14 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         val processManifestTask = variantHelper.getProcessManifest()
         val manifestOutput =
             project.file(
-                "$buildDir/intermediates/merged_manifest/${variant.name}/process${upperCaseVariantName}Manifest/AndroidManifest.xml",
+                "$buildDir/intermediates/merged_manifest/${variant.name}/process${capitalizedVariantName}Manifest/AndroidManifest.xml",
             )
 
         val inputManifests = aarLibraries.map { it.getManifestFile() }
 
         val manifestsMergeTask =
             project.tasks.register(
-                "merge${upperCaseVariantName}Manifest",
+                "merge${capitalizedVariantName}Manifest",
                 ManifestMerger::class.java,
             ) {
                 it.setGradleVersion(project.gradle.gradleVersion)
@@ -148,7 +148,7 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
     }
 
     fun processDeepLinkTasks(explodeTasks: MutableList<Task>) {
-        val taskName = "extractDeepLinksForAar$upperCaseVariantName"
+        val taskName = "extractDeepLinksForAar$capitalizedVariantName"
         val extractDeepLinks = project.tasks.named(taskName)
 
         if (!extractDeepLinks.isPresent) {

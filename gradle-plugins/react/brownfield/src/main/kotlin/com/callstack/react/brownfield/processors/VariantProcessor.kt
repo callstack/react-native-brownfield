@@ -26,7 +26,7 @@ import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
-    private val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
     private val variantHelper = VariantHelper(variant)
     private val variantTaskProvider = VariantTaskProvider(variantHelper)
     private val jniLibsProcessor = JNILibsProcessor()
@@ -48,14 +48,14 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
 
     fun processVariant(artifacts: Collection<ResolvedArtifact>) {
         setup()
-        val preBuildTaskPath = "pre${upperCaseVariantName}Build"
+        val preBuildTaskPath = "pre${capitalizedVariantName}Build"
         val prepareTask = project.tasks.named(preBuildTaskPath)
 
         if (!prepareTask.isPresent) {
             throw TaskNotFound("Can not find $preBuildTaskPath task")
         }
 
-        if (upperCaseVariantName == "Release") {
+        if (capitalizedVariantName == "Release") {
             prepareTask.dependsOn(":app:createBundleReleaseJsAndAssets")
         }
 
@@ -77,7 +77,7 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
 
     private fun mergeClassesAndJars(bundleTask: TaskProvider<Task>) {
         val syncLibTask = project.tasks.named(variantHelper.getSyncLibJarsTaskPath())
-        val extractAnnotationsTask = project.tasks.named("extract${upperCaseVariantName}Annotations")
+        val extractAnnotationsTask = project.tasks.named("extract${capitalizedVariantName}Annotations")
 
         mergeClassTask = variantTaskProvider.classesMergeTask(aarLibraries, jarFiles, explodeTasks)
         syncLibTask.configure {
@@ -88,7 +88,7 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             it.inputs.files(jarFiles).withPathSensitivity(PathSensitivity.RELATIVE)
         }
 
-        project.tasks.named("transform${upperCaseVariantName}ClassesWithAsm").configure {
+        project.tasks.named("transform${capitalizedVariantName}ClassesWithAsm").configure {
             it.dependsOn(mergeClassTask)
         }
         extractAnnotationsTask.configure {
@@ -97,7 +97,7 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
 
         if (!variant.buildType.isMinifyEnabled) {
             val mergeJars = variantTaskProvider.jarMergeTask(syncLibTask, aarLibraries, jarFiles, explodeTasks)
-            project.tasks.named("bundle${upperCaseVariantName}LocalLintAar").configure {
+            project.tasks.named("bundle${capitalizedVariantName}LocalLintAar").configure {
                 it.dependsOn(mergeJars)
             }
             bundleTask.configure {
@@ -155,7 +155,7 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
     ): Copy {
         val group = artifact.moduleVersion.id.group.replaceFirstChar(Char::titlecase)
         val name = artifact.name.replaceFirstChar(Char::titlecase)
-        val taskName = "explode$group$name$upperCaseVariantName"
+        val taskName = "explode$group$name$capitalizedVariantName"
         val explodeTask =
             project.tasks.create(taskName, Copy::class.java) {
                 it.from(project.zipTree(artifact.file.absolutePath))

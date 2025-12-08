@@ -28,8 +28,8 @@ class JNILibsProcessor : BaseProject() {
         explodeTasks: MutableList<Task>,
         variant: LibraryVariant,
     ) {
-        val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
-        val taskName = "merge${upperCaseVariantName}JniLibFolders"
+        val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+        val taskName = "merge${capitalizedVariantName}JniLibFolders"
         val mergeJniLibsTask = project.tasks.named(taskName)
 
         if (!mergeJniLibsTask.isPresent) {
