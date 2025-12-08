@@ -47,8 +47,8 @@ object RNSourceSets {
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
-            if (upperCaseVariantName.contains("Release")) {
-                androidExtension.sourceSets.getByName("main") { sourceSet ->
+            androidExtension.sourceSets.getByName("main") { sourceSet ->
+                if (upperCaseVariantName.contains("Release")) {
                     for (bundlePathSegment in listOf(
                         // outputs for RN <= 0.81
                         "createBundle${upperCaseVariantName}JsAndAssets",
@@ -58,9 +58,9 @@ object RNSourceSets {
                         sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
                         sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
                     }
-
-                    sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
                 }
+
+                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
             }
         }
 
