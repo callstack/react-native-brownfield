@@ -10,7 +10,6 @@
 
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
@@ -36,7 +35,6 @@ class JNILibsProcessor : BaseProject() {
             throw TaskNotFound("Task $taskName not found")
         }
 
-        val androidExtension = project.extensions.getByName("android") as LibraryExtension
         val copyTask = copySoLibsTask(variant)
 
         mergeJniLibsTask.configure {
@@ -102,22 +100,39 @@ class JNILibsProcessor : BaseProject() {
         val (fromDir, intoDir) = getStrippedLibsPath(variant)
 
         existingJNILibs.forEach { (arch, libNames) ->
-            val sourceArchDir = File(fromDir, arch)
-            if (!sourceArchDir.exists()) return@forEach
+            copyLibsForArchitecture(fromDir, intoDir, arch, libNames)
+        }
+    }
 
-            val destArchDir = File(intoDir, arch).apply { mkdirs() }
+    private fun copyLibsForArchitecture(
+        fromDir: File,
+        intoDir: File,
+        arch: String,
+        libNames: List<String>,
+    ) {
+        val sourceArchDir = File(fromDir, arch)
+        if (!sourceArchDir.exists()) return
 
-            libNames.forEach { libName ->
-                val sourceFile = File(sourceArchDir, libName)
-                val destFile = File(destArchDir, libName)
+        val destArchDir = File(intoDir, arch).apply { mkdirs() }
 
-                if (sourceFile.exists()) {
-                    try {
-                        sourceFile.copyTo(destFile, overwrite = true)
-                    } catch (e: Exception) {
-                        Logging.log("Failed to copy $libName: ${e.message}")
-                    }
-                }
+        libNames.forEach { libName ->
+            copyLibFile(sourceArchDir, destArchDir, libName)
+        }
+    }
+
+    private fun copyLibFile(
+        sourceArchDir: File,
+        destArchDir: File,
+        libName: String,
+    ) {
+        val sourceFile = File(sourceArchDir, libName)
+        val destFile = File(destArchDir, libName)
+
+        if (sourceFile.exists()) {
+            try {
+                sourceFile.copyTo(destFile, overwrite = true)
+            } catch (e: java.io.IOException) {
+                Logging.log("Failed to copy $libName: ${e.message}")
             }
         }
     }
