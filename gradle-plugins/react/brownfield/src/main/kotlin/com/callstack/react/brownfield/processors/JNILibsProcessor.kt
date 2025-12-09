@@ -51,7 +51,7 @@ class JNILibsProcessor : BaseProject() {
                 for (archiveLibrary in aarLibraries) {
                     val jniDir = archiveLibrary.getJniDir()
                     processNestedLibs(jniDir.listFiles(), existingJNILibs)
-                    copyStrippedSoLibs(variant, existingJNILibs)  
+                    copyStrippedSoLibs(variant, existingJNILibs)
                 }
             }
         }
@@ -65,12 +65,13 @@ class JNILibsProcessor : BaseProject() {
         val variantName = variant.name
         val capitalizedVariant = variantName.replaceFirstChar(Char::titlecase)
 
-        val fromDir = appBuildDir
-            .dir("intermediates/stripped_native_libs/$variantName/strip${capitalizedVariant}DebugSymbols/out/lib")
-            .asFile
+        val fromDir =
+            appBuildDir
+                .dir("intermediates/stripped_native_libs/$variantName/strip${capitalizedVariant}DebugSymbols/out/lib")
+                .asFile
 
         val intoDir = project.rootProject.file("${project.name}/libs$capitalizedVariant")
-        
+
         return Pair(fromDir, intoDir)
     }
 
@@ -96,20 +97,20 @@ class JNILibsProcessor : BaseProject() {
 
     private fun copyStrippedSoLibs(
         variant: LibraryVariant,
-        existingJNILibs: MutableMap<String, MutableList<String>>
+        existingJNILibs: MutableMap<String, MutableList<String>>,
     ) {
         val (fromDir, intoDir) = getStrippedLibsPath(variant)
-        
+
         existingJNILibs.forEach { (arch, libNames) ->
             val sourceArchDir = File(fromDir, arch)
             if (!sourceArchDir.exists()) return@forEach
-            
+
             val destArchDir = File(intoDir, arch).apply { mkdirs() }
-            
+
             libNames.forEach { libName ->
                 val sourceFile = File(sourceArchDir, libName)
                 val destFile = File(destArchDir, libName)
-                
+
                 if (sourceFile.exists()) {
                     try {
                         sourceFile.copyTo(destFile, overwrite = true)
