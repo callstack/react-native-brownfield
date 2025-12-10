@@ -58,7 +58,60 @@ npm install @callstack/react-native-brownfield
 
 First, we need to package our React Native app as an XCFramework or Fat-AAR.
 
+#### With the built-in CLI
+
+You can use the built-in CLI that comes with this library to package your React Native app for iOS and Android:
+
+##### Publish for iOS
+
+Simply run `npx react-native-brownfield package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
+
+Available arguments:
+
+| Argument               | Description                                                                                                                                                                                                                                                  | Default                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| --configuration        | Explicitly set the scheme configuration to use. This option is case sensitive.                                                                                                                                                                               |                        |
+| --scheme               | Explicitly set Xcode scheme to use                                                                                                                                                                                                                           |                        |
+| --target               | Explicitly set Xcode target to use                                                                                                                                                                                                                           |                        |
+| --extra-params         | Custom params that will be passed to xcodebuild command.                                                                                                                                                                                                     |
+| --export-extra-params  | Custom params that will be passed to xcodebuild export archive command. Example: --export-extra-params "-allowProvisioningUpdates"                                                                                                                           |                        |
+| --export-options-plist | Name of the export options file for archiving. Defaults to: ExportOptions.plist                                                                                                                                                                              | ExportOptions.plist    |
+| --build-folder         | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath".                                                                                                                                                                                 | "build"                |
+| --destination          | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: "simulator", "device" or destinations supported by "xcodebuild -destination" flag, e.g. "generic/platform=iOS" |                        |
+| --archive              | Create an Xcode archive (IPA) of the build, required for uploading to App Store Connect or distributing to TestFlight                                                                                                                                        |                        |
+| --no-install-pods      | Skip automatic CocoaPods installation                                                                                                                                                                                                                        |                        |
+| --no-new-arch          | Run React Native in legacy async architecture.                                                                                                                                                                                                               |                        |
+| --local                | Force local build with xcodebuild.                                                                                                                                                                                                                           |
+| --verbose              |                                                                                                                                                                                                                                                              | Enable verbose logging | false |
+
+##### Build for Android
+
+To build the artifact for Android without publishing, run `npx react-native-brownfield package:aar --module-name app`.
+
+Available arguments:
+
+| Argument      | Description                                                                                                               | Default                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| --variant     | Specify your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'. | 'debug'                |
+| --module-name | AAR module name                                                                                                           | '' (root project)      |
+| --verbose     |                                                                                                                           | Enable verbose logging | false |
+
+
+##### Publish locally for Android
+
+To publish the `.aar`(s) built beforehand with `react-native-brownfield package:aar` to Maven local, which will allow Gradle to be able to load it from Maven local repository, run:
+
+`npx react-native-brownfield publish:android --module-name app`
+
+| Argument      | Description                                                                                                               | Default                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| --variant     | Specify your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'. | 'debug'                |
+| --module-name | AAR module name                                                                                                           | '' (root project)      |
+| --verbose     |                                                                                                                           | Enable verbose logging | false |
+
 #### With Rock
+
+It is very likely you will find Rock the easiest way to use brownfield in your React Native project. Rock provides for instance a clean template with `@callstack/react-native-brownfield` already integrated so you can easily bootstrap a new, clean brownfield project with zero manual configuration required. Below you will find instructions both for bootstrapping a new brownfield project and integrating your existing React Native app with Rock.
 
 Follow [Integrating with Native Apps](https://www.rockjs.dev/docs/brownfield/intro) steps in Rock docs and run:
 
@@ -67,7 +120,7 @@ Follow [Integrating with Native Apps](https://www.rockjs.dev/docs/brownfield/int
 
 #### With custom scripts
 
-Instead of using Rock, you can create your own custom packaging scripts. Here are base versions for iOS and Android that you'll need to adjust for your project-specific setup:
+Alternatively, you can create your own custom packaging scripts. Here are base versions for iOS and Android that you'll need to adjust for your project-specific setup:
 
 - [Example iOS script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-xcframework.sh)
 - [Example Android script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-aar.sh)
