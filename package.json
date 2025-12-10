@@ -11,6 +11,9 @@
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "./lib/typescript/commonjs/src/index.d.ts",
+  "bin": {
+    "react-native-brownfield": "lib/commonjs/cli/index.js"
+  },
   "react-native": "src/index",
   "exports": {
     ".": {
@@ -64,6 +67,9 @@
     "@types/react": "19.1.1"
   },
   "peerDependencies": {
+    "@react-native-community/cli-config": "*",
+    "@react-native-community/cli-config-android": "*",
+    "@react-native-community/cli-types": "*",
     "react": "*",
     "react-native": "*"
   },
@@ -73,20 +79,30 @@
     "@babel/runtime": "^7.25.0",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@react-native-community/cli-config": "^20.0.2",
+    "@react-native-community/cli-config-android": "^20.0.2",
+    "@react-native-community/cli-types": "^20.0.2",
     "@react-native/babel-preset": "0.82.1",
     "@react-native/eslint-config": "0.82.1",
     "@react-native/metro-config": "0.82.1",
     "@react-native/typescript-config": "0.82.1",
     "@release-it/conventional-changelog": "^10.0.1",
+    "@rock-js/platform-android": "^0.11.12",
+    "@rock-js/platform-ios": "^0.11.12",
+    "@rock-js/tools": "^0.11.12",
     "@types/jest": "^30.0.0",
+    "@types/lodash.clonedeep": "^4.5.9",
+    "@types/node": "^24.10.2",
     "@types/react": "^19.1.1",
     "@types/react-test-renderer": "^19.1.0",
     "babel-plugin-module-resolver": "5.0.2",
+    "commander": "^14.0.2",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.1.3",
     "jest": "^30.2.0",
     "lefthook": "^2.0.3",
+    "lodash.clonedeep": "^4.5.0",
     "prettier": "^3.5.3",
     "react": "19.1.1",
     "react-native": "0.82.1",
