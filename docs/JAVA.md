@@ -247,4 +247,4 @@ ReactNativeFragment.createReactNativeFragment("ReactNative", map);
 
 ### Example
 
-You can find an example app [here](../example/kotlin).
+You can find an example app [here](../example/react-native-cli/kotlin).

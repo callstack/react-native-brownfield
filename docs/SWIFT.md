@@ -258,4 +258,4 @@ NavigationLink("Open React Native Screen") {
 
 ### Example
 
-You can find an example app [here](../example/swift).
+You can find an example app [here](../example/react-native-cli/swift).
