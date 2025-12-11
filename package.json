@@ -88,6 +88,7 @@
     "@react-native/typescript-config": "0.82.1",
     "@release-it/conventional-changelog": "^10.0.1",
     "@rock-js/platform-android": "^0.11.12",
+    "@rock-js/platform-apple-helpers": "^0.11.12",
     "@rock-js/platform-ios": "^0.11.12",
     "@rock-js/tools": "^0.11.12",
     "@types/jest": "^30.0.0",

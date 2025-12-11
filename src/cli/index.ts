@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
+import path from 'node:path';
+
 import loadConfig from '@react-native-community/cli-config/build/loadConfig';
 import { projectConfig } from '@react-native-community/cli-config-android';
 
-import { Command } from 'commander';
-
-import { version } from '../../package.json';
-
+import { spinner, intro, logger, outro, relativeToCwd } from '@rock-js/tools';
 import {
   packageAar,
   packageAarOptions,
@@ -14,14 +13,16 @@ import {
   publishLocalAarOptions,
 } from '@rock-js/platform-android';
 
-import { intro, logger } from '@rock-js/tools';
+import { Command } from 'commander';
 
 import {
   curryOptions,
+  executeCommand,
   findProjectRoot,
   getAarConfig,
   makeRelativeAndroidProjectConfigPaths,
 } from './utils';
+import { version } from '../../package.json';
 
 const program = new Command();
 
@@ -44,7 +45,7 @@ function commonAndroidPackageConfigParser<T>(
 ): T {
   if (!options.moduleName) {
     logger.warn(
-      'No module name specified, packaging from root project. Usually, this is not what you want; if this fails, specify --module-name to target a specific module, which is usually "app".'
+      'No module name specified, packaging from root project. Usually, this is not what you want; if this fails, specify --module-name to target a specific module.'
     );
   }
 
@@ -104,16 +105,103 @@ curryOptions(
   );
 });
 
-// TODO: implement the below
-program
-  .command('package:ios')
-  .description('Build iOS package')
-  .action((_options) => {
-    intro('Building iOS package...');
+curryOptions(program.command('package:ios').description('Build iOS package'), [
+  {
+    name: '--workspace <workspace>',
+    description: 'The Xcode workspace to build',
+  },
+  {
+    name: '--scheme <scheme>',
+    description: 'The Xcode scheme to build',
+  },
+  {
+    name: '--configuration <configuration>',
+    description: 'The build configuration to use (Debug/Release)',
+    value: 'Debug',
+  },
+  {
+    name: '--sdk <sdk>',
+    description: 'The SDK to build for (e.g. iphoneos/iphonesimulator)',
+    value: 'iphonesimulator',
+  },
+]).action(async (options) => {
+  const projectRoot = findProjectRoot();
+  const userConfig = loadConfig({ projectRoot, selectedPlatform: 'ios' });
 
-    // const projectRoot = findProjectRoot();
-    // const iosDir = path.join(projectRoot, 'ios');
-  });
+  const { xcodeProject, sourceDir: iosBaseDir } = userConfig.project.ios!;
+
+  intro(
+    `Building iOS package from project '${xcodeProject?.name ?? '(no name configured)'}'...`
+  );
+
+  logger.debug('Detected user config:', userConfig);
+  logger.debug('Detected Xcode project config:', xcodeProject);
+
+  const buildFolder = options.buildFolder ?? path.join(iosBaseDir, 'build');
+
+  let scheme = options.scheme;
+
+  if (!scheme) {
+    const results = await executeCommand('xcodebuild', ['-list', '-json'], {
+      cwd: iosBaseDir,
+    });
+
+    let schemes: string[];
+    try {
+      const parsed = JSON.parse(results.join(' '));
+      schemes = parsed!.project!.schemes;
+    } catch {
+      throw new Error("Couldn't parse xcodebuild output");
+    }
+
+    if (schemes.length === 0) {
+      throw new Error(
+        'No schemes found in the Xcode project. Please specify one using --scheme.'
+      );
+    }
+
+    scheme = schemes[0];
+  }
+
+  const workspace = options.workspace ?? xcodeProject!.name;
+
+  if (!workspace) {
+    throw new Error(
+      'No workspace specified and could not be inferred from the config. Please specify one using --workspace.'
+    );
+  }
+
+  const platform = options.sdk === 'iphonesimulator' ? 'iOS Simulator' : 'iOS';
+
+  const { start, stop } = spinner();
+
+  start(`Packaging framework for ${platform}...`);
+  await executeCommand(
+    'xcodebuild',
+    [
+      '-workspace',
+      workspace,
+      '-scheme',
+      scheme,
+      '-configuration',
+      options.configuration,
+      '-sdk',
+      options.sdk,
+      '-destination',
+      `platform=${platform}`,
+      'build',
+      'CODE_SIGNING_ALLOWED=NO',
+      `BUILD_DIR=${relativeToCwd(buildFolder)}`,
+    ],
+    {
+      cwd: iosBaseDir,
+    }
+  );
+
+  stop();
+
+  outro('Success 🎉');
+});
 
 program.parse(process.argv);
 

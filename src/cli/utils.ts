@@ -2,11 +2,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import type { AndroidProjectConfig } from '@react-native-community/cli-types';
-import { Command } from 'commander';
+import { type PackageAarFlags } from '@rock-js/platform-android';
 
+import { spawn, type SpawnOptions } from 'child_process';
+import { Command } from 'commander';
 import cloneDeep from 'lodash.clonedeep';
 
-import { type PackageAarFlags } from '@rock-js/platform-android';
 import type { RockOptions } from './types';
 
 /**
@@ -39,7 +40,20 @@ export const getAarConfig = (
 
 export function curryOptions(programCommand: Command, options: RockOptions) {
   options.forEach((option) => {
-    programCommand = programCommand.option(option.name, option.description);
+    if (option.parse) {
+      programCommand = programCommand.option(
+        option.name,
+        option.description,
+        option.parse,
+        option.value
+      );
+    } else {
+      programCommand = programCommand.option(
+        option.name,
+        option.description,
+        option.value
+      );
+    }
   });
 
   return programCommand;
@@ -58,4 +72,59 @@ export function makeRelativeAndroidProjectConfigPaths<
   }
 
   return relativeConfig;
+}
+
+export async function executeCommand(
+  command: string,
+  args: string[],
+  options: SpawnOptions = {}
+): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: ['inherit', 'pipe', 'pipe'],
+      ...options,
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    if (child.stdout) {
+      child.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+    }
+
+    if (child.stderr) {
+      child.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+    }
+
+    const onSigint = () => {
+      child.kill('SIGINT');
+    };
+
+    process.once('SIGINT', onSigint);
+
+    child.on('close', (code) => {
+      process.removeListener('SIGINT', onSigint);
+
+      if (code !== 0) {
+        console.error(stdout);
+        console.error(stderr);
+        return reject(
+          new Error(
+            `Command "${command} ${args.join(' ')}" failed with exit code ${code}`
+          )
+        );
+      }
+
+      resolve([stdout, stderr]);
+    });
+
+    child.on('error', (err) => {
+      process.removeListener('SIGINT', onSigint);
+      reject(err);
+    });
+  });
 }
