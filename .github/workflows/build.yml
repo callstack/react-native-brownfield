@@ -40,7 +40,7 @@ jobs:
 
       - name: Build Android App
         run: |
-          cd example/react-native-cli/kotlin
+          cd example/self-contained-app/kotlin
           ./gradlew assembleDebug
 
   ios:
@@ -79,10 +79,10 @@ jobs:
 
       - name: Install pods
         run: |
-          cd example/react-native-cli/swift
+          cd example/self-contained-app/swift
           pod install
 
       - name: Build iOS App
         run: |
-          cd example/react-native-cli/swift
+          cd example/self-contained-app/swift
           xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
