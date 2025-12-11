@@ -31,6 +31,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   public static let shared = ReactNativeBrownfield()
   private var onBundleLoaded: (() -> Void)?
   private var delegate = ReactNativeBrownfieldDelegate()
+  private var storedLaunchOptions: [AnyHashable: Any]?
   
   /**
    * Path to JavaScript root.
@@ -69,13 +70,16 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * Default value: nil
    */
   private var reactNativeFactory: RCTReactNativeFactory? = nil
-  /**
-   * Root view factory used to create React Native views.
-   */
-  lazy private var rootViewFactory: RCTRootViewFactory? = {
-    return reactNativeFactory?.rootViewFactory
-  }()
-  
+  private var factory: RCTReactNativeFactory {
+    if let existingFactory = reactNativeFactory {
+      return existingFactory
+    }
+
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+    let createdFactory = RCTReactNativeFactory(delegate: delegate)
+    reactNativeFactory = createdFactory
+    return createdFactory
+  }
   /**
    * Starts React Native with default parameters.
    */
@@ -88,10 +92,15 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    rootViewFactory?.view(
+    let resolvedFactory = factory
+
+    let rootViewFactory = resolvedFactory.rootViewFactory
+    let resolvedLaunchOptions = launchOptions ?? storedLaunchOptions
+
+    return rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
-      launchOptions: launchOptions
+      launchOptions: resolvedLaunchOptions
     )
   }
   
@@ -111,10 +120,9 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * @param launchOptions Launch options, typically passed from AppDelegate.
    */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?, launchOptions: [AnyHashable: Any]?) {
+    storedLaunchOptions = launchOptions
     guard reactNativeFactory == nil else { return }
-    
-    delegate.dependencyProvider = RCTAppDependencyProvider()
-    self.reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
+    _ = factory
     
     if let onBundleLoaded {
       self.onBundleLoaded = onBundleLoaded
@@ -134,6 +142,26 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
         )
       }
     }
+  }
+  
+  /**
+   * Stops React Native and releases the underlying factory instance.
+   */
+  @objc public func stopReactNative() {
+    if !Thread.isMainThread {
+      DispatchQueue.main.async { [weak self] in self?.stopReactNative() }
+      return
+    }
+
+    guard let factory = reactNativeFactory else { return }
+
+    factory.bridge?.invalidate()
+
+    NotificationCenter.default.removeObserver(self)
+    onBundleLoaded = nil
+
+    storedLaunchOptions = nil
+    reactNativeFactory = nil
   }
   
   @objc private func jsLoaded(_ notification: Notification) {
