@@ -52,7 +52,7 @@ object RNSourceSets {
                     // outputs for RN <= 0.81
                     "createBundle${capitalizedVariantName}JsAndAssets",
                     // outputs for RN >= 0.82
-                    "react/release",
+                    "react/${variant.name}",
                 )) {
                     sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
                     sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
