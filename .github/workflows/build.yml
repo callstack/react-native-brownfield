@@ -38,7 +38,7 @@ jobs:
           yarn install
           cd ..
 
-      - name: Build Android App
+      - name: Build Android RN app
         run: |
           cd example/RNApp/android
           ./gradlew assembleDebug
@@ -59,7 +59,7 @@ jobs:
       - name: Verify release AAR exists in Maven Local
         run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-release.aar
 
-      - name: Build Brownfield Android Library
+      - name: Build Brownfield Android native app
         run: |
           cd example/AndroidApp
           ./gradlew assembleDebug
@@ -103,7 +103,17 @@ jobs:
           cd example/RNApp/ios
           pod install
 
-      - name: Build iOS App
+      - name: Build iOS RN app
         run: |
           cd example/RNApp/ios
-          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace RNApp.xcworkspace -scheme RNApp -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+
+      - name: Package iOS Framework with the Brownfield CLI
+        run: |
+          cd example/RNApp
+          npx tsx ../../src/cli/index.ts package:ios --workspace RNApp --scheme BrownfieldLib
+
+      - name: Build Brownfield iOS native app
+        run: |
+          cd example/iOSApp
+          xcodebuild -workspace iOSApp.xcworkspace -scheme iOSApp -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
