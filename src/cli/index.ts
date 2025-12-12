@@ -5,7 +5,7 @@ import path from 'node:path';
 import loadConfig from '@react-native-community/cli-config/build/loadConfig';
 import { projectConfig } from '@react-native-community/cli-config-android';
 
-import { spinner, intro, logger, outro, relativeToCwd } from '@rock-js/tools';
+import { spinner, intro, logger, outro } from '@rock-js/tools';
 import {
   packageAar,
   packageAarOptions,
@@ -176,11 +176,14 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
   const { start, stop } = spinner();
 
   start(`Packaging framework for ${platform}...`);
+
   await executeCommand(
     'xcodebuild',
     [
       '-workspace',
-      workspace,
+      workspace.endsWith('.xcworkspace')
+        ? workspace
+        : `${workspace}.xcworkspace`,
       '-scheme',
       scheme,
       '-configuration',
@@ -191,7 +194,7 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
       `platform=${platform}`,
       'build',
       'CODE_SIGNING_ALLOWED=NO',
-      `BUILD_DIR=${relativeToCwd(buildFolder)}`,
+      `BUILD_DIR=${path.relative(iosBaseDir, buildFolder)}`,
     ],
     {
       cwd: iosBaseDir,

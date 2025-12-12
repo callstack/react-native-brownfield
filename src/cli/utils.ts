@@ -9,6 +9,7 @@ import { Command } from 'commander';
 import cloneDeep from 'lodash.clonedeep';
 
 import type { RockOptions } from './types';
+import { logger } from '@rock-js/tools';
 
 /**
  * Helper function to find project root
@@ -90,13 +91,21 @@ export async function executeCommand(
 
     if (child.stdout) {
       child.stdout.on('data', (data) => {
-        stdout += data.toString();
+        const chunk = data.toString();
+
+        logger.debug(chunk);
+
+        stdout += chunk;
       });
     }
 
     if (child.stderr) {
       child.stderr.on('data', (data) => {
-        stderr += data.toString();
+        const chunk = data.toString();
+
+        logger.debug(chunk);
+
+        stderr += chunk;
       });
     }
 
