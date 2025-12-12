@@ -4,6 +4,14 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+configurations.all {
+    resolutionStrategy {
+        // force Gradle to always check for new versions of changing modules
+        cacheChangingModulesFor(0, "seconds")
+        cacheDynamicVersionsFor(0, "seconds")
+    }
+}
+
 android {
     namespace = "com.callstack.brownfield.android.example"
     compileSdk {
@@ -50,6 +58,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.brownfieldlib)
+    implementation(libs.androidx.fragment.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
