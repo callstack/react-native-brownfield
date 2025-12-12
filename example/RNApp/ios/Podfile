@@ -23,6 +23,10 @@ target 'RNApp' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  target 'BrownfieldLib' do
+    inherit! :complete
+  end
+
   post_install do |installer|
     react_native_post_install(
       installer,
