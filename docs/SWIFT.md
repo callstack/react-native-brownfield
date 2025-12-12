@@ -258,4 +258,4 @@ NavigationLink("Open React Native Screen") {
 
 ### Example
 
-You can find an example app [here](../example/react-native-cli/swift).
+You can find example consumer iOS app [here](../example/iOSApp) and the consumed brownfield library module [here](../example/RNApp/ios).

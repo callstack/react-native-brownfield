@@ -255,4 +255,4 @@ AndroidFragment<ReactNativeFragment>(arguments = Bundle().apply {
 
 ### Example
 
-You can find an example app [here](../example/react-native-cli/kotlin).
+You can find example consumer Android app [here](../example/AndroidApp) and the consumed brownfield library module [here](../example/RNApp/android).
