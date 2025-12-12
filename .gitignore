@@ -30,7 +30,6 @@ build/
 .gradle
 local.properties
 *.iml
-example/self-contained-app/kotlin/build/
 *.iml
 *.hprof
 **/.cxx/

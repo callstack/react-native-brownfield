@@ -8,7 +8,7 @@ on:
 
 jobs:
   android:
-    name: Build Android App
+    name: Build Android RN App & brownfield AAR
     runs-on: ubuntu-latest
 
     env:
@@ -40,10 +40,31 @@ jobs:
 
       - name: Build Android App
         run: |
-          cd example/self-contained-app/kotlin
+          cd example/RNApp/android
           ./gradlew assembleDebug
 
-  ios:
+      - name: Package AAR with the Brownfield CLI
+        run: |
+          cd example/RNApp
+          npx tsx ../../src/cli/index.ts package:android --module-name :BrownfieldLib
+
+      - name: Publish AAR artifact to Maven Local
+        run: |
+          cd example/RNApp/android/BrownfieldLib
+          npx tsx ../../src/cli/index.ts publish:android --module-name :BrownfieldLib
+
+      - name: Verify debug AAR exists in Maven Local
+        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-debug.aar
+
+      - name: Verify release AAR exists in Maven Local
+        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-release.aar
+
+      - name: Build Brownfield Android Library
+        run: |
+          cd example/AndroidApp
+          ./gradlew assembleDebug
+
+  rn-ios:
     name: Build iOS App
     runs-on: macos-latest
 
@@ -79,10 +100,10 @@ jobs:
 
       - name: Install pods
         run: |
-          cd example/self-contained-app/swift
+          cd example/RNApp/ios
           pod install
 
       - name: Build iOS App
         run: |
-          cd example/self-contained-app/swift
+          cd example/RNApp/ios
           xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
