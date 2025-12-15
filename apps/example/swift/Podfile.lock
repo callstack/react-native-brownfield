@@ -2322,7 +2322,7 @@ PODS:
     - SocketRocket
   - ReactAppDependencyProvider (0.82.1):
     - ReactCodegen
-  - ReactBrownfield (1.2.0):
+  - ReactBrownfield (2.0.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2573,7 +2573,7 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - React-webperformancenativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/webperformance`)
   - ReactAppDependencyProvider (from `build/generated/ios`)
-  - ReactBrownfield (from `../..`)
+  - ReactBrownfield (from `../../../packages/react-native-brownfield`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -2729,7 +2729,7 @@ EXTERNAL SOURCES:
   ReactAppDependencyProvider:
     :path: build/generated/ios
   ReactBrownfield:
-    :path: "../.."
+    :path: "../../../packages/react-native-brownfield"
   ReactCodegen:
     :path: build/generated/ios
   ReactCommon:
@@ -2811,12 +2811,12 @@ SPEC CHECKSUMS:
   React-utils: abf37b162f560cd0e3e5d037af30bb796512246d
   React-webperformancenativemodule: 50a57c713a90d27ae3ab947a6c9c8859bcb49709
   ReactAppDependencyProvider: a45ef34bb22dc1c9b2ac1f74167d9a28af961176
-  ReactBrownfield: ba90b7c2be36c3ef4ad47e777610ca7c2b0fdf06
+  ReactBrownfield: 10f9f7370cd8bd6ef30eb9c736d774f9d17565f7
   ReactCodegen: 878add6c7d8ff8cea87697c44d29c03b79b6f2d9
   ReactCommon: 804dc80944fa90b86800b43c871742ec005ca424
   RNScreens: d821082c6dd1cb397cc0c98b026eeafaa68be479
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  Yoga: 8e01cef9947ca77f0477a098f0b32848a8e448c6
+  Yoga: 689c8e04277f3ad631e60fe2a08e41d411daf8eb
 
 PODFILE CHECKSUM: c4add71d30d7b14523f41a732fbf4937f4edbe0f
 

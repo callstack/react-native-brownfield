@@ -11,9 +11,6 @@ jobs:
     name: Build Android App
     runs-on: ubuntu-latest
 
-    env:
-      SKIP_YARN_COREPACK_CHECK: 0
-
     steps:
       - uses: actions/checkout@v4
 
@@ -29,32 +26,28 @@ jobs:
           node-version: 'lts/*'
           cache: 'yarn'
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: yarn install
 
-      - name: Install example dependencies
-        run: |
-          cd example
-          yarn install
-          cd ..
+      - name: Build package
+        run: yarn build
 
       - name: Build Android App
         run: |
-          cd example/kotlin
+          cd apps/example/kotlin
           ./gradlew assembleDebug
 
   ios:
     name: Build iOS App
     runs-on: macos-latest
 
-    env:
-      SKIP_YARN_COREPACK_CHECK: 0
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode 16.4
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      - name: Use appropriate Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: '16'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -68,21 +61,18 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: yarn install
 
-      - name: Install example dependencies
-        run: |
-          cd example
-          yarn install
-          cd ..
+      - name: Build package
+        run: yarn build
 
       - name: Install pods
         run: |
-          cd example/swift
+          cd apps/example/swift
           pod install
 
       - name: Build iOS App
         run: |
-          cd example/swift
-          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+          cd apps/example/swift
+          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Debug -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO
