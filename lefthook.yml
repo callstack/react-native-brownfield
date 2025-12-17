@@ -3,7 +3,7 @@ pre-commit:
   commands:
     lint:
       glob: '*.{js,ts,jsx,tsx}'
-      run: npx eslint {staged_files}
+      run: yarn lint
 
     typecheck:
       glob: '*.{js,ts,jsx,tsx}'
