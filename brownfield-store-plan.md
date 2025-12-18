@@ -1,28 +1,13 @@
-# Brownfield Store Plan
+# Brownfield Store
 
-## Current State Analysis
-
-**What exists:**
-
-- iOS: `Store<State>` with Combine, `StoreManager` singleton, `@UseStore` property wrapper
-- ✅ Bi-directional host object (Native ↔ JS)
-- ✅ Notification `BrownieStoreUpdated` wired to JS via event emitter
-- ✅ Multiple stores supported via key parameter
-- ✅ Swift codegen from TypeScript schema
-
-**Remaining problems:**
-
-1. ~~No codegen from shared TypeScript spec~~ ✅ Done (Swift)
-2. Android missing (codegen + Store implementation)
-3. No selector-based re-renders optimization
-4. Kotlin codegen not yet implemented
+Shared state management between React Native and Native apps (iOS/Android).
 
 ## Architecture
 
 ```
 ┌─────────────────┐       ┌──────────────────┐       ┌─────────────────┐
-│   TypeScript    │──────▶│     Codegen      │──────▶│  Swift/Kotlin   │
-│   Schema Spec   │       │                  │       │  + TS types     │
+│   TypeScript    │──────▶│   Brownie CLI    │──────▶│  Swift/Kotlin   │
+│   Schema Spec   │       │    (codegen)     │       │   data types    │
 └─────────────────┘       └──────────────────┘       └─────────────────┘
                                                               │
                     ┌─────────────────────────────────────────┘
@@ -42,153 +27,233 @@
 └───────────────────┘                          └───────────────────────┘
 ```
 
-## Implementation Plan
+## CLI
 
-### Phase 1: Schema Definition & Codegen ✅ DONE (Swift)
+The `brownie` CLI generates native store types from TypeScript schema.
 
-1. ✅ **Define schema in TypeScript:**
+### Installation
 
-   ```ts
-   // brownfield-store.schema.ts
-   export type BrownfieldStore = {
-     counter: number;
-     user: string;
-     isLoading: boolean;
-   };
-   ```
+CLI is included in `@callstack/brownie` package.
 
-2. ✅ **Codegen pipeline:**
+### Usage
 
-   ```
-   TS type → quicktype-typescript-input → JSON Schema → quicktype-core → Swift Codable
-   ```
+```bash
+brownie codegen                   # Generate for all configured platforms
+brownie codegen -p swift          # Generate Swift only
+brownie codegen --platform kotlin # Generate Kotlin only
+brownie --help                    # Show help
+brownie --version                 # Show version
+```
 
-3. ✅ **Implementation:**
-   - `scripts/generate-store.ts` - TypeScript codegen script
-   - Uses `quicktype-core` + `quicktype-typescript-input` packages
-   - Compiles to `lib/scripts/generate-store.js` during build
-   - Exposed as CLI binary: `npx brownfield-generate-store`
-   - Output: `BrownfieldStore.swift` with `var` properties + `Codable`
+### Configuration
 
-4. ✅ **Config (package.json):**
+Add to your app's `package.json`:
 
-   ```json
-   {
-     "brownfield": {
-       "stores": {
-         "schema": "./brownfield-store.schema.ts",
-         "typeName": "BrownfieldStore",
-         "swift": "./swift/Generated/BrownfieldStore.swift"
-       }
-     }
-   }
-   ```
+```json
+{
+  "brownie": {
+    "stores": {
+      "schema": "./brownfield-store.schema.ts",
+      "typeName": "BrownfieldStore",
+      "swift": "./ios/Generated/BrownfieldStore.swift",
+      "kotlin": "./android/app/src/main/java/com/example/BrownfieldStore.kt",
+      "kotlinPackageName": "com.example"
+    }
+  }
+}
+```
 
-5. ✅ **Generated output:**
+| Field               | Required | Description                                            |
+| ------------------- | -------- | ------------------------------------------------------ |
+| `schema`            | Yes      | Path to TypeScript schema file                         |
+| `typeName`          | Yes      | Name of the type to generate                           |
+| `swift`             | No\*     | Output path for Swift file                             |
+| `kotlin`            | No\*     | Output path for Kotlin file                            |
+| `kotlinPackageName` | No       | Kotlin package name (defaults to extraction from path) |
 
-   ```swift
-   struct BrownfieldStore: Codable {
-       var counter: Double
-       var isLoading: Bool
-       var user: String
-   }
-   ```
+\*At least one of `swift` or `kotlin` is required.
 
-6. **TODO: Kotlin codegen** - add `kotlin` output path to config
+### Schema Definition
 
-### Phase 2: Bi-directional Host Object (iOS) ✅ DONE
+Define your store shape in TypeScript:
 
-1. ✅ **`BrownieStoreObject` with key support:**
-   - `get(prop)` - reads from store by key
-   - `set(prop, value)` - writes to native store
-   - `unbox()` - returns full state snapshot
-   - `__getStore(key)` factory function for multiple stores
+```ts
+// brownfield-store.schema.ts
+export type BrownfieldStore = {
+  counter: number;
+  user: string;
+  isLoading: boolean;
+};
+```
 
-2. ✅ **Notifications → JS:**
-   - `BrownieStoreUpdated` → `emitNativeStoreDidChange` → JS listeners notified
-   - All registered stores refresh on change
+### Generated Output
 
-3. ✅ **Store implementation:**
-   - `Store.set(_:)` - updater function
-   - `Store.set(_:to:)` - keypath setter
-   - `Store.setProperty(_:value:)` - dynamic property setter (for JS)
-   - All mutations dispatch to main thread and post notification
+**Swift** (`Codable` struct with mutable properties):
 
-### Phase 3: JS API ✅ DONE (Basic)
+```swift
+struct BrownfieldStore: Codable {
+    var counter: Double
+    var isLoading: Bool
+    var user: String
+}
+```
 
-1. ✅ **Core API:**
+**Kotlin** (data class):
 
-   ```ts
-   // Subscribe to store changes
-   subscribe(key: string, listener: () => void): () => void
+```kotlin
+package com.example
 
-   // Get current snapshot
-   getSnapshot<T>(key: string): T
+data class BrownfieldStore (
+    val counter: Double,
+    val isLoading: Boolean,
+    val user: String
+)
+```
 
-   // Set state
-   setState<T>(key: string, partial: Partial<T>): void
-   ```
+## CLI Implementation
 
-2. ✅ **Store cache:**
-   - `Map<string, StoreCache>` holds host object, snapshot, and listeners per key
-   - Snapshots refresh on native change event
+### File Structure
 
-3. **TODO: Zustand-style hook:**
+```
+packages/brownie/scripts/
+├── cli.ts              # Entry point, parseArgs, command routing
+├── config.ts           # Config loading from package.json
+├── commands/
+│   └── codegen.ts      # Codegen command with --platform flag
+└── generators/
+    ├── swift.ts        # Swift Codable generation
+    └── kotlin.ts       # Kotlin data class generation
+```
 
-   ```ts
-   const useAppStore = createBrownfieldStore<AppState>('AppState');
-   const counter = useAppStore((s) => s.counter); // selector
-   useAppStore.setState({ counter: 5 });
-   ```
+### Codegen Pipeline
 
-4. **TODO: Selector optimization:**
-   - Only re-render when selected value changes
+```
+TypeScript schema
+       │
+       ▼
+quicktype-typescript-input (schemaForTypeScriptSources)
+       │
+       ▼
+JSON Schema
+       │
+       ▼
+quicktype-core
+       │
+       ├──▶ Swift (lang: 'swift', mutable-properties: true)
+       │
+       └──▶ Kotlin (lang: 'kotlin', framework: 'just-types')
+```
 
-### Phase 4: Android Implementation
+### Build
 
-1. **Create `BrownfieldStore.kt`** - mirror Swift Store/StoreManager
-2. **JSI bindings via C++** or use `@ReactMethod` with `HybridObject`
-3. **Emit events** on state change
+Scripts are compiled with TypeScript during package build:
 
-### Phase 5: Codegen Integration ✅ DONE (Manual)
+```bash
+yarn build  # runs bob build && tsc -p scripts/tsconfig.json
+```
 
-1. ✅ **Manual trigger:** `npx brownfield-generate-store`
-   - Exposed via `bin` field in package.json
-   - Reads config from consumer's package.json
+Output goes to `lib/scripts/` and is exposed via `bin` field in `package.json`.
 
-2. **Linking generated files (user responsibility):**
-   - iOS: Add Generated folder to Xcode project once, regenerations auto-update
-   - Android: Add Generated folder to source sets
+## iOS Implementation
 
-3. **Optional auto-generate hooks (documented, not enforced):**
+### Store
 
-   iOS (Podfile):
+`Store<State>` - Generic observable store using Combine:
 
-   ```ruby
-   pre_install do |installer|
-     system("npx", "brownfield-generate-store")
-   end
-   ```
+- `set(_:)` - Update state with updater function
+- `set(_:to:)` - Update state via keypath
+- `setProperty(_:value:)` - Dynamic property setter (for JS bridge)
+- All mutations dispatch to main thread and post `BrownieStoreUpdated` notification
 
-   Android (build.gradle.kts):
+### StoreManager
 
-   ```kotlin
-   tasks.register("generateBrownfieldStore") {
-     exec { commandLine("npx", "brownfield-generate-store") }
-   }
-   preBuild.dependsOn("generateBrownfieldStore")
-   ```
+Singleton registry for multiple stores:
 
-4. ✅ **Config format (package.json):**
-   ```json
-   {
-     "brownfield": {
-       "stores": {
-         "schema": "./brownfield-store.schema.ts",
-         "typeName": "BrownfieldStore",
-         "swift": "./ios/Generated/BrownfieldStore.swift",
-         "kotlin": "./android/src/main/java/generated/BrownfieldStore.kt"
-       }
-     }
-   }
-   ```
+- `register(_:forKey:)` - Register store with string key
+- `store(forKey:)` - Retrieve store by key
+- Supports multiple independent stores
+
+### Property Wrapper
+
+`@UseStore` - SwiftUI property wrapper for automatic re-renders on store changes.
+
+### JSI Bridge
+
+`BrownieStoreObject` - Host object exposed to JS:
+
+- `get(prop)` - Read property from store
+- `set(prop, value)` - Write property to store
+- `unbox()` - Get full state snapshot
+- `__getStore(key)` - Factory for multiple stores
+
+## JS API
+
+### Core Functions
+
+```ts
+// Subscribe to store changes
+subscribe(key: string, listener: () => void): () => void
+
+// Get current snapshot
+getSnapshot<T>(key: string): T
+
+// Set state
+setState<T>(key: string, partial: Partial<T>): void
+```
+
+### Store Cache
+
+Internal `Map<string, StoreCache>` holds:
+
+- Host object reference
+- Current snapshot
+- Registered listeners
+
+Snapshots refresh on `BrownieStoreUpdated` native event.
+
+## Auto-generation Hooks
+
+### iOS (Podfile)
+
+```ruby
+pre_install do |installer|
+  system("npx", "brownie", "codegen", "-p", "swift")
+end
+```
+
+### Android (build.gradle.kts)
+
+```kotlin
+tasks.register("generateBrownfieldStore") {
+  exec { commandLine("npx", "brownie", "codegen", "-p", "kotlin") }
+}
+preBuild.dependsOn("generateBrownfieldStore")
+```
+
+## TODO
+
+### Codegen
+
+- [ ] Support multiple stores in package.json config (array of store configs)
+- [ ] Generate store keys enum/constants for type safety between JS and Native
+
+### Native Runtime
+
+- [ ] Improve iOS runtime code
+- [ ] Extract C++ JSI layer to be shared across Android and iOS
+- [ ] Android native runtime implementation (Store, StoreManager, JSI bridge)
+
+### JS Runtime
+
+- [ ] Optimize re-renders on the JS side
+- [ ] Zustand integration
+
+### Distribution
+
+- [ ] Support xcframework packaging (iOS)
+- [ ] Support AAR packaging (Android)
+- [ ] Figure out autolinking of generated code
+
+### Documentation
+
+- [ ] Documentation
