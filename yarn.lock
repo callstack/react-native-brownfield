@@ -1565,7 +1565,7 @@ __metadata:
     react: "*"
     react-native: "*"
   bin:
-    brownfield-generate-store: ./lib/scripts/generate-store.js
+    brownie: ./lib/scripts/cli.js
   languageName: unknown
   linkType: soft
 

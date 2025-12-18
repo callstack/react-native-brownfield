@@ -31,9 +31,7 @@
     "typecheck": "tsc --noEmit",
     "build": "bob build && tsc -p scripts/tsconfig.json"
   },
-  "bin": {
-    "brownfield-generate-store": "./lib/scripts/generate-store.js"
-  },
+  "bin": "./lib/scripts/cli.js",
   "keywords": [
     "brownie",
     "react-native-brownfield",

@@ -11,5 +11,5 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": false
   },
-  "include": ["*.ts"]
+  "include": ["**/*.ts"]
 }

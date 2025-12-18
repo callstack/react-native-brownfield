@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "react-native start"
+    "start": "react-native start",
+    "codegen": "brownie codegen"
   },
   "dependencies": {
     "@callstack/brownie": "*",
@@ -36,7 +37,9 @@
     "stores": {
       "schema": "./brownfield-store.schema.ts",
       "typeName": "BrownfieldStore",
-      "swift": "./swift/Generated/BrownfieldStore.swift"
+      "swift": "./swift/Generated/BrownfieldStore.swift",
+      "kotlin": "./kotlin/app/src/main/java/com/callstack/kotlinexample/BrownfieldStore.kt",
+      "kotlinPackageName": "com.callstack.kotlinexample"
     }
   }
 }
