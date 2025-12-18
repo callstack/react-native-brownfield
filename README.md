@@ -75,6 +75,7 @@ Available arguments:
 | --target        | Explicitly set Xcode target to use                                                                                                                                                                                                                           |                        |
 | --build-folder  | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath".                                                                                                                                                                                 | "build"                |
 | --destination   | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: "simulator", "device" or destinations supported by "xcodebuild -destination" flag, e.g. "generic/platform=iOS" |                        |
+| --sdk           | The SDK to build for (iphoneos/iphonesimulator)                                                                                                                                                                                                              | iphoneos               |
 | --verbose       |                                                                                                                                                                                                                                                              | Enable verbose logging | false |
 
 ##### Build for Android

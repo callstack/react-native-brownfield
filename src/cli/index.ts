@@ -21,6 +21,7 @@ import {
   findProjectRoot,
   getAarConfig,
   makeRelativeAndroidProjectConfigPaths,
+  parseDestinationName,
 } from './utils';
 import { version } from '../../package.json';
 
@@ -111,6 +112,19 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     description: 'The Xcode workspace to build',
   },
   {
+    name: '--target <target>',
+    description: 'The Xcode target to build',
+  },
+  {
+    name: '--destination <destination...>',
+    description:
+      'Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: "simulator", "device" or destinations supported by "xcodebuild -destination" flag, e.g. "generic/platform=iOS"',
+  },
+  {
+    name: '--build-folder <folder>',
+    description: 'The build folder to use',
+  },
+  {
     name: '--scheme <scheme>',
     description: 'The Xcode scheme to build',
   },
@@ -121,8 +135,8 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
   },
   {
     name: '--sdk <sdk>',
-    description: 'The SDK to build for (e.g. iphoneos/iphonesimulator)',
-    value: 'iphonesimulator',
+    description: 'The SDK to build for (iphoneos/iphonesimulator)',
+    value: 'iphoneos',
   },
 ]).action(async (options) => {
   const projectRoot = findProjectRoot();
@@ -136,8 +150,6 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
 
   logger.debug('Detected user config:', userConfig);
   logger.debug('Detected Xcode project config:', xcodeProject);
-
-  const buildFolder = options.buildFolder ?? path.join(iosBaseDir, 'build');
 
   let scheme = options.scheme;
 
@@ -171,38 +183,111 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     );
   }
 
-  const platform = options.sdk === 'iphonesimulator' ? 'iOS Simulator' : 'iOS';
+  const { start, stop, message } = spinner();
 
-  const { start, stop } = spinner();
+  start(`Packaging framework for iPhone and iPhone Simulator...`);
 
-  start(`Packaging framework for ${platform}...`);
-
-  await executeCommand(
-    'xcodebuild',
-    [
-      '-workspace',
-      workspace.endsWith('.xcworkspace')
-        ? workspace
-        : `${workspace}.xcworkspace`,
-      '-scheme',
-      scheme,
-      '-configuration',
-      options.configuration,
-      '-sdk',
-      options.sdk,
-      '-destination',
-      options.destination,
-      ...(options.target ? ['-target', options.target] : []),
-      'build',
-      'CODE_SIGNING_ALLOWED=NO',
-      `BUILD_DIR=${path.relative(iosBaseDir, buildFolder)}`,
-    ],
-    {
-      cwd: iosBaseDir,
+  let destinations: string[];
+  if (options.destination) {
+    // check if one or many has been provided
+    if (Array.isArray(options.destination)) {
+      destinations = options.destination;
+    } else {
+      destinations = [options.destination];
     }
+  } else {
+    try {
+      logger.debug('Detecting available simulators...');
+
+      const availableDevicesInGroups = JSON.parse(
+        (
+          await executeCommand('xcrun', [
+            'simctl',
+            'list',
+            'devices',
+            'iOS',
+            'available',
+            '--json',
+          ])
+        ).join(' ')
+      );
+
+      let detectedFirstConcreteSimulatorName: string | undefined;
+
+      // eslint-disable-next-line no-labels
+      outerFor: for (const [group, devices] of Object.entries(
+        availableDevicesInGroups.devices
+      ) as [string, any[]][]) {
+        if (group.includes('SimRuntime.iOS')) {
+          for (const device of devices) {
+            detectedFirstConcreteSimulatorName = device.name;
+            // eslint-disable-next-line no-labels
+            break outerFor;
+          }
+        }
+      }
+
+      if (detectedFirstConcreteSimulatorName === undefined) {
+        throw new Error(
+          'Failed to detect any matching iPhone destination! Please ensure they are installed or specify a destination manually.'
+        );
+      }
+
+      destinations = [
+        'generic/platform=iOS',
+        `generic/platform=iOS Simulator,name=${detectedFirstConcreteSimulatorName}`,
+      ];
+    } catch (e: any) {
+      throw new Error(
+        'Failed to automatically detect destination' + e.toString()
+      );
+    }
+  }
+
+  logger.debug(
+    `Building for destinations: ${destinations.map((destination) => `'${destination}'`).join(', ')}`
   );
 
-  stop();
+  for (const destination of destinations) {
+    const destinationName = parseDestinationName(destination);
+    const buildFolder =
+      options.buildFolder ??
+      path.join(
+        iosBaseDir,
+        'build',
+        `${scheme}-${options.configuration}-${destinationName}`
+      );
+
+    message(`Building for destination: ${destination}, sdk: ${options.sdk}`);
+
+    await executeCommand(
+      'xcodebuild',
+      [
+        '-workspace',
+        workspace.endsWith('.xcworkspace')
+          ? workspace
+          : `${workspace}.xcworkspace`,
+        '-scheme',
+        scheme,
+        '-configuration',
+        options.configuration,
+        '-destination',
+        destination,
+        '-derivedDataPath',
+        `${path.relative(iosBaseDir, buildFolder)}`,
+        ...(options.target ? ['-target', options.target] : []),
+        'build',
+        'CODE_SIGNING_ALLOWED=NO',
+      ],
+      {
+        cwd: iosBaseDir,
+      }
+    );
+
+    message(`XCFramework packaged in ${buildFolder}`);
+  }
+
+  stop(`Processes finished.`);
 
   outro('Success 🎉');
 });
