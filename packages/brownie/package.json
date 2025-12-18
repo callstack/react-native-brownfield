@@ -29,7 +29,8 @@
   "scripts": {
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "build": "bob build && tsc -p scripts/tsconfig.json"
+    "build": "bob build && tsc -p scripts/tsconfig.json",
+    "test": "jest"
   },
   "bin": "./lib/scripts/cli.js",
   "keywords": [
@@ -68,11 +69,14 @@
     "@babel/runtime": "^7.25.0",
     "@react-native/babel-preset": "0.82.1",
     "@react-native/eslint-config": "0.82.1",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "@types/react": "^19.1.1",
+    "jest": "^29.7.0",
     "react": "19.1.1",
     "react-native": "0.82.1",
     "react-native-builder-bob": "^0.40.14",
+    "ts-jest": "^29.2.5",
     "typescript": "5.8.3"
   },
   "codegenConfig": {
