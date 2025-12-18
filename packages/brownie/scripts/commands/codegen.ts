@@ -1,9 +1,50 @@
 import { parseArgs, styleText } from 'node:util';
-import { loadConfig } from '../config';
+import { loadConfig, type StoresConfig } from '../config';
 import { generateSwift } from '../generators/swift';
 import { generateKotlin } from '../generators/kotlin';
 
 type Platform = 'swift' | 'kotlin';
+
+async function generateForStore(
+  config: StoresConfig,
+  platforms: Platform[],
+  storeIndex?: number
+): Promise<void> {
+  const storeLabel = storeIndex !== undefined ? ` [${config.typeName}]` : '';
+
+  for (const p of platforms) {
+    const outputPath = config[p];
+    if (!outputPath) {
+      continue;
+    }
+
+    try {
+      if (p === 'swift') {
+        await generateSwift({
+          schemaPath: config.schema,
+          typeName: config.typeName,
+          outputPath,
+        });
+      } else {
+        await generateKotlin({
+          schemaPath: config.schema,
+          typeName: config.typeName,
+          outputPath,
+          packageName: config.kotlinPackageName,
+        });
+      }
+      console.log(styleText('green', `  ✓ ${outputPath}${storeLabel}`));
+    } catch (error) {
+      console.error(
+        styleText(
+          'red',
+          `Error generating ${p}${storeLabel}: ${error instanceof Error ? error.message : error}`
+        )
+      );
+      process.exit(1);
+    }
+  }
+}
 
 const HELP_TEXT = `
 ${styleText('bold', 'brownie codegen')} - Generate native store types from TypeScript schema
@@ -50,7 +91,7 @@ export async function runCodegen(
     return;
   }
 
-  const config = loadConfig();
+  const configs = loadConfig();
   const platform = values.platform as Platform | undefined;
 
   if (platform && !['swift', 'kotlin'].includes(platform)) {
@@ -63,55 +104,29 @@ export async function runCodegen(
     process.exit(1);
   }
 
-  const platforms: Platform[] = platform
-    ? [platform]
-    : (['swift', 'kotlin'] as Platform[]).filter((p) => config[p]);
-
-  if (platforms.length === 0) {
-    console.error(
-      styleText('red', 'No output paths configured in brownie.stores')
-    );
-    process.exit(1);
-  }
-
+  const isMultipleStores = configs.length > 1;
+  const schemaList = configs.map((c) => c.schema).join(', ');
   console.log(
-    styleText('cyan', `Generating store types from ${config.schema}...`)
+    styleText('cyan', `Generating store types from ${schemaList}...`)
   );
 
-  for (const p of platforms) {
-    const outputPath = config[p];
-    if (!outputPath) {
+  for (let i = 0; i < configs.length; i++) {
+    const config = configs[i];
+    const platforms: Platform[] = platform
+      ? [platform]
+      : (['swift', 'kotlin'] as Platform[]).filter((p) => config[p]);
+
+    if (platforms.length === 0) {
       console.warn(
-        styleText('yellow', `Skipping ${p}: no output path configured`)
+        styleText(
+          'yellow',
+          `No output paths configured for store ${config.typeName}`
+        )
       );
       continue;
     }
 
-    try {
-      if (p === 'swift') {
-        await generateSwift({
-          schemaPath: config.schema,
-          typeName: config.typeName,
-          outputPath,
-        });
-      } else {
-        await generateKotlin({
-          schemaPath: config.schema,
-          typeName: config.typeName,
-          outputPath,
-          packageName: config.kotlinPackageName,
-        });
-      }
-      console.log(styleText('green', `  ✓ ${outputPath}`));
-    } catch (error) {
-      console.error(
-        styleText(
-          'red',
-          `Error generating ${p}: ${error instanceof Error ? error.message : error}`
-        )
-      );
-      process.exit(1);
-    }
+    await generateForStore(config, platforms, isMultipleStores ? i : undefined);
   }
 
   console.log(styleText('green', '\nDone!'));

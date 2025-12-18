@@ -34,12 +34,14 @@
     "node": ">=20"
   },
   "brownie": {
-    "stores": {
-      "schema": "./brownfield-store.schema.ts",
-      "typeName": "BrownfieldStore",
-      "swift": "./swift/Generated/BrownfieldStore.swift",
-      "kotlin": "./kotlin/app/src/main/java/com/callstack/kotlinexample/BrownfieldStore.kt",
-      "kotlinPackageName": "com.callstack.kotlinexample"
-    }
+    "stores": [
+      {
+        "schema": "./brownfield-store.schema.ts",
+        "typeName": "BrownfieldStore",
+        "swift": "./swift/Generated/BrownfieldStore.swift",
+        "kotlin": "./kotlin/app/src/main/java/com/callstack/kotlinexample/Generated/BrownfieldStore.kt",
+        "kotlinPackageName": "com.callstack.kotlinexample"
+      }
+    ]
   }
 }

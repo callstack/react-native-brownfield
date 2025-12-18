@@ -52,13 +52,40 @@ Add to your app's `package.json`:
 ```json
 {
   "brownie": {
-    "stores": {
-      "schema": "./brownfield-store.schema.ts",
-      "typeName": "BrownfieldStore",
-      "swift": "./ios/Generated/BrownfieldStore.swift",
-      "kotlin": "./android/app/src/main/java/com/example/BrownfieldStore.kt",
-      "kotlinPackageName": "com.example"
-    }
+    "stores": [
+      {
+        "schema": "./brownfield-store.schema.ts",
+        "typeName": "BrownfieldStore",
+        "swift": "./ios/Generated/BrownfieldStore.swift",
+        "kotlin": "./android/app/src/main/java/com/example/BrownfieldStore.kt",
+        "kotlinPackageName": "com.example"
+      }
+    ]
+  }
+}
+```
+
+Multiple stores example:
+
+```json
+{
+  "brownie": {
+    "stores": [
+      {
+        "schema": "./stores/user.schema.ts",
+        "typeName": "UserStore",
+        "swift": "./ios/Generated/UserStore.swift",
+        "kotlin": "./android/app/src/main/java/com/example/UserStore.kt",
+        "kotlinPackageName": "com.example"
+      },
+      {
+        "schema": "./stores/settings.schema.ts",
+        "typeName": "SettingsStore",
+        "swift": "./ios/Generated/SettingsStore.swift",
+        "kotlin": "./android/app/src/main/java/com/example/SettingsStore.kt",
+        "kotlinPackageName": "com.example"
+      }
+    ]
   }
 }
 ```
@@ -234,7 +261,7 @@ preBuild.dependsOn("generateBrownfieldStore")
 
 ### Codegen
 
-- [ ] Support multiple stores in package.json config (array of store configs)
+- [x] Support multiple stores in package.json config (array of store configs)
 - [ ] Generate store keys enum/constants for type safety between JS and Native
 
 ### Native Runtime
