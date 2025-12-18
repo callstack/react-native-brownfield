@@ -17,7 +17,7 @@ interface StoresConfig {
 }
 
 interface PackageJson {
-  brownfield?: {
+  brownie?: {
     stores?: StoresConfig;
   };
 }
@@ -33,27 +33,27 @@ async function main() {
   const packageJson: PackageJson = JSON.parse(
     fs.readFileSync(packageJsonPath, 'utf-8')
   );
-  const config = packageJson.brownfield?.stores;
+  const config = packageJson.brownie?.stores;
 
   if (!config) {
-    console.error('Error: brownfield.stores config not found in package.json');
+    console.error('Error: brownie.stores config not found in package.json');
     process.exit(1);
   }
 
   const { schema, typeName, swift } = config;
 
   if (!schema) {
-    console.error('Error: brownfield.stores.schema is required');
+    console.error('Error: brownie.stores.schema is required');
     process.exit(1);
   }
 
   if (!typeName) {
-    console.error('Error: brownfield.stores.typeName is required');
+    console.error('Error: brownie.stores.typeName is required');
     process.exit(1);
   }
 
   if (!swift) {
-    console.error('Error: brownfield.stores.swift is required');
+    console.error('Error: brownie.stores.swift is required');
     process.exit(1);
   }
 

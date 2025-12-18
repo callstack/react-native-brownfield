@@ -1,25 +1,11 @@
-import React, { useCallback, useSyncExternalStore } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
-import {
-  subscribe,
-  getSnapshot,
-  setState,
-} from '@callstack/react-native-brownfield';
+import { useBrownieStore, setState } from '@callstack/brownie';
 import type { BrownfieldStore } from './brownfield-store.schema';
 
 const STORE_KEY = 'BrownfieldStore';
 
-function useBrownfieldStore<T>(key: string): T {
-  const sub = useCallback(
-    (listener: () => void) => subscribe(key, listener),
-    [key]
-  );
-  const snap = useCallback(() => getSnapshot<T>(key), [key]);
-  return useSyncExternalStore(sub, snap, snap);
-}
-
 function HomeScreen() {
-  const state = useBrownfieldStore<BrownfieldStore>(STORE_KEY);
+  const state = useBrownieStore<BrownfieldStore>(STORE_KEY);
 
   const handleIncrement = () => {
     setState<BrownfieldStore>(STORE_KEY, { counter: state.counter + 1 });
