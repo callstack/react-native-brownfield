@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
+import fs from 'node:fs';
 
 import loadConfig from '@react-native-community/cli-config/build/loadConfig';
 import { projectConfig } from '@react-native-community/cli-config-android';
@@ -12,6 +13,7 @@ import {
   publishLocalAar,
   publishLocalAarOptions,
 } from '@rock-js/platform-android';
+import { mergeFrameworks } from '@rock-js/platform-apple-helpers';
 
 import { Command } from 'commander';
 
@@ -138,6 +140,10 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     description: 'The SDK to build for (iphoneos/iphonesimulator)',
     value: 'iphoneos',
   },
+  {
+    name: '--no-install-pods',
+    description: 'Skip installing pods before building',
+  },
 ]).action(async (options) => {
   const projectRoot = findProjectRoot();
   const userConfig = loadConfig({ projectRoot, selectedPlatform: 'ios' });
@@ -182,10 +188,6 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
       'No workspace specified and could not be inferred from the config. Please specify one using --workspace.'
     );
   }
-
-  const { start, stop, message } = spinner();
-
-  start(`Packaging framework for iPhone and iPhone Simulator...`);
 
   let destinations: string[];
   if (options.destination) {
@@ -244,10 +246,50 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     }
   }
 
-  logger.debug(
-    `Building for destinations: ${destinations.map((destination) => `'${destination}'`).join(', ')}`
+  if (!options.noInstallPods) {
+    const { start, stop, message } = spinner();
+
+    start(`Installing pods...`);
+
+    try {
+      message('Installing Gems with bundler...');
+      await executeCommand('bundle', ['install'], { cwd: iosBaseDir });
+
+      message('Installing pods with CocoaPods via bundler...');
+      await executeCommand('bundle', ['exec', 'pod', 'install'], {
+        cwd: iosBaseDir,
+        env: {
+          ...process.env,
+          USE_FRAMEWORKS: 'static',
+        },
+      });
+    } catch (e) {
+      logger.debug('Failed to install pods via bundler', e);
+
+      message('Failed to install pods via bundler, trying without it...');
+
+      await executeCommand('pod', ['install'], {
+        cwd: iosBaseDir,
+        env: {
+          ...process.env,
+          USE_FRAMEWORKS: 'static',
+        },
+      });
+    }
+
+    stop(`Pods installed successfully.`);
+  }
+
+  const { start, stop, message } = spinner();
+
+  start(
+    `Packaging framework for ${destinations.map((destination) => `'${parseDestinationName(destination)}'`).join(', ')}...`
   );
 
+  const appFrameworkPathsToMerge: string[] = [];
+
+  let i = 1,
+    total = destinations.length;
   for (const destination of destinations) {
     const destinationName = parseDestinationName(destination);
     const buildFolder =
@@ -258,7 +300,9 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
         `${scheme}-${options.configuration}-${destinationName}`
       );
 
-    message(`Building for destination: ${destination}, sdk: ${options.sdk}`);
+    message(
+      `[${i}/${total}] Building for destination: ${destination}, sdk: ${options.sdk}`
+    );
 
     await executeCommand(
       'xcodebuild',
@@ -284,10 +328,90 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
       }
     );
 
-    message(`XCFramework packaged in ${buildFolder}`);
+    appFrameworkPathsToMerge.push(
+      path.join(
+        buildFolder,
+        'Build',
+        'Products',
+        `${options.configuration}-${options.sdk}`,
+        `${scheme}.framework`
+      )
+    );
+
+    message(`App lib XCFramework packaged in ${buildFolder}`);
+    i++;
   }
 
-  stop(`Processes finished.`);
+  // output artifacts
+  const outDir = path.join(iosBaseDir, 'out', options.configuration);
+
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir);
+  }
+
+  const artifactNames: string[] = [];
+
+  // merge built artifacts into XCFramework
+  {
+    message(
+      `Merging ${appFrameworkPathsToMerge.length} framework${appFrameworkPathsToMerge.length !== 1 ? 's' : ''} into XCFramework...`
+    );
+
+    const artifactName = `${scheme}.xcframework`;
+    artifactNames.push(artifactName);
+    const xcframeworkOutputPath = path.join(outDir, artifactName);
+
+    // TODO: implement this
+  }
+
+  // copy hermes XCFramework
+  {
+    const artifactName = 'hermesvm.xcframework';
+    artifactNames.push(artifactName);
+
+    const hermesFrameworkSourcePath = path.join(
+      iosBaseDir,
+      'Pods',
+      'hermes-engine',
+      'destroot',
+      'Library',
+      'Frameworks',
+      'universal',
+      artifactName
+    );
+    const xcframeworkOutputPath = path.join(outDir, artifactName);
+
+    fs.cpSync(hermesFrameworkSourcePath, xcframeworkOutputPath, {
+      recursive: true,
+    });
+  }
+
+  // merge ReactBrownfield XCFramework
+  {
+    await mergeFrameworks({
+      sourceDir,
+      frameworkPaths: [
+        path.join(
+          productsPath,
+          `${configuration}-iphoneos`,
+          'ReactBrownfield',
+          'ReactBrownfield.framework'
+        ),
+        path.join(
+          productsPath,
+          `${configuration}-iphonesimulator`,
+          'ReactBrownfield',
+          'ReactBrownfield.framework'
+        ),
+      ],
+      outputPath: path.join(
+        frameworkTargetOutputDir,
+        'ReactBrownfield.xcframework'
+      ),
+    });
+  }
+
+  stop(`Aritfacts placed in '${outDir}': ${artifactNames.join(', ')}`);
 
   outro('Success 🎉');
 });

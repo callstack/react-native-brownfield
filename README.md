@@ -68,15 +68,16 @@ Simply run `npx react-native-brownfield package:ios` to create an XCFramework th
 
 Available arguments:
 
-| Argument        | Description                                                                                                                                                                                                                                                  | Default                |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
-| --configuration | Explicitly set the scheme configuration to use. This option is case sensitive.                                                                                                                                                                               |                        |
-| --scheme        | Explicitly set Xcode scheme to use                                                                                                                                                                                                                           |                        |
-| --target        | Explicitly set Xcode target to use                                                                                                                                                                                                                           |                        |
-| --build-folder  | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath".                                                                                                                                                                                 | "build"                |
-| --destination   | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: "simulator", "device" or destinations supported by "xcodebuild -destination" flag, e.g. "generic/platform=iOS" |                        |
-| --sdk           | The SDK to build for (iphoneos/iphonesimulator)                                                                                                                                                                                                              | iphoneos               |
-| --verbose       |                                                                                                                                                                                                                                                              | Enable verbose logging | false |
+| Argument          | Description                                                                                                                                                                                                                                                  | Default                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| --configuration   | Explicitly set the scheme configuration to use. This option is case sensitive.                                                                                                                                                                               |                        |
+| --scheme          | Explicitly set Xcode scheme to use                                                                                                                                                                                                                           |                        |
+| --target          | Explicitly set Xcode target to use                                                                                                                                                                                                                           |                        |
+| --build-folder    | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath".                                                                                                                                                                                 | "build"                |
+| --destination     | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: "simulator", "device" or destinations supported by "xcodebuild -destination" flag, e.g. "generic/platform=iOS" |                        |
+| --sdk             | The SDK to build for (iphoneos/iphonesimulator)                                                                                                                                                                                                              | iphoneos               |
+| --no-install-pods | Skip installing pods before building                                                                                                                                                                                                                         |                        |
+| --verbose         |                                                                                                                                                                                                                                                              | Enable verbose logging | false |
 
 ##### Build for Android
 
@@ -119,7 +120,7 @@ Alternatively, you can create your own custom packaging scripts. Here are base v
 - [Example iOS script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-xcframework.sh)
 - [Example Android script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-aar.sh)
 
-### Native iOS app
+### Integration: Native iOS app
 
 In your native iOS app, initialize React Native and display it where you like. For example, to display React Native views in SwiftUI, use the provided `ReactNativeView` component:
 
@@ -164,7 +165,7 @@ For more detailed instructions and API for iOS, see docs for:
 - [Objective C](docs/OBJECTIVE_C.md)
 - [Swift](docs/SWIFT.md)
 
-### Native Android app
+### Integration:Native Android app
 
 In your native Android app, create a new `RNAppFragment.kt`:
 
