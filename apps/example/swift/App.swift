@@ -11,7 +11,6 @@ let initialState = BrownfieldStore(
 
 @main
 struct MyApp: App {
-
   init() {
     ReactNativeBrownfield.shared.startReactNative {
       print("loaded")
@@ -41,8 +40,7 @@ struct MyApp: App {
   }
 
   struct NativeView: View {
-    @UseStore<BrownfieldStore, User>(\.user, key: BrownfieldStore.storeName) var user
-    @UseStore<BrownfieldStore, Double>(\.counter, key: BrownfieldStore.storeName) var counter
+    @UseStore<BrownfieldStore> var store
 
     var body: some View {
       VStack {
@@ -50,21 +48,17 @@ struct MyApp: App {
           .font(.headline)
           .padding(.top)
 
-        Text("User: \(user.name)")
-        Text("Count: \(Int(counter))")
+        Text("User: \(store.state.user.name)")
+        Text("Count: \(Int(store.state.counter))")
 
-        TextField("Name", text: Binding(get: { user.name }, set: { data in
-          $user.set { state in
-            state.user.name = data
-          }
+        TextField("Name", text: Binding(get: { store.state.user.name }, set: { data in
+          store.set { $0.user.name = data }
         }))
         .textFieldStyle(.roundedBorder)
         .padding(.horizontal)
 
         Button("Increment") {
-          $counter.set { state in
-            state.counter += 1
-          }
+          store.set { $0.counter += 1 }
         }
         .buttonStyle(.borderedProminent)
 

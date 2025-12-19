@@ -6,6 +6,10 @@ extension Notification.Name {
   public static let BrownieStoreUpdated = Notification.Name("BrownieStoreUpdated")
 }
 
+public protocol BrownieStoreProtocol: Codable {
+  static var storeName: String { get }
+}
+
 public struct StoreKey<State: Codable>: EnvironmentKey {
   public static var defaultValue: Store<State> { fatalError("Store not provided") }
 }
@@ -18,22 +22,17 @@ public extension EnvironmentValues {
 
 @MainActor
 @propertyWrapper
-public struct UseStore<State: Codable, Value>: DynamicProperty {
-  private let keyPath: KeyPath<State, Value>
+public struct UseStore<State: BrownieStoreProtocol>: DynamicProperty {
   @StateObject private var store: Store<State>
 
-  public init(_ keyPath: KeyPath<State, Value>, key: String) {
-    self.keyPath = keyPath
+  public init() {
+    let key = State.storeName
     let foundStore = StoreManager.shared.store(key: key, as: State.self)
     guard let foundStore else { fatalError("Store not found for key: \(key)") }
     self._store = StateObject(wrappedValue: foundStore)
   }
 
-  public var wrappedValue: Value {
-    store.state[keyPath: keyPath]
-  }
-
-  public var projectedValue: Store<State> {
+  public var wrappedValue: Store<State> {
     store
   }
 }
@@ -144,6 +143,11 @@ public class Store<State: Codable>: ObservableObject {
 
   /// Get property using type-safe keypath
   public func get<Value>(_ keyPath: KeyPath<State, Value>) -> Value {
+    state[keyPath: keyPath]
+  }
+
+  /// Convenience subscript for property access
+  public subscript<Value>(_ keyPath: KeyPath<State, Value>) -> Value {
     state[keyPath: keyPath]
   }
 }

@@ -67,12 +67,13 @@ export async function generateSwift(
   });
 
   const storeNameExtension = `
-extension ${typeName} {
-  static let storeName = "${name}"
+extension ${typeName}: BrownieStoreProtocol {
+  public static let storeName = "${name}"
 }
 `;
 
-  const swiftOutput = lines.join('\n') + storeNameExtension;
+  const swiftOutput =
+    'import Brownie\n\n' + lines.join('\n') + storeNameExtension;
   const absoluteOutputPath = path.resolve(process.cwd(), outputPath);
   const outputDir = path.dirname(absoluteOutputPath);
 
