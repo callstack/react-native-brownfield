@@ -141,18 +141,3 @@ export async function executeCommand(
     });
   });
 }
-
-/**
- * Parses the destination name from the xcodebuild destination string.
- * @param destination The xcodebuild destination.
- * @returns The parsed name or path-sanitized original if regex did not match.
- */
-export function parseDestinationName(destination: string): string {
-  const nameMatch = destination.match(/platform=([^,]+)/);
-
-  if (nameMatch && nameMatch[1]) {
-    return nameMatch[1];
-  }
-
-  return destination.replace(/[^a-zA-Z0-9]/g, '_');
-}

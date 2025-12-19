@@ -68,16 +68,15 @@ Simply run `npx react-native-brownfield package:ios` to create an XCFramework th
 
 Available arguments:
 
-| Argument          | Description                                                                                                                                                                                                                                                  | Default                |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
-| --configuration   | Explicitly set the scheme configuration to use. This option is case sensitive.                                                                                                                                                                               |                        |
-| --scheme          | Explicitly set Xcode scheme to use                                                                                                                                                                                                                           |                        |
-| --target          | Explicitly set Xcode target to use                                                                                                                                                                                                                           |                        |
-| --build-folder    | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath".                                                                                                                                                                                 | "build"                |
-| --destination     | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: "simulator", "device" or destinations supported by "xcodebuild -destination" flag, e.g. "generic/platform=iOS" |                        |
-| --sdk             | The SDK to build for (iphoneos/iphonesimulator)                                                                                                                                                                                                              | iphoneos               |
-| --no-install-pods | Skip installing pods before building                                                                                                                                                                                                                         |                        |
-| --verbose         |                                                                                                                                                                                                                                                              | Enable verbose logging | false |
+| Argument          | Description                                                                                  | Default                  |
+| ----------------- | -------------------------------------------------------------------------------------------- | ------------------------ |
+| --configuration   | Explicitly set the scheme configuration to use. This option is case sensitive.               |                          |
+| --scheme          | Explicitly set Xcode scheme to use                                                           |                          |
+| --target          | Explicitly set Xcode target to use                                                           |                          |
+| --build-folder    | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath".                 | "build"                  |
+| --sdk             | The SDK to build for (iphoneos/iphonesimulator); to build for multiple, separate with commas | iphoneos,iphonesimulator |
+| --no-install-pods | Skip installing pods before building                                                         |                          |
+| --verbose         |                                                                                              | Enable verbose logging   | false |
 
 ##### Build for Android
 

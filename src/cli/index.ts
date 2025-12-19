@@ -23,7 +23,6 @@ import {
   findProjectRoot,
   getAarConfig,
   makeRelativeAndroidProjectConfigPaths,
-  parseDestinationName,
 } from './utils';
 import { version } from '../../package.json';
 
@@ -118,11 +117,6 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     description: 'The Xcode target to build',
   },
   {
-    name: '--destination <destination...>',
-    description:
-      'Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: "simulator", "device" or destinations supported by "xcodebuild -destination" flag, e.g. "generic/platform=iOS"',
-  },
-  {
     name: '--build-folder <folder>',
     description: 'The build folder to use',
   },
@@ -138,7 +132,7 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
   {
     name: '--sdk <sdk>',
     description: 'The SDK to build for (iphoneos/iphonesimulator)',
-    value: 'iphoneos',
+    value: 'iphoneos,iphonesimulator',
   },
   {
     name: '--no-install-pods',
@@ -189,62 +183,11 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     );
   }
 
-  let destinations: string[];
-  if (options.destination) {
-    // check if one or many has been provided
-    if (Array.isArray(options.destination)) {
-      destinations = options.destination;
-    } else {
-      destinations = [options.destination];
-    }
-  } else {
-    try {
-      logger.debug('Detecting available simulators...');
-
-      const availableDevicesInGroups = JSON.parse(
-        (
-          await executeCommand('xcrun', [
-            'simctl',
-            'list',
-            'devices',
-            'iOS',
-            'available',
-            '--json',
-          ])
-        ).join(' ')
-      );
-
-      let detectedFirstConcreteSimulatorName: string | undefined;
-
-      // eslint-disable-next-line no-labels
-      outerFor: for (const [group, devices] of Object.entries(
-        availableDevicesInGroups.devices
-      ) as [string, any[]][]) {
-        if (group.includes('SimRuntime.iOS')) {
-          for (const device of devices) {
-            detectedFirstConcreteSimulatorName = device.name;
-            // eslint-disable-next-line no-labels
-            break outerFor;
-          }
-        }
-      }
-
-      if (detectedFirstConcreteSimulatorName === undefined) {
-        throw new Error(
-          'Failed to detect any matching iPhone destination! Please ensure they are installed or specify a destination manually.'
-        );
-      }
-
-      destinations = [
-        'generic/platform=iOS',
-        `generic/platform=iOS Simulator,name=${detectedFirstConcreteSimulatorName}`,
-      ];
-    } catch (e: any) {
-      throw new Error(
-        'Failed to automatically detect destination' + e.toString()
-      );
-    }
-  }
+  let sdks = (
+    (Array.isArray(options.sdk) ? options.sdk : [options.sdk]) as string[]
+  )
+    .flatMap((sdk) => sdk.split(',').map((s) => s.trim()))
+    .filter((sdk) => sdk.length > 0);
 
   if (!options.noInstallPods) {
     const { start, stop, message } = spinner();
@@ -282,27 +225,22 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
 
   const { start, stop, message } = spinner();
 
-  start(
-    `Packaging framework for ${destinations.map((destination) => `'${parseDestinationName(destination)}'`).join(', ')}...`
-  );
+  start(`Packaging framework for ${sdks.join(', ')}...`);
 
   const appFrameworkPathsToMerge: string[] = [];
 
   let i = 1,
-    total = destinations.length;
-  for (const destination of destinations) {
-    const destinationName = parseDestinationName(destination);
+    total = sdks.length;
+  for (const sdk of sdks) {
     const buildFolder =
       options.buildFolder ??
       path.join(
         iosBaseDir,
         'build',
-        `${scheme}-${options.configuration}-${destinationName}`
+        `${scheme}-${options.configuration}-${sdk}`
       );
 
-    message(
-      `[${i}/${total}] Building for destination: ${destination}, sdk: ${options.sdk}`
-    );
+    message(`[${i}/${total}] Building for sdk: ${sdk}`);
 
     await executeCommand(
       'xcodebuild',
@@ -315,8 +253,8 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
         scheme,
         '-configuration',
         options.configuration,
-        '-destination',
-        destination,
+        '-sdk',
+        sdk,
         '-derivedDataPath',
         `${path.relative(iosBaseDir, buildFolder)}`,
         ...(options.target ? ['-target', options.target] : []),
@@ -333,7 +271,7 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
         buildFolder,
         'Build',
         'Products',
-        `${options.configuration}-${options.sdk}`,
+        `${options.configuration}-${sdk}`,
         `${scheme}.framework`
       )
     );
@@ -359,9 +297,11 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
 
     const artifactName = `${scheme}.xcframework`;
     artifactNames.push(artifactName);
-    const xcframeworkOutputPath = path.join(outDir, artifactName);
-
-    // TODO: implement this
+    await mergeFrameworks({
+      iosBaseDir,
+      frameworkPaths: appFrameworkPathsToMerge,
+      outputPath: path.join(outDir, artifactName),
+    });
   }
 
   // copy hermes XCFramework
@@ -388,26 +328,26 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
 
   // merge ReactBrownfield XCFramework
   {
+    const artifactName = 'ReactBrownfield.xcframework';
+    artifactNames.push(artifactName);
     await mergeFrameworks({
-      sourceDir,
-      frameworkPaths: [
+      iosBaseDir,
+      frameworkPaths: sdks.map((sdk) =>
         path.join(
-          productsPath,
-          `${configuration}-iphoneos`,
+          options.buildFolder ??
+            path.join(
+              iosBaseDir,
+              'build',
+              `${scheme}-${options.configuration}-${sdk}`
+            ),
+          'Build',
+          'Products',
+          `${options.configuration}-${sdk}`,
           'ReactBrownfield',
           'ReactBrownfield.framework'
-        ),
-        path.join(
-          productsPath,
-          `${configuration}-iphonesimulator`,
-          'ReactBrownfield',
-          'ReactBrownfield.framework'
-        ),
-      ],
-      outputPath: path.join(
-        frameworkTargetOutputDir,
-        'ReactBrownfield.xcframework'
+        )
       ),
+      outputPath: path.join(outDir, artifactName),
     });
   }
 
