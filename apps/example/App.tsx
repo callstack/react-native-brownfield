@@ -15,8 +15,10 @@ function HomeScreen() {
 
       <TextInput
         style={styles.input}
-        value={state.user}
-        onChangeText={(text) => setState({ user: text })}
+        value={state.user.name}
+        onChangeText={(text) =>
+          setState((prev) => ({ user: { ...prev.user, name: text } }))
+        }
         placeholder="User name"
       />
 

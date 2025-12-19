@@ -2,7 +2,12 @@ import Brownie
 import ReactBrownfield
 import SwiftUI
 
-let initialState = BrownfieldStore(counter: 0, hasError: false, isLoading: false, user: "okwasniewski")
+let initialState = BrownfieldStore(
+  counter: 0,
+  hasError: false,
+  isLoading: false,
+  user: User(name: "okwasniewski", settings: Settings(theme: .light))
+)
 
 @main
 struct MyApp: App {
@@ -12,11 +17,7 @@ struct MyApp: App {
       print("loaded")
     }
 
-    let state = Store(initialState)
-    StoreManager.shared.register(
-      store: state,
-      key: BrownfieldStore.storeName
-    )
+    _ = Store(initialState, key: BrownfieldStore.storeName)
   }
 
   var body: some Scene {
@@ -40,7 +41,7 @@ struct MyApp: App {
   }
 
   struct NativeView: View {
-    @UseStore<BrownfieldStore, String>(\.user, key: BrownfieldStore.storeName) var user
+    @UseStore<BrownfieldStore, User>(\.user, key: BrownfieldStore.storeName) var user
     @UseStore<BrownfieldStore, Double>(\.counter, key: BrownfieldStore.storeName) var counter
 
     var body: some View {
@@ -49,11 +50,13 @@ struct MyApp: App {
           .font(.headline)
           .padding(.top)
 
-        Text("User: \(user)")
+        Text("User: \(user.name)")
         Text("Count: \(Int(counter))")
 
-        TextField("Name", text: Binding(get: { user }, set: { data in
-          $user.set { state in state.user = data }
+        TextField("Name", text: Binding(get: { user.name }, set: { data in
+          $user.set { state in
+            state.user.name = data
+          }
         }))
         .textFieldStyle(.roundedBorder)
         .padding(.horizontal)

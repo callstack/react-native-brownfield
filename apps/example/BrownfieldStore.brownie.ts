@@ -2,7 +2,12 @@ import type { BrownieStore } from '@callstack/brownie';
 
 interface BrownfieldStore extends BrownieStore {
   counter: number;
-  user: string;
+  user: {
+    name: string;
+    settings: {
+      theme: 'light' | 'dark';
+    };
+  };
   isLoading: boolean;
   hasError: boolean;
 }
