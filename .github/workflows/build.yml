@@ -46,7 +46,7 @@ jobs:
       - name: Package AAR with the Brownfield CLI
         run: |
           cd example/RNApp
-          npx tsx ../../src/cli/index.ts package:android --module-name :BrownfieldLib
+          npx tsx ../../src/cli/index.ts package:android --module-name :BrownfieldLib --variant release
 
       - name: Publish AAR artifact to Maven Local
         run: |
@@ -106,7 +106,7 @@ jobs:
       - name: Build iOS RN app
         run: |
           cd example/RNApp/ios
-          xcodebuild -workspace RNApp.xcworkspace -scheme RNApp -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace RNApp.xcworkspace -scheme RNApp -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
 
       - name: Package iOS Framework with the Brownfield CLI
         run: |
@@ -116,4 +116,4 @@ jobs:
       - name: Build Brownfield iOS native app
         run: |
           cd example/iOSApp
-          xcodebuild -workspace iOSApp.xcworkspace -scheme iOSApp -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace iOSApp.xcworkspace -scheme iOSApp -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
