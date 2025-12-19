@@ -1,17 +1,9 @@
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
-import { useBrownieStore, setState } from '@callstack/brownie';
+import { useBrownieStore } from '@callstack/brownie';
 import './BrownfieldStore.brownie';
 
 function HomeScreen() {
-  const state = useBrownieStore('SettingsStore');
-
-  const handleIncrement = () => {
-    setState('BrownfieldStore', { counter: state.counter + 1 });
-  };
-
-  const handleSetHasError = () => {
-    setState('BrownfieldStore', { hasError: !state.hasError });
-  };
+  const [state, setState] = useBrownieStore('BrownfieldStore');
 
   return (
     <View style={styles.container}>
@@ -24,12 +16,18 @@ function HomeScreen() {
       <TextInput
         style={styles.input}
         value={state.user}
-        onChangeText={(text) => setState('BrownfieldStore', { user: text })}
+        onChangeText={(text) => setState({ user: text })}
         placeholder="User name"
       />
 
-      <Button onPress={handleIncrement} title="Increment" />
-      <Button onPress={handleSetHasError} title="Toggle Has Error" />
+      <Button
+        onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+        title="Increment"
+      />
+      <Button
+        onPress={() => setState((prev) => ({ hasError: !prev.hasError }))}
+        title="Toggle Has Error"
+      />
     </View>
   );
 }

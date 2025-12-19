@@ -73,15 +73,22 @@ export function getSnapshot<K extends keyof BrownieStores>(
   return store.snapshot as BrownieStores[K];
 }
 
+type SetStateAction<T> = Partial<T> | ((prevState: T) => Partial<T>);
+
 /**
  * Set a value in the native store.
  */
 export function setState<K extends keyof BrownieStores>(
   key: K,
-  partial: Partial<BrownieStores[K]>
+  action: SetStateAction<BrownieStores[K]>
 ): void {
   const store = getOrCreateStore(key as string);
   if (!store.hostObject) return;
+
+  const partial =
+    typeof action === 'function'
+      ? action(store.snapshot as BrownieStores[K])
+      : action;
 
   for (const [prop, value] of Object.entries(partial)) {
     store.hostObject[prop] = value;
@@ -91,15 +98,20 @@ export function setState<K extends keyof BrownieStores>(
 /**
  * React hook for subscribing to a native store.
  * @param key Store key registered in StoreManager
- * @returns Current store state
+ * @returns Tuple of [state, setState] for the store
  */
 export function useBrownieStore<K extends keyof BrownieStores>(
   key: K
-): BrownieStores[K] {
+): [BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void] {
   const sub = useCallback(
     (listener: () => void) => subscribe(key, listener),
     [key]
   );
   const snap = useCallback(() => getSnapshot(key), [key]);
-  return useSyncExternalStore(sub, snap, snap);
+  const state = useSyncExternalStore(sub, snap, snap);
+  const boundSetState = useCallback(
+    (action: SetStateAction<BrownieStores[K]>) => setState(key, action),
+    [key]
+  );
+  return [state, boundSetState];
 }

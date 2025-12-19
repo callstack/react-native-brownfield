@@ -1,17 +1,17 @@
-import type { BrownieStore } from "@callstack/brownie";
+import type { BrownieStore } from '@callstack/brownie';
 
 interface BrownfieldStore extends BrownieStore {
   counter: number;
   user: string;
   isLoading: boolean;
   hasError: boolean;
-};
+}
 
-interface SettingsStore extends BrownfieldStore {
+interface SettingsStore extends BrownieStore {
   theme: 'light' | 'dark';
   notificationsEnabled: boolean;
   privacyMode: boolean;
-};
+}
 
 declare module '@callstack/brownie' {
   interface BrownieStores {
