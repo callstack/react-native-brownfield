@@ -9,6 +9,7 @@ import {
 import { schemaForTypeScriptSources } from 'quicktype-typescript-input';
 
 export interface SwiftGeneratorOptions {
+  name: string;
   schemaPath: string;
   typeName: string;
   outputPath: string;
@@ -20,7 +21,7 @@ export interface SwiftGeneratorOptions {
 export async function generateSwift(
   options: SwiftGeneratorOptions
 ): Promise<void> {
-  const { schemaPath, typeName, outputPath } = options;
+  const { name, schemaPath, typeName, outputPath } = options;
 
   const absoluteSchemaPath = path.resolve(process.cwd(), schemaPath);
 
@@ -65,7 +66,13 @@ export async function generateSwift(
     },
   });
 
-  const swiftOutput = lines.join('\n');
+  const storeNameExtension = `
+extension ${typeName} {
+  static let storeName = "${name}"
+}
+`;
+
+  const swiftOutput = lines.join('\n') + storeNameExtension;
   const absoluteOutputPath = path.resolve(process.cwd(), outputPath);
   const outputDir = path.dirname(absoluteOutputPath);
 

@@ -24,17 +24,7 @@ protocol StateSettable {
     stores[key] = store
   }
   
-  public func register<State>(store: Store<State>, for type: State.Type) {
-    let key = String(describing: type)
-    stores[key] = store
-  }
-  
   public func store<State>(key: String, as type: State.Type) -> Store<State>? {
-    return stores[key] as? Store<State>
-  }
-  
-  public func store<State>(for type: State.Type) -> Store<State>? {
-    let key = String(describing: type)
     return stores[key] as? Store<State>
   }
   
@@ -56,10 +46,6 @@ protocol StateSettable {
 }
 
 public extension StoreManager {
-  static func get<State>(_ type: State.Type) -> Store<State>? {
-    shared.store(for: type)
-  }
-  
   static func get<State>(key: String, as type: State.Type) -> Store<State>? {
     shared.store(key: key, as: type)
   }
@@ -82,10 +68,10 @@ public struct UseStore<State: Codable, Value>: DynamicProperty {
   private let keyPath: KeyPath<State, Value>
   @StateObject private var store: Store<State>
   
-  public init(_ keyPath: KeyPath<State, Value>) {
+  public init(_ keyPath: KeyPath<State, Value>, key: String) {
     self.keyPath = keyPath
-    let foundStore = StoreManager.shared.store(for: State.self)
-    guard let foundStore else { fatalError("Store not found for \(State.self)") }
+    let foundStore = StoreManager.shared.store(key: key, as: State.self)
+    guard let foundStore else { fatalError("Store not found for key: \(key)") }
     self._store = StateObject(wrappedValue: foundStore)
   }
   

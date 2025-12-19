@@ -15,6 +15,7 @@
   "react-native": "src/index",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
       "import": {
         "types": "./lib/typescript/module/src/index.d.ts",
         "default": "./lib/module/index.js"
@@ -61,7 +62,8 @@
   },
   "dependencies": {
     "quicktype-core": "^23.0.170",
-    "quicktype-typescript-input": "^23.0.170"
+    "quicktype-typescript-input": "^23.0.170",
+    "ts-morph": "^25.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

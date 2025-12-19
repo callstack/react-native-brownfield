@@ -1,11 +1,5 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@callstack/brownie": ["./packages/brownie/src/index"],
-      "@callstack/react-native-brownfield": [
-        "./packages/react-native-brownfield/src/index"
-      ]
-    },
     "composite": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -14,7 +8,7 @@
     "jsx": "react-jsx",
     "lib": ["esnext"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
@@ -25,7 +19,8 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "customConditions": ["source"]
   },
   "exclude": ["packages/*/lib"]
 }

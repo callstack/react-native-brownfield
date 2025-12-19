@@ -33,138 +33,65 @@ describe('loadConfig', () => {
     expect(() => loadConfig()).toThrow('package.json not found');
   });
 
-  it('throws when brownie.stores config missing', () => {
+  it('throws when brownie config missing', () => {
     tempDir = createTempPackageJson({});
     mockCwd.mockReturnValue(tempDir);
     expect(() => loadConfig()).toThrow(
-      'brownie.stores config not found in package.json'
-    );
-  });
-
-  it('throws when stores is not an array', () => {
-    tempDir = createTempPackageJson({
-      brownie: {
-        stores: {
-          schema: './test.schema.ts',
-          typeName: 'TestStore',
-          swift: './Test.swift',
-        },
-      },
-    });
-    mockCwd.mockReturnValue(tempDir);
-    expect(() => loadConfig()).toThrow('brownie.stores must be an array');
-  });
-
-  it('throws when stores array is empty', () => {
-    tempDir = createTempPackageJson({
-      brownie: { stores: [] },
-    });
-    mockCwd.mockReturnValue(tempDir);
-    expect(() => loadConfig()).toThrow('brownie.stores array cannot be empty');
-  });
-
-  it('throws when schema is missing', () => {
-    tempDir = createTempPackageJson({
-      brownie: {
-        stores: [{ typeName: 'TestStore', swift: './Test.swift' }],
-      },
-    });
-    mockCwd.mockReturnValue(tempDir);
-    expect(() => loadConfig()).toThrow('brownie.stores[0].schema is required');
-  });
-
-  it('throws when typeName is missing', () => {
-    tempDir = createTempPackageJson({
-      brownie: {
-        stores: [{ schema: './test.schema.ts', swift: './Test.swift' }],
-      },
-    });
-    mockCwd.mockReturnValue(tempDir);
-    expect(() => loadConfig()).toThrow(
-      'brownie.stores[0].typeName is required'
+      'brownie config not found in package.json'
     );
   });
 
   it('throws when no output path configured', () => {
     tempDir = createTempPackageJson({
-      brownie: {
-        stores: [{ schema: './test.schema.ts', typeName: 'TestStore' }],
-      },
+      brownie: {},
     });
     mockCwd.mockReturnValue(tempDir);
     expect(() => loadConfig()).toThrow(
-      'At least one output path is required: brownie.stores[0].swift or brownie.stores[0].kotlin'
+      'At least one output path is required: brownie.swift or brownie.kotlin'
     );
   });
 
-  it('loads single store config', () => {
+  it('loads config with swift output', () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './test.schema.ts',
-            typeName: 'TestStore',
-            swift: './Test.swift',
-          },
-        ],
+        swift: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);
 
-    const configs = loadConfig();
-    expect(configs).toHaveLength(1);
-    expect(configs[0]).toEqual({
-      schema: './test.schema.ts',
-      typeName: 'TestStore',
-      swift: './Test.swift',
+    const config = loadConfig();
+    expect(config).toEqual({
+      swift: './Generated',
     });
   });
 
-  it('loads multiple store configs', () => {
+  it('loads config with kotlin output', () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './user.schema.ts',
-            typeName: 'UserStore',
-            swift: './UserStore.swift',
-          },
-          {
-            schema: './settings.schema.ts',
-            typeName: 'SettingsStore',
-            kotlin: './SettingsStore.kt',
-            kotlinPackageName: 'com.example',
-          },
-        ],
+        kotlin: './Generated',
+        kotlinPackageName: 'com.example',
       },
     });
     mockCwd.mockReturnValue(tempDir);
 
-    const configs = loadConfig();
-    expect(configs).toHaveLength(2);
-    expect(configs[0]!.typeName).toBe('UserStore');
-    expect(configs[1]!.typeName).toBe('SettingsStore');
-    expect(configs[1]!.kotlinPackageName).toBe('com.example');
+    const config = loadConfig();
+    expect(config.kotlin).toBe('./Generated');
+    expect(config.kotlinPackageName).toBe('com.example');
   });
 
-  it('validates each store in array', () => {
+  it('loads config with all outputs', () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'ValidStore',
-            swift: './Valid.swift',
-          },
-          {
-            schema: './invalid.schema.ts',
-          },
-        ],
+        swift: './swift/Generated',
+        kotlin: './kotlin/Generated',
+        kotlinPackageName: 'com.example',
       },
     });
     mockCwd.mockReturnValue(tempDir);
-    expect(() => loadConfig()).toThrow(
-      'brownie.stores[1].typeName is required'
-    );
+
+    const config = loadConfig();
+    expect(config.swift).toBe('./swift/Generated');
+    expect(config.kotlin).toBe('./kotlin/Generated');
+    expect(config.kotlinPackageName).toBe('com.example');
   });
 });

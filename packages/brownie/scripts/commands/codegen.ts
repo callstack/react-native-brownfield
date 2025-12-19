@@ -1,34 +1,47 @@
+import path from 'node:path';
 import { parseArgs, styleText } from 'node:util';
-import { loadConfig, type StoresConfig } from '../config';
+import { loadConfig, type BrownieConfig } from '../config';
 import { generateSwift } from '../generators/swift';
 import { generateKotlin } from '../generators/kotlin';
+import { discoverStores, type DiscoveredStore } from '../store-discovery';
 
 type Platform = 'swift' | 'kotlin';
 
+function getOutputPath(dir: string, name: string, ext: string): string {
+  return path.join(dir, `${name}.${ext}`);
+}
+
 async function generateForStore(
-  config: StoresConfig,
+  store: DiscoveredStore,
+  config: BrownieConfig,
   platforms: Platform[],
-  storeIndex?: number
+  showLabel: boolean
 ): Promise<void> {
-  const storeLabel = storeIndex !== undefined ? ` [${config.typeName}]` : '';
+  const { name, schemaPath } = store;
+  const storeLabel = showLabel ? ` [${name}]` : '';
 
   for (const p of platforms) {
-    const outputPath = config[p];
-    if (!outputPath) {
+    const outputDir = config[p];
+    if (!outputDir) {
       continue;
     }
+
+    const ext = p === 'swift' ? 'swift' : 'kt';
+    const outputPath = getOutputPath(outputDir, name, ext);
 
     try {
       if (p === 'swift') {
         await generateSwift({
-          schemaPath: config.schema,
-          typeName: config.typeName,
+          name,
+          schemaPath,
+          typeName: name,
           outputPath,
         });
       } else {
         await generateKotlin({
-          schemaPath: config.schema,
-          typeName: config.typeName,
+          name,
+          schemaPath,
+          typeName: name,
           outputPath,
           packageName: config.kotlinPackageName,
         });
@@ -60,9 +73,9 @@ ${styleText('yellow', 'Options:')}
   ${styleText('cyan', '-p, --platform <platform>')}  Generate for specific platform (swift, kotlin)
 
 ${styleText('yellow', 'Examples:')}
-  ${styleText('dim', 'brownie codegen')}                  Generate for all configured platforms
-  ${styleText('dim', 'brownie codegen -p swift')}         Generate Swift only
-  ${styleText('dim', 'brownie codegen --platform kotlin')} Generate Kotlin only
+  ${styleText('dim', 'brownie codegen')}                      Generate for all configured platforms
+  ${styleText('dim', 'brownie codegen -p swift')}             Generate Swift only
+  ${styleText('dim', 'brownie codegen --platform kotlin')}    Generate Kotlin only
 `;
 
 /**
@@ -91,7 +104,7 @@ export async function runCodegen(
     return;
   }
 
-  const configs = loadConfig();
+  const config = loadConfig();
   const platform = values.platform as Platform | undefined;
 
   if (platform && !['swift', 'kotlin'].includes(platform)) {
@@ -104,14 +117,14 @@ export async function runCodegen(
     process.exit(1);
   }
 
-  const isMultipleStores = configs.length > 1;
-  const schemaList = configs.map((c) => c.schema).join(', ');
+  const stores = discoverStores();
+  const isMultipleStores = stores.length > 1;
+  const schemaList = stores.map((s) => path.basename(s.schemaPath)).join(', ');
   console.log(
     styleText('cyan', `Generating store types from ${schemaList}...`)
   );
 
-  for (let i = 0; i < configs.length; i++) {
-    const config = configs[i];
+  for (const store of stores) {
     const platforms: Platform[] = platform
       ? [platform]
       : (['swift', 'kotlin'] as Platform[]).filter((p) => config[p]);
@@ -120,13 +133,13 @@ export async function runCodegen(
       console.warn(
         styleText(
           'yellow',
-          `No output paths configured for store ${config.typeName}`
+          `No output paths configured for store ${store.name}`
         )
       );
       continue;
     }
 
-    await generateForStore(config, platforms, isMultipleStores ? i : undefined);
+    await generateForStore(store, config, platforms, isMultipleStores);
   }
 
   console.log(styleText('green', '\nDone!'));

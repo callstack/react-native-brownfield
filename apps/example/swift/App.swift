@@ -15,7 +15,7 @@ struct MyApp: App {
     let state = Store(initialState)
     StoreManager.shared.register(
       store: state,
-      for: BrownfieldStore.self
+      key: BrownfieldStore.storeName
     )
   }
 
@@ -40,8 +40,8 @@ struct MyApp: App {
   }
 
   struct NativeView: View {
-    @UseStore<BrownfieldStore, String>(\.user) var user
-    @UseStore<BrownfieldStore, Double>(\.counter) var counter
+    @UseStore<BrownfieldStore, String>(\.user, key: BrownfieldStore.storeName) var user
+    @UseStore<BrownfieldStore, Double>(\.counter, key: BrownfieldStore.storeName) var counter
 
     var body: some View {
       VStack {

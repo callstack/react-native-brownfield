@@ -3,14 +3,17 @@ import path from 'path';
 import { runCodegen } from '../../commands/codegen';
 import * as swiftGenerator from '../../generators/swift';
 import * as kotlinGenerator from '../../generators/kotlin';
+import * as storeDiscovery from '../../store-discovery';
 
 const FIXTURES_DIR = path.join(__dirname, '../../__fixtures__');
 
 jest.mock('../../generators/swift');
 jest.mock('../../generators/kotlin');
+jest.mock('../../store-discovery');
 
 const mockGenerateSwift = swiftGenerator.generateSwift as jest.Mock;
 const mockGenerateKotlin = kotlinGenerator.generateKotlin as jest.Mock;
+const mockDiscoverStores = storeDiscovery.discoverStores as jest.Mock;
 const mockCwd = jest.spyOn(process, 'cwd');
 const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
@@ -36,6 +39,9 @@ describe('runCodegen', () => {
   beforeEach(() => {
     mockGenerateSwift.mockResolvedValue(undefined);
     mockGenerateKotlin.mockResolvedValue(undefined);
+    mockDiscoverStores.mockReturnValue([
+      { name: 'TestStore', schemaPath: '/path/to/TestStore.brownie.ts' },
+    ]);
   });
 
   afterEach(() => {
@@ -58,16 +64,10 @@ describe('runCodegen', () => {
     expect(output).toContain('brownie codegen');
   });
 
-  it('generates swift files for single store', async () => {
+  it('generates swift files for discovered store', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'TestStore',
-            swift: './Generated/TestStore.swift',
-          },
-        ],
+        swift: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);
@@ -75,24 +75,19 @@ describe('runCodegen', () => {
     await runCodegen([], '1.0.0');
 
     expect(mockGenerateSwift).toHaveBeenCalledWith({
-      schemaPath: './valid.schema.ts',
+      name: 'TestStore',
+      schemaPath: '/path/to/TestStore.brownie.ts',
       typeName: 'TestStore',
-      outputPath: './Generated/TestStore.swift',
+      outputPath: 'Generated/TestStore.swift',
     });
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
   });
 
-  it('generates kotlin files for single store', async () => {
+  it('generates kotlin files for discovered store', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'TestStore',
-            kotlin: './Generated/TestStore.kt',
-            kotlinPackageName: 'com.test',
-          },
-        ],
+        kotlin: './Generated',
+        kotlinPackageName: 'com.test',
       },
     });
     mockCwd.mockReturnValue(tempDir);
@@ -100,9 +95,10 @@ describe('runCodegen', () => {
     await runCodegen([], '1.0.0');
 
     expect(mockGenerateKotlin).toHaveBeenCalledWith({
-      schemaPath: './valid.schema.ts',
+      name: 'TestStore',
+      schemaPath: '/path/to/TestStore.brownie.ts',
       typeName: 'TestStore',
-      outputPath: './Generated/TestStore.kt',
+      outputPath: 'Generated/TestStore.kt',
       packageName: 'com.test',
     });
     expect(mockGenerateSwift).not.toHaveBeenCalled();
@@ -111,14 +107,8 @@ describe('runCodegen', () => {
   it('generates both swift and kotlin when configured', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'TestStore',
-            swift: './Generated/TestStore.swift',
-            kotlin: './Generated/TestStore.kt',
-          },
-        ],
+        swift: './Generated',
+        kotlin: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);
@@ -132,14 +122,8 @@ describe('runCodegen', () => {
   it('generates only specified platform with -p flag', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'TestStore',
-            swift: './Generated/TestStore.swift',
-            kotlin: './Generated/TestStore.kt',
-          },
-        ],
+        swift: './Generated',
+        kotlin: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);
@@ -150,50 +134,43 @@ describe('runCodegen', () => {
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
   });
 
-  it('generates for multiple stores', async () => {
+  it('generates for multiple discovered stores', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './user.schema.ts',
-            typeName: 'UserStore',
-            swift: './Generated/UserStore.swift',
-          },
-          {
-            schema: './settings.schema.ts',
-            typeName: 'SettingsStore',
-            swift: './Generated/SettingsStore.swift',
-          },
-        ],
+        swift: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);
+
+    mockDiscoverStores.mockReturnValue([
+      { name: 'UserStore', schemaPath: '/path/to/UserStore.brownie.ts' },
+      {
+        name: 'SettingsStore',
+        schemaPath: '/path/to/SettingsStore.brownie.ts',
+      },
+    ]);
 
     await runCodegen([], '1.0.0');
 
     expect(mockGenerateSwift).toHaveBeenCalledTimes(2);
     expect(mockGenerateSwift).toHaveBeenNthCalledWith(1, {
-      schemaPath: './user.schema.ts',
+      name: 'UserStore',
+      schemaPath: '/path/to/UserStore.brownie.ts',
       typeName: 'UserStore',
-      outputPath: './Generated/UserStore.swift',
+      outputPath: 'Generated/UserStore.swift',
     });
     expect(mockGenerateSwift).toHaveBeenNthCalledWith(2, {
-      schemaPath: './settings.schema.ts',
+      name: 'SettingsStore',
+      schemaPath: '/path/to/SettingsStore.brownie.ts',
       typeName: 'SettingsStore',
-      outputPath: './Generated/SettingsStore.swift',
+      outputPath: 'Generated/SettingsStore.swift',
     });
   });
 
   it('exits with error for invalid platform', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'TestStore',
-            swift: './Generated/TestStore.swift',
-          },
-        ],
+        swift: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);
@@ -207,13 +184,7 @@ describe('runCodegen', () => {
   it('exits with error when generator fails', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'TestStore',
-            swift: './Generated/TestStore.swift',
-          },
-        ],
+        swift: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);
@@ -226,13 +197,7 @@ describe('runCodegen', () => {
   it('warns when store has no output paths for selected platform', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        stores: [
-          {
-            schema: './valid.schema.ts',
-            typeName: 'TestStore',
-            swift: './Generated/TestStore.swift',
-          },
-        ],
+        swift: './Generated',
       },
     });
     mockCwd.mockReturnValue(tempDir);

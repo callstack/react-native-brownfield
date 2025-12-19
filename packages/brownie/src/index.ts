@@ -1,6 +1,14 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import BrownieModule from './NativeBrownieModule';
 
+/**
+ * Empty interface for module augmentation.
+ * Users extend this in their *.brownie.ts files.
+ */
+export interface BrownieStores {}
+
+export interface BrownieStore {}
+
 type StoreListener = () => void;
 
 interface StoreCache {
@@ -46,8 +54,11 @@ BrownieModule.nativeStoreDidChange(() => {
  * Subscribe to store changes from native side.
  * @returns Unsubscribe function
  */
-export function subscribe(key: string, listener: StoreListener): () => void {
-  const store = getOrCreateStore(key);
+export function subscribe<K extends keyof BrownieStores>(
+  key: K,
+  listener: StoreListener
+): () => void {
+  const store = getOrCreateStore(key as string);
   store.listeners.add(listener);
   return () => store.listeners.delete(listener);
 }
@@ -55,16 +66,21 @@ export function subscribe(key: string, listener: StoreListener): () => void {
 /**
  * Get current store state snapshot.
  */
-export function getSnapshot<T = Record<string, unknown>>(key: string): T {
-  const store = getOrCreateStore(key);
-  return store.snapshot as T;
+export function getSnapshot<K extends keyof BrownieStores>(
+  key: K
+): BrownieStores[K] {
+  const store = getOrCreateStore(key as string);
+  return store.snapshot as BrownieStores[K];
 }
 
 /**
  * Set a value in the native store.
  */
-export function setState<T>(key: string, partial: Partial<T>): void {
-  const store = getOrCreateStore(key);
+export function setState<K extends keyof BrownieStores>(
+  key: K,
+  partial: Partial<BrownieStores[K]>
+): void {
+  const store = getOrCreateStore(key as string);
   if (!store.hostObject) return;
 
   for (const [prop, value] of Object.entries(partial)) {
@@ -77,11 +93,13 @@ export function setState<T>(key: string, partial: Partial<T>): void {
  * @param key Store key registered in StoreManager
  * @returns Current store state
  */
-export function useBrownieStore<T>(key: string): T {
+export function useBrownieStore<K extends keyof BrownieStores>(
+  key: K
+): BrownieStores[K] {
   const sub = useCallback(
     (listener: () => void) => subscribe(key, listener),
     [key]
   );
-  const snap = useCallback(() => getSnapshot<T>(key), [key]);
+  const snap = useCallback(() => getSnapshot(key), [key]);
   return useSyncExternalStore(sub, snap, snap);
 }

@@ -9,6 +9,7 @@ import {
 import { schemaForTypeScriptSources } from 'quicktype-typescript-input';
 
 export interface KotlinGeneratorOptions {
+  name: string;
   schemaPath: string;
   typeName: string;
   outputPath: string;
@@ -38,6 +39,7 @@ export async function generateKotlin(
   options: KotlinGeneratorOptions
 ): Promise<void> {
   const {
+    name,
     schemaPath,
     typeName,
     outputPath,
@@ -91,7 +93,16 @@ export async function generateKotlin(
     },
   });
 
-  const kotlinOutput = lines.join('\n');
+  let kotlinOutput = lines.join('\n');
+
+  const companionObject = ` {
+    companion object {
+        const val STORE_NAME = "${name}"
+    }
+}`;
+  const classPattern = new RegExp(`(data class ${typeName}\\s*\\([^)]*\\))`);
+  kotlinOutput = kotlinOutput.replace(classPattern, `$1${companionObject}`);
+
   const outputDir = path.dirname(absoluteOutputPath);
 
   if (!fs.existsSync(outputDir)) {
