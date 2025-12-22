@@ -390,6 +390,77 @@ preBuild.dependsOn("generateBrownfieldStore")
 - [ ] Optimize re-renders on the JS side (selector support)
 - [ ] Zustand integration
 
+## Re-render Optimization Plan
+
+### Problem
+
+Both JS and Swift currently re-render all subscribers when any property changes.
+
+**JS**: `useBrownieStore` returns full state → any change triggers all consumers
+**Swift**: `@Published state` replaced wholesale → all `@UseStore` views re-render
+
+### JavaScript Solution: Selector Hook
+
+Add `useBrownieStoreSelector` that only re-renders when selected value changes:
+
+```ts
+function useBrownieStoreSelector<K extends keyof BrownieStores, T>(
+  key: K,
+  selector: (state: BrownieStores[K]) => T,
+  isEqual?: (a: T, b: T) => boolean
+): T;
+```
+
+**Usage:**
+
+```ts
+const counter = useBrownieStoreSelector('BrownfieldStore', (s) => s.counter);
+const user = useBrownieStoreSelector('BrownfieldStore', (s) => s.user);
+```
+
+**Implementation:**
+
+1. Store previous selected value in `useRef`
+2. On store change, run selector on new snapshot
+3. Compare with previous using `isEqual` (default: `Object.is`)
+4. Only trigger re-render if different
+
+### Swift Solution: Selector Property Wrapper
+
+Add `@UseStoreSelector` that subscribes to specific keypath:
+
+```swift
+@propertyWrapper
+struct UseStoreSelector<State: BrownieStoreProtocol, Value: Equatable>: DynamicProperty {
+  let keyPath: KeyPath<State, Value>
+  @State private var value: Value
+
+  init(_ keyPath: KeyPath<State, Value>)
+  var wrappedValue: Value { get }
+}
+```
+
+**Usage:**
+
+```swift
+@UseStoreSelector(\.counter) var counter: Int
+@UseStoreSelector(\.user) var user: String
+```
+
+**Implementation:**
+
+1. Use `@State` instead of `@StateObject` (no `ObservableObject` dependency)
+2. Listen to `BrownieStoreUpdated` notification
+3. Extract value via keyPath from C++ snapshot
+4. Only update `@State` if value differs (Equatable check)
+
+### Tasks
+
+- [ ] JS: Implement `useBrownieStoreSelector` hook
+- [ ] JS: Add `isEqual` option for custom comparison (objects/arrays)
+- [ ] Swift: Implement `@UseStoreSelector` property wrapper
+- [ ] Swift: Consider `@Observable` macro for iOS 17+ (automatic property tracking)
+
 ### Distribution
 
 - [ ] Support xcframework packaging (iOS)
