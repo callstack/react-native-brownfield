@@ -22,6 +22,7 @@ DerivedData
 *.xcuserstate
 project.xcworkspace
 **/.xcode.env.local
+example/swift/Generated/**
 
 # Android/IntelliJ
 #

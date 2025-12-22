@@ -11,6 +11,7 @@
 		2869186323129ED100458242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2869186223129ED100458242 /* Assets.xcassets */; };
 		2869186623129ED100458242 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2869186423129ED100458242 /* LaunchScreen.storyboard */; };
 		AC7E040409DFEE553311B27E /* libPods-SwiftExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF9653D1882655DA02862F71 /* libPods-SwiftExample.a */; };
+		BFSTORE001000000000000001 /* BrownfieldStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFSTORE001000000000000002 /* BrownfieldStore.swift */; };
 		ED52AE6E1313AAE3C968412D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 33BE347ABB4EE17F7F99D32D /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -22,6 +23,7 @@
 		2869186723129ED100458242 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		33BE347ABB4EE17F7F99D32D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		5BE9069F7C8AF5853F650B68 /* Pods-SwiftExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftExample.debug.xcconfig"; path = "Target Support Files/Pods-SwiftExample/Pods-SwiftExample.debug.xcconfig"; sourceTree = "<group>"; };
+		BFSTORE001000000000000002 /* BrownfieldStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrownfieldStore.swift; sourceTree = "<group>"; };
 		CF9653D1882655DA02862F71 /* libPods-SwiftExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SwiftExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E74DC3AFAC0967529ED1C063 /* Pods-SwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftExample.release.xcconfig"; path = "Target Support Files/Pods-SwiftExample/Pods-SwiftExample.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -42,6 +44,7 @@
 			isa = PBXGroup;
 			children = (
 				2869185B23129ECF00458242 /* App.swift */,
+				BFSTORE001000000000000003 /* Generated */,
 				2869186223129ED100458242 /* Assets.xcassets */,
 				2869186423129ED100458242 /* LaunchScreen.storyboard */,
 				2869186723129ED100458242 /* Info.plist */,
@@ -67,6 +70,14 @@
 				E74DC3AFAC0967529ED1C063 /* Pods-SwiftExample.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		BFSTORE001000000000000003 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				BFSTORE001000000000000002 /* BrownfieldStore.swift */,
+			);
+			path = Generated;
 			sourceTree = "<group>";
 		};
 		F4733EE8C5738566111C3C12 /* Frameworks */ = {
@@ -249,6 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2869185C23129ECF00458242 /* App.swift in Sources */,
+				BFSTORE001000000000000001 /* BrownfieldStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
