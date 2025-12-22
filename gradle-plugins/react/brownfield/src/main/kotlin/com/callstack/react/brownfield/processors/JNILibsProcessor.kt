@@ -10,6 +10,7 @@
 
 package com.callstack.react.brownfield.processors
 
+import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
@@ -35,6 +36,7 @@ class JNILibsProcessor : BaseProject() {
             throw TaskNotFound("Task $taskName not found")
         }
 
+        val androidExtension = project.extensions.getByName("android") as LibraryExtension
         val copyTask = copySoLibsTask(variant)
 
         mergeJniLibsTask.configure {
@@ -42,6 +44,7 @@ class JNILibsProcessor : BaseProject() {
             it.dependsOn(copyTask)
 
             it.doFirst {
+                val projectExt = project.extensions.getByType(Extension::class.java)
                 val existingJNILibs =
                     listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
                         .associateWith { mutableListOf<String>() }
@@ -49,7 +52,14 @@ class JNILibsProcessor : BaseProject() {
                 for (archiveLibrary in aarLibraries) {
                     val jniDir = archiveLibrary.getJniDir()
                     processNestedLibs(jniDir.listFiles(), existingJNILibs)
-                    copyStrippedSoLibs(variant, existingJNILibs)
+                    if (projectExt.experimentalUseStrippedSoFiles) {
+                        copyStrippedSoLibs(variant, existingJNILibs)
+                    } else {
+                        if (jniDir.exists()) {
+                            val filteredSourceSets = androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variant.name }
+                            filteredSourceSets.forEach { sourceSet -> sourceSet.jniLibs.srcDir(jniDir) }
+                        }
+                    }
                 }
             }
         }
