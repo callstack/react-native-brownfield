@@ -1,12 +1,10 @@
-## Kotlin
+# Kotlin
 
 React Native Brownfield provides first-class support for Kotlin.
 
-### React Native >= 0.80.0 (extra step)
+## React Native >= 0.80.0
 
-With react-native >= 0.80.0, an auto-generated file was added which is responsible to load your App's native libs. If you're consuming this library in a RN project, then
-you will have this file `ReactNativeApplicationEntryPoint` available. If you're consuming this library in a RN android library which is backed by
-`com.callstack.react:brownfield-gradle-plugin`, then this file will also be available.
+With react-native >= 0.80.0, an auto-generated file was added which is responsible to load your App's native libs. If you're consuming this library in a RN project, then you will have this file `ReactNativeApplicationEntryPoint` available. If you're consuming this library in a RN android library which is backed by `com.callstack.react:brownfield-gradle-plugin`, then this file will also be available.
 
 Below is the code you need to add before you call `ReactNativeBrownfield.initialize`:
 
@@ -17,33 +15,27 @@ loadReactNative(application)
 ReactNativeBrownfield.initialize(application, packages)
 ```
 
-<hr/>
-<br/>
+:::note
+Previously, you were required to implement `DefaultHardwareBackBtnHandler` in your calling Activity. Now with > 1.1.0 you are not required to do that step. If you're upgrading to the latest version then you can safely remove that interface implementation from your calling Activity.
+:::
 
-> Note: Previously, you were required to implement `DefaultHardwareBackBtnHandler` in your calling Activity. Now with > 1.1.0 you are not required to do that step.
-> If you're upgrading to the latest version then you can safely remove that interface implementation from your calling Activity.
+## API Reference
 
-<hr/>
-
-### API Reference
-
-#### `ReactNativeBrownfield`
+### `ReactNativeBrownfield`
 
 You can import the object from:
 
-```java
+```kotlin
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 ```
 
 ---
 
-**Statics:**
+#### Statics
 
-`initialize`
+##### `initialize`
 
 A function used to initialize a React Native Brownfield singleton. Keep in mind that it **doesn't** load React Native bundle.
-
-Params:
 
 | Param            | Required      | Type                   | Description                                                                                                                                                      |
 | ---------------- | ------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -55,14 +47,14 @@ Params:
 
 > `*` - From the marked fields, exactly one must be specified, excluding the others. See examples below.
 
-Available options:
+**Available options:**
 
 - `useDeveloperSupport`: `Boolean` - Flag to use dev support.
 - `packages`: `List<ReactPackage>` - List of your React Native Native modules.
 - `mainModuleName`: `String` - Path to react native entry file (when loading from Metro).
 - `bundleAssetPath`: `String` - Path to react native bundle asset file (when loading from app assets), appended to `asset://`.
 
-Examples:
+**Examples:**
 
 ```kotlin
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
@@ -120,11 +112,9 @@ ReactNativeBrownfield.initialize(this, options) {
 
 ---
 
-`shared`
+##### `shared`
 
 A singleton that keeps an instance of ReactNativeBrownfield object.
-
-Examples:
 
 ```kotlin
 ReactNativeBrownfield.shared
@@ -132,7 +122,7 @@ ReactNativeBrownfield.shared
 
 ---
 
-**Properties:**
+#### Properties
 
 | Property  | Type        | Default | Description                                                                                                                                                      |
 | --------- | ----------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -140,13 +130,11 @@ ReactNativeBrownfield.shared
 
 ---
 
-**Methods:**
+#### Methods
 
-`createView`
+##### `createView`
 
 Creates a React Native view with a given module name. It automatically uses an instance of React Native created in `initialize` method. This is useful when embedding React Native views directly in your native layouts or Jetpack Compose UI.
-
-Params:
 
 | Param         | Required | Type               | Description                                                |
 | ------------- | -------- | ------------------ | ---------------------------------------------------------- |
@@ -155,10 +143,9 @@ Params:
 | moduleName    | Yes      | `String`           | Name of React Native component registered to `AppRegistry` |
 | launchOptions | No       | `Bundle`           | Initial properties to be passed to React Native component  |
 
-Returns:
-`FrameLayout` - A view containing the React Native component.
+Returns: `FrameLayout` - A view containing the React Native component.
 
-Examples:
+**Examples:**
 
 ```kotlin
 // In a Fragment or Activity
@@ -182,9 +169,9 @@ AndroidView(
 
 ---
 
-#### `ReactNativeFragment`
+### `ReactNativeFragment`
 
-An fragment rendering `ReactRootView` with a given module name. It automatically uses a instance of React Native created in `initialize` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
+A fragment rendering `ReactRootView` with a given module name. It automatically uses an instance of React Native created in `initialize` method. It works well with exposed JavaScript module. All the lifecycles are proxied to `ReactInstanceManager`. It's the simplest way to embed React Native into your navigation stack.
 
 ```kotlin
 import com.callstack.reactnativebrownfield.ReactNativeFragment
@@ -192,20 +179,18 @@ import com.callstack.reactnativebrownfield.ReactNativeFragment
 
 ---
 
-**Statics:**
+#### Statics
 
-`createReactNativeFragment`
+##### `createReactNativeFragment`
 
 Creates a Fragment with `ReactNativeActivity`, you can use it as a parameter in the `startActivity` method in order to push a new activity with embedded React Native.
-
-Params:
 
 | Param        | Required | Type                                                  | Description                                                 |
 | ------------ | -------- | ----------------------------------------------------- | ----------------------------------------------------------- |
 | moduleName   | Yes      | `String`                                              | Name of React Native component registered to `AppRegistry`. |
 | initialProps | No       | `Bundle` \|\| `HashMap<String, *>` \|\| `ReadableMap` | Initial properties to be passed to React Native component.  |
 
-Examples:
+**Examples:**
 
 ```kotlin
 ReactNativeFragment.createReactNativeFragment("ReactNative")
@@ -231,9 +216,9 @@ map.putInt("score", 12)
 ReactNativeFragment.createReactNativeFragment("ReactNative", map)
 ```
 
-### Usage in Jetpack Compose
+## Usage in Jetpack Compose
 
-You can easily wrap the `ReactNativeFragment` inside a `AndroidFragment` composable to integrate React Native into your Jetpack Compose application. Since the AndroidFragment itself acts as a factory for the given Fragment class, you can pass the required arguments using a Bundle.
+You can easily wrap the `ReactNativeFragment` inside an `AndroidFragment` composable to integrate React Native into your Jetpack Compose application. Since the AndroidFragment itself acts as a factory for the given Fragment class, you can pass the required arguments using a Bundle.
 
 The `arguments` passed to the `AndroidFragment` match the ones that can be passed to the `ReactNativeFragment.createReactNativeFragment` factory, yet need to be packed inside a Bundle, as follows:
 
@@ -253,6 +238,6 @@ AndroidFragment<ReactNativeFragment>(arguments = Bundle().apply {
 
 ---
 
-### Example
+## Example
 
-You can find an example app [here](../example/kotlin).
+You can find an example app [here](https://github.com/callstack/react-native-brownfield/tree/main/apps/example/kotlin).

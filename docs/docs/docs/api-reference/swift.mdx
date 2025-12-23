@@ -1,10 +1,10 @@
-## Swift
+# Swift
 
 React Native Brownfield provides first-class support for Swift.
 
-### API Reference
+## API Reference
 
-#### `ReactNativeBrownfield`
+### `ReactNativeBrownfield`
 
 You can import the object from:
 
@@ -14,13 +14,11 @@ import ReactBrownfield
 
 ---
 
-**Statics:**
+#### Statics
 
-`shared`
+##### `shared`
 
 A singleton that keeps an instance of `ReactNativeBrownfield` object.
-
-Examples:
 
 ```swift
 ReactNativeBrownfield.shared
@@ -28,7 +26,7 @@ ReactNativeBrownfield.shared
 
 ---
 
-**Properties:**
+#### Properties
 
 | Property           | Type      | Default         | Description                                               |
 | ------------------ | --------- | --------------- | --------------------------------------------------------- |
@@ -39,20 +37,18 @@ ReactNativeBrownfield.shared
 
 ---
 
-**Methods:**
+#### Methods
 
-`startReactNative`
+##### `startReactNative`
 
 Starts React Native. You can use it to initialize React Native in your app.
-
-Params:
 
 | Param            | Required | Type                  | Description                                        |
 | ---------------- | -------- | --------------------- | -------------------------------------------------- |
 | `onBundleLoaded` | No       | `(() -> Void)?`       | Callback invoked after JS bundle is fully loaded.  |
 | `launchOptions`  | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate. |
 
-Examples:
+**Examples:**
 
 ```swift
 ReactNativeBrownfield.shared.startReactNative()
@@ -70,11 +66,9 @@ ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
 }, launchOptions: launchOptions)
 ```
 
-`view`
+##### `view`
 
 Creates a React Native view for the specified module name.
-
-Params:
 
 | Param           | Required | Type                  | Description                                                 |
 | --------------- | -------- | --------------------- | ----------------------------------------------------------- |
@@ -82,7 +76,7 @@ Params:
 | `initialProps`  | No       | `[AnyHashable: Any]?` | Initial properties to be passed to React Native component.  |
 | `launchOptions` | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate.          |
 
-Examples:
+**Examples:**
 
 ```swift
 let view = ReactNativeBrownfield.shared.view(
@@ -93,11 +87,11 @@ let view = ReactNativeBrownfield.shared.view(
 
 ---
 
-#### Initialization Approaches
+## Initialization Approaches
 
 React Native Brownfield supports two main approaches for initialization:
 
-**1. UIKit AppDelegate Approach (Traditional)**
+### UIKit AppDelegate Approach (Traditional)
 
 ```swift
 import UIKit
@@ -130,7 +124,7 @@ class ViewController: UIViewController {
 }
 ```
 
-**2. SwiftUI App Approach (Modern)**
+### SwiftUI App Approach (Modern)
 
 ```swift
 import SwiftUI
@@ -181,7 +175,7 @@ Both approaches achieve the same result - initializing React Native when your ap
 
 ---
 
-#### `ReactNativeViewController`
+### `ReactNativeViewController`
 
 A view controller that's rendering React Native view within its bounds. It automatically uses an instance of a factory created in `startReactNative` method. It works well with exposed JavaScript module. It's the simplest way to embed React Native into your navigation stack.
 
@@ -193,16 +187,16 @@ import ReactBrownfield
 
 ---
 
-**Constructors:**
+#### Constructors
 
-`ReactNativeViewController(moduleName: moduleName, initialProperties: initialProperties)`
+##### `ReactNativeViewController(moduleName: moduleName, initialProperties: initialProperties)`
 
 | Param               | Required | Type             | Description                                                 |
 | ------------------- | -------- | ---------------- | ----------------------------------------------------------- |
 | `moduleName`        | Yes      | `String`         | Name of React Native component registered to `AppRegistry`. |
 | `initialProperties` | No       | `[String: Any]?` | Initial properties to be passed to React Native component.  |
 
-Examples:
+**Examples:**
 
 ```swift
 ReactNativeViewController(moduleName: "ReactNative")
@@ -214,7 +208,7 @@ ReactNativeViewController(moduleName: "ReactNative", initialProperties: ["score"
 
 ---
 
-#### `ReactNativeView`
+### `ReactNativeView`
 
 A SwiftUI view that wraps the `ReactNativeViewController`, making it easy to integrate React Native into SwiftUI navigation flows. It automatically handles navigation events like "pop to native" from React Native.
 
@@ -226,16 +220,16 @@ import ReactBrownfield
 
 ---
 
-**Constructors:**
+#### Constructors
 
-`ReactNativeView(moduleName: moduleName, initialProperties: initialProperties)`
+##### `ReactNativeView(moduleName: moduleName, initialProperties: initialProperties)`
 
 | Param               | Required | Type            | Description                                                 |
 | ------------------- | -------- | --------------- | ----------------------------------------------------------- |
 | `moduleName`        | Yes      | `String`        | Name of React Native component registered to `AppRegistry`. |
 | `initialProperties` | No       | `[String: Any]` | Initial properties to be passed to React Native component.  |
 
-Examples:
+**Examples:**
 
 ```swift
 ReactNativeView(moduleName: "ReactNative")
@@ -256,6 +250,6 @@ NavigationLink("Open React Native Screen") {
 
 ---
 
-### Example
+## Example
 
-You can find an example app [here](../example/swift).
+You can find an example app [here](https://github.com/callstack/react-native-brownfield/tree/main/apps/example/swift).

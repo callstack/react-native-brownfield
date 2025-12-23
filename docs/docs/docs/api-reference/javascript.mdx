@@ -1,0 +1,57 @@
+# JavaScript Module
+
+Besides native components, we are exposing JavaScript functions to control the behavior of those components from React Native app.
+
+## Usage
+
+To use the module, import it:
+
+```js
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+```
+
+## Methods
+
+### setNativeBackGestureAndButtonEnabled
+
+A method used to toggle iOS native back gesture and Android hardware back button.
+
+```ts
+ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(enabled: boolean);
+```
+
+**Parameters:**
+
+| Param   | Type      | Description                                      |
+| ------- | --------- | ------------------------------------------------ |
+| enabled | `boolean` | Whether to enable native back gesture and button |
+
+**Example:**
+
+```ts
+ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(true);
+```
+
+### popToNative
+
+A method to pop to native screen used to push React Native experience.
+
+```ts
+ReactNativeBrownfield.popToNative(animated: boolean);
+```
+
+**Parameters:**
+
+| Param    | Type      | Description                              |
+| -------- | --------- | ---------------------------------------- |
+| animated | `boolean` | Whether to animate the transition (iOS only) |
+
+**Example:**
+
+```ts
+ReactNativeBrownfield.popToNative(true);
+```
+
+:::note
+These methods work only with native components provided by this library.
+:::
