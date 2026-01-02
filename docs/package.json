@@ -15,6 +15,6 @@
     "@rspress/core": "2.0.0-beta.32"
   },
   "devDependencies": {
-    "@types/node": "^20"
+    "@types/node": "^25.0.3"
   }
 }

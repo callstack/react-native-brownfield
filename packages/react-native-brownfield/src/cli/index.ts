@@ -298,7 +298,7 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     const artifactName = `${scheme}.xcframework`;
     artifactNames.push(artifactName);
     await mergeFrameworks({
-      iosBaseDir,
+      sourceDir: iosBaseDir,
       frameworkPaths: appFrameworkPathsToMerge,
       outputPath: path.join(outDir, artifactName),
     });
@@ -331,7 +331,7 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     const artifactName = 'ReactBrownfield.xcframework';
     artifactNames.push(artifactName);
     await mergeFrameworks({
-      iosBaseDir,
+      sourceDir: iosBaseDir,
       frameworkPaths: sdks.map((sdk) =>
         path.join(
           options.buildFolder ??
