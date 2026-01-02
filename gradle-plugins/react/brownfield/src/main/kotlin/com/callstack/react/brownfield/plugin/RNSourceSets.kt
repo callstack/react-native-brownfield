@@ -44,18 +44,22 @@ object RNSourceSets {
     }
 
     private fun configureSourceSets() {
-        androidExtension.sourceSets.getByName("main") { sourceSet ->
-            for (bundlePathSegment in listOf(
-                // outputs for RN <= 0.81
-                "createBundleReleaseJsAndAssets",
-                // outputs for RN >= 0.82
-                "react/release",
-            )) {
-                sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
-                sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
-            }
+        project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
+            val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
-            sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
+            androidExtension.sourceSets.getByName("main") { sourceSet ->
+                for (bundlePathSegment in listOf(
+                    // outputs for RN <= 0.81
+                    "createBundle${capitalizedVariantName}JsAndAssets",
+                    // outputs for RN >= 0.82
+                    "react/${variant.name}",
+                )) {
+                    sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
+                    sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
+                }
+
+                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
+            }
         }
 
         androidExtension.sourceSets.getByName("release") {

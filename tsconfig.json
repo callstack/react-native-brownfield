@@ -1,29 +1,15 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
-    "paths": {
-      "@callstack/react-native-brownfield": ["./src/index"]
-    },
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
-    "lib": ["esnext"],
+    "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noStrictGenericChecks": false,
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
     "strict": true,
-    "target": "esnext",
-    "verbatimModuleSyntax": true
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "exclude": ["example/**/Pods"]
+  "references": [
+    { "path": "packages/react-native-brownfield" }
+  ],
+  "exclude": ["**/node_modules", "apps/**/Pods"]
 }

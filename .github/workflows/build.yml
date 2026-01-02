@@ -11,9 +11,6 @@ jobs:
     name: Build Android RN App & brownfield AAR
     runs-on: ubuntu-latest
 
-    env:
-      SKIP_YARN_COREPACK_CHECK: 0
-
     steps:
       - uses: actions/checkout@v4
 
@@ -29,28 +26,25 @@ jobs:
           node-version: 'lts/*'
           cache: 'yarn'
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: yarn install
 
-      - name: Install example dependencies
-        run: |
-          cd example
-          yarn install
-          cd ..
+      - name: Build package
+        run: yarn build
 
       - name: Build Android RN app
         run: |
-          cd example/RNApp/android
+          cd apps/tester-from-source/kotlin
           ./gradlew assembleDebug
 
       - name: Package AAR with the Brownfield CLI
         run: |
-          cd example/RNApp
+          cd apps/RNApp
           npx tsx ../../src/cli/index.ts package:android --module-name :BrownfieldLib --variant release
 
       - name: Publish AAR artifact to Maven Local
         run: |
-          cd example/RNApp/android/BrownfieldLib
+          cd apps/RNApp/android/BrownfieldLib
           npx tsx ../../src/cli/index.ts publish:android --module-name :BrownfieldLib
 
       - name: Verify debug AAR exists in Maven Local
@@ -61,21 +55,20 @@ jobs:
 
       - name: Build Brownfield Android native app
         run: |
-          cd example/AndroidApp
+          cd apps/AndroidApp
           ./gradlew assembleDebug
 
   rn-ios:
     name: Build iOS App
     runs-on: macos-latest
 
-    env:
-      SKIP_YARN_COREPACK_CHECK: 0
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode 16.4
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      - name: Use appropriate Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: '16'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -89,31 +82,28 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: yarn install
 
-      - name: Install example dependencies
-        run: |
-          cd example
-          yarn install
-          cd ..
+      - name: Build package
+        run: yarn build
 
       - name: Install pods
         run: |
-          cd example/RNApp/ios
+          cd apps/tester-from-source/swift
           pod install
 
       - name: Build iOS RN app
         run: |
-          cd example/RNApp/ios
+          cd apps/RNApp/ios
           xcodebuild -workspace RNApp.xcworkspace -scheme RNApp -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
 
       - name: Package iOS Framework with the Brownfield CLI
         run: |
-          cd example/RNApp
+          cd apps/RNApp
           npx tsx ../../src/cli/index.ts package:ios --workspace RNApp --scheme BrownfieldLib
 
       - name: Build Brownfield iOS native app
         run: |
-          cd example/iOSApp
+          cd apps/iOSApp
           xcodebuild -workspace iOSApp.xcworkspace -scheme iOSApp -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO

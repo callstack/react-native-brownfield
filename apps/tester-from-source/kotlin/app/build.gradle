@@ -1,0 +1,58 @@
+apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.plugin.compose"
+
+
+react {
+    /* Autolinking */
+    autolinkLibrariesWithApp()
+}
+
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+
+android {
+    ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk rootProject.ext.compileSdkVersion
+
+    namespace "com.callstack.kotlinexample"
+    defaultConfig {
+        applicationId "com.callstack.kotlinexample"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildFeatures {
+      compose true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+       }
+    }
+}
+
+
+
+dependencies {
+    // The version of react-native is set by the React Native Gradle Plugin
+    implementation("com.facebook.react:react-android")
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation "androidx.navigation:navigation-compose:2.8.8"
+    implementation "androidx.compose.material3:material3:1.3.1"
+
+
+  if (hermesEnabled.toBoolean()) {
+      implementation("com.facebook.react:hermes-android")
+    } else {
+      implementation jscFlavor
+    }
+}

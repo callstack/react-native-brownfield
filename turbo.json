@@ -1,0 +1,83 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "lint": {
+      "dependsOn": ["^build:brownfield"],
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build:brownfield"],
+      "inputs": ["**/*.ts", "**/*.tsx"]
+    },
+    "test": {},
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["lib/**"]
+    },
+    "build:brownfield": {
+      "inputs": [
+        "packages/react-native-brownfield/package.json",
+        "packages/react-native-brownfield/android",
+        "packages/react-native-brownfield/!android/build",
+        "packages/react-native-brownfield/ios",
+        "packages/react-native-brownfield/!ios/build",
+        "packages/react-native-brownfield/!ios/Pods",
+        "packages/react-native-brownfield/src/*.ts",
+        "packages/react-native-brownfield/src/*.tsx"
+      ],
+      "outputs": ["lib/**"]
+    },
+    "build:tester-from-source:android": {
+      "env": ["JAVA_HOME", "ANDROID_NDK", "ANDROID_SDK", "ANDROID_HOME"],
+      "inputs": [
+        "packages/react-native-brownfield/package.json",
+        "packages/react-native-brownfield/android",
+        "packages/react-native-brownfield/!android/build",
+        "packages/react-native-brownfield/src/*.ts",
+        "packages/react-native-brownfield/src/*.tsx",
+        "apps/tester-from-source/package.json",
+        "apps/tester-from-source/kotlin",
+        "!apps/tester-from-source/kotlin/.gradle",
+        "!apps/tester-from-source/kotlin/build",
+        "!apps/tester-from-source/kotlin/app/build"
+      ],
+      "outputs": []
+    },
+    "build:tester-from-source:ios": {
+      "env": ["RCT_NEW_ARCH_ENABLED"],
+      "inputs": [
+        "packages/react-native-brownfield/package.json",
+        "packages/react-native-brownfield/android",
+        "packages/react-native-brownfield/!android/build",
+        "packages/react-native-brownfield/src/*.ts",
+        "packages/react-native-brownfield/src/*.tsx",
+        "apps/tester-from-source/package.json",
+        "apps/tester-from-source/swift",
+        "!apps/tester-from-source/swift/build",
+        "!apps/tester-from-source/swift/Pods"
+      ],
+      "outputs": []
+    },
+    "build:RNApp:android": {
+      "env": ["JAVA_HOME", "ANDROID_NDK", "ANDROID_SDK", "ANDROID_HOME"],
+      "inputs": [
+        "apps/tester-from-source/package.json",
+        "apps/tester-from-source/kotlin",
+        "!apps/tester-from-source/kotlin/.gradle",
+        "!apps/tester-from-source/kotlin/build",
+        "!apps/tester-from-source/kotlin/app/build"
+      ],
+      "outputs": []
+    },
+    "build:RNApp:ios": {
+      "env": ["RCT_NEW_ARCH_ENABLED"],
+      "inputs": [
+        "apps/tester-from-source/package.json",
+        "apps/tester-from-source/swift",
+        "!apps/tester-from-source/swift/build",
+        "!apps/tester-from-source/swift/Pods"
+      ],
+      "outputs": []
+    }
+  }
+}

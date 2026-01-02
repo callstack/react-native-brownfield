@@ -28,7 +28,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
-    private val upperCaseVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
     fun getVariant(): LibraryVariant {
         return variant
@@ -117,7 +117,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
         aarLibraries: Collection<AndroidArchiveLibrary>,
         explodeTasks: MutableList<Task>,
     ) {
-        val taskPath = "generate${upperCaseVariantName}Resources"
+        val taskPath = "generate${capitalizedVariantName}Resources"
         val resourceGenTask = project.tasks.named(taskPath)
 
         if (!resourceGenTask.isPresent) {
