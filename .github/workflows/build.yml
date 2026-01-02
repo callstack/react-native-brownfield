@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build package
+      - name: Build packages
         run: yarn build
 
       - name: Build Android RN app
@@ -40,12 +40,12 @@ jobs:
       - name: Package AAR with the Brownfield CLI
         run: |
           cd apps/RNApp
-          npx tsx ../../src/cli/index.ts package:android --module-name :BrownfieldLib --variant release
+          yarn workspace @callstack/react-native-brownfield brownfield package:android --module-name :BrownfieldLib --variant release
 
       - name: Publish AAR artifact to Maven Local
         run: |
           cd apps/RNApp/android/BrownfieldLib
-          npx tsx ../../src/cli/index.ts publish:android --module-name :BrownfieldLib
+          yarn workspace @callstack/react-native-brownfield brownfield publish:android --module-name :BrownfieldLib
 
       - name: Verify debug AAR exists in Maven Local
         run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-debug.aar
@@ -101,7 +101,7 @@ jobs:
       - name: Package iOS Framework with the Brownfield CLI
         run: |
           cd apps/RNApp
-          npx tsx ../../src/cli/index.ts package:ios --workspace RNApp --scheme BrownfieldLib
+          yarn workspace @callstack/react-native-brownfield brownfield package:ios --workspace RNApp --scheme BrownfieldLib
 
       - name: Build Brownfield iOS native app
         run: |

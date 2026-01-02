@@ -38,7 +38,7 @@ You can use the built-in CLI that comes with this library to package your React 
 
 ##### Publish for iOS
 
-Simply run `npx react-native-brownfield package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
+Simply run `npx brownfield package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
 
 Available arguments:
 
@@ -54,7 +54,7 @@ Available arguments:
 
 ##### Build for Android
 
-To build the artifact for Android without publishing, run `npx react-native-brownfield package:aar --module-name app`.
+To build the artifact for Android without publishing, run `npx brownfield package:aar --module-name app`.
 
 Available arguments:
 
@@ -68,7 +68,7 @@ Available arguments:
 
 To publish the `.aar`(s) built beforehand with `react-native-brownfield package:aar` to Maven local, which will allow Gradle to be able to load it from Maven local repository, run:
 
-`npx react-native-brownfield publish:android --module-name app`
+`npx brownfield publish:android --module-name app`
 
 | Argument      | Description                                                                                                               | Default                |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----- |

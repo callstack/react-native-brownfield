@@ -1602,7 +1602,7 @@ __metadata:
     react: "*"
     react-native: "*"
   bin:
-    react-native-brownfield: lib/commonjs/cli/index.js
+    brownfield: ./lib/commonjs/cli/index.js
   languageName: unknown
   linkType: soft
 

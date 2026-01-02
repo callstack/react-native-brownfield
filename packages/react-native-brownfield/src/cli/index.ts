@@ -24,14 +24,13 @@ import {
   getAarConfig,
   makeRelativeAndroidProjectConfigPaths,
 } from './utils';
-import { version } from '../../package.json';
 
 const program = new Command();
 
 program
   .name('react-native-brownfield')
   .description('React Native Brownfield library CLI')
-  .version(version)
+  .version(process.env.npm_package_version ?? '0.0.0')
   .option('--verbose', 'Enable verbose output')
   .hook('preAction', (_cmd) => {
     const opts = program.opts();
