@@ -29,8 +29,15 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: List workspaces
+        run: yarn workspaces list
+
       - name: Build packages
         run: yarn build
+
+      - name: Test Brownfield CLI
+        run: |
+          yarn workspace @callstack/react-native-brownfield brownfield --version
 
       - name: Build Android RN app
         run: |
