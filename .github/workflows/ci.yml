@@ -138,7 +138,7 @@ jobs:
 
       - name: Publish AAR artifact to Maven Local
         run: |
-          cd apps/RNApp/android/BrownfieldLib
+          cd apps/RNApp
           node ../../packages/react-native-brownfield/lib/commonjs/cli/index.js publish:android --module-name :BrownfieldLib
 
       - name: Verify debug AAR exists in Maven Local
@@ -197,4 +197,4 @@ jobs:
       - name: Build Brownfield iOS native app
         run: |
           cd apps/iOSApp
-          xcodebuild -workspace iOSApp.xcworkspace -scheme iOSApp -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -project ./Brownfield\ iOS\ App.xcodeproj -scheme "Brownfield iOS App" -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO
