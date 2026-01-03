@@ -188,7 +188,7 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
     .flatMap((sdk) => sdk.split(',').map((s) => s.trim()))
     .filter((sdk) => sdk.length > 0);
 
-  if (!options.noInstallPods) {
+  if (options.installPods) {
     const { start, stop, message } = spinner();
 
     start(`Installing pods...`);
@@ -283,7 +283,7 @@ curryOptions(program.command('package:ios').description('Build iOS package'), [
   const outDir = path.join(iosBaseDir, 'out', options.configuration);
 
   if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir);
+    fs.mkdirSync(outDir, { recursive: true });
   }
 
   const artifactNames: string[] = [];
