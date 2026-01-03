@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-lint:
+    name: Build & static code analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,7 +31,7 @@ jobs:
           yarn workspace @callstack/react-native-brownfield brownfield --version
 
   rn-android:
-    name: RN Android App & AAR
+    name: Tester RN Android App & AAR
     runs-on: ubuntu-latest
     needs: build-lint
 
@@ -82,7 +83,7 @@ jobs:
           ./gradlew assembleDebug
 
   rn-ios:
-    name: RN iOS App & XCFramework
+    name: Tester RN iOS App & XCFramework
     runs-on: macos-latest
     needs: build-lint
 
