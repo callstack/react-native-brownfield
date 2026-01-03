@@ -125,7 +125,7 @@ jobs:
       - name: Package iOS Framework with the Brownfield CLI
         run: |
           cd apps/RNApp
-          node ../../packages/react-native-brownfield/node_modules/.bin/brownfield package:ios --workspace RNApp --scheme BrownfieldLib
+          node ../../packages/react-native-brownfield/node_modules/.bin/brownfield package:ios --workspace RNApp --scheme BrownfieldLib --configuration Release
 
       - name: Build Brownfield iOS native app
         run: |
