@@ -5,7 +5,8 @@ module.exports = {
       'module-resolver',
       {
         alias: {
-          '@callstack/react-native-brownfield': '../../src',
+          '@callstack/react-native-brownfield':
+            '../../packages/react-native-brownfield/src',
         },
       },
     ],
