@@ -102,7 +102,7 @@ jobs:
       - name: Build integrated iOS tester app
         run: |
           cd apps/tester-integrated/swift
-          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
 
   packaging-android:
     name: Android integration workflow with CLI
@@ -197,4 +197,4 @@ jobs:
       - name: Build Brownfield iOS native app
         run: |
           cd apps/iOSApp
-          xcodebuild -workspace iOSApp.xcworkspace -scheme iOSApp -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace iOSApp.xcworkspace -scheme iOSApp -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
