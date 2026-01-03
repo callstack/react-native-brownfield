@@ -1,5 +1,5 @@
 {
-  "name": "react-native-brownfield-example",
+  "name": "@callstack/react-native-brownfield-tester-integrated",
   "version": "0.0.1",
   "private": true,
   "scripts": {

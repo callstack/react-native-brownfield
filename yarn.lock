@@ -1575,6 +1575,29 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@callstack/react-native-brownfield-tester-integrated@workspace:apps/tester-integrated":
+  version: 0.0.0-use.local
+  resolution: "@callstack/react-native-brownfield-tester-integrated@workspace:apps/tester-integrated"
+  dependencies:
+    "@babel/core": "npm:^7.25.2"
+    "@babel/preset-env": "npm:^7.25.3"
+    "@babel/runtime": "npm:^7.25.0"
+    "@callstack/react-native-brownfield": "npm:*"
+    "@react-native-community/cli": "npm:20.0.0"
+    "@react-native-community/cli-platform-android": "npm:20.0.0"
+    "@react-native-community/cli-platform-ios": "npm:20.0.0"
+    "@react-native/babel-preset": "npm:0.82.1"
+    "@react-native/metro-config": "npm:0.82.1"
+    "@react-native/typescript-config": "npm:0.82.1"
+    "@react-navigation/native": "npm:^7.0.15"
+    "@react-navigation/native-stack": "npm:^7.2.1"
+    react: "npm:19.1.1"
+    react-native: "npm:0.82.1"
+    react-native-safe-area-context: "npm:^5.3.0"
+    react-native-screens: "npm:^4.15.2"
+  languageName: unknown
+  linkType: soft
+
 "@callstack/react-native-brownfield@npm:*, @callstack/react-native-brownfield@workspace:packages/react-native-brownfield":
   version: 0.0.0-use.local
   resolution: "@callstack/react-native-brownfield@workspace:packages/react-native-brownfield"
@@ -12801,29 +12824,6 @@ __metadata:
     "@callstack/rspress-preset": "npm:^0.4.5"
     "@rspress/core": "npm:2.0.0-beta.32"
     "@types/node": "npm:^25.0.3"
-  languageName: unknown
-  linkType: soft
-
-"react-native-brownfield-example@workspace:apps/tester-from-source":
-  version: 0.0.0-use.local
-  resolution: "react-native-brownfield-example@workspace:apps/tester-from-source"
-  dependencies:
-    "@babel/core": "npm:^7.25.2"
-    "@babel/preset-env": "npm:^7.25.3"
-    "@babel/runtime": "npm:^7.25.0"
-    "@callstack/react-native-brownfield": "npm:*"
-    "@react-native-community/cli": "npm:20.0.0"
-    "@react-native-community/cli-platform-android": "npm:20.0.0"
-    "@react-native-community/cli-platform-ios": "npm:20.0.0"
-    "@react-native/babel-preset": "npm:0.82.1"
-    "@react-native/metro-config": "npm:0.82.1"
-    "@react-native/typescript-config": "npm:0.82.1"
-    "@react-navigation/native": "npm:^7.0.15"
-    "@react-navigation/native-stack": "npm:^7.2.1"
-    react: "npm:19.1.1"
-    react-native: "npm:0.82.1"
-    react-native-safe-area-context: "npm:^5.3.0"
-    react-native-screens: "npm:^4.15.2"
   languageName: unknown
   linkType: soft
 

@@ -30,13 +30,14 @@ jobs:
         run: |
           yarn workspace @callstack/react-native-brownfield brownfield --version
 
-  rn-android:
-    name: Tester RN Android App & AAR
+  tester-android:
+    name: Integrated tester Android App
     runs-on: ubuntu-latest
     needs: build-lint
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -56,39 +57,19 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Build Android RN app
+      - name: Build integrated Android tester app
         run: |
-          cd apps/tester-from-source/kotlin
+          cd apps/tester-integrated/kotlin
           ./gradlew assembleDebug
 
-      - name: Package AAR with the Brownfield CLI
-        run: |
-          cd apps/RNApp
-          node ../../packages/react-native-brownfield/node_modules/.bin/brownfield package:android --module-name :BrownfieldLib --variant release
-
-      - name: Publish AAR artifact to Maven Local
-        run: |
-          cd apps/RNApp/android/BrownfieldLib
-          node ../../packages/react-native-brownfield/node_modules/.bin/brownfield publish:android --module-name :BrownfieldLib
-
-      - name: Verify debug AAR exists in Maven Local
-        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-debug.aar
-
-      - name: Verify release AAR exists in Maven Local
-        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-release.aar
-
-      - name: Build Brownfield Android native app
-        run: |
-          cd apps/AndroidApp
-          ./gradlew assembleDebug
-
-  rn-ios:
-    name: Tester RN iOS App & XCFramework
+  tester-ios:
+    name: Integrated tester iOS App
     runs-on: macos-latest
     needs: build-lint
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Use appropriate Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
@@ -115,13 +96,98 @@ jobs:
 
       - name: Install pods
         run: |
-          cd apps/tester-from-source/swift
+          cd apps/tester-integrated/swift
           pod install
 
-      - name: Build iOS RN app
+      - name: Build integrated iOS tester app
         run: |
           cd apps/RNApp/ios
           xcodebuild -workspace RNApp.xcworkspace -scheme RNApp -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGNING_ALLOWED=NO
+
+  packaging-android:
+    name: Android integration workflow with CLI
+    runs-on: ubuntu-latest
+    needs: tester-android
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Package AAR with the Brownfield CLI
+        run: |
+          cd apps/RNApp
+          node ../../packages/react-native-brownfield/node_modules/.bin/brownfield package:android --module-name :BrownfieldLib --variant release
+
+      - name: Publish AAR artifact to Maven Local
+        run: |
+          cd apps/RNApp/android/BrownfieldLib
+          node ../../packages/react-native-brownfield/node_modules/.bin/brownfield publish:android --module-name :BrownfieldLib
+
+      - name: Verify debug AAR exists in Maven Local
+        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-debug.aar
+
+      - name: Verify release AAR exists in Maven Local
+        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-release.aar
+
+      - name: Build native Android Brownfield app
+        run: |
+          cd apps/AndroidApp
+          ./gradlew assembleDebug
+
+  packaging-ios:
+    name: iOS integration workflow with CLI
+    runs-on: macos-latest
+    needs: tester-ios
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use appropriate Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: '16'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Install pods
+        run: |
+          cd apps/RNApp/ios
+          pod install
 
       - name: Package iOS Framework with the Brownfield CLI
         run: |
