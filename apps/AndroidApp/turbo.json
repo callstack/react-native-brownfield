@@ -1,0 +1,15 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build:example:android-consumer": {
+      "inputs": [
+        "apps/AndroidApp/app",
+        "apps/AndroidApp/build.gradle",
+        "apps/AndroidApp/settings.gradle",
+        "~/.m2/repository/com/rnapp/brownfieldlib/**/*.aar"
+      ],
+      "outputs": ["app/build"]
+    }
+  }
+}

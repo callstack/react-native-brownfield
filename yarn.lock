@@ -1523,6 +1523,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@callstack/brownfield-example-android-app@workspace:apps/AndroidApp":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-example-android-app@workspace:apps/AndroidApp"
+  languageName: unknown
+  linkType: soft
+
+"@callstack/brownfield-example-ios-app@workspace:apps/iOSApp":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-example-ios-app@workspace:apps/iOSApp"
+  languageName: unknown
+  linkType: soft
+
 "@callstack/brownfield-example-rn-app@workspace:apps/RNApp":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-rn-app@workspace:apps/RNApp"

@@ -11,21 +11,7 @@
     },
     "test": {},
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["lib/**", "doc_build/**"]
-    },
-    "build:brownfield": {
-      "inputs": [
-        "packages/react-native-brownfield/package.json",
-        "packages/react-native-brownfield/android",
-        "packages/react-native-brownfield/!android/build",
-        "packages/react-native-brownfield/ios",
-        "packages/react-native-brownfield/!ios/build",
-        "packages/react-native-brownfield/!ios/Pods",
-        "packages/react-native-brownfield/src/*.ts",
-        "packages/react-native-brownfield/src/*.tsx"
-      ],
-      "outputs": ["lib/**"]
+      "dependsOn": ["^build"]
     }
   }
 }

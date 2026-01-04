@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
-    "build:android": {
+    "build:example:android-rn": {
       "dependsOn": ["build:brownfield"],
       "env": ["JAVA_HOME", "ANDROID_NDK", "ANDROID_SDK", "ANDROID_HOME"],
       "inputs": [
@@ -14,7 +14,7 @@
       ],
       "outputs": []
     },
-    "build:ios": {
+    "build:example:ios-rn": {
       "dependsOn": ["build:brownfield"],
       "env": ["RCT_NEW_ARCH_ENABLED"],
       "inputs": [

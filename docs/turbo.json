@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build:docs": {
+      "inputs": ["docs", "theme", "rspress.config.ts"],
+      "outputs": ["doc_build"]
+    }
+  }
+}

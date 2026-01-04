@@ -5,8 +5,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "build:android": "react-native build-android",
-    "build:ios": "react-native build-ios",
+    "build:example:android-rn": "react-native build-android",
+    "build:example:ios-rn": "react-native build-ios",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"

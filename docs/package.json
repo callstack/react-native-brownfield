@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "rspress dev",
     "build": "rspress build",
+    "build:docs": "yarn run build",
     "preview": "rspress preview"
   },
   "dependencies": {
