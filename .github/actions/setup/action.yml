@@ -10,6 +10,17 @@ runs:
         node-version: 'lts/*'
         cache: 'yarn'
 
+    - name: Cache turbo
+      uses: actions/cache@v4
+      with:
+        path: |
+          .turbo
+          apps/*/.turbo
+          packages/*/.turbo
+        key: ${{ runner.os }}-turbo-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-turbo-
+
     - name: Install dependencies
       run: yarn install
       shell: bash
