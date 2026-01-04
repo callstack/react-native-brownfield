@@ -59,8 +59,7 @@ jobs:
 
       - name: Build integrated Android tester app
         run: |
-          cd apps/tester-integrated/kotlin
-          ./gradlew assembleDebug
+          yarn run build:tester-integrated:android
 
   tester-ios:
     name: Integrated tester iOS App
@@ -101,8 +100,7 @@ jobs:
 
       - name: Build integrated iOS tester app
         run: |
-          cd apps/tester-integrated/swift
-          xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO
+          yarn run build:tester-integrated:ios
 
   packaging-android:
     name: Android integration workflow with CLI
@@ -149,8 +147,7 @@ jobs:
 
       - name: Build native Android Brownfield app
         run: |
-          cd apps/AndroidApp
-          ./gradlew assembleDebug
+          yarn run build:example:android-consumer
 
   packaging-ios:
     name: iOS integration workflow with CLI
@@ -196,5 +193,4 @@ jobs:
 
       - name: Build Brownfield iOS native app
         run: |
-          cd apps/iOSApp
-          xcodebuild -project ./Brownfield\ iOS\ App.xcodeproj -scheme "Brownfield iOS App" -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO
+          yarn run build:example:ios-consumer
