@@ -3,6 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "build:example:android-consumer": {
+      "env": ["JAVA_HOME", "ANDROID_NDK", "ANDROID_SDK", "ANDROID_HOME"],
       "inputs": [
         "apps/AndroidApp/app",
         "apps/AndroidApp/build.gradle",

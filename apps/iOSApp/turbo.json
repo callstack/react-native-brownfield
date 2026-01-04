@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
-    "build:consumer:ios": {
+    "build:example:ios-consumer": {
       "inputs": [
         "apps/iOSApp/Brownfield iOS App",
         "apps/iOSApp/Brownfield iOS App.xcodeproj",

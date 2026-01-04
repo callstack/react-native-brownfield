@@ -3,6 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build:consumer:ios": "xcodebuild -project \"Brownfield iOS App.xcodeproj\" -scheme \"Brownfield iOS App\" -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build"
+    "build:example:ios-consumer": "xcodebuild -project \"Brownfield iOS App.xcodeproj\" -scheme \"Brownfield iOS App\" -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build"
   }
 }
