@@ -6,11 +6,11 @@
       "dependsOn": ["build:brownfield"],
       "env": ["JAVA_HOME", "ANDROID_NDK", "ANDROID_SDK", "ANDROID_HOME"],
       "inputs": [
-        "apps/tester-integrated/package.json",
-        "apps/tester-integrated/kotlin",
-        "!apps/tester-integrated/kotlin/.gradle",
-        "!apps/tester-integrated/kotlin/build",
-        "!apps/tester-integrated/kotlin/app/build"
+        "apps/TesterIntegrated/package.json",
+        "apps/TesterIntegrated/kotlin",
+        "!apps/TesterIntegrated/kotlin/.gradle",
+        "!apps/TesterIntegrated/kotlin/build",
+        "!apps/TesterIntegrated/kotlin/app/build"
       ],
       "outputs": []
     },
@@ -18,10 +18,10 @@
       "dependsOn": ["build:brownfield"],
       "env": ["RCT_NEW_ARCH_ENABLED"],
       "inputs": [
-        "apps/tester-integrated/package.json",
-        "apps/tester-integrated/swift",
-        "!apps/tester-integrated/swift/build",
-        "!apps/tester-integrated/swift/Pods"
+        "apps/TesterIntegrated/package.json",
+        "apps/TesterIntegrated/swift",
+        "!apps/TesterIntegrated/swift/build",
+        "!apps/TesterIntegrated/swift/Pods"
       ],
       "outputs": []
     }

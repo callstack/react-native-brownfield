@@ -4,8 +4,8 @@
   "tasks": {
     "build:example:ios-consumer": {
       "inputs": [
-        "apps/iOSApp/Brownfield iOS App",
-        "apps/iOSApp/Brownfield iOS App.xcodeproj",
+        "apps/AppleApp/Brownfield Apple App",
+        "apps/AppleApp/Brownfield Apple App.xcodeproj",
         "apps/RNApp/ios/out/Release/*.xcframework"
       ],
       "outputs": ["build"]

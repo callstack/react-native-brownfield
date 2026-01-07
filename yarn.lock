@@ -1529,9 +1529,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@callstack/brownfield-example-ios-app@workspace:apps/iOSApp":
+"@callstack/brownfield-example-ios-app@workspace:apps/AppleApp":
   version: 0.0.0-use.local
-  resolution: "@callstack/brownfield-example-ios-app@workspace:apps/iOSApp"
+  resolution: "@callstack/brownfield-example-ios-app@workspace:apps/AppleApp"
   languageName: unknown
   linkType: soft
 
@@ -1593,9 +1593,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@callstack/react-native-brownfield-tester-integrated@workspace:apps/tester-integrated":
+"@callstack/react-native-brownfield-tester-integrated@workspace:apps/TesterIntegrated":
   version: 0.0.0-use.local
-  resolution: "@callstack/react-native-brownfield-tester-integrated@workspace:apps/tester-integrated"
+  resolution: "@callstack/react-native-brownfield-tester-integrated@workspace:apps/TesterIntegrated"
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"

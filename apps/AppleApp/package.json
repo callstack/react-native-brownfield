@@ -1,0 +1,8 @@
+{
+  "name": "@callstack/brownfield-example-ios-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build:example:ios-consumer": "xcodebuild -project \"Brownfield Apple App.xcodeproj\" -scheme \"Brownfield Apple App\" -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build"
+  }
+}

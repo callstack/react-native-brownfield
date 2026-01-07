@@ -57,9 +57,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/tester-integrated/kotlin/build
-            apps/tester-integrated/kotlin/app/.cxx
-            apps/tester-integrated/kotlin/app/build
+            apps/TesterIntegrated/kotlin/build
+            apps/TesterIntegrated/kotlin/app/.cxx
+            apps/TesterIntegrated/kotlin/app/build
           key: ${{ runner.os }}-tester-android-build-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-tester-android-build-
@@ -103,21 +103,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/tester-integrated/swift/Pods
+            apps/TesterIntegrated/swift/Pods
           key: ${{ runner.os }}-tester-ios-pods-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-tester-ios-pods-
 
       - name: Install pods
         run: |
-          cd apps/tester-integrated/swift
+          cd apps/TesterIntegrated/swift
           pod install
 
       - name: Cache build directory
         uses: actions/cache@v4
         with:
           path: |
-            apps/tester-integrated/swift/build
+            apps/TesterIntegrated/swift/build
           key: ${{ runner.os }}-tester-ios-build-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-tester-ios-build-

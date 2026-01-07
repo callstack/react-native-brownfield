@@ -7,7 +7,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 @main
-struct BrownfieldiOSApp: App {
+struct BrownfieldAppleApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     init() {
