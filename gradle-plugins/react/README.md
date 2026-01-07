@@ -162,7 +162,7 @@ reactBrownfield {
 ## Tooling
 
 - We are using `ktlint` and `detekt` for formatting and linting
-- You can run `./gradlew :brownfield:lint` to auto-format and detect linting issues
+- You can run `./gradlew :brownfield:lint` to auto-format and detect linting issues, or use the root workspace script `yarn run gradle-plugin:lint`
 
 ## Architecture
 
