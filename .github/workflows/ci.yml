@@ -53,9 +53,19 @@ jobs:
       - name: Build packages
         run: yarn build
 
+      - name: Cache build directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/tester-integrated/kotlin/build
+            apps/tester-integrated/kotlin/app/.cxx
+            apps/tester-integrated/kotlin/app/build
+          key: ${{ runner.os }}-tester-android-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-tester-android-build-
+
       - name: Build integrated Android tester app
-        run: |
-          yarn run build:tester-integrated:android
+        run: yarn run build:tester-integrated:android
 
   tester-ios:
     name: Integrated tester iOS App
@@ -89,10 +99,28 @@ jobs:
       - name: Build packages
         run: yarn build
 
+      - name: Cache Pods
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/tester-integrated/swift/Pods
+          key: ${{ runner.os }}-tester-ios-pods-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-tester-ios-pods-
+
       - name: Install pods
         run: |
           cd apps/tester-integrated/swift
           pod install
+
+      - name: Cache build directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/tester-integrated/swift/build
+          key: ${{ runner.os }}-tester-ios-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-tester-ios-build-
 
       - name: Build integrated iOS tester app
         run: |
