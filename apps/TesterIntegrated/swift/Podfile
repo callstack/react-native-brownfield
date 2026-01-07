@@ -27,7 +27,7 @@ target 'SwiftExample' do
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :ccache_enabled => ENV['USE_CCACHE'] == '1'
     )
   end
 end
