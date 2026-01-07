@@ -1643,8 +1643,6 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  bin:
-    brownfield: ./lib/commonjs/cli/index.js
   languageName: unknown
   linkType: soft
 
