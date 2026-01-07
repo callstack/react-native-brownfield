@@ -32,6 +32,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "build": "bob build",
+    "build:watch": "bob build --watch",
     "build:brownfield": "yarn run build"
   },
   "keywords": [
@@ -62,6 +63,8 @@
     "access": "public"
   },
   "peerDependencies": {
+    "@react-native-community/cli-config": "*",
+    "@react-native-community/cli-config-android": "*",
     "react": "*",
     "react-native": "*"
   },
@@ -69,12 +72,16 @@
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli-config": "^20.0.0",
+    "@react-native-community/cli-config-android": "^20.0.0",
+    "@react-native-community/cli-types": "^20.0.0",
     "@react-native/babel-preset": "0.82.1",
     "@react-native/eslint-config": "0.82.1",
-    "@rock-js/platform-android": "^0.12.3",
-    "@rock-js/platform-apple-helpers": "^0.12.3",
-    "@rock-js/platform-ios": "^0.12.3",
-    "@rock-js/tools": "^0.12.3",
+    "@rock-js/cli": "link:../../../rock/packages/cli",
+    "@rock-js/platform-android": "link:../../../rock/packages/platform-android",
+    "@rock-js/platform-apple-helpers": "link:../../../rock/packages/platform-apple-helpers",
+    "@rock-js/platform-ios": "link:../../../rock/packages/platform-ios",
+    "@rock-js/tools": "link:../../../rock/packages/tools",
     "@types/jest": "^30.0.0",
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/node": "^25.0.3",
