@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Cache Gradle
+      - name: Restore Gradle cache
         uses: actions/cache@v5
         with:
           path: |

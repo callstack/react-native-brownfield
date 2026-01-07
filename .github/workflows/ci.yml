@@ -56,7 +56,7 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Cache build directory
+      - name: Restore android build cache
         uses: actions/cache@v5
         with:
           path: |
@@ -105,7 +105,7 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Cache Pods
+      - name: Restore Pods cache
         uses: actions/cache@v5
         with:
           path: |
@@ -119,7 +119,7 @@ jobs:
           cd apps/TesterIntegrated/swift
           pod install
 
-      - name: Cache build directory
+      - name: Restore iOS build cache
         uses: actions/cache@v5
         with:
           path: |
