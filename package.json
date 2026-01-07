@@ -4,7 +4,8 @@
   "workspaces": [
     "packages/*",
     "apps/*",
-    "docs"
+    "docs",
+    "gradle-plugins/*"
   ],
   "scripts": {
     "lint": "turbo run lint",
@@ -37,7 +38,7 @@
     "lefthook": "^2.0.3",
     "prettier": "^3.5.3",
     "release-it": "^19.0.6",
-    "turbo": "^2.1.0",
+    "turbo": "^2.7.3",
     "typescript": "5.8.3"
   },
   "commitlint": {

@@ -1567,6 +1567,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@callstack/brownfield-gradle-plugin-react@workspace:gradle-plugins/react":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-gradle-plugin-react@workspace:gradle-plugins/react"
+  languageName: unknown
+  linkType: soft
+
 "@callstack/brownfield-monorepo@workspace:.":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-monorepo@workspace:."
@@ -1582,7 +1588,7 @@ __metadata:
     lefthook: "npm:^2.0.3"
     prettier: "npm:^3.5.3"
     release-it: "npm:^19.0.6"
-    turbo: "npm:^2.1.0"
+    turbo: "npm:^2.7.3"
     typescript: "npm:5.8.3"
   languageName: unknown
   linkType: soft
@@ -1628,6 +1634,7 @@ __metadata:
     "@types/node": "npm:^25.0.3"
     "@types/react": "npm:^19.1.1"
     commander: "npm:^14.0.2"
+    eslint: "npm:^8.57.1"
     lodash.clonedeep: "npm:^4.5.0"
     react: "npm:19.1.1"
     react-native: "npm:0.82.1"
@@ -14498,58 +14505,58 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:2.7.2":
-  version: 2.7.2
-  resolution: "turbo-darwin-64@npm:2.7.2"
+"turbo-darwin-64@npm:2.7.3":
+  version: 2.7.3
+  resolution: "turbo-darwin-64@npm:2.7.3"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:2.7.2":
-  version: 2.7.2
-  resolution: "turbo-darwin-arm64@npm:2.7.2"
+"turbo-darwin-arm64@npm:2.7.3":
+  version: 2.7.3
+  resolution: "turbo-darwin-arm64@npm:2.7.3"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:2.7.2":
-  version: 2.7.2
-  resolution: "turbo-linux-64@npm:2.7.2"
+"turbo-linux-64@npm:2.7.3":
+  version: 2.7.3
+  resolution: "turbo-linux-64@npm:2.7.3"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:2.7.2":
-  version: 2.7.2
-  resolution: "turbo-linux-arm64@npm:2.7.2"
+"turbo-linux-arm64@npm:2.7.3":
+  version: 2.7.3
+  resolution: "turbo-linux-arm64@npm:2.7.3"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:2.7.2":
-  version: 2.7.2
-  resolution: "turbo-windows-64@npm:2.7.2"
+"turbo-windows-64@npm:2.7.3":
+  version: 2.7.3
+  resolution: "turbo-windows-64@npm:2.7.3"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-windows-arm64@npm:2.7.2":
-  version: 2.7.2
-  resolution: "turbo-windows-arm64@npm:2.7.2"
+"turbo-windows-arm64@npm:2.7.3":
+  version: 2.7.3
+  resolution: "turbo-windows-arm64@npm:2.7.3"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo@npm:^2.1.0":
-  version: 2.7.2
-  resolution: "turbo@npm:2.7.2"
+"turbo@npm:^2.7.3":
+  version: 2.7.3
+  resolution: "turbo@npm:2.7.3"
   dependencies:
-    turbo-darwin-64: "npm:2.7.2"
-    turbo-darwin-arm64: "npm:2.7.2"
-    turbo-linux-64: "npm:2.7.2"
-    turbo-linux-arm64: "npm:2.7.2"
-    turbo-windows-64: "npm:2.7.2"
-    turbo-windows-arm64: "npm:2.7.2"
+    turbo-darwin-64: "npm:2.7.3"
+    turbo-darwin-arm64: "npm:2.7.3"
+    turbo-linux-64: "npm:2.7.3"
+    turbo-linux-arm64: "npm:2.7.3"
+    turbo-windows-64: "npm:2.7.3"
+    turbo-windows-arm64: "npm:2.7.3"
   dependenciesMeta:
     turbo-darwin-64:
       optional: true
@@ -14565,7 +14572,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: 10/a0fb2c34ddd68bbe0fe763ef87131c687edf8caafa8b50be8df1606d82a586bd8362276f99bf34e905c9217521634b5a7c2926bad08228b29b84d54d9b4ad49b
+  checksum: 10/a0801db6b524540f1e9d60e410aac46051278b24c49829397fb9dfba22b66bc9af36e982b96f8d33d555794464b7d99e7d4f871b2308bd344338f4530c99c4e5
   languageName: node
   linkType: hard
 

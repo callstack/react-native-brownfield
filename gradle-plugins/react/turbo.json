@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "lint": {
+      "dependsOn": ["build:brownfield"],
+      "inputs": ["**/*.kt", "**/*.java", "**/*.xml", "**/*.gradle", "**/*.kts"]
+    }
+  }
+}
