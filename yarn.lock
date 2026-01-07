@@ -1640,6 +1640,7 @@ __metadata:
     commander: "npm:^14.0.2"
     eslint: "npm:^8.57.1"
     lodash.clonedeep: "npm:^4.5.0"
+    nodemon: "npm:^3.1.11"
     react: "npm:19.1.1"
     react-native: "npm:0.82.1"
     react-native-builder-bob: "npm:^0.40.14"

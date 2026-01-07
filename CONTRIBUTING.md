@@ -14,6 +14,7 @@ Depending on your needs, you may need to install CocoaPods in a subset of the be
 - `gradle-plugin:lint` - runs linting on the Brownfield Gradle plugin source code
 - `typecheck` - runs TypeScript type checking on all TS source files in the monorepo *[Turbo]* 
 - `build` - runs all `build*` tasks in the Turbo repo - see below for more details *[Turbo]* 
+- `build:watch` - runs all `build:watch` tasks in all workspaces
 - `release` - releases a new version of React Native Brownfield package using `release-it`
 - `brownfield:plugin:publish:local` - publishes the Brownfield Gradle plugin to your local Maven repository for testing purposes
 - `build:brownfield` - builds the React Native Brownfield package (`packages/react-native-brownfield`) *[Turbo]* 
