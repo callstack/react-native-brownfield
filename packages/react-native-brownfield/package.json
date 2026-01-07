@@ -80,6 +80,7 @@
     "@types/node": "^25.0.3",
     "@types/react": "^19.1.1",
     "commander": "^14.0.2",
+    "eslint": "^8.57.1",
     "lodash.clonedeep": "^4.5.0",
     "react": "19.1.1",
     "react-native": "0.82.1",
