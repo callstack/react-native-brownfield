@@ -3,9 +3,6 @@
   "version": "2.0.1",
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
-  "bin": {
-    "brownfield": "./lib/commonjs/cli/index.js"
-  },
   "contributors": [
     "Piotr Drapich <piotr.drapich@callstack.com>"
   ],
