@@ -2,48 +2,28 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "lint": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build:brownfield"],
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.js"]
     },
     "typecheck": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build:brownfield"],
       "inputs": ["**/*.ts", "**/*.tsx"]
     },
     "test": {},
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["lib/**"]
+      "dependsOn": ["^build"]
     },
-    "build:android": {
-      "env": ["JAVA_HOME", "ANDROID_NDK", "ANDROID_SDK", "ANDROID_HOME"],
+    "build:brownfield": {
       "inputs": [
         "packages/react-native-brownfield/package.json",
         "packages/react-native-brownfield/android",
         "packages/react-native-brownfield/!android/build",
-        "packages/react-native-brownfield/src/*.ts",
-        "packages/react-native-brownfield/src/*.tsx",
-        "apps/example/package.json",
-        "apps/example/kotlin",
-        "!apps/example/kotlin/.gradle",
-        "!apps/example/kotlin/build",
-        "!apps/example/kotlin/app/build"
-      ],
-      "outputs": []
-    },
-    "build:ios": {
-      "env": ["RCT_NEW_ARCH_ENABLED"],
-      "inputs": [
-        "packages/react-native-brownfield/package.json",
-        "packages/react-native-brownfield/*.podspec",
         "packages/react-native-brownfield/ios",
-        "packages/react-native-brownfield/src/*.ts",
-        "packages/react-native-brownfield/src/*.tsx",
-        "apps/example/package.json",
-        "apps/example/swift",
-        "!apps/example/swift/build",
-        "!apps/example/swift/Pods"
+        "packages/react-native-brownfield/!ios/build",
+        "packages/react-native-brownfield/!ios/Pods",
+        "packages/react-native-brownfield/src/"
       ],
-      "outputs": []
+      "outputs": ["lib/**"]
     }
   }
 }

@@ -62,6 +62,7 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 
 [build-badge]: https://img.shields.io/circleci/build/github/callstack/react-native-brownfield/master.svg?style=flat-square
 [build]: https://circleci.com/gh/callstack/react-native-brownfield
+[ci]: https://github.com/callstack/react-native-brownfield/actions/workflows/ci.yml/badge.svg
 [version-badge]: https://img.shields.io/npm/v/@callstack/react-native-brownfield.svg?style=flat-square
 [package]: https://www.npmjs.com/package/@callstack/react-native-brownfield
 [license-badge]: https://img.shields.io/npm/l/@callstack/react-native-brownfield.svg?style=flat-square

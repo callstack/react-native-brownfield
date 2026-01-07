@@ -2,8 +2,14 @@ import { PackageManagerTabs } from '@theme';
 
 # Quick Start
 
-<a href="https://www.callstack.com/ebooks/incremental-react-native-adoption-in-native-apps?utm_campaign=brownfield&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield" align="center">
-  <img alt="Download a free copy of Incremental React Native adoption in native apps ebook" src="https://github.com/user-attachments/assets/ba42bb29-1e7a-4683-80c5-2602afb1a7e6" />
+<a
+  href="https://www.callstack.com/ebooks/incremental-react-native-adoption-in-native-apps?utm_campaign=brownfield&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield"
+  align="center"
+>
+  <img
+    alt="Download a free copy of Incremental React Native adoption in native apps ebook"
+    src="https://github.com/user-attachments/assets/ba42bb29-1e7a-4683-80c5-2602afb1a7e6"
+  />
 </a>
 
 ## Installation
@@ -22,11 +28,57 @@ Run `pod install` in your iOS directory.
 
 The library will be automatically linked via autolinking.
 
-## Packaging React Native App as a Framework
+### Packaging React Native app as a framework
 
 First, we need to package our React Native app as an XCFramework or Fat-AAR.
 
-### With Rock
+#### With the built-in CLI
+
+You can use the built-in CLI that comes with this library to package your React Native app for iOS and Android:
+
+##### Publish for iOS
+
+Simply run `npx brownfield package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
+
+Available arguments:
+
+| Argument          | Description                                                                                  | Default                  |
+| ----------------- | -------------------------------------------------------------------------------------------- | ------------------------ | ----- |
+| --configuration   | Explicitly set the scheme configuration to use. This option is case sensitive.               |                          |
+| --scheme          | Explicitly set Xcode scheme to use                                                           |                          |
+| --target          | Explicitly set Xcode target to use                                                           |                          |
+| --build-folder    | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath".                 | "build"                  |
+| --sdk             | The SDK to build for (iphoneos/iphonesimulator); to build for multiple, separate with commas | iphoneos,iphonesimulator |
+| --no-install-pods | Skip installing pods before building                                                         |                          |
+| --verbose         |                                                                                              | Enable verbose logging   | false |
+
+##### Build for Android
+
+To build the artifact for Android without publishing, run `npx brownfield package:aar --module-name app`.
+
+Available arguments:
+
+| Argument      | Description                                                                                                               | Default                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----- |
+| --variant     | Specify your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'. | 'debug'                |
+| --module-name | AAR module name                                                                                                           | '' (root project)      |
+| --verbose     |                                                                                                                           | Enable verbose logging | false |
+
+##### Publish locally for Android
+
+To publish the `.aar`(s) built beforehand with `react-native-brownfield package:aar` to Maven local, which will allow Gradle to be able to load it from Maven local repository, run:
+
+`npx brownfield publish:android --module-name app`
+
+| Argument      | Description                                                                                                               | Default                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----- |
+| --variant     | Specify your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'. | 'debug'                |
+| --module-name | AAR module name                                                                                                           | '' (root project)      |
+| --verbose     |                                                                                                                           | Enable verbose logging | false |
+
+#### With Rock
+
+It is very likely you will find Rock the easiest way to use brownfield in your React Native project. Rock provides for instance a clean template with `@callstack/react-native-brownfield` already integrated so you can easily bootstrap a new, clean brownfield project with zero manual configuration required. Below you will find instructions both for bootstrapping a new brownfield project and integrating your existing React Native app with Rock.
 
 Follow [Integrating with Native Apps](https://www.rockjs.dev/docs/brownfield/intro) steps in Rock docs and run:
 
