@@ -1,0 +1,8 @@
+{
+  "name": "@callstack/brownfield-gradle-plugin-react",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "gradle-plugin:lint": "./gradlew :brownfield:detekt :brownfield:ktlintFormat"
+  }
+}

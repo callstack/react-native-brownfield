@@ -1,0 +1,8 @@
+{
+  "name": "@callstack/brownfield-example-android-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build:example:android-consumer": "./gradlew assembleDebug"
+  }
+}

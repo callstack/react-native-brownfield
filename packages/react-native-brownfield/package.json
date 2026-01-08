@@ -28,7 +28,8 @@
   "scripts": {
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "build": "bob build"
+    "build": "bob build",
+    "build:brownfield": "yarn run build"
   },
   "keywords": [
     "react-native-brownfield",

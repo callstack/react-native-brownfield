@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build:example:ios-consumer": {
+      "inputs": [
+        "apps/AppleApp/Brownfield Apple App",
+        "apps/AppleApp/Brownfield Apple App.xcodeproj",
+        "apps/RNApp/ios/out/Release/*.xcframework"
+      ],
+      "outputs": ["build"]
+    }
+  }
+}
