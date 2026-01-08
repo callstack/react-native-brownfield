@@ -10,7 +10,6 @@ import Foundation
 // MARK: - BrownfieldStore
 struct BrownfieldStore: Codable {
     var counter: Double
-    var hasError, isLoading: Bool
     var user: User
 }
 

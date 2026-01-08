@@ -5,8 +5,6 @@ interface BrownfieldStore extends BrownieStore {
   user: {
     name: string;
   };
-  isLoading: boolean;
-  hasError: boolean;
 }
 
 interface SettingsStore extends BrownieStore {

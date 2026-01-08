@@ -1,16 +1,55 @@
+import { useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import { useBrownieStore } from '@callstack/brownie';
+import {
+  createNativeStackNavigator,
+  type NativeStackScreenProps,
+} from '@react-navigation/native-stack';
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import { NavigationContainer } from '@react-navigation/native';
 import './BrownfieldStore.brownie';
 
-function HomeScreen() {
+const getRandomValue = () => Math.round(Math.random() * 255);
+const getRandomTheme = () => {
+  const primary = [getRandomValue(), getRandomValue(), getRandomValue()];
+  const secondary = [
+    255 - (primary?.[0] || 0),
+    255 - (primary?.[1] || 0),
+    255 - (primary?.[2] || 0),
+  ];
+
+  return {
+    primary: `rgb(${primary[0]}, ${primary[1]}, ${primary[2]})`,
+    secondary: `rgb(${secondary[0]}, ${secondary[1]}, ${secondary[2]})`,
+  };
+};
+
+type RootStackParamList = {
+  Home: { theme: { primary: string; secondary: string } };
+};
+
+type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+function HomeScreen({ navigation, route }: HomeScreenProps) {
+  const colors = route.params?.theme || getRandomTheme();
   const [state, setState] = useBrownieStore('BrownfieldStore');
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      const isFirstRoute = !navigation.canGoBack();
+      ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(isFirstRoute);
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>React Native Side</Text>
-      <Text style={styles.text}>Count: {state.counter}</Text>
-      <Text style={styles.text}>
-        Has error: {state.hasError ? 'true' : 'false'}
+    <View style={[styles.container, { backgroundColor: colors.primary }]}>
+      <Text style={[styles.title, { color: colors.secondary }]}>
+        React Native Screen
+      </Text>
+
+      <Text style={[styles.text, { color: colors.secondary }]}>
+        Count: {state.counter}
       </Text>
 
       <TextInput
@@ -24,17 +63,45 @@ function HomeScreen() {
 
       <Button
         onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+        color={colors.secondary}
         title="Increment"
       />
+
       <Button
-        onPress={() => setState((prev) => ({ hasError: !prev.hasError }))}
-        title="Toggle Has Error"
+        onPress={() => {
+          navigation.push('Home', {
+            theme: getRandomTheme(),
+          });
+        }}
+        color={colors.secondary}
+        title="Push next screen"
+      />
+
+      <Button
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            ReactNativeBrownfield.popToNative(true);
+          }
+        }}
+        color={colors.secondary}
+        title="Go back"
       />
     </View>
   );
 }
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
 export default function App() {
-  return <HomeScreen />;
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -42,12 +109,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
   },
   title: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 20,
+    margin: 10,
   },
   text: {
     fontSize: 16,
