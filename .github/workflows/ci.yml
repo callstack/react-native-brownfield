@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -37,16 +37,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f # v5
         with:
           distribution: 'zulu'
           java-version: '17'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
         with:
           node-version: 'lts/*'
           cache: 'yarn'
@@ -58,7 +61,7 @@ jobs:
         run: yarn build
 
       - name: Restore android build cache
-        uses: actions/cache@v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
             apps/TesterIntegrated/kotlin/build
@@ -69,7 +72,7 @@ jobs:
             ${{ runner.os }}-tester-android-build-
 
       - name: Resture Gradle cache
-        uses: actions/cache@v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
             ~/.gradle/caches
@@ -88,7 +91,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Use appropriate Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
@@ -96,13 +99,13 @@ jobs:
           xcode-version: '16'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
         with:
           node-version: 'lts/*'
           cache: 'yarn'
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@5dd816ae0186f20dfa905997a64104db9a8221c7 # v1.280.0
         with:
           ruby-version: '3.2'
           bundler-cache: true
@@ -114,7 +117,7 @@ jobs:
         run: yarn build
 
       - name: Restore Pods cache
-        uses: actions/cache@v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
             apps/TesterIntegrated/swift/Pods

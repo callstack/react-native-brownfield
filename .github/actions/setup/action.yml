@@ -5,13 +5,13 @@ runs:
   using: composite
   steps:
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
       with:
         node-version: 'lts/*'
         cache: 'yarn'
 
     - name: Restore turbo cache
-      uses: actions/cache@v5
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: |
           .turbo
