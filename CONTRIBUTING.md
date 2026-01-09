@@ -8,6 +8,14 @@ Depending on your needs, you may need to install CocoaPods in a subset of the be
 - example React Native iOS app: `cd apps/RNApp/ios && pod install`
 - integrated iOS tester app: `cd apps/TesterIntegrated/swift && pod install`
 
+## Contributing changes
+
+After contributing your changes, please make sure to add a [changeset](https://github.com/changesets/changesets) describing your changes. This will help us in publishing new versions.
+
+## Publishing to npm
+
+We use [changesets](https://github.com/changesets/changesets) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+
 ## Scripts
 
 - `lint` - runs linting on all JS/TS source files in the monorepo *[Turbo]* 
