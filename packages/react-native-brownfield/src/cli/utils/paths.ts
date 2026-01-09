@@ -7,9 +7,9 @@ import type {
 } from '@react-native-community/cli-types';
 import cloneDeep from 'lodash.clonedeep';
 
-export function makeRelativeRNCLIProjectConfigPaths<
-  UserCfg extends AndroidProjectConfig | IOSProjectConfig | undefined,
->(projectRoot: string, userConfig: UserCfg): UserCfg {
+export function makeRelativeProjectConfigPaths<
+  UserConfig extends AndroidProjectConfig | IOSProjectConfig | undefined,
+>(projectRoot: string, userConfig: UserConfig): UserConfig {
   const relativeConfig = cloneDeep(userConfig);
 
   if (userConfig?.sourceDir) {

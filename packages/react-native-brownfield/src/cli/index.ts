@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
+import path from 'node:path';
+
+import { Command } from 'commander';
+
 import {
   publishLocalAarAction,
   packageAarAction,
 } from '@rock-js/plugin-brownfield-android';
-
-import { logger } from '@rock-js/tools';
 import {
   packageAarOptions,
   publishLocalAarOptions,
@@ -13,10 +15,14 @@ import {
   type PublishLocalAarFlags,
 } from '@rock-js/platform-android';
 
-import { Command } from 'commander';
+import {
+  getBuildOptions,
+  type BuildFlags as AppleBuildFlags,
+} from '@rock-js/platform-apple-helpers';
+import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
+import { getReactNativeVersion, logger } from '@rock-js/tools';
 
-import { getAndroidProjectInfo } from './utils/android';
-import { curryOptions } from './utils';
+import { curryOptions, getProjectInfo } from './utils';
 
 const program = new Command();
 
@@ -32,44 +38,15 @@ program
     }
   });
 
-// function commoniOSPackageConfigParser<T>(
-//   projectRoot: string,
-//   options: any,
-//   callback: (config: ReturnType<typeof getAarConfig>) => T
-// ): T {
-//   if (!options.moduleName) {
-//     logger.warn(
-//       'No module name specified, packaging from root project. Usually, this is not what you want; if this fails, specify --module-name to target a specific module.'
-//     );
-//   }
-
-//   logger.debug('Project root found at:', projectRoot);
-
-//   const userConfig = loadConfig({ projectRoot, selectedPlatform: 'ios' });
-
-//   logger.debug('RN CLI user config loaded:', userConfig);
-
-//   const iOSConfig = projectConfig(projectRoot, userConfig.project.ios);
-
-//   logger.debug('iOS user config loaded:', userConfig);
-
-//   if (iOSConfig) {
-//     const config = getAarConfig(options, iOSConfig);
-//     return callback(config);
-//   } else {
-//     throw new Error('iOS project not found.');
-//   }
-// }
-
 curryOptions(
-  program.command('package:android').description('Build Android package'),
+  program.command('package:android').description('Build Android AAR'),
   packageAarOptions
 ).action(async (options: PackageAarFlags) => {
-  const { projectRoot, androidConfig } = getAndroidProjectInfo();
+  const { projectRoot, platformConfig } = getProjectInfo('android');
 
   await packageAarAction({
     projectRoot,
-    pluginConfig: androidConfig,
+    pluginConfig: platformConfig,
     moduleName: options.moduleName,
     variant: options.variant,
   });
@@ -81,263 +58,61 @@ curryOptions(
     .description('Publish Android package to Maven local'),
   publishLocalAarOptions
 ).action(async (options: PublishLocalAarFlags) => {
-  const { projectRoot, androidConfig } = getAndroidProjectInfo();
+  const { projectRoot, platformConfig } = getProjectInfo('android');
 
   await publishLocalAarAction({
     projectRoot,
-    pluginConfig: androidConfig,
+    pluginConfig: platformConfig,
     moduleName: options.moduleName,
   });
 });
 
-// curryOptions(program.command('package:ios').description('Build iOS package'), [
-//   {
-//     name: '--workspace <workspace>',
-//     description: 'The Xcode workspace to build',
-//   },
-//   {
-//     name: '--target <target>',
-//     description: 'The Xcode target to build',
-//   },
-//   {
-//     name: '--build-folder <folder>',
-//     description: 'The build folder to use',
-//   },
-//   {
-//     name: '--scheme <scheme>',
-//     description: 'The Xcode scheme to build',
-//   },
-//   {
-//     name: '--configuration <configuration>',
-//     description: 'The build configuration to use (Debug/Release)',
-//     default: 'Debug',
-//   },
-//   {
-//     name: '--sdk <sdk>',
-//     description: 'The SDK to build for (iphoneos/iphonesimulator)',
-//     default: 'iphoneos,iphonesimulator',
-//   },
-//   {
-//     name: '--no-install-pods',
-//     description: 'Skip installing pods before building',
-//   },
-// ]).action(async (options) => {
-//   const projectRoot = findProjectRoot();
-//   const userConfig = loadConfig({ projectRoot, selectedPlatform: 'ios' });
+curryOptions(
+  program.command('package:ios').description('Build iOS XCFramework'),
+  getBuildOptions({ platformName: 'ios' })
+).action(async (options: AppleBuildFlags) => {
+  const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
 
-//   const { xcodeProject, sourceDir: iosBaseDir } = userConfig.project.ios!;
+  if (!userConfig.project.ios) {
+    throw new Error('iOS project not found.');
+  }
 
-//   intro(
-//     `Building iOS package from project '${xcodeProject?.name ?? '(no name configured)'}'...`
-//   );
+  if (!userConfig.project.ios.xcodeProject) {
+    throw new Error('iOS Xcode project not found in the configuration.');
+  }
 
-//   logger.debug('Detected user config:', userConfig);
-//   logger.debug('Detected Xcode project config:', xcodeProject);
-
-//   let scheme = options.scheme;
-
-//   if (!scheme) {
-//     const results = await spawn('xcodebuild', ['-list', '-json'], {
-//       cwd: iosBaseDir,
-//     });
-
-//     let schemes: string[];
-//     try {
-//       const parsed = JSON.parse(results.join(' '));
-//       schemes = parsed!.project!.schemes;
-//     } catch {
-//       throw new Error("Couldn't parse xcodebuild output");
-//     }
-
-//     if (schemes.length === 0) {
-//       throw new Error(
-//         'No schemes found in the Xcode project. Please specify one using --scheme.'
-//       );
-//     }
-
-//     scheme = schemes[0];
-//   }
-
-//   const workspace = options.workspace ?? xcodeProject!.name;
-
-//   if (!workspace) {
-//     throw new Error(
-//       'No workspace specified and could not be inferred from the config. Please specify one using --workspace.'
-//     );
-//   }
-
-//   let sdks = (
-//     (Array.isArray(options.sdk) ? options.sdk : [options.sdk]) as string[]
-//   )
-//     .flatMap((sdk) => sdk.split(',').map((s) => s.trim()))
-//     .filter((sdk) => sdk.length > 0);
-
-//   if (options.installPods) {
-//     const { start, stop, message } = spinner();
-
-//     start(`Installing pods...`);
-
-//     try {
-//       message('Installing Gems with bundler...');
-//       await spawn('bundle', ['install'], { cwd: iosBaseDir });
-
-//       message('Installing pods with CocoaPods via bundler...');
-//       await spawn('bundle', ['exec', 'pod', 'install'], {
-//         cwd: iosBaseDir,
-//         env: {
-//           ...process.env,
-//           USE_FRAMEWORKS: 'static',
-//         },
-//       });
-//     } catch (e) {
-//       logger.debug('Failed to install pods via bundler', e);
-
-//       message('Failed to install pods via bundler, trying without it...');
-
-//       await spawn('pod', ['install'], {
-//         cwd: iosBaseDir,
-//         env: {
-//           ...process.env,
-//           USE_FRAMEWORKS: 'static',
-//         },
-//       });
-//     }
-
-//     stop(`Pods installed successfully.`);
-//   }
-
-//   const { start, stop, message } = spinner();
-
-//   start(`Packaging framework for ${sdks.join(', ')}...`);
-
-//   const appFrameworkPathsToMerge: string[] = [];
-
-//   let i = 1,
-//     total = sdks.length;
-//   for (const sdk of sdks) {
-//     const buildFolder =
-//       options.buildFolder ??
-//       path.join(
-//         iosBaseDir,
-//         'build',
-//         `${scheme}-${options.configuration}-${sdk}`
-//       );
-
-//     message(`[${i}/${total}] Building for sdk: ${sdk}`);
-
-//     await spawn(
-//       'xcodebuild',
-//       [
-//         '-workspace',
-//         workspace.endsWith('.xcworkspace')
-//           ? workspace
-//           : `${workspace}.xcworkspace`,
-//         '-scheme',
-//         scheme,
-//         '-configuration',
-//         options.configuration,
-//         '-sdk',
-//         sdk,
-//         '-derivedDataPath',
-//         `${path.relative(iosBaseDir, buildFolder)}`,
-//         ...(options.target ? ['-target', options.target] : []),
-//         'build',
-//         'CODE_SIGNING_ALLOWED=NO',
-//       ],
-//       {
-//         cwd: iosBaseDir,
-//       }
-//     );
-
-//     appFrameworkPathsToMerge.push(
-//       path.join(
-//         buildFolder,
-//         'Build',
-//         'Products',
-//         `${options.configuration}-${sdk}`,
-//         `${scheme}.framework`
-//       )
-//     );
-
-//     message(`App lib XCFramework packaged in ${buildFolder}`);
-//     i++;
-//   }
-
-//   // output artifacts
-//   const outDir = path.join(iosBaseDir, 'out', options.configuration);
-
-//   if (!fs.existsSync(outDir)) {
-//     fs.mkdirSync(outDir, { recursive: true });
-//   }
-
-//   const artifactNames: string[] = [];
-
-//   // merge built artifacts into XCFramework
-//   {
-//     message(
-//       `Merging ${appFrameworkPathsToMerge.length} framework${appFrameworkPathsToMerge.length !== 1 ? 's' : ''} into XCFramework...`
-//     );
-
-//     const artifactName = `${scheme}.xcframework`;
-//     artifactNames.push(artifactName);
-//     await mergeFrameworks({
-//       sourceDir: iosBaseDir,
-//       frameworkPaths: appFrameworkPathsToMerge,
-//       outputPath: path.join(outDir, artifactName),
-//     });
-//   }
-
-//   // copy hermes XCFramework
-//   {
-//     const artifactName = 'hermesvm.xcframework';
-//     artifactNames.push(artifactName);
-
-//     const hermesFrameworkSourcePath = path.join(
-//       iosBaseDir,
-//       'Pods',
-//       'hermes-engine',
-//       'destroot',
-//       'Library',
-//       'Frameworks',
-//       'universal',
-//       artifactName
-//     );
-//     const xcframeworkOutputPath = path.join(outDir, artifactName);
-
-//     fs.cpSync(hermesFrameworkSourcePath, xcframeworkOutputPath, {
-//       recursive: true,
-//     });
-//   }
-
-//   // merge ReactBrownfield XCFramework
-//   {
-//     const artifactName = 'ReactBrownfield.xcframework';
-//     artifactNames.push(artifactName);
-//     await mergeFrameworks({
-//       sourceDir: iosBaseDir,
-//       frameworkPaths: sdks.map((sdk) =>
-//         path.join(
-//           options.buildFolder ??
-//             path.join(
-//               iosBaseDir,
-//               'build',
-//               `${scheme}-${options.configuration}-${sdk}`
-//             ),
-//           'Build',
-//           'Products',
-//           `${options.configuration}-${sdk}`,
-//           'ReactBrownfield',
-//           'ReactBrownfield.framework'
-//         )
-//       ),
-//       outputPath: path.join(outDir, artifactName),
-//     });
-//   }
-
-//   stop(`Aritfacts placed in '${outDir}': ${artifactNames.join(', ')}`);
-
-//   outro('Success 🎉');
-// });
+  packageIosAction(
+    options,
+    {
+      projectRoot,
+      reactNativePath: userConfig.reactNativePath,
+      // below: the userConfig.reactNativeVersion may be a non-semver-format string,
+      // e.g. '0.82' (note the missing patch component),
+      // therefore we resolve it manually from RN's package.json using Rock's utils
+      reactNativeVersion: getReactNativeVersion(projectRoot),
+      usePrebuiltRNCore: 0, // for brownfield, it is required to build RN from source
+      fingerprintOptions: {
+        env: [],
+        extraSources: [],
+        ignorePaths: [],
+        autolinkingConfig: userConfig,
+      },
+      remoteCacheProvider: null,
+    },
+    platformConfig,
+    // below: Rock-dependent logic escape hatch
+    {
+      cacheRootPathOverride: path.join(
+        userConfig.project.ios.sourceDir,
+        'build' // default build folder in iOS project layout
+      ),
+      iosConfigOverride: {
+        sourceDir: userConfig.project.ios.sourceDir,
+        xcodeProject: userConfig.project.ios.xcodeProject,
+      },
+    }
+  );
+});
 
 program.parse(process.argv);
 
