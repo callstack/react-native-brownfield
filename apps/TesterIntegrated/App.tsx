@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
-import { useBrownieStore } from '@callstack/brownie';
+import { useStore } from '@callstack/brownie';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
@@ -34,7 +34,8 @@ const theme = getRandomTheme();
 
 function HomeScreen({ navigation, route }: HomeScreenProps) {
   const colors = route.params?.theme || theme;
-  const [state, setState] = useBrownieStore('BrownfieldStore');
+  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+  const [user] = useStore('BrownfieldStore', (s) => s.user);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -51,12 +52,12 @@ function HomeScreen({ navigation, route }: HomeScreenProps) {
       </Text>
 
       <Text style={[styles.text, { color: colors.secondary }]}>
-        Count: {state.counter}
+        Count: {counter}
       </Text>
 
       <TextInput
         style={styles.input}
-        value={state.user.name}
+        value={user.name}
         onChangeText={(text) =>
           setState((prev) => ({ user: { ...prev.user, name: text } }))
         }

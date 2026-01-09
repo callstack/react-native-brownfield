@@ -308,8 +308,8 @@ packages/brownie/
 ### React Hook
 
 ```ts
-// useState-like API for store access
-const [state, setState] = useBrownieStore('BrownfieldStore');
+// Full state (useState-like API)
+const [state, setState] = useStore('BrownfieldStore');
 
 // Read state
 console.log(state.counter);
@@ -320,6 +320,26 @@ setState({ counter: state.counter + 1 });
 // Update with callback (like useState)
 setState((prev) => ({ counter: prev.counter + 1 }));
 ```
+
+### Selectors
+
+Selectors allow subscribing to a slice of state, reducing unnecessary re-renders:
+
+```ts
+import { useStore } from '@callstack/brownie';
+
+// Select primitive - re-renders only when counter changes
+const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+
+// Select object
+const [user, setState] = useStore('BrownfieldStore', (s) => s.user);
+```
+
+**How it works:**
+
+1. Native side notifies JS on every state change (full state)
+2. Each `useStore` subscribes to full state but extracts only what it needs via selector
+3. React's `useSyncExternalStore` compares previous vs new selected value - skips re-render if equal
 
 ### Core Functions
 
