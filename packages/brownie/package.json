@@ -63,7 +63,8 @@
   "dependencies": {
     "quicktype-core": "^23.0.170",
     "quicktype-typescript-input": "^23.0.170",
-    "ts-morph": "^25.0.0"
+    "ts-morph": "^25.0.0",
+    "use-sync-external-store": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -74,6 +75,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "@types/react": "^19.1.1",
+    "@types/use-sync-external-store": "^0.0.6",
     "jest": "^29.7.0",
     "react": "19.1.1",
     "react-native": "0.82.1",

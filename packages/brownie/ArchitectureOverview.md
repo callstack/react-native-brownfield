@@ -308,7 +308,7 @@ packages/brownie/
 ### React Hook
 
 ```ts
-// useState-like API for store access
+// Full state (useState-like API)
 const [state, setState] = useBrownieStore('BrownfieldStore');
 
 // Read state
@@ -320,6 +320,47 @@ setState({ counter: state.counter + 1 });
 // Update with callback (like useState)
 setState((prev) => ({ counter: prev.counter + 1 }));
 ```
+
+### Selectors
+
+Selectors allow subscribing to a slice of state, reducing unnecessary re-renders:
+
+```ts
+import { useBrownieStore, shallow } from '@callstack/brownie';
+
+// Select primitive - re-renders only when counter changes
+const [counter, setState] = useBrownieStore(
+  'BrownfieldStore',
+  (s) => s.counter
+);
+
+// Select object with shallow equality
+const [user, setState] = useBrownieStore(
+  'BrownfieldStore',
+  (s) => s.user,
+  shallow
+);
+```
+
+**How it works:**
+
+1. Native side notifies JS on every state change (full state)
+2. Each `useBrownieStore` subscribes to full state but extracts only what it needs via selector
+3. `useSyncExternalStoreWithSelector` compares previous vs new selected value - skips re-render if equal
+
+**Equality functions:**
+
+| Equality    | Use case                                         |
+| ----------- | ------------------------------------------------ |
+| `Object.is` | Default. Works for primitives (`s => s.counter`) |
+| `shallow`   | Objects/arrays - compares top-level props only   |
+| Custom `fn` | Deep nesting or complex comparison logic         |
+
+**Why `shallow` is needed:**
+
+Without it, selecting an object (`s => s.user`) returns a new reference every time (JS creates new object on each native→JS crossing), causing re-renders even if contents are identical. `shallow` compares top-level properties to detect actual changes.
+
+**Limitation:** `shallow` only goes one level deep. For nested objects like `{ user: { profile: { name } } }`, if `profile` object changes identity but has same contents, shallow won't catch it. Use more granular selectors or a custom `equalityFn` for deep nesting.
 
 ### Core Functions
 

@@ -1,4 +1,5 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useDebugValue } from 'react';
+import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import BrownieModule from './NativeBrownieModule';
 
 /**
@@ -95,23 +96,57 @@ export function setState<K extends keyof BrownieStores>(
   }
 }
 
+const identity = <T>(x: T): T => x;
+
+export { shallow } from './shallow';
+
 /**
- * React hook for subscribing to a native store.
+ * React hook for subscribing to a native store with optional selector.
  * @param key Store key registered in StoreManager
  * @returns Tuple of [state, setState] for the store
  */
 export function useBrownieStore<K extends keyof BrownieStores>(
   key: K
-): [BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void] {
+): [BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void];
+
+/**
+ * React hook for subscribing to a native store with selector.
+ * @param key Store key registered in StoreManager
+ * @param selector Function to select a slice of state
+ * @param equalityFn Optional equality function for comparing selected values
+ * @returns Tuple of [selectedState, setState] for the store
+ */
+export function useBrownieStore<K extends keyof BrownieStores, U>(
+  key: K,
+  selector: (state: BrownieStores[K]) => U,
+  equalityFn?: (a: U, b: U) => boolean
+): [U, (action: SetStateAction<BrownieStores[K]>) => void];
+
+export function useBrownieStore<K extends keyof BrownieStores, U>(
+  key: K,
+  selector?: (state: BrownieStores[K]) => U,
+  equalityFn?: (a: U, b: U) => boolean
+): [U | BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void] {
   const sub = useCallback(
     (listener: () => void) => subscribe(key, listener),
     [key]
   );
   const snap = useCallback(() => getSnapshot(key), [key]);
-  const state = useSyncExternalStore(sub, snap, snap);
+
+  const slice = useSyncExternalStoreWithSelector(
+    sub,
+    snap,
+    snap,
+    selector ?? (identity as (state: BrownieStores[K]) => U),
+    equalityFn
+  );
+
+  useDebugValue(slice);
+
   const boundSetState = useCallback(
     (action: SetStateAction<BrownieStores[K]>) => setState(key, action),
     [key]
   );
-  return [state, boundSetState];
+
+  return [slice, boundSetState];
 }

@@ -1607,6 +1607,7 @@ __metadata:
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^19.1.1"
+    "@types/use-sync-external-store": "npm:^0.0.6"
     jest: "npm:^29.7.0"
     quicktype-core: "npm:^23.0.170"
     quicktype-typescript-input: "npm:^23.0.170"
@@ -1616,6 +1617,7 @@ __metadata:
     ts-jest: "npm:^29.2.5"
     ts-morph: "npm:^25.0.0"
     typescript: "npm:5.8.3"
+    use-sync-external-store: "npm:^1.4.0"
   peerDependencies:
     react: "*"
     react-native: "*"
@@ -4462,6 +4464,13 @@ __metadata:
   version: 2.0.11
   resolution: "@types/unist@npm:2.0.11"
   checksum: 10/6d436e832bc35c6dde9f056ac515ebf2b3384a1d7f63679d12358766f9b313368077402e9c1126a14d827f10370a5485e628bf61aa91117cf4fc882423191a4e
+  languageName: node
+  linkType: hard
+
+"@types/use-sync-external-store@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@types/use-sync-external-store@npm:0.0.6"
+  checksum: 10/a95ce330668501ad9b1c5b7f2b14872ad201e552a0e567787b8f1588b22c7040c7c3d80f142cbb9f92d13c4ea41c46af57a20f2af4edf27f224d352abcfe4049
   languageName: node
   linkType: hard
 
@@ -15299,7 +15308,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.5.0":
+"use-sync-external-store@npm:^1.4.0, use-sync-external-store@npm:^1.5.0":
   version: 1.6.0
   resolution: "use-sync-external-store@npm:1.6.0"
   peerDependencies:
