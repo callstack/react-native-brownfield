@@ -148,4 +148,28 @@ public class Store<State: Codable>: ObservableObject {
   public subscript<Value>(_ keyPath: KeyPath<State, Value>) -> Value {
     state[keyPath: keyPath]
   }
+
+  // MARK: - UIKit Support
+
+  /// Subscribe to state changes with a closure. Returns a cancellation function.
+  public func subscribe(onChange: @escaping (State) -> Void) -> () -> Void {
+    let cancellable = $state.sink { state in
+      onChange(state)
+    }
+    return { cancellable.cancel() }
+  }
+
+  /// Subscribe to specific property changes. Returns a cancellation function.
+  public func subscribe<Value: Equatable>(
+    _ keyPath: KeyPath<State, Value>,
+    onChange: @escaping (Value) -> Void
+  ) -> () -> Void {
+    let cancellable = $state
+      .map { $0[keyPath: keyPath] }
+      .removeDuplicates()
+      .sink { value in
+        onChange(value)
+      }
+    return { cancellable.cancel() }
+  }
 }

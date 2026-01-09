@@ -1,6 +1,7 @@
 import Brownie
 import ReactBrownfield
 import SwiftUI
+import UIKit
 
 let initialState = BrownfieldStore(
   counter: 0,
@@ -83,6 +84,11 @@ struct MyApp: App {
             ReactNativeView(moduleName: "ReactNative")
               .navigationBarHidden(true)
           }
+
+          NavigationLink("Push UIKit Screen") {
+            UIKitExampleViewControllerRepresentable()
+              .navigationBarTitleDisplayMode(.inline)
+          }
         }
       }.navigationViewStyle(StackNavigationViewStyle())
     }
@@ -117,4 +123,12 @@ struct MyApp: App {
       .background(Color(.systemBackground))
     }
   }
+}
+
+struct UIKitExampleViewControllerRepresentable: UIViewControllerRepresentable {
+  func makeUIViewController(context: Context) -> UIKitExampleViewController {
+    UIKitExampleViewController()
+  }
+
+  func updateUIViewController(_ uiViewController: UIKitExampleViewController, context: Context) {}
 }
