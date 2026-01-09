@@ -1,5 +1,6 @@
 const path = require('path');
-const pkg = require('../../packages/react-native-brownfield/package.json');
+const brownfieldPkg = require('../../packages/react-native-brownfield/package.json');
+const browniePkg = require('../../packages/brownie/package.json');
 
 module.exports = {
   project: {
@@ -11,11 +12,18 @@ module.exports = {
     },
   },
   dependencies: {
-    [pkg.name]: {
+    [brownfieldPkg.name]: {
       root: path.join(__dirname, '../../packages/react-native-brownfield'),
       platforms: {
         ios: {},
         android: {},
+      },
+    },
+    [browniePkg.name]: {
+      root: path.join(__dirname, '../../packages/brownie'),
+      platforms: {
+        ios: {},
+        android: null,
       },
     },
   },

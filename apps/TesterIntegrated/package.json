@@ -5,12 +5,18 @@
   "scripts": {
     "start": "react-native start",
     "build:tester-integrated:android": "cd kotlin && ./gradlew assembleDebug",
-    "build:tester-integrated:ios": "cd swift && xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build"
+    "build:tester-integrated:ios": "cd swift && xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build",
+    "codegen": "brownie codegen"
   },
   "dependencies": {
+    "@callstack/brownie": "*",
     "@callstack/react-native-brownfield": "*",
+    "@react-navigation/native": "^7.0.15",
+    "@react-navigation/native-stack": "^7.2.1",
     "react": "19.1.1",
-    "react-native": "0.82.1"
+    "react-native": "0.82.1",
+    "react-native-safe-area-context": "^5.3.0",
+    "react-native-screens": "^4.15.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -22,12 +28,15 @@
     "@react-native/babel-preset": "0.82.1",
     "@react-native/metro-config": "0.82.1",
     "@react-native/typescript-config": "0.82.1",
-    "@react-navigation/native": "^7.0.15",
-    "@react-navigation/native-stack": "^7.2.1",
-    "react-native-safe-area-context": "^5.3.0",
-    "react-native-screens": "^4.15.2"
+    "@types/react": "^19.1.1",
+    "react-native-monorepo-config": "^0.3.1"
   },
   "engines": {
     "node": ">=20"
+  },
+  "brownie": {
+    "swift": "./swift/Generated",
+    "kotlin": "./kotlin/app/src/main/java/com/callstack/kotlinexample/Generated",
+    "kotlinPackageName": "com.callstack.kotlinexample"
   }
 }

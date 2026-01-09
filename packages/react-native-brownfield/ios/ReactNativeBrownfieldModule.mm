@@ -6,6 +6,8 @@
 #import "ReactBrownfield-Swift.h"
 #endif
 
+#import "RCTTurboModule.h"
+
 @implementation ReactNativeBrownfieldModule
 
 RCT_EXPORT_MODULE(ReactNativeBrownfield);
