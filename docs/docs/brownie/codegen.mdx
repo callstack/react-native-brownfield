@@ -1,0 +1,116 @@
+# Code Generation
+
+The Brownie CLI generates native types from your TypeScript store definitions.
+
+## Usage
+
+```bash
+brownie codegen                   # Generate for all configured platforms
+brownie codegen -p swift          # Generate Swift only
+brownie codegen --platform kotlin # Generate Kotlin only (coming soon)
+brownie --help                    # Show help
+brownie --version                 # Show version
+```
+
+## Configuration
+
+Add to your app's `package.json`:
+
+```json
+{
+  "brownie": {
+    "swift": "./ios/Generated/",
+    "kotlin": "./android/app/src/main/java/com/example/",
+    "kotlinPackageName": "com.example"
+  }
+}
+```
+
+| Field               | Required | Description                                                |
+| ------------------- | -------- | ---------------------------------------------------------- |
+| `swift`             | No\*     | Output directory for Swift files                           |
+| `kotlin`            | No\*     | Output directory for Kotlin files                          |
+| `kotlinPackageName` | No       | Kotlin package name (extracted from path if not specified) |
+
+\*At least one of `swift` or `kotlin` is required.
+
+## Generated Output
+
+For this TypeScript definition:
+
+```ts
+interface BrownfieldStore extends BrownieStore {
+  counter: number;
+  user: { name: string };
+}
+```
+
+### Swift Output
+
+```swift
+import Brownie
+
+struct BrownfieldStore: Codable {
+    var counter: Double
+    var user: User
+}
+
+struct User: Codable {
+    var name: String
+}
+
+extension BrownfieldStore: BrownieStoreProtocol {
+    public static let storeName = "BrownfieldStore"
+}
+```
+
+The generated struct:
+
+- Conforms to `Codable` for JSON serialization
+- Conforms to `BrownieStoreProtocol` with auto-generated `storeName`
+- Uses mutable `var` properties
+
+### Kotlin Output (Coming Soon)
+
+```kotlin
+package com.example
+
+data class BrownfieldStore(
+    val counter: Double,
+    val user: User
+)
+
+data class User(
+    val name: String
+)
+```
+
+## Auto-Generation Hooks
+
+### iOS (Podfile)
+
+Run codegen before pod install:
+
+```ruby
+pre_install do |installer|
+  system("npx", "brownie", "codegen", "-p", "swift")
+end
+```
+
+### Android (build.gradle.kts)
+
+Run codegen before build:
+
+```kotlin
+tasks.register("generateBrownfieldStore") {
+  exec { commandLine("npx", "brownie", "codegen", "-p", "kotlin") }
+}
+preBuild.dependsOn("generateBrownfieldStore")
+```
+
+## How It Works
+
+1. CLI recursively finds all `*.brownie.ts` files
+2. Parses `declare module '@callstack/brownie'` blocks using ts-morph
+3. Extracts store names from `BrownieStores` interface
+4. Generates native types using quicktype

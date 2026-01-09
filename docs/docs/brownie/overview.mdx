@@ -1,0 +1,119 @@
+# Brownie
+
+:::warning Alpha
+Brownie is in alpha stage and not yet released. APIs may change.
+:::
+
+Brownie is a shared state management library for React Native brownfield apps. It enables seamless state synchronization between your React Native code and native iOS code.
+
+## Features
+
+- **Shared State** - Single source of truth accessible from both TypeScript and Swift
+- **Type Safety** - Full type inference from TypeScript schema to generated Swift types
+- **React Integration** - `useStore` hook with selector support for optimal re-renders
+- **SwiftUI Integration** - `@UseStore` property wrapper for reactive UI updates
+- **UIKit Support** - Subscribe-based API for imperative UI updates
+
+## Platform Support
+
+| Platform | Status      |
+| -------- | ----------- |
+| iOS      | Supported   |
+| Android  | Coming soon |
+
+## How It Works
+
+```
+┌─────────────────┐       ┌──────────────────┐       ┌─────────────────┐
+│   TypeScript    │──────▶│   Brownie CLI    │──────▶│  Swift types    │
+│   Store Schema  │       │    (codegen)     │       │   (generated)   │
+└─────────────────┘       └──────────────────┘       └─────────────────┘
+```
+
+1. Define your store shape in a `*.brownie.ts` file using TypeScript
+2. Run `brownie codegen` to generate native types
+3. Use `useStore` in React Native and `Store<T>` in Swift
+4. State changes sync automatically between both sides
+
+## Installation
+
+```bash
+npm install @callstack/brownie
+# or
+yarn add @callstack/brownie
+```
+
+### iOS Setup
+
+Add to your `Podfile`:
+
+```ruby
+pre_install do |installer|
+  system("npx", "brownie", "codegen", "-p", "swift")
+end
+```
+
+Then run `pod install`.
+
+## Quick Example
+
+**TypeScript (store definition):**
+
+```ts
+// BrownfieldStore.brownie.ts
+import type { BrownieStore } from '@callstack/brownie';
+
+interface AppStore extends BrownieStore {
+  counter: number;
+  user: { name: string };
+}
+
+declare module '@callstack/brownie' {
+  interface BrownieStores {
+    AppStore: AppStore;
+  }
+}
+```
+
+**TypeScript (usage):**
+
+```tsx
+import { useStore } from '@callstack/brownie';
+
+function Counter() {
+  const [counter, setState] = useStore('AppStore', (s) => s.counter);
+
+  return (
+    <Button
+      title={`Count: ${counter}`}
+      onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+    />
+  );
+}
+```
+
+**Swift (usage):**
+
+```swift
+import Brownie
+
+struct ContentView: View {
+  @UseStore<AppStore> var store
+
+  var body: some View {
+    VStack {
+      Text("Count: \(Int(store.state.counter))")
+      Button("Increment") {
+        store.set { $0.counter += 1 }
+      }
+    }
+  }
+}
+```
+
+## Next Steps
+
+- [Defining Stores](/brownie/store-definition) - Learn how to define your store schema
+- [Code Generation](/brownie/codegen) - Configure and run the codegen CLI
+- [TypeScript Usage](/brownie/typescript-usage) - Use stores in React Native
+- [Swift Usage](/brownie/swift-usage) - Use stores in iOS apps
