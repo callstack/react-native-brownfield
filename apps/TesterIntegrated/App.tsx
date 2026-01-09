@@ -30,8 +30,10 @@ type RootStackParamList = {
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
+const theme = getRandomTheme();
+
 function HomeScreen({ navigation, route }: HomeScreenProps) {
-  const colors = route.params?.theme || getRandomTheme();
+  const colors = route.params?.theme || theme;
   const [state, setState] = useBrownieStore('BrownfieldStore');
 
   useEffect(() => {

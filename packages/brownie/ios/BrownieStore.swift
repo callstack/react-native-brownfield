@@ -124,9 +124,7 @@ public class Store<State: Codable>: ObservableObject {
           let data = try? JSONSerialization.data(withJSONObject: snapshot),
           let newState = try? JSONDecoder().decode(State.self, from: data) else { return }
 
-    DispatchQueue.main.async { [weak self] in
-      self?.state = newState
-    }
+    state = newState
   }
 
   /// Update state using a closure
