@@ -9,7 +9,8 @@
     "forceConsistentCasingInFileNames": true
   },
   "references": [
-    { "path": "packages/react-native-brownfield" }
+    { "path": "packages/react-native-brownfield" },
+    { "path": "packages/cli" }
   ],
   "exclude": ["**/node_modules", "apps/**/Pods"]
 }

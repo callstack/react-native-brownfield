@@ -1,0 +1,80 @@
+{
+  "name": "@callstack/brownie-cli",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Michal Chudziak <mike.chudziak@callstack.com>",
+  "bin": {
+    "brownie": "./dist/index.js"
+  },
+  "contributors": [
+    "Artur Morys-Magiera <artus9033@gmail.com>",
+    "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
+  ],
+  "homepage": "https://github.com/callstack/react-native-brownfield",
+  "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts"
+    },
+    "./utils": {
+      "source": "./dist/utils/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json --watch",
+    "build:brownfield": "yarn run build"
+  },
+  "keywords": [
+    "react-native-brownfield",
+    "react native brownfield",
+    "native",
+    "react native integration",
+    "cli",
+    "brownie",
+    "tooling"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@react-native-community/cli-config": "*",
+    "@react-native-community/cli-config-android": "*"
+  },
+  "devDependencies": {
+    "@react-native-community/cli-config": "^20.0.0",
+    "@react-native-community/cli-config-android": "^20.0.0",
+    "@react-native-community/cli-types": "^20.0.0",
+    "@react-native/babel-preset": "0.82.1",
+    "@react-native/eslint-config": "0.82.1",
+    "@rock-js/cli": "link:../../../rock/packages/cli",
+    "@rock-js/platform-android": "link:../../../rock/packages/platform-android",
+    "@rock-js/platform-apple-helpers": "link:../../../rock/packages/platform-apple-helpers",
+    "@rock-js/platform-ios": "link:../../../rock/packages/platform-ios",
+    "@rock-js/plugin-brownfield-android": "link:../../../rock/packages/plugin-brownfield-android",
+    "@rock-js/plugin-brownfield-ios": "link:../../../rock/packages/plugin-brownfield-ios",
+    "@rock-js/tools": "link:../../../rock/packages/tools",
+    "@types/jest": "^30.0.0",
+    "@types/lodash.clonedeep": "^4.5.9",
+    "@types/node": "^25.0.3",
+    "commander": "^14.0.2",
+    "eslint": "^8.57.1",
+    "lodash.clonedeep": "^4.5.0",
+    "nodemon": "^3.1.11",
+    "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
