@@ -3,23 +3,24 @@ module.exports = {
   projects: [
     {
       displayName: 'scripts',
-      preset: 'ts-jest',
       testEnvironment: 'node',
       testMatch: ['<rootDir>/scripts/**/*.test.ts'],
       moduleFileExtensions: ['ts', 'js'],
       clearMocks: true,
       transform: {
         '^.+\\.ts$': [
-          'ts-jest',
+          'babel-jest',
           {
-            tsconfig: '<rootDir>/scripts/__tests__/tsconfig.json',
+            presets: [
+              ['@babel/preset-env', { targets: { node: 'current' } }],
+              '@babel/preset-typescript',
+            ],
           },
         ],
       },
     },
     {
       displayName: 'src',
-      preset: 'ts-jest',
       testEnvironment: 'node',
       testMatch: ['<rootDir>/src/**/*.test.ts'],
       moduleFileExtensions: ['ts', 'js'],
@@ -30,9 +31,12 @@ module.exports = {
       },
       transform: {
         '^.+\\.ts$': [
-          'ts-jest',
+          'babel-jest',
           {
-            tsconfig: '<rootDir>/src/__tests__/tsconfig.json',
+            presets: [
+              ['@babel/preset-env', { targets: { node: 'current' } }],
+              '@babel/preset-typescript',
+            ],
           },
         ],
       },

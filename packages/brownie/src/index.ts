@@ -1,5 +1,4 @@
-import { useCallback, useDebugValue } from 'react';
-import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
+import { useCallback, useDebugValue, useSyncExternalStore } from 'react';
 import BrownieModule from './NativeBrownieModule';
 
 /**
@@ -98,48 +97,45 @@ export function setState<K extends keyof BrownieStores>(
 
 const identity = <T>(x: T): T => x;
 
-export { shallow } from './shallow';
-
 /**
  * React hook for subscribing to a native store with optional selector.
+ * Inspired by Zustand's useStore implementation.
  * @param key Store key registered in StoreManager
  * @returns Tuple of [state, setState] for the store
  */
-export function useBrownieStore<K extends keyof BrownieStores>(
+export function useStore<K extends keyof BrownieStores>(
   key: K
 ): [BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void];
 
 /**
  * React hook for subscribing to a native store with selector.
+ * Inspired by Zustand's useStore implementation.
  * @param key Store key registered in StoreManager
  * @param selector Function to select a slice of state
- * @param equalityFn Optional equality function for comparing selected values
  * @returns Tuple of [selectedState, setState] for the store
  */
-export function useBrownieStore<K extends keyof BrownieStores, U>(
+export function useStore<K extends keyof BrownieStores, U>(
   key: K,
-  selector: (state: BrownieStores[K]) => U,
-  equalityFn?: (a: U, b: U) => boolean
+  selector: (state: BrownieStores[K]) => U
 ): [U, (action: SetStateAction<BrownieStores[K]>) => void];
 
-export function useBrownieStore<K extends keyof BrownieStores, U>(
+export function useStore<K extends keyof BrownieStores, U>(
   key: K,
-  selector?: (state: BrownieStores[K]) => U,
-  equalityFn?: (a: U, b: U) => boolean
+  selector?: (state: BrownieStores[K]) => U
 ): [U | BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void] {
   const sub = useCallback(
     (listener: () => void) => subscribe(key, listener),
     [key]
   );
-  const snap = useCallback(() => getSnapshot(key), [key]);
-
-  const slice = useSyncExternalStoreWithSelector(
-    sub,
-    snap,
-    snap,
-    selector ?? (identity as (state: BrownieStores[K]) => U),
-    equalityFn
+  const snap = useCallback(
+    () =>
+      (selector ?? (identity as (state: BrownieStores[K]) => U))(
+        getSnapshot(key)
+      ),
+    [key, selector]
   );
+
+  const slice = useSyncExternalStore(sub, snap, snap);
 
   useDebugValue(slice);
 
