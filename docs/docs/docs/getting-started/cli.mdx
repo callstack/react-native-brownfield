@@ -1,0 +1,50 @@
+# The CLI
+
+React Native Brownfield comes with a batteries-included, all-in-one CLI tool called `brownie` that helps you build and publish your React Native app as a framework artifact for iOS (XCFramework) and Android (AAR).
+Additionally, it contains CLI utilities for other tools like the `@callstack/brownie` state management tool.
+
+## Publish for iOS
+
+Simply run `npx brownie package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
+
+Available arguments:
+
+| Argument               | Description                                                                                                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --verbose              | Enable verbose logging                                                                                                                                                            |
+| --configuration        | Explicitly set the scheme configuration to use. This option is case sensitive.                                                                                                    |
+| --scheme               | Explicitly set Xcode scheme to use                                                                                                                                                |
+| --target               | Explicitly set Xcode target to use                                                                                                                                                |
+| --extra-params         | Custom params that will be passed to xcodebuild command                                                                                                                           |
+| --export-extra-params  | Custom params that will be passed to xcodebuild export archive command. Example: `--export-extra-params "-allowProvisioningUpdates"`                                              |
+| --export-options-plist | Name of the export options file for archiving. Defaults to: `ExportOptions.plist`                                                                                                 |
+| --build-folder         | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath"                                                                                                       |
+| --destination          | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values: "simulator", "device", or xcodebuild destinations |
+| --archive              | Create an Xcode archive (IPA) of the build, required for uploading to App Store Connect or distributing to TestFlight                                                             |
+| --no-install-pods      | Skip automatic CocoaPods installation                                                                                                                                             |
+| --no-new-arch          | Run React Native in legacy async architecture                                                                                                                                     |
+| --local                | Force local build with xcodebuild                                                                                                                                                 |
+| --verbose              | Enable verbose logging                                                                                                                                                            |
+
+## Build for Android
+
+To build the artifact for Android without publishing, run `npx brownie package:android --module-name app`.
+
+Available arguments:
+
+| Argument      | Description                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| --variant     | Specify your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'. |
+| --module-name | AAR module name                                                                                                           |
+| --verbose     | Enable verbose logging                                                                                                    |
+
+## Publish locally for Android
+
+To publish the `.aar`(s) built beforehand with `npx brownie package:android` to Maven local, which will allow Gradle to be able to load it from Maven local repository, run:
+
+`npx brownie publish:android --module-name app`
+
+| Argument      | Description            |
+| ------------- | ---------------------- |
+| --module-name | AAR module name        |
+| --verbose     | Enable verbose logging |
