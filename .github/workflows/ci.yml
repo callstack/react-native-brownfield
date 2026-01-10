@@ -95,12 +95,12 @@ jobs:
       - name: Package AAR with the Brownfield CLI
         run: |
           cd apps/RNApp
-          node ../../packages/react-native-brownfield/lib/commonjs/cli/index.js package:android --module-name :BrownfieldLib --variant release
+          node ../../packages/cli/dist/index.js package:android --module-name :BrownfieldLib --variant release
 
       - name: Publish AAR artifact to Maven Local
         run: |
           cd apps/RNApp
-          node ../../packages/react-native-brownfield/lib/commonjs/cli/index.js publish:android --module-name :BrownfieldLib
+          node ../../packages/cli/dist/index.js publish:android --module-name :BrownfieldLib
 
       - name: Verify debug AAR exists in Maven Local
         run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-debug.aar
@@ -176,7 +176,7 @@ jobs:
       - name: Package iOS framework with the Brownfield CLI
         run: |
           cd apps/RNApp
-          node ../../packages/react-native-brownfield/lib/commonjs/cli/index.js package:ios --scheme BrownfieldLib --configuration Release --sdk iphonesimulator
+          node ../../packages/cli/dist/index.js package:ios --scheme BrownfieldLib --configuration Release
 
       # == AppleApp ==
 
