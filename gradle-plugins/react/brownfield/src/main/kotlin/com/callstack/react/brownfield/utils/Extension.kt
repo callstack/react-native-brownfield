@@ -45,4 +45,11 @@ open class Extension {
      * bundled.
      */
     var dynamicLibs = listOf<String>()
+
+    /**
+     * Whether to use stripped .so files.
+     *
+     * Default value is `false`
+     */
+    var experimentalUseStrippedSoFiles = false
 }

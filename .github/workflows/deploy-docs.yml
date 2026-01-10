@@ -21,14 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-depth: 0 # Not needed if lastUpdated is not enabled
       - name: Setup
         uses: ./.github/actions/setup
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@d5606572c479bee637007364c6b4800ac4fc8573 # v5
 
       - name: Install dependencies
         working-directory: docs
@@ -40,7 +40,7 @@ jobs:
           yarn run build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
           path: docs/doc_build
 
@@ -55,4 +55,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@854d7aa1b99e4509c4d1b53d69b7ba4eaf39215a # v4.0.5

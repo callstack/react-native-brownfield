@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import { useStore } from '@callstack/brownie';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 import { NavigationContainer } from '@react-navigation/native';
+import './BrownfieldStore.brownie';
 
 const getRandomValue = () => Math.round(Math.random() * 255);
 const getRandomTheme = () => {
@@ -22,10 +24,18 @@ const getRandomTheme = () => {
   };
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type RootStackParamList = {
+  Home: { theme: { primary: string; secondary: string } };
+};
 
-function HomeScreen({ navigation, route }: Props) {
-  const colors = route.params?.theme || getRandomTheme();
+type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+const theme = getRandomTheme();
+
+function HomeScreen({ navigation, route }: HomeScreenProps) {
+  const colors = route.params?.theme || theme;
+  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+  const [user] = useStore('BrownfieldStore', (s) => s.user);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -37,9 +47,28 @@ function HomeScreen({ navigation, route }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>
-      <Text style={[styles.text, { color: colors.secondary }]}>
+      <Text style={[styles.title, { color: colors.secondary }]}>
         React Native Screen
       </Text>
+
+      <Text style={[styles.text, { color: colors.secondary }]}>
+        Count: {counter}
+      </Text>
+
+      <TextInput
+        style={styles.input}
+        value={user.name}
+        onChangeText={(text) =>
+          setState((prev) => ({ user: { ...prev.user, name: text } }))
+        }
+        placeholder="User name"
+      />
+
+      <Button
+        onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+        color={colors.secondary}
+        title="Increment"
+      />
 
       <Button
         onPress={() => {
@@ -65,9 +94,6 @@ function HomeScreen({ navigation, route }: Props) {
     </View>
   );
 }
-type RootStackParamList = {
-  Home: { theme: { primary: string; secondary: string } };
-};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -87,9 +113,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  text: {
+  title: {
     fontSize: 30,
     fontWeight: 'bold',
     margin: 10,
+  },
+  text: {
+    fontSize: 16,
+    margin: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    width: 200,
+    marginVertical: 10,
+    backgroundColor: '#fff',
   },
 });
