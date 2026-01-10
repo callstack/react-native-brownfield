@@ -1,3 +1,3 @@
-export * from './cli';
-export * from './paths';
-export * from './rn-cli';
+export * from './cli.js';
+export * from './paths.js';
+export * from './rn-cli.js';

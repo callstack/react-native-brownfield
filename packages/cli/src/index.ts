@@ -22,7 +22,7 @@ import {
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
 import { getReactNativeVersion, logger } from '@rock-js/tools';
 
-import { curryOptions, getProjectInfo } from './utils';
+import { curryOptions, getProjectInfo } from './utils/index.js';
 
 const program = new Command();
 
@@ -30,7 +30,7 @@ program
   .name('react-native-brownfield')
   .description('React Native Brownfield library CLI')
   .version(process.env.npm_package_version ?? '0.0.0')
-  .option('--verbose', 'Enable verbose output')
+  .option('--verbose', 'Enable verbose logging')
   .hook('preAction', (_cmd) => {
     const opts = program.opts();
     if (opts.verbose) {

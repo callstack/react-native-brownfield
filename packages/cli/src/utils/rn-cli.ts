@@ -4,10 +4,9 @@ import type {
   Config as UserConfig,
   ProjectConfig,
 } from '@react-native-community/cli-types';
-import loadConfig from '@react-native-community/cli-config';
+import cliConfig from '@react-native-community/cli-config';
 
-import { makeRelativeProjectConfigPaths } from './paths';
-import { findProjectRoot } from '../utils';
+import { findProjectRoot, makeRelativeProjectConfigPaths } from './paths.js';
 
 /**
  * Gets the project info for the given platform from the current working directory
@@ -22,7 +21,11 @@ export function getProjectInfo<Platform extends 'ios' | 'android'>(
   platformConfig: ProjectConfig[Platform];
 } {
   const projectRoot = findProjectRoot();
-  const userConfig = loadConfig({ projectRoot, selectedPlatform: platform });
+
+  const userConfig = cliConfig.default({
+    projectRoot,
+    selectedPlatform: platform,
+  });
 
   // below: relative sourceDir path is required by RN CLI's API
   const platformConfig = makeRelativeProjectConfigPaths(
