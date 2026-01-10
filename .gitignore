@@ -79,3 +79,6 @@ lib/
 
 # Gradle
 secring.gpg
+
+# Typescript
+**/*.tsbuildinfo

@@ -1595,6 +1595,38 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@callstack/brownie-cli@workspace:^, @callstack/brownie-cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownie-cli@workspace:packages/cli"
+  dependencies:
+    "@react-native-community/cli-config": "npm:^20.0.0"
+    "@react-native-community/cli-config-android": "npm:^20.0.0"
+    "@react-native-community/cli-types": "npm:^20.0.0"
+    "@react-native/babel-preset": "npm:0.82.1"
+    "@react-native/eslint-config": "npm:0.82.1"
+    "@rock-js/cli": "link:../../../rock/packages/cli"
+    "@rock-js/platform-android": "link:../../../rock/packages/platform-android"
+    "@rock-js/platform-apple-helpers": "link:../../../rock/packages/platform-apple-helpers"
+    "@rock-js/platform-ios": "link:../../../rock/packages/platform-ios"
+    "@rock-js/plugin-brownfield-android": "link:../../../rock/packages/plugin-brownfield-android"
+    "@rock-js/plugin-brownfield-ios": "link:../../../rock/packages/plugin-brownfield-ios"
+    "@rock-js/tools": "link:../../../rock/packages/tools"
+    "@types/jest": "npm:^30.0.0"
+    "@types/lodash.clonedeep": "npm:^4.5.9"
+    "@types/node": "npm:^25.0.3"
+    commander: "npm:^14.0.2"
+    eslint: "npm:^8.57.1"
+    lodash.clonedeep: "npm:^4.5.0"
+    nodemon: "npm:^3.1.11"
+    typescript: "npm:5.8.3"
+  peerDependencies:
+    "@react-native-community/cli-config": "*"
+    "@react-native-community/cli-config-android": "*"
+  bin:
+    brownie: ./dist/index.js
+  languageName: unknown
+  linkType: soft
+
 "@callstack/brownie@npm:*, @callstack/brownie@workspace:packages/brownie":
   version: 0.0.0-use.local
   resolution: "@callstack/brownie@workspace:packages/brownie"
@@ -1657,10 +1689,13 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownie-cli": "workspace:^"
     "@react-native/babel-preset": "npm:0.82.1"
     "@react-native/eslint-config": "npm:0.82.1"
     "@types/jest": "npm:^30.0.0"
     "@types/react": "npm:^19.1.1"
+    eslint: "npm:^8.57.1"
+    nodemon: "npm:^3.1.11"
     react: "npm:19.1.1"
     react-native: "npm:0.82.1"
     react-native-builder-bob: "npm:^0.40.14"
@@ -1668,6 +1703,8 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
+  bin:
+    brownfield: ./lib/commonjs/cli/index.js
   languageName: unknown
   linkType: soft
 
@@ -3084,6 +3121,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/cli-config-android@npm:^20.0.0":
+  version: 20.1.0
+  resolution: "@react-native-community/cli-config-android@npm:20.1.0"
+  dependencies:
+    "@react-native-community/cli-tools": "npm:20.1.0"
+    fast-glob: "npm:^3.3.2"
+    fast-xml-parser: "npm:^4.4.1"
+    picocolors: "npm:^1.1.1"
+  checksum: 10/d14b6c5d172c54a9a4ff7fda8feb91d2f644ca50f2bd1d5109b77d0cfd51c808aca4e6fd957500bb6aaf01bdb7b916ea6028a4658b46b2f8f72ee54bea3dfdd2
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-config-apple@npm:20.0.0":
   version: 20.0.0
   resolution: "@react-native-community/cli-config-apple@npm:20.0.0"
@@ -3107,6 +3156,20 @@ __metadata:
     fast-glob: "npm:^3.3.2"
     joi: "npm:^17.2.1"
   checksum: 10/aaf5e5cb07105abe0eb179b2ed230f24546068780cee02986b5d71447f928f5bff0e2fbc84e02302cf60f2795da8fa919eb204da41f9421f2cfaec9dc53c98c7
+  languageName: node
+  linkType: hard
+
+"@react-native-community/cli-config@npm:^20.0.0":
+  version: 20.1.0
+  resolution: "@react-native-community/cli-config@npm:20.1.0"
+  dependencies:
+    "@react-native-community/cli-tools": "npm:20.1.0"
+    cosmiconfig: "npm:^9.0.0"
+    deepmerge: "npm:^4.3.0"
+    fast-glob: "npm:^3.3.2"
+    joi: "npm:^17.2.1"
+    picocolors: "npm:^1.1.1"
+  checksum: 10/8d53c31641527a245be566992c6a13dc6711d8cfee4f65293ba169e0466c45c71af08a36e00dd550edfa74c1207f702293a8f07acd9a09a36320440e5922bb51
   languageName: node
   linkType: hard
 
@@ -3204,12 +3267,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/cli-tools@npm:20.1.0":
+  version: 20.1.0
+  resolution: "@react-native-community/cli-tools@npm:20.1.0"
+  dependencies:
+    "@vscode/sudo-prompt": "npm:^9.0.0"
+    appdirsjs: "npm:^1.2.4"
+    execa: "npm:^5.0.0"
+    find-up: "npm:^5.0.0"
+    launch-editor: "npm:^2.9.1"
+    mime: "npm:^2.4.1"
+    ora: "npm:^5.4.1"
+    picocolors: "npm:^1.1.1"
+    prompts: "npm:^2.4.2"
+    semver: "npm:^7.5.2"
+  checksum: 10/f773a183a078fe2077a14405370840fb16a96b77ce2f0b3789b3383840d425657979f64793f8b38e6e9051106a9fa0cca7d062919479e24b1bd3df1692435578
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-types@npm:20.0.0":
   version: 20.0.0
   resolution: "@react-native-community/cli-types@npm:20.0.0"
   dependencies:
     joi: "npm:^17.2.1"
   checksum: 10/b64b03ff09eb3952c37ba96544156f0b6ffa76e616361a48254e645f914beaa844943ff77ee1fba46445ef8b45f726109fc9ad249afb9d360602cb03db846368
+  languageName: node
+  linkType: hard
+
+"@react-native-community/cli-types@npm:^20.0.0":
+  version: 20.1.0
+  resolution: "@react-native-community/cli-types@npm:20.1.0"
+  dependencies:
+    joi: "npm:^17.2.1"
+  checksum: 10/1ae86701a98ac21d0e67f2fcce3859e44c2315c55076aaf82cf80ebf19e91fe95f177208803fddd562f6578549f6ee816356406b5ce106fa0a4e7d30f5aafcdc
   languageName: node
   linkType: hard
 
@@ -3606,6 +3696,48 @@ __metadata:
   checksum: 10/f54845ad174564f157a2255aec8446a7f4f4e543d9d6ef9ec749d32d1fdc57273d9cc80574f87f411c2790fbe51a242273abe7002d118515038eaf4aefd3d988
   languageName: node
   linkType: hard
+
+"@rock-js/cli@link:../../../rock/packages/cli::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
+  version: 0.0.0-use.local
+  resolution: "@rock-js/cli@link:../../../rock/packages/cli::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+  languageName: node
+  linkType: soft
+
+"@rock-js/platform-android@link:../../../rock/packages/platform-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
+  version: 0.0.0-use.local
+  resolution: "@rock-js/platform-android@link:../../../rock/packages/platform-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+  languageName: node
+  linkType: soft
+
+"@rock-js/platform-apple-helpers@link:../../../rock/packages/platform-apple-helpers::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
+  version: 0.0.0-use.local
+  resolution: "@rock-js/platform-apple-helpers@link:../../../rock/packages/platform-apple-helpers::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+  languageName: node
+  linkType: soft
+
+"@rock-js/platform-ios@link:../../../rock/packages/platform-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
+  version: 0.0.0-use.local
+  resolution: "@rock-js/platform-ios@link:../../../rock/packages/platform-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+  languageName: node
+  linkType: soft
+
+"@rock-js/plugin-brownfield-android@link:../../../rock/packages/plugin-brownfield-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
+  version: 0.0.0-use.local
+  resolution: "@rock-js/plugin-brownfield-android@link:../../../rock/packages/plugin-brownfield-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+  languageName: node
+  linkType: soft
+
+"@rock-js/plugin-brownfield-ios@link:../../../rock/packages/plugin-brownfield-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
+  version: 0.0.0-use.local
+  resolution: "@rock-js/plugin-brownfield-ios@link:../../../rock/packages/plugin-brownfield-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+  languageName: node
+  linkType: soft
+
+"@rock-js/tools@link:../../../rock/packages/tools::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
+  version: 0.0.0-use.local
+  resolution: "@rock-js/tools@link:../../../rock/packages/tools::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+  languageName: node
+  linkType: soft
 
 "@rsbuild/core@npm:~1.5.4":
   version: 1.5.17
@@ -4361,6 +4493,22 @@ __metadata:
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
   checksum: 10/1a3c3e06236e4c4aab89499c428d585527ce50c24fe8259e8b3926d3df4cfbbbcf306cfc73ddfb66cbafc973116efd15967020b0f738f63e09e64c7d260519e7
+  languageName: node
+  linkType: hard
+
+"@types/lodash.clonedeep@npm:^4.5.9":
+  version: 4.5.9
+  resolution: "@types/lodash.clonedeep@npm:4.5.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/ef85512b7dce7a4f981a818ae44d11982907e1f26b5b26bedf0957c35e8591eb8e1d24fa31ca851d4b40e0a1ee88563853d762412691fe5f357e8335cead2325
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*":
+  version: 4.17.21
+  resolution: "@types/lodash@npm:4.17.21"
+  checksum: 10/34920830a3bc82ba619cda05e606fef00c148a69b4f19f770645d2587ccdb8e42ef3ddfc174b7884c0c709fc0a1aeb48f7326da969bad12a1464a03efbbe414c
   languageName: node
   linkType: hard
 
@@ -5617,7 +5765,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^3.6.0":
+"chokidar@npm:^3.5.2, chokidar@npm:^3.6.0":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
   dependencies:
@@ -5904,6 +6052,13 @@ __metadata:
   version: 12.1.0
   resolution: "commander@npm:12.1.0"
   checksum: 10/cdaeb672d979816853a4eed7f1310a9319e8b976172485c2a6b437ed0db0a389a44cfb222bfbde772781efa9f215bdd1b936f80d6b249485b465c6cb906e1f93
+  languageName: node
+  linkType: hard
+
+"commander@npm:^14.0.2":
+  version: 14.0.2
+  resolution: "commander@npm:14.0.2"
+  checksum: 10/2d202db5e5f9bb770112a3c1579b893d17ac6f6d932183077308bdd96d0f87f0bbe6a68b5b9ed2cf3b2514be6bb7de637480703c0e2db9741ee1b383237deb26
   languageName: node
   linkType: hard
 
@@ -6305,7 +6460,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.4.0, debug@npm:^4.4.1":
+"debug@npm:4, debug@npm:^4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.4.0, debug@npm:^4.4.1":
   version: 4.4.3
   resolution: "debug@npm:4.4.3"
   dependencies:
@@ -8169,6 +8324,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"has-flag@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "has-flag@npm:3.0.0"
+  checksum: 10/4a15638b454bf086c8148979aae044dd6e39d63904cd452d970374fa6a87623423da485dfb814e7be882e05c096a7ccf1ebd48e7e7501d0208d8384ff4dea73b
+  languageName: node
+  linkType: hard
+
 "has-flag@npm:^4.0.0":
   version: 4.0.0
   resolution: "has-flag@npm:4.0.0"
@@ -8588,6 +8750,13 @@ __metadata:
   version: 1.2.1
   resolution: "ieee754@npm:1.2.1"
   checksum: 10/d9f2557a59036f16c282aaeb107832dc957a93d73397d89bbad4eb1130560560eb695060145e8e6b3b498b15ab95510226649a0b8f52ae06583575419fe10fc4
+  languageName: node
+  linkType: hard
+
+"ignore-by-default@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "ignore-by-default@npm:1.0.1"
+  checksum: 10/441509147b3615e0365e407a3c18e189f78c07af08564176c680be1fabc94b6c789cad1342ad887175d4ecd5225de86f73d376cec8e06b42fd9b429505ffcf8a
   languageName: node
   linkType: hard
 
@@ -10314,6 +10483,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.clonedeep@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.clonedeep@npm:4.5.0"
+  checksum: 10/957ed243f84ba6791d4992d5c222ffffca339a3b79dbe81d2eaf0c90504160b500641c5a0f56e27630030b18b8e971ea10b44f928a977d5ced3c8948841b555f
+  languageName: node
+  linkType: hard
+
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -11872,6 +12048,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nodemon@npm:^3.1.11":
+  version: 3.1.11
+  resolution: "nodemon@npm:3.1.11"
+  dependencies:
+    chokidar: "npm:^3.5.2"
+    debug: "npm:^4"
+    ignore-by-default: "npm:^1.0.1"
+    minimatch: "npm:^3.1.2"
+    pstree.remy: "npm:^1.1.8"
+    semver: "npm:^7.5.3"
+    simple-update-notifier: "npm:^2.0.0"
+    supports-color: "npm:^5.5.0"
+    touch: "npm:^3.1.0"
+    undefsafe: "npm:^2.0.5"
+  bin:
+    nodemon: bin/nodemon.js
+  checksum: 10/0f43d2c70abe0764e26e438dbe0c78bc429746a558dabf5dd94b13f6f3a79b4bd7d5793347acafddaee5eab594a806c2ad43efc999d342e28d185661718da8dc
+  languageName: node
+  linkType: hard
+
 "nopt@npm:^9.0.0":
   version: 9.0.0
   resolution: "nopt@npm:9.0.0"
@@ -12754,6 +12950,13 @@ __metadata:
   version: 1.1.0
   resolution: "proxy-from-env@npm:1.1.0"
   checksum: 10/f0bb4a87cfd18f77bc2fba23ae49c3b378fb35143af16cc478171c623eebe181678f09439707ad80081d340d1593cd54a33a0113f3ccb3f4bc9451488780ee23
+  languageName: node
+  linkType: hard
+
+"pstree.remy@npm:^1.1.8":
+  version: 1.1.8
+  resolution: "pstree.remy@npm:1.1.8"
+  checksum: 10/ef13b1b5896b35f67dbd4fb7ba54bb2a5da1a5c317276cbad4bcad4159bf8f7b5e1748dc244bf36865f3d560d2fc952521581280a91468c9c2df166cc760c8c1
   languageName: node
   linkType: hard
 
@@ -13977,6 +14180,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"simple-update-notifier@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "simple-update-notifier@npm:2.0.0"
+  dependencies:
+    semver: "npm:^7.5.3"
+  checksum: 10/40bd4f96aa89aedbf717ae9f4ab8fca70e8f7511e8b766feb15471cca3f6fe4fe673743309b08b4ba8abfe0965c9cd927e1de46550a757b819b70fc7430cc85d
+  languageName: node
+  linkType: hard
+
 "sisteransi@npm:^1.0.5":
   version: 1.0.5
   resolution: "sisteransi@npm:1.0.5"
@@ -14429,6 +14641,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"supports-color@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "supports-color@npm:5.5.0"
+  dependencies:
+    has-flag: "npm:^3.0.0"
+  checksum: 10/5f505c6fa3c6e05873b43af096ddeb22159831597649881aeb8572d6fe3b81e798cc10840d0c9735e0026b250368851b7f77b65e84f4e4daa820a4f69947f55b
+  languageName: node
+  linkType: hard
+
 "supports-color@npm:^7.1.0":
   version: 7.2.0
   resolution: "supports-color@npm:7.2.0"
@@ -14594,6 +14815,15 @@ __metadata:
   version: 1.0.1
   resolution: "toidentifier@npm:1.0.1"
   checksum: 10/952c29e2a85d7123239b5cfdd889a0dde47ab0497f0913d70588f19c53f7e0b5327c95f4651e413c74b785147f9637b17410ac8c846d5d4a20a5a33eb6dc3a45
+  languageName: node
+  linkType: hard
+
+"touch@npm:^3.1.0":
+  version: 3.1.1
+  resolution: "touch@npm:3.1.1"
+  bin:
+    nodetouch: bin/nodetouch.js
+  checksum: 10/853e763a1f4903302c5654ed353f84ad85baf757dac62c2d37ab67e0477cfd271e8c64771fcfad42310aff7c9d284ddb435ee5ca13ff36d0f3693fedd8e971d1
   languageName: node
   linkType: hard
 
@@ -14972,6 +15202,13 @@ __metadata:
   version: 0.1.2
   resolution: "unc-path-regex@npm:0.1.2"
   checksum: 10/a05fa2006bf4606051c10fc7968f08ce7b28fa646befafa282813aeb1ac1a56f65cb1b577ca7851af2726198d59475bb49b11776036257b843eaacee2860a4ec
+  languageName: node
+  linkType: hard
+
+"undefsafe@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "undefsafe@npm:2.0.5"
+  checksum: 10/f42ab3b5770fedd4ada175fc1b2eb775b78f609156f7c389106aafd231bfc210813ee49f54483d7191d7b76e483bc7f537b5d92d19ded27156baf57592eb02cc
   languageName: node
   linkType: hard
 
