@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { runCodegen } from '../../commands/codegen';
-import * as swiftGenerator from '../../generators/swift';
-import * as kotlinGenerator from '../../generators/kotlin';
-import * as storeDiscovery from '../../store-discovery';
+import { runCodegen } from '../../commands/codegen.js';
+import * as swiftGenerator from '../../generators/swift.js';
+import * as kotlinGenerator from '../../generators/kotlin.js';
+import * as storeDiscovery from '../../store-discovery.js';
 
 const FIXTURES_DIR = path.join(__dirname, '../../__fixtures__');
 
@@ -15,7 +15,6 @@ const mockGenerateSwift = swiftGenerator.generateSwift as jest.Mock;
 const mockGenerateKotlin = kotlinGenerator.generateKotlin as jest.Mock;
 const mockDiscoverStores = storeDiscovery.discoverStores as jest.Mock;
 const mockCwd = jest.spyOn(process, 'cwd');
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
 jest.spyOn(console, 'warn').mockImplementation();
 jest.spyOn(process, 'exit').mockImplementation((code) => {
@@ -52,18 +51,6 @@ describe('runCodegen', () => {
     jest.clearAllMocks();
   });
 
-  it('prints version when -v flag passed', async () => {
-    await runCodegen(['-v'], '1.0.0');
-    expect(mockConsoleLog).toHaveBeenCalledWith('1.0.0');
-  });
-
-  it('prints help when -h flag passed', async () => {
-    await runCodegen(['-h'], '1.0.0');
-    expect(mockConsoleLog).toHaveBeenCalled();
-    const output = mockConsoleLog.mock.calls[0]![0];
-    expect(output).toContain('brownie codegen');
-  });
-
   it('generates swift files for discovered store', async () => {
     tempDir = createTempPackageJson({
       brownie: {
@@ -72,7 +59,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalledWith({
       name: 'TestStore',
@@ -92,7 +79,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateKotlin).toHaveBeenCalledWith({
       name: 'TestStore',
@@ -113,13 +100,13 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalled();
     expect(mockGenerateKotlin).toHaveBeenCalled();
   });
 
-  it('generates only specified platform with -p flag', async () => {
+  it('generates only specified platform', async () => {
     tempDir = createTempPackageJson({
       brownie: {
         swift: './Generated',
@@ -128,7 +115,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen(['-p', 'swift'], '1.0.0');
+    await runCodegen({ platform: 'swift' });
 
     expect(mockGenerateSwift).toHaveBeenCalled();
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
@@ -150,7 +137,7 @@ describe('runCodegen', () => {
       },
     ]);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalledTimes(2);
     expect(mockGenerateSwift).toHaveBeenNthCalledWith(1, {
@@ -175,7 +162,8 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await expect(runCodegen(['-p', 'invalid'], '1.0.0')).rejects.toThrow(
+    // @ts-expect-error - testing invalid input
+    await expect(runCodegen({ platform: 'invalid' })).rejects.toThrow(
       'process.exit(1)'
     );
     expect(mockConsoleError).toHaveBeenCalled();
@@ -190,7 +178,7 @@ describe('runCodegen', () => {
     mockCwd.mockReturnValue(tempDir);
     mockGenerateSwift.mockRejectedValue(new Error('Generation failed'));
 
-    await expect(runCodegen([], '1.0.0')).rejects.toThrow('process.exit(1)');
+    await expect(runCodegen({})).rejects.toThrow('process.exit(1)');
     expect(mockConsoleError).toHaveBeenCalled();
   });
 
@@ -202,7 +190,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen(['-p', 'kotlin'], '1.0.0');
+    await runCodegen({ platform: 'kotlin' });
 
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
   });

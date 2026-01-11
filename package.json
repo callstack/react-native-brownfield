@@ -11,7 +11,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
-    "build:watch": "yarn workspaces foreach -Ap run build:watch",
+    "build:watch": "yarn workspaces foreach -Api run build:watch",
     "release": "release-it --config packages/react-native-brownfield/.release-it.json",
     "brownfield:plugin:publish:local": "bash ./gradle-plugins/publish-to-maven-local.sh",
     "build:brownfield": "turbo run build:brownfield",

@@ -1618,6 +1618,7 @@ __metadata:
     eslint: "npm:^8.57.1"
     lodash.clonedeep: "npm:^4.5.0"
     nodemon: "npm:^3.1.11"
+    ts-morph: "npm:^25.0.0"
     typescript: "npm:5.8.3"
   peerDependencies:
     "@react-native-community/cli-config": "*"
@@ -1640,7 +1641,9 @@ __metadata:
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^19.1.1"
+    eslint: "npm:^8.57.1"
     jest: "npm:^29.7.0"
+    nodemon: "npm:^3.1.11"
     quicktype-core: "npm:^23.0.170"
     quicktype-typescript-input: "npm:^23.0.170"
     react: "npm:19.1.1"
@@ -1651,8 +1654,6 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  bin:
-    brownie: ./lib/scripts/cli.js
   languageName: unknown
   linkType: soft
 

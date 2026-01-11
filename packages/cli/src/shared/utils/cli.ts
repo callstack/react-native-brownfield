@@ -1,4 +1,5 @@
-import type { RockCLIOptions } from '@rock-js/tools';
+import { logger, type RockCLIOptions } from '@rock-js/tools';
+
 import type { Command } from 'commander';
 
 export function curryOptions(programCommand: Command, options: RockCLIOptions) {
@@ -20,4 +21,13 @@ export function curryOptions(programCommand: Command, options: RockCLIOptions) {
   });
 
   return programCommand;
+}
+
+function handleActionError(error: Error) {
+  logger.error(`Error running command: ${error.message}`);
+  process.exit(1);
+}
+
+export function actionRunner<T, R>(fn: (...args: T[]) => Promise<R>) {
+  return (...args: T[]) => fn(...args).catch(handleActionError);
 }

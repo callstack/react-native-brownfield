@@ -1,6 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import { loadConfig } from '../config';
+import fs from 'node:fs';
+import path from 'node:path';
+
+import { loadConfig } from '../config.js';
 
 const FIXTURES_DIR = path.join(__dirname, '../__fixtures__');
 

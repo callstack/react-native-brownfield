@@ -1,36 +1,33 @@
 #!/usr/bin/env node
 
-import path from 'node:path';
+import { styleText } from 'node:util';
+
+import { logger } from '@rock-js/tools';
 
 import { Command } from 'commander';
 
-import {
-  publishLocalAarAction,
-  packageAarAction,
-} from '@rock-js/plugin-brownfield-android';
-import {
-  packageAarOptions,
-  publishLocalAarOptions,
-  type PackageAarFlags,
-  type PublishLocalAarFlags,
-} from '@rock-js/platform-android';
-
-import {
-  getBuildOptions,
-  type BuildFlags as AppleBuildFlags,
-} from '@rock-js/platform-apple-helpers';
-import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
-import { getReactNativeVersion, logger } from '@rock-js/tools';
-
-import { curryOptions, getProjectInfo } from './utils/index.js';
+import { ExampleUsage } from './shared/index.js';
+import brownfieldCommands, {
+  groupName as brownfieldCommandsGroupName,
+} from './brownfield/index.js';
+import brownieCommands, {
+  groupName as brownieCommandsGroupName,
+} from './brownie/index.js';
 
 const program = new Command();
 
 program
-  .name('react-native-brownfield')
-  .description('React Native Brownfield library CLI')
-  .version(process.env.npm_package_version ?? '0.0.0')
-  .option('--verbose', 'Enable verbose logging')
+  .name(styleText('magenta', 'brownie'))
+  .usage(styleText('yellow', '[options] [command]'))
+  .description(
+    styleText('magentaBright', 'React Native Brownfield CLI - ') +
+      styleText(['magenta', 'bold', 'underline'], 'Brownie')
+  )
+  .version(process.env.npm_package_version ?? '0.0.0');
+
+program
+  .optionsGroup('Global options:')
+  .option('--verbose', 'enable verbose logging')
   .hook('preAction', (_cmd) => {
     const opts = program.opts();
     if (opts.verbose) {
@@ -38,81 +35,47 @@ program
     }
   });
 
-curryOptions(
-  program.command('package:android').description('Build Android AAR'),
-  packageAarOptions
-).action(async (options: PackageAarFlags) => {
-  const { projectRoot, platformConfig } = getProjectInfo('android');
-
-  await packageAarAction({
-    projectRoot,
-    pluginConfig: platformConfig,
-    moduleName: options.moduleName,
-    variant: options.variant,
-  });
+program.configureHelp({
+  styleTitle: (str) => styleText('bold', str),
+  styleCommandText: (str) => styleText('cyan', str),
+  styleArgumentText: (str) => styleText('yellow', str),
+  styleSubcommandText: (str) => styleText('blue', str),
 });
 
-curryOptions(
-  program
-    .command('publish:android')
-    .description('Publish Android package to Maven local'),
-  publishLocalAarOptions
-).action(async (options: PublishLocalAarFlags) => {
-  const { projectRoot, platformConfig } = getProjectInfo('android');
+function registrationHelper(
+  commandsRegistration: Record<string, any | Command | ExampleUsage>,
+  groupName: string
+) {
+  program.commandsGroup(groupName);
 
-  await publishLocalAarAction({
-    projectRoot,
-    pluginConfig: platformConfig,
-    moduleName: options.moduleName,
-  });
-});
-
-curryOptions(
-  program.command('package:ios').description('Build iOS XCFramework'),
-  getBuildOptions({ platformName: 'ios' })
-).action(async (options: AppleBuildFlags) => {
-  const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
-
-  if (!userConfig.project.ios) {
-    throw new Error('iOS project not found.');
-  }
-
-  if (!userConfig.project.ios.xcodeProject) {
-    throw new Error('iOS Xcode project not found in the configuration.');
-  }
-
-  packageIosAction(
-    options,
-    {
-      projectRoot,
-      reactNativePath: userConfig.reactNativePath,
-      // below: the userConfig.reactNativeVersion may be a non-semver-format string,
-      // e.g. '0.82' (note the missing patch component),
-      // therefore we resolve it manually from RN's package.json using Rock's utils
-      reactNativeVersion: getReactNativeVersion(projectRoot),
-      usePrebuiltRNCore: 0, // for brownfield, it is required to build RN from source
-      fingerprintOptions: {
-        env: [],
-        extraSources: [],
-        ignorePaths: [],
-        autolinkingConfig: userConfig,
-      },
-      remoteCacheProvider: null,
-    },
-    platformConfig,
-    // below: Rock-dependent logic escape hatch
-    {
-      cacheRootPathOverride: path.join(
-        userConfig.project.ios.sourceDir,
-        'build' // default build folder in iOS project layout
-      ),
-      iosConfigOverride: {
-        sourceDir: userConfig.project.ios.sourceDir,
-        xcodeProject: userConfig.project.ios.xcodeProject,
-      },
+  const exampleUsageItems: ExampleUsage[] = [];
+  Object.values(commandsRegistration).forEach((commandOrExampleUsage) => {
+    if (commandOrExampleUsage instanceof Command) {
+      // command
+      program.addCommand(commandOrExampleUsage);
+    } else if (commandOrExampleUsage instanceof ExampleUsage) {
+      // piece of example usage for the command group
+      exampleUsageItems.push(commandOrExampleUsage);
     }
-  );
-});
+  });
+
+  if (exampleUsageItems.length) {
+    const longestUsageItemCommandLength = exampleUsageItems.reduce(
+      (max, item) => Math.max(max, item.command.length),
+      0
+    );
+
+    program.addHelpText(
+      'after',
+      `\nExamples:\n${exampleUsageItems.map((item) => `\t ${styleText('dim', item.command.padEnd(longestUsageItemCommandLength))}\t${item.description}`).join('\n')}\n`
+    );
+  }
+}
+
+registrationHelper(brownfieldCommands, brownfieldCommandsGroupName);
+registrationHelper(brownieCommands, brownieCommandsGroupName);
+
+program.commandsGroup('Utility commands').helpCommand('help [command]');
 
 program.parse(process.argv);
 

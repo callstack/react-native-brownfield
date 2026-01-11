@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { discoverStores } from '../store-discovery';
+import { discoverStores } from '../store-discovery.js';
 
 const FIXTURES_DIR = path.join(__dirname, '../__fixtures__');
 
