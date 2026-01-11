@@ -27,9 +27,9 @@ Shared state management between React Native and Native apps (iOS).
 └───────────────────┘                          └───────────────────────┘
 ```
 
-## CLI
+## CLI command
 
-The `brownie` CLI generates native store types from TypeScript schema.
+The `brownie codegen` CLI command generates native store types from TypeScript schema.
 
 ### Usage
 
@@ -37,7 +37,7 @@ The `brownie` CLI generates native store types from TypeScript schema.
 brownie codegen                   # Generate for all configured platforms
 brownie codegen -p swift          # Generate Swift only
 brownie codegen --platform kotlin # Generate Kotlin only
-brownie --help                    # Show help
+brownie codegen --help            # Show help for Brownie state management codegen
 brownie --version                 # Show version
 ```
 
@@ -131,61 +131,6 @@ data class BrownfieldStore (
     val user: String
 )
 ```
-
-## CLI Implementation
-
-### File Structure
-
-```
-packages/brownie/scripts/
-├── cli.ts              # Entry point, parseArgs, command routing
-├── config.ts           # Config loading from package.json
-├── store-discovery.ts  # Auto-discover *.brownie.ts files
-├── commands/
-│   └── codegen.ts      # Codegen command with --platform flag
-└── generators/
-    ├── swift.ts        # Swift Codable generation
-    └── kotlin.ts       # Kotlin data class generation
-```
-
-### Store Discovery
-
-1. Recursively finds `*.brownie.ts` files (skips node_modules)
-2. Parses `declare module '@callstack/brownie'` blocks using ts-morph
-3. Extracts store names from `BrownieStores` interface properties
-4. Validates no duplicate store names exist
-
-### Codegen Pipeline
-
-```
-*.brownie.ts files (auto-discovered)
-       │
-       ▼
-ts-morph (parse BrownieStores interface)
-       │
-       ▼
-quicktype-typescript-input (schemaForTypeScriptSources)
-       │
-       ▼
-JSON Schema
-       │
-       ▼
-quicktype-core
-       │
-       ├──▶ Swift (lang: 'swift', mutable-properties: true)
-       │
-       └──▶ Kotlin (lang: 'kotlin', framework: 'just-types')
-```
-
-### Build
-
-Scripts are compiled with TypeScript during package build:
-
-```bash
-yarn build  # runs bob build && tsc -p scripts/tsconfig.json
-```
-
-Output goes to `lib/scripts/` and is exposed via `bin` field in `package.json`.
 
 ## iOS Implementation
 
