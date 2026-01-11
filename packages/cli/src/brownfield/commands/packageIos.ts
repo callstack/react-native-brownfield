@@ -18,7 +18,16 @@ import {
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
-  getBuildOptions({ platformName: 'ios' })
+  getBuildOptions({ platformName: 'ios' }).map((option) =>
+    option.name.startsWith('--build-folder')
+      ? {
+          ...option,
+          description:
+            option.description +
+            " By default, the '<iOS project folder>/build' path will be used.",
+        }
+      : option
+  )
 ).action(
   actionRunner(async (options: AppleBuildFlags) => {
     const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
@@ -31,6 +40,11 @@ export const packageIosCommand = curryOptions(
       throw new Error('iOS Xcode project not found in the configuration.');
     }
 
+    options.buildFolder ??= path.join(
+      userConfig.project.ios.sourceDir,
+      'build' // default build folder in iOS project layout
+    );
+
     packageIosAction(
       options,
       {
@@ -41,26 +55,8 @@ export const packageIosCommand = curryOptions(
         // therefore we resolve it manually from RN's package.json using Rock's utils
         reactNativeVersion: getReactNativeVersion(projectRoot),
         usePrebuiltRNCore: 0, // for brownfield, it is required to build RN from source
-        fingerprintOptions: {
-          env: [],
-          extraSources: [],
-          ignorePaths: [],
-          autolinkingConfig: userConfig,
-        },
-        remoteCacheProvider: null,
       },
-      platformConfig,
-      // below: Rock-dependent logic escape hatch
-      {
-        cacheRootPathOverride: path.join(
-          userConfig.project.ios.sourceDir,
-          'build' // default build folder in iOS project layout
-        ),
-        iosConfigOverride: {
-          sourceDir: userConfig.project.ios.sourceDir,
-          xcodeProject: userConfig.project.ios.xcodeProject,
-        },
-      }
+      platformConfig
     );
   })
 );
