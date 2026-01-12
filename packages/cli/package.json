@@ -53,11 +53,11 @@
   "dependencies": {
     "@react-native-community/cli-config": "^20.0.0",
     "@react-native-community/cli-config-android": "^20.0.0",
-    "@rock-js/platform-android": "^0.12.4",
-    "@rock-js/platform-apple-helpers": "^0.12.4",
-    "@rock-js/plugin-brownfield-android": "^0.12.4",
-    "@rock-js/plugin-brownfield-ios": "^0.12.4",
-    "@rock-js/tools": "^0.12.4",
+    "@rock-js/platform-android": "^0.12.5",
+    "@rock-js/platform-apple-helpers": "^0.12.5",
+    "@rock-js/plugin-brownfield-android": "^0.12.5",
+    "@rock-js/plugin-brownfield-ios": "^0.12.5",
+    "@rock-js/tools": "^0.12.5",
     "commander": "^14.0.2",
     "lodash.clonedeep": "^4.5.0",
     "ts-morph": "^25.0.0"
