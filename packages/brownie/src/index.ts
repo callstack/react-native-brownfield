@@ -95,18 +95,6 @@ export function setState<K extends keyof BrownieStores>(
   }
 }
 
-const identity = <T>(x: T): T => x;
-
-/**
- * React hook for subscribing to a native store with optional selector.
- * Inspired by Zustand's useStore implementation.
- * @param key Store key registered in StoreManager
- * @returns Tuple of [state, setState] for the store
- */
-export function useStore<K extends keyof BrownieStores>(
-  key: K
-): [BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void];
-
 /**
  * React hook for subscribing to a native store with selector.
  * Inspired by Zustand's useStore implementation.
@@ -117,23 +105,12 @@ export function useStore<K extends keyof BrownieStores>(
 export function useStore<K extends keyof BrownieStores, U>(
   key: K,
   selector: (state: BrownieStores[K]) => U
-): [U, (action: SetStateAction<BrownieStores[K]>) => void];
-
-export function useStore<K extends keyof BrownieStores, U>(
-  key: K,
-  selector?: (state: BrownieStores[K]) => U
-): [U | BrownieStores[K], (action: SetStateAction<BrownieStores[K]>) => void] {
+): [U, (action: SetStateAction<BrownieStores[K]>) => void] {
   const sub = useCallback(
     (listener: () => void) => subscribe(key, listener),
     [key]
   );
-  const snap = useCallback(
-    () =>
-      (selector ?? (identity as (state: BrownieStores[K]) => U))(
-        getSnapshot(key)
-      ),
-    [key, selector]
-  );
+  const snap = useCallback(() => selector(getSnapshot(key)), [key, selector]);
 
   const slice = useSyncExternalStore(sub, snap, snap);
 

@@ -4,29 +4,26 @@ Use stores in React Native with the `useStore` hook.
 
 ## useStore Hook
 
-The `useStore` hook provides a `useState`-like API for accessing shared state:
+The `useStore` hook provides a `useState`-like API for accessing shared state. It requires a selector function to subscribe to a specific slice of state. The component only re-renders when the selected value changes.
 
 ```tsx
 import { useStore } from '@callstack/brownie';
 
 function Counter() {
-  const [state, setState] = useStore('BrownfieldStore');
+  // Select the counter slice - only re-renders when counter changes
+  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
   return (
     <View>
-      <Text>Count: {state.counter}</Text>
+      <Text>Count: {counter}</Text>
       <Button
         title="Increment"
-        onPress={() => setState({ counter: state.counter + 1 })}
+        onPress={() => setState({ counter: counter + 1 })}
       />
     </View>
   );
 }
 ```
-
-## Selectors
-
-Use selectors to subscribe to a slice of state. The component only re-renders when the selected value changes:
 
 ```tsx
 // Only re-renders when counter changes
@@ -34,6 +31,9 @@ const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
 // Only re-renders when user changes
 const [user, setState] = useStore('BrownfieldStore', (s) => s.user);
+
+// Select entire state (re-renders on any change)
+const [state, setState] = useStore('BrownfieldStore', (s) => s);
 ```
 
 ## Updating State

@@ -307,23 +307,7 @@ packages/brownie/
 
 ### React Hook
 
-```ts
-// Full state (useState-like API)
-const [state, setState] = useStore('BrownfieldStore');
-
-// Read state
-console.log(state.counter);
-
-// Update state (partial update)
-setState({ counter: state.counter + 1 });
-
-// Update with callback (like useState)
-setState((prev) => ({ counter: prev.counter + 1 }));
-```
-
-### Selectors
-
-Selectors allow subscribing to a slice of state, reducing unnecessary re-renders:
+`useStore` requires a selector function to subscribe to a specific slice of state:
 
 ```ts
 import { useStore } from '@callstack/brownie';
@@ -333,6 +317,15 @@ const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
 // Select object
 const [user, setState] = useStore('BrownfieldStore', (s) => s.user);
+
+// Select entire state (re-renders on any change)
+const [state, setState] = useStore('BrownfieldStore', (s) => s);
+
+// Update state (partial update)
+setState({ counter: counter + 1 });
+
+// Update with callback (like useState)
+setState((prev) => ({ counter: prev.counter + 1 }));
 ```
 
 **How it works:**
