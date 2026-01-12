@@ -1648,6 +1648,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/preset-typescript": "npm:^7.27.1"
     "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-cli": "workspace:^"
     "@react-native/babel-preset": "npm:0.82.1"
     "@react-native/eslint-config": "npm:0.82.1"
     "@types/node": "npm:^22.0.0"
