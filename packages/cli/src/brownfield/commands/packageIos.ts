@@ -55,6 +55,13 @@ export const packageIosCommand = curryOptions(
         // therefore we resolve it manually from RN's package.json using Rock's utils
         reactNativeVersion: getReactNativeVersion(projectRoot),
         usePrebuiltRNCore: 0, // for brownfield, it is required to build RN from source
+        // below: RN CLI config detection in Rock depends on the existence of a Rock config file;
+        // the below is an escape hatch to provide the config manually and escape Rock's config-dependent logic
+        iosConfigOverride: {
+          sourceDir: userConfig.project.ios.sourceDir,
+          xcodeProject: userConfig.project.ios.xcodeProject,
+        },
+        skipCache: true, // cache is dependent on existence of Rock config file
       },
       platformConfig
     );
