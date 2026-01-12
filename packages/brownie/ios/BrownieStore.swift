@@ -20,20 +20,59 @@ public extension EnvironmentValues {
   }
 }
 
+public extension Binding {
+  /// Set value using closure that receives current value
+  func set(_ updater: (Value) -> Value) {
+    wrappedValue = updater(wrappedValue)
+  }
+}
+
 @MainActor
 @propertyWrapper
-public struct UseStore<State: BrownieStoreProtocol>: DynamicProperty {
-  @StateObject private var store: Store<State>
+public struct UseStore<State: BrownieStoreProtocol, Value: Equatable>: DynamicProperty {
+  @StateObject private var observer: SelectorObserver<State, Value>
+  private let keyPath: WritableKeyPath<State, Value>
 
-  public init() {
+  public init(_ keyPath: WritableKeyPath<State, Value>) {
+    self.keyPath = keyPath
     let key = State.storeName
-    let foundStore = StoreManager.shared.store(key: key, as: State.self)
-    guard let foundStore else { fatalError("Store not found for key: \(key)") }
-    self._store = StateObject(wrappedValue: foundStore)
+    guard let foundStore = StoreManager.shared.store(key: key, as: State.self) else {
+      fatalError("Store not found for key: \(key)")
+    }
+    self._observer = StateObject(wrappedValue: SelectorObserver(store: foundStore, keyPath: keyPath))
   }
 
-  public var wrappedValue: Store<State> {
-    store
+  public var wrappedValue: Value {
+    observer.value
+  }
+
+  public var projectedValue: Binding<Value> {
+    Binding(
+      get: { observer.store.get(keyPath) },
+      set: { observer.store.set(keyPath, to: $0) }
+    )
+  }
+}
+
+/// Internal observer that only publishes when selected value changes.
+@MainActor
+class SelectorObserver<State: Codable, Value: Equatable>: ObservableObject {
+  let store: Store<State>
+  private let keyPath: KeyPath<State, Value>
+  @Published private(set) var value: Value
+  private var cancellable: AnyCancellable?
+
+  init(store: Store<State>, keyPath: KeyPath<State, Value>) {
+    self.store = store
+    self.keyPath = keyPath
+    self.value = store.state[keyPath: keyPath]
+
+    self.cancellable = store.$state
+      .map { $0[keyPath: keyPath] }
+      .removeDuplicates()
+      .sink { [weak self] newValue in
+        self?.value = newValue
+      }
   }
 }
 

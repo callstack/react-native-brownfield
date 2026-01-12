@@ -1,0 +1,289 @@
+# Swift Usage
+
+Use stores in iOS apps with SwiftUI or UIKit.
+
+:::info Android
+Android support is coming soon.
+:::
+
+## Setup
+
+Initialize the store in your app's entry point:
+
+```swift
+import Brownie
+import ReactBrownfield
+import SwiftUI
+
+let initialState = BrownfieldStore(
+  counter: 0,
+  user: User(name: "")
+)
+
+@main
+struct MyApp: App {
+  init() {
+    // Start React Native
+    ReactNativeBrownfield.shared.startReactNative {
+      print("React Native loaded")
+    }
+
+    // Initialize store with initial state
+    _ = Store(initialState, key: BrownfieldStore.storeName)
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}
+```
+
+## SwiftUI
+
+### @UseStore Property Wrapper
+
+The `@UseStore` property wrapper provides reactive access to a selected slice of state using KeyPath selectors. This ensures your view only re-renders when the selected value changes.
+
+```swift
+import Brownie
+import SwiftUI
+
+struct CounterView: View {
+  @UseStore(\BrownfieldStore.counter) var counter
+
+  var body: some View {
+    VStack {
+      Text("Count: \(Int(counter))")
+
+      Button("Increment") {
+        $counter.set { $0 + 1 }
+      }
+    }
+  }
+}
+```
+
+### Selectors
+
+Every `@UseStore` requires a KeyPath selector. This:
+
+- Forces explicit state selection
+- Prevents unnecessary re-renders (only updates when selected value changes)
+- Provides type-safe access to state
+
+```swift
+// Select primitive
+@UseStore(\BrownfieldStore.counter) var counter  // counter is Double
+
+// Select nested object
+@UseStore(\BrownfieldStore.user) var user  // user is User
+```
+
+:::info Equatable Requirement
+Selected values must conform to `Equatable` for change detection.
+:::
+
+### Updating State
+
+The projected value (`$`) returns a standard SwiftUI `Binding<Value>`:
+
+```swift
+// Use with any SwiftUI control that accepts Binding
+Stepper(value: $counter) { Text("Count: \(Int(counter))") }
+Slider(value: $counter, in: 0...100)
+Toggle("Enabled", isOn: $isEnabled)
+
+// Set with closure (Brownie extension on Binding)
+$counter.set { $0 + 1 }
+
+// Access nested properties via Binding subscript
+TextField("Name", text: $user.name)
+```
+
+### Multiple Selectors
+
+Use multiple `@UseStore` declarations for different state slices. Each only triggers re-renders when its selected value changes:
+
+```swift
+struct MyView: View {
+  @UseStore(\BrownfieldStore.counter) var counter
+  @UseStore(\BrownfieldStore.user) var user
+
+  var body: some View {
+    VStack {
+      Text("Count: \(Int(counter))")
+      Text("User: \(user.name)")
+
+      Button("Increment") {
+        $counter.set { $0 + 1 }
+      }
+    }
+  }
+}
+```
+
+### TextField Binding
+
+Use the binding directly or select a nested property:
+
+```swift
+// Option 1: Select the nested property directly
+struct UserView: View {
+  @UseStore(\BrownfieldStore.user.name) var name
+
+  var body: some View {
+    TextField("Name", text: $name)
+      .textFieldStyle(.roundedBorder)
+  }
+}
+
+// Option 2: Select parent and access nested binding
+struct UserView: View {
+  @UseStore(\BrownfieldStore.user) var user
+
+  var body: some View {
+    TextField("Name", text: $user.name)
+      .textFieldStyle(.roundedBorder)
+  }
+}
+```
+
+## UIKit
+
+For UIKit, use `StoreManager` to retrieve stores and `subscribe` for updates.
+
+### Full UIKit Example
+
+```swift
+import UIKit
+import Brownie
+
+class CounterViewController: UIViewController {
+  private var store: Store<BrownfieldStore>?
+  private var cancelSubscription: (() -> Void)?
+
+  private let counterLabel: UILabel = {
+    let label = UILabel()
+    label.font = .systemFont(ofSize: 24, weight: .bold)
+    label.translatesAutoresizingMaskIntoConstraints = false
+    return label
+  }()
+
+  private let incrementButton: UIButton = {
+    var config = UIButton.Configuration.borderedProminent()
+    config.title = "Increment"
+    let button = UIButton(configuration: config)
+    button.translatesAutoresizingMaskIntoConstraints = false
+    return button
+  }()
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    setupUI()
+    setupStore()
+  }
+
+  private func setupUI() {
+    view.backgroundColor = .systemBackground
+
+    let stack = UIStackView(arrangedSubviews: [counterLabel, incrementButton])
+    stack.axis = .vertical
+    stack.spacing = 16
+    stack.translatesAutoresizingMaskIntoConstraints = false
+
+    view.addSubview(stack)
+    NSLayoutConstraint.activate([
+      stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+      stack.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+    ])
+
+    incrementButton.addTarget(self, action: #selector(incrementTapped), for: .touchUpInside)
+  }
+
+  private func setupStore() {
+    // Retrieve store from manager
+    store = StoreManager.get(key: BrownfieldStore.storeName, as: BrownfieldStore.self)
+
+    guard let store else {
+      counterLabel.text = "Store not found"
+      return
+    }
+
+    // Initial UI update
+    updateUI(with: store.state)
+
+    // Subscribe to changes
+    cancelSubscription = store.subscribe { [weak self] state in
+      self?.updateUI(with: state)
+    }
+  }
+
+  private func updateUI(with state: BrownfieldStore) {
+    counterLabel.text = "Count: \(Int(state.counter))"
+  }
+
+  @objc private func incrementTapped() {
+    store?.set { $0.counter += 1 }
+  }
+
+  deinit {
+    cancelSubscription?()
+  }
+}
+```
+
+### Subscribe to Specific Property
+
+Subscribe to a specific property to only receive updates when it changes:
+
+```swift
+// Subscribe to counter only
+cancelSubscription = store.subscribe(\.counter) { [weak self] counter in
+  self?.counterLabel.text = "Count: \(Int(counter))"
+}
+```
+
+## API Reference
+
+### @UseStore
+
+Property wrapper for SwiftUI with required KeyPath selector:
+
+```swift
+@UseStore(\BrownfieldStore.counter) var counter
+```
+
+| Property         | Type             | Description                         |
+| ---------------- | ---------------- | ----------------------------------- |
+| `wrappedValue`   | `Value`          | Selected value (read-only)          |
+| `projectedValue` | `Binding<Value>` | Standard SwiftUI binding via `$var` |
+
+### Binding Extension
+
+Brownie adds a `set` method to `Binding` for closure-based updates:
+
+```swift
+$counter.set { $0 + 1 }  // increment using current value
+```
+
+### Store&lt;State&gt;
+
+| Method                   | Description                             |
+| ------------------------ | --------------------------------------- |
+| `init(_:key:)`           | Create store with initial state and key |
+| `state`                  | Current state (read-only)               |
+| `set(_:)`                | Update state with closure               |
+| `set(_:to:)`             | Update property via keypath             |
+| `get(_:)`                | Get property via keypath                |
+| `subscribe(onChange:)`   | Subscribe to all state changes          |
+| `subscribe(_:onChange:)` | Subscribe to specific property changes  |
+
+### StoreManager
+
+| Method                      | Description                 |
+| --------------------------- | --------------------------- |
+| `StoreManager.get(key:as:)` | Retrieve typed store by key |
+| `shared.snapshot(key:)`     | Get raw snapshot dictionary |
+| `shared.removeStore(key:)`  | Remove and cleanup store    |

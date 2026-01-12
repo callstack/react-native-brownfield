@@ -1,0 +1,109 @@
+# Defining Stores
+
+Stores are defined in TypeScript using `*.brownie.ts` files. The CLI auto-discovers these files and generates corresponding native types.
+
+## Basic Store
+
+Create a file ending with `.brownie.ts`:
+
+```ts
+// BrownfieldStore.brownie.ts
+import type { BrownieStore } from '@callstack/brownie';
+
+interface BrownfieldStore extends BrownieStore {
+  counter: number;
+  user: string;
+  isLoading: boolean;
+}
+
+declare module '@callstack/brownie' {
+  interface BrownieStores {
+    BrownfieldStore: BrownfieldStore;
+  }
+}
+```
+
+Key points:
+
+- Interface must extend `BrownieStore`
+- Register via module augmentation in `BrownieStores`
+- Interface name becomes the store key
+
+## Nested Objects
+
+Stores support nested object types:
+
+```ts
+interface BrownfieldStore extends BrownieStore {
+  counter: number;
+  user: {
+    name: string;
+    email: string;
+  };
+}
+```
+
+Generated Swift:
+
+```swift
+struct BrownfieldStore: Codable {
+    var counter: Double
+    var user: User
+}
+
+struct User: Codable {
+    var name: String
+    var email: String
+}
+```
+
+## Multiple Stores
+
+Define multiple stores in the same file or separate files:
+
+```ts
+// Stores.brownie.ts
+import type { BrownieStore } from '@callstack/brownie';
+
+interface UserStore extends BrownieStore {
+  name: string;
+  email: string;
+}
+
+interface SettingsStore extends BrownieStore {
+  theme: 'light' | 'dark';
+  notificationsEnabled: boolean;
+}
+
+declare module '@callstack/brownie' {
+  interface BrownieStores {
+    UserStore: UserStore;
+    SettingsStore: SettingsStore;
+  }
+}
+```
+
+## Supported Types
+
+| TypeScript                    | Swift              |
+| ----------------------------- | ------------------ |
+| `number`                      | `Double`           |
+| `string`                      | `String`           |
+| `boolean`                     | `Bool`             |
+| `object`                      | Generated `struct` |
+| Union literals (`'a' \| 'b'`) | `String` (enum)    |
+
+## Import the Store File
+
+Make sure to import your `.brownie.ts` file in your app entry point:
+
+```ts
+// App.tsx or index.js
+import './BrownfieldStore.brownie';
+```
+
+This ensures TypeScript module augmentation is applied.
+
+## Store Discovery
+
+The CLI recursively finds all `*.brownie.ts` files in your project (excluding `node_modules`). Each file is parsed to extract store definitions from the `BrownieStores` interface.

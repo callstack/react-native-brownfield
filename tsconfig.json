@@ -24,7 +24,8 @@
   },
   "references": [
     { "path": "packages/react-native-brownfield" },
-    { "path": "packages/cli" }
+    { "path": "packages/cli" },
+    { "path": "packages/brownie" }
   ],
   "exclude": ["**/node_modules", "apps/**/Pods", "packages/*/lib"]
 }

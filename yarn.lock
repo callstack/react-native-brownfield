@@ -1605,18 +1605,17 @@ __metadata:
     "@react-native-community/cli-types": "npm:^20.0.0"
     "@react-native/babel-preset": "npm:0.82.1"
     "@react-native/eslint-config": "npm:0.82.1"
-    "@rock-js/cli": "link:../../../rock/packages/cli"
-    "@rock-js/platform-android": "link:../../../rock/packages/platform-android"
-    "@rock-js/platform-apple-helpers": "link:../../../rock/packages/platform-apple-helpers"
-    "@rock-js/platform-ios": "link:../../../rock/packages/platform-ios"
-    "@rock-js/plugin-brownfield-android": "link:../../../rock/packages/plugin-brownfield-android"
-    "@rock-js/plugin-brownfield-ios": "link:../../../rock/packages/plugin-brownfield-ios"
-    "@rock-js/tools": "link:../../../rock/packages/tools"
+    "@rock-js/platform-android": "npm:^0.12.4"
+    "@rock-js/platform-apple-helpers": "npm:^0.12.4"
+    "@rock-js/plugin-brownfield-android": "npm:^0.12.4"
+    "@rock-js/plugin-brownfield-ios": "npm:^0.12.4"
+    "@rock-js/tools": "npm:^0.12.4"
     "@types/jest": "npm:^30.0.0"
     "@types/lodash.clonedeep": "npm:^4.5.9"
     "@types/node": "npm:^25.0.3"
     commander: "npm:^14.0.2"
     eslint: "npm:^8.57.1"
+    jest: "npm:^29.7.0"
     lodash.clonedeep: "npm:^4.5.0"
     nodemon: "npm:^3.1.11"
     ts-morph: "npm:^25.0.0"
@@ -1734,6 +1733,27 @@ __metadata:
     "@rspress/core": ^2.0.0-beta.34
     react: ^19.0.0
   checksum: 10/acbeedd220f53e29f5d78b91835d4a62c161fb0e399a681dfffd2f6a0b992a398cd0576f5fd4446627edceb1078913402b1846b856b3d15627c04db5bad636ac
+  languageName: node
+  linkType: hard
+
+"@clack/core@npm:0.5.0":
+  version: 0.5.0
+  resolution: "@clack/core@npm:0.5.0"
+  dependencies:
+    picocolors: "npm:^1.0.0"
+    sisteransi: "npm:^1.0.5"
+  checksum: 10/6f351fcf813f581b75df8e3d49f8264152492e3be6211e7157ff62a6c145517ea6c32eb821e9e8af306198ac0179623c349c6b21b63b8f85a5219bf53a3e08fa
+  languageName: node
+  linkType: hard
+
+"@clack/prompts@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "@clack/prompts@npm:0.11.0"
+  dependencies:
+    "@clack/core": "npm:0.5.0"
+    picocolors: "npm:^1.0.0"
+    sisteransi: "npm:^1.0.5"
+  checksum: 10/3159002db77f029e47a1bde7aebb7b233bffed867c41ded3daf9986accfa4bda0b248ed5f17d483cd34446a480a37764f2c94df0a7960f5744cf30f426c14ed6
   languageName: node
   linkType: hard
 
@@ -3148,6 +3168,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/cli-config-apple@npm:^20.0.0":
+  version: 20.1.0
+  resolution: "@react-native-community/cli-config-apple@npm:20.1.0"
+  dependencies:
+    "@react-native-community/cli-tools": "npm:20.1.0"
+    execa: "npm:^5.0.0"
+    fast-glob: "npm:^3.3.2"
+    picocolors: "npm:^1.1.1"
+  checksum: 10/5097011bb1831b9eff8d7e1f2964fe265bab3bb7e97ad681985368dc41a853811c474d235ea793edf5e31ad49810744f16bbfff3623e7629ef757eb80858a832
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-config@npm:20.0.0":
   version: 20.0.0
   resolution: "@react-native-community/cli-config@npm:20.0.0"
@@ -3700,47 +3732,73 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rock-js/cli@link:../../../rock/packages/cli::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
-  version: 0.0.0-use.local
-  resolution: "@rock-js/cli@link:../../../rock/packages/cli::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+"@rock-js/platform-android@npm:^0.12.4":
+  version: 0.12.4
+  resolution: "@rock-js/platform-android@npm:0.12.4"
+  dependencies:
+    "@react-native-community/cli-config-android": "npm:^20.0.0"
+    "@rock-js/tools": "npm:^0.12.4"
+    tslib: "npm:^2.3.0"
+  checksum: 10/4ea48b39096dc2484069c36b4bbad7957c958331c06d8d81edba13b8537b4de45710d767c8fb4f3e74c4fe552feb99b6bc62cd560da47a45494b4f3836e3f26d
   languageName: node
-  linkType: soft
+  linkType: hard
 
-"@rock-js/platform-android@link:../../../rock/packages/platform-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
-  version: 0.0.0-use.local
-  resolution: "@rock-js/platform-android@link:../../../rock/packages/platform-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+"@rock-js/platform-apple-helpers@npm:^0.12.4":
+  version: 0.12.4
+  resolution: "@rock-js/platform-apple-helpers@npm:0.12.4"
+  dependencies:
+    "@react-native-community/cli-config": "npm:^20.0.0"
+    "@react-native-community/cli-config-apple": "npm:^20.0.0"
+    "@rock-js/tools": "npm:^0.12.4"
+    adm-zip: "npm:^0.5.16"
+    fast-xml-parser: "npm:^4.5.0"
+    tslib: "npm:^2.3.0"
+  checksum: 10/cfb32f447045bea6386e1e8f25f5546d1bd45e3265d79fae99fead024559bcfc1e1c3f0a7aad6a9bc732724390d27f4f666b4cdc5a1a8f5d430e34e62a8e7519
   languageName: node
-  linkType: soft
+  linkType: hard
 
-"@rock-js/platform-apple-helpers@link:../../../rock/packages/platform-apple-helpers::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
-  version: 0.0.0-use.local
-  resolution: "@rock-js/platform-apple-helpers@link:../../../rock/packages/platform-apple-helpers::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+"@rock-js/plugin-brownfield-android@npm:^0.12.4":
+  version: 0.12.4
+  resolution: "@rock-js/plugin-brownfield-android@npm:0.12.4"
+  dependencies:
+    "@react-native-community/cli-config-android": "npm:^20.0.0"
+    "@rock-js/platform-android": "npm:^0.12.4"
+    "@rock-js/tools": "npm:^0.12.4"
+    tslib: "npm:^2.3.0"
+  checksum: 10/9a2934f064ae3e060206a959836eb425146360876d1c8187cb197deb5618e4e9cce12f8a84d6c2aa4227dccac28e17e72b9a1b43b5fe967e93e87ae534b6d8a4
   languageName: node
-  linkType: soft
+  linkType: hard
 
-"@rock-js/platform-ios@link:../../../rock/packages/platform-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
-  version: 0.0.0-use.local
-  resolution: "@rock-js/platform-ios@link:../../../rock/packages/platform-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+"@rock-js/plugin-brownfield-ios@npm:^0.12.4":
+  version: 0.12.4
+  resolution: "@rock-js/plugin-brownfield-ios@npm:0.12.4"
+  dependencies:
+    "@react-native-community/cli-config-apple": "npm:^20.0.0"
+    "@react-native-community/cli-types": "npm:^20.0.0"
+    "@rock-js/platform-apple-helpers": "npm:^0.12.4"
+    "@rock-js/tools": "npm:^0.12.4"
+    tslib: "npm:^2.3.0"
+  checksum: 10/9951e1a616103bc6497768d81e37b047cb041a05da2ba18f38ace34a93930c448b7ff2a52f7c45483b5a326fb8c472eee7b88476d350c8b90dc0ad88d6eab54f
   languageName: node
-  linkType: soft
+  linkType: hard
 
-"@rock-js/plugin-brownfield-android@link:../../../rock/packages/plugin-brownfield-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
-  version: 0.0.0-use.local
-  resolution: "@rock-js/plugin-brownfield-android@link:../../../rock/packages/plugin-brownfield-android::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
+"@rock-js/tools@npm:^0.12.4":
+  version: 0.12.4
+  resolution: "@rock-js/tools@npm:0.12.4"
+  dependencies:
+    "@clack/prompts": "npm:^0.11.0"
+    adm-zip: "npm:^0.5.16"
+    appdirsjs: "npm:^1.2.7"
+    fs-fingerprint: "npm:^0.11.0"
+    is-unicode-supported: "npm:^2.1.0"
+    nano-spawn: "npm:^0.2.0"
+    picocolors: "npm:^1.1.1"
+    string-argv: "npm:^0.3.2"
+    tar: "npm:^7.5.1"
+    tslib: "npm:^2.3.0"
+  checksum: 10/3b424e5e092f5aa6cc0f6e6f6f0b57c0f940ee7c9328fc5b6c79c21fb352a095ba254088517d432d4cca0c199ce1175fc934749ae26d66488fe99fe5ee6e0fb0
   languageName: node
-  linkType: soft
-
-"@rock-js/plugin-brownfield-ios@link:../../../rock/packages/plugin-brownfield-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
-  version: 0.0.0-use.local
-  resolution: "@rock-js/plugin-brownfield-ios@link:../../../rock/packages/plugin-brownfield-ios::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
-  languageName: node
-  linkType: soft
-
-"@rock-js/tools@link:../../../rock/packages/tools::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli":
-  version: 0.0.0-use.local
-  resolution: "@rock-js/tools@link:../../../rock/packages/tools::locator=%40callstack%2Fbrownie-cli%40workspace%3Apackages%2Fcli"
-  languageName: node
-  linkType: soft
+  linkType: hard
 
 "@rsbuild/core@npm:~1.5.4":
   version: 1.5.17
@@ -4887,6 +4945,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"adm-zip@npm:^0.5.16":
+  version: 0.5.16
+  resolution: "adm-zip@npm:0.5.16"
+  checksum: 10/e167d1b9e60cde37334efda828fa514680af9facbd4183952f36526390e5c7da9a90ca1e6880dfd3aba7b3517f1506c6178e0dc29cd630b26b98c795f97fc599
+  languageName: node
+  linkType: hard
+
 "agent-base@npm:^7.1.0, agent-base@npm:^7.1.2":
   version: 7.1.4
   resolution: "agent-base@npm:7.1.4"
@@ -5018,7 +5083,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"appdirsjs@npm:^1.2.4":
+"appdirsjs@npm:^1.2.4, appdirsjs@npm:^1.2.7":
   version: 1.2.7
   resolution: "appdirsjs@npm:1.2.7"
   checksum: 10/8f6cb9cc18de2b38e2f5efddf764c5f0331aba4168ee28cb7370b98e1dc69316352b9a936acf4d628b4dcc510d77b1645ed4b68ab2231e302f835d35e11348d3
@@ -7699,7 +7764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^4.4.1":
+"fast-xml-parser@npm:^4.4.1, fast-xml-parser@npm:^4.5.0":
   version: 4.5.3
   resolution: "fast-xml-parser@npm:4.5.3"
   dependencies:
@@ -7924,6 +7989,16 @@ __metadata:
     jsonfile: "npm:^4.0.0"
     universalify: "npm:^0.1.0"
   checksum: 10/6fb12449f5349be724a138b4a7b45fe6a317d2972054517f5971959c26fbd17c0e145731a11c7324460262baa33e0a799b183ceace98f7a372c95fbb6f20f5de
+  languageName: node
+  linkType: hard
+
+"fs-fingerprint@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "fs-fingerprint@npm:0.11.0"
+  dependencies:
+    p-limit: "npm:^7.1.0"
+    tinyglobby: "npm:^0.2.15"
+  checksum: 10/ebfe8e8a257a475ca8b3da6aee7f356845a4e37e5a2fdeafd6f5a75539652408fad5decd1c552e73b43d01eb59b9ab9deb01a41220ea4d8303bf8203d0b5dbb5
   languageName: node
   linkType: hard
 
@@ -11922,6 +11997,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nano-spawn@npm:^0.2.0":
+  version: 0.2.1
+  resolution: "nano-spawn@npm:0.2.1"
+  checksum: 10/8cd450e5a6626e4296cdde2d02f5bd1de4b188868abdd433ed18f7ce27689af3afa1c9560078bc49149ee5998c31ef8e0a62acf8a3d308611544404b4d6b2e84
+  languageName: node
+  linkType: hard
+
 "nanoid@npm:^3.3.11":
   version: 3.3.11
   resolution: "nanoid@npm:3.3.11"
@@ -12440,6 +12522,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"p-limit@npm:^7.1.0":
+  version: 7.2.0
+  resolution: "p-limit@npm:7.2.0"
+  dependencies:
+    yocto-queue: "npm:^1.2.1"
+  checksum: 10/ea1cae6e8bbf84a65cc832e4d6a802ec34902bfe0da2fba0c6fadb72f0c51d48db67b7fb2df8433dde5f4a970cf482b9c2cb4edbfa8cfadd7f4341c6fdb38a5d
+  languageName: node
+  linkType: hard
+
 "p-locate@npm:^3.0.0":
   version: 3.0.0
   resolution: "p-locate@npm:3.0.0"
@@ -12738,7 +12829,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picocolors@npm:^1.1.1":
+"picocolors@npm:^1.0.0, picocolors@npm:^1.1.1":
   version: 1.1.1
   resolution: "picocolors@npm:1.1.1"
   checksum: 10/e1cf46bf84886c79055fdfa9dcb3e4711ad259949e3565154b004b260cd356c5d54b31a1437ce9782624bf766272fe6b0154f5f0c744fb7af5d454d2b60db045
@@ -14420,6 +14511,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"string-argv@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "string-argv@npm:0.3.2"
+  checksum: 10/f9d3addf887026b4b5f997a271149e93bf71efc8692e7dc0816e8807f960b18bcb9787b45beedf0f97ff459575ee389af3f189d8b649834cac602f2e857e75af
+  languageName: node
+  linkType: hard
+
 "string-length@npm:^4.0.1":
   version: 4.0.2
   resolution: "string-length@npm:4.0.2"
@@ -14694,7 +14792,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:^7.5.2":
+"tar@npm:^7.5.1, tar@npm:^7.5.2":
   version: 7.5.2
   resolution: "tar@npm:7.5.2"
   dependencies:
@@ -14908,7 +15006,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.8.0":
+"tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.8.0":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10/3e2e043d5c2316461cb54e5c7fe02c30ef6dccb3384717ca22ae5c6b5bc95232a6241df19c622d9c73b809bea33b187f6dbc73030963e29950c2141bc32a79f7
@@ -15946,7 +16044,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yocto-queue@npm:^1.0.0":
+"yocto-queue@npm:^1.0.0, yocto-queue@npm:^1.2.1":
   version: 1.2.2
   resolution: "yocto-queue@npm:1.2.2"
   checksum: 10/92dd9880c324dbc94ff4b677b7d350ba8d835619062b7102f577add7a59ab4d87f40edc5a03d77d369dfa9d11175b1b2ec4a06a6f8a5d8ce5d1306713f66ee41
