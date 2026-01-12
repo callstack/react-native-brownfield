@@ -2,7 +2,7 @@
   "name": "@callstack/brownie-cli",
   "version": "1.0.0",
   "license": "MIT",
-  "author": "Michal Chudziak <mike.chudziak@callstack.com>",
+  "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
     "brownfield": "./dist/index.js"
   },
