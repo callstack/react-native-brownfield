@@ -63,6 +63,8 @@ export async function generateSwift(
     rendererOptions: {
       'mutable-properties': 'true',
       initializers: 'false',
+      'swift-5-support': 'true',
+      protocol: 'equatable',
     },
   });
 

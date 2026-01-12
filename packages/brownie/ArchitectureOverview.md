@@ -298,10 +298,24 @@ packages/brownie/
 - `store(key:as:)` - Retrieve typed store
 - `snapshot(key:)` - Get snapshot via C++ bridge
 
-**@UseStore** - SwiftUI property wrapper:
+**@UseStore** - SwiftUI property wrapper with selector support:
 
-- Uses `BrownieStoreProtocol` to automatically derive store key via `storeName`
-- `wrappedValue` - Access to full `Store<State>`
+```swift
+@UseStore(\BrownfieldStore.counter) var counter
+// counter -> Double (wrappedValue, read-only)
+// $counter -> Binding<Double> (projectedValue, standard SwiftUI binding)
+// $counter.set { $0 + 1 } (Binding extension for closure updates)
+```
+
+- Requires `WritableKeyPath` selector - forces explicit state selection
+- `Value` must conform to `Equatable` for change detection
+- Uses `removeDuplicates()` internally - only re-renders when selected value changes
+- `wrappedValue` - Selected value (read-only)
+- `projectedValue` - Standard `Binding<Value>` for SwiftUI controls
+
+**Binding Extension** - Adds closure-based setter:
+
+- `set(_:)` - Set value via closure that receives current value
 
 ## JS API
 

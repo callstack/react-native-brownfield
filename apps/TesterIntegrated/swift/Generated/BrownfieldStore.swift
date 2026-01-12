@@ -5,16 +5,28 @@ import Brownie
 //
 //   let brownfieldStore = try? JSONDecoder().decode(BrownfieldStore.self, from: jsonData)
 
+//
+// Hashable or Equatable:
+// The compiler will not be able to synthesize the implementation of Hashable or Equatable
+// for types that require the use of JSONAny, nor will the implementation of Hashable be
+// synthesized for types that have collections (such as arrays or dictionaries).
+
 import Foundation
 
 // MARK: - BrownfieldStore
-struct BrownfieldStore: Codable {
+struct BrownfieldStore: Codable, Equatable {
     var counter: Double
     var user: User
 }
 
+//
+// Hashable or Equatable:
+// The compiler will not be able to synthesize the implementation of Hashable or Equatable
+// for types that require the use of JSONAny, nor will the implementation of Hashable be
+// synthesized for types that have collections (such as arrays or dictionaries).
+
 // MARK: - User
-struct User: Codable {
+struct User: Codable, Equatable {
     var name: String
 }
 
