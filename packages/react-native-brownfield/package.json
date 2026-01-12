@@ -64,7 +64,7 @@
     "react-native": "*"
   },
   "dependencies": {
-    "@callstack/brownie-cli": "workspace:^"
+    "@callstack/brownfield-cli": "workspace:^"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

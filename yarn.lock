@@ -1530,6 +1530,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@callstack/brownfield-cli@workspace:^, @callstack/brownfield-cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-cli@workspace:packages/cli"
+  dependencies:
+    "@babel/core": "npm:^7.28.5"
+    "@babel/preset-env": "npm:^7.28.5"
+    "@babel/preset-typescript": "npm:^7.28.5"
+    "@react-native-community/cli-config": "npm:^20.0.0"
+    "@react-native-community/cli-config-android": "npm:^20.0.0"
+    "@react-native-community/cli-types": "npm:^20.0.0"
+    "@react-native/babel-preset": "npm:0.82.1"
+    "@react-native/eslint-config": "npm:0.82.1"
+    "@rock-js/platform-android": "npm:^0.12.5"
+    "@rock-js/platform-apple-helpers": "npm:^0.12.5"
+    "@rock-js/plugin-brownfield-android": "npm:^0.12.5"
+    "@rock-js/plugin-brownfield-ios": "npm:^0.12.5"
+    "@rock-js/tools": "npm:^0.12.5"
+    "@types/babel__core": "npm:^7"
+    "@types/babel__preset-env": "npm:^7"
+    "@types/lodash.clonedeep": "npm:^4.5.9"
+    "@types/node": "npm:^25.0.3"
+    "@vitest/coverage-v8": "npm:^4.0.17"
+    commander: "npm:^14.0.2"
+    eslint: "npm:^8.57.1"
+    lodash.clonedeep: "npm:^4.5.0"
+    nodemon: "npm:^3.1.11"
+    ts-morph: "npm:^25.0.0"
+    typescript: "npm:5.8.3"
+    vitest: "npm:^4.0.17"
+  peerDependencies:
+    "@react-native-community/cli-config": "*"
+    "@react-native-community/cli-config-android": "*"
+  bin:
+    brownfield: ./dist/index.js
+  languageName: unknown
+  linkType: soft
+
 "@callstack/brownfield-example-android-app@workspace:apps/AndroidApp":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-android-app@workspace:apps/AndroidApp"
@@ -1549,7 +1586,7 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
-    "@callstack/brownie-cli": "workspace:^"
+    "@callstack/brownfield-cli": "workspace:^"
     "@callstack/react-native-brownfield": "npm:*"
     "@react-native-community/cli": "npm:20.0.0"
     "@react-native-community/cli-platform-android": "npm:20.0.0"
@@ -1603,43 +1640,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@callstack/brownie-cli@workspace:^, @callstack/brownie-cli@workspace:packages/cli":
-  version: 0.0.0-use.local
-  resolution: "@callstack/brownie-cli@workspace:packages/cli"
-  dependencies:
-    "@babel/core": "npm:^7.28.5"
-    "@babel/preset-env": "npm:^7.28.5"
-    "@babel/preset-typescript": "npm:^7.28.5"
-    "@react-native-community/cli-config": "npm:^20.0.0"
-    "@react-native-community/cli-config-android": "npm:^20.0.0"
-    "@react-native-community/cli-types": "npm:^20.0.0"
-    "@react-native/babel-preset": "npm:0.82.1"
-    "@react-native/eslint-config": "npm:0.82.1"
-    "@rock-js/platform-android": "npm:^0.12.5"
-    "@rock-js/platform-apple-helpers": "npm:^0.12.5"
-    "@rock-js/plugin-brownfield-android": "npm:^0.12.5"
-    "@rock-js/plugin-brownfield-ios": "npm:^0.12.5"
-    "@rock-js/tools": "npm:^0.12.5"
-    "@types/babel__core": "npm:^7"
-    "@types/babel__preset-env": "npm:^7"
-    "@types/lodash.clonedeep": "npm:^4.5.9"
-    "@types/node": "npm:^25.0.3"
-    "@vitest/coverage-v8": "npm:^4.0.17"
-    commander: "npm:^14.0.2"
-    eslint: "npm:^8.57.1"
-    lodash.clonedeep: "npm:^4.5.0"
-    nodemon: "npm:^3.1.11"
-    ts-morph: "npm:^25.0.0"
-    typescript: "npm:5.8.3"
-    vitest: "npm:^4.0.17"
-  peerDependencies:
-    "@react-native-community/cli-config": "*"
-    "@react-native-community/cli-config-android": "*"
-  bin:
-    brownfield: ./dist/index.js
-  languageName: unknown
-  linkType: soft
-
 "@callstack/brownie@npm:*, @callstack/brownie@workspace:packages/brownie":
   version: 0.0.0-use.local
   resolution: "@callstack/brownie@workspace:packages/brownie"
@@ -1674,8 +1674,8 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-cli": "workspace:^"
     "@callstack/brownie": "npm:*"
-    "@callstack/brownie-cli": "workspace:^"
     "@callstack/react-native-brownfield": "npm:*"
     "@react-native-community/cli": "npm:20.0.0"
     "@react-native-community/cli-platform-android": "npm:20.0.0"
@@ -1701,7 +1701,7 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
-    "@callstack/brownie-cli": "workspace:^"
+    "@callstack/brownfield-cli": "workspace:^"
     "@react-native/babel-preset": "npm:0.82.1"
     "@react-native/eslint-config": "npm:0.82.1"
     "@types/jest": "npm:^30.0.0"
