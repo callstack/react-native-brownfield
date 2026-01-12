@@ -7,9 +7,9 @@
     "ios": "react-native run-ios",
     "build:example:android-rn": "react-native build-android",
     "build:example:ios-rn": "react-native build-ios",
-    "brownie:package:android": "brownie package:android --module-name :BrownfieldLib --variant release",
-    "brownie:publish:android": "brownie publish:android --module-name :BrownfieldLib",
-    "brownie:package:ios": "brownie package:ios --scheme BrownfieldLib --configuration Release",
+    "brownfield:package:android": "brownfield package:android --module-name :BrownfieldLib --variant release",
+    "brownfield:publish:android": "brownfield publish:android --module-name :BrownfieldLib",
+    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"

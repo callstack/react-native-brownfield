@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
   "bin": {
-    "brownie": "./dist/index.js"
+    "brownfield": "./dist/index.js"
   },
   "type": "module",
   "contributors": [

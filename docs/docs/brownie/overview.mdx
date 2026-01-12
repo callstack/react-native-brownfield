@@ -25,13 +25,13 @@ Brownie is a shared state management library for React Native brownfield apps. I
 
 ```
 ┌─────────────────┐       ┌──────────────────┐       ┌─────────────────┐
-│   TypeScript    │──────▶│   Brownie CLI    │──────▶│  Swift types    │
-│   Store Schema  │       │    (codegen)     │       │   (generated)   │
+│   TypeScript    │──────▶│  Brownfield CLI  │──────▶│  Swift types    │
+│   Store Schema  │       │     (codegen)    │       │   (generated)   │
 └─────────────────┘       └──────────────────┘       └─────────────────┘
 ```
 
 1. Define your store shape in a `*.brownie.ts` file using TypeScript
-2. Run `brownie codegen` to generate native types
+2. Run `brownfield codegen` to generate native types
 3. Use `useStore` in React Native and `Store<T>` in Swift
 4. State changes sync automatically between both sides
 
@@ -49,7 +49,7 @@ Add to your `Podfile`:
 
 ```ruby
 pre_install do |installer|
-  system("npx", "brownie", "codegen", "-p", "swift")
+  system("npx", "brownfield", "codegen", "-p", "swift")
 end
 ```
 

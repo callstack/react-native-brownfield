@@ -81,7 +81,7 @@ export type RunCodegenOptions = { platform?: Platform };
  */
 export async function runCodegen({ platform }: RunCodegenOptions) {
   intro(
-    `Running brownie codegen for ${platform ? `platform ${platform}` : 'all platforms'}`
+    `Running Brownie codegen for ${platform ? `platform ${platform}` : 'all platforms'}`
   );
 
   const config = loadConfig();

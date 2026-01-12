@@ -1,22 +1,22 @@
 # Usage with Brownfield package
 
-The `brownie` CLI provides utilities for building & packaging artifacts for brownfield projects that use the `@callstack/react-native-brownfield` library.
+The `brownfield` CLI provides utilities for building & packaging artifacts for brownfield projects that use the `@callstack/react-native-brownfield` library.
 
 ## Usage
 
 ```bash
-brownie package:android --module-name :BrownfieldLib --variant release  # Package AAR with BrownfieldLib module in release variant
-brownie publish:android --module-name :BrownfieldLib                    # Publish all build variants of BrownfieldLib module to Maven local
-brownie package:ios --scheme BrownfieldLib --configuration Release      # Package XCFramework for BrownfieldLib scheme in Release configuration
-brownie codegen --help                                                  # Show help
-brownie --version                                                       # Show version
+brownfield package:android --module-name :BrownfieldLib --variant release  # Package AAR with BrownfieldLib module in release variant
+brownfield publish:android --module-name :BrownfieldLib                    # Publish all build variants of BrownfieldLib module to Maven local
+brownfield package:ios --scheme BrownfieldLib --configuration Release      # Package XCFramework for BrownfieldLib scheme in Release configuration
+brownfield codegen --help                                                  # Show help
+brownfield --version                                                       # Show version
 ```
 
 ## iOS
 
 ### Build for iOS
 
-Simply run `npx brownie package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
+Simply run `npx brownfield package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
 
 Available arguments:
 
@@ -39,12 +39,12 @@ Available arguments:
 
 ## Android
 
-For Android, building happens in two steps: first, you build (`brownie package:android`) the AAR artifact(s) with your module, in the appropriate build variant(s), and then you `brownie publish:android` them to Maven local.
+For Android, building happens in two steps: first, you build (`brownfield package:android`) the AAR artifact(s) with your module, in the appropriate build variant(s), and then you `brownfield publish:android` them to Maven local.
 From there, native applications can consume your library from the local Maven repository.
 
 ### Build for Android
 
-To build the artifact for Android without publishing, run `npx brownie package:android --module-name app`.
+To build the artifact for Android without publishing, run `npx brownfield package:android --module-name app`.
 
 Available arguments:
 
@@ -56,9 +56,9 @@ Available arguments:
 
 ### Publish locally for Android
 
-To publish the `.aar`(s) built beforehand with `npx brownie publish:android` to Maven local, which will allow Gradle to be able to load it from Maven local repository, run:
+To publish the `.aar`(s) built beforehand with `npx brownfield publish:android` to Maven local, which will allow Gradle to be able to load it from Maven local repository, run:
 
-`npx brownie publish:android --module-name app`
+`npx brownfield publish:android --module-name app`
 
 | Argument      | Description            |
 | ------------- | ---------------------- |

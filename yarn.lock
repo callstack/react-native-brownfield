@@ -1636,7 +1636,7 @@ __metadata:
     "@react-native-community/cli-config": "*"
     "@react-native-community/cli-config-android": "*"
   bin:
-    brownie: ./dist/index.js
+    brownfield: ./dist/index.js
   languageName: unknown
   linkType: soft
 
@@ -1715,8 +1715,6 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  bin:
-    brownfield: ./lib/commonjs/cli/index.js
   languageName: unknown
   linkType: soft
 

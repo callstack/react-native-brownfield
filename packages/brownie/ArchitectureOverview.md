@@ -6,8 +6,8 @@ Shared state management between React Native and Native apps (iOS).
 
 ```
 ┌─────────────────┐       ┌──────────────────┐       ┌─────────────────┐
-│   TypeScript    │──────▶│   Brownie CLI    │──────▶│  Swift/Kotlin   │
-│   Schema Spec   │       │    (codegen)     │       │   data types    │
+│   TypeScript    │──────▶│  brownfield CLI  │──────▶│  Swift/Kotlin   │
+│   Schema Spec   │       │     (codegen)    │       │   data types    │
 └─────────────────┘       └──────────────────┘       └─────────────────┘
                                                               │
                     ┌─────────────────────────────────────────┘
@@ -29,16 +29,16 @@ Shared state management between React Native and Native apps (iOS).
 
 ## CLI command
 
-The `brownie codegen` CLI command generates native store types from TypeScript schema.
+The `brownfield codegen` CLI command generates native store types from TypeScript schema.
 
 ### Usage
 
 ```bash
-brownie codegen                   # Generate for all configured platforms
-brownie codegen -p swift          # Generate Swift only
-brownie codegen --platform kotlin # Generate Kotlin only
-brownie codegen --help            # Show help for Brownie state management codegen
-brownie --version                 # Show version
+brownfield codegen                   # Generate for all configured platforms
+brownfield codegen -p swift          # Generate Swift only
+brownfield codegen --platform kotlin # Generate Kotlin only
+brownfield codegen --help            # Show help for Brownie state management codegen
+brownfield --version                 # Show version
 ```
 
 ### Configuration

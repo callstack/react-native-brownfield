@@ -5,7 +5,6 @@ import {
   type BuildFlags as AppleBuildFlags,
 } from '@rock-js/platform-apple-helpers';
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
-import { getReactNativeVersion } from '@rock-js/tools';
 
 import { Command } from 'commander';
 
