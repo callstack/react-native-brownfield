@@ -1,15 +1,14 @@
 # Unified brownfield CLI
 
-The React Native Brownfield ecosystem comes with a batteries-included, all-in-one CLI tool called `brownfield` that helps you build and publish your React Native app as a framework artifact for iOS (XCFramework) and Android (AAR).
-Additionally, it contains CLI utilities for other tools like the `@callstack/brownie` state management tool.
+The React Native Brownfield ecosystem comes with a batteries-included, all-in-one CLI tool exposing the binary `brownfield`.
+The CLI automates the process of packaging a React Native / Expo app as a framework artifact for iOS (XCFramework) and Android (AAR).
+The `brownfield` CLI is the home for the whole brownfield ecosystem, hosting both the tools for `@callstack/react-native-brownfield` and for `@callstack/brownie` state management library.
 
-> [!NOTE]
-> The `brownfield` CLI is a unified tool serving both the needs of `@callstack/react-native-brownfield` and `@callstack/brownie` packages. The name `brownfield` does not mean it is only meant for `@callstack/brownie` state management tool; it is the main CLI for React Native Brownfield as well.
-> Technically, the CLI itself is encapsulated in the `@callstack/brownie-cli` package, which is a dependency of both `@callstack/react-native-brownfield` and `@callstack/brownie`. Therefore, installing either of the packages will bring the `brownfield` CLI tool to your project.
+Technically, the CLI itself is encapsulated in the `@callstack/brownfield-cli` package, which is a dependency of both `@callstack/react-native-brownfield` and `@callstack/brownie`. Therefore, installing either of the packages will bring the `brownfield` CLI tool to your project.
 
 ## Usage
 
-Please refer to the appropriate pages for detailed usage instructions:
+Please refer to the appropriate pages for detailed usage instructions for each of the ecosystem packages:
 
 - [`@callstack/react-native-brownfield` - Brownfield library commands](./brownfield)
 - [`@callstack/brownie` - Brownie state management library commands](./brownie)
