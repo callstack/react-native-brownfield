@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { describe, it, expect, afterEach } from 'vitest';
 import { discoverStores } from '../store-discovery.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, '../__fixtures__');
 
 function createTempDir(): string {

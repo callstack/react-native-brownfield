@@ -1,23 +1,39 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import { runCodegen } from '../../commands/codegen.js';
 import * as swiftGenerator from '../../generators/swift.js';
 import * as kotlinGenerator from '../../generators/kotlin.js';
 import * as storeDiscovery from '../../store-discovery.js';
+import * as rockTools from '@rock-js/tools';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, '../../__fixtures__');
 
-jest.mock('../../generators/swift');
-jest.mock('../../generators/kotlin');
-jest.mock('../../store-discovery');
+vi.mock('../../generators/swift');
+vi.mock('../../generators/kotlin');
+vi.mock('../../store-discovery');
+vi.mock('@rock-js/tools', async (importOriginal) => {
+  const actual = await importOriginal<typeof rockTools>();
+  return {
+    ...actual,
+    logger: {
+      ...actual.logger,
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      success: vi.fn(),
+    },
+  };
+});
 
-const mockGenerateSwift = swiftGenerator.generateSwift as jest.Mock;
-const mockGenerateKotlin = kotlinGenerator.generateKotlin as jest.Mock;
-const mockDiscoverStores = storeDiscovery.discoverStores as jest.Mock;
-const mockCwd = jest.spyOn(process, 'cwd');
-const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
-jest.spyOn(console, 'warn').mockImplementation();
-jest.spyOn(process, 'exit').mockImplementation((code) => {
+const mockGenerateSwift = swiftGenerator.generateSwift as Mock;
+const mockGenerateKotlin = kotlinGenerator.generateKotlin as Mock;
+const mockDiscoverStores = storeDiscovery.discoverStores as Mock;
+const mockCwd = vi.spyOn(process, 'cwd');
+const mockLoggerError = rockTools.logger.error as Mock;
+vi.spyOn(process, 'exit').mockImplementation((code) => {
   throw new Error(`process.exit(${code})`);
 });
 
@@ -48,7 +64,7 @@ describe('runCodegen', () => {
       cleanupTempDir(tempDir);
       tempDir = null;
     }
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('generates swift files for discovered store', async () => {
@@ -166,7 +182,7 @@ describe('runCodegen', () => {
     await expect(runCodegen({ platform: 'invalid' })).rejects.toThrow(
       'process.exit(1)'
     );
-    expect(mockConsoleError).toHaveBeenCalled();
+    expect(mockLoggerError).toHaveBeenCalled();
   });
 
   it('exits with error when generator fails', async () => {
@@ -179,7 +195,7 @@ describe('runCodegen', () => {
     mockGenerateSwift.mockRejectedValue(new Error('Generation failed'));
 
     await expect(runCodegen({})).rejects.toThrow('process.exit(1)');
-    expect(mockConsoleError).toHaveBeenCalled();
+    expect(mockLoggerError).toHaveBeenCalled();
   });
 
   it('warns when store has no output paths for selected platform', async () => {
