@@ -1,10 +1,24 @@
 import { styleText } from 'node:util';
-
-import * as Commands from './commands/index.js';
+import {
+  packageAndroidCommand,
+  packageAndroidExample,
+} from './commands/packageAndroid.js';
+import {
+  publishAndroidCommand,
+  publishAndroidExample,
+} from './commands/publishAndroid.js';
+import { packageIosCommand, packageIosExample } from './commands/packageIos.js';
 
 export * from './utils/index.js';
 
 export const groupName = `${styleText(['bold', 'blueBright'], '@callstack/react-native-brownfield')}${styleText('whiteBright', ' - utilities for React Native Brownfield projects')}`;
 
-export { Commands };
+export const Commands = {
+  packageAndroidCommand,
+  packageAndroidExample,
+  publishAndroidCommand,
+  publishAndroidExample,
+  packageIosCommand,
+  packageIosExample,
+};
 export default Commands;

@@ -31,8 +31,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "build": "bob build",
-    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\"",
-    "test": "jest"
+    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\""
   },
   "keywords": [
     "brownie",
@@ -72,11 +71,9 @@
     "@babel/runtime": "^7.25.0",
     "@react-native/babel-preset": "0.82.1",
     "@react-native/eslint-config": "0.82.1",
-    "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "@types/react": "^19.1.1",
     "eslint": "^8.57.1",
-    "jest": "^29.7.0",
     "nodemon": "^3.1.11",
     "react": "19.1.1",
     "react-native": "0.82.1",
