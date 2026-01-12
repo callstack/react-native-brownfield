@@ -23,7 +23,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.json",
-    "build:watch": "tsc -p tsconfig.json --watch",
+    "dev": "tsc -p tsconfig.json --watch",
     "test": "jest"
   },
   "keywords": [

@@ -32,7 +32,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "build": "bob build",
-    "build:watch": "nodemon --watch src --ext js,ts,json --exec \"bob build\"",
+    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\"",
     "build:brownfield": "yarn run build"
   },
   "keywords": [
