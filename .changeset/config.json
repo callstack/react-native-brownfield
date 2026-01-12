@@ -10,12 +10,12 @@
   "access": "public",
   "baseBranch": "main",
   "ignore": [
-    "docs",
-    "android-app",
-    "apple-app",
-    "rn-app",
-    "tester-integrated",
-    "react-native-brownfield-gradle-plugin"
+    "react-native-brownfield-docs",
+    "@callstack/brownfield-example-android-app",
+    "@callstack/brownfield-example-ios-app",
+    "@callstack/brownfield-example-rn-app",
+    "@callstack/react-native-brownfield-tester-integrated",
+    "@callstack/brownfield-gradle-plugin-react"
   ],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true,
