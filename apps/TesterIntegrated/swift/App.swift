@@ -12,7 +12,7 @@ let initialState = BrownfieldStore(
  Toggles testing playground for side by side brownie mode.
  Default: false
  */
-let isSideBySideMode = true
+let isSideBySideMode = false
 
 @main
 struct MyApp: App {
@@ -87,9 +87,8 @@ struct MyApp: App {
     var body: some View {
       VStack {
         Text("Count: \(Int(counter))")
-        Button("Increment") {
-          $counter.set { $0 + 1 }
-        }
+        Stepper(value: $counter, label: { Text("Increment") })
+        
         .buttonStyle(.borderedProminent)
         .padding(.bottom)
       }
@@ -97,15 +96,12 @@ struct MyApp: App {
   }
 
   struct UserView: View {
-    @UseStore(\BrownfieldStore.user) var user
+    @UseStore(\BrownfieldStore.user.name) var name
 
     var body: some View {
-      TextField("Name", text: Binding(
-        get: { user.name },
-        set: { $user.set(User(name: $0)) }
-      ))
-      .textFieldStyle(.roundedBorder)
-      .padding(.horizontal)
+      TextField("Name", text: $name)
+        .textFieldStyle(.roundedBorder)
+        .padding(.horizontal)
     }
   }
 
@@ -122,10 +118,7 @@ struct MyApp: App {
         Text("User: \(user.name)")
         Text("Count: \(Int(counter))")
 
-        TextField("Name", text: Binding(
-          get: { user.name },
-          set: { $user.set(User(name: $0)) }
-        ))
+        TextField("Name", text: $user.name)
         .textFieldStyle(.roundedBorder)
         .padding(.horizontal)
 

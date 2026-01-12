@@ -82,22 +82,24 @@ Every `@UseStore` requires a KeyPath selector. This:
 ```
 
 :::info Equatable Requirement
-Selected values must conform to `Equatable` for change detection. Add `Equatable` to your generated types.
+Selected values must conform to `Equatable` for change detection.
 :::
 
 ### Updating State
 
-Use the projected value (`$`) to access setter methods:
+The projected value (`$`) returns a standard SwiftUI `Binding<Value>`:
 
 ```swift
-// Set value directly
-$counter.set(10)
+// Use with any SwiftUI control that accepts Binding
+Stepper(value: $counter) { Text("Count: \(Int(counter))") }
+Slider(value: $counter, in: 0...100)
+Toggle("Enabled", isOn: $isEnabled)
 
-// Set with closure (receives current value)
+// Set with closure (Brownie extension on Binding)
 $counter.set { $0 + 1 }
 
-// For nested types, replace the whole object
-$user.set(User(name: "John"))
+// Access nested properties via Binding subscript
+TextField("Name", text: $user.name)
 ```
 
 ### Multiple Selectors
@@ -124,18 +126,26 @@ struct MyView: View {
 
 ### TextField Binding
 
-For two-way binding with TextField, create a `Binding`:
+Use the binding directly or select a nested property:
 
 ```swift
+// Option 1: Select the nested property directly
+struct UserView: View {
+  @UseStore(\BrownfieldStore.user.name) var name
+
+  var body: some View {
+    TextField("Name", text: $name)
+      .textFieldStyle(.roundedBorder)
+  }
+}
+
+// Option 2: Select parent and access nested binding
 struct UserView: View {
   @UseStore(\BrownfieldStore.user) var user
 
   var body: some View {
-    TextField("Name", text: Binding(
-      get: { user.name },
-      set: { $user.set(User(name: $0)) }
-    ))
-    .textFieldStyle(.roundedBorder)
+    TextField("Name", text: $user.name)
+      .textFieldStyle(.roundedBorder)
   }
 }
 ```
@@ -245,19 +255,18 @@ Property wrapper for SwiftUI with required KeyPath selector:
 @UseStore(\BrownfieldStore.counter) var counter
 ```
 
-| Property         | Type           | Description                  |
-| ---------------- | -------------- | ---------------------------- |
-| `wrappedValue`   | `Value`        | Selected value (read-only)   |
-| `projectedValue` | `StoreBinding` | Setter access via `$counter` |
+| Property         | Type             | Description                         |
+| ---------------- | ---------------- | ----------------------------------- |
+| `wrappedValue`   | `Value`          | Selected value (read-only)          |
+| `projectedValue` | `Binding<Value>` | Standard SwiftUI binding via `$var` |
 
-### StoreBinding
+### Binding Extension
 
-Provides setter methods via projected value (`$counter`):
+Brownie adds a `set` method to `Binding` for closure-based updates:
 
-| Method    | Description                                    |
-| --------- | ---------------------------------------------- |
-| `set(_:)` | Set value directly                             |
-| `set(_:)` | Set value with closure receiving current value |
+```swift
+$counter.set { $0 + 1 }  // increment using current value
+```
 
 ### Store&lt;State&gt;
 

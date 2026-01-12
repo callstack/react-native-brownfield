@@ -20,26 +20,10 @@ public extension EnvironmentValues {
   }
 }
 
-/// Provides setter methods for the selected store value via projectedValue ($counter).
-public struct StoreBinding<State: BrownieStoreProtocol, Value> {
-  private let store: Store<State>
-  private let keyPath: WritableKeyPath<State, Value>
-
-  init(store: Store<State>, keyPath: WritableKeyPath<State, Value>) {
-    self.store = store
-    self.keyPath = keyPath
-  }
-
-  /// Set value directly
-  public func set(_ value: Value) {
-    store.set(keyPath, to: value)
-  }
-
+public extension Binding {
   /// Set value using closure that receives current value
-  public func set(_ updater: (Value) -> Value) {
-    let currentValue = store.get(keyPath)
-    let newValue = updater(currentValue)
-    store.set(keyPath, to: newValue)
+  func set(_ updater: (Value) -> Value) {
+    wrappedValue = updater(wrappedValue)
   }
 }
 
@@ -62,8 +46,11 @@ public struct UseStore<State: BrownieStoreProtocol, Value: Equatable>: DynamicPr
     observer.value
   }
 
-  public var projectedValue: StoreBinding<State, Value> {
-    StoreBinding(store: observer.store, keyPath: keyPath)
+  public var projectedValue: Binding<Value> {
+    Binding(
+      get: { observer.store.get(keyPath) },
+      set: { observer.store.set(keyPath, to: $0) }
+    )
   }
 }
 

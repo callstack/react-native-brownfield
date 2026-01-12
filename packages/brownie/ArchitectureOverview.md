@@ -303,19 +303,18 @@ packages/brownie/
 ```swift
 @UseStore(\BrownfieldStore.counter) var counter
 // counter -> Double (wrappedValue, read-only)
-// $counter.set(5) (projectedValue, direct value)
-// $counter.set { $0 + 1 } (projectedValue, closure receives current value)
+// $counter -> Binding<Double> (projectedValue, standard SwiftUI binding)
+// $counter.set { $0 + 1 } (Binding extension for closure updates)
 ```
 
 - Requires `WritableKeyPath` selector - forces explicit state selection
 - `Value` must conform to `Equatable` for change detection
 - Uses `removeDuplicates()` internally - only re-renders when selected value changes
 - `wrappedValue` - Selected value (read-only)
-- `projectedValue` - `StoreBinding` with `set` methods for updates
+- `projectedValue` - Standard `Binding<Value>` for SwiftUI controls
 
-**StoreBinding** - Setter wrapper returned via `$projectedValue`:
+**Binding Extension** - Adds closure-based setter:
 
-- `set(_:)` - Set value directly
 - `set(_:)` - Set value via closure that receives current value
 
 ## JS API
