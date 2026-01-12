@@ -1,3 +1,5 @@
+import { vitest } from 'vitest';
+
 export default {
-  nativeStoreDidChange: jest.fn(),
+  nativeStoreDidChange: vitest.fn(),
 };
