@@ -55,7 +55,7 @@ export const packageIosCommand = curryOptions(
         // below: the userConfig.reactNativeVersion may be a non-semver-format string,
         // e.g. '0.82' (note the missing patch component),
         // therefore we resolve it manually from RN's package.json using Rock's utils
-        reactNativeVersion: getReactNativeVersion(projectRoot),
+        reactNativeVersion: userConfig.reactNativeVersion,
         usePrebuiltRNCore: 0, // for brownfield, it is required to build RN from source
         packageDir: path.join(brownieCacheDir, 'package'), // the output directory for artifacts
         skipCache: true, // cache is dependent on existence of Rock config file
