@@ -44,42 +44,81 @@ struct MyApp: App {
 
 ### @UseStore Property Wrapper
 
-The `@UseStore` property wrapper provides reactive access to the store:
+The `@UseStore` property wrapper provides reactive access to a selected slice of state using KeyPath selectors. This ensures your view only re-renders when the selected value changes.
 
 ```swift
 import Brownie
 import SwiftUI
 
-struct ContentView: View {
-  @UseStore<BrownfieldStore> var store
+struct CounterView: View {
+  @UseStore(\BrownfieldStore.counter) var counter
 
   var body: some View {
     VStack {
-      Text("Count: \(Int(store.state.counter))")
+      Text("Count: \(Int(counter))")
 
       Button("Increment") {
-        store.set { $0.counter += 1 }
+        $counter.set { $0 + 1 }
       }
     }
   }
 }
 ```
 
-### Updating State
+### Selectors
 
-Use the `set` method with a closure to mutate state:
+Every `@UseStore` requires a KeyPath selector. This:
+
+- Forces explicit state selection
+- Prevents unnecessary re-renders (only updates when selected value changes)
+- Provides type-safe access to state
 
 ```swift
-// Update single property
-store.set { $0.counter += 1 }
+// Select primitive
+@UseStore(\BrownfieldStore.counter) var counter  // counter is Double
 
-// Update nested property
-store.set { $0.user.name = "John" }
+// Select nested object
+@UseStore(\BrownfieldStore.user) var user  // user is User
+```
 
-// Update multiple properties
-store.set {
-  $0.counter = 0
-  $0.user.name = "Reset"
+:::info Equatable Requirement
+Selected values must conform to `Equatable` for change detection. Add `Equatable` to your generated types.
+:::
+
+### Updating State
+
+Use the projected value (`$`) to access setter methods:
+
+```swift
+// Set value directly
+$counter.set(10)
+
+// Set with closure (receives current value)
+$counter.set { $0 + 1 }
+
+// For nested types, replace the whole object
+$user.set(User(name: "John"))
+```
+
+### Multiple Selectors
+
+Use multiple `@UseStore` declarations for different state slices. Each only triggers re-renders when its selected value changes:
+
+```swift
+struct MyView: View {
+  @UseStore(\BrownfieldStore.counter) var counter
+  @UseStore(\BrownfieldStore.user) var user
+
+  var body: some View {
+    VStack {
+      Text("Count: \(Int(counter))")
+      Text("User: \(user.name)")
+
+      Button("Increment") {
+        $counter.set { $0 + 1 }
+      }
+    }
+  }
 }
 ```
 
@@ -88,33 +127,17 @@ store.set {
 For two-way binding with TextField, create a `Binding`:
 
 ```swift
-struct ContentView: View {
-  @UseStore<BrownfieldStore> var store
+struct UserView: View {
+  @UseStore(\BrownfieldStore.user) var user
 
   var body: some View {
     TextField("Name", text: Binding(
-      get: { store.state.user.name },
-      set: { store.set { $0.user.name = $0 } }
+      get: { user.name },
+      set: { $user.set(User(name: $0)) }
     ))
     .textFieldStyle(.roundedBorder)
   }
 }
-```
-
-### Reading State
-
-Access state via the `state` property or keypaths:
-
-```swift
-// Via state property
-let counter = store.state.counter
-let name = store.state.user.name
-
-// Via keypath subscript
-let counter = store[\.counter]
-
-// Via get method
-let counter = store.get(\.counter)
 ```
 
 ## UIKit
@@ -214,6 +237,28 @@ cancelSubscription = store.subscribe(\.counter) { [weak self] counter in
 
 ## API Reference
 
+### @UseStore
+
+Property wrapper for SwiftUI with required KeyPath selector:
+
+```swift
+@UseStore(\BrownfieldStore.counter) var counter
+```
+
+| Property         | Type           | Description                  |
+| ---------------- | -------------- | ---------------------------- |
+| `wrappedValue`   | `Value`        | Selected value (read-only)   |
+| `projectedValue` | `StoreBinding` | Setter access via `$counter` |
+
+### StoreBinding
+
+Provides setter methods via projected value (`$counter`):
+
+| Method    | Description                                    |
+| --------- | ---------------------------------------------- |
+| `set(_:)` | Set value directly                             |
+| `set(_:)` | Set value with closure receiving current value |
+
 ### Store&lt;State&gt;
 
 | Method                   | Description                             |
@@ -233,13 +278,3 @@ cancelSubscription = store.subscribe(\.counter) { [weak self] counter in
 | `StoreManager.get(key:as:)` | Retrieve typed store by key |
 | `shared.snapshot(key:)`     | Get raw snapshot dictionary |
 | `shared.removeStore(key:)`  | Remove and cleanup store    |
-
-### @UseStore
-
-Property wrapper for SwiftUI that auto-discovers store by type's `storeName`.
-
-```swift
-@UseStore<BrownfieldStore> var store
-```
-
-Requires generated type to conform to `BrownieStoreProtocol`.

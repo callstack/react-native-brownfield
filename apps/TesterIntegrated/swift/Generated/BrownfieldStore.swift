@@ -8,13 +8,13 @@ import Brownie
 import Foundation
 
 // MARK: - BrownfieldStore
-struct BrownfieldStore: Codable {
+struct BrownfieldStore: Codable, Equatable {
     var counter: Double
     var user: User
 }
 
 // MARK: - User
-struct User: Codable {
+struct User: Codable, Equatable {
     var name: String
 }
 

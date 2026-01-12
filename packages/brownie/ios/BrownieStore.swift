@@ -20,20 +20,72 @@ public extension EnvironmentValues {
   }
 }
 
-@MainActor
-@propertyWrapper
-public struct UseStore<State: BrownieStoreProtocol>: DynamicProperty {
-  @StateObject private var store: Store<State>
+/// Provides setter methods for the selected store value via projectedValue ($counter).
+public struct StoreBinding<State: BrownieStoreProtocol, Value> {
+  private let store: Store<State>
+  private let keyPath: WritableKeyPath<State, Value>
 
-  public init() {
-    let key = State.storeName
-    let foundStore = StoreManager.shared.store(key: key, as: State.self)
-    guard let foundStore else { fatalError("Store not found for key: \(key)") }
-    self._store = StateObject(wrappedValue: foundStore)
+  init(store: Store<State>, keyPath: WritableKeyPath<State, Value>) {
+    self.store = store
+    self.keyPath = keyPath
   }
 
-  public var wrappedValue: Store<State> {
-    store
+  /// Set value directly
+  public func set(_ value: Value) {
+    store.set(keyPath, to: value)
+  }
+
+  /// Set value using closure that receives current value
+  public func set(_ updater: (Value) -> Value) {
+    let currentValue = store.get(keyPath)
+    let newValue = updater(currentValue)
+    store.set(keyPath, to: newValue)
+  }
+}
+
+@MainActor
+@propertyWrapper
+public struct UseStore<State: BrownieStoreProtocol, Value: Equatable>: DynamicProperty {
+  @StateObject private var observer: SelectorObserver<State, Value>
+  private let keyPath: WritableKeyPath<State, Value>
+
+  public init(_ keyPath: WritableKeyPath<State, Value>) {
+    self.keyPath = keyPath
+    let key = State.storeName
+    guard let foundStore = StoreManager.shared.store(key: key, as: State.self) else {
+      fatalError("Store not found for key: \(key)")
+    }
+    self._observer = StateObject(wrappedValue: SelectorObserver(store: foundStore, keyPath: keyPath))
+  }
+
+  public var wrappedValue: Value {
+    observer.value
+  }
+
+  public var projectedValue: StoreBinding<State, Value> {
+    StoreBinding(store: observer.store, keyPath: keyPath)
+  }
+}
+
+/// Internal observer that only publishes when selected value changes.
+@MainActor
+class SelectorObserver<State: Codable, Value: Equatable>: ObservableObject {
+  let store: Store<State>
+  private let keyPath: KeyPath<State, Value>
+  @Published private(set) var value: Value
+  private var cancellable: AnyCancellable?
+
+  init(store: Store<State>, keyPath: KeyPath<State, Value>) {
+    self.store = store
+    self.keyPath = keyPath
+    self.value = store.state[keyPath: keyPath]
+
+    self.cancellable = store.$state
+      .map { $0[keyPath: keyPath] }
+      .removeDuplicates()
+      .sink { [weak self] newValue in
+        self?.value = newValue
+      }
   }
 }
 

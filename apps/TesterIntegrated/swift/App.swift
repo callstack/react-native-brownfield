@@ -12,7 +12,7 @@ let initialState = BrownfieldStore(
  Toggles testing playground for side by side brownie mode.
  Default: false
  */
-let isSideBySideMode = false
+let isSideBySideMode = true
 
 @main
 struct MyApp: App {
@@ -55,8 +55,6 @@ struct MyApp: App {
   }
 
   struct FullScreenView: View {
-    @UseStore<BrownfieldStore> var store
-
     var body: some View {
       NavigationView {
         VStack {
@@ -66,19 +64,8 @@ struct MyApp: App {
             .padding()
             .multilineTextAlignment(.center)
 
-          Text("Count: \(Int(store.state.counter))")
-
-          TextField("Name", text: Binding(get: { store.state.user.name }, set: { data in
-            store.set { $0.user.name = data }
-          }))
-          .textFieldStyle(.roundedBorder)
-          .padding(.horizontal)
-
-          Button("Increment") {
-            store.set { $0.counter += 1 }
-          }
-          .buttonStyle(.borderedProminent)
-          .padding(.bottom)
+          CounterView()
+          UserView()
 
           NavigationLink("Push React Native Screen") {
             ReactNativeView(moduleName: "ReactNative")
@@ -94,8 +81,37 @@ struct MyApp: App {
     }
   }
 
+  struct CounterView: View {
+    @UseStore(\BrownfieldStore.counter) var counter
+
+    var body: some View {
+      VStack {
+        Text("Count: \(Int(counter))")
+        Button("Increment") {
+          $counter.set { $0 + 1 }
+        }
+        .buttonStyle(.borderedProminent)
+        .padding(.bottom)
+      }
+    }
+  }
+
+  struct UserView: View {
+    @UseStore(\BrownfieldStore.user) var user
+
+    var body: some View {
+      TextField("Name", text: Binding(
+        get: { user.name },
+        set: { $user.set(User(name: $0)) }
+      ))
+      .textFieldStyle(.roundedBorder)
+      .padding(.horizontal)
+    }
+  }
+
   struct NativeView: View {
-    @UseStore<BrownfieldStore> var store
+    @UseStore(\BrownfieldStore.counter) var counter
+    @UseStore(\BrownfieldStore.user) var user
 
     var body: some View {
       VStack {
@@ -103,17 +119,18 @@ struct MyApp: App {
           .font(.headline)
           .padding(.top)
 
-        Text("User: \(store.state.user.name)")
-        Text("Count: \(Int(store.state.counter))")
+        Text("User: \(user.name)")
+        Text("Count: \(Int(counter))")
 
-        TextField("Name", text: Binding(get: { store.state.user.name }, set: { data in
-          store.set { $0.user.name = data }
-        }))
+        TextField("Name", text: Binding(
+          get: { user.name },
+          set: { $user.set(User(name: $0)) }
+        ))
         .textFieldStyle(.roundedBorder)
         .padding(.horizontal)
 
         Button("Increment") {
-          store.set { $0.counter += 1 }
+          $counter.set { $0 + 1 }
         }
         .buttonStyle(.borderedProminent)
 
