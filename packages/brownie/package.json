@@ -1,11 +1,11 @@
 {
   "name": "@callstack/brownie",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "license": "MIT",
-  "author": "Michal Chudziak <mike.chudziak@callstack.com>",
+  "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "contributors": [
-    "Piotr Drapich <piotr.drapich@callstack.com>",
-    "Oskar Kwaśniewski <oskar.kwasniewski@callstack.com>"
+    "Artur Morys-Magiera <artus9033@gmail.com>",
+    "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "description": "Shared state management between React Native and Native apps",
@@ -54,7 +54,8 @@
     "!**/.*"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "alpha"
   },
   "peerDependencies": {
     "react": "*",

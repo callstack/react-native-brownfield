@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.4/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "callstack/react-native-brownfield" }
+  ],
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "ignore": [
+    "docs",
+    "android-app",
+    "apple-app",
+    "rn-app",
+    "tester-integrated",
+    "react-native-brownfield-gradle-plugin"
+  ],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true,
+    "updateInternalDependents": "always"
+  },
+  "snapshot": {
+    "useCalculatedVersion": true
+  }
+}
