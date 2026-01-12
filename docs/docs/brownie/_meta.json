@@ -1,0 +1,27 @@
+[
+  {
+    "type": "file",
+    "name": "overview",
+    "label": "Overview"
+  },
+  {
+    "type": "file",
+    "name": "store-definition",
+    "label": "Defining Stores"
+  },
+  {
+    "type": "file",
+    "name": "codegen",
+    "label": "Code Generation"
+  },
+  {
+    "type": "file",
+    "name": "typescript-usage",
+    "label": "TypeScript Usage"
+  },
+  {
+    "type": "file",
+    "name": "swift-usage",
+    "label": "Swift Usage"
+  }
+]

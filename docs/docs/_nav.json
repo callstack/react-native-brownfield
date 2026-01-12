@@ -3,5 +3,10 @@
     "text": "Docs",
     "link": "/docs/getting-started/quick-start",
     "activeMatch": "^/docs/"
+  },
+  {
+    "text": "Brownie (Alpha)",
+    "link": "/brownie/overview",
+    "activeMatch": "^/brownie/"
   }
 ]

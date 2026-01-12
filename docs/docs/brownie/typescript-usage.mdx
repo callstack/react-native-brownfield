@@ -1,0 +1,134 @@
+# TypeScript Usage
+
+Use stores in React Native with the `useStore` hook.
+
+## useStore Hook
+
+The `useStore` hook provides a `useState`-like API for accessing shared state. It requires a selector function to subscribe to a specific slice of state. The component only re-renders when the selected value changes.
+
+```tsx
+import { useStore } from '@callstack/brownie';
+
+function Counter() {
+  // Select the counter slice - only re-renders when counter changes
+  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+
+  return (
+    <View>
+      <Text>Count: {counter}</Text>
+      <Button
+        title="Increment"
+        onPress={() => setState({ counter: counter + 1 })}
+      />
+    </View>
+  );
+}
+```
+
+```tsx
+// Only re-renders when counter changes
+const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+
+// Only re-renders when user changes
+const [user, setState] = useStore('BrownfieldStore', (s) => s.user);
+
+// Select entire state (re-renders on any change)
+const [state, setState] = useStore('BrownfieldStore', (s) => s);
+```
+
+## Updating State
+
+### Partial Update
+
+Pass an object with the properties to update:
+
+```tsx
+setState({ counter: 10 });
+```
+
+### Callback Update
+
+Use a callback to access the previous state:
+
+```tsx
+setState((prev) => ({ counter: prev.counter + 1 }));
+```
+
+### Nested Updates
+
+For nested objects, spread the previous value:
+
+```tsx
+const [user, setState] = useStore('BrownfieldStore', (s) => s.user);
+
+// Update nested property
+setState((prev) => ({
+  user: { ...prev.user, name: 'New Name' },
+}));
+```
+
+## Full Example
+
+```tsx
+import { useStore } from '@callstack/brownie';
+import { View, Text, TextInput, Button } from 'react-native';
+
+function ProfileScreen() {
+  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+  const [user] = useStore('BrownfieldStore', (s) => s.user);
+
+  return (
+    <View>
+      <Text>Count: {counter}</Text>
+      <Text>User: {user.name}</Text>
+
+      <TextInput
+        value={user.name}
+        onChangeText={(text) =>
+          setState((prev) => ({ user: { ...prev.user, name: text } }))
+        }
+      />
+
+      <Button
+        title="Increment"
+        onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+      />
+    </View>
+  );
+}
+```
+
+## Low-Level API
+
+For advanced use cases, you can use the core functions directly:
+
+```ts
+import { subscribe, getSnapshot, setState } from '@callstack/brownie';
+
+// Subscribe to changes
+const unsubscribe = subscribe('BrownfieldStore', () => {
+  console.log('Store changed');
+});
+
+// Get current state
+const state = getSnapshot('BrownfieldStore');
+
+// Update state
+setState('BrownfieldStore', { counter: 5 });
+setState('BrownfieldStore', (prev) => ({ counter: prev.counter + 1 }));
+
+// Cleanup
+unsubscribe();
+```
+
+## Type Safety
+
+The store key is fully typed based on your `BrownieStores` interface:
+
+```ts
+// TypeScript error: 'InvalidStore' does not exist
+const [state] = useStore('InvalidStore');
+
+// TypeScript error: 'invalid' does not exist on BrownfieldStore
+const [invalid] = useStore('BrownfieldStore', (s) => s.invalid);
+```
