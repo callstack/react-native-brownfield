@@ -33,12 +33,20 @@ jobs:
   tester-android:
     name: Integrated tester Android App
     runs-on: ubuntu-latest
-    env:
-      TURBO_CACHE_DIR: .turbo/android
+    needs: build-lint
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
+
+      - name: Setup Java
+        uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f # v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Setup Node.js
         uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
@@ -52,35 +60,7 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Cache turborepo for Android
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-        with:
-          path: ${{ env.TURBO_CACHE_DIR }}
-          key: ${{ runner.os }}-turborepo-android-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-turborepo-android-
-
-      - name: Check turborepo cache for Android
-        run: |
-          TURBO_CACHE_STATUS=$(node -p "($(yarn turbo run build:tester-integrated:android --cache-dir="${{ env.TURBO_CACHE_DIR }}" --dry=json)).tasks.find(t => t.task === 'build:tester-integrated:android').cache.status")
-
-          if [[ $TURBO_CACHE_STATUS == "HIT" ]]; then
-            echo "turbo_cache_hit=1" >> $GITHUB_ENV
-          fi
-
-      - name: Validate Gradle Wrapper
-        if: env.turbo_cache_hit != 1
-        uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
-
-      - name: Setup Java
-        if: env.turbo_cache_hit != 1
-        uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f # v5
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
       - name: Restore android build cache
-        if: env.turbo_cache_hit != 1
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
@@ -91,8 +71,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tester-android-build-
 
-      - name: Restore Gradle cache
-        if: env.turbo_cache_hit != 1
+      - name: Resture Gradle cache
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
@@ -103,16 +82,12 @@ jobs:
             ${{ runner.os }}-tester-integrated-android-gradle-
 
       - name: Build integrated Android tester app
-        env:
-          JAVA_OPTS: '-XX:MaxHeapSize=6g'
-        run: |
-          yarn turbo run build:tester-integrated:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+        run: yarn run build:tester-integrated:android
 
   tester-ios:
     name: Integrated tester iOS App
-    runs-on: macos-15
-    env:
-      TURBO_CACHE_DIR: .turbo/ios
+    runs-on: macos-latest
+    needs: build-lint
 
     steps:
       - name: Checkout
@@ -141,24 +116,7 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Cache turborepo for iOS
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-        with:
-          path: ${{ env.TURBO_CACHE_DIR }}
-          key: ${{ runner.os }}-turborepo-ios-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-turborepo-ios-
-
-      - name: Check turborepo cache for iOS
-        run: |
-          TURBO_CACHE_STATUS=$(node -p "($(yarn turbo run build:tester-integrated:ios --cache-dir="${{ env.TURBO_CACHE_DIR }}" --dry=json)).tasks.find(t => t.task === 'build:tester-integrated:ios').cache.status")
-
-          if [[ $TURBO_CACHE_STATUS == "HIT" ]]; then
-            echo "turbo_cache_hit=1" >> $GITHUB_ENV
-          fi
-
       - name: Restore Pods cache
-        if: env.turbo_cache_hit != 1
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
@@ -168,11 +126,10 @@ jobs:
             ${{ runner.os }}-tester-ios-pods-
 
       - name: Install pods
-        if: env.turbo_cache_hit != 1
         run: |
           cd apps/TesterIntegrated/swift
           pod install
 
       - name: Build integrated iOS tester app
         run: |
-          yarn turbo run build:tester-integrated:ios --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+          yarn run build:tester-integrated:ios
