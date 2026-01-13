@@ -1,6 +1,7 @@
 package com.callstack.react.brownfield.utils
 
 import com.callstack.react.brownfield.shared.Logging
+import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ResolvedArtifact
 import java.io.File
@@ -9,21 +10,20 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class AndroidArchiveLibrary(
     private val project: Project,
-    artifact: ResolvedArtifact,
+    artifact: UnresolvedArtifactInfo,
     private val variantName: String,
 ) {
     private var packageName: String? = null
-    private val artifact: ResolvedArtifact =
+    private val artifact: UnresolvedArtifactInfo =
         requireNotNull(artifact.takeIf { it.type == "aar" }) {
             "Only Aar is accepted as an artifact"
         }
 
-    private fun getArtifactName() = artifact.moduleVersion.id.name
+    private fun getArtifactName() = artifact.moduleName
 
     fun getExplodedAarRootDir(): File {
         val explodedRootDir = File("${project.layout.buildDirectory.get()}/intermediates/exploded-aar")
-        val id = artifact.moduleVersion.id
-        return File(explodedRootDir, "${id.group}/${id.name}/${id.version}/$variantName")
+        return File(explodedRootDir, "${artifact.moduleGroup}/${artifact.moduleName}/${artifact.moduleVersion}/$variantName")
     }
 
     @Synchronized

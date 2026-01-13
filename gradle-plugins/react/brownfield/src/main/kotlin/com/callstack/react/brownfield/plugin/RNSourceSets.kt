@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.utils.Extension
@@ -34,39 +35,52 @@ object RNSourceSets {
         this.project = project
         this.extension = extension
 
-        androidExtension = RNSourceSets.project.extensions.getByName("android") as LibraryExtension
-        appProject = RNSourceSets.project.rootProject.project(RNSourceSets.extension.appProjectName)
+        androidExtension = this.project.extensions.getByType(LibraryExtension::class.java)
+        appProject = this.project.rootProject.project(RNSourceSets.extension.appProjectName)
         appBuildDir = appProject.layout.buildDirectory.get()
-        moduleBuildDir = RNSourceSets.project.layout.buildDirectory.get()
+        moduleBuildDir = this.project.layout.buildDirectory.get()
 
         configureSourceSets()
         configureTasks()
     }
 
     private fun configureSourceSets() {
-        project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
+        // 1. Get the 'androidComponents' extension for the new Variant API
+        val componentsExtension = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+
+        // Move the non-variant-specific configuration out of the loop
+        androidExtension.sourceSets.named("main") { sourceSet ->
+            // This path is not variant-specific, so it's added once here.
+            sourceSet.java.srcDir("$moduleBuildDir/generated/autolinking/src/main/java")
+        }
+
+        // 2. Use the onVariants block to configure each variant
+        componentsExtension.onVariants { variant ->
+            // The variant name is directly available
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
-            androidExtension.sourceSets.getByName("main") { sourceSet ->
-                for (bundlePathSegment in listOf(
+            // 3. Lazily configure the 'main' source set using .named()
+            androidExtension.sourceSets.named("main") { sourceSet ->
+                // Paths are collected and added, similar to your improved version
+                val bundlePathSegments = listOf(
                     // outputs for RN <= 0.81
                     "createBundle${capitalizedVariantName}JsAndAssets",
                     // outputs for RN >= 0.82
                     "react/${variant.name}",
-                )) {
-                    sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
-                    sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
-                }
+                )
 
-                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
+                // Add the variant-specific generated asset and resource directories
+                sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
+                sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
             }
         }
 
-        androidExtension.sourceSets.getByName("release") {
+        // These remain the same, but using .named() is the modern, lazy approach
+        androidExtension.sourceSets.named("release") {
             it.jniLibs.srcDirs("libsRelease")
         }
 
-        androidExtension.sourceSets.getByName("debug") {
+        androidExtension.sourceSets.named("debug") {
             it.jniLibs.srcDirs("libsDebug")
         }
     }

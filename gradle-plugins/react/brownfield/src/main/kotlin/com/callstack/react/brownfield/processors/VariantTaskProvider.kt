@@ -102,11 +102,16 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
                 "merge${capitalizedVariantName}Manifest",
                 ManifestMerger::class.java,
             ) {
+                println("\n==== merge${capitalizedVariantName}Manifest Configured\n")
                 it.setGradleVersion(project.gradle.gradleVersion)
                 it.setGradlePluginVersion(Utils.getAGPVersion())
                 it.setMainManifestFile(manifestOutput)
                 it.setSecondaryManifestFiles(inputManifests)
                 it.setOutputFile(manifestOutput)
+
+                it.doLast {
+                    println("\n==== merge${capitalizedVariantName}Manifest doLast ====\n")
+                }
             }
 
         processManifestTask.dependsOn(explodeTasks)
@@ -156,7 +161,12 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         }
 
         extractDeepLinks.configure {
+            println("\n==== extractDeepLinks Configured\n")
             it.dependsOn(explodeTasks)
+
+            it.doLast {
+                println("\n==== extractDeepLinks doLast ====\n")
+            }
         }
     }
 

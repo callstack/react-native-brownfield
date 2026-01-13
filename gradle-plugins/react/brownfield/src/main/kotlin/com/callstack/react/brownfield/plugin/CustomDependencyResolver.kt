@@ -19,7 +19,7 @@ class CustomDependencyResolver(
     private fun getCompileOnlyConfigName(configurationName: String): String {
         val configSuffix = ProjectConfigurations.CONFIG_SUFFIX
         if (configurationName.endsWith(configSuffix)) {
-            val configName = configurationName.substring(0, configurationName.length - configSuffix.length)
+            val configName = configurationName.dropLast(configSuffix.length)
             return "${configName}CompileOnly"
         } else {
             return "compileOnly"

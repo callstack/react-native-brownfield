@@ -15,6 +15,7 @@ import com.android.build.gradle.api.LibraryVariant
 import com.android.build.gradle.tasks.ManifestProcessorTask
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
+import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import groovy.lang.MissingPropertyException
@@ -36,16 +37,6 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
     fun getJavaCompileTask(): JavaCompile {
         return variant.javaCompileProvider.get()
-    }
-
-    fun getTaskDependencies(artifact: ResolvedArtifact): Set<Any> {
-        return try {
-            val publishArtifact = artifact::class.members.find { it.name == "publishArtifact" }?.call(artifact)
-            val buildDependencies = publishArtifact?.javaClass?.getMethod("getBuildDependencies")?.invoke(publishArtifact)
-            buildDependencies as? Set<Any> ?: emptySet()
-        } catch (ignore: MissingPropertyException) {
-            emptySet()
-        }
     }
 
     fun getSyncLibJarsTaskPath(): String {
@@ -125,6 +116,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
         }
 
         resourceGenTask.configure {
+            println("\n=== generate${capitalizedVariantName}Resources configured\n")
             it.dependsOn(explodeTasks)
         }
 

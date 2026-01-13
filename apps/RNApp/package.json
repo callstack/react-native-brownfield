@@ -7,6 +7,9 @@
     "ios": "react-native run-ios",
     "build:example:android-rn": "react-native build-android",
     "build:example:ios-rn": "react-native build-ios",
+    "build:aar:dryRun": "cd android && ./gradlew :brownfieldlib:assembleRelease --dry-run",
+    "build:aar": "cd android && ./gradlew :brownfieldlib:assembleRelease",
+    "build:scan": "cd android && ./gradlew :brownfieldlib:assembleRelease --scan",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"

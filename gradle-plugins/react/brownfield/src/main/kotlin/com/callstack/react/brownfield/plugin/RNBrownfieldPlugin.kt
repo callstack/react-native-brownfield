@@ -1,5 +1,7 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.gradle.internal.crash.afterEvaluate
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.shared.BaseProject
@@ -7,6 +9,7 @@ import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
@@ -16,46 +19,91 @@ import org.gradle.internal.model.CalculatedValueContainerFactory
 import javax.inject.Inject
 
 class RNBrownfieldPlugin
-    @Inject
-    constructor(
-        private val calculatedValueContainerFactory: CalculatedValueContainerFactory,
-        private val taskDependencyFactory: TaskDependencyFactory,
-        private val fileResolver: FileResolver,
-    ) : Plugin<Project> {
-        private lateinit var project: Project
-        private lateinit var extension: Extension
-        private lateinit var projectConfigurations: ProjectConfigurations
+@Inject
+constructor(
+    private val calculatedValueContainerFactory: CalculatedValueContainerFactory,
+    private val taskDependencyFactory: TaskDependencyFactory,
+    private val fileResolver: FileResolver,
+) : Plugin<Project> {
+    private lateinit var extension: Extension
+    private lateinit var projectConfigurations: ProjectConfigurations
+    private lateinit var artifactsResolver: ArtifactsResolver
 
-        override fun apply(project: Project) {
+
+    override fun apply(project: Project) {
             verifyAndroidPluginApplied(project)
             initializers(project)
 
-            /**
-             * Make sure that expo project is evaluated before the android library.
-             * This ensures that the expo modules are available to link with the
-             * android library, when it is evaluated.
-             */
-            val expoProjectPath = ":expo"
-            val hasExpoProject = project.findProject(expoProjectPath) != null
-            if (hasExpoProject) {
-                project.evaluationDependsOn(expoProjectPath)
-            }
+            println("=== Applying $PROJECT_ID ===")
 
+            // Configure
+            projectConfigurations.configure()
             RNSourceSets.configure(project, extension)
-            projectConfigurations.setup()
-            registerRClassTransformer()
+            RClassTransformer.registerASMTransformation()
 
-            project.afterEvaluate {
-                afterEvaluate()
+            if (Utils.isExampleLibrary(project.name)) {
+                return
             }
+            // Register tasks
+//            project.tasks.named("preDebugBuild").configure {
+//                println("==== Hello Debug ====")
+//            }
+//
+//            project.tasks.named("preReleaseBuild").configure {
+//                println("==== Hello Release ====")
+//            }
+
+        val baseProject = BaseProject()
+        baseProject.project = project
+        artifactsResolver = ArtifactsResolver(projectConfigurations.getConfigurations(), baseProject, extension)
+        artifactsResolver.calculatedValueContainerFactory = calculatedValueContainerFactory
+        artifactsResolver.taskDependencyFactory = taskDependencyFactory
+        artifactsResolver.fileResolver = fileResolver
+
+        artifactsResolver.processDefaultDependencies()
+
+
+        artifactsResolver.processArtifacts()
+//        project.tasks.register("processArtifacts") {
+//            it.doFirst {
+//                artifactsResolver.processArtifacts()
+//            }
+//        }
+
+//        val processArtifactsTask = project.tasks.register("processArtifacts") {
+//            println("==== processArtifact Configured ====")
+//
+////            it.dependsOn(":react-native-safe-area-context:bundleReleaseAar")
+//            it.doFirst {
+//                println("==== processArtifact doFirst ====")
+//                val baseProject = BaseProject()
+//                baseProject.project = project
+//                val artifactsResolver = ArtifactsResolver(projectConfigurations.getConfigurations(), baseProject, extension)
+//                artifactsResolver.calculatedValueContainerFactory = calculatedValueContainerFactory
+//                artifactsResolver.taskDependencyFactory = taskDependencyFactory
+//                artifactsResolver.fileResolver = fileResolver
+//                artifactsResolver.processArtifacts()
+//            }
+//
+//            it.doLast {
+//                println("\n==== processArtifact doLast ====\n")
+//            }
+//        }
+//
+//
+//            project.tasks.named("preBuild").configure {
+//                println("==== preBuild Configured first ====")
+//                it.dependsOn(processArtifactsTask)
+//
+//                it.doLast {
+//                    println("\n==== preBuild first -> doLast ====\n")
+//                }
+//            }
         }
 
         private fun initializers(project: Project) {
-            this.project = project
-            Logging.project = project
-            DirectoryManager.project = project
-            RClassTransformer.project = project
             this.extension = project.extensions.create(Extension.NAME, Extension::class.java)
+            RClassTransformer.project = project
             projectConfigurations = ProjectConfigurations(project)
             VariantPackagesProperty.setVariantPackagesProperty(project)
         }
@@ -70,22 +118,5 @@ class RNBrownfieldPlugin
                     Throwable("Apply $PROJECT_ID"),
                 )
             }
-        }
-
-        /**
-         * Transforms RClass
-         */
-        private fun registerRClassTransformer() {
-            RClassTransformer.registerASMTransformation()
-        }
-
-        private fun afterEvaluate() {
-            val baseProject = BaseProject()
-            baseProject.project = project
-            val artifactsResolver = ArtifactsResolver(projectConfigurations.getConfigurations(), baseProject, extension)
-            artifactsResolver.calculatedValueContainerFactory = calculatedValueContainerFactory
-            artifactsResolver.taskDependencyFactory = taskDependencyFactory
-            artifactsResolver.fileResolver = fileResolver
-            artifactsResolver.processArtifacts()
         }
     }

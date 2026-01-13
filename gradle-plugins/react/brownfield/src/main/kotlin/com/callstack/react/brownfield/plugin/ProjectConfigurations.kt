@@ -1,9 +1,18 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.attributes.AgpVersionAttr
+import com.android.build.api.attributes.BuildTypeAttr
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.internal.attributes.VariantAttr
 import com.callstack.react.brownfield.shared.Logging
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.attributes.AttributeContainer
+import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.internal.artifacts.ArtifactAttributes
 
 class ProjectConfigurations(private val project: Project) {
     private val configurations: MutableCollection<Configuration> = mutableListOf()
@@ -26,10 +35,9 @@ class ProjectConfigurations(private val project: Project) {
      * 3. creates configs for flavours
      * 4. creates configs for flavours with buildTypes
      */
-    fun setup() {
+    fun configure() {
         // create main configuration
         createConfiguration(CONFIG_NAME)
-
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
         createBuildTypesConfiguration(androidExtension)
         createFlavorConfigurations(androidExtension)
@@ -63,13 +71,35 @@ class ProjectConfigurations(private val project: Project) {
      * creates configuration based on `configName`. Also attaches a resolution listener.
      */
     private fun createConfiguration(configName: String) {
-        Logging.log("creating configuration $configName")
+        Logging.log("creating configuration $configName ⌛️")
         val configuration = project.configurations.create(configName)
+
+        configuration.extendsFrom(project.configurations.getByName("implementation"))
         configuration.isVisible = false
         configuration.isTransitive = false
+
+            val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+            androidComponents.onVariants { variant ->
+
+                val runtimeAttributes = variant.runtimeConfiguration.attributes
+                runtimeAttributes.keySet().forEach { key ->
+                    copyAttribute(
+                        key,
+                        runtimeAttributes,
+                        configuration.attributes
+                    )
+                }
+            }
+
         project.gradle.addListener(CustomDependencyResolver(project, configuration))
         configurations.add(configuration)
-        Logging.log("created configuration $configName")
+        Logging.log("created configuration $configName ✅")
+    }
+
+    private fun <T> copyAttribute(key: Attribute<T>, from: AttributeContainer, into: AttributeContainer) {
+        from.getAttribute(key)?.let {
+            into.attribute(key, it)
+        }
     }
 
     private fun getConfigName(prefix: String): String {

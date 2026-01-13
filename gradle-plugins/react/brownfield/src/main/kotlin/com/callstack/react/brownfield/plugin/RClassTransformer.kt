@@ -9,6 +9,7 @@ import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.shared.BaseProject
+import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -29,17 +30,22 @@ object RClassTransformer : BaseProject() {
     fun registerASMTransformation() {
         val components = project.extensions.getByType(AndroidComponentsExtension::class.java)
         val variantPackagesProperty = VariantPackagesProperty.getVariantPackagesProperty()
+        variantPackagesProperty.get().forEach {
+            println("=== variantPackagesProperty $it")
+        }
         components.onVariants(components.selector().all()) { variant ->
             variant.instrumentation.transformClassesWith(
                 RClassAsmTransformerFactory::class.java,
                 InstrumentationScope.PROJECT,
             ) { params ->
                 params.namespace.set(variant.namespace)
-                params.libraryNamespaces.set(
-                    variantPackagesProperty.getting(variant.name)
-                        .map { list -> list.map { it.getPackageName() }.toList() },
-                )
+//                params.libraryNamespaces.set(
+//                    variantPackagesProperty.getting(variant.name)
+//                        .map { list -> list.map { it.getPackageName() }.toList() },
+//                )
             }
+
+            println("=== project variant -- ${variant.name}")
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
         }
     }
@@ -65,6 +71,7 @@ object RClassTransformer : BaseProject() {
             classContext: ClassContext,
             nextClassVisitor: ClassVisitor,
         ): ClassVisitor {
+            println("\n==== INN HEREEE\n")
             val params = parameters.get()
             val namespace = params.namespace.get()
             val libraryNamespaces = params.libraryNamespaces.orElse(Collections.emptyList()).get()
