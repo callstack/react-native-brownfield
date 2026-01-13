@@ -1,0 +1,133 @@
+# Usage with Brownie package
+
+The `brownfield codegen` CLI command generates `@callstack/brownie` (Brownie) state management library native store types from TypeScript schema.
+
+## Usage
+
+```bash
+brownfield codegen                   # Generate for all configured platforms
+brownfield codegen -p swift          # Generate Swift only
+brownfield codegen --platform kotlin # Generate Kotlin only
+brownfield codegen --help            # Show help for Brownie state management codegen
+brownfield --version                 # Show version
+```
+
+## Configuration
+
+Add to your app's `package.json`:
+
+```json
+{
+  "brownie": {
+    "swift": "./ios/Generated/",
+    "kotlin": "./android/app/src/main/java/com/example/",
+    "kotlinPackageName": "com.example"
+  }
+}
+```
+
+| Field               | Required | Description                               |
+| ------------------- | -------- | ----------------------------------------- |
+| `swift`             | No\*     | Output directory for Swift files          |
+| `kotlin`            | No\*     | Output directory for Kotlin files         |
+| `kotlinPackageName` | No       | Kotlin package name (extracted from path) |
+
+\*At least one of `swift` or `kotlin` is required.
+
+## Store Definition
+
+Stores are auto-discovered from `*.brownie.ts` files. Define your store shape using module augmentation:
+
+```ts
+// BrownfieldStore.brownie.ts
+import type { BrownieStore } from '@callstack/brownie';
+
+interface BrownfieldStore extends BrownieStore {
+  counter: number;
+  user: string;
+  isLoading: boolean;
+}
+
+declare module '@callstack/brownie' {
+  interface BrownieStores {
+    BrownfieldStore: BrownfieldStore;
+  }
+}
+```
+
+Multiple stores in same file:
+
+```ts
+// Stores.brownie.ts
+import type { BrownieStore } from '@callstack/brownie';
+
+interface UserStore extends BrownieStore {
+  name: string;
+  email: string;
+}
+
+interface SettingsStore extends BrownieStore {
+  theme: 'light' | 'dark';
+  notificationsEnabled: boolean;
+}
+
+declare module '@callstack/brownie' {
+  interface BrownieStores {
+    UserStore: UserStore;
+    SettingsStore: SettingsStore;
+  }
+}
+```
+
+## Generated Output
+
+**Swift** (`Codable` struct with mutable properties):
+
+```swift
+struct BrownfieldStore: Codable {
+    var counter: Double
+    var isLoading: Bool
+    var user: String
+}
+```
+
+**Kotlin** (data class):
+
+```kotlin
+package com.example
+
+data class BrownfieldStore (
+    val counter: Double,
+    val isLoading: Boolean,
+    val user: String
+)
+```
+
+### Store Discovery
+
+1. Recursively finds `*.brownie.ts` files (skips node_modules)
+2. Parses `declare module '@callstack/brownie'` blocks using ts-morph
+3. Extracts store names from `BrownieStores` interface properties
+4. Validates no duplicate store names exist
+
+### Codegen Pipeline
+
+```
+*.brownie.ts files (auto-discovered)
+       │
+       ▼
+ts-morph (parse BrownieStores interface)
+       │
+       ▼
+quicktype-typescript-input (schemaForTypeScriptSources)
+       │
+       ▼
+JSON Schema
+       │
+       ▼
+quicktype-core
+       │
+       ├──▶ Swift (lang: 'swift', mutable-properties: true)
+       │
+       └──▶ Kotlin (lang: 'kotlin', framework: 'just-types')
+```

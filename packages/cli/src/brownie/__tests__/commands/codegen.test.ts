@@ -1,24 +1,39 @@
 import fs from 'fs';
 import path from 'path';
-import { runCodegen } from '../../commands/codegen';
-import * as swiftGenerator from '../../generators/swift';
-import * as kotlinGenerator from '../../generators/kotlin';
-import * as storeDiscovery from '../../store-discovery';
+import { fileURLToPath } from 'url';
+import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
+import { runCodegen } from '../../commands/codegen.js';
+import * as swiftGenerator from '../../generators/swift.js';
+import * as kotlinGenerator from '../../generators/kotlin.js';
+import * as storeDiscovery from '../../store-discovery.js';
+import * as rockTools from '@rock-js/tools';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, '../../__fixtures__');
 
-jest.mock('../../generators/swift');
-jest.mock('../../generators/kotlin');
-jest.mock('../../store-discovery');
+vi.mock('../../generators/swift');
+vi.mock('../../generators/kotlin');
+vi.mock('../../store-discovery');
+vi.mock('@rock-js/tools', async (importOriginal) => {
+  const actual = await importOriginal<typeof rockTools>();
+  return {
+    ...actual,
+    logger: {
+      ...actual.logger,
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      success: vi.fn(),
+    },
+  };
+});
 
-const mockGenerateSwift = swiftGenerator.generateSwift as jest.Mock;
-const mockGenerateKotlin = kotlinGenerator.generateKotlin as jest.Mock;
-const mockDiscoverStores = storeDiscovery.discoverStores as jest.Mock;
-const mockCwd = jest.spyOn(process, 'cwd');
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
-const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
-jest.spyOn(console, 'warn').mockImplementation();
-jest.spyOn(process, 'exit').mockImplementation((code) => {
+const mockGenerateSwift = swiftGenerator.generateSwift as Mock;
+const mockGenerateKotlin = kotlinGenerator.generateKotlin as Mock;
+const mockDiscoverStores = storeDiscovery.discoverStores as Mock;
+const mockCwd = vi.spyOn(process, 'cwd');
+const mockLoggerError = rockTools.logger.error as Mock;
+vi.spyOn(process, 'exit').mockImplementation((code) => {
   throw new Error(`process.exit(${code})`);
 });
 
@@ -49,19 +64,7 @@ describe('runCodegen', () => {
       cleanupTempDir(tempDir);
       tempDir = null;
     }
-    jest.clearAllMocks();
-  });
-
-  it('prints version when -v flag passed', async () => {
-    await runCodegen(['-v'], '1.0.0');
-    expect(mockConsoleLog).toHaveBeenCalledWith('1.0.0');
-  });
-
-  it('prints help when -h flag passed', async () => {
-    await runCodegen(['-h'], '1.0.0');
-    expect(mockConsoleLog).toHaveBeenCalled();
-    const output = mockConsoleLog.mock.calls[0]![0];
-    expect(output).toContain('brownie codegen');
+    vi.clearAllMocks();
   });
 
   it('generates swift files for discovered store', async () => {
@@ -72,7 +75,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalledWith({
       name: 'TestStore',
@@ -92,7 +95,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateKotlin).toHaveBeenCalledWith({
       name: 'TestStore',
@@ -113,13 +116,13 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalled();
     expect(mockGenerateKotlin).toHaveBeenCalled();
   });
 
-  it('generates only specified platform with -p flag', async () => {
+  it('generates only specified platform', async () => {
     tempDir = createTempPackageJson({
       brownie: {
         swift: './Generated',
@@ -128,7 +131,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen(['-p', 'swift'], '1.0.0');
+    await runCodegen({ platform: 'swift' });
 
     expect(mockGenerateSwift).toHaveBeenCalled();
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
@@ -150,7 +153,7 @@ describe('runCodegen', () => {
       },
     ]);
 
-    await runCodegen([], '1.0.0');
+    await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalledTimes(2);
     expect(mockGenerateSwift).toHaveBeenNthCalledWith(1, {
@@ -175,10 +178,11 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await expect(runCodegen(['-p', 'invalid'], '1.0.0')).rejects.toThrow(
+    // @ts-expect-error - testing invalid input
+    await expect(runCodegen({ platform: 'invalid' })).rejects.toThrow(
       'process.exit(1)'
     );
-    expect(mockConsoleError).toHaveBeenCalled();
+    expect(mockLoggerError).toHaveBeenCalled();
   });
 
   it('exits with error when generator fails', async () => {
@@ -190,8 +194,8 @@ describe('runCodegen', () => {
     mockCwd.mockReturnValue(tempDir);
     mockGenerateSwift.mockRejectedValue(new Error('Generation failed'));
 
-    await expect(runCodegen([], '1.0.0')).rejects.toThrow('process.exit(1)');
-    expect(mockConsoleError).toHaveBeenCalled();
+    await expect(runCodegen({})).rejects.toThrow('process.exit(1)');
+    expect(mockLoggerError).toHaveBeenCalled();
   });
 
   it('warns when store has no output paths for selected platform', async () => {
@@ -202,7 +206,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen(['-p', 'kotlin'], '1.0.0');
+    await runCodegen({ platform: 'kotlin' });
 
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
   });

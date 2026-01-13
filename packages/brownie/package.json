@@ -30,10 +30,9 @@
   "scripts": {
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "build": "bob build && tsc -p scripts/tsconfig.json",
-    "test": "jest"
+    "build": "bob build",
+    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\""
   },
-  "bin": "./lib/scripts/cli.js",
   "keywords": [
     "brownie",
     "react-native-brownfield",
@@ -62,6 +61,7 @@
     "react-native": "*"
   },
   "dependencies": {
+    "@callstack/brownfield-cli": "workspace:^",
     "quicktype-core": "^23.0.170",
     "quicktype-typescript-input": "^23.0.170",
     "ts-morph": "^25.0.0"
@@ -73,10 +73,10 @@
     "@babel/runtime": "^7.25.0",
     "@react-native/babel-preset": "0.82.1",
     "@react-native/eslint-config": "0.82.1",
-    "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "@types/react": "^19.1.1",
-    "jest": "^29.7.0",
+    "eslint": "^8.57.1",
+    "nodemon": "^3.1.11",
     "react": "19.1.1",
     "react-native": "0.82.1",
     "react-native-builder-bob": "^0.40.14",

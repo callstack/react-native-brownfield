@@ -1,10 +1,14 @@
-import fs from 'fs';
-import path from 'path';
-import { loadConfig } from '../config';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 
+import { loadConfig } from '../config.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, '../__fixtures__');
 
-const mockCwd = jest.spyOn(process, 'cwd');
+const mockCwd = vi.spyOn(process, 'cwd');
 
 function createTempPackageJson(config: object): string {
   const tempDir = fs.mkdtempSync(path.join(FIXTURES_DIR, 'temp-'));

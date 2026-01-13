@@ -1,0 +1,85 @@
+{
+  "name": "@callstack/brownfield-cli",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Artur Morys-Magiera <artus9033@gmail.com>",
+  "bin": {
+    "brownfield": "./dist/index.js"
+  },
+  "type": "module",
+  "contributors": [
+    "Artur Morys-Magiera <artus9033@gmail.com>",
+    "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
+  ],
+  "homepage": "https://github.com/callstack/react-native-brownfield",
+  "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "react-native-brownfield",
+    "react native brownfield",
+    "native",
+    "react native integration",
+    "cli",
+    "brownie",
+    "tooling"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@react-native-community/cli-config": "*",
+    "@react-native-community/cli-config-android": "*"
+  },
+  "dependencies": {
+    "@react-native-community/cli-config": "^20.0.0",
+    "@react-native-community/cli-config-android": "^20.0.0",
+    "@rock-js/platform-android": "^0.12.5",
+    "@rock-js/platform-apple-helpers": "^0.12.5",
+    "@rock-js/plugin-brownfield-android": "^0.12.5",
+    "@rock-js/plugin-brownfield-ios": "^0.12.5",
+    "@rock-js/tools": "^0.12.5",
+    "commander": "^14.0.2",
+    "lodash.clonedeep": "^4.5.0",
+    "ts-morph": "^25.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@react-native-community/cli-types": "^20.0.0",
+    "@react-native/babel-preset": "0.82.1",
+    "@react-native/eslint-config": "0.82.1",
+    "@types/babel__core": "^7",
+    "@types/babel__preset-env": "^7",
+    "@types/lodash.clonedeep": "^4.5.9",
+    "@types/node": "^25.0.3",
+    "@vitest/coverage-v8": "^4.0.17",
+    "eslint": "^8.57.1",
+    "nodemon": "^3.1.11",
+    "typescript": "5.8.3",
+    "vitest": "^4.0.17"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

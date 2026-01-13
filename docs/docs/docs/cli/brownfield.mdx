@@ -1,0 +1,74 @@
+# Usage with Brownfield package
+
+The `brownfield` CLI provides utilities for building & packaging artifacts for brownfield projects that use the `@callstack/react-native-brownfield` library.
+
+## Usage
+
+```bash
+brownfield package:android --module-name :BrownfieldLib --variant release  # Package AAR with BrownfieldLib module in release variant
+brownfield publish:android --module-name :BrownfieldLib                    # Publish all build variants of BrownfieldLib module to Maven local
+brownfield package:ios --scheme BrownfieldLib --configuration Release      # Package XCFramework for BrownfieldLib scheme in Release configuration
+brownfield codegen --help                                                  # Show help
+brownfield --version                                                       # Show version
+```
+
+## iOS
+
+### Build for iOS
+
+Simply run `npx brownfield package:ios` to create an XCFramework that you can later integrate into your native iOS app according to other instruction sections below.
+
+Available arguments:
+
+| Argument               | Description                                                                                                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --verbose              | Enable verbose logging                                                                                                                                                            |
+| --configuration        | Explicitly set the scheme configuration to use. This option is case sensitive.                                                                                                    |
+| --scheme               | Explicitly set Xcode scheme to use                                                                                                                                                |
+| --target               | Explicitly set Xcode target to use                                                                                                                                                |
+| --extra-params         | Custom params that will be passed to xcodebuild command                                                                                                                           |
+| --export-extra-params  | Custom params that will be passed to xcodebuild export archive command. Example: `--export-extra-params "-allowProvisioningUpdates"`                                              |
+| --export-options-plist | Name of the export options file for archiving. Defaults to: `ExportOptions.plist`                                                                                                 |
+| --build-folder         | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath". By default, the '\<iOS project folder>/build' path will be used.                                     |
+| --destination          | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values: "simulator", "device", or xcodebuild destinations |
+| --archive              | Create an Xcode archive (IPA) of the build, required for uploading to App Store Connect or distributing to TestFlight                                                             |
+| --no-install-pods      | Skip automatic CocoaPods installation                                                                                                                                             |
+| --no-new-arch          | Run React Native in legacy async architecture                                                                                                                                     |
+| --local                | Force local build with xcodebuild                                                                                                                                                 |
+| --verbose              | Enable verbose logging                                                                                                                                                            |
+
+The build directory will be placed in the `<iOS project folder>/.brownfield/build` folder by default and the build outputs (XCFrameworks) will be created in the `<iOS project folder>/.brownfield/package` folder:
+
+- `package/<scheme name>.xcframework`, e.g. in the `apps/RNApp` demo project, the output will be at `apps/RNApp/ios/.brownfield/package/BrownfieldLib.xcframework`.
+- `package/hermesvm.xcframework` for RN >= 0.82.0 or `package/hermes.xcframework` otherwise
+- `ReactBrownfield.xcframework`
+
+The consumer project needs to embed all 3 frameworks.
+
+## Android
+
+For Android, building happens in two steps: first, you build (`brownfield package:android`) the AAR artifact(s) with your module, in the appropriate build variant(s), and then you `brownfield publish:android` them to Maven local.
+From there, native applications can consume your library from the local Maven repository.
+
+### Build for Android
+
+To build the artifact for Android without publishing, run `npx brownfield package:android --module-name app`.
+
+Available arguments:
+
+| Argument      | Description                                                                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| --variant     | Specify your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'. (default: "debug") |
+| --module-name | AAR module name                                                                                                                              |
+| --verbose     | Enable verbose logging                                                                                                                       |
+
+### Publish locally for Android
+
+To publish the `.aar`(s) built beforehand with `npx brownfield publish:android` to Maven local, which will allow Gradle to be able to load it from Maven local repository, run:
+
+`npx brownfield publish:android --module-name app`
+
+| Argument      | Description            |
+| ------------- | ---------------------- |
+| --module-name | AAR module name        |
+| --verbose     | Enable verbose logging |

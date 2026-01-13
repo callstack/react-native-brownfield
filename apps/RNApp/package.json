@@ -7,6 +7,9 @@
     "ios": "react-native run-ios",
     "build:example:android-rn": "react-native build-android",
     "build:example:ios-rn": "react-native build-ios",
+    "brownfield:package:android": "brownfield package:android --module-name :BrownfieldLib --variant release --verbose",
+    "brownfield:publish:android": "brownfield publish:android --module-name :BrownfieldLib --verbose",
+    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --verbose",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
@@ -25,6 +28,7 @@
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
+    "@callstack/brownfield-cli": "workspace:^",
     "@react-native-community/cli": "20.0.0",
     "@react-native-community/cli-platform-android": "20.0.0",
     "@react-native-community/cli-platform-ios": "20.0.0",

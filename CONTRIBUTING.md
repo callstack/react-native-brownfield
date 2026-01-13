@@ -8,12 +8,21 @@ Depending on your needs, you may need to install CocoaPods in a subset of the be
 - example React Native iOS app: `cd apps/RNApp/ios && pod install`
 - integrated iOS tester app: `cd apps/TesterIntegrated/swift && pod install`
 
+## Contributing changes
+
+After contributing your changes, please make sure to add a [changeset](https://github.com/changesets/changesets) describing your changes. This will help us in publishing new versions.
+
+## Publishing to npm
+
+We use [changesets](https://github.com/changesets/changesets) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+
 ## Scripts
 
 - `lint` - runs linting on all JS/TS source files in the monorepo *[Turbo]* 
 - `gradle-plugin:lint` - runs linting on the Brownfield Gradle plugin source code
 - `typecheck` - runs TypeScript type checking on all TS source files in the monorepo *[Turbo]* 
 - `build` - runs all `build*` tasks in the Turbo repo - see below for more details *[Turbo]* 
+- `dev` - runs all `dev` tasks in all workspaces
 - `release` - releases a new version of React Native Brownfield package using `release-it`
 - `brownfield:plugin:publish:local` - publishes the Brownfield Gradle plugin to your local Maven repository for testing purposes
 - `build:brownfield` - builds the React Native Brownfield package (`packages/react-native-brownfield`) *[Turbo]* 

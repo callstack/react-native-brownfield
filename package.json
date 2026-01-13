@@ -11,6 +11,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
+    "dev": "yarn workspaces foreach -Api run dev",
+    "release": "release-it --config packages/react-native-brownfield/.release-it.json",
     "version-packages": "changeset version && yarn install --no-immutable",
     "publish-packages": "turbo run build lint && changeset version && changeset publish",
     "brownfield:plugin:publish:local": "bash ./gradle-plugins/publish-to-maven-local.sh",
