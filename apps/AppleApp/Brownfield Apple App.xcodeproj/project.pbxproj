@@ -33,9 +33,9 @@
 
 /* Begin PBXFileReference section */
 		793C76A72EEBF938008A2A34 /* Brownfield Apple App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		79A9BC7E2EF5781F009EC2E3 /* BrownfieldLib.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BrownfieldLib.xcframework; path = ../RNApp/ios/out/Release/BrownfieldLib.xcframework; sourceTree = SOURCE_ROOT; };
-		79A9BC7F2EF5781F009EC2E3 /* hermesvm.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = hermesvm.xcframework; path = ../RNApp/ios/out/Release/hermesvm.xcframework; sourceTree = SOURCE_ROOT; };
-		79A9BC802EF5781F009EC2E3 /* ReactBrownfield.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactBrownfield.xcframework; path = ../RNApp/ios/out/Release/ReactBrownfield.xcframework; sourceTree = SOURCE_ROOT; };
+		79A9BC7E2EF5781F009EC2E3 /* BrownfieldLib.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BrownfieldLib.xcframework; path = ../RNApp/ios/.brownfield/package/BrownfieldLib.xcframework; sourceTree = SOURCE_ROOT; };
+		79A9BC7F2EF5781F009EC2E3 /* hermesvm.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = hermesvm.xcframework; path = ../RNApp/ios/.brownfield/package/hermesvm.xcframework; sourceTree = SOURCE_ROOT; };
+		79A9BC802EF5781F009EC2E3 /* ReactBrownfield.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactBrownfield.xcframework; path = ../RNApp/ios/.brownfield/package/ReactBrownfield.xcframework; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
