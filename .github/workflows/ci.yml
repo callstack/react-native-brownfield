@@ -75,7 +75,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tester-android-build-
 
-      - name: Resture Gradle cache
+      - name: Restore Gradle cache
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
@@ -167,7 +167,7 @@ jobs:
 
       - name: Build integrated iOS tester app
         run: |
-          yarn run build:tester-integrated:ios
+          yarn run build:tester-integrated:ios`
 
       # == RNApp ==
 
