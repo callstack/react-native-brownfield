@@ -37,6 +37,14 @@ Available arguments:
 | --local                | Force local build with xcodebuild                                                                                                                                                 |
 | --verbose              | Enable verbose logging                                                                                                                                                            |
 
+The build directory will be placed in the `<iOS project folder>/.brownfield/build` folder by default and the build outputs (XCFrameworks) will be created in the `<iOS project folder>/.brownfield/package` folder:
+
+- `package/<scheme name>.xcframework`, e.g. in the `apps/RNApp` demo project, the output will be at `apps/RNApp/ios/.brownfield/package/BrownfieldLib.xcframework`.
+- `package/hermesvm.xcframework` for RN >= 0.82.0 or `package/hermes.xcframework` otherwise
+- `ReactBrownfield.xcframework`
+
+The consumer project needs to embed all 3 frameworks.
+
 ## Android
 
 For Android, building happens in two steps: first, you build (`brownfield package:android`) the AAR artifact(s) with your module, in the appropriate build variant(s), and then you `brownfield publish:android` them to Maven local.
