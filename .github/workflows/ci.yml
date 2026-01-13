@@ -52,6 +52,18 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: false
+
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Setup Node.js
         uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
         with:
@@ -167,7 +179,7 @@ jobs:
 
       - name: Build integrated iOS tester app
         run: |
-          yarn run build:tester-integrated:ios`
+          yarn run build:tester-integrated:ios
 
       # == RNApp ==
 
