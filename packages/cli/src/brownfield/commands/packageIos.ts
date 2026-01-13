@@ -42,7 +42,7 @@ export const packageIosCommand = curryOptions(
 
     const brownieCacheDir = path.join(
       userConfig.project.ios.sourceDir,
-      '.brownie'
+      '.brownfield'
     );
 
     options.buildFolder ??= path.join(brownieCacheDir, 'build');
