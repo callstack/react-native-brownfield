@@ -11,7 +11,6 @@ export interface BrownieStore {}
 
 type StoreListener = () => void;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HostObject = any;
 
 interface StoreCache {
