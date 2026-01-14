@@ -1,6 +1,0 @@
-{
-  "root": true,
-  "extends": ["prettier"],
-  "plugins": ["prettier"],
-  "ignorePatterns": ["node_modules/", "lib/"]
-}

@@ -1,5 +1,0 @@
-{
-  "extends": ["@react-native", "prettier"],
-  "plugins": ["prettier"],
-  "ignorePatterns": ["dist/"]
-}
