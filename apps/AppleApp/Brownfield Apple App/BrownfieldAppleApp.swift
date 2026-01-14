@@ -1,4 +1,5 @@
 import BrownfieldLib
+import Brownie
 import ReactBrownfield
 import SwiftUI
 
@@ -15,6 +16,8 @@ struct BrownfieldAppleApp: App {
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
         }
+        
+        _ = Store(initialState, key: BrownfieldStore.storeName)
     }
 
     var body: some Scene {

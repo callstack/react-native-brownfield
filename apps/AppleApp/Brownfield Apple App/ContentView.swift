@@ -1,5 +1,11 @@
 import ReactBrownfield
+import Brownie
 import SwiftUI
+
+let initialState = BrownfieldStore(
+  counter: 0,
+  user: User(name: "Username")
+)
 
 struct ContentView: View {
     var body: some View {
@@ -27,7 +33,7 @@ struct MainScreen: View {
 
 struct GreetingCard: View {
     let name: String
-    @State private var counter: Int = 0
+    @UseStore(\BrownfieldStore.counter) var counter
 
     var body: some View {
         VStack(spacing: 12) {
@@ -36,13 +42,13 @@ struct GreetingCard: View {
                 .multilineTextAlignment(.center)
 
             Text(
-                "You clicked the button \(counter) time\(counter == 1 ? "" : "s")"
+                "You clicked the button \(Int(counter)) time\(counter == 1 ? "" : "s")"
             )
             .multilineTextAlignment(.center)
             .font(.body)
 
             Button("Increment counter") {
-                counter += 1
+                $counter.set { $0 + 1 }
             }
             .buttonStyle(.borderedProminent)
         }

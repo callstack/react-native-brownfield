@@ -12,9 +12,11 @@
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --verbose",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "codegen": "brownfield codegen"
   },
   "dependencies": {
+    "@callstack/brownie": "*",
     "@callstack/react-native-brownfield": "*",
     "@react-native/new-app-screen": "0.82.1",
     "@react-navigation/native": "^7.0.15",
@@ -46,5 +48,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "brownie": {
+    "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated",
+    "kotlinPackageName": "com.rnapp.brownfieldlib"
   }
 }

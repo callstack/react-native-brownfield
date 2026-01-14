@@ -4,7 +4,12 @@ import path from 'node:path';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { loadConfig } from '../config.js';
+import {
+  isBrownieInstalled,
+  loadConfig,
+  getBrowniePackagePath,
+  getSwiftOutputPath,
+} from '../config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, '../__fixtures__');
@@ -46,28 +51,14 @@ describe('loadConfig', () => {
     );
   });
 
-  it('throws when no output path configured', () => {
+  it('loads empty config', () => {
     tempDir = createTempPackageJson({
       brownie: {},
     });
     mockCwd.mockReturnValue(tempDir);
-    expect(() => loadConfig()).toThrow(
-      'At least one output path is required: brownie.swift or brownie.kotlin'
-    );
-  });
-
-  it('loads config with swift output', () => {
-    tempDir = createTempPackageJson({
-      brownie: {
-        swift: './Generated',
-      },
-    });
-    mockCwd.mockReturnValue(tempDir);
 
     const config = loadConfig();
-    expect(config).toEqual({
-      swift: './Generated',
-    });
+    expect(config).toEqual({});
   });
 
   it('loads config with kotlin output', () => {
@@ -83,20 +74,33 @@ describe('loadConfig', () => {
     expect(config.kotlin).toBe('./Generated');
     expect(config.kotlinPackageName).toBe('com.example');
   });
+});
 
-  it('loads config with all outputs', () => {
-    tempDir = createTempPackageJson({
-      brownie: {
-        swift: './swift/Generated',
-        kotlin: './kotlin/Generated',
-        kotlinPackageName: 'com.example',
-      },
-    });
-    mockCwd.mockReturnValue(tempDir);
+describe('isBrownieInstalled', () => {
+  it('returns false when brownie is not installed', () => {
+    expect(isBrownieInstalled('/nonexistent/path')).toBe(false);
+  });
 
-    const config = loadConfig();
-    expect(config.swift).toBe('./swift/Generated');
-    expect(config.kotlin).toBe('./kotlin/Generated');
-    expect(config.kotlinPackageName).toBe('com.example');
+  it('returns true when brownie is installed', () => {
+    const rnAppPath = path.resolve(__dirname, '../../../../../apps/RNApp');
+    expect(isBrownieInstalled(rnAppPath)).toBe(true);
+  });
+});
+
+describe('getBrowniePackagePath', () => {
+  it('resolves brownie package path from project with brownie dependency', () => {
+    const rnAppPath = path.resolve(__dirname, '../../../../../apps/RNApp');
+    const browniePath = getBrowniePackagePath(rnAppPath);
+    expect(browniePath).toContain('brownie');
+    expect(fs.existsSync(path.join(browniePath, 'package.json'))).toBe(true);
+  });
+});
+
+describe('getSwiftOutputPath', () => {
+  it('returns path to ios/Generated inside brownie package', () => {
+    const rnAppPath = path.resolve(__dirname, '../../../../../apps/RNApp');
+    const outputPath = getSwiftOutputPath(rnAppPath);
+    expect(outputPath).toContain('brownie');
+    expect(outputPath).toContain(path.join('ios', 'Generated'));
   });
 });

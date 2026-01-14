@@ -22,7 +22,6 @@ Pod::Spec.new do |spec|
 
   spec.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
-    'OTHER_SWIFT_FLAGS' => "-enable-experimental-feature AccessLevelOnImport",
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
     'HEADER_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}/boost" "${PODS_ROOT}/RCT-Folly" "${PODS_TARGET_SRCROOT}/cpp"'
   }

@@ -7,6 +7,7 @@ import { runCodegen } from '../../commands/codegen.js';
 import * as swiftGenerator from '../../generators/swift.js';
 import * as kotlinGenerator from '../../generators/kotlin.js';
 import * as storeDiscovery from '../../store-discovery.js';
+import * as config from '../../config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, '../../__fixtures__');
@@ -14,6 +15,13 @@ const FIXTURES_DIR = path.join(__dirname, '../../__fixtures__');
 vi.mock('../../generators/swift');
 vi.mock('../../generators/kotlin');
 vi.mock('../../store-discovery');
+vi.mock('../../config', async (importOriginal) => {
+  const actual = await importOriginal<typeof config>();
+  return {
+    ...actual,
+    getSwiftOutputPath: vi.fn(() => '/mock/brownie/ios/Generated'),
+  };
+});
 vi.mock('@rock-js/tools', async (importOriginal) => {
   const actual = await importOriginal<typeof rockTools>();
   return {
@@ -69,9 +77,7 @@ describe('runCodegen', () => {
 
   it('generates swift files for discovered store', async () => {
     tempDir = createTempPackageJson({
-      brownie: {
-        swift: './Generated',
-      },
+      brownie: {},
     });
     mockCwd.mockReturnValue(tempDir);
 
@@ -81,7 +87,7 @@ describe('runCodegen', () => {
       name: 'TestStore',
       schemaPath: '/path/to/TestStore.brownie.ts',
       typeName: 'TestStore',
-      outputPath: 'Generated/TestStore.swift',
+      outputPath: '/mock/brownie/ios/Generated/TestStore.swift',
     });
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
   });
@@ -104,13 +110,12 @@ describe('runCodegen', () => {
       outputPath: 'Generated/TestStore.kt',
       packageName: 'com.test',
     });
-    expect(mockGenerateSwift).not.toHaveBeenCalled();
+    expect(mockGenerateSwift).toHaveBeenCalled();
   });
 
   it('generates both swift and kotlin when configured', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        swift: './Generated',
         kotlin: './Generated',
       },
     });
@@ -125,7 +130,6 @@ describe('runCodegen', () => {
   it('generates only specified platform', async () => {
     tempDir = createTempPackageJson({
       brownie: {
-        swift: './Generated',
         kotlin: './Generated',
       },
     });
@@ -139,9 +143,7 @@ describe('runCodegen', () => {
 
   it('generates for multiple discovered stores', async () => {
     tempDir = createTempPackageJson({
-      brownie: {
-        swift: './Generated',
-      },
+      brownie: {},
     });
     mockCwd.mockReturnValue(tempDir);
 
@@ -160,21 +162,19 @@ describe('runCodegen', () => {
       name: 'UserStore',
       schemaPath: '/path/to/UserStore.brownie.ts',
       typeName: 'UserStore',
-      outputPath: 'Generated/UserStore.swift',
+      outputPath: '/mock/brownie/ios/Generated/UserStore.swift',
     });
     expect(mockGenerateSwift).toHaveBeenNthCalledWith(2, {
       name: 'SettingsStore',
       schemaPath: '/path/to/SettingsStore.brownie.ts',
       typeName: 'SettingsStore',
-      outputPath: 'Generated/SettingsStore.swift',
+      outputPath: '/mock/brownie/ios/Generated/SettingsStore.swift',
     });
   });
 
   it('exits with error for invalid platform', async () => {
     tempDir = createTempPackageJson({
-      brownie: {
-        swift: './Generated',
-      },
+      brownie: {},
     });
     mockCwd.mockReturnValue(tempDir);
 
@@ -187,9 +187,7 @@ describe('runCodegen', () => {
 
   it('exits with error when generator fails', async () => {
     tempDir = createTempPackageJson({
-      brownie: {
-        swift: './Generated',
-      },
+      brownie: {},
     });
     mockCwd.mockReturnValue(tempDir);
     mockGenerateSwift.mockRejectedValue(new Error('Generation failed'));
@@ -198,11 +196,9 @@ describe('runCodegen', () => {
     expect(mockLoggerError).toHaveBeenCalled();
   });
 
-  it('warns when store has no output paths for selected platform', async () => {
+  it('skips kotlin when not configured', async () => {
     tempDir = createTempPackageJson({
-      brownie: {
-        swift: './Generated',
-      },
+      brownie: {},
     });
     mockCwd.mockReturnValue(tempDir);
 

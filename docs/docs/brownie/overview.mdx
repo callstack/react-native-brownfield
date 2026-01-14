@@ -98,13 +98,13 @@ function Counter() {
 import Brownie
 
 struct ContentView: View {
-  @UseStore<AppStore> var store
+  @UseStore(\AppStore.counter) var counter
 
   var body: some View {
     VStack {
-      Text("Count: \(Int(store.state.counter))")
+      Text("Count: \(Int(counter))")
       Button("Increment") {
-        store.set { $0.counter += 1 }
+        $counter.set { $0 + 1 }
       }
     }
   }

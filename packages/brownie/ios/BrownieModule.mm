@@ -8,7 +8,6 @@
 #endif
 
 #import "BrownieInstaller.h"
-#import "RCTTurboModule.h"
 
 using namespace facebook;
 
