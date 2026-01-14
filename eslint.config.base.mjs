@@ -1,6 +1,6 @@
 import prettier from 'eslint-plugin-prettier';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import tseslint from 'typescript-eslint';
+import eslintPluginNodeImport from 'eslint-plugin-node-import';
 
 /**
  * ESLint base configuration for JS/TS packages in the monorepo
@@ -15,9 +15,11 @@ export default [
       '**/build/**',
       '**/.turbo/**',
       '**/.cxx/**',
-      '**/ios/**/Pods/**',
+      '**/Pods/**',
     ],
   },
+
+  // below: tseslint integration
   ...tseslint.configs.recommended,
   {
     rules: {
@@ -30,6 +32,8 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
+
+  // below: prettier integration
   eslintConfigPrettier,
   {
     plugins: {
@@ -37,6 +41,16 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
+    },
+  },
+
+  // below: enforce importing of built-in Node.js modules with the 'node:' prefix
+  {
+    plugins: {
+      'node-import': eslintPluginNodeImport,
+    },
+    rules: {
+      'node-import/prefer-node-protocol': 'error',
     },
   },
 ];

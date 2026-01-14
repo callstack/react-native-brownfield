@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import { useStore } from '@callstack/brownie';
+import { useEffect } from 'react';
+import './BrownfieldStore.brownie';
+import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 import { NavigationContainer } from '@react-navigation/native';
-import './BrownfieldStore.brownie';
 
 const getRandomValue = () => Math.round(Math.random() * 255);
 const getRandomTheme = () => {

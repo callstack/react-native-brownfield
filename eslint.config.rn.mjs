@@ -9,7 +9,9 @@ import baseEslintConfig from './eslint.config.base.mjs';
  * @type {import('eslint').Linter.Config[]}
  */
 export default [
+  ...fixupConfigRules(flatCompat.extends('@react-native/eslint-config')),
   ...baseEslintConfig,
+
   {
     languageOptions: {
       ecmaVersion: 'latest',
