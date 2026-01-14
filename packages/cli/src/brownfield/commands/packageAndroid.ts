@@ -1,17 +1,17 @@
-import { packageAarAction } from '@rock-js/plugin-brownfield-android';
-import {
-  packageAarOptions,
-  type PackageAarFlags,
-} from '@rock-js/platform-android';
-
 import { Command } from 'commander';
 
-import { getProjectInfo } from '../utils/index.js';
 import {
+  type PackageAarFlags,
+  packageAarOptions,
+} from '@rock-js/platform-android';
+import { packageAarAction } from '@rock-js/plugin-brownfield-android';
+
+import {
+  ExampleUsage,
   actionRunner,
   curryOptions,
-  ExampleUsage,
 } from '../../shared/index.js';
+import { getProjectInfo } from '../utils/index.js';
 
 export const packageAndroidCommand = curryOptions(
   new Command('package:android').description('Build Android AAR'),

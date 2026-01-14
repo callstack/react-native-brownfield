@@ -1,7 +1,8 @@
+import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { describe, it, expect, afterEach, vi } from 'vitest';
+
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { loadConfig } from '../config.js';
 
