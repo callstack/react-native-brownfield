@@ -1,4 +1,4 @@
-import { logger, type RockCLIOptions } from '@rock-js/tools';
+import { logger, RockError, type RockCLIOptions } from '@rock-js/tools';
 
 import type { Command } from 'commander';
 
@@ -23,11 +23,25 @@ export function curryOptions(programCommand: Command, options: RockCLIOptions) {
   return programCommand;
 }
 
-function handleActionError(error: Error) {
-  logger.error(`Error running command: ${error.message}`);
-  process.exit(1);
-}
-
 export function actionRunner<T, R>(fn: (...args: T[]) => Promise<R>) {
-  return (...args: T[]) => fn(...args).catch(handleActionError);
+  return async function wrappedCLIAction(...args: T[]) {
+    try {
+      await fn(...args);
+    } catch (error) {
+      if (error instanceof RockError) {
+        if (logger.isVerbose()) {
+          logger.error(error);
+        } else {
+          logger.error(error.message);
+          if (error.cause) {
+            logger.error(`Cause: ${error.cause}`);
+          }
+        }
+      } else {
+        logger.error(`Unexpected error while running command:`, error);
+      }
+
+      process.exit(1);
+    }
+  };
 }
