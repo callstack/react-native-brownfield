@@ -3,7 +3,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintPluginNodeImport from 'eslint-plugin-node-import';
 
 /**
- * ESLint base configuration for JS/TS packages in the monorepo
+ * ESLint base configuration shared for other re-usable configs
  * @type {import('eslint').Linter.Config[]}
  */
 export default [
@@ -17,20 +17,6 @@ export default [
       '**/.cxx/**',
       '**/Pods/**',
     ],
-  },
-
-  // below: tseslint integration
-  ...tseslint.configs.recommended,
-  {
-    rules: {
-      '@typescript-eslint/no-empty-object-type': [
-        'error',
-        {
-          allowInterfaces: 'always',
-        },
-      ],
-      '@typescript-eslint/no-explicit-any': 'warn',
-    },
   },
 
   // below: prettier integration

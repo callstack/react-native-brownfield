@@ -1,8 +1,10 @@
 import globals from 'globals';
-import reactPlugin from 'eslint-plugin-react';
-import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import { fixupConfigRules } from '@eslint/compat';
+import { FlatCompat } from '@eslint/eslintrc';
 
 import baseEslintConfig from './eslint.config.base.mjs';
+
+const flatCompat = new FlatCompat();
 
 /**
  * ESLint configuration for React Native packages in the monorepo
@@ -11,7 +13,6 @@ import baseEslintConfig from './eslint.config.base.mjs';
 export default [
   ...fixupConfigRules(flatCompat.extends('@react-native/eslint-config')),
   ...baseEslintConfig,
-
   {
     languageOptions: {
       ecmaVersion: 'latest',
@@ -19,24 +20,9 @@ export default [
       globals: {
         ...globals.node,
       },
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
-    plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin,
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
     },
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
-      ...reactHooksPlugin.configs.recommended.rules,
     },
   },
 ];

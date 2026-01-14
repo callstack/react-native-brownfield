@@ -6,7 +6,8 @@
     "start": "react-native start",
     "build:tester-integrated:android": "cd kotlin && ./gradlew assembleDebug",
     "build:tester-integrated:ios": "cd swift && xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build",
-    "brownfield:codegen": "brownfield codegen"
+    "brownfield:codegen": "brownfield codegen",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@callstack/brownie": "*",

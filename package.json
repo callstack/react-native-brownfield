@@ -39,6 +39,8 @@
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/compat": "^2.0.1",
+    "@react-native/eslint-config": "^0.83.1",
     "babel-plugin-module-resolver": "5.0.2",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.8",
