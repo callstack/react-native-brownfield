@@ -28,7 +28,7 @@ program
 program
   .optionsGroup('Global options:')
   .option('--verbose', 'enable verbose logging')
-  .hook('preAction', (_cmd) => {
+  .hook('preAction', () => {
     const opts = program.opts();
     if (opts.verbose) {
       logger.setVerbose(opts.verbose ?? false);
@@ -43,7 +43,7 @@ program.configureHelp({
 });
 
 function registrationHelper(
-  commandsRegistration: Record<string, any | Command | ExampleUsage>,
+  commandsRegistration: Record<string, unknown | Command | ExampleUsage>,
   groupName: string
 ) {
   program.commandsGroup(groupName);
