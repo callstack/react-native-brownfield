@@ -12,17 +12,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
-
-      - name: Set up JDK
-        uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f # v5
+      - name: Prepare Android environment
+        uses: ./.github/actions/prepare-android
         with:
-          distribution: temurin
-          java-version: 17
+          free-disk-space: 'false'
+          run-yarn-build: 'false'
 
       - name: Restore Gradle cache
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5

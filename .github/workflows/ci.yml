@@ -30,12 +30,12 @@ jobs:
       - name: Typecheck files
         run: yarn typecheck
 
-      - name: Test Brownfield CLI
+      - name: Test Brownfield CLI (version)
         run: |
           yarn workspace @callstack/react-native-brownfield brownfield --version
 
   android:
-    name: 'Android: integrated tester & integration workflow with CLI'
+    name: Android road tests
     runs-on: ubuntu-latest
     needs: build-lint
 
@@ -43,49 +43,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
+      - name: Setup
+        uses: ./.github/actions/setup
 
-      - name: Setup Java
-        uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f # v5
-        with:
-          distribution: 'zulu'
-          java-version: '17'
+      - name: Prepare Android environment
+        uses: ./.github/actions/prepare-android
 
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          tool-cache: false
-
-          android: false
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-
-      - name: Setup Node.js
-        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
-        with:
-          node-version: 'lts/*'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build packages
-        run: yarn build
-
-      - name: Restore android build cache
+      - name: Restore Android build cache
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
             apps/TesterIntegrated/kotlin/build
             apps/TesterIntegrated/kotlin/app/.cxx
             apps/TesterIntegrated/kotlin/app/build
-          key: ${{ runner.os }}-tester-android-build-${{ github.sha }}
+            apps/RNApp/android/build
+            apps/RNApp/android/app/.cxx
+            apps/RNApp/android/app/build
+            apps/AndroidApp/build
+            apps/AndroidApp/app/build
+            apps/AndroidApp/app/.cxx
+          key: ${{ runner.os }}-android-build-road-tests-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-tester-android-build-
+            ${{ runner.os }}-android-build-road-tests-
 
       - name: Restore Gradle cache
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
@@ -93,11 +72,11 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-tester-integrated-android-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-android-ci-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-tester-integrated-android-gradle-
+            ${{ runner.os }}-android-ci-gradle-
 
-      # == IntegratedTester ==
+      # == TesterIntegrated ==
 
       - name: Generate Brownie stores
         run: yarn run brownfield:codegen
@@ -129,64 +108,130 @@ jobs:
         run: |
           yarn run build:example:android-consumer
 
-  ios:
-    name: Integrated tester iOS App
-    runs-on: macos-latest
+  ios-tester-integrated:
+    name: iOS road tests (TesterIntegrated)
+    runs-on: macos-26
     needs: build-lint
+
+    env: &ios_env
+      USE_CCACHE: 1
+      CCACHE_DIR: ${{ github.workspace }}/.ios_ccache
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_COMPRESS: '1'
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Use appropriate Xcode version
-        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Prepare iOS environment
+        uses: ./.github/actions/prepare-ios
+
+      - name: Install ccache
+        run: brew install ccache
+
+      - name: Enable ccache
+        run: echo "$(brew --prefix)/opt/ccache/libexec" >> $GITHUB_PATH
+
+      - name: Restore TesterIntegrated ccache
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
-          xcode-version: '16'
+          path: |
+            .ios_ccache
+          key: ${{ runner.os }}-tester-integrated-ios-ccache-${{ hashFiles('apps/TesterIntegrated/swift/Podfile.lock', 'apps/TesterIntegrated/swift/SwiftExample.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-tester-integrated-ios-ccache-
 
-      - name: Setup Node.js
-        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
-        with:
-          node-version: 'lts/*'
-          cache: 'yarn'
+      # == TesterIntegrated ==
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@5dd816ae0186f20dfa905997a64104db9a8221c7 # v1.280.0
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build packages
-        run: yarn build
-
-      - name: Restore Pods cache
+      - name: Restore Pods cache (TesterIntegrated)
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           path: |
             apps/TesterIntegrated/swift/Pods
-          key: ${{ runner.os }}-tester-ios-pods-${{ hashFiles('apps/TesterIntegrated/swift/Podfile.lock') }}
+          key: ${{ runner.os }}-tester-integrated-ios-pods-${{ hashFiles('apps/TesterIntegrated/swift/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-tester-ios-pods-
+            ${{ runner.os }}-tester-integrated-ios-pods-
 
-      - name: Install pods
+      - name: Install pods (TesterIntegrated)
         run: |
           cd apps/TesterIntegrated/swift
           pod install
 
-      # == IntegratedTester ==
+      - name: Restore DerivedData cache (TesterIntegrated)
+        uses: actions/cache@v5
+        with:
+          path: apps/TesterIntegrated/swift/build
+          key: ${{ runner.os }}-ios-tester-integrated-derived-data-${{ hashFiles('apps/TesterIntegrated/swift/Podfile.lock', 'apps/TesterIntegrated/swift/SwiftExample.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-tester-integrated-derived-data-
 
       - name: Build integrated iOS tester app
         run: |
           yarn run build:tester-integrated:ios
 
+      # ==============
+
+      - name: Report ccache usage
+        run: ccache -s
+
+  ios-rnapp-appleapp:
+    name: iOS road tests (RNApp & AppleApp)
+    runs-on: macos-26
+    needs: build-lint
+
+    env: *ios_env
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Prepare iOS environment
+        uses: ./.github/actions/prepare-ios
+
+      - name: Install ccache
+        run: brew install ccache
+
+      - name: Enable ccache
+        run: echo "$(brew --prefix)/opt/ccache/libexec" >> $GITHUB_PATH
+
+      - name: Restore RNApp & AppleApp ccache
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        with:
+          path: |
+            .ios_ccache
+          key: ${{ runner.os }}-rnapp-appleapp-ios-ccache-${{ hashFiles('apps/RNApp/ios/Podfile.lock', 'apps/RNApp/ios/RNApp.xcodeproj/project.pbxproj', 'apps/AppleApp/Brownfield Apple App.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-rnapp-appleapp-ios-ccache-
+
       # == RNApp ==
+
+      - name: Restore Pods cache (RNApp)
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        with:
+          path: |
+            apps/RNApp/ios/Pods
+          key: ${{ runner.os }}-rnapp-ios-pods-${{ hashFiles('apps/RNApp/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rnapp-ios-pods-
 
       - name: Install pods (RNApp)
         run: |
           cd apps/RNApp/ios
           pod install
+
+      - name: Restore DerivedData cache (RNApp)
+        uses: actions/cache@v5
+        with:
+          path: apps/RNApp/ios/build
+          key: ${{ runner.os }}-ios-rnapp-derived-data-${{ hashFiles('apps/RNApp/ios/Podfile.lock', 'apps/RNApp/ios/RNApp.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-rnapp-derived-data-
 
       - name: Package iOS framework with the Brownfield CLI
         run: |
@@ -198,3 +243,8 @@ jobs:
       - name: Build Brownfield iOS native app
         run: |
           yarn run build:example:ios-consumer
+
+      # ==============
+
+      - name: Report ccache usage
+        run: ccache -s
