@@ -18,12 +18,6 @@
     "brownfield:plugin:publish:local": "bash ./gradle-plugins/publish-to-maven-local.sh",
     "build:brownfield": "turbo run build:brownfield",
     "build:docs": "turbo run build:docs",
-    "build:tester-integrated:android": "turbo run build:tester-integrated:android",
-    "build:tester-integrated:ios": "turbo run build:tester-integrated:ios",
-    "build:example:android-rn": "turbo run build:example:android-rn",
-    "build:example:ios-rn": "turbo run build:example:ios-rn",
-    "build:example:android-consumer": "turbo run build:example:android-consumer",
-    "build:example:ios-consumer": "turbo run build:example:ios-consumer",
     "generate:store": "node --experimental-strip-types --no-warnings ./scripts/generate-store.ts"
   },
   "resolutions": {

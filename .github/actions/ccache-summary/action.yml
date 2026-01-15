@@ -1,0 +1,14 @@
+name: 'ccache statistics'
+description: 'Print job summary with selected ccache statistics'
+
+inputs:
+  name:
+    description: 'Label to print in summary'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Log ccache stats
+      run: ccache -s > $GITHUB_STEP_SUMMARY
+      shell: bash

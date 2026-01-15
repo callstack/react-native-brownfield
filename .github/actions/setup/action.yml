@@ -1,6 +1,12 @@
 name: Setup
 description: Setup Node.js and install dependencies
 
+inputs:
+  restore-turbo-cache:
+    description: 'Whether to restore the Turbo cache'
+    required: false
+    default: 'true'
+
 runs:
   using: composite
   steps:
@@ -10,7 +16,12 @@ runs:
         node-version: 'lts/*'
         cache: 'yarn'
 
-    - name: Restore turbo cache
+    - name: Install dependencies
+      run: yarn install
+      shell: bash
+
+    - name: Restore Turbo cache
+      if: inputs.restore-turbo-cache == 'true'
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: |
@@ -20,7 +31,3 @@ runs:
         key: ${{ runner.os }}-turbo-${{ hashFiles('.turbo', '**/.turbo') }}
         restore-keys: |
           ${{ runner.os }}-turbo-
-
-    - name: Install dependencies
-      run: yarn install
-      shell: bash
