@@ -47,7 +47,7 @@ export const packageIosCommand = curryOptions(
 
     options.buildFolder ??= path.join(brownieCacheDir, 'build');
 
-    packageIosAction(
+    await packageIosAction(
       options,
       {
         projectRoot,
