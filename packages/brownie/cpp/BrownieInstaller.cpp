@@ -6,7 +6,7 @@ namespace brownie {
 
 void BrownieInstaller::install(facebook::jsi::Runtime &runtime) {
   auto getStore = facebook::jsi::Function::createFromHostFunction(
-      runtime, facebook::jsi::PropNameID::forAscii(runtime, "__getStore"), 1,
+      runtime, facebook::jsi::PropNameID::forAscii(runtime, "__brownieGetStore"), 1,
       [](facebook::jsi::Runtime &rt, const facebook::jsi::Value &,
          const facebook::jsi::Value *args, size_t count) -> facebook::jsi::Value {
         if (count < 1 || !args[0].isString()) {
@@ -25,7 +25,7 @@ void BrownieInstaller::install(facebook::jsi::Runtime &runtime) {
         return facebook::jsi::Object::createFromHostObject(rt, hostObject);
       });
 
-  runtime.global().setProperty(runtime, "__getStore", getStore);
+  runtime.global().setProperty(runtime, "__brownieGetStore", getStore);
 }
 
 } // namespace brownie
