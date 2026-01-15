@@ -33,9 +33,9 @@ runs:
         android: false
         dotnet: true
         haskell: true
-        large-packages: true
+        large-packages: false
         docker-images: true
-        swap-storage: true
+        swap-storage: false
 
     - name: Build packages
       if: inputs.run-yarn-build == 'true'
