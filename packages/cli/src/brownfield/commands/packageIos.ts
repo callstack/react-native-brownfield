@@ -56,7 +56,7 @@ export const packageIosCommand = curryOptions(
         // e.g. '0.82' (note the missing patch component),
         // therefore we resolve it manually from RN's package.json using Rock's utils
         reactNativeVersion: getReactNativeVersion(projectRoot),
-        usePrebuiltRNCore: 0, // for brownfield, it is required to build RN from source
+        usePrebuiltRNCore: false, // for brownfield, it is required to build RN from source
         packageDir: path.join(brownieCacheDir, 'package'), // the output directory for artifacts
         skipCache: true, // cache is dependent on existence of Rock config file
       },
