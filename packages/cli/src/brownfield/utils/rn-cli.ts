@@ -22,7 +22,7 @@ export function getProjectInfo<Platform extends 'ios' | 'android'>(
 } {
   const projectRoot = findProjectRoot();
 
-  const userConfig = cliConfig.default({
+  const userConfig = cliConfig({
     projectRoot,
     selectedPlatform: platform,
   });

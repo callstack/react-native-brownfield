@@ -14,7 +14,7 @@ import {
 import { generateSwift } from '../generators/swift.js';
 import { generateKotlin } from '../generators/kotlin.js';
 import { discoverStores, type DiscoveredStore } from '../store-discovery.js';
-import { Platform } from '../types.js';
+import type { Platform } from '../types.js';
 
 function getOutputPath(dir: string, name: string, ext: string): string {
   return path.join(dir, `${name}.${ext}`);
