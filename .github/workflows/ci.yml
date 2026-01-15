@@ -174,8 +174,10 @@ jobs:
 
       # ==============
 
-      - name: Report ccache usage
-        run: ccache -s
+      - name: Log ccache stats
+        uses: ./.github/actions/ccache-summary
+        with:
+          name: TesterIntegrated
 
   ios-rnapp-appleapp:
     name: iOS road tests (RNApp & AppleApp)
@@ -246,5 +248,7 @@ jobs:
 
       # ==============
 
-      - name: Report ccache usage
-        run: ccache -s
+      - name: Log ccache stats
+        uses: ./.github/actions/ccache-summary
+        with:
+          name: RNApp & AppleApp

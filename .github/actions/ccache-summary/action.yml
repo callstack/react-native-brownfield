@@ -1,0 +1,30 @@
+name: 'ccache statistics'
+description: 'Print job summary with selected ccache statistics'
+
+inputs:
+  name:
+    description: 'Label to print in summary'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Log ccache stats
+      run: |
+        CCACHE_OUTPUT=$(ccache -s)
+
+        CACHEABLE=$(echo "$CCACHE_OUTPUT" | grep "Cacheable calls" | awk '{print $3 " / " $5 " (" $6}')
+        HITS=$(echo "$CCACHE_OUTPUT" | grep "Hits:" | head -1 | awk '{print $2 " / " $4 " (" $5}')
+        UNCACHEABLE=$(echo "$CCACHE_OUTPUT" | grep "Uncacheable calls" | awk '{print $3 " / " $5 " (" $6}')
+        ERRORS=$(echo "$CCACHE_OUTPUT" | grep "Errors:" | awk '{print $2 " / " $4 " (" $5}')
+
+        MD_TABLE_BUFF="## ccache statistics - ${{ inputs.name }} \n\n"
+        MD_TABLE_BUFF+="| Metric | Value |\n"
+        MD_TABLE_BUFF+="|--------|-------|\n"
+        MD_TABLE_BUFF+="| Cacheable calls | $CACHEABLE |\n"
+        MD_TABLE_BUFF+="| Hits | $HITS |\n"
+        MD_TABLE_BUFF+="| Uncacheable calls | $UNCACHEABLE |\n"
+        MD_TABLE_BUFF+="| Errors | $ERRORS |\n"
+
+        echo "$MD_TABLE_BUFF" >> $GITHUB_STEP_SUMMARY
+      shell: bash
