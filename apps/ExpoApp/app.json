@@ -38,6 +38,13 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "@callstack/react-native-brownfield",
+        {
+          "ios": { "frameworkName": "ExpoApp" },
+          "android": { "moduleName": "expoapp" }
+        }
       ]
     ],
     "experiments": {
