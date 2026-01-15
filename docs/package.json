@@ -12,10 +12,10 @@
     "preview": "rspress preview"
   },
   "dependencies": {
-    "@callstack/rspress-preset": "^0.4.5",
+    "@callstack/rspress-preset": "^0.5.1",
     "@rspress/core": "2.0.0-beta.32"
   },
   "devDependencies": {
-    "@types/node": "^25.0.3"
+    "@types/node": "^25.0.8"
   }
 }

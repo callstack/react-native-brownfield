@@ -16,8 +16,8 @@
     "@react-navigation/native-stack": "^7.2.1",
     "react": "19.1.1",
     "react-native": "0.82.1",
-    "react-native-safe-area-context": "^5.3.0",
-    "react-native-screens": "^4.15.2"
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-screens": "^4.19.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -31,8 +31,7 @@
     "@react-native/metro-config": "0.82.1",
     "@react-native/typescript-config": "0.82.1",
     "@types/react": "^19.1.1",
-    "eslint": "^9.28.0",
-    "react-native-monorepo-config": "^0.3.1"
+    "react-native-monorepo-config": "^0.3.2"
   },
   "engines": {
     "node": ">=20"
