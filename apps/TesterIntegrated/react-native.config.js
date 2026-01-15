@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const brownfieldPkg = require('../../packages/react-native-brownfield/package.json');
 const browniePkg = require('../../packages/brownie/package.json');
 

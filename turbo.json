@@ -3,7 +3,7 @@
   "tasks": {
     "lint": {
       "dependsOn": ["build:brownfield"],
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js"]
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/eslint.config.*"]
     },
     "typecheck": {
       "dependsOn": ["build:brownfield"],

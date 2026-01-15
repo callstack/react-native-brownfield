@@ -6,7 +6,8 @@
     "start": "react-native start",
     "build:tester-integrated:android": "cd kotlin && ./gradlew assembleDebug",
     "build:tester-integrated:ios": "cd swift && xcodebuild -workspace SwiftExample.xcworkspace -scheme SwiftExample -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build",
-    "brownfield:codegen": "brownfield codegen"
+    "brownfield:codegen": "brownfield codegen",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@callstack/brownie": "*",
@@ -30,6 +31,7 @@
     "@react-native/metro-config": "0.82.1",
     "@react-native/typescript-config": "0.82.1",
     "@types/react": "^19.1.1",
+    "eslint": "^9.28.0",
     "react-native-monorepo-config": "^0.3.1"
   },
   "engines": {

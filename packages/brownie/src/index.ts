@@ -11,16 +11,18 @@ export interface BrownieStore {}
 
 type StoreListener = () => void;
 
+type HostObject = any;
+
 interface StoreCache {
-  hostObject: any;
+  hostObject: HostObject;
   snapshot: Record<string, unknown>;
   listeners: Set<StoreListener>;
 }
 
 const stores = new Map<string, StoreCache>();
 
-function getHostObject(key: string): any {
-  // @ts-ignore
+function getHostObject(key: string): HostObject {
+  // @ts-expect-error - untyped global prop set by BrownieInstaller.cpp
   return global.__getStore?.(key);
 }
 

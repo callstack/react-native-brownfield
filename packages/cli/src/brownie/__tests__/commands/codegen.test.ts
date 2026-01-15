@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
+import * as rockTools from '@rock-js/tools';
 import { runCodegen } from '../../commands/codegen.js';
 import * as swiftGenerator from '../../generators/swift.js';
 import * as kotlinGenerator from '../../generators/kotlin.js';
 import * as storeDiscovery from '../../store-discovery.js';
-import * as rockTools from '@rock-js/tools';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.join(__dirname, '../../__fixtures__');

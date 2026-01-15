@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const { getDefaultConfig } = require('@react-native/metro-config'); // Import from `@expo/metro-config` if using Expo CLI
 const { withMetroConfig } = require('react-native-monorepo-config');
 
