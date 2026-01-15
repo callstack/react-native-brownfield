@@ -49,23 +49,6 @@ jobs:
       - name: Prepare Android environment
         uses: ./.github/actions/prepare-android
 
-      - name: Restore Android build cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-        with:
-          path: |
-            apps/TesterIntegrated/kotlin/build
-            apps/TesterIntegrated/kotlin/app/.cxx
-            apps/TesterIntegrated/kotlin/app/build
-            apps/RNApp/android/build
-            apps/RNApp/android/app/.cxx
-            apps/RNApp/android/app/build
-            apps/AndroidApp/build
-            apps/AndroidApp/app/build
-            apps/AndroidApp/app/.cxx
-          key: ${{ runner.os }}-android-build-road-tests-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-android-build-road-tests-
-
       - name: Restore Gradle cache
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
