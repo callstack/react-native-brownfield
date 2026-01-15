@@ -19,20 +19,20 @@ Add to your app's `package.json`:
 ```json
 {
   "brownie": {
-    "swift": "./ios/Generated/",
     "kotlin": "./android/app/src/main/java/com/example/",
     "kotlinPackageName": "com.example"
   }
 }
 ```
 
+Note: This config is subject to change as Android support is rolled out. Ideally this will be removed in favor of auto-detection.
+
 | Field               | Required | Description                                                |
 | ------------------- | -------- | ---------------------------------------------------------- |
-| `swift`             | No\*     | Output directory for Swift files                           |
-| `kotlin`            | No\*     | Output directory for Kotlin files                          |
+| `kotlin`            | No       | Output directory for Kotlin files                          |
 | `kotlinPackageName` | No       | Kotlin package name (extracted from path if not specified) |
 
-\*At least one of `swift` or `kotlin` is required.
+**Note:** Swift files are always generated to `node_modules/@callstack/brownie/ios/Generated/`. This path is auto-resolved and not configurable.
 
 ## Generated Output
 
@@ -47,16 +47,18 @@ interface BrownfieldStore extends BrownieStore {
 
 ### Swift Output
 
+Generated to: `node_modules/@callstack/brownie/ios/Generated/BrownfieldStore.swift`
+
 ```swift
 import Brownie
 
-struct BrownfieldStore: Codable {
-    var counter: Double
-    var user: User
+public struct BrownfieldStore: Codable {
+    public var counter: Double
+    public var user: User
 }
 
-struct User: Codable {
-    var name: String
+public struct User: Codable {
+    public var name: String
 }
 
 extension BrownfieldStore: BrownieStoreProtocol {
@@ -66,6 +68,7 @@ extension BrownfieldStore: BrownieStoreProtocol {
 
 The generated struct:
 
+- Uses `public` access level for framework compatibility
 - Conforms to `Codable` for JSON serialization
 - Conforms to `BrownieStoreProtocol` with auto-generated `storeName`
 - Uses mutable `var` properties

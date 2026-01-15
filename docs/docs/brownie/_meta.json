@@ -23,5 +23,10 @@
     "type": "file",
     "name": "swift-usage",
     "label": "Swift Usage"
+  },
+  {
+    "type": "file",
+    "name": "xcframework-packaging",
+    "label": "XCFramework Packaging"
   }
 ]

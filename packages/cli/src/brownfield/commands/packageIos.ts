@@ -2,13 +2,21 @@ import path from 'node:path';
 
 import {
   getBuildOptions,
+  mergeFrameworks,
   type BuildFlags as AppleBuildFlags,
 } from '@rock-js/platform-apple-helpers';
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
-import { getReactNativeVersion } from '@rock-js/tools';
+import {
+  colorLink,
+  getReactNativeVersion,
+  logger,
+  relativeToCwd,
+} from '@rock-js/tools';
 
 import { Command } from 'commander';
 
+import { isBrownieInstalled } from '../../brownie/config.js';
+import { runCodegen } from '../../brownie/commands/codegen.js';
 import { getProjectInfo } from '../utils/index.js';
 import {
   actionRunner,
@@ -46,6 +54,13 @@ export const packageIosCommand = curryOptions(
     );
 
     options.buildFolder ??= path.join(brownieCacheDir, 'build');
+    const packageDir = path.join(brownieCacheDir, 'package');
+    const configuration = options.configuration ?? 'Debug';
+
+    const hasBrownie = isBrownieInstalled(projectRoot);
+    if (hasBrownie) {
+      await runCodegen({ platform: 'swift' });
+    }
 
     await packageIosAction(
       options,
@@ -57,11 +72,39 @@ export const packageIosCommand = curryOptions(
         // therefore we resolve it manually from RN's package.json using Rock's utils
         reactNativeVersion: getReactNativeVersion(projectRoot),
         usePrebuiltRNCore: false, // for brownfield, it is required to build RN from source
-        packageDir: path.join(brownieCacheDir, 'package'), // the output directory for artifacts
+        packageDir, // the output directory for artifacts
         skipCache: true, // cache is dependent on existence of Rock config file
       },
       platformConfig
     );
+
+    if (hasBrownie) {
+      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
+      const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
+
+      await mergeFrameworks({
+        sourceDir: userConfig.project.ios.sourceDir,
+        frameworkPaths: [
+          path.join(
+            productsPath,
+            `${configuration}-iphoneos`,
+            'Brownie',
+            'Brownie.framework'
+          ),
+          path.join(
+            productsPath,
+            `${configuration}-iphonesimulator`,
+            'Brownie',
+            'Brownie.framework'
+          ),
+        ],
+        outputPath: brownieOutputPath,
+      });
+
+      logger.success(
+        `Brownie.xcframework created at ${colorLink(relativeToCwd(brownieOutputPath))}`
+      );
+    }
   })
 );
 

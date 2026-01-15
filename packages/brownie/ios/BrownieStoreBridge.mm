@@ -1,7 +1,7 @@
 #import "BrownieStoreBridge.h"
 #import "BrownieStoreManager.h"
 #import "BrownieStore.h"
-#import <react/utils/FollyConvert.h>
+#import "BrownieFollyConvert.h"
 
 using namespace facebook::react;
 

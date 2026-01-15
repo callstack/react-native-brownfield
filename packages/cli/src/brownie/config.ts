@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 
 export interface BrownieConfig {
-  swift?: string;
   kotlin?: string;
   kotlinPackageName?: string;
 }
@@ -11,12 +11,47 @@ interface PackageJson {
   brownie?: BrownieConfig;
 }
 
-function validateConfig(config: BrownieConfig): void {
-  if (!config.swift && !config.kotlin) {
+/**
+ * Checks if @callstack/brownie package is installed.
+ */
+export function isBrownieInstalled(
+  projectRoot: string = process.cwd()
+): boolean {
+  const require = createRequire(path.join(projectRoot, 'package.json'));
+  try {
+    require.resolve('@callstack/brownie/package.json');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolves the path to the @callstack/brownie package.
+ */
+export function getBrowniePackagePath(
+  projectRoot: string = process.cwd()
+): string {
+  const require = createRequire(path.join(projectRoot, 'package.json'));
+  try {
+    const browniePackageJson =
+      require.resolve('@callstack/brownie/package.json');
+    return path.dirname(browniePackageJson);
+  } catch {
     throw new Error(
-      'At least one output path is required: brownie.swift or brownie.kotlin'
+      "@callstack/brownie is not installed. Run 'npm install @callstack/brownie' or 'yarn add @callstack/brownie'"
     );
   }
+}
+
+/**
+ * Returns the output path for generated Swift files.
+ */
+export function getSwiftOutputPath(
+  projectRoot: string = process.cwd()
+): string {
+  const browniePath = getBrowniePackagePath(projectRoot);
+  return path.join(browniePath, 'ios', 'Generated');
 }
 
 /**
@@ -37,8 +72,6 @@ export function loadConfig(): BrownieConfig {
   if (!config) {
     throw new Error('brownie config not found in package.json');
   }
-
-  validateConfig(config);
 
   return config;
 }

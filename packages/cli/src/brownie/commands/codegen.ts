@@ -6,7 +6,11 @@ import { Command, Option } from 'commander';
 import { intro, logger, outro } from '@rock-js/tools';
 import { QuickTypeError } from 'quicktype-core';
 import { actionRunner } from '../../shared/index.js';
-import { loadConfig, type BrownieConfig } from '../config.js';
+import {
+  loadConfig,
+  getSwiftOutputPath,
+  type BrownieConfig,
+} from '../config.js';
 import { generateSwift } from '../generators/swift.js';
 import { generateKotlin } from '../generators/kotlin.js';
 import { discoverStores, type DiscoveredStore } from '../store-discovery.js';
@@ -37,13 +41,18 @@ async function generateForStore(
   logger.info(`Generating types for store ${name}`);
 
   for (const p of platforms) {
-    const outputDir = config[p];
-    if (!outputDir) {
-      continue;
-    }
+    let outputPath: string;
 
-    const ext = p === 'swift' ? 'swift' : 'kt';
-    const outputPath = getOutputPath(outputDir, name, ext);
+    if (p === 'swift') {
+      const swiftOutputDir = getSwiftOutputPath();
+      outputPath = getOutputPath(swiftOutputDir, name, 'swift');
+    } else {
+      const kotlinOutputDir = config.kotlin;
+      if (!kotlinOutputDir) {
+        continue;
+      }
+      outputPath = getOutputPath(kotlinOutputDir, name, 'kt');
+    }
 
     try {
       if (p === 'swift') {
@@ -100,13 +109,15 @@ export async function runCodegen({ platform }: RunCodegenOptions) {
   );
 
   for (const store of stores) {
-    const platforms: Platform[] = platform
-      ? [platform]
-      : (['swift', 'kotlin'] as Platform[]).filter((p) => config[p]);
+    let platforms: Platform[];
 
-    if (platforms.length === 0) {
-      logger.warn(`No output paths configured for store ${store.name}`);
-      continue;
+    if (platform) {
+      platforms = [platform];
+    } else {
+      platforms = ['swift'];
+      if (config.kotlin) {
+        platforms.push('kotlin');
+      }
     }
 
     await generateForStore(store, config, platforms, isMultipleStores);
