@@ -1,0 +1,52 @@
+# XCFramework Packaging
+
+When using `@callstack/brownie` in a brownfield app, the `brownfield` CLI automatically detects Brownie and builds its XCFramework alongside your React Native module.
+
+## Build Output
+
+Running `npx brownfield package:ios` produces the following XCFrameworks in `ios/.brownfield/package/`:
+
+- `<scheme name>.xcframework` - Your React Native module
+- `Brownie.xcframework` - Brownie shared state library
+- `hermesvm.xcframework` (or `hermes.xcframework` for RN < 0.82.0)
+- `ReactBrownfield.xcframework`
+
+The consumer app needs to embed all 4 frameworks when using Brownie.
+
+## Integration Options
+
+### Drag and Drop
+
+1. Build the XCFrameworks:
+
+   ```bash
+   npx brownfield package:ios --scheme BrownfieldLib --configuration Release
+   ```
+
+2. Open your native Xcode project
+
+3. Drag all XCFrameworks from `ios/.brownfield/package/` into your project:
+   - `BrownfieldLib.xcframework`
+   - `Brownie.xcframework`
+   - `hermesvm.xcframework`
+   - `ReactBrownfield.xcframework`
+
+4. In target settings → **General** → **Frameworks, Libraries, and Embedded Content**, ensure all frameworks are set to **Embed & Sign**
+
+### Swift Package Manager
+
+You can also distribute the XCFrameworks via SPM by creating a binary target package. See [XCFramework Packaging](/docs/cli/brownfield) for details.
+
+## Importing Brownie
+
+After embedding the framework, import it in your Swift code:
+
+```swift
+import Brownie
+```
+
+Then use the generated store types:
+
+```swift
+@UseStore(\AppStore.counter) var counter
+```

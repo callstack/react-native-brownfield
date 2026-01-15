@@ -2219,6 +2219,7 @@ __metadata:
     prettier: "npm:3.7.4"
     react: "npm:19.1.1"
     react-native: "npm:0.82.1"
+    react-native-monorepo-config: "npm:^0.3.2"
     react-native-safe-area-context: "npm:^5.6.2"
     react-native-screens: "npm:^4.19.0"
     react-test-renderer: "npm:19.1.1"
