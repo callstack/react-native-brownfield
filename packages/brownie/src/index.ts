@@ -23,7 +23,7 @@ const stores = new Map<string, StoreCache>();
 
 function getHostObject(key: string): HostObject {
   // @ts-expect-error - untyped global prop set by BrownieInstaller.cpp
-  return global.__getStore?.(key);
+  return global.__brownieGetStore?.(key);
 }
 
 function getOrCreateStore(key: string): StoreCache {
