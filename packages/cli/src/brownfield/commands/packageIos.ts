@@ -57,6 +57,11 @@ export const packageIosCommand = curryOptions(
     const packageDir = path.join(brownieCacheDir, 'package');
     const configuration = options.configuration ?? 'Debug';
 
+    const hasBrownie = isBrownieInstalled(projectRoot);
+    if (hasBrownie) {
+      await runCodegen({ platform: 'swift' });
+    }
+
     await packageIosAction(
       options,
       {
@@ -73,9 +78,7 @@ export const packageIosCommand = curryOptions(
       platformConfig
     );
 
-    if (isBrownieInstalled(projectRoot)) {
-      await runCodegen({ platform: 'swift' });
-
+    if (hasBrownie) {
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
 
