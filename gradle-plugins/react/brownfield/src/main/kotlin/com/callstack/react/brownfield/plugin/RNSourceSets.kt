@@ -48,6 +48,10 @@ object RNSourceSets {
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
             androidExtension.sourceSets.getByName("main") { sourceSet ->
+                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
+            }
+
+            androidExtension.sourceSets.getByName(variant.name) { sourceSet ->
                 for (bundlePathSegment in listOf(
                     // outputs for RN <= 0.81
                     "createBundle${capitalizedVariantName}JsAndAssets",
@@ -57,8 +61,6 @@ object RNSourceSets {
                     sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
                     sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
                 }
-
-                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
             }
         }
 
