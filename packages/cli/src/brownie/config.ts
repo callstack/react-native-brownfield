@@ -67,11 +67,5 @@ export function loadConfig(): BrownieConfig {
   const packageJson: PackageJson = JSON.parse(
     fs.readFileSync(packageJsonPath, 'utf-8')
   );
-  const config = packageJson.brownie;
-
-  if (!config) {
-    throw new Error('brownie config not found in package.json');
-  }
-
-  return config;
+  return packageJson.brownie ?? {};
 }

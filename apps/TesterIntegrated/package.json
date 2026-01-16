@@ -35,10 +35,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "brownie": {
-    "swift": "./swift/Generated",
-    "kotlin": "./kotlin/app/src/main/java/com/callstack/kotlinexample/Generated",
-    "kotlinPackageName": "com.callstack.kotlinexample"
   }
 }

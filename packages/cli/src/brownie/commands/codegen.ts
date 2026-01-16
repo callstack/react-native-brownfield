@@ -114,10 +114,8 @@ export async function runCodegen({ platform }: RunCodegenOptions) {
     if (platform) {
       platforms = [platform];
     } else {
+      // Only generate Swift by default (Kotlin not yet released)
       platforms = ['swift'];
-      if (config.kotlin) {
-        platforms.push('kotlin');
-      }
     }
 
     await generateForStore(store, config, platforms, isMultipleStores);
@@ -131,8 +129,8 @@ export const codegenCommand = new Command('codegen')
   .addOption(
     new Option(
       '-p, --platform <platform>',
-      'Generate for specific platform (swift, kotlin)'
-    ).choices(['swift', 'kotlin'])
+      'Generate for specific platform (swift)'
+    ).choices(['swift'])
   )
   .action(
     actionRunner(async (options: RunCodegenOptions) => {
