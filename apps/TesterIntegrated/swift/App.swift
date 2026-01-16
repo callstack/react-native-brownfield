@@ -21,7 +21,7 @@ struct MyApp: App {
       print("loaded")
     }
 
-    _ = Store(initialState, key: BrownfieldStore.storeName)
+    BrownfieldStore.register(initialState)
   }
 
   var body: some Scene {
