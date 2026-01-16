@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownie",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "bin": {
