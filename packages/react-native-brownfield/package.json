@@ -10,6 +10,9 @@
     "Piotr Drapich <piotr.drapich@callstack.com>"
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
+  "repository": {
+    "url": "https://github.com/callstack/react-native-brownfield"
+  },
   "description": "Brownfield helpers for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

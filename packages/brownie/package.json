@@ -11,6 +11,9 @@
     "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
+  "repository": {
+    "url": "https://github.com/callstack/react-native-brownfield"
+  },
   "description": "Shared state management between React Native and Native apps",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
