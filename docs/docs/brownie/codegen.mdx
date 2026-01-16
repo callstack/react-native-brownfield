@@ -54,17 +54,6 @@ The generated struct:
 - Conforms to `BrownieStoreProtocol` with auto-generated `storeName`
 - Uses mutable `var` properties
 
-## Auto-Generation Hooks
-
-### iOS (Podfile)
-
-Run codegen before pod install:
-
-```ruby
-pre_install do |installer|
-  system("npx", "brownie", "codegen", "-p", "swift")
-end
-```
 
 ## How It Works
 

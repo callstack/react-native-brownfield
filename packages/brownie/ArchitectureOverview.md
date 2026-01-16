@@ -246,6 +246,11 @@ packages/brownie/
 - Observes `BrownieStoreUpdated` notification, rebuilds typed state from C++ snapshot
 - `deinit` removes notification observer
 
+**BrownieStoreProtocol** - Protocol for generated store types:
+
+- `storeName` - Static property with store identifier
+- `register(_:)` - Static method to register store with initial state (extension method)
+
 **StoreManager** - Swift-side registry (delegates to C++):
 
 - `register(store:key:)` - Register Swift store
@@ -406,22 +411,3 @@ The ObjC++ bridge layer has the most room for optimization:
 - **Single-property sync** - Currently `pushStateToCxx()` serializes entire state. Could track dirty properties and only sync changed values.
 - **Lazy Swift state rebuild** - Defer `Codable` struct reconstruction until property actually accessed.
 - **Direct C++ ↔ Swift interop** - Swift 5.9+ has experimental C++ interop that could bypass ObjC++ bridge entirely.
-
-## Auto-generation Hooks
-
-### iOS (Podfile)
-
-```ruby
-pre_install do |installer|
-  system("npx", "brownie", "codegen", "-p", "swift")
-end
-```
-
-### Android (build.gradle.kts)
-
-```kotlin
-tasks.register("generateBrownfieldStore") {
-  exec { commandLine("npx", "brownie", "codegen", "-p", "kotlin") }
-}
-preBuild.dependsOn("generateBrownfieldStore")
-```

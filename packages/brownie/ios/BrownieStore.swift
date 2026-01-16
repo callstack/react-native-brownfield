@@ -10,6 +10,13 @@ public protocol BrownieStoreProtocol: Codable {
   static var storeName: String { get }
 }
 
+public extension BrownieStoreProtocol {
+  /// Registers the store with the given initial state.
+  static func register(_ initialState: Self) {
+    _ = Store(initialState, key: Self.storeName)
+  }
+}
+
 public struct StoreKey<State: Codable>: EnvironmentKey {
   public static var defaultValue: Store<State> { fatalError("Store not provided") }
 }
