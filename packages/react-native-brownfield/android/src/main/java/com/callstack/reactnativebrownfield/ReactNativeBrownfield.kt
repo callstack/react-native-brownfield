@@ -73,14 +73,14 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         ) {
             val reactHost: ReactHost by lazy {
                 val bundlePath = options["bundleAssetPath"] as? String ?: "index.android.bundle"
-                val isFilePath = bundlePath.startsWith("/") || bundlePath.startsWith("file://")
+                val isFilePath = bundlePath.startsWith("/") || bundlePath.startsWith("file://") || bundlePath.startsWith("assets://")
 
                 getDefaultReactHost(
                     context = application,
                     packageList = (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
                         .filterIsInstance<ReactPackage>(),
                     jsMainModulePath = options["mainModuleName"] as? String ?: "index",
-                    jsBundleAssetPath = if (isFilePath) "index.android.bundle" else bundlePath,
+                    jsBundleAssetPath = bundlePath,
                     jsBundleFilePath = if (isFilePath) bundlePath else null,
                     useDevSupport = options["useDeveloperSupport"] as? Boolean
                         ?: ReactBuildConfig.DEBUG,
