@@ -48,6 +48,7 @@
     "src",
     "lib",
     "ios",
+    "cpp",
     "*.podspec",
     "!ios/build",
     "!**/__tests__",
