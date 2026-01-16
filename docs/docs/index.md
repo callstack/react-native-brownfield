@@ -14,11 +14,11 @@ hero:
 features:
   - title: Easy Integration
     details: Simple APIs to embed React Native views and view controllers into your existing iOS and Android apps.
-    icon: 📱
+    icon: <img src="/react-native-brownfield/folder-plus.svg" />
   - title: SwiftUI & Jetpack Compose Support
     details: First-class support for modern UI frameworks including SwiftUI and Jetpack Compose.
-    icon: 📦
+    icon: <img src="/react-native-brownfield/code.svg" />
   - title: XCFramework & AAR Packaging
     details: Package your React Native app as XCFramework (iOS) or AAR (Android) for easy distribution.
-    icon: ♻️
+    icon: <img src="/react-native-brownfield/animation.svg" />
 ---
