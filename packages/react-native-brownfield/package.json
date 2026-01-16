@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
   "bin": {
-    "brownfield": "./lib/commonjs/scripts/brownfield.js"
+    "brownfield": "lib/commonjs/scripts/brownfield.js"
   },
   "contributors": [
     "Piotr Drapich <piotr.drapich@callstack.com>"

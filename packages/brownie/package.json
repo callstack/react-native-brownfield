@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "bin": {
-    "brownfield": "./lib/commonjs/scripts/brownfield.js"
+    "brownfield": "lib/commonjs/scripts/brownfield.js"
   },
   "contributors": [
     "Artur Morys-Magiera <artus9033@gmail.com>",
