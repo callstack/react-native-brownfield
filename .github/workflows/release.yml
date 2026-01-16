@@ -33,3 +33,5 @@ jobs:
           publish: yarn publish-packages
           commit: 'chore(release): version packages'
           title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
