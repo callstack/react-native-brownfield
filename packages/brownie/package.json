@@ -53,7 +53,8 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public",
