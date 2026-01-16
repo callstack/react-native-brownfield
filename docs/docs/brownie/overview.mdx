@@ -32,75 +32,12 @@ Brownie is a shared state management library for React Native brownfield apps. I
 
 1. Define your store shape in a `*.brownie.ts` file using TypeScript
 2. Run `brownfield codegen` to generate native types
-3. Use `useStore` in React Native and `Store<T>` in Swift
+3. Use `useStore` in React Native and `@UseStore` in Swift
 4. State changes sync automatically between both sides
-
-## Installation
-
-```bash
-npm install @callstack/brownie
-# or
-yarn add @callstack/brownie
-```
-
-## Quick Example
-
-**TypeScript (store definition):**
-
-```ts
-// BrownfieldStore.brownie.ts
-import type { BrownieStore } from '@callstack/brownie';
-
-interface AppStore extends BrownieStore {
-  counter: number;
-  user: { name: string };
-}
-
-declare module '@callstack/brownie' {
-  interface BrownieStores {
-    AppStore: AppStore;
-  }
-}
-```
-
-**TypeScript (usage):**
-
-```tsx
-import { useStore } from '@callstack/brownie';
-
-function Counter() {
-  const [counter, setState] = useStore('AppStore', (s) => s.counter);
-
-  return (
-    <Button
-      title={`Count: ${counter}`}
-      onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
-    />
-  );
-}
-```
-
-**Swift (usage):**
-
-```swift
-import Brownie
-
-struct ContentView: View {
-  @UseStore(\AppStore.counter) var counter
-
-  var body: some View {
-    VStack {
-      Text("Count: \(Int(counter))")
-      Button("Increment") {
-        $counter.set { $0 + 1 }
-      }
-    }
-  }
-}
-```
 
 ## Next Steps
 
+- [Getting Started](/brownie/getting-started) - Step-by-step setup guide
 - [Defining Stores](/brownie/store-definition) - Learn how to define your store schema
 - [Code Generation](/brownie/codegen) - Configure and run the codegen CLI
 - [TypeScript Usage](/brownie/typescript-usage) - Use stores in React Native
