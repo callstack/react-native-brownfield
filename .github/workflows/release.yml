@@ -9,8 +9,6 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    environment:
-      name: release
     permissions:
       contents: write
       id-token: write

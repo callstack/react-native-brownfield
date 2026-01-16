@@ -2176,7 +2176,7 @@ __metadata:
     "@react-native-community/cli-config": "*"
     "@react-native-community/cli-config-android": "*"
   bin:
-    brownfield: ./dist/main.js
+    brownfield: dist/main.js
   languageName: unknown
   linkType: soft
 
@@ -2284,7 +2284,7 @@ __metadata:
     react: "*"
     react-native: "*"
   bin:
-    brownfield: ./lib/commonjs/scripts/brownfield.js
+    brownfield: lib/commonjs/scripts/brownfield.js
   languageName: unknown
   linkType: soft
 
@@ -2337,7 +2337,7 @@ __metadata:
     react: "*"
     react-native: "*"
   bin:
-    brownfield: ./lib/commonjs/scripts/brownfield.js
+    brownfield: lib/commonjs/scripts/brownfield.js
   languageName: unknown
   linkType: soft
 
