@@ -30,6 +30,7 @@
 - Works well with **any native navigation** pattern, as well as any React Native JavaScript-based navigation
 - Compatible with all native languages **Objective-C**, **Swift**, **Java** and **Kotlin**
 - Supports UIKit and SwiftUI on iOS and Fragments and Jetpack Compose on Android
+- Out-of-the-box **CLI** that automates the build process
 
 ## Documentation
 
