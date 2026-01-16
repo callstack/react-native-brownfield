@@ -16,7 +16,18 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "default": "./dist/main.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./brownfield": {
+      "source": "./src/brownfield/index.ts",
+      "types": "./dist/brownfield/index.d.ts",
+      "default": "./dist/brownfield/index.js"
+    },
+    "./brownie": {
+      "source": "./src/brownie/index.ts",
+      "types": "./dist/brownie/index.d.ts",
+      "default": "./dist/brownie/index.js"
     },
     "./package.json": "./package.json"
   },
