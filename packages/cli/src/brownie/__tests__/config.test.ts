@@ -43,12 +43,11 @@ describe('loadConfig', () => {
     expect(() => loadConfig()).toThrow('package.json not found');
   });
 
-  it('throws when brownie config missing', () => {
+  it('returns empty config when brownie config missing', () => {
     tempDir = createTempPackageJson({});
     mockCwd.mockReturnValue(tempDir);
-    expect(() => loadConfig()).toThrow(
-      'brownie config not found in package.json'
-    );
+    const config = loadConfig();
+    expect(config).toEqual({});
   });
 
   it('loads empty config', () => {

@@ -5,34 +5,15 @@ The Brownfield CLI generates native types from your TypeScript store definitions
 ## Usage
 
 ```bash
-brownfield codegen                   # Generate for all configured platforms
-brownfield codegen -p swift          # Generate Swift only
-brownfield codegen --platform kotlin # Generate Kotlin only (coming soon)
-brownfield --help                    # Show help
-brownfield --version                 # Show version
+brownfield codegen          # Generate for all configured platforms
+brownfield codegen -p swift # Generate Swift only
+brownfield --help           # Show help
+brownfield --version        # Show version
 ```
 
 ## Configuration
 
-Add to your app's `package.json`:
-
-```json
-{
-  "brownie": {
-    "kotlin": "./android/app/src/main/java/com/example/",
-    "kotlinPackageName": "com.example"
-  }
-}
-```
-
-Note: This config is subject to change as Android support is rolled out. Ideally this will be removed in favor of auto-detection.
-
-| Field               | Required | Description                                                |
-| ------------------- | -------- | ---------------------------------------------------------- |
-| `kotlin`            | No       | Output directory for Kotlin files                          |
-| `kotlinPackageName` | No       | Kotlin package name (extracted from path if not specified) |
-
-**Note:** Swift files are always generated to `node_modules/@callstack/brownie/ios/Generated/`. This path is auto-resolved and not configurable.
+Swift files are always generated to `node_modules/@callstack/brownie/ios/Generated/`. This path is auto-resolved and not configurable.
 
 ## Generated Output
 
@@ -73,21 +54,6 @@ The generated struct:
 - Conforms to `BrownieStoreProtocol` with auto-generated `storeName`
 - Uses mutable `var` properties
 
-### Kotlin Output (Coming Soon)
-
-```kotlin
-package com.example
-
-data class BrownfieldStore(
-    val counter: Double,
-    val user: User
-)
-
-data class User(
-    val name: String
-)
-```
-
 ## Auto-Generation Hooks
 
 ### iOS (Podfile)
@@ -98,17 +64,6 @@ Run codegen before pod install:
 pre_install do |installer|
   system("npx", "brownie", "codegen", "-p", "swift")
 end
-```
-
-### Android (build.gradle.kts)
-
-Run codegen before build:
-
-```kotlin
-tasks.register("generateBrownfieldStore") {
-  exec { commandLine("npx", "brownie", "codegen", "-p", "kotlin") }
-}
-preBuild.dependsOn("generateBrownfieldStore")
 ```
 
 ## How It Works

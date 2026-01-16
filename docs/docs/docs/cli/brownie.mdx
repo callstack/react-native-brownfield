@@ -5,34 +5,11 @@ The `brownfield codegen` CLI command generates `@callstack/brownie` (Brownie) st
 ## Usage
 
 ```bash
-brownfield codegen                   # Generate for all configured platforms
-brownfield codegen -p swift          # Generate Swift only
-brownfield codegen --platform kotlin # Generate Kotlin only
-brownfield codegen --help            # Show help for Brownie state management codegen
-brownfield --version                 # Show version
+brownfield codegen          # Generate Swift types
+brownfield codegen -p swift # Generate Swift only
+brownfield codegen --help   # Show help for Brownie state management codegen
+brownfield --version        # Show version
 ```
-
-## Configuration
-
-Add to your app's `package.json`:
-
-```json
-{
-  "brownie": {
-    "swift": "./ios/Generated/",
-    "kotlin": "./android/app/src/main/java/com/example/",
-    "kotlinPackageName": "com.example"
-  }
-}
-```
-
-| Field               | Required | Description                               |
-| ------------------- | -------- | ----------------------------------------- |
-| `swift`             | No\*     | Output directory for Swift files          |
-| `kotlin`            | No\*     | Output directory for Kotlin files         |
-| `kotlinPackageName` | No       | Kotlin package name (extracted from path) |
-
-\*At least one of `swift` or `kotlin` is required.
 
 ## Store Definition
 
@@ -91,17 +68,7 @@ struct BrownfieldStore: Codable {
 }
 ```
 
-**Kotlin** (data class):
-
-```kotlin
-package com.example
-
-data class BrownfieldStore (
-    val counter: Double,
-    val isLoading: Boolean,
-    val user: String
-)
-```
+Swift files are always generated to `node_modules/@callstack/brownie/ios/Generated/`. This path is auto-resolved and not configurable.
 
 ### Store Discovery
 
@@ -127,7 +94,5 @@ JSON Schema
        ▼
 quicktype-core
        │
-       ├──▶ Swift (lang: 'swift', mutable-properties: true)
-       │
-       └──▶ Kotlin (lang: 'kotlin', framework: 'just-types')
+       └──▶ Swift (lang: 'swift', mutable-properties: true)
 ```

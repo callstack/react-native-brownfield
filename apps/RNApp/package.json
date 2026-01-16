@@ -49,9 +49,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "brownie": {
-    "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated",
-    "kotlinPackageName": "com.rnapp.brownfieldlib"
   }
 }

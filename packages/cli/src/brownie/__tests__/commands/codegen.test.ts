@@ -92,7 +92,7 @@ describe('runCodegen', () => {
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
   });
 
-  it('generates kotlin files for discovered store', async () => {
+  it('generates kotlin files when platform is kotlin', async () => {
     tempDir = createTempPackageJson({
       brownie: {
         kotlin: './Generated',
@@ -101,7 +101,7 @@ describe('runCodegen', () => {
     });
     mockCwd.mockReturnValue(tempDir);
 
-    await runCodegen({});
+    await runCodegen({ platform: 'kotlin' });
 
     expect(mockGenerateKotlin).toHaveBeenCalledWith({
       name: 'TestStore',
@@ -110,10 +110,10 @@ describe('runCodegen', () => {
       outputPath: 'Generated/TestStore.kt',
       packageName: 'com.test',
     });
-    expect(mockGenerateSwift).toHaveBeenCalled();
+    expect(mockGenerateSwift).not.toHaveBeenCalled();
   });
 
-  it('generates both swift and kotlin when configured', async () => {
+  it('generates only swift by default even when kotlin is configured', async () => {
     tempDir = createTempPackageJson({
       brownie: {
         kotlin: './Generated',
@@ -124,7 +124,7 @@ describe('runCodegen', () => {
     await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalled();
-    expect(mockGenerateKotlin).toHaveBeenCalled();
+    expect(mockGenerateKotlin).not.toHaveBeenCalled();
   });
 
   it('generates only specified platform', async () => {
@@ -172,19 +172,6 @@ describe('runCodegen', () => {
     });
   });
 
-  it('exits with error for invalid platform', async () => {
-    tempDir = createTempPackageJson({
-      brownie: {},
-    });
-    mockCwd.mockReturnValue(tempDir);
-
-    // @ts-expect-error - testing invalid input
-    await expect(runCodegen({ platform: 'invalid' })).rejects.toThrow(
-      'process.exit(1)'
-    );
-    expect(mockLoggerError).toHaveBeenCalled();
-  });
-
   it('exits with error when generator fails', async () => {
     tempDir = createTempPackageJson({
       brownie: {},
@@ -205,5 +192,14 @@ describe('runCodegen', () => {
     await runCodegen({ platform: 'kotlin' });
 
     expect(mockGenerateKotlin).not.toHaveBeenCalled();
+  });
+
+  it('works without brownie config in package.json', async () => {
+    tempDir = createTempPackageJson({});
+    mockCwd.mockReturnValue(tempDir);
+
+    await runCodegen({});
+
+    expect(mockGenerateSwift).toHaveBeenCalled();
   });
 });
