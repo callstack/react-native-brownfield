@@ -33,7 +33,9 @@
     "typecheck": "tsc --noEmit",
     "build": "bob build",
     "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\"",
-    "build:brownfield": "yarn run build"
+    "build:brownfield": "yarn run build",
+    "prepack": "cp ../../README.md ./README.md",
+    "postpack": "rm ./README.md"
   },
   "keywords": [
     "react-native-brownfield",
@@ -57,7 +59,8 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"
