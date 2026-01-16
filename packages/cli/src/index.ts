@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { styleText } from 'node:util';
 
 import { logger } from '@rock-js/tools';
@@ -77,8 +75,10 @@ registrationHelper(brownieCommands, brownieCommandsGroupName);
 
 program.commandsGroup('Utility commands').helpCommand('help [command]');
 
-program.parse(process.argv);
+export function runCLI(argv: string[]): void {
+  program.parse(argv);
 
-if (!process.argv.slice(2).length) {
-  program.outputHelp();
+  if (!argv.slice(2).length) {
+    program.outputHelp();
+  }
 }

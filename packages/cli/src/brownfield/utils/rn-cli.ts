@@ -4,7 +4,13 @@ import type {
   Config as UserConfig,
   ProjectConfig,
 } from '@react-native-community/cli-types';
-import cliConfig from '@react-native-community/cli-config';
+import cliConfigImport from '@react-native-community/cli-config';
+
+const cliConfig: typeof cliConfigImport =
+  typeof cliConfigImport === 'function'
+    ? cliConfigImport
+    : // @ts-expect-error: interop default
+      cliConfigImport.default;
 
 import { findProjectRoot, makeRelativeProjectConfigPaths } from './paths.js';
 
@@ -22,7 +28,7 @@ export function getProjectInfo<Platform extends 'ios' | 'android'>(
 } {
   const projectRoot = findProjectRoot();
 
-  const userConfig = cliConfig.default({
+  const userConfig = cliConfig({
     projectRoot,
     selectedPlatform: platform,
   });

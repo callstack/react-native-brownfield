@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
-    "brownfield": "./dist/index.js"
+    "brownfield": "./dist/main.js"
   },
   "type": "module",
   "contributors": [
@@ -15,7 +15,19 @@
   "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
   "exports": {
     ".": {
-      "source": "./src/index.ts"
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./brownfield": {
+      "source": "./src/brownfield/index.ts",
+      "types": "./dist/brownfield/index.d.ts",
+      "default": "./dist/brownfield/index.js"
+    },
+    "./brownie": {
+      "source": "./src/brownie/index.ts",
+      "types": "./dist/brownie/index.d.ts",
+      "default": "./dist/brownie/index.js"
     },
     "./package.json": "./package.json"
   },

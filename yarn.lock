@@ -2176,7 +2176,7 @@ __metadata:
     "@react-native-community/cli-config": "*"
     "@react-native-community/cli-config-android": "*"
   bin:
-    brownfield: ./dist/index.js
+    brownfield: ./dist/main.js
   languageName: unknown
   linkType: soft
 
@@ -2199,7 +2199,6 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
-    "@callstack/brownfield-cli": "workspace:^"
     "@callstack/brownie": "npm:*"
     "@callstack/react-native-brownfield": "npm:*"
     "@react-native-community/cli": "npm:20.0.0"
@@ -2284,6 +2283,8 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
+  bin:
+    brownfield: ./lib/commonjs/scripts/brownfield.js
   languageName: unknown
   linkType: soft
 
@@ -2294,7 +2295,6 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
-    "@callstack/brownfield-cli": "workspace:^"
     "@callstack/brownie": "npm:*"
     "@callstack/react-native-brownfield": "npm:*"
     "@react-native-community/cli": "npm:20.0.0"
@@ -2336,6 +2336,8 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
+  bin:
+    brownfield: ./lib/commonjs/scripts/brownfield.js
   languageName: unknown
   linkType: soft
 
