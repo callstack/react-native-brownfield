@@ -11,6 +11,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-changeset:
+    name: Check changeset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Check changeset
+        if: github.ref != 'refs/heads/main'
+        run: yarn changeset status --since=origin/${{ github.base_ref }}
+
   build-lint:
     name: Build & static code analysis
     runs-on: ubuntu-latest
