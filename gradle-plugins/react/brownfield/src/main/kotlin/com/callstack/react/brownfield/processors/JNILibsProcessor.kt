@@ -25,7 +25,6 @@ import java.io.File
 class JNILibsProcessor : BaseProject() {
     fun processJniLibs(
         aarLibraries: Collection<AndroidArchiveLibrary>,
-        explodeTasks: MutableList<Task>,
         variant: LibraryVariant,
     ) {
         val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
@@ -42,7 +41,6 @@ class JNILibsProcessor : BaseProject() {
         mergeJniLibsTask.configure {
             println("\n=== $taskName configured\n")
 
-            it.dependsOn(explodeTasks)
             it.dependsOn(copyTask)
 
             it.doFirst {
@@ -86,6 +84,8 @@ class JNILibsProcessor : BaseProject() {
         val intoDir =
             project.rootProject
                 .file("${project.name}/libs$capitalizedVariant")
+
+        println("==== IN copy so lib task")
 
         return project.tasks.register("copy${capitalizedVariant}LibSources", Copy::class.java) {
             println("\n=== copy${capitalizedVariant}LibSource configured\n")

@@ -26,7 +26,6 @@ class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
 
     fun processConsumerFiles(
         aarLibs: Collection<AndroidArchiveLibrary>,
-        explodeTasks: MutableList<Task>,
     ) {
         val mergeTaskName = "merge${capitalizedVariantName}ConsumerProguardFiles"
         val mergeFileTask = project.tasks.named(mergeTaskName)
@@ -36,7 +35,6 @@ class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
         }
 
         mergeFileTask.configure { task ->
-            task.dependsOn(explodeTasks)
             task.doLast {
                 val files = aarLibs.map { aarLib -> aarLib.getProguardRules() }
                 val outputFile = it.outputs.files.singleFile
@@ -47,14 +45,12 @@ class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
 
     fun processGeneratedFiles(
         aarLibs: Collection<AndroidArchiveLibrary>,
-        explodeTasks: MutableList<Task>,
     ) {
         val mergeGenerateProguardTask: TaskProvider<*>?
         val mergeName = "merge${capitalizedVariantName}GeneratedProguardFiles"
         mergeGenerateProguardTask = project.tasks.named(mergeName)
 
         mergeGenerateProguardTask?.configure { task ->
-            task.dependsOn(explodeTasks)
             task.doLast {
                 val files = aarLibs.map { it.getProguardRules() }
                 val outputFile = it.outputs.files.singleFile

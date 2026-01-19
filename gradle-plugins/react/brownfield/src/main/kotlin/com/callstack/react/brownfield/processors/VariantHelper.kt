@@ -73,7 +73,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
     fun classesMergeTaskDoLast(
         outputDir: File,
-        aarLibraries: Collection<com.callstack.react.brownfield.utils.AndroidArchiveLibrary>,
+        aarLibraries: Collection<AndroidArchiveLibrary>,
         jarFiles: MutableList<File>,
     ) {
         MergeProcessor.mergeClassesJarIntoClasses(project, aarLibraries, outputDir)
@@ -106,18 +106,12 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
     fun processResources(
         aarLibraries: Collection<AndroidArchiveLibrary>,
-        explodeTasks: MutableList<Task>,
     ) {
         val taskPath = "generate${capitalizedVariantName}Resources"
         val resourceGenTask = project.tasks.named(taskPath)
 
         if (!resourceGenTask.isPresent) {
             throw TaskNotFound("Task $taskPath not found")
-        }
-
-        resourceGenTask.configure {
-            println("\n=== generate${capitalizedVariantName}Resources configured\n")
-            it.dependsOn(explodeTasks)
         }
 
         aarLibraries.forEach {
@@ -129,11 +123,9 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
     fun processAssets(
         aarLibraries: Collection<AndroidArchiveLibrary>,
-        explodeTasks: MutableList<Task>,
     ) {
         val assetsTask = variant.mergeAssetsProvider.get()
 
-        assetsTask.dependsOn(explodeTasks)
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
         assetsTask.doFirst {
             val filteredSourceSets = androidExtension.sourceSets.filter { it.name == variant.name }

@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.detekt)
     `maven-publish`
     signing
+    kotlin("plugin.serialization") version "1.9.24"
 }
 
 ktlint {
@@ -82,6 +83,7 @@ dependencies {
     implementation(libs.agp)
     implementation(libs.common)
     implementation(libs.asm.commons)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
 
 tasks.named("detekt").configure {

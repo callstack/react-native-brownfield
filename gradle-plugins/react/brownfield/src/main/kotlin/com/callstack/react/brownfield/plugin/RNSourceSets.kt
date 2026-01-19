@@ -126,6 +126,7 @@ object RNSourceSets {
         val appProjectName = appProject.name
 
         project.tasks.register("copyAutolinkingSources", Copy::class.java) {
+            println("==== copyAutolink configured")
             val path = "generated/autolinking/src/main/java"
             it.dependsOn(":$appProjectName:generateAutolinkingPackageList")
             it.from("$appBuildDir/$path")

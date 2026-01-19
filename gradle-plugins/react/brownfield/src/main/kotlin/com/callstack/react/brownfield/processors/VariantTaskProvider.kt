@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.processors
 
+import com.android.build.gradle.internal.tasks.factory.registerTask
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.plugin.ManifestMerger
 import com.callstack.react.brownfield.shared.BaseProject
@@ -20,15 +21,13 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
     fun classesMergeTask(
         aarLibraries: Collection<AndroidArchiveLibrary>,
         jarFiles: MutableList<File>,
-        explodeTasks: MutableList<Task>,
-    ): TaskProvider<Task> {
+    ): Task {
         val mergeClassesTaskName = "mergeClasses$capitalizedVariantName"
         val kotlinCompileTaskName = "compile${capitalizedVariantName}Kotlin"
 
-        return project.tasks.register(mergeClassesTaskName) {
+        return project.tasks.create(mergeClassesTaskName, Task::class.java) {
             it.outputs.upToDateWhen { false }
 
-            it.dependsOn(explodeTasks)
             it.dependsOn(variantHelper.getJavaCompileTask())
 
             it.dependsOn(project.tasks.named(kotlinCompileTaskName))
@@ -37,14 +36,21 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
 
             if (variant.buildType.isMinifyEnabled) {
                 it.inputs.files(variantHelper.getLocalJarFiles(aarLibraries)).withPathSensitivity(PathSensitivity.RELATIVE)
-                it.inputs.files(jarFiles).withPathSensitivity(PathSensitivity.RELATIVE)
+//                it.inputs.files(jarFiles).withPathSensitivity(PathSensitivity.RELATIVE)
             }
 
-            val outputDir = DirectoryManager.getMergeClassDirectory(variant)
-            it.outputs.dir(outputDir)
-
-            it.doFirst { variantHelper.classesMergeTaskDoFirst(outputDir) }
-            it.doLast { variantHelper.classesMergeTaskDoLast(outputDir, aarLibraries, jarFiles) }
+//            val outputDir = DirectoryManager.getMergeClassDirectory(variant)
+//            it.outputs.dir(outputDir)
+//
+//            it.doFirst {
+//                println("===== DO FIRST CLASSES MERGE")
+//
+//                variantHelper.classesMergeTaskDoFirst(    DirectoryManager.getMergeClassDirectory(variant))
+//            }
+//            it.doLast {
+//                println("===== DO LAST CLASSES MERGE")
+//                variantHelper.classesMergeTaskDoLast(    DirectoryManager.getMergeClassDirectory(variant), aarLibraries, jarFiles)
+//            }
         }
     }
 
@@ -52,10 +58,8 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         syncLibTask: TaskProvider<Task>,
         aarLibraries: Collection<AndroidArchiveLibrary>,
         jarFiles: MutableList<File>,
-        explodeTasks: MutableList<Task>,
     ): TaskProvider<Task> {
         return project.tasks.register("mergeJars$capitalizedVariantName") {
-            it.dependsOn(explodeTasks)
             it.dependsOn(variantHelper.getJavaCompileTask())
             it.mustRunAfter(syncLibTask)
 
@@ -87,7 +91,6 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
 
     fun processManifestTask(
         aarLibraries: Collection<AndroidArchiveLibrary>,
-        explodeTasks: MutableList<Task>,
     ) {
         val processManifestTask = variantHelper.getProcessManifest()
         val manifestOutput =
@@ -114,7 +117,6 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
                 }
             }
 
-        processManifestTask.dependsOn(explodeTasks)
         processManifestTask.inputs.files(inputManifests)
         processManifestTask.doLast {
             manifestsMergeTask.get().doTaskAction()
@@ -152,7 +154,7 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         }
     }
 
-    fun processDeepLinkTasks(explodeTasks: MutableList<Task>) {
+    fun processDeepLinkTasks() {
         val taskName = "extractDeepLinksForAar$capitalizedVariantName"
         val extractDeepLinks = project.tasks.named(taskName)
 
@@ -162,7 +164,6 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
 
         extractDeepLinks.configure {
             println("\n==== extractDeepLinks Configured\n")
-            it.dependsOn(explodeTasks)
 
             it.doLast {
                 println("\n==== extractDeepLinks doLast ====\n")

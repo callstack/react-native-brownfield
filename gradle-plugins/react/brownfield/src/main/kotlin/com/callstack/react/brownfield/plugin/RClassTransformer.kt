@@ -39,10 +39,10 @@ object RClassTransformer : BaseProject() {
                 InstrumentationScope.PROJECT,
             ) { params ->
                 params.namespace.set(variant.namespace)
-//                params.libraryNamespaces.set(
-//                    variantPackagesProperty.getting(variant.name)
-//                        .map { list -> list.map { it.getPackageName() }.toList() },
-//                )
+                params.libraryNamespaces.set(
+                    variantPackagesProperty.getting(variant.name)
+                        .map { list -> list.map { it.getPackageName() }.toList() },
+                )
             }
 
             println("=== project variant -- ${variant.name}")

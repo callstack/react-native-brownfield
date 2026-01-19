@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.utils
 
+import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import org.gradle.api.Project
@@ -28,21 +29,8 @@ class AndroidArchiveLibrary(
 
     @Synchronized
     fun getPackageName(): String {
-        if (packageName == null) {
-            val manifestFile = getManifestFile()
-            if (!manifestFile.exists()) {
-                throw FileNotFoundException("${getArtifactName()} module's AndroidManifest file not found")
-            }
-
-            try {
-                val documentBuilderFactory = DocumentBuilderFactory.newInstance()
-                val document = documentBuilderFactory.newDocumentBuilder().parse(manifestFile)
-                packageName = document.documentElement.getAttribute("package")
-            } catch (e: IllegalStateException) {
-                Logging.log(e.stackTraceToString())
-            }
-        }
-        return packageName!!
+        val androidExtension = project.rootProject.project(":${artifact.moduleName}").extensions.getByType(LibraryExtension::class.java)
+        return androidExtension.namespace!!
     }
 
     fun getManifestFile() = File(getExplodedAarRootDir(), "AndroidManifest.xml")

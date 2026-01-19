@@ -36,7 +36,6 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
     private val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
     private lateinit var aarLibrariesProperty: ListProperty<AndroidArchiveLibrary>
     private val jarFiles = mutableListOf<File>()
-    private var mergeClassTask: TaskProvider<out Task>? = null
 
     private fun setup() {
         variantHelper.project = project
@@ -60,164 +59,17 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             prepareTask.dependsOn(":app:createBundle${capitalizedVariantName}JsAndAssets")
         }
 
-        val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
-
-        explodeArtifactFiles(artifacts, prepareTask, bundleTask)
-        mergeClassesAndJars(bundleTask)
+//        val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
 
         if (aarLibraries.isEmpty()) return
 
-        variantTaskProvider.processManifestTask(aarLibraries, explodeTasks)
-        variantHelper.processResources(aarLibraries, explodeTasks)
-        variantHelper.processAssets(aarLibraries, explodeTasks)
-        jniLibsProcessor.processJniLibs(aarLibraries, explodeTasks, variant)
-        proguardProcessor.processConsumerFiles(aarLibraries, explodeTasks)
-        proguardProcessor.processGeneratedFiles(aarLibraries, explodeTasks)
-        variantTaskProvider.processDataBinding(bundleTask, aarLibraries)
-        variantTaskProvider.processDeepLinkTasks(explodeTasks)
-    }
-
-    private fun mergeClassesAndJars(bundleTask: TaskProvider<Task>) {
-        val syncLibTask = project.tasks.named(variantHelper.getSyncLibJarsTaskPath())
-        val extractAnnotationsTask = project.tasks.named("extract${capitalizedVariantName}Annotations")
-
-        mergeClassTask = variantTaskProvider.classesMergeTask(aarLibraries, jarFiles, explodeTasks)
-        syncLibTask.configure {
-            println("\n==== syncLibTask Configured\n")
-            it.dependsOn(mergeClassTask)
-            it.inputs.files(aarLibraries.map { aarLib -> aarLib.getLibsDir() }).withPathSensitivity(
-                PathSensitivity.RELATIVE,
-            )
-            it.inputs.files(jarFiles).withPathSensitivity(PathSensitivity.RELATIVE)
-
-            it.doLast {
-                println("\n==== syncLibTask doLast ====\n")
-            }
-        }
-
-        project.tasks.named("transform${capitalizedVariantName}ClassesWithAsm").configure {
-            println("\n==== transformAsm Configured\n")
-            it.dependsOn(mergeClassTask)
-
-            it.doLast {
-                println("\n==== transformAsm doLast ====\n")
-            }
-        }
-
-        extractAnnotationsTask.configure {
-            println("\n==== extractAnnotationsTask Configured\n")
-            it.mustRunAfter(mergeClassTask)
-
-            it.doLast {
-                println("\n==== extractAnnotationsTask doLast ====\n")
-            }
-        }
-
-        if (!variant.buildType.isMinifyEnabled) {
-            val mergeJars = variantTaskProvider.jarMergeTask(syncLibTask, aarLibraries, jarFiles, explodeTasks)
-            project.tasks.named("bundle${capitalizedVariantName}LocalLintAar").configure {
-                println("\n==== bundle${capitalizedVariantName}LocalLintAar Configured\n")
-                it.dependsOn(mergeJars)
-
-                it.doLast {
-                    println("\n==== bundle${capitalizedVariantName}LocalLintAar doLast ====\n")
-                }
-            }
-            bundleTask.configure {
-                println("\n==== mergeClassesAndJars ${bundleTask.name} Configured\n")
-                it.dependsOn(mergeJars)
-
-                it.doLast {
-                    println("\n==== mergeClassesAndJars ${bundleTask.name} doLast ====\n")
-                }
-            }
-        }
-    }
-
-    private fun explodeArtifactFiles(
-        artifacts: List<UnresolvedArtifactInfo>,
-        prepareTask: TaskProvider<Task>,
-        bundleTask: TaskProvider<Task>,
-    ) {
-        for (artifact in artifacts) {
-//            when (artifact.type) {
-//                ARTIFACT_TYPE_JAR -> jarFiles.add(artifact.file)
-//                ARTIFACT_TYPE_AAR -> processAar(artifact, prepareTask, bundleTask)
-//            }
-            processAar(artifact, prepareTask, bundleTask)
-        }
-    }
-
-    private fun processAar(
-        artifact: UnresolvedArtifactInfo,
-        prepareTask: TaskProvider<Task>,
-        bundleTask: TaskProvider<Task>,
-    ) {
-        val archiveLibrary =
-            AndroidArchiveLibrary(
-                project,
-                artifact,
-                variant.name,
-            )
-
-        aarLibraries.add(archiveLibrary)
-        aarLibrariesProperty.add(archiveLibrary)
-
-        val zipFolder = archiveLibrary.getExplodedAarRootDir()
-        zipFolder.mkdirs()
-
-        val explodeTask = getExplodeTask(zipFolder, artifact)
-        if (explodeTask != null) {
-            val dependencies = artifact.dependencies
-
-            val selectedTask = if (dependencies?.isEmpty() == true) prepareTask else dependencies?.first()
-
-            println("=== selectedTask $selectedTask")
-            explodeTask.dependsOn(selectedTask)
-
-            val javacTask = variantHelper.getJavaCompileTask()
-            javacTask.dependsOn(explodeTask)
-
-            bundleTask.configure {
-                println("\n==== processAar ${bundleTask.name} Configured\n")
-                it.dependsOn(explodeTask)
-
-                it.doLast {
-                    println("\n==== processAar ${bundleTask.name} doLast ====\n")
-                }
-            }
-
-            explodeTasks.add(explodeTask)
-        }
-    }
-
-    private fun getExplodeTask(
-        zipFolder: File,
-        artifact: UnresolvedArtifactInfo,
-    ): Copy? {
-        val group = artifact.moduleGroup.replaceFirstChar(Char::titlecase)
-        val name = artifact.moduleName.replaceFirstChar(Char::titlecase)
-        val taskName = "explode$group$name$capitalizedVariantName"
-
-        if (project.tasks.findByName(taskName) == null) {
-            val explodeTask =
-                project.tasks.create(taskName, Copy::class.java) {
-                    println("\n==== $taskName Configured\n")
-                    it.from(project.zipTree(artifact.file.absolutePath))
-                    it.into(zipFolder)
-
-                    it.doFirst {
-                        println("\n==== $taskName -- doFirst\n")
-                        zipFolder.deleteRecursively()
-                    }
-
-                    it.doLast {
-                        println("\n==== $taskName -- doLast\n")
-                    }
-                }
-            return explodeTask
-        }
-
-        return null
+//        variantTaskProvider.processManifestTask(aarLibraries)
+//        variantHelper.processResources(aarLibraries)
+//        variantHelper.processAssets(aarLibraries)
+//        jniLibsProcessor.processJniLibs(aarLibraries, variant)
+//        proguardProcessor.processConsumerFiles(aarLibraries)
+//        proguardProcessor.processGeneratedFiles(aarLibraries)
+//        variantTaskProvider.processDataBinding(bundleTask, aarLibraries)
+//        variantTaskProvider.processDeepLinkTasks()
     }
 }

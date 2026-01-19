@@ -18,7 +18,7 @@ import java.io.File
 
 object DirectoryManager : BaseProject() {
     fun getMergeClassDirectory(variant: LibraryVariant): File {
-        return project.file("$buildDir/intermediates/$INTERMEDIATES_TEMP_DIR/merge_classes/${variant.name}")
+        return File("$buildDir/intermediates/$INTERMEDIATES_TEMP_DIR/merge_classes/${variant.name}")
     }
 
     fun getKotlinMetaDirectory(variant: LibraryVariant): File {

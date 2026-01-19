@@ -10,6 +10,7 @@
 
 package com.callstack.react.brownfield.artifacts
 
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_NAME
@@ -18,10 +19,12 @@ import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.processors.VariantProcessor
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
+import com.callstack.react.brownfield.shared.BundleTaskProvider
 import com.callstack.react.brownfield.shared.GradleProps
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
+import org.gradle.api.Project
 import org.gradle.api.artifacts.ArtifactCollection
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
@@ -48,8 +51,8 @@ class ArtifactsResolver(
         embedDefaultDependencies("implementation")
     }
 
-    fun processArtifacts() {
-        generateArtifacts()
+    fun processArtifacts(): MutableList<UnresolvedArtifactInfo> {
+        return generateArtifacts()
     }
 
     private fun embedExpoDependencies() {
@@ -106,23 +109,29 @@ class ArtifactsResolver(
         }
     }
 
-    private fun generateArtifacts() {
+    private fun generateArtifacts(): MutableList<UnresolvedArtifactInfo> {
+        // store the artifacts which can be variant aware including flavors
+        val artifacts = mutableSetOf<UnresolvedArtifactInfo>()
         baseProject.project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val artifacts = mutableListOf<UnresolvedArtifactInfo>()
+            val artifacts1 = mutableListOf<UnresolvedArtifactInfo>()
 
             configurations.forEach { configuration ->
                 if (isEmbedConfig(configuration, variant)) {
-                    val resolvedArtifacts = resolveArtifacts(configuration)
-                    artifacts.addAll(handleUnResolvedArtifacts(configuration, variant, resolvedArtifacts))
+//                    val resolvedArtifacts = resolveArtifacts(configuration)
+                    val res = handleUnResolvedArtifacts(configuration, variant)
+                    artifacts.addAll(res)
+                    artifacts1.addAll(res)
                 }
             }
 
             if (artifacts.isNotEmpty()) {
                 val processor = VariantProcessor(variant)
                 processor.project = baseProject.project
-                processor.processVariant(artifacts)
+                processor.processVariant(artifacts1)
             }
         }
+
+        return artifacts.toMutableList()
     }
 
     private fun isEmbedConfig(
@@ -152,20 +161,20 @@ class ArtifactsResolver(
     private fun handleUnResolvedArtifacts(
         configuration: Configuration,
         variant: LibraryVariant,
-        artifacts: ArtifactCollection,
     ): List<UnresolvedArtifactInfo> {
         val unMatchedArtifacts = mutableListOf<UnresolvedArtifactInfo>()
-        val firstLevelIds =
-            artifacts
-                .map { it.id.componentIdentifier.displayName }
-                .toSet()
+//        val firstLevelIds =
+//            artifacts
+//                .map { it.id.componentIdentifier.displayName }
+//                .toSet()
+        val firstLevelIds = setOf<String>()
 
         val resolutionResult = configuration.incoming.resolutionResult
         resolutionResult.root.dependencies.forEach {
             if (it is ResolvedDependencyResult) {
                 when (val id = it.selected.id) {
                     is ModuleComponentIdentifier -> {
-//                        println("===----- module ${id.moduleIdentifier.name} ${id.displayName} === ${firstLevelIds}")
+//                        println("===----- module ${id.moduleIdentifier.name} ${id.displayName} ")
                         if (id.displayName !in firstLevelIds) {
 //                            unMatchedArtifacts.add(
 //                                UnresolvedArtifactInfo(
@@ -178,14 +187,15 @@ class ArtifactsResolver(
                     }
                     is ProjectComponentIdentifier -> {
                         val depProj = baseProject.project.project(id.projectPath)
+//                        println("===----- project ${id.projectName} ${id.displayName} -- path ${baseProject.project.file(id.projectName).absolutePath}")
                         if (id.displayName !in firstLevelIds) {
-//                            id.
                             unMatchedArtifacts.add(UnresolvedArtifactInfo(
                                 depProj.group.toString(),
                                 depProj.name,
                                 depProj.version.toString(),
-                                baseProject.project.file(id.projectName),
-                                mutableSetOf()
+                                baseProject.project.file(id.projectName).absolutePath,
+                                mutableSetOf(),
+                                null,
                             ))
                         }
                     }
@@ -197,17 +207,22 @@ class ArtifactsResolver(
         variantHelper.project = baseProject.project
         val variantTaskProvider = VariantTaskProvider(variantHelper)
         variantTaskProvider.project = baseProject.project
-        val flavorArtifact = FlavorArtifact(variant, variantTaskProvider, configuration)
+        val flavorArtifact = FlavorArtifact(variant, configuration)
         flavorArtifact.project = baseProject.project
+
+        val bundleTaskProvider = BundleTaskProvider(variantTaskProvider)
 
         val unMatchedArtifacts1 = mutableListOf<UnresolvedArtifactInfo>()
         unMatchedArtifacts.forEach { artifact ->
+            val artifactProject = getArtifactProject(artifact)
+            val bundleProvider = artifactProject?.let { bundleTaskProvider.getBundleTask(it, variant) }
+
             val resolvedArtifact =
                 flavorArtifact.createFlavorArtifact(
                     artifact,
-                    calculatedValueContainerFactory,
                     fileResolver,
                     taskDependencyFactory,
+                    bundleProvider,
                 )
 
             when (val asd = resolvedArtifact.id) {
@@ -217,13 +232,23 @@ class ArtifactsResolver(
                         artifact.moduleGroup,
                         artifact.moduleName,
                         artifact.moduleVersion,
-                        resolvedArtifact.file,
-                        deps
+                        resolvedArtifact.file.absolutePath,
+                        deps.map { it.path }.toSet(),
+                        bundleProvider?.name,
                     ))
+
+//                    println("\n=== resolved artttt ${resolvedArtifact.file.absolutePath} -- ${deps.first().name}\n")
                 }
             }
         }
 
         return unMatchedArtifacts1
+    }
+
+
+    private fun getArtifactProject(unResolvedArtifact: UnresolvedArtifactInfo): Project? {
+        return baseProject.project.rootProject.allprojects.find { p ->
+            unResolvedArtifact.moduleName == p.name && unResolvedArtifact.moduleGroup == p.group.toString()
+        }
     }
 }

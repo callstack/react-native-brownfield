@@ -38,55 +38,22 @@ import org.gradle.internal.model.CalculatedValueContainerFactory
 import java.io.File
 
 class FlavorArtifact(private val variant: LibraryVariant,
-                     private val variantTaskProvider: VariantTaskProvider,
     private val configuration: Configuration) : BaseProject() {
     fun createFlavorArtifact(
         unResolvedArtifact: UnresolvedArtifactInfo,
-        calculatedValueContainerFactory: CalculatedValueContainerFactory,
         fileResolver: FileResolver,
         taskDependencyFactory: TaskDependencyFactory,
+        bundleTaskProvider: TaskProvider<Task>?,
     ): ResolvedArtifactResult {
-        val artifactProject = getArtifactProject(unResolvedArtifact)
-        val bundleProvider: TaskProvider<Task>? =
-            artifactProject?.let { getBundleTaskProvider(it, variant) }
-
-        val capitalizedName = variant.name.replaceFirstChar(Char::titlecase)
-
-//        val bTask = project.tasks.named("transform${capitalizedName}ClassesWithAsm")
-//        bTask.configure {
-//            it.mustRunAfter("${artifactProject?.path}:${bundleProvider?.name}")
-//        }
-
-        val mTask = artifactProject?.tasks?.named("${bundleProvider?.name}")
-        mTask?.configure {
-            println("\n==== ${artifactProject.path}${mTask.name} Configured\n")
-
-            it.doFirst {
-                println("\n=== ${artifactProject.path}${mTask.name} doFirst\n")
-            }
-
-            it.doLast {
-                println("\n=== ${artifactProject.path}${mTask.name} doLast\n")
-            }
-        }
-
-        // preBuild -- transform${capitalizedName}ClassesWithAsm
-        project.tasks.named("preBuild").configure {
-            println("\n==== preBuild Configured Second\n")
-            it.dependsOn(mTask)
-
-            it.doLast {
-                println("\n==== preBuild Configured Second -> doLast\n")
-            }
-        }
-
-        val artifactFile = createArtifactFile(bundleProvider?.get() as Task)
+        val artifactFile = createArtifactFile(bundleTaskProvider?.get() as Task)
         val artifactName = DefaultIvyArtifactName(artifactFile.name, "aar", "")
+
+//        "${artifactProject?.path}:${bundleProvider?.name}"
 
         return DefaultResolvedArtifactResult(
             PublishArtifactLocalArtifactMetadata(
                 { artifactName.name },
-                LazyPublishArtifact(bundleProvider, fileResolver, taskDependencyFactory),
+                LazyPublishArtifact(bundleTaskProvider, fileResolver, taskDependencyFactory),
             ),
             configuration.attributes,
             ImmutableCapabilities.EMPTY,
@@ -99,57 +66,5 @@ class FlavorArtifact(private val variant: LibraryVariant,
     private fun createArtifactFile(bundle: Task): File {
         val packageLibraryProvider = bundle as Zip
         return File(packageLibraryProvider.destinationDirectory.get().asFile, packageLibraryProvider.archiveFileName.get())
-    }
-
-    private fun getBundleTaskProvider(
-        project: Project,
-        variant: LibraryVariant,
-    ): TaskProvider<Task>? {
-        var bundleTaskProvider: TaskProvider<Task>? = null
-        val androidExtension = project.extensions.getByType(LibraryExtension::class.java)
-
-        androidExtension.libraryVariants.find {
-            if (it.name == variant.name || it.name == variant.buildType.name) {
-                bundleTaskProvider = variantTaskProvider.bundleTaskProvider(project, it.name)
-            }
-
-            if (bundleTaskProvider == null) {
-                val flavor = if (variant.productFlavors.isEmpty()) variant.mergedFlavor else variant.productFlavors.first()
-                try {
-                    val missingDimensionStrategies = androidExtension.productFlavors.getByName(flavor.name).missingDimensionStrategies
-
-                    missingDimensionStrategies.entries.find { entry ->
-                        val toDimension = entry.key
-                        val requestedValues = listOf(entry.value.requested)
-                        val toFlavors = requestedValues + entry.value.fallbacks
-                        val subFlavor =
-                            if (it.productFlavors.isEmpty()) {
-                                it.mergedFlavor
-                            } else {
-                                it.productFlavors.first()
-                            }
-                        toFlavors.firstOrNull { toFlavor ->
-                            val isDimensionEqual = toDimension == subFlavor.dimension
-                            val isFlavorEqual = toFlavor == subFlavor.name
-                            val isBuildTypeEqual = variant.buildType.name == it.buildType.name
-                            if (isDimensionEqual && isFlavorEqual && isBuildTypeEqual) {
-                                bundleTaskProvider = variantTaskProvider.bundleTaskProvider(project, it.name)
-                            }
-                            false
-                        } != null
-                    } != null
-                } catch (_: Exception) {}
-            }
-
-            bundleTaskProvider != null
-        }
-
-        return bundleTaskProvider
-    }
-
-    private fun getArtifactProject(unResolvedArtifact: UnresolvedArtifactInfo): Project? {
-        return project.rootProject.allprojects.find { p ->
-            unResolvedArtifact.moduleName == p.name && unResolvedArtifact.moduleGroup == p.group.toString()
-        }
     }
 }
