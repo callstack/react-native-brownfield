@@ -52,7 +52,7 @@ A function used to initialize a React Native Brownfield singleton. Keep in mind 
 - `useDeveloperSupport`: `Boolean` - Flag to use dev support.
 - `packages`: `List<ReactPackage>` - List of your React Native Native modules.
 - `mainModuleName`: `String` - Path to react native entry file (when loading from Metro).
-- `bundleAssetPath`: `String` - Path to react native bundle asset file (when loading from app assets), appended to `asset://`.
+- `bundleAssetPath`: `String` - Path to react native bundle asset file (when loading from app assets), appended to `asset://`; if this path starts with `file://`, the JS bundle will be loaded from a local file, not from app's assets.
 
 **Examples:**
 
