@@ -17,7 +17,7 @@ import { Command } from 'commander';
 
 import { isBrownieInstalled } from '../../brownie/config.js';
 import { runCodegen } from '../../brownie/commands/codegen.js';
-import { getProjectInfo } from '../utils/index.js';
+import { getProjectInfo, stripFrameworkBinary } from '../utils/index.js';
 import {
   actionRunner,
   curryOptions,
@@ -100,6 +100,11 @@ export const packageIosCommand = curryOptions(
         ],
         outputPath: brownieOutputPath,
       });
+
+      // Strip the binary from Brownie.xcframework to make it interface-only.
+      // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
+      // (which contains Brownie symbols) and Brownie.xcframework.
+      await stripFrameworkBinary(brownieOutputPath);
 
       logger.success(
         `Brownie.xcframework created at ${colorLink(relativeToCwd(brownieOutputPath))}`
