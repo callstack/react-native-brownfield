@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 1.0.2
+
+### Patch Changes
+
+- [`2a8563f`](https://github.com/callstack/react-native-brownfield/commit/2a8563f65ed152054ad1290caf963791a368ee9a) Thanks [@okwasniewski](https://github.com/okwasniewski)! - feat: strip framework binaries to avoid duplicate symbol errors
+
 ## 1.0.1
 
 ### Patch Changes
