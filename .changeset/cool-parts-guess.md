@@ -1,5 +1,5 @@
 ---
-'@callstack/react-native-brownfield': patch
+'@callstack/react-native-brownfield': minor
 ---
 
 feat(android): allow bundle file path
