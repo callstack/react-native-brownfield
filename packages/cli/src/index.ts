@@ -15,7 +15,7 @@ import brownieCommands, {
 const program = new Command();
 
 program
-  .name(styleText('magenta', 'brownie'))
+  .name(styleText('magenta', 'brownfield'))
   .usage(styleText('yellow', '[options] [command]'))
   .description(
     styleText('magentaBright', 'React Native Brownfield CLI - ') +
