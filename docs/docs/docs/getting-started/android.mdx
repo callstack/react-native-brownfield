@@ -191,13 +191,13 @@ tasks.named("generateMetadataFileForMavenAarPublication") {
 Use the brownfield CLI to package your React Native app:
 
 ```bash
-npx @callstack/react-native-brownfield package:aar --variant Release --module-name reactnativeapp
+npx brownfield package:android --variant Release --module-name reactnativeapp
 ```
 
 Then publish to **local Maven**:
 
 ```bash
-npx @callstack/react-native-brownfield publish-local:aar --module-name reactnativeapp
+npx brownfield publish:android --module-name reactnativeapp
 ```
 
 ## 8. Add the AAR to Your Android App
