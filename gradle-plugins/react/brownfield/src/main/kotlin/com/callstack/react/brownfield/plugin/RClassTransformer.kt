@@ -30,9 +30,7 @@ object RClassTransformer : BaseProject() {
     fun registerASMTransformation() {
         val components = project.extensions.getByType(AndroidComponentsExtension::class.java)
         val variantPackagesProperty = VariantPackagesProperty.getVariantPackagesProperty()
-        variantPackagesProperty.get().forEach {
-            println("=== variantPackagesProperty $it")
-        }
+
         components.onVariants(components.selector().all()) { variant ->
             variant.instrumentation.transformClassesWith(
                 RClassAsmTransformerFactory::class.java,
@@ -45,7 +43,6 @@ object RClassTransformer : BaseProject() {
                 )
             }
 
-            println("=== project variant -- ${variant.name}")
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
         }
     }
@@ -71,7 +68,6 @@ object RClassTransformer : BaseProject() {
             classContext: ClassContext,
             nextClassVisitor: ClassVisitor,
         ): ClassVisitor {
-            println("\n==== INN HEREEE\n")
             val params = parameters.get()
             val namespace = params.namespace.get()
             val libraryNamespaces = params.libraryNamespaces.orElse(Collections.emptyList()).get()
