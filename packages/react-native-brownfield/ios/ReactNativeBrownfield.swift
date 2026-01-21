@@ -7,13 +7,18 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"
   var bundlePath = "main.jsbundle"
   var bundle = Bundle.main
+  var bundleURLProvider: (() -> URL?)? = nil
   // MARK: - RCTReactNativeFactoryDelegate Methods
-  
+
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     return bundleURL()
   }
-  
+
   public override func bundleURL() -> URL? {
+    if let provider = bundleURLProvider {
+      return provider()
+    }
+
 #if DEBUG
     return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: entryFile)
 #else
@@ -21,7 +26,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     let withoutLast = resourceURLComponents[..<(resourceURLComponents.count - 1)]
     let resourceName = withoutLast.joined()
     let fileExtension = resourceURLComponents.last ?? ""
-    
+
     return bundle.url(forResource: resourceName, withExtension: fileExtension)
 #endif
   }
@@ -31,7 +36,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   public static let shared = ReactNativeBrownfield()
   private var onBundleLoaded: (() -> Void)?
   private var delegate = ReactNativeBrownfieldDelegate()
-  
+
   /**
    * Path to JavaScript root.
    * Default value: "index"
@@ -62,6 +67,17 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   @objc public var bundle: Bundle = Bundle.main {
     didSet {
       delegate.bundle = bundle
+    }
+  }
+  /**
+   * Dynamic bundle URL provider called on every bundle load.
+   * When set, this overrides the default bundleURL() behavior in the delegate.
+   * Returns a URL to load a custom bundle, or nil to use default behavior.
+   * Default value: nil
+   */
+  @objc public var bundleURL: (() -> URL?)? = nil {
+    didSet {
+      delegate.bundleURLProvider = bundleURL
     }
   }
   /**
@@ -112,10 +128,10 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?, launchOptions: [AnyHashable: Any]?) {
     guard reactNativeFactory == nil else { return }
-    
+
     delegate.dependencyProvider = RCTAppDependencyProvider()
     self.reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
-    
+
     if let onBundleLoaded {
       self.onBundleLoaded = onBundleLoaded
       if RCTIsNewArchEnabled() {
@@ -135,7 +151,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
       }
     }
   }
-  
+
   @objc private func jsLoaded(_ notification: Notification) {
     onBundleLoaded?()
     onBundleLoaded = nil
