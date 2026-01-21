@@ -47,6 +47,28 @@ target '<project_name>' do
 end
 ```
 
+### Static Linking Requirement
+
+React Native Brownfield requires **static linking** to work correctly with XCFrameworks.
+
+:::tip CLI handles this automatically
+When using the **`package:ios`** CLI command, static linking is configured automatically. You don't need to do anything extra.
+:::
+
+If you're running **`pod install`** directly (e.g., during development), add this to your `Podfile`:
+
+```ruby
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+else
+  use_frameworks! :linkage => :static
+end
+```
+
+This ensures pods are linked statically by default, which is required for embedding React Native in an XCFramework.
+
 Run **`pod install`** after updating.
 
 ## 3. Add the Bundle Script
