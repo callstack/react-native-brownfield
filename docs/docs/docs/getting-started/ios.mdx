@@ -1,0 +1,199 @@
+import { PackageManagerTabs } from '@theme';
+
+# iOS Integration
+
+This guide walks you through packaging your React Native app as an **XCFramework** and integrating it into your native iOS app.
+
+## Prerequisites
+
+- React Native app with `@callstack/react-native-brownfield` installed
+- Xcode installed
+- An existing iOS app (or create a new one)
+
+## 1. Create a Framework Target in Xcode
+
+1. Open your React Native project's `ios/<project_name>.xcworkspace` in Xcode
+2. Add a new target: **File → New → Target**
+3. Choose the **Framework** template
+
+![Framework Target](/images/framework-target.png)
+
+4. Give your framework a unique name (e.g., `ReactNativeFramework`)
+5. Right-click the framework folder and select **Convert to Group** (CocoaPods doesn't work properly with references). Do this for both `<FrameworkName>` and `<FrameworkName>Tests` folders.
+
+![Convert to Group](/images/convert-to-group.png)
+
+### Required Build Settings
+
+Set these build settings for your framework target:
+
+| Build Setting                        | Value   | Purpose                                          |
+| ------------------------------------ | ------- | ------------------------------------------------ |
+| **Build Libraries for Distribution** | **YES** | Creates a module interface for Swift             |
+| **User Script Sandboxing**           | **NO**  | Lets scripts modify files for JS bundle creation |
+| **Skip Install**                     | **NO**  | Ensures Xcode creates the framework files        |
+| **Enable Module Verifier**           | **NO**  | Skips testing during build for faster builds     |
+
+## 2. Update CocoaPods
+
+Add your new framework to `ios/Podfile`:
+
+```ruby
+target '<project_name>' do
+  # Add these lines
+  target '<framework_target_name>' do
+    inherit! :complete
+  end
+end
+```
+
+Run **`pod install`** after updating.
+
+## 3. Add the Bundle Script
+
+1. In Xcode, click on your **React Native app target**
+2. Go to **Build Phases**
+3. Find the **`Bundle React Native code and images`** step and copy the script
+
+![Bundle Phase](/images/bundle-phase.png)
+
+4. Click on your **framework target**
+5. Go to **Build Phases**
+6. Click **+** and choose **New Run Script Phase**
+
+![New Run Script Phase](/images/new-run-script.png)
+
+7. Paste the script you copied
+8. Name the phase **`Bundle React Native code and images`**
+9. Add these **input files**:
+   - `$(SRCROOT)/.xcode.env.local`
+   - `$(SRCROOT)/.xcode.env`
+
+## 4. Create the Framework's Public Interface
+
+Create a new Swift file in your framework folder:
+
+```swift
+// Export helpers from @callstack/react-native-brownfield library
+@_exported import ReactBrownfield
+
+// Initializes a Bundle instance that points at the framework target.
+public let ReactNativeBundle = Bundle(for: InternalClassForBundle.self)
+
+class InternalClassForBundle {}
+```
+
+## 5. Create the XCFramework
+
+Use the brownfield CLI to package your React Native app:
+
+```bash
+npx @callstack/react-native-brownfield package:ios --scheme <framework_target_name> --configuration Release
+```
+
+This creates the XCFramework in **`.brownfield/ios/package/`**.
+
+## 6. Add the Framework to Your iOS App
+
+1. Open **`.brownfield/ios/package`** directory
+2. Drag these files into your native iOS app's Xcode project:
+   - **`hermesvm.xcframework`** - JavaScript runtime
+   - **`ReactBrownfield.xcframework`** - React Native Brownfield library
+   - **`<framework_target_name>.xcframework`** - Your framework
+
+![Frameworks in Xcode Sidebar](/images/frameworks-sidebar.png)
+
+## 7. Initialize React Native
+
+In your native iOS app's **`AppDelegate.swift`**:
+
+```swift
+import <framework_target_name>
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var window: UIWindow?
+
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        // Initialize React Native
+        ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+        ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
+            print("React Native bundle loaded")
+        }, launchOptions: launchOptions)
+
+        window = UIWindow(frame: UIScreen.main.bounds)
+
+        // Create VC with your module name registered via AppRegistry.registerComponent
+        let reactNativeVC = ReactNativeViewController(moduleName: "ReactNativeApp")
+
+        window?.rootViewController = reactNativeVC
+        window?.makeKeyAndVisible()
+
+        return true
+    }
+}
+```
+
+## 8. Run Your App
+
+### Debug Configuration
+
+When running in **Debug**, React Native Brownfield expects a JS dev server running:
+
+```bash
+npx react-native start
+```
+
+### Release Configuration
+
+In **Release**, the JS bundle is loaded directly from the XCFramework - no dev server needed.
+
+## SwiftUI Integration
+
+For SwiftUI apps, use **`ReactNativeView`**:
+
+```swift
+import SwiftUI
+import <framework_target_name>
+
+@main
+struct MyApp: App {
+    init() {
+        ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+        ReactNativeBrownfield.shared.startReactNative {
+            print("React Native bundle loaded")
+        }
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationView {
+            VStack {
+                Text("Welcome to the Native App")
+                    .padding()
+
+                NavigationLink("Push React Native Screen") {
+                    ReactNativeView(moduleName: "ReactNativeApp")
+                        .navigationBarHidden(true)
+                }
+            }
+        }
+    }
+}
+```
+
+## Next Steps
+
+- [Swift API Reference](/docs/api-reference/swift)
+- [Objective-C API Reference](/docs/api-reference/objective-c)
+- [Guidelines](/docs/guides/guidelines)
