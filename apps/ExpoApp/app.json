@@ -49,7 +49,8 @@
           },
           "android": {
             "moduleName": "brownfield-expo-app"
-          }
+          },
+          "debug": true
         }
       ]
     ],
