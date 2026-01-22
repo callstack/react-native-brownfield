@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.callstack.rnbrownfield.demo.ExpoApp"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.ExpoApp"
+      "package": "com.callstack.rnbrownfield.demo.ExpoApp"
     },
     "web": {
       "output": "static",
@@ -44,10 +45,10 @@
         "@callstack/react-native-brownfield",
         {
           "ios": {
-            "frameworkName": "ExpoApp"
+            "frameworkName": "BrownfieldExpoApp"
           },
           "android": {
-            "moduleName": "expoapp"
+            "moduleName": "brownfield-expo-app"
           }
         }
       ]
