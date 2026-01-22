@@ -8,7 +8,7 @@ import { addFrameworkTarget } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
-import { log } from '../logging';
+import { Logger } from '../logging';
 
 /**
  * iOS Config Plugin for brownfield integration.
@@ -28,9 +28,7 @@ export const withBrownfieldIos: ConfigPlugin<
     const { modResults: project } = xcodeConfig;
     const { frameworkName } = props.ios;
 
-    if (props.debug) {
-      log(`Adding iOS framework target: ${frameworkName}`);
-    }
+    Logger.logDebug(`Adding iOS framework target: ${frameworkName}`);
 
     addFrameworkTarget(project, props.ios);
 
@@ -41,9 +39,7 @@ export const withBrownfieldIos: ConfigPlugin<
   config = withPodfile(config, (podfileConfig) => {
     const { frameworkName } = props.ios;
 
-    if (props.debug) {
-      log(`Modifying Podfile for framework: ${frameworkName}`);
-    }
+    Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
 
     podfileConfig.modResults.contents = modifyPodfile(
       podfileConfig.modResults.contents,

@@ -9,7 +9,7 @@ import {
 } from './gradleHelpers';
 import { generateReactNativeHostManager } from './hostManagerGenerator';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../types';
-import { log } from '../logging';
+import { Logger } from '../logging';
 
 interface ModuleFile {
   relativePath: string;
@@ -47,9 +47,7 @@ export function createAndroidModule(
   for (const dir of dirs) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
-      if (config.debug) {
-        log(`Created directory: ${dir}`);
-      }
+      Logger.logDebug(`Created directory: ${dir}`);
     }
   }
 
@@ -95,13 +93,13 @@ export function createAndroidModule(
       fs.readFileSync(filePath, 'utf8') !== file.content
     ) {
       fs.writeFileSync(filePath, file.content, 'utf8');
-      if (config.debug) {
-        log(`Created file: ${filePath}`);
-      }
+      Logger.logDebug(`Created file: ${filePath}`);
     }
   }
 
-  log(`Android module "${android.moduleName}" created at ${moduleDir}`);
+  Logger.logDebug(
+    `Android module "${android.moduleName}" created at ${moduleDir}`
+  );
 }
 
 /**
@@ -118,9 +116,7 @@ export const withAndroidModuleFiles: ConfigPlugin<
         'android'
       );
 
-      if (props.debug) {
-        log(`Creating Android module in: ${androidDir}`);
-      }
+      Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
       createAndroidModule(androidDir, props);
 

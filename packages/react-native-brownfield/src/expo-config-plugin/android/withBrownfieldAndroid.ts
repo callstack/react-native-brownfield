@@ -7,7 +7,7 @@ import {
 import { modifyRootBuildGradle, modifySettingsGradle } from './gradleHelpers';
 import { withAndroidModuleFiles } from './withAndroidModuleFiles';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../types';
-import { log } from '../logging';
+import { Logger } from '../logging';
 
 /**
  * Android Config Plugin for brownfield integration.
@@ -26,9 +26,7 @@ export const withBrownfieldAndroid: ConfigPlugin<
 
   // Step 1: Modify root build.gradle to add brownfield plugin dependency
   config = withProjectBuildGradle(config, (gradleConfig) => {
-    if (props.debug) {
-      log(`Modifying root build.gradle for brownfield plugin`);
-    }
+    Logger.logDebug(`Modifying root build.gradle for brownfield plugin`);
 
     gradleConfig.modResults.contents = modifyRootBuildGradle(
       gradleConfig.modResults.contents
@@ -39,11 +37,9 @@ export const withBrownfieldAndroid: ConfigPlugin<
 
   // Step 2: Modify settings.gradle to include the new module
   config = withSettingsGradle(config, (settingsConfig) => {
-    if (props.debug) {
-      log(
-        `Modifying settings.gradle to include module: ${androidConfig.moduleName}`
-      );
-    }
+    Logger.logDebug(
+      `Modifying settings.gradle to include module: ${androidConfig.moduleName}`
+    );
 
     settingsConfig.modResults.contents = modifySettingsGradle(
       settingsConfig.modResults.contents,

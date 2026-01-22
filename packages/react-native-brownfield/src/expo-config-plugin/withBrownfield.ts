@@ -13,7 +13,7 @@ import type {
   ResolvedBrownfieldPluginConfig,
 } from './types';
 
-import { log } from './logging';
+import { Logger } from './logging';
 
 /**
  * Resolves the plugin configuration using provided config and config defaults.
@@ -25,6 +25,8 @@ function resolveConfig(
   config: BrownfieldPluginConfig = {},
   expoConfig: ExpoConfig
 ): ResolvedBrownfieldPluginConfig {
+  Logger.setIsDebug(config.debug ?? false);
+
   const androidPackage = expoConfig.android?.package;
   const androidModuleName = config.android?.moduleName ?? 'brownfield';
 
@@ -90,10 +92,6 @@ const withBrownfield: ConfigPlugin<BrownfieldPluginConfig | void> = (
   props = {}
 ) => {
   const resolvedConfig = resolveConfig(props ?? {}, config);
-
-  if (resolvedConfig.debug) {
-    log('Resolved configuration:', JSON.stringify(resolvedConfig, null, 2));
-  }
 
   const plugins: (ConfigPlugin | StaticPlugin)[] = [];
 

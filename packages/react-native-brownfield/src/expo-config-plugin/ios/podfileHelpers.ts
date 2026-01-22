@@ -1,4 +1,5 @@
-import { log } from '../logging';
+import { SourceModificationError } from '../errors/SourceModificationError';
+import { Logger } from '../logging';
 
 /**
  * Modifies the Podfile to include the brownfield framework target
@@ -9,7 +10,7 @@ import { log } from '../logging';
 export function modifyPodfile(podfile: string, frameworkName: string): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
-    log(
+    Logger.logDebug(
       `Framework target "${frameworkName}" already in Podfile, skipping modification`
     );
     return podfile;
@@ -20,7 +21,7 @@ export function modifyPodfile(podfile: string, frameworkName: string): string {
   const match = podfile.match(targetRegex);
 
   if (!match) {
-    throw new Error(
+    throw new SourceModificationError(
       'Could not find main target in Podfile. Please manually add the framework target. Please raise a bug: https://github.com/callstack/react-native-brownfield/issues'
     );
   }
@@ -51,7 +52,7 @@ export function modifyPodfile(podfile: string, frameworkName: string): string {
       frameworkTargetBlock +
       podfile.slice(insertIndex);
 
-    log(`Added framework target "${frameworkName}" to Podfile`);
+    Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
     return modifiedPodfile;
   }
@@ -77,11 +78,13 @@ export function modifyPodfile(podfile: string, frameworkName: string): string {
 
   if (insertLineIndex !== -1) {
     lines.splice(insertLineIndex, 0, frameworkTargetBlock.trim());
-    log(`Added framework target "${frameworkName}" to Podfile (fallback)`);
+    Logger.logDebug(
+      `Added framework target "${frameworkName}" to Podfile (fallback)`
+    );
     return lines.join('\n');
   }
 
-  throw new Error(
+  throw new SourceModificationError(
     'Could not find insertion point in Podfile. Please manually add the framework target.'
   );
 }

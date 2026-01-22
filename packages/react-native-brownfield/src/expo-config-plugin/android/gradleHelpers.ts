@@ -2,7 +2,7 @@
  * Helper functions for modifying Gradle files
  */
 
-import { log } from '../logging';
+import { Logger } from '../logging';
 import type { ResolvedBrownfieldPluginAndroidConfig } from '../types';
 
 const BROWNFIELD_PLUGIN_VERSION = '0.6.3';
@@ -15,7 +15,9 @@ export function modifyRootBuildGradle(contents: string): string {
 
   // Check if already added
   if (contents.includes('brownfield-gradle-plugin')) {
-    log('Brownfield Gradle plugin already in root build.gradle, skipping');
+    Logger.logDebug(
+      'Brownfield Gradle plugin already in root build.gradle, skipping'
+    );
     return contents;
   }
 
@@ -32,7 +34,7 @@ export function modifyRootBuildGradle(contents: string): string {
       `$1${insertion}$2`
     );
 
-    log('Added brownfield Gradle plugin to root build.gradle');
+    Logger.logDebug('Added brownfield Gradle plugin to root build.gradle');
     return modifiedContents;
   }
 
@@ -50,7 +52,9 @@ buildscript {
 
 `;
 
-  log('Added buildscript block with brownfield plugin to root build.gradle');
+  Logger.logDebug(
+    'Added buildscript block with brownfield plugin to root build.gradle'
+  );
   return buildscriptBlock + contents;
 }
 
@@ -65,7 +69,9 @@ export function modifySettingsGradle(
 
   // Check if already included
   if (contents.includes(includeStatement)) {
-    log(`Module "${moduleName}" already in settings.gradle, skipping`);
+    Logger.logDebug(
+      `Module "${moduleName}" already in settings.gradle, skipping`
+    );
     return contents;
   }
 
@@ -74,7 +80,7 @@ export function modifySettingsGradle(
     contents +
     `\n// Brownfield module for AAR packaging - added by @callstack/react-native-brownfield\n${includeStatement}\n`;
 
-  log(`Added module "${moduleName}" to settings.gradle`);
+  Logger.logDebug(`Added module "${moduleName}" to settings.gradle`);
   return modifiedContents;
 }
 

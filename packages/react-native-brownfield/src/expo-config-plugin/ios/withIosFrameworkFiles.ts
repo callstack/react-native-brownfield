@@ -2,9 +2,9 @@ import { withDangerousMod, type ConfigPlugin } from '@expo/config-plugins';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { getFrameworkInterfaceContent } from './xcodeHelpers';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
-import { log } from '../logging';
+import { Logger } from '../logging';
+import { renderTemplate } from '../template/engine';
 
 interface FrameworkFile {
   relativePath: string;
@@ -13,58 +13,47 @@ interface FrameworkFile {
 
 /**
  * Creates the iOS framework directory structure and files
+ * @param iosDir The root iOS directory path
+ * @param config The resolved Brownfield plugin configuration
  */
 export function createIosFramework(
   iosDir: string,
   config: ResolvedBrownfieldPluginConfigWithIos
-): void {
+) {
   const { ios } = config;
   const frameworkDir = path.join(iosDir, ios.frameworkName);
 
-  // Create framework directory
+  // create framework directory
   if (!fs.existsSync(frameworkDir)) {
     fs.mkdirSync(frameworkDir, { recursive: true });
-    if (config.debug) {
-      log(`Created directory: ${frameworkDir}`);
-    }
+
+    Logger.logDebug(`Created directory: ${frameworkDir}`);
   }
 
-  // Generate framework files
+  // generate framework files
   const files: FrameworkFile[] = [
     {
       relativePath: `${ios.frameworkName}.swift`,
-      content: getFrameworkInterfaceContent(ios.frameworkName),
+      content: renderTemplate('ios', 'FrameworkInterface.swift', {}),
     },
     {
       relativePath: 'Info.plist',
-      content: getFrameworkInfoPlist(ios.bundleIdentifier),
+      content: renderTemplate('ios', 'Info.plist', {
+        '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
+      }),
     },
   ];
 
-  // Write files
+  // write files
   for (const file of files) {
     const filePath = path.join(frameworkDir, file.relativePath);
 
-    // Only write if file doesn't exist or content is different
-    if (
-      !fs.existsSync(filePath) ||
-      fs.readFileSync(filePath, 'utf8') !== file.content
-    ) {
-      fs.writeFileSync(filePath, file.content, 'utf8');
-      if (config.debug) {
-        log(`Created file: ${filePath}`);
-      }
-    }
+    fs.writeFileSync(filePath, file.content, 'utf8');
   }
 
-  log(`iOS framework "${ios.frameworkName}" files created at ${frameworkDir}`);
-}
-
-/**
- * Returns the Info.plist content for the framework
- */
-function getFrameworkInfoPlist(bundleIdentifier: string): string {
-  return;
+  Logger.logDebug(
+    `iOS framework "${ios.frameworkName}" files created at ${frameworkDir}`
+  );
 }
 
 /**
@@ -78,9 +67,7 @@ export const withIosFrameworkFiles: ConfigPlugin<
     async (dangerousConfig) => {
       const iosDir = path.join(dangerousConfig.modRequest.projectRoot, 'ios');
 
-      if (props.debug) {
-        log(`Creating iOS framework in: ${iosDir}`);
-      }
+      Logger.logDebug(`Creating iOS framework in: ${iosDir}`);
 
       createIosFramework(iosDir, props);
 
