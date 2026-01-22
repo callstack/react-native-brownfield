@@ -6,12 +6,12 @@ import {
 
 import { Command } from 'commander';
 
-import { getProjectInfo } from '../utils/index.js';
 import {
   actionRunner,
   curryOptions,
   ExampleUsage,
 } from '../../shared/index.js';
+import { getProjectInfo } from '../utils/project.js';
 
 export const publishAndroidCommand = curryOptions(
   new Command('publish:android').description(

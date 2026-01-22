@@ -17,7 +17,7 @@ import { Command } from 'commander';
 
 import { isBrownieInstalled } from '../../brownie/config.js';
 import { runCodegen } from '../../brownie/commands/codegen.js';
-import { getProjectInfo } from '../utils/index.js';
+import { getProjectInfo } from '../utils/project.js';
 import {
   actionRunner,
   curryOptions,
@@ -32,7 +32,7 @@ export const packageIosCommand = curryOptions(
           ...option,
           description:
             option.description +
-            " By default, the '<iOS project folder>/build' path will be used.",
+            " By default, the '.brownfield/build' path will be used.",
         }
       : option
   )

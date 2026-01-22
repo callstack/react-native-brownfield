@@ -5,21 +5,18 @@ import type {
   AndroidProjectConfig,
   IOSProjectConfig,
 } from '@react-native-community/cli-types';
-import cloneDeep from 'lodash.clonedeep';
 
+/**
+ * Helper function to mutate the user config paths in place to be relative to the project root
+ * @param projectRoot The path to the project root directory
+ * @param userConfig User configuration from the RNC CLI
+ */
 export function makeRelativeProjectConfigPaths<
   UserConfig extends AndroidProjectConfig | IOSProjectConfig | undefined,
->(projectRoot: string, userConfig: UserConfig): UserConfig {
-  const relativeConfig = cloneDeep(userConfig);
-
+>(projectRoot: string, userConfig: UserConfig) {
   if (userConfig?.sourceDir) {
-    relativeConfig!.sourceDir = path.relative(
-      projectRoot,
-      userConfig.sourceDir
-    );
+    userConfig.sourceDir = path.relative(projectRoot, userConfig.sourceDir);
   }
-
-  return relativeConfig;
 }
 
 /**

@@ -11,7 +11,7 @@ import {
   actionRunner,
   curryOptions,
 } from '../../shared/index.js';
-import { getProjectInfo } from '../utils/index.js';
+import { getProjectInfo } from '../utils/project.js';
 
 export const packageAndroidCommand = curryOptions(
   new Command('package:android').description('Build Android AAR'),
