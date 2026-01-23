@@ -26,7 +26,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
     let withoutLast = resourceURLComponents[..<(resourceURLComponents.count - 1)]
     let resourceName = withoutLast.joined()
     let fileExtension = resourceURLComponents.last ?? ""
-
+    
     return bundle.url(forResource: resourceName, withExtension: fileExtension)
 #endif
   }
