@@ -29,7 +29,7 @@ export function modifyRootBuildGradle(contents: string): string {
   }
 
   // insert before the closing brace of dependencies
-  const insertion = `\t${brownfieldGradlePluginDependency}\n`;
+  const insertion = `\t${brownfieldGradlePluginDependency}\n\t`;
   const modifiedContents = contents.replace(
     buildscriptDepsRegex,
     `$1${insertion}$2`
