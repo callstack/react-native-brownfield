@@ -44,7 +44,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "build": "bob build",
-    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\"",
+    "dev": "nodemon --ext '*' --watch src --exec \"bob build\"",
     "build:brownfield": "yarn run build"
   },
   "keywords": [
