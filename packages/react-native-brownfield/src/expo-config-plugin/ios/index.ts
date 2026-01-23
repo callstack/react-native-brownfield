@@ -3,8 +3,5 @@ export {
   withIosFrameworkFiles,
   createIosFramework,
 } from './withIosFrameworkFiles';
-export {
-  addFrameworkTarget,
-  getFrameworkInterfaceContent,
-} from './xcodeHelpers';
-export { modifyPodfile, getFrameworkPodfileTarget } from './podfileHelpers';
+export { addFrameworkTarget } from './xcodeHelpers';
+export { modifyPodfile } from './podfileHelpers';

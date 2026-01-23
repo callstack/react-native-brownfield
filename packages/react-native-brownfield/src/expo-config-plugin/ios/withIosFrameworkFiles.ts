@@ -11,6 +11,24 @@ interface FrameworkFile {
   content: string;
 }
 
+// generate framework files
+export function getFrameworkSourceFiles(
+  ios: ResolvedBrownfieldPluginConfigWithIos['ios']
+): FrameworkFile[] {
+  return [
+    {
+      relativePath: `${ios.frameworkName}.swift`,
+      content: renderTemplate('ios', 'FrameworkInterface.swift', {}),
+    },
+    {
+      relativePath: 'Info.plist',
+      content: renderTemplate('ios', 'Info.plist', {
+        '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
+      }),
+    },
+  ];
+}
+
 /**
  * Creates the iOS framework directory structure and files
  * @param iosDir The root iOS directory path
@@ -23,6 +41,15 @@ export function createIosFramework(
   const { ios } = config;
   const frameworkDir = path.join(iosDir, ios.frameworkName);
 
+  Logger.logDebug(`Creating iOS framework in: ${frameworkDir}`);
+
+  // delete framework directory if it exists
+  if (fs.existsSync(frameworkDir)) {
+    fs.rmSync(frameworkDir, { recursive: true, force: true });
+
+    Logger.logDebug(`Deleted existing directory: ${frameworkDir}`);
+  }
+
   // create framework directory
   if (!fs.existsSync(frameworkDir)) {
     fs.mkdirSync(frameworkDir, { recursive: true });
@@ -30,22 +57,8 @@ export function createIosFramework(
     Logger.logDebug(`Created directory: ${frameworkDir}`);
   }
 
-  // generate framework files
-  const files: FrameworkFile[] = [
-    {
-      relativePath: `${ios.frameworkName}.swift`,
-      content: renderTemplate('ios', 'FrameworkInterface.swift', {}),
-    },
-    {
-      relativePath: 'Info.plist',
-      content: renderTemplate('ios', 'Info.plist', {
-        '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
-      }),
-    },
-  ];
-
   // write files
-  for (const file of files) {
+  for (const file of getFrameworkSourceFiles(ios)) {
     const filePath = path.join(frameworkDir, file.relativePath);
 
     fs.writeFileSync(filePath, file.content, 'utf8');
@@ -66,8 +79,6 @@ export const withIosFrameworkFiles: ConfigPlugin<
     'ios',
     async (dangerousConfig) => {
       const iosDir = path.join(dangerousConfig.modRequest.projectRoot, 'ios');
-
-      Logger.logDebug(`Creating iOS framework in: ${iosDir}`);
 
       createIosFramework(iosDir, props);
 

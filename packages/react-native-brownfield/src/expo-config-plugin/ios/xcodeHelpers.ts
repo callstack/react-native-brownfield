@@ -1,11 +1,11 @@
-/**
- * Helper functions for modifying Xcode projects
- */
+import path from 'node:path';
 
-import type { XcodeProject } from '@expo/config-plugins';
+import type { ModProps, XcodeProject } from '@expo/config-plugins';
 import { Logger } from '../logging';
 import type { ResolvedBrownfieldPluginIosConfig } from '../types';
 import { SourceModificationError } from '../errors/SourceModificationError';
+import { getFrameworkSourceFiles } from './withIosFrameworkFiles';
+import { renderTemplate } from '../template/engine';
 
 /**
  * Adds a new Framework target to the Xcode project for brownfield packaging
@@ -15,8 +15,12 @@ import { SourceModificationError } from '../errors/SourceModificationError';
  */
 export function addFrameworkTarget(
   project: XcodeProject,
+  modRequest: ModProps<XcodeProject>,
   options: ResolvedBrownfieldPluginIosConfig
-): void {
+): {
+  frameworkTargetUUID: string;
+  newlyAdded: boolean;
+} {
   const { frameworkName, bundleIdentifier } = options;
 
   // check if target already exists
@@ -25,8 +29,14 @@ export function addFrameworkTarget(
     Logger.logDebug(
       `Framework target "${frameworkName}" already exists, skipping creation`
     );
-    return;
+
+    return {
+      frameworkTargetUUID: existingTarget.uuid,
+      newlyAdded: false,
+    };
   }
+
+  Logger.logDebug(`Adding iOS framework target: ${frameworkName}`);
 
   // create the framework target using 'framework' target type
   const frameworkTarget = project.addTarget(
@@ -103,17 +113,32 @@ export function addFrameworkTarget(
     project.updateBuildProperty(key, value, 'Release', frameworkName);
   });
 
-  // Copy the "Bundle React Native code and images" build phase from the main target to the framework target
-  copyBundleReactNativePhase(project, frameworkTarget.uuid);
-
   // create the framework group in the project
-  const frameworkGroup = project.addPbxGroup([], frameworkName, frameworkName);
+  const filePaths = getFrameworkSourceFiles(options).map(
+    (file) => file.relativePath
+  );
+  const groupPath = path.join(modRequest.platformProjectRoot, frameworkName);
+
+  Logger.logDebug(
+    `Creating PBX group '${frameworkName}' under path '${groupPath}' with files: ${filePaths.join(', ')}`
+  );
+
+  const frameworkGroup = project.addPbxGroup(
+    filePaths,
+    frameworkName,
+    groupPath
+  );
 
   // add the group to the main group using the proper API
   const mainGroupKey = project.getFirstProject().firstProject.mainGroup;
   project.addToPbxGroup(frameworkGroup.uuid, mainGroupKey);
 
   Logger.logInfo(`Successfully added framework target: ${frameworkName}`);
+
+  return {
+    frameworkTargetUUID: frameworkTarget.uuid,
+    newlyAdded: true,
+  };
 }
 
 /**
@@ -168,7 +193,7 @@ function getFrameworkBuildSettings(
  * @param project The Xcode project
  * @param targetUuid The UUID of the framework target
  */
-function copyBundleReactNativePhase(
+export function copyBundleReactNativePhase(
   project: XcodeProject,
   targetUuid: string
 ): void {
@@ -222,4 +247,22 @@ function copyBundleReactNativePhase(
       }
     }
   }
+}
+
+export function addExpoPre55ShellPatchScriptPhase(
+  project: XcodeProject,
+  frameworkTargetUUID: string
+) {
+  project.addBuildPhase(
+    [
+      // no associated files
+    ],
+    'PBXShellScriptBuildPhase',
+    'Patch ExpoModulesProvider',
+    frameworkTargetUUID,
+    {
+      shellPath: '/bin/sh',
+      shellScript: renderTemplate('ios', 'patchExpoPre55.sh'),
+    }
+  );
 }

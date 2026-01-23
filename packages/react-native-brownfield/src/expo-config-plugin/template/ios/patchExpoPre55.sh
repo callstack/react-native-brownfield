@@ -1,4 +1,5 @@
 # Patch by @hurali97, source: https://github.com/callstackincubator/rock/issues/492#issuecomment-3225109837
+# Applicable only to Expo SDK versions prior to 55, which made ExpoModulesProvider internal by default: https://github.com/expo/expo/pull/42317
 # Path to ExpoModulesProvider.swift
 FILE="${SRCROOT}/Pods/Target Support Files/Pods-expoapptest-RNEXFramework/ExpoModulesProvider.swift"
 
