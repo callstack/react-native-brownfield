@@ -31,13 +31,13 @@ export const withBrownfieldIos: ConfigPlugin<
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
 
-    const { frameworkTargetUUID, newlyAdded } = addFrameworkTarget(
+    const frameworkTargetUUIDIfAdded = addFrameworkTarget(
       project,
       modRequest,
       props.ios
     );
 
-    if (!newlyAdded) {
+    if (!frameworkTargetUUIDIfAdded) {
       Logger.logDebug(
         `Skipping further Xcode modifications as framework target was already present`
       );
@@ -46,7 +46,7 @@ export const withBrownfieldIos: ConfigPlugin<
     }
 
     // copy the "Bundle React Native code and images" build phase from the main target to the framework target
-    copyBundleReactNativePhase(project, frameworkTargetUUID);
+    copyBundleReactNativePhase(project, frameworkTargetUUIDIfAdded);
 
     // for Expo SDK versions < 55, add a script phase to patch ExpoModulesProvider.swift
     const major = config.sdkVersion
@@ -57,7 +57,7 @@ export const withBrownfieldIos: ConfigPlugin<
         `Adding ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
       );
 
-      addExpoPre55ShellPatchScriptPhase(project, frameworkTargetUUID);
+      addExpoPre55ShellPatchScriptPhase(project, frameworkTargetUUIDIfAdded);
     } else {
       Logger.logDebug(
         `Skipping ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`

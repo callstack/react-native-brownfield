@@ -17,23 +17,18 @@ export function addFrameworkTarget(
   project: XcodeProject,
   modRequest: ModProps<XcodeProject>,
   options: ResolvedBrownfieldPluginIosConfig
-): {
-  frameworkTargetUUID: string;
-  newlyAdded: boolean;
-} {
+): string | null {
   const { frameworkName, bundleIdentifier } = options;
 
   // check if target already exists
   const existingTarget = project.pbxTargetByName(frameworkName);
   if (existingTarget) {
     Logger.logDebug(
-      `Framework target "${frameworkName}" already exists, skipping creation`
+      `Framework target "${frameworkName}" already exists, skipping creation`,
+      existingTarget
     );
 
-    return {
-      frameworkTargetUUID: existingTarget.uuid,
-      newlyAdded: false,
-    };
+    return null;
   }
 
   Logger.logDebug(`Adding iOS framework target: ${frameworkName}`);
@@ -135,10 +130,7 @@ export function addFrameworkTarget(
 
   Logger.logInfo(`Successfully added framework target: ${frameworkName}`);
 
-  return {
-    frameworkTargetUUID: frameworkTarget.uuid,
-    newlyAdded: true,
-  };
+  return frameworkTarget.uuid;
 }
 
 /**
