@@ -15,8 +15,8 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   }
   
   public override func bundleURL() -> URL? {
-    if let provider = bundleURLOverride {
-      return provider()
+    if let bundleURLProvider = bundleURLOverride {
+      return bundleURLProvider()
     }
     
 #if DEBUG
