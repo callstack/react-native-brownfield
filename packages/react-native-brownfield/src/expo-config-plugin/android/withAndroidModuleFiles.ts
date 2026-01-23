@@ -13,10 +13,15 @@ import { renderTemplate } from '../template/engine';
 /**
  * Creates the Android library module directory structure and files
  */
-export function createAndroidModule(
-  androidDir: string,
-  config: ResolvedBrownfieldPluginConfigWithAndroid
-): void {
+export function createAndroidModule({
+  androidDir,
+  config,
+  rnVersion,
+}: {
+  androidDir: string;
+  rnVersion: string;
+  config: ResolvedBrownfieldPluginConfigWithAndroid;
+}): void {
   const { android } = config;
   const moduleDir = path.join(androidDir, android.moduleName);
 
@@ -33,6 +38,7 @@ export function createAndroidModule(
         '{{GROUP_ID}}': android.groupId,
         '{{ARTIFACT_ID}}': android.artifactId,
         '{{ARTIFACT_VERSION}}': android.version,
+        '{{RN_VERSION}}': rnVersion,
       }),
     },
     {
@@ -85,7 +91,24 @@ export const withAndroidModuleFiles: ConfigPlugin<
         'android'
       );
 
-      createAndroidModule(androidDir, props);
+      let rnVersion: string;
+      try {
+        const rnPkgPath = require.resolve('react-native/package.json', {
+          paths: [dangerousConfig.modRequest.projectRoot],
+        });
+
+        const rnPkg = require(rnPkgPath);
+
+        rnVersion = rnPkg.version;
+
+        Logger.logDebug(`Resolved react-native version: ${rnVersion}`);
+      } catch {
+        throw new Error(
+          'Could not resolve react-native package version. Please ensure you have installed dependencies.'
+        );
+      }
+
+      createAndroidModule({ androidDir, config: props, rnVersion });
 
       return dangerousConfig;
     },
