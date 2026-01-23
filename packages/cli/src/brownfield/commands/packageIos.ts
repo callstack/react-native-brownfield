@@ -48,13 +48,17 @@ export const packageIosCommand = curryOptions(
       throw new Error('iOS Xcode project not found in the configuration.');
     }
 
-    const brownieCacheDir = path.join(
+    const dotBrownfieldDir = path.join(
       userConfig.project.ios.sourceDir,
       '.brownfield'
     );
 
-    options.buildFolder ??= path.join(brownieCacheDir, 'build');
-    const packageDir = path.join(brownieCacheDir, 'package');
+    options.buildFolder ??= path.join(dotBrownfieldDir, 'build');
+    // The new_architecture.rb script scans Info.plist and fails on binary plist files,
+    // which is the case for our XCFrameworks.
+    // We're reusing the "build" directory which is excluded from the scan.
+    // Reference: https://github.com/facebook/react-native/blob/490c5e8dcc6cdb19c334cc39e93a39a48ba71e96/packages/react-native/scripts/cocoapods/new_architecture.rb#L171
+    const packageDir = path.join(dotBrownfieldDir, 'package', 'build');
     const configuration = options.configuration ?? 'Debug';
 
     const hasBrownie = isBrownieInstalled(projectRoot);
