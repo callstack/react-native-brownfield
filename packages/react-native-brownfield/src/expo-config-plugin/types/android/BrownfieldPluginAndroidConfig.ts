@@ -1,5 +1,5 @@
 /**
- * Android-specific configuration for brownfield config plugin
+ * Android-specific configuration for Brownfield config plugin
  */
 export interface BrownfieldPluginAndroidConfig {
   /**
@@ -31,12 +31,6 @@ export interface BrownfieldPluginAndroidConfig {
    * @default 35
    */
   compileSdkVersion?: number;
-
-  /**
-   * Whether to include the ReactNativeHostManager helper class
-   * @default true
-   */
-  includeHostManager?: boolean;
 
   /**
    * Group ID for Maven publishing

@@ -15,7 +15,7 @@ import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
 import { Logger } from '../logging';
 
 /**
- * iOS Config Plugin for brownfield integration.
+ * iOS Config Plugin for integration with @callstack/react-native-brownfield.
  *
  * This plugin:
  * 1. Creates a new Framework target in the Xcode project

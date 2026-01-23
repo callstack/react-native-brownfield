@@ -8,7 +8,7 @@ import type {
 } from './ios/BrownfieldPluginIosConfig';
 
 /**
- * Main configuration for the brownfield Expo config plugin
+ * Main configuration for the Brownfield Expo config plugin
  */
 export interface BrownfieldPluginConfig {
   /**
@@ -47,7 +47,7 @@ export interface ResolvedBrownfieldPluginConfig extends Required<
 }
 
 /**
- * Resolved brownfield configuration including Android config
+ * Resolved Brownfield configuration including Android config
  */
 export interface ResolvedBrownfieldPluginConfigWithAndroid extends ResolvedBrownfieldPluginConfig {
   /**
@@ -57,7 +57,7 @@ export interface ResolvedBrownfieldPluginConfigWithAndroid extends ResolvedBrown
 }
 
 /**
- * Resolved brownfield configuration including iOS config
+ * Resolved Brownfield configuration including iOS config
  */
 export interface ResolvedBrownfieldPluginConfigWithIos extends ResolvedBrownfieldPluginConfig {
   /**

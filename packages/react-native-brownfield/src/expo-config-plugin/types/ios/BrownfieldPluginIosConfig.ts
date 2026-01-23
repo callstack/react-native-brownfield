@@ -1,5 +1,5 @@
 /**
- * iOS-specific configuration for brownfield config plugin
+ * iOS-specific configuration for Brownfield config plugin
  */
 export interface BrownfieldPluginIosConfig {
   /**

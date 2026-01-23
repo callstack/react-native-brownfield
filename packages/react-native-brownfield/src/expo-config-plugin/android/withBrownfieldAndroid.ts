@@ -7,27 +7,23 @@ import {
 import { modifyRootBuildGradle, modifySettingsGradle } from './gradleHelpers';
 import { withAndroidModuleFiles } from './withAndroidModuleFiles';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../types';
-import { Logger } from '../logging';
 
 /**
- * Android Config Plugin for brownfield integration.
+ * Android Config Plugin for integration with @callstack/react-native-brownfield.
  *
  * This plugin:
- * 1. Creates a new Android Library module for the brownfield AAR
- * 2. Configures the brownfield Gradle plugin
- * 3. Sets up React Native dependencies
- * 4. Generates the ReactNativeHostManager helper class
- * 5. Configures Maven publishing for the AAR
+ * 1. Creates a new Android Library module for the Brownfield AAR
+ * 3. Modifies settings.gradle to include the new module
+ * 4. Modifies root build.gradle to add Brownfield Gradle plugin
+ * 5. Generates the ReactNativeHostManager class inside the module
  */
 export const withBrownfieldAndroid: ConfigPlugin<
   ResolvedBrownfieldPluginConfigWithAndroid
 > = (config, props) => {
   const androidConfig = props.android;
 
-  // Step 1: Modify root build.gradle to add brownfield plugin dependency
+  // Step 1: modify root build.gradle to add Brownfield Gradle plugin dependency
   config = withProjectBuildGradle(config, (gradleConfig) => {
-    Logger.logDebug(`Modifying root build.gradle for brownfield plugin`);
-
     gradleConfig.modResults.contents = modifyRootBuildGradle(
       gradleConfig.modResults.contents
     );
@@ -35,12 +31,8 @@ export const withBrownfieldAndroid: ConfigPlugin<
     return gradleConfig;
   });
 
-  // Step 2: Modify settings.gradle to include the new module
+  // Step 2: modify settings.gradle to include the new module
   config = withSettingsGradle(config, (settingsConfig) => {
-    Logger.logDebug(
-      `Modifying settings.gradle to include module: ${androidConfig.moduleName}`
-    );
-
     settingsConfig.modResults.contents = modifySettingsGradle(
       settingsConfig.modResults.contents,
       androidConfig.moduleName
@@ -49,22 +41,8 @@ export const withBrownfieldAndroid: ConfigPlugin<
     return settingsConfig;
   });
 
-  // Step 3: Create the Android module files using dangerous mod
+  // Step 3: create the Android module files using dangerous mod
   config = withAndroidModuleFiles(config, props);
 
   return config;
 };
-
-/**
- * Export helper functions for use in custom configurations
- */
-export {
-  getModuleBuildGradle,
-  modifyRootBuildGradle,
-  modifySettingsGradle,
-} from './gradleHelpers';
-
-export {
-  generateReactNativeHostManager,
-  getExpoHostManagerContent,
-} from './hostManagerGenerator';

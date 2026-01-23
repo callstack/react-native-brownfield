@@ -8,7 +8,7 @@ import { getFrameworkSourceFiles } from './withIosFrameworkFiles';
 import { renderTemplate } from '../template/engine';
 
 /**
- * Adds a new Framework target to the Xcode project for brownfield packaging
+ * Adds a new Framework target to the Xcode project for Brownfield packaging
  * @throws If target creation fails
  * @param project The Xcode project to modify
  * @param options Framework target options

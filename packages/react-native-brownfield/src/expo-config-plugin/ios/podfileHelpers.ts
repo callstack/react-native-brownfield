@@ -3,7 +3,7 @@ import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
 
 /**
- * Modifies the Podfile to include the brownfield framework target
+ * Modifies the Podfile to include the Brownfield framework target
  * @param podfile The original Podfile content
  * @param frameworkName The name of the framework target to add
  * @returns The modified Podfile content

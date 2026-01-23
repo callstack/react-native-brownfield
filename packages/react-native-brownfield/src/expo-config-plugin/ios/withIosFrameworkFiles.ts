@@ -1,20 +1,23 @@
-import { withDangerousMod, type ConfigPlugin } from '@expo/config-plugins';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
+import { withDangerousMod, type ConfigPlugin } from '@expo/config-plugins';
+
+import type {
+  RenderedTemplateFile,
+  ResolvedBrownfieldPluginConfigWithIos,
+} from '../types';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
 
-interface FrameworkFile {
-  relativePath: string;
-  content: string;
-}
-
-// generate framework files
+/**
+ * Returns rendered source files for the iOS framework
+ * @param ios The iOS Brownfield plugin configuration
+ * @returns The list of framework source files
+ */
 export function getFrameworkSourceFiles(
   ios: ResolvedBrownfieldPluginConfigWithIos['ios']
-): FrameworkFile[] {
+): RenderedTemplateFile[] {
   return [
     {
       relativePath: `${ios.frameworkName}.swift`,
@@ -41,14 +44,14 @@ export function createIosFramework(
   const { ios } = config;
   const frameworkDir = path.join(iosDir, ios.frameworkName);
 
-  Logger.logDebug(`Creating iOS framework in: ${frameworkDir}`);
-
-  // delete framework directory if it exists
+  // check if framework directory if it exists
   if (fs.existsSync(frameworkDir)) {
-    fs.rmSync(frameworkDir, { recursive: true, force: true });
+    Logger.logDebug(`Framework directory already exists: ${frameworkDir}`);
 
-    Logger.logDebug(`Deleted existing directory: ${frameworkDir}`);
+    return;
   }
+
+  Logger.logDebug(`Creating iOS framework in: ${frameworkDir}`);
 
   // create framework directory
   if (!fs.existsSync(frameworkDir)) {

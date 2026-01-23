@@ -49,7 +49,6 @@ function resolveConfig(
           minSdkVersion: config.android?.minSdkVersion ?? 24,
           targetSdkVersion: config.android?.targetSdkVersion ?? 35,
           compileSdkVersion: config.android?.compileSdkVersion ?? 35,
-          includeHostManager: config.android?.includeHostManager ?? true,
           groupId: config.android?.groupId ?? androidPackage,
           artifactId: config.android?.artifactId ?? androidModuleName,
           version: config.android?.version ?? '0.0.1-local',
