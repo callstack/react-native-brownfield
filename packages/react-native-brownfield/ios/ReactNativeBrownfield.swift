@@ -77,7 +77,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    */
   @objc public var bundleURLOverride: (() -> URL?)? = nil {
     didSet {
-      delegate.bundleURLProvider = bundleURL
+      delegate.bundleURLProvider = bundleURLOverride
     }
   }
   /**
