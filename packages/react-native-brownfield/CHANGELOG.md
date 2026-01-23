@@ -1,5 +1,12 @@
 # @callstack/react-native-brownfield
 
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`2347775`](https://github.com/callstack/react-native-brownfield/commit/23477753b16ee189b82c1aee3eac98a56c79f52a)]:
+  - @callstack/brownfield-cli@1.0.3
+
 ## 2.1.0
 
 ### Minor Changes

@@ -1,0 +1,66 @@
+{
+  "name": "brownfield",
+  "version": "1.0.3",
+  "license": "MIT",
+  "author": "Artur Morys-Magiera <artus9033@gmail.com>",
+  "bin": "dist/index.js",
+  "type": "module",
+  "contributors": [
+    "Artur Morys-Magiera <artus9033@gmail.com>",
+    "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
+  ],
+  "homepage": "https://oss.callstack.com/react-native-brownfield",
+  "repository": {
+    "url": "https://github.com/callstack/react-native-brownfield/packages/brownfield"
+  },
+  "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "echo 'No tests'"
+  },
+  "keywords": [
+    "react-native-brownfield",
+    "brownfield",
+    "native",
+    "react native integration",
+    "cli"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@callstack/brownfield-cli": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.8",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-node-import": "^1.0.5",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.7.4",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

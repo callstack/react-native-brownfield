@@ -46,19 +46,6 @@ React Native Brownfield is an open source project and will always remain free to
 
 Like the project? ⚛️ [Join the team](https://callstack.com/careers/?utm_campaign=Senior_RN&utm_source=github&utm_medium=readme) who does amazing stuff for clients and drives React Native Open Source! 🔥
 
-## Contributors
-
-Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
-| [<img src="https://avatars0.githubusercontent.com/u/7837457?s=460&v=4" width="100px;" alt="Michał Chudziak"/><br /><sub><b>Michał Chudziak</b></sub>](https://twitter.com/michalchudziak)<br />[💻](https://github.com/callstack/react-native-brownfield/commits?author=michalchudziak "Code") [📖](https://github.com/callstack/react-native-brownfield/commits?author=michalchudziak "Documentation") [🤔](#ideas-michalchudziak "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/16336501?s=400&v=4" width="100px;" alt="Piotr Drapich"/><br /><sub><b>Piotr Drapich</b></sub>](https://twitter.com/dratwas)<br />[💻](https://github.com/callstack/react-native-brownfield/commits?author=dratwas "Code") [🤔](#ideas-dratwas "Ideas, Planning, & Feedback") |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
-
 <!-- badges -->
 
 [build-badge]: https://img.shields.io/circleci/build/github/callstack/react-native-brownfield/master.svg?style=flat-square
@@ -72,7 +59,6 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 [prs-welcome]: http://makeapullrequest.com
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
 [coc]: https://github.com/callstack/react-native-brownfield/blob/master/CODE_OF_CONDUCT.md
-[all-contributors-badge]: https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square
 [chat-badge]: https://img.shields.io/discord/426714625279524876.svg?style=flat-square&colorB=758ED3
 [chat]: https://discord.gg/FdWTckBk
 [tweet-badge]: https://img.shields.io/badge/tweet-%23reactnativebrownfield-blue.svg?style=flat-square&colorB=1DA1F2&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAUCAYAAACXtf2DAAAAAXNSR0IArs4c6QAAAaRJREFUOBGtlM8rBGEYx3cWtRHJRaKcuMtBSitxkCQ3LtzkP9iUUu5ODspRHLhRLtq0FxeicEBC2cOivcge%2FMgan3fNM8bbzL4zm6c%2BPT%2Fe7%2FO8887svrFYBWbbtgWzsAt3sAcpqJFxxF1QV8oJFqFPFst5dLWQAT87oTgPB7DtziFRT1EA4yZolsFkhwjGYFRO8Op0KD8HVe7unoB6PRTBZG8IctAmG1xrHcfkQ2B55sfI%2ByGMXSBqV71xZ8CWdxBxN6ThFuECDEAL%2Bc9HIzDYumVZ966GZnX0SzCZvEqTbkaGywkyFE6hKAsBPhFQ18uPUqh2ggJ%2BUor%2F4M%2F%2FzOC8g6YzR1i%2F8g4vvSI%2ByD7FFNjexQrjHd8%2BnjABI3AU4Wl16TuF1qANGll81jsi5qu%2Bw6XIsCn4ijhU5FmCJpkV6BGNw410hfSf6JKBQ%2FUFxHGYBnWnmOwDwYQ%2BwzdHqO75HtiAMJfaC7ph32FSRJCENUhDHsLaJkL%2FX4wMF4%2BwA5bgAcrZE4sr0Cu9Jq9fxyrvBHWbNkMD5CEHWTjjT2m6r5D92jfmbbKJEWuMMAAAAABJRU5ErkJggg%3D%3D
