@@ -9,6 +9,19 @@ plugins {
     id("com.facebook.react")
 }
 
+/**
+* This function is used in the places where we:
+*
+* Remove the `expo` dependency from the `module.json` and `pom.xml file. Otherwise, the
+* gradle will try to resolve this and will throw an error, since this dependency won't
+* be available from a remote repository.
+*
+* Your AAR does not need this dependency.
+*/
+fun isExpoArtifact(group: String, artifactId: String): Boolean {
+    return group == "host.exp.exponent" && artifactId == "expo"
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenAar") {
@@ -30,7 +43,12 @@ publishing {
                         (asNode().get("dependencies") as groovy.util.NodeList).first() as groovy.util.Node
                     dependenciesNode.children()
                         .filterIsInstance<groovy.util.Node>()
-                        .filter { (it.get("groupId") as groovy.util.NodeList).text() == rootProject.name }
+                        .filter {
+                            val artifactId = (it["artifactId"] as groovy.util.NodeList).text()
+                            val group = (it["groupId"] as groovy.util.NodeList).text()
+
+                            (isExpoArtifact(group, artifactId) || group == rootProject.name)
+                        }
                         .forEach { dependenciesNode.remove(it) }
                 }
             }
@@ -54,7 +72,12 @@ tasks.register("removeDependenciesFromModuleFile") {
         file("$moduleBuildDir/publications/mavenAar/module.json").run {
             val json = inputStream().use { JsonSlurper().parse(it) as Map<String, Any> }
             (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll { it["group"] == rootProject.name }
+                (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
+                    val module = it["module"] as String
+                    val group = it["group"] as String
+
+                    (isExpoArtifact(group, module) || group == rootProject.name)
+                }
             }
             writer().use { it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json))) }
         }
@@ -121,6 +144,6 @@ android {
 }
 
 dependencies {
-    api("com.facebook.react:react-android")
-    api("com.facebook.react:hermes-android")
+    api("com.facebook.react:react-android:{{RN_VERSION}}")
+    api("com.facebook.react:hermes-android:{{RN_VERSION}}")
 }
