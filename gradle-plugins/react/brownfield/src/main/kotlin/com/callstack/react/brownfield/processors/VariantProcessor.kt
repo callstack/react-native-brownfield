@@ -59,12 +59,8 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             prepareTask.dependsOn(":app:createBundle${capitalizedVariantName}JsAndAssets")
         }
 
-//        val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
-
         if (aarLibraries.isEmpty()) return
 
-//        variantTaskProvider.processManifestTask(aarLibraries)
-//        variantHelper.processResources(aarLibraries)
 //        variantHelper.processAssets(aarLibraries)
 //        jniLibsProcessor.processJniLibs(aarLibraries, variant)
 //        proguardProcessor.processConsumerFiles(aarLibraries)

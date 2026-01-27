@@ -8,6 +8,7 @@ import com.android.manifmerger.ManifestProvider
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
+import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
@@ -118,20 +119,20 @@ constructor(
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
             val processManifestTask = variant.outputs.first().processManifestProvider.get()
 
+            val artifacts = readArtifacts(processArtifactsTask.get().artifactOutput.get().asFile)
+            val filteredArtifacts = artifacts.filter { it.bundleTaskName?.contains(capitalizedVariantName) == true }
+            val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
+            filteredArtifacts.forEach { art ->
+                val archiveLibrary =
+                    AndroidArchiveLibrary(
+                        this.project,
+                        art,
+                        variant.name,
+                    )
+                aarLibraries.add(archiveLibrary)
+            }
+
             processManifestTask.doLast {
-                val artifacts = readArtifacts(processArtifactsTask.get().artifactOutput.get().asFile)
-                val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
-                artifacts.forEach { art ->
-                    val archiveLibrary =
-                        AndroidArchiveLibrary(
-                            this.project,
-                            art,
-                            variant.name,
-                        )
-
-                    aarLibraries.add(archiveLibrary)
-                }
-
                 // manifest-merger
                 val buildDir = project.layout.buildDirectory.get()
                 val manifestOutput =
@@ -141,6 +142,42 @@ constructor(
 
                 val inputManifests = aarLibraries.map { it.getManifestFile() }
                 manifestMerger(manifestOutput, inputManifests, manifestOutput)
+            }
+
+            /** =======  GENERATE RESOURCES =========*/
+
+            /**
+             * See if we can move this block to configure phase of prebuild or resourceGenTask
+             *
+             * Tried adding to resourceGenTask configure, doFirst and doLast. PreBuild doFirst and doLast
+             * but it does not take effect. Adding to preBuild.configure, works.
+             */
+            val taskPath = "generate${capitalizedVariantName}Resources"
+            val resourceGenTask = project.tasks.named(taskPath)
+
+            if (!resourceGenTask.isPresent) {
+                throw TaskNotFound("Task $taskPath not found")
+            }
+
+            aarLibraries.forEach {
+                variant.registerGeneratedResFolders(
+                    project.files(it.getResDir()),
+                )
+            }
+
+            /** =======  GENERATE ASSETS ========= */
+            val assetsTask = variant.mergeAssetsProvider.get()
+
+            val androidExtension = project.extensions.getByName("android") as LibraryExtension
+            assetsTask.doFirst {
+                val filteredSourceSets = androidExtension.sourceSets.filter { it.name == variant.name }
+
+                filteredSourceSets.forEach { sourceSet ->
+                    val filteredAarLibs = aarLibraries.filter { it.getAssetsDir().exists() }
+                    filteredAarLibs.forEach {
+                        sourceSet.assets.srcDir(it.getAssetsDir())
+                    }
+                }
             }
         }
 
