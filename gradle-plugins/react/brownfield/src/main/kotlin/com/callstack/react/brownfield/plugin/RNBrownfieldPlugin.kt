@@ -10,6 +10,7 @@ import com.android.utils.ILogger
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.processors.JNILibsProcessor
+import com.callstack.react.brownfield.processors.ProguardProcessor
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
@@ -118,6 +119,9 @@ constructor(
         val jniLibsProcessor = JNILibsProcessor()
         jniLibsProcessor.project = project
 
+        val proguardProcessor = ProguardProcessor()
+        proguardProcessor.project = project
+
         // process manifest & merger task
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
@@ -185,6 +189,10 @@ constructor(
             }
 
             jniLibsProcessor.processJniLibs(aarLibraries, variant)
+            val proguardRules = aarLibraries.map { it.getProguardRules() }
+
+            proguardProcessor.processConsumerFiles(proguardRules, capitalizedVariantName)
+            proguardProcessor.processGeneratedFiles(proguardRules, capitalizedVariantName)
         }
 
         project.tasks.register("general", ExplodeAarTask::class.java) { task ->

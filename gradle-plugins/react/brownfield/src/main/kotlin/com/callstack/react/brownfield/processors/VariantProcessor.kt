@@ -23,7 +23,6 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
     private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
     private val variantHelper = VariantHelper(variant)
     private val variantTaskProvider = VariantTaskProvider(variantHelper)
-    private val proguardProcessor = ProguardProcessor(variant)
     private val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
     private lateinit var aarLibrariesProperty: ListProperty<AndroidArchiveLibrary>
     private val jarFiles = mutableListOf<File>()
@@ -31,7 +30,6 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
     private fun setup() {
         variantHelper.project = project
         variantTaskProvider.project = project
-        proguardProcessor.project = project
         aarLibrariesProperty = project.objects.listProperty(AndroidArchiveLibrary::class.java)
         VariantPackagesProperty.getVariantPackagesProperty().put(variant.name, aarLibrariesProperty)
     }
@@ -51,8 +49,6 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
 
         if (aarLibraries.isEmpty()) return
 
-//        proguardProcessor.processConsumerFiles(aarLibraries)
-//        proguardProcessor.processGeneratedFiles(aarLibraries)
 //        variantTaskProvider.processDataBinding(bundleTask, aarLibraries)
 //        variantTaskProvider.processDeepLinkTasks()
     }

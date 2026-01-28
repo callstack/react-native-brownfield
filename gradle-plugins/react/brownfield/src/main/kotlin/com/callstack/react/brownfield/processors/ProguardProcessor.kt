@@ -21,11 +21,10 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
-    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
-
+class ProguardProcessor : BaseProject() {
     fun processConsumerFiles(
-        aarLibs: Collection<AndroidArchiveLibrary>,
+        proguardRules: List<File>,
+        capitalizedVariantName: String
     ) {
         val mergeTaskName = "merge${capitalizedVariantName}ConsumerProguardFiles"
         val mergeFileTask = project.tasks.named(mergeTaskName)
@@ -36,25 +35,24 @@ class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
 
         mergeFileTask.configure { task ->
             task.doLast {
-                val files = aarLibs.map { aarLib -> aarLib.getProguardRules() }
                 val outputFile = it.outputs.files.singleFile
-                doLast(files, outputFile)
+                doLast(proguardRules, outputFile)
             }
         }
     }
 
     fun processGeneratedFiles(
-        aarLibs: Collection<AndroidArchiveLibrary>,
+        proguardRules: List<File>,
+        capitalizedVariantName: String
     ) {
         val mergeGenerateProguardTask: TaskProvider<*>?
         val mergeName = "merge${capitalizedVariantName}GeneratedProguardFiles"
         mergeGenerateProguardTask = project.tasks.named(mergeName)
 
-        mergeGenerateProguardTask?.configure { task ->
+        mergeGenerateProguardTask.configure { task ->
             task.doLast {
-                val files = aarLibs.map { it.getProguardRules() }
                 val outputFile = it.outputs.files.singleFile
-                doLast(files, outputFile)
+                doLast(proguardRules, outputFile)
             }
         }
     }
