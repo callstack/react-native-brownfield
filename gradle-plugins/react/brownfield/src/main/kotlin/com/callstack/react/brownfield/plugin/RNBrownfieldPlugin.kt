@@ -9,6 +9,7 @@ import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.exceptions.TaskNotFound
+import com.callstack.react.brownfield.processors.JNILibsProcessor
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
@@ -114,6 +115,9 @@ constructor(
             task.inputArtifactListFile.set(processArtifactsTask.get().artifactOutput)
         }
 
+        val jniLibsProcessor = JNILibsProcessor()
+        jniLibsProcessor.project = project
+
         // process manifest & merger task
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
@@ -179,6 +183,8 @@ constructor(
                     }
                 }
             }
+
+            jniLibsProcessor.processJniLibs(aarLibraries, variant)
         }
 
         project.tasks.register("general", ExplodeAarTask::class.java) { task ->

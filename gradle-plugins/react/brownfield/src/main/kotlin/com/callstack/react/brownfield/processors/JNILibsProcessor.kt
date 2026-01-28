@@ -17,7 +17,6 @@ import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
-import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
@@ -39,8 +38,6 @@ class JNILibsProcessor : BaseProject() {
         val copyTask = copySoLibsTask(variant)
 
         mergeJniLibsTask.configure {
-            println("\n=== $taskName configured\n")
-
             it.dependsOn(copyTask)
 
             it.doFirst {
@@ -57,10 +54,6 @@ class JNILibsProcessor : BaseProject() {
                         filteredSourceSets.forEach { sourceSet -> sourceSet.jniLibs.srcDir(jniDir) }
                     }
                 }
-            }
-
-            it.doLast {
-                println("\n==== mergeJniLibsTask doLast ====\n")
             }
         }
     }
@@ -85,21 +78,14 @@ class JNILibsProcessor : BaseProject() {
             project.rootProject
                 .file("${project.name}/libs$capitalizedVariant")
 
-        println("==== IN copy so lib task")
 
         return project.tasks.register("copy${capitalizedVariant}LibSources", Copy::class.java) {
-            println("\n=== copy${capitalizedVariant}LibSource configured\n")
-
             it.dependsOn(stripTask, codegenTask)
             it.from(fromDir)
             it.into(intoDir)
 
             it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
             projectExt.dynamicLibs.forEach { lib -> it.include("**/$lib") }
-
-            it.doLast {
-                println("\n==== copy${capitalizedVariant}LibSource doLast ====\n")
-            }
         }
     }
 
