@@ -10,12 +10,10 @@
 
 package com.callstack.react.brownfield.artifacts
 
-import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_NAME
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_SUFFIX
-import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.processors.VariantProcessor
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
@@ -25,12 +23,10 @@ import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ArtifactCollection
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
-import org.gradle.api.attributes.Attribute
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import org.gradle.internal.component.local.model.PublishArtifactLocalArtifactMetadata
 import kotlin.collections.mutableListOf
@@ -42,11 +38,6 @@ class ArtifactsResolver(
     private val extension: Extension,
 ) :
     GradleProps() {
-    companion object {
-        const val ARTIFACT_TYPE_AAR = "aar"
-        const val ARTIFACT_TYPE_JAR = "jar"
-    }
-
     fun processDefaultDependencies() {
         embedDefaultDependencies("implementation")
     }
@@ -140,30 +131,11 @@ class ArtifactsResolver(
             configuration.name == variant.name + CONFIG_SUFFIX
     }
 
-    private fun resolveArtifacts(configuration: Configuration): ArtifactCollection {
-        println("\n==== Resolving Artifacts ${configuration.name} =======\n")
-
-        // Prepare a view of the configuration that can resolve the correct variant
-        val componentArtifacts = configuration.incoming.artifactView { view ->
-            view.attributes {
-                // Do we always have to have AAR? or JAR in some cases?
-                it.attributes.attribute(Attribute.of("artifactType", String::class.java), "aar")
-//                it.attributes.attribute(Attribute.of("artifactType", String::class.java), "jar")
-            }
-        }.artifacts
-
-        return componentArtifacts
-    }
-
     private fun handleUnResolvedArtifacts(
         configuration: Configuration,
         variant: LibraryVariant,
     ): List<UnresolvedArtifactInfo> {
         val unMatchedArtifacts = mutableListOf<UnresolvedArtifactInfo>()
-//        val firstLevelIds =
-//            artifacts
-//                .map { it.id.componentIdentifier.displayName }
-//                .toSet()
         val firstLevelIds = setOf<String>()
 
         val resolutionResult = configuration.incoming.resolutionResult
@@ -184,7 +156,6 @@ class ArtifactsResolver(
                     }
                     is ProjectComponentIdentifier -> {
                         val depProj = baseProject.project.project(id.projectPath)
-//                        println("===----- project ${id.projectName} ${id.displayName} -- path ${baseProject.project.file(id.projectName).absolutePath}")
                         if (id.displayName !in firstLevelIds) {
                             unMatchedArtifacts.add(UnresolvedArtifactInfo(
                                 depProj.group.toString(),
@@ -200,8 +171,6 @@ class ArtifactsResolver(
             }
         }
 
-        val variantHelper = VariantHelper(variant)
-        variantHelper.project = baseProject.project
         val variantTaskProvider = VariantTaskProvider()
         variantTaskProvider.project = baseProject.project
         val flavorArtifact = FlavorArtifact(variant, configuration)
@@ -216,7 +185,6 @@ class ArtifactsResolver(
 
             val resolvedArtifact =
                 flavorArtifact.createFlavorArtifact(
-                    artifact,
                     fileResolver,
                     taskDependencyFactory,
                     bundleProvider,
@@ -233,8 +201,6 @@ class ArtifactsResolver(
                         deps.map { it.path }.toSet(),
                         bundleProvider?.name,
                     ))
-
-//                    println("\n=== resolved artttt ${resolvedArtifact.file.absolutePath} -- ${deps.first().name}\n")
                 }
             }
         }

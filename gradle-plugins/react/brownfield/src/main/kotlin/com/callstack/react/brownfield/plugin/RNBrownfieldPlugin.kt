@@ -29,7 +29,6 @@ import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.tasks.TaskDependencyFactory
-import org.gradle.internal.model.CalculatedValueContainerFactory
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
@@ -39,7 +38,6 @@ import javax.inject.Inject
 class RNBrownfieldPlugin
 @Inject
 constructor(
-    private val calculatedValueContainerFactory: CalculatedValueContainerFactory,
     private val taskDependencyFactory: TaskDependencyFactory,
     private val fileResolver: FileResolver,
 ) : Plugin<Project> {
@@ -53,8 +51,6 @@ constructor(
     override fun apply(project: Project) {
         verifyAndroidPluginApplied(project)
         initializers(project)
-
-        println("=== Applying $PROJECT_ID ===")
 
         this.project = project
         // Configure
@@ -71,7 +67,6 @@ constructor(
         DirectoryManager.project = project
         artifactsResolver =
             ArtifactsResolver(projectConfigurations.getConfigurations(), baseProject, extension)
-        artifactsResolver.calculatedValueContainerFactory = calculatedValueContainerFactory
         artifactsResolver.taskDependencyFactory = taskDependencyFactory
         artifactsResolver.fileResolver = fileResolver
 

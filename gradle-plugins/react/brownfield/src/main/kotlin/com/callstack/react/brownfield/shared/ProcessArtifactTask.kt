@@ -19,7 +19,6 @@ abstract class ProcessArtifactsTask: DefaultTask() {
 
     @TaskAction
     fun run() {
-        println("=== ProcessArtifactsTask ===")
         val artifacts = artifactsResolver.get().processArtifacts()
         val metaList = mutableListOf<String>()
         artifacts.forEach {
