@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 1.0.4
+
+### Patch Changes
+
+- [#216](https://github.com/callstack/react-native-brownfield/pull/216) [`8ce3ea1`](https://github.com/callstack/react-native-brownfield/commit/8ce3ea10e0719adac7396dea8f171753e901b31d) Thanks [@thymikee](https://github.com/thymikee)! - chore: remove release-it
+
 ## 1.0.3
 
 ### Patch Changes
