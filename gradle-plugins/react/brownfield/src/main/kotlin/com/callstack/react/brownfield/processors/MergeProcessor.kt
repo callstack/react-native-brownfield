@@ -52,29 +52,4 @@ object MergeProcessor {
     private fun getFilteredAarLibs(androidLibraries: Collection<AndroidArchiveLibrary>): Collection<AndroidArchiveLibrary> {
         return androidLibraries.filter { it.getExplodedAarRootDir().exists() }
     }
-
-    fun mergeLibsIntoLibs(
-        project: Project,
-        androidLibraries: Collection<AndroidArchiveLibrary>,
-        jarFiles: Collection<File>,
-        folderOut: File,
-    ) {
-        val filteredLibs = getFilteredAarLibs(androidLibraries)
-        filteredLibs.forEach { aarLib ->
-            if (!aarLib.getLocalJars().isEmpty()) {
-                project.copy {
-                    it.from(aarLib.getLocalJars())
-                    it.into(folderOut)
-                }
-            }
-        }
-
-        val filteredJarFiles = jarFiles.filter { it.exists() }
-        filteredJarFiles.forEach { jarFile ->
-            project.copy {
-                it.from(jarFile)
-                it.into(folderOut)
-            }
-        }
-    }
 }

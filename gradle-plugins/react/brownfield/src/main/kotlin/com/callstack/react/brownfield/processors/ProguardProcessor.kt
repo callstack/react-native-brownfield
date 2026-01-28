@@ -10,13 +10,10 @@
 
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
-import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Utils
-import org.gradle.api.Task
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
