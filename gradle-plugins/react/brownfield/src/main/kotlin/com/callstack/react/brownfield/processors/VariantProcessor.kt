@@ -14,28 +14,10 @@ import com.android.build.gradle.api.LibraryVariant
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
-import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
-import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
-import org.gradle.api.provider.ListProperty
-import java.io.File
 
-class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
-    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
-    private val variantHelper = VariantHelper(variant)
-    private val variantTaskProvider = VariantTaskProvider(variantHelper)
-    private val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
-    private lateinit var aarLibrariesProperty: ListProperty<AndroidArchiveLibrary>
-    private val jarFiles = mutableListOf<File>()
-
-    private fun setup() {
-        variantHelper.project = project
-        variantTaskProvider.project = project
-        aarLibrariesProperty = project.objects.listProperty(AndroidArchiveLibrary::class.java)
-        VariantPackagesProperty.getVariantPackagesProperty().put(variant.name, aarLibrariesProperty)
-    }
-
-    fun processVariant(artifacts: List<UnresolvedArtifactInfo>) {
-        setup()
+class VariantProcessor : BaseProject() {
+    fun processVariant(variant: LibraryVariant) {
+        val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
         val preBuildTaskPath = "pre${capitalizedVariantName}Build"
         val prepareTask = project.tasks.named(preBuildTaskPath)
 
@@ -46,10 +28,5 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
         if (capitalizedVariantName.contains("Release")) {
             prepareTask.dependsOn(":app:createBundle${capitalizedVariantName}JsAndAssets")
         }
-
-        if (aarLibraries.isEmpty()) return
-
-//        variantTaskProvider.processDataBinding(bundleTask, aarLibraries)
-//        variantTaskProvider.processDeepLinkTasks()
     }
 }

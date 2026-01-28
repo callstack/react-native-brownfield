@@ -1,26 +1,19 @@
 package com.callstack.react.brownfield.utils
 
 import com.android.build.gradle.LibraryExtension
-import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ResolvedArtifact
 import java.io.File
-import java.io.FileNotFoundException
-import javax.xml.parsers.DocumentBuilderFactory
 
 class AndroidArchiveLibrary(
     private val project: Project,
     artifact: UnresolvedArtifactInfo,
     private val variantName: String,
 ) {
-    private var packageName: String? = null
     private val artifact: UnresolvedArtifactInfo =
         requireNotNull(artifact.takeIf { it.type == "aar" }) {
             "Only Aar is accepted as an artifact"
         }
-
-    private fun getArtifactName() = artifact.moduleName
 
     fun getExplodedAarRootDir(): File {
         val explodedRootDir = File("${project.layout.buildDirectory.get()}/intermediates/exploded-aar")

@@ -11,7 +11,9 @@ import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.processors.JNILibsProcessor
 import com.callstack.react.brownfield.processors.ProguardProcessor
+import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
+import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.ExplodeAarTask
@@ -122,6 +124,9 @@ constructor(
         val proguardProcessor = ProguardProcessor()
         proguardProcessor.project = project
 
+        val variantTaskProvider = VariantTaskProvider()
+        variantTaskProvider.project = project
+
         // process manifest & merger task
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
@@ -193,6 +198,10 @@ constructor(
 
             proguardProcessor.processConsumerFiles(proguardRules, capitalizedVariantName)
             proguardProcessor.processGeneratedFiles(proguardRules, capitalizedVariantName)
+
+            /** ===== processDataBinding ===== */
+            val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
+            variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant)
         }
 
         project.tasks.register("general", ExplodeAarTask::class.java) { task ->

@@ -113,21 +113,18 @@ class ArtifactsResolver(
         // store the artifacts which can be variant aware including flavors
         val artifacts = mutableSetOf<UnresolvedArtifactInfo>()
         baseProject.project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val artifacts1 = mutableListOf<UnresolvedArtifactInfo>()
 
             configurations.forEach { configuration ->
                 if (isEmbedConfig(configuration, variant)) {
-//                    val resolvedArtifacts = resolveArtifacts(configuration)
                     val res = handleUnResolvedArtifacts(configuration, variant)
                     artifacts.addAll(res)
-                    artifacts1.addAll(res)
                 }
             }
 
             if (artifacts.isNotEmpty()) {
-                val processor = VariantProcessor(variant)
+                val processor = VariantProcessor()
                 processor.project = baseProject.project
-                processor.processVariant(artifacts1)
+                processor.processVariant(variant)
             }
         }
 
@@ -205,7 +202,7 @@ class ArtifactsResolver(
 
         val variantHelper = VariantHelper(variant)
         variantHelper.project = baseProject.project
-        val variantTaskProvider = VariantTaskProvider(variantHelper)
+        val variantTaskProvider = VariantTaskProvider()
         variantTaskProvider.project = baseProject.project
         val flavorArtifact = FlavorArtifact(variant, configuration)
         flavorArtifact.project = baseProject.project
