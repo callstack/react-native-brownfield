@@ -30,10 +30,11 @@ A singleton that keeps an instance of `ReactNativeBrownfield` object.
 
 | Property           | Type       | Default         | Description                                               |
 | ------------------ | ---------- | --------------- | --------------------------------------------------------- |
-| `entryFile`        | `NSString` | `index`         | Path to JavaScript root.                                  |
+| `entryFile`        | `NSString` | `index`         | Path to JavaScript entry file in development.                                  |
 | `fallbackResource` | `NSString` | `nil`           | Path to bundle fallback resource.                         |
-| `bundlePath`       | `NSString` | `main.jsbundle` | Path to bundle fallback resource.                         |
+| `bundlePath`       | `NSString` | `main.jsbundle` | Path to JavaScript bundle file.                         |
 | `bundle`           | `NSBundle` | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource. |
+| `bundleURLOverride` | `NSURL * _Nullable (^)(void)`    | `nil`           | Dynamic bundle URL provider called on every bundle load. When set, overrides default behavior. |
 
 ---
 
