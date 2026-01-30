@@ -17,6 +17,7 @@ import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
@@ -28,7 +29,7 @@ class JNILibsProcessor : BaseProject() {
         explodeTasks: MutableList<Task>,
         variant: LibraryVariant,
     ) {
-        val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+        val capitalizedVariantName = variant.name.capitalized()
         val taskName = "merge${capitalizedVariantName}JniLibFolders"
         val mergeJniLibsTask = project.tasks.named(taskName)
 
@@ -56,8 +57,13 @@ class JNILibsProcessor : BaseProject() {
                         copyStrippedSoLibs(variant, existingJNILibs)
                     } else {
                         if (jniDir.exists()) {
-                            val filteredSourceSets = androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variant.name }
-                            filteredSourceSets.forEach { sourceSet -> sourceSet.jniLibs.srcDir(jniDir) }
+                            val filteredSourceSets =
+                                androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variant.name }
+                            filteredSourceSets.forEach { sourceSet ->
+                                sourceSet.jniLibs.srcDir(
+                                    jniDir
+                                )
+                            }
                         }
                     }
                 }
@@ -71,7 +77,7 @@ class JNILibsProcessor : BaseProject() {
         val appBuildDir = appProject.layout.buildDirectory.get()
 
         val variantName = variant.name
-        val capitalizedVariant = variantName.replaceFirstChar(Char::titlecase)
+        val capitalizedVariant = variantName.capitalized()
 
         val fromDir =
             appBuildDir
@@ -84,7 +90,7 @@ class JNILibsProcessor : BaseProject() {
     }
 
     private fun copySoLibsTask(variant: LibraryVariant): TaskProvider<Copy> {
-        val capitalizedVariant = variant.name.replaceFirstChar(Char::titlecase)
+        val capitalizedVariant = variant.name.capitalized()
         val projectExt = project.extensions.getByType(Extension::class.java)
         val appProject = project.rootProject.project(projectExt.appProjectName)
 

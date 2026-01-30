@@ -2,6 +2,7 @@ package com.callstack.react.brownfield.plugin
 
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.shared.Logging
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
@@ -53,7 +54,7 @@ class ProjectConfigurations(private val project: Project) {
             createConfiguration(getConfigName(flavor.name))
 
             androidExtension.buildTypes.all { buildType ->
-                val variantName = "${flavor.name}${buildType.name.replaceFirstChar(Char::titlecase)}"
+                val variantName = "${flavor.name}${buildType.name.capitalized()}"
                 createConfiguration(getConfigName(variantName))
             }
         }

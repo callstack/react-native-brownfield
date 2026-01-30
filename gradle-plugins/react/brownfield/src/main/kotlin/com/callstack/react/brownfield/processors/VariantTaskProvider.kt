@@ -6,6 +6,7 @@ import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Utils
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
@@ -15,7 +16,7 @@ import java.io.File
 
 class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProject() {
     private val variant = variantHelper.getVariant()
-    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.capitalized()
 
     fun classesMergeTask(
         aarLibraries: Collection<AndroidArchiveLibrary>,
@@ -33,10 +34,12 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
 
             it.dependsOn(project.tasks.named(kotlinCompileTaskName))
 
-            it.inputs.files(variantHelper.getClassesJarFiles(aarLibraries)).withPathSensitivity(PathSensitivity.RELATIVE)
+            it.inputs.files(variantHelper.getClassesJarFiles(aarLibraries))
+                .withPathSensitivity(PathSensitivity.RELATIVE)
 
             if (variant.buildType.isMinifyEnabled) {
-                it.inputs.files(variantHelper.getLocalJarFiles(aarLibraries)).withPathSensitivity(PathSensitivity.RELATIVE)
+                it.inputs.files(variantHelper.getLocalJarFiles(aarLibraries))
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
                 it.inputs.files(jarFiles).withPathSensitivity(PathSensitivity.RELATIVE)
             }
 
@@ -76,7 +79,7 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         project: Project,
         variantName: String,
     ): TaskProvider<Task> {
-        var bundleTaskPath = "bundle${variantName.replaceFirstChar(Char::titlecase)}"
+        var bundleTaskPath = "bundle${variantName.capitalized()}"
         return try {
             project.tasks.named(bundleTaskPath)
         } catch (ignored: UnknownTaskException) {
@@ -160,5 +163,6 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         }
     }
 
-    private fun getReBundleFilePath(folderName: String) = "${DirectoryManager.getReBundleDirectory(variant).path}/$folderName"
+    private fun getReBundleFilePath(folderName: String) =
+        "${DirectoryManager.getReBundleDirectory(variant).path}/$folderName"
 }
