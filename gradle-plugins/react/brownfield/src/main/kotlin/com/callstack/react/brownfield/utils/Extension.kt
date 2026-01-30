@@ -31,13 +31,6 @@ open class Extension {
     var appProjectName = "app"
 
     /**
-     * Sets whether the consumer project is based on Expo.
-     *
-     * Default value is `false`
-     */
-    var isExpo = false
-
-    /**
      * List of dynamic libs (.so) files that you wish to bundle with
      * the aar.
      *

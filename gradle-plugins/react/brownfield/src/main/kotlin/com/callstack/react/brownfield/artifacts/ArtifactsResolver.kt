@@ -30,6 +30,7 @@ class ArtifactsResolver(
     private val configurations: MutableCollection<Configuration>,
     private val baseProject: BaseProject,
     private val extension: Extension,
+    private val hasExpo: Boolean,
 ) :
     GradleProps() {
     companion object {
@@ -89,7 +90,7 @@ class ArtifactsResolver(
     }
 
     private fun embedDefaultDependencies(configName: String) {
-        if (extension.isExpo) {
+        if (this.hasExpo) {
             embedExpoDependencies()
         }
 
