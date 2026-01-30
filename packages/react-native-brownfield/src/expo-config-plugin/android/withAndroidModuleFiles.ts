@@ -18,8 +18,19 @@ export function createAndroidModule({
   config,
   rnVersion,
 }: {
+  /**
+   * The root Android directory path
+   */
   androidDir: string;
+
+  /**
+   * The resolved RN version
+   */
   rnVersion: string;
+
+  /**
+   * The resolved Brownfield plugin configuration
+   */
   config: ResolvedBrownfieldPluginConfigWithAndroid;
 }): void {
   const { android } = config;
@@ -108,7 +119,11 @@ export const withAndroidModuleFiles: ConfigPlugin<
         );
       }
 
-      createAndroidModule({ androidDir, config: props, rnVersion });
+      createAndroidModule({
+        androidDir,
+        config: props,
+        rnVersion,
+      });
 
       return dangerousConfig;
     },
