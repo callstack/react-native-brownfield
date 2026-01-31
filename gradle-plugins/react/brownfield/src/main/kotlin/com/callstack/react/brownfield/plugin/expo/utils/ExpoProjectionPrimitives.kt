@@ -8,6 +8,7 @@ interface ExpoGradleProjectProjection {
     val name: String
     val publication: ExpoPublication?
     val usePublication: Boolean
+    val sourceDir: String
 }
 
 

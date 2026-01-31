@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.plugin.expo
 
+import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.plugin.RNBrownfieldPlugin.Companion.EXPO_PROJECT_LOCATOR
 import com.callstack.react.brownfield.plugin.expo.utils.BrownfieldPublishingInfo
 import com.callstack.react.brownfield.plugin.expo.utils.ExpoGradleProjectProjection
@@ -29,12 +30,19 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
             val publicationTaskNames = mutableSetOf<String>()
             publishableExpoProjects.forEach { expoProj ->
-                val publicationTaskName = configureExpoPublishingForVariant(
-                    expoGPProjection = expoProj,
-                    publishingExtension = publishingExtension
-                )
+                try {
+                    val publicationTaskName = configureExpoPublishingForVariant(
+                        expoGPProjection = expoProj,
+                        publishingExtension = publishingExtension
+                    )
 
-                publicationTaskNames.add(publicationTaskName)
+                    publicationTaskNames.add(publicationTaskName)
+                } catch (e: Exception) {
+                    Logging.error(
+                        "Failed to configure publishing for Expo project ${expoProj.name}",
+                        e
+                    )
+                }
             }
 
             brownfieldAppProject.tasks.register(Constants.BROWNFIELD_UMBRELLA_PUBLISH_TASK_NAME)
@@ -67,9 +75,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             with(mavenPublication) {
                 groupId = publication.groupId
                 artifactId = publication.artifactId
-                version = publication.version.ifEmpty {
-                    "1.0"
-                }
+                version = publication.version
             }
         }
 
@@ -114,7 +120,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 // also publish crucial components possibly creating the config, as they
                 // do not have neither the metadata field set, nor any Maven publishing config
                 val whitelistCondition =
-                    setOf("expo-modules-core", "expo-constants", "expo").contains(
+                    Constants.BROWNFIELD_EXPO_WHITELISTED_PUBLISHABLE_MODULES.contains(
                         expoGradleProjectProjection.name
                     )
 
@@ -129,15 +135,22 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 groupId = it.groupId, artifactId = it.artifactId, version = it.version
             )
         } ?: run {
-            val packageName = expoGPProjection.name // TODO: implement this!!!
-            val packagePieces = packageName.split(".")
-            val lastComponent = packagePieces.last()
-            packagePieces.dropLast(1) // TODO: check if this can be simplified - if returns the dropped sublist
+            val targetProject =
+                brownfieldAppProject.rootProject.allprojects.first { it.projectDir.absoluteFile.path == expoGPProjection.sourceDir }
+
+            val targetProjectAndroidLibExt =
+                targetProject.extensions.getByType(LibraryExtension::class.java)
+
+            val packagePieces = targetProjectAndroidLibExt.namespace!!.split(".")
+            val artifactId = packagePieces.last()
+            // below: remove the trailing artifactId component -> leaves only the groupId components
+            val groupId = packagePieces.dropLast(1).joinToString(".")
 
             (BrownfieldPublishingInfo(
-                groupId = packagePieces.joinToString { "." },
-                artifactId = lastComponent,
-                version = ""
+                groupId = groupId,
+                artifactId = artifactId,
+                version = (targetProjectAndroidLibExt.defaultConfig.versionName
+                    ?: targetProject.version.toString())
             ))
         })
     }

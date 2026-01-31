@@ -8,4 +8,6 @@ object Constants {
     const val INTERMEDIATES_TEMP_DIR = PLUGIN_NAME
 
     const val BROWNFIELD_UMBRELLA_PUBLISH_TASK_NAME = "brownfieldPublishExpoPackages"
+    val BROWNFIELD_EXPO_WHITELISTED_PUBLISHABLE_MODULES =
+        setOf("expo-modules-core", "expo-constants", "expo")
 }
