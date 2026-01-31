@@ -6,4 +6,6 @@ object Constants {
 
     const val RE_BUNDLE_FOLDER = "aar_rebundle"
     const val INTERMEDIATES_TEMP_DIR = PLUGIN_NAME
+
+    const val BROWNFIELD_UMBRELLA_PUBLISH_TASK_NAME = "brownfieldPublishExpoPackages"
 }

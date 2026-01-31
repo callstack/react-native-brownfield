@@ -49,7 +49,7 @@ constructor(
          */
         if (this.isExpoProject) {
             Logging.log("Expo project detected.")
-            ExpoPublishingHelper.configure(project)
+            ExpoPublishingHelper(project).configure()
         }
 
         RNSourceSets.configure(project, extension)

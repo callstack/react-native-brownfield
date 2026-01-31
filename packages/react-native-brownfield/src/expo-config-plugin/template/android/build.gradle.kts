@@ -9,19 +9,6 @@ plugins {
     id("com.facebook.react")
 }
 
-/**
-* This function is used in the places where we:
-*
-* Remove the `expo` dependency from the `module.json` and `pom.xml file. Otherwise, the
-* gradle will try to resolve this and will throw an error, since this dependency won't
-* be available from a remote repository.
-*
-* Your AAR does not need this dependency.
-*/
-fun isExpoArtifact(group: String, artifactId: String): Boolean {
-    return group == "host.exp.exponent" && artifactId == "expo"
-}
-
 publishing {
     publications {
         create<MavenPublication>("mavenAar") {
@@ -44,10 +31,9 @@ publishing {
                     dependenciesNode.children()
                         .filterIsInstance<groovy.util.Node>()
                         .filter {
-                            val artifactId = (it["artifactId"] as groovy.util.NodeList).text()
                             val group = (it["groupId"] as groovy.util.NodeList).text()
 
-                            (isExpoArtifact(group, artifactId) || group == rootProject.name)
+                            group == rootProject.name
                         }
                         .forEach { dependenciesNode.remove(it) }
                 }
@@ -60,6 +46,10 @@ publishing {
     }
 }
 
+tasks.named("publish") {
+    dependsOn(rootProject.tasks.named("brownfieldPublishExpoPackages"))
+}
+
 val moduleBuildDir: Directory = layout.buildDirectory.get()
 
 /**
@@ -70,13 +60,15 @@ val moduleBuildDir: Directory = layout.buildDirectory.get()
 tasks.register("removeDependenciesFromModuleFile") {
     doLast {
         file("$moduleBuildDir/publications/mavenAar/module.json").run {
+            @Suppress("UNCHECKED_CAST")
             val json = inputStream().use { JsonSlurper().parse(it) as Map<String, Any> }
+            @Suppress("UNCHECKED_CAST")
             (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
+                @Suppress("UNCHECKED_CAST")
                 (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
-                    val module = it["module"] as String
                     val group = it["group"] as String
 
-                    (isExpoArtifact(group, module) || group == rootProject.name)
+                    group == rootProject.name
                 }
             }
             writer().use { it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json))) }
@@ -86,10 +78,6 @@ tasks.register("removeDependenciesFromModuleFile") {
 
 tasks.named("generateMetadataFileForMavenAarPublication") {
     finalizedBy("removeDependenciesFromModuleFile")
-}
-
-reactBrownfield {
-    isExpo = true
 }
 
 react {
@@ -117,6 +105,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
