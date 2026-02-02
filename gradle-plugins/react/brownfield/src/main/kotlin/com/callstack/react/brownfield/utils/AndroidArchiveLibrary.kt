@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.utils
 
-import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import org.gradle.api.Project
 import java.io.File
@@ -10,6 +9,7 @@ class AndroidArchiveLibrary(
     artifact: UnresolvedArtifactInfo,
     private val variantName: String,
 ) {
+    private var packageName: String? = null
     private val artifact: UnresolvedArtifactInfo =
         requireNotNull(artifact.takeIf { it.type == "aar" }) {
             "Only Aar is accepted as an artifact"
@@ -22,8 +22,30 @@ class AndroidArchiveLibrary(
 
     @Synchronized
     fun getPackageName(): String {
-        val androidExtension = project.rootProject.project(":${artifact.moduleName}").extensions.getByType(LibraryExtension::class.java)
-        return androidExtension.namespace!!
+        if (packageName != null) return packageName!!
+
+        packageName = getNameSpaceFromBuildGradle()
+        return packageName!!
+    }
+
+    private fun getNameSpaceFromBuildGradle(): String {
+        val subProj = project.rootProject.project(":${artifact.moduleName}")
+        val buildFile = subProj.buildFile // points to build.gradle or build.gradle.kts
+
+        if (!buildFile.exists()) {
+            error("build.gradle file does not exist for ${artifact.moduleName}")
+        }
+
+        val text = buildFile.readText()
+
+        // Regex to match: namespace = "com.example.rnscreens"
+        val regex = Regex("""namespace\s*=?\s*["']([^"']+)["']""")
+        val match = regex.find(text)
+
+        val namespace = match?.groupValues?.get(1)
+            ?: error("No namespace found in ${buildFile.path}")
+
+        return namespace
     }
 
     fun getManifestFile() = File(getExplodedAarRootDir(), "AndroidManifest.xml")

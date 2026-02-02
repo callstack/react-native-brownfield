@@ -50,9 +50,10 @@ constructor(
 
     override fun apply(project: Project) {
         verifyAndroidPluginApplied(project)
-        initializers(project)
 
         this.project = project
+        initializers()
+
         // Configure
         projectConfigurations.configure()
         RNSourceSets.configure(project, extension)
@@ -139,6 +140,9 @@ constructor(
                 aarLibraries.add(archiveLibrary)
             }
 
+            val packageIDs = aarLibraries.map { it.getPackageName() }
+            VariantPackagesProperty.getVariantPackagesProperty().put(variant.name, packageIDs)
+
             processManifestTask.doLast {
                 // manifest-merger
                 val buildDir = project.layout.buildDirectory.get()
@@ -197,10 +201,6 @@ constructor(
             val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
             variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant)
         }
-
-        project.tasks.register("general", ExplodeAarTask::class.java) { task ->
-            task.inputArtifactListFile.set(processArtifactsTask.get().artifactOutput)
-        }
     }
 
     private fun readArtifacts(file: File): List<UnresolvedArtifactInfo> {
@@ -235,9 +235,9 @@ constructor(
         }
     }
 
-    private fun initializers(project: Project) {
-        this.extension = project.extensions.create(Extension.NAME, Extension::class.java)
+    private fun initializers() {
         RClassTransformer.project = project
+        this.extension = project.extensions.create(Extension.NAME, Extension::class.java)
         projectConfigurations = ProjectConfigurations(project)
         VariantPackagesProperty.setVariantPackagesProperty(project)
     }
