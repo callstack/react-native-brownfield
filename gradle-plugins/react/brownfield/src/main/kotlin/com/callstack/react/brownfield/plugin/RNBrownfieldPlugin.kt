@@ -8,8 +8,6 @@ import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
-import groovy.util.Node
-import groovy.util.NodeList
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
@@ -17,14 +15,6 @@ import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.tasks.TaskDependencyFactory
 import org.gradle.internal.model.CalculatedValueContainerFactory
 import javax.inject.Inject
-
-internal fun Any.xmlValueAsNode(): Node? {
-    return when (this) {
-        is NodeList -> this.firstOrNull() as? Node
-        is Node -> this
-        else -> null
-    }
-}
 
 class RNBrownfieldPlugin
 @Inject
@@ -108,6 +98,6 @@ constructor(
     }
 
     companion object {
-        val EXPO_PROJECT_LOCATOR = ":expo"
+        const val EXPO_PROJECT_LOCATOR = ":expo"
     }
 }

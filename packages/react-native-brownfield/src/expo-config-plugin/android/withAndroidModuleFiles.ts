@@ -66,6 +66,14 @@ export function createAndroidModule({
         '{{PACKAGE_NAME}}': android.packageName,
       }),
     },
+    {
+      relativePath: 'consumer-rules.pro',
+      content: renderTemplate('android', 'consumer-rules.pro', {}),
+    },
+    {
+      relativePath: 'proguard-rules.pro',
+      content: renderTemplate('android', 'proguard-rules.pro', {}),
+    },
   ];
 
   // write files, possibly creating directories

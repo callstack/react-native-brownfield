@@ -18,67 +18,12 @@ publishing {
             afterEvaluate {
                 from(components.getByName("default"))
             }
-
-            pom {
-                withXml {
-                    /**
-                     * As a result of `from(components.getByName("default")` all of the project
-                     * dependencies are added to `pom.xml` file. We do not need the react-native
-                     * third party dependencies to be a part of it as we embed those dependencies.
-                     */
-                    val dependenciesNode =
-                        (asNode().get("dependencies") as groovy.util.NodeList).first() as groovy.util.Node
-                    dependenciesNode.children()
-                        .filterIsInstance<groovy.util.Node>()
-                        .filter {
-                            val group = (it["groupId"] as groovy.util.NodeList).text()
-
-                            group == rootProject.name
-                        }
-                        .forEach { dependenciesNode.remove(it) }
-                }
-            }
         }
     }
 
     repositories {
-        mavenLocal() // Publishes to the local Maven repository (~/.m2/repository by default)
+        mavenLocal() // publishes to the local Maven repository (~/.m2/repository by default)
     }
-}
-
-tasks.named("publish") {
-    dependsOn(rootProject.tasks.named("brownfieldPublishExpoPackages"))
-}
-
-val moduleBuildDir: Directory = layout.buildDirectory.get()
-
-/**
- * As a result of `from(components.getByName("default")` all of the project
- * dependencies are added to `module.json` file. We do not need the react-native
- * third party dependencies to be a part of it as we embed those dependencies.
- */
-tasks.register("removeDependenciesFromModuleFile") {
-    doLast {
-        file("$moduleBuildDir/publications/mavenAar/module.json").run {
-            @Suppress("UNCHECKED_CAST")
-            val json = inputStream().use { JsonSlurper().parse(it) as Map<String, Any> }
-            @Suppress("UNCHECKED_CAST")
-            (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                @Suppress("UNCHECKED_CAST")
-                (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
-                    val group = it["group"] as String
-                    val artifact = it["artifact"] as String
-
-                    (group == rootProject.name || (group == "host.exp.exponent" && artifact == "expo"))
-                }
-            }
-            writer().use { it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json))) }
-        }
-    }
-}
-
-tasks.named("generateMetadataFileForMavenAarPublication") {
-    finalizedBy("removeDependenciesFromModuleFile")
 }
 
 react {

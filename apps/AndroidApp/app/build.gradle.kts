@@ -61,7 +61,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
-    implementation(libs.brownfieldlib)
+//    implementation(libs.brownfieldlib)
+    implementation("com.callstack.rnbrownfield.demo.expoapp:brownfield-expo-app:0.0.1-SNAPSHOT")
 //    implementation(libs.brownfieldlib) {
 //        exclude("host.exp.exponent", "expo.modules.webbrowser")
 //    }
@@ -70,8 +71,8 @@ dependencies {
 //    implementation("BareExpo:expo.modules.image:3.0.11")
 //    implementation("host.exp.exponent:expo.modules.webbrowser:15.0.10")
 //    implementation("expo.modules.asset:expo.modules.asset:12.0.12")
-//    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
-//    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
 
 //    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
 //    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
