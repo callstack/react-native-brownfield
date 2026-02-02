@@ -67,8 +67,9 @@ tasks.register("removeDependenciesFromModuleFile") {
                 @Suppress("UNCHECKED_CAST")
                 (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
                     val group = it["group"] as String
+                    val artifact = it["artifact"] as String
 
-                    group == rootProject.name
+                    (group == rootProject.name || (group == "host.exp.exponent" && artifact == "expo"))
                 }
             }
             writer().use { it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json))) }

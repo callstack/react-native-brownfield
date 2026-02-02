@@ -1,6 +1,6 @@
 [versions]
 agp = "8.13.2"
-brownfieldlib = "0.0.1-local"
+brownfieldlib = "0.0.1-SNAPSHOT"
 kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"

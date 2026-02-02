@@ -62,6 +62,31 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
     implementation(libs.brownfieldlib)
+//    implementation(libs.brownfieldlib) {
+//        exclude("host.exp.exponent", "expo.modules.webbrowser")
+//    }
+
+//    implementation("expo:core:54.0.31")
+//    implementation("BareExpo:expo.modules.image:3.0.11")
+//    implementation("host.exp.exponent:expo.modules.webbrowser:15.0.10")
+//    implementation("expo.modules.asset:expo.modules.asset:12.0.12")
+//    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+//    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
+
+//    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+//    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
+//    implementation("androidx.compose.material3:material3:1.4.0-alpha10")
+//    implementation("androidx.core:core-splashscreen:1.0.1")
+//    implementation("io.coil-kt:coil-compose:2.6.0")
+//    implementation("androidx.navigation:navigation-compose:2.8.5")
+//    implementation("androidx.compose.ui:ui:1.7.6")
+//    implementation("androidx.compose.runtime:runtime-saveable:1.7.6")
+//    implementation("androidx.compose.material3:material3:1.3.1")
+//    implementation("androidx.compose.animation:animation:1.7.6")
+//    implementation("androidx.compose.foundation:foundation:1.7.6")
+//    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+//    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+
     implementation(libs.androidx.fragment.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

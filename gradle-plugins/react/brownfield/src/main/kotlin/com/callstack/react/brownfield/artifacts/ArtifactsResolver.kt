@@ -25,6 +25,8 @@ import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 
 class ArtifactsResolver(
     private val configurations: MutableCollection<Configuration>,
@@ -41,6 +43,7 @@ class ArtifactsResolver(
     fun processArtifacts() {
         embedDefaultDependencies("implementation")
         setTransitiveToConfigurations()
+        configureExpoAppDependencyRemoval()
         generateArtifacts()
     }
 
@@ -75,9 +78,11 @@ class ArtifactsResolver(
         expoConfig?.dependencies?.forEach {
             if (extension.resolveLocalDependencies) {
                 if (it is DefaultProjectDependency) {
+                    val projectDependency =
+                        expoProject.dependencies.project(mapOf("path" to ":${it.name}"))
                     baseProject.project.dependencies.add(
                         CONFIG_NAME,
-                        expoProject.dependencies.project(mapOf("path" to ":${it.name}")),
+                        projectDependency,
                     )
                 } else {
                     baseProject.project.dependencies.add(
@@ -98,9 +103,11 @@ class ArtifactsResolver(
         val defaultDependencies = config?.dependencies?.filterIsInstance<DefaultProjectDependency>()
         defaultDependencies?.forEach { dependency ->
             if (extension.resolveLocalDependencies) {
+                val projectDependency =
+                    baseProject.project.dependencies.project(mapOf("path" to ":${dependency.name}"))
                 baseProject.project.dependencies.add(
                     CONFIG_NAME,
-                    baseProject.project.dependencies.project(mapOf("path" to ":${dependency.name}")),
+                    projectDependency,
                 )
             }
         }
@@ -114,7 +121,13 @@ class ArtifactsResolver(
                 if (isEmbedConfig(configuration, variant)) {
                     val resolvedArtifacts = resolveArtifacts(configuration)
                     artifacts.addAll(resolvedArtifacts)
-                    artifacts.addAll(handleUnResolvedArtifacts(configuration, variant, resolvedArtifacts))
+                    artifacts.addAll(
+                        handleUnResolvedArtifacts(
+                            configuration,
+                            variant,
+                            resolvedArtifacts
+                        )
+                    )
                 }
             }
 
@@ -131,15 +144,18 @@ class ArtifactsResolver(
         variant: LibraryVariant,
     ): Boolean {
         return configuration.name == CONFIG_NAME || configuration.name == variant.buildType.name + CONFIG_SUFFIX ||
-            configuration.name == variant.flavorName + CONFIG_SUFFIX ||
-            configuration.name == variant.name + CONFIG_SUFFIX
+                configuration.name == variant.flavorName + CONFIG_SUFFIX ||
+                configuration.name == variant.name + CONFIG_SUFFIX
     }
 
     private fun resolveArtifacts(configuration: Configuration): Collection<ResolvedArtifact> {
         val artifacts = ArrayList<ResolvedArtifact>()
         configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
             if (artifact.type != ARTIFACT_TYPE_AAR && artifact.type != ARTIFACT_TYPE_JAR) {
-                throw ProjectConfigurationException("Unsupported dependency. Please provide either Aar or Jar dependency", listOf())
+                throw ProjectConfigurationException(
+                    "Unsupported dependency. Please provide either Aar or Jar dependency",
+                    listOf()
+                )
             }
             artifacts.add(artifact)
         }
@@ -177,5 +193,87 @@ class ArtifactsResolver(
             artifactList.add(resolvedArtifact)
         }
         return artifactList
+    }
+
+    private fun configureExpoAppDependencyRemoval() {
+        try {
+            val publishingExtension =
+                baseProject.project.extensions.findByType(PublishingExtension::class.java)
+
+            if (publishingExtension == null) {
+                baseProject.project.logger.info("No publishing extension found, skipping ExpoApp dependency removal")
+                return
+            }
+
+            publishingExtension.publications.withType(MavenPublication::class.java) { publication ->
+                publication.pom { pom ->
+                    pom.withXml { xml ->
+                        baseProject.project.logger.info("Processing POM for publication: ${publication.name}")
+                        val rootNode = xml.asNode()
+                        val dependenciesNode = rootNode.get("dependencies")
+
+                        when {
+                            dependenciesNode is Collection<*> && dependenciesNode.isNotEmpty() -> {
+                                // Handle NodeList case
+                                dependenciesNode.filterIsInstance<groovy.util.Node>()
+                                    .forEach { depNode ->
+                                        removeDependenciesWithExpoAppGroupId(depNode)
+                                    }
+                            }
+
+                            dependenciesNode is groovy.util.Node -> {
+                                // Handle single Node case
+                                removeDependenciesWithExpoAppGroupId(dependenciesNode)
+                            }
+
+                            else -> {
+                                baseProject.project.logger.info("No dependencies node found or it's empty")
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Log error but don't fail the build
+            baseProject.project.logger.warn("Failed to configure ExpoApp dependency removal: ${e.message}")
+        }
+    }
+
+    private fun removeDependenciesWithExpoAppGroupId(dependenciesNode: groovy.util.Node) {
+        // Get all dependency nodes - this returns the children with name "dependency"
+        val dependencyNodes = dependenciesNode.children().filter {
+            (it as? groovy.util.Node)?.name() == "dependency"
+        }
+
+        baseProject.project.logger.info("Found ${dependencyNodes.size} dependency nodes in POM")
+
+        val nodesToRemove = mutableListOf<groovy.util.Node>()
+
+        dependencyNodes.forEach { depNode ->
+            if (depNode is groovy.util.Node) {
+                // Get the groupId child node
+                val groupIdNodes = depNode.children().filter {
+                    (it as? groovy.util.Node)?.name() == "groupId"
+                }
+
+                val groupIdValue = groupIdNodes.firstOrNull()?.let { groupIdNode ->
+                    (groupIdNode as? groovy.util.Node)?.text()
+                }
+
+                baseProject.project.logger.debug("Checking dependency with groupId: $groupIdValue")
+
+                if (groupIdValue == "ExpoApp") {
+                    baseProject.project.logger.info("Found ExpoApp dependency to remove: $groupIdValue")
+                    nodesToRemove.add(depNode)
+                }
+            }
+        }
+
+        baseProject.project.logger.info("Removing ${nodesToRemove.size} ExpoApp dependencies from POM")
+
+        // Remove the identified nodes from their parent (dependenciesNode)
+        nodesToRemove.forEach { nodeToRemove ->
+            dependenciesNode.remove(nodeToRemove)
+        }
     }
 }

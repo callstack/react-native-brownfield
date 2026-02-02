@@ -11,6 +11,7 @@ import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import java.io.File
 
 
 open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
@@ -36,7 +37,9 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                         publishingExtension = publishingExtension
                     )
 
-                    publicationTaskNames.add(publicationTaskName)
+                    if (!publicationTaskName.isNullOrEmpty()) {
+                        publicationTaskNames.add("publish${publicationTaskName.capitalized()}ToMavenLocal")
+                    }
                 } catch (e: Exception) {
                     Logging.error(
                         "Failed to configure publishing for Expo project ${expoProj.name}",
@@ -45,10 +48,23 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 }
             }
 
+//                .configure { it.dependsOn(publicationTaskNames) }
+
+//            val pubTasks = mutableListOf<PublishToMavenRepository>()
+//
+//            brownfieldAppProject.rootProject.subprojects { subproject ->
+//                subproject.gradle.taskGraph.whenReady {
+//                    subproject.tasks.withType(PublishToMavenRepository::class.java)
+////                    .matching { it.publication == pub }
+//                        .configureEach { task ->
+//                            // lazily wire each publish task into the umbrella task
+//                            pubTasks.add(task)
+//                        }
+//                }
+//            }
+//
             brownfieldAppProject.tasks.register(Constants.BROWNFIELD_UMBRELLA_PUBLISH_TASK_NAME)
-                .configure {
-                    it.dependsOn(publicationTaskNames)
-                }
+                .configure { it.dependsOn(publicationTaskNames) }
 
             Logging.log("Created umbrella task '${Constants.BROWNFIELD_UMBRELLA_PUBLISH_TASK_NAME}' wrapping ${publicationTaskNames.size} Expo publication tasks: $publicationTaskNames")
         }
@@ -57,29 +73,81 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
     fun configureExpoPublishingForVariant(
         expoGPProjection: ExpoGradleProjectProjection,
         publishingExtension: PublishingExtension,
-    ): String {
+    ): String? {
         val publication = getPublishingInfo(expoGPProjection)
 
-        Logging.log("Configuring publishing for Expo project ${expoGPProjection.name}: " + publication)
+        if (publication == null) {
+            Logging.log("WARNING: cannot configure publishing for Expo project ${expoGPProjection.name} - a matching Android Gradle project for it has not been found")
+            return null
+        }
 
-        val publishTaskName =
+        val pub = publishingExtension.publications.create(
             // convert from "kebab-case" or/and "snake_case" to "PascalCase"
-            "brownfieldPublish${
-                (expoGPProjection.name).split("-", "_").joinToString("") { it.capitalized() }
-            }"
-
-        publishingExtension.publications.create(
-            publishTaskName,
+            (expoGPProjection.name).split("-", "_").joinToString("") { it.capitalized() },
             MavenPublication::class.java
         ) { mavenPublication ->
             with(mavenPublication) {
                 groupId = publication.groupId
                 artifactId = publication.artifactId
                 version = publication.version
+
+                if (!Constants.BROWNFIELD_EXPO_MODULES_WITHOUT_LOCAL_MAVEN_REPO.contains(
+                        expoGPProjection.name
+                    )
+                ) {
+                    val expoPkgLocalMavenRepo =
+                        File(expoGPProjection.sourceDir).parentFile.resolve("local-maven-repo")
+
+                    pom.withXml { xmlProvider ->
+                        val pomFile =
+                            expoPkgLocalMavenRepo
+                                .resolve(
+                                    "${
+                                        publication.groupId.replace(
+                                            '.',
+                                            '/'
+                                        )
+                                    }/${publication.artifactId}/${publication.version}/${publication.artifactId}-${publication.version}.pom"
+                                )
+
+                        if (!pomFile.exists()) {
+                            throw IllegalStateException("Expo package '$expoGPProjection.name' does not have a POM file in its local-maven-repo: $pomFile")
+                        }
+
+//                    val xmlContent = xmlProvider.asString()
+//                    xmlContent.setLength(0)
+//                    xmlContent.append(pomFile.readText())
+                        xmlProvider.asString().apply {
+                            setLength(0)
+                            append(pomFile.readText())
+                        }
+                    }
+
+                    expoPkgLocalMavenRepo
+                        .resolve(
+                            "${
+                                publication.groupId.replace(
+                                    '.',
+                                    '/'
+                                )
+                            }/${publication.artifactId}/${publication.version}"
+                        )
+                        .listFiles()
+                        ?.filter { file ->
+                            setOf(
+                                "aar",
+                                "jar",
+                                "module"
+                            ).contains(file.extension)
+                        }
+                        ?.forEach { file -> artifact(file) }
+                }
             }
         }
 
-        return publishTaskName
+        Logging.log("Configured publishing for Expo project '${expoGPProjection.name}' in task '${pub.name}': " + publication)
+
+        return pub.name
     }
 
     protected fun getPublishableExpoProjects(): List<ExpoGradleProjectProjection> {
@@ -129,14 +197,20 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             .map { expoGradleProject -> expoGradleProject.asExpoGradleProjectProjection() }
     }
 
-    fun getPublishingInfo(expoGPProjection: ExpoGradleProjectProjection): BrownfieldPublishingInfo {
+    fun getPublishingInfo(expoGPProjection: ExpoGradleProjectProjection): BrownfieldPublishingInfo? {
         return (expoGPProjection.publication?.let {
             BrownfieldPublishingInfo(
-                groupId = it.groupId, artifactId = it.artifactId, version = it.version
+                groupId = it.groupId,
+                artifactId = it.artifactId,
+                version = it.version,
             )
         } ?: run {
             val targetProject =
-                brownfieldAppProject.rootProject.allprojects.first { it.projectDir.absoluteFile.path == expoGPProjection.sourceDir }
+                brownfieldAppProject.rootProject.allprojects.firstOrNull { it.projectDir.absoluteFile.path == expoGPProjection.sourceDir }
+
+            if (targetProject == null) {
+                return null
+            }
 
             val targetProjectAndroidLibExt =
                 targetProject.extensions.getByType(LibraryExtension::class.java)
@@ -150,7 +224,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 groupId = groupId,
                 artifactId = artifactId,
                 version = (targetProjectAndroidLibExt.defaultConfig.versionName
-                    ?: targetProject.version.toString())
+                    ?: targetProject.version.toString()),
             ))
         })
     }
