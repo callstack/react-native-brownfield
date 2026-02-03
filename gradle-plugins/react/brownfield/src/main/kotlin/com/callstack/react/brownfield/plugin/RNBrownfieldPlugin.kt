@@ -80,39 +80,6 @@ constructor(
                 it.artifactOutput.set(project.layout.buildDirectory.file("artifacts-list.jsonl"))
             }
 
-        /**
-         * Trigger the processVariants internal here to register the tasks
-         * - Can not do this because they require artifacts and we only get those in preBuild
-         * - let's try invoking those in preBuild configuration phase?
-         *
-         * - add explode tasks to explode.txt as part of processArtifacts
-         * - read that file to register task dependency in preBuild
-         * - basically what can be evaluated earlier in processArtifacts should be moved there and later read in preBuild
-         * - Also once this is done, invoke a function like processVariant directly in preBuild.configure phase to register
-         * all the tasks required.
-         * */
-
-        project.tasks.register("generateTPLAar", GenerateTPLAar::class.java) { task ->
-            task.inputTaskList.set(processArtifactsTask.get().outputFile)
-
-            val file = task.inputTaskList.get().asFile
-            if (file.exists()) {
-                file.readLines().forEach { line ->
-                    val lineSplits = line.split(",")
-
-                    val projectPath = lineSplits[0]
-                    val taskName = lineSplits[1]
-                    val artifactProject = project.rootProject.project(projectPath)
-
-                    artifactProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
-                }
-            }
-        }
-
-        project.tasks.register("explodeAarTask", ExplodeAarTask::class.java) { task ->
-            task.inputArtifactListFile.set(processArtifactsTask.get().artifactOutput)
-        }
-
         val jniLibsProcessor = JNILibsProcessor()
         jniLibsProcessor.project = project
 
@@ -125,6 +92,28 @@ constructor(
         // process manifest & merger task
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+
+            project.tasks.register("explode${capitalizedVariantName}Aar", ExplodeAarTask::class.java) { task ->
+                task.inputArtifactListFile.set(processArtifactsTask.get().artifactOutput)
+                task.inputTaskList.set(processArtifactsTask.get().outputFile)
+
+                task.variantName.set(variant.name)
+                task.minifyEnabled.set(variant.buildType.isMinifyEnabled)
+
+                val file = task.inputTaskList.get().asFile
+                if (file.exists()) {
+                    file.readLines().forEach { line ->
+                        val lineSplits = line.split(",")
+
+                        val projectPath = lineSplits[0]
+                        val taskName = lineSplits[1]
+                        val artifactProject = project.rootProject.project(projectPath)
+
+                        artifactProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
+                    }
+                }
+            }
+
             val processManifestTask = variant.outputs.first().processManifestProvider.get()
 
             val artifacts = readArtifacts(processArtifactsTask.get().artifactOutput.get().asFile)

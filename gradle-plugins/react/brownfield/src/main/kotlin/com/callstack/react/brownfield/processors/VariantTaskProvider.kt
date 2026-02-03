@@ -56,5 +56,5 @@ class VariantTaskProvider: BaseProject() {
         }
     }
 
-    private fun getReBundleFilePath(folderName: String, variant: LibraryVariant) = "${DirectoryManager.getReBundleDirectory(variant).path}/$folderName"
+    private fun getReBundleFilePath(folderName: String, variant: LibraryVariant) = "${DirectoryManager.getReBundleDirectory(variant.name).path}/$folderName"
 }

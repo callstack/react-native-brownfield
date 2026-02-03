@@ -1,16 +1,5 @@
-@file:Suppress("DEPRECATION")
-
-/**
- * Suppressing because of LibraryVariant.
- * We can't use the new `com.android.build.gradle.api.LibraryVariant`
- * as of now.
- *
- * We may want to re-visit this in future.
- */
-
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
@@ -20,16 +9,16 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
-    private fun getClassPathDirFiles(): ConfigurableFileCollection {
+class VariantHelper : BaseProject() {
+    private fun getClassPathDirFiles(variantName: String): ConfigurableFileCollection {
         return project.files(
-            "$buildDir/intermediates/javac/${variant.name}/compile${variant.name.replaceFirstChar(Char::titlecase)}JavaWithJavac/classes",
+            "$buildDir/intermediates/javac/$variantName/compile${variantName.replaceFirstChar(Char::titlecase)}JavaWithJavac/classes",
         )
     }
 
-    fun classesMergeTaskDoFirst(outputDir: File) {
+    fun classesMergeTaskDoFirst(outputDir: File, variantName: String) {
         val pathsToDelete = mutableListOf<Path>()
-        val javacDir = getClassPathDirFiles().first()
+        val javacDir = getClassPathDirFiles(variantName).first()
         project.fileTree(outputDir).forEach { path ->
             pathsToDelete.add(Paths.get(outputDir.absolutePath).relativize(Paths.get(path.absolutePath)))
         }
@@ -43,12 +32,14 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
         outputDir: File,
         aarLibraries: Collection<AndroidArchiveLibrary>,
         jarFiles: MutableList<File>,
+        variantName: String,
+        isMinifyEnabled: Boolean
     ) {
         MergeProcessor.mergeClassesJarIntoClasses(project, aarLibraries, outputDir)
-        if (variant.buildType.isMinifyEnabled) {
+        if (isMinifyEnabled) {
             MergeProcessor.mergeLibsIntoClasses(project, aarLibraries, jarFiles, outputDir)
         }
-        val javacDir = getClassPathDirFiles().first()
+        val javacDir = getClassPathDirFiles(variantName).first()
         project.copy { copyTask ->
             copyTask.from(outputDir)
             copyTask.into(javacDir)
@@ -57,7 +48,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
         project.copy { copyTask ->
             copyTask.from("${outputDir.absolutePath}/META-INF")
-            copyTask.into(DirectoryManager.getKotlinMetaDirectory(variant))
+            copyTask.into(DirectoryManager.getKotlinMetaDirectory(variantName))
             copyTask.include("*.kotlin_module")
         }
     }
