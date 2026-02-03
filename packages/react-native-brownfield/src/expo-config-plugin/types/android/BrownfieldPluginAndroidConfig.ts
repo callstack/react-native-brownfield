@@ -46,7 +46,7 @@ export interface BrownfieldPluginAndroidConfig {
 
   /**
    * Version string for Maven publishing
-   * @default "0.0.1-local"
+   * @default "0.0.1-snapshot"
    */
   version?: string;
 }

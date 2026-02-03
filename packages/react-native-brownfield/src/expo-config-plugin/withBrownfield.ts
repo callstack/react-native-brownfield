@@ -51,7 +51,7 @@ function resolveConfig(
           compileSdkVersion: config.android?.compileSdkVersion ?? 35,
           groupId: config.android?.groupId ?? androidPackage,
           artifactId: config.android?.artifactId ?? androidModuleName,
-          version: config.android?.version ?? '0.0.1-local',
+          version: config.android?.version ?? '0.0.1-snapshot',
         }
       : null,
     debug: config.debug ?? false,

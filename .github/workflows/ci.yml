@@ -105,10 +105,10 @@ jobs:
           yarn run brownfield:publish:android
 
       - name: Verify debug AAR exists in Maven Local
-        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-debug.aar
+        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-snapshot/brownfieldlib-0.0.1-snapshot-debug.aar
 
       - name: Verify release AAR exists in Maven Local
-        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-local/brownfieldlib-0.0.1-local-release.aar
+        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-snapshot/brownfieldlib-0.0.1-snapshot-release.aar
 
       # == AndroidApp ==
 
