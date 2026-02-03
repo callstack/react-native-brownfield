@@ -85,9 +85,9 @@ publishing {
     }
 }
 
-// signing {
-//     sign(publishing.publications["mavenLocal"])
-// }
+signing {
+    sign(publishing.publications["mavenLocal"])
+}
 
 repositories {
     mavenCentral()
