@@ -1,17 +1,6 @@
-@file:Suppress("DEPRECATION")
-
-/**
- * Suppressing because of LibraryVariant.
- * We can't use the new `com.android.build.gradle.api.LibraryVariant`
- * as of now.
- *
- * We may want to re-visit this in future.
- */
-
 package com.callstack.react.brownfield.artifacts
 
 import org.gradle.api.component.Artifact
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.shared.BaseProject
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
@@ -28,12 +17,13 @@ import org.gradle.internal.component.local.model.PublishArtifactLocalArtifactMet
 import org.gradle.internal.component.model.DefaultIvyArtifactName
 import java.io.File
 
-class FlavorArtifact(private val variant: LibraryVariant,
+class FlavorArtifact(
     private val configuration: Configuration) : BaseProject() {
     fun createFlavorArtifact(
         fileResolver: FileResolver,
         taskDependencyFactory: TaskDependencyFactory,
         bundleTaskProvider: TaskProvider<Task>?,
+        variantName: String
     ): ResolvedArtifactResult {
         val artifactFile = createArtifactFile(bundleTaskProvider?.get() as Task)
         val artifactName = DefaultIvyArtifactName(artifactFile.name, "aar", "")
@@ -45,7 +35,7 @@ class FlavorArtifact(private val variant: LibraryVariant,
             ),
             configuration.attributes,
             ImmutableCapabilities.EMPTY,
-            Describables.of(variant.name),
+            Describables.of(variantName),
             Artifact::class.java,
             artifactFile
         )

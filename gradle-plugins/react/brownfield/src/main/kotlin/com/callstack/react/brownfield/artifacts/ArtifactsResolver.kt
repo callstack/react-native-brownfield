@@ -115,7 +115,7 @@ class ArtifactsResolver(
             if (artifacts.isNotEmpty()) {
                 val processor = VariantProcessor()
                 processor.project = baseProject.project
-                processor.processVariant(variant)
+                processor.processVariant(variant.name)
             }
         }
 
@@ -173,7 +173,7 @@ class ArtifactsResolver(
 
         val variantTaskProvider = VariantTaskProvider()
         variantTaskProvider.project = baseProject.project
-        val flavorArtifact = FlavorArtifact(variant, configuration)
+        val flavorArtifact = FlavorArtifact(configuration)
         flavorArtifact.project = baseProject.project
 
         val bundleTaskProvider = BundleTaskProvider(variantTaskProvider)
@@ -188,6 +188,7 @@ class ArtifactsResolver(
                     fileResolver,
                     taskDependencyFactory,
                     bundleProvider,
+                    variant.name
                 )
 
             when (val asd = resolvedArtifact.id) {

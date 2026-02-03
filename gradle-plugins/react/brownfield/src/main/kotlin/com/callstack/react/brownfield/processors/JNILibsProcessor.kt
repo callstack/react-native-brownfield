@@ -1,17 +1,6 @@
-@file:Suppress("DEPRECATION")
-
-/**
- * Suppressing because of LibraryVariant.
- * We can't use the new `com.android.build.gradle.api.LibraryVariant`
- * as of now.
- *
- * We may want to re-visit this in future.
- */
-
 package com.callstack.react.brownfield.processors
 
 import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
@@ -24,9 +13,9 @@ import java.io.File
 class JNILibsProcessor : BaseProject() {
     fun processJniLibs(
         aarLibraries: Collection<AndroidArchiveLibrary>,
-        variant: LibraryVariant,
+        variantName: String,
     ) {
-        val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+        val capitalizedVariantName = variantName.replaceFirstChar(Char::titlecase)
         val taskName = "merge${capitalizedVariantName}JniLibFolders"
         val mergeJniLibsTask = project.tasks.named(taskName)
 
@@ -35,7 +24,7 @@ class JNILibsProcessor : BaseProject() {
         }
 
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
-        val copyTask = copySoLibsTask(variant)
+        val copyTask = copySoLibsTask(variantName)
 
         mergeJniLibsTask.configure {
             it.dependsOn(copyTask)
@@ -50,7 +39,7 @@ class JNILibsProcessor : BaseProject() {
                     val jniDir = archiveLibrary.getJniDir()
                     processNestedLibs(jniDir.listFiles(), existingJNILibs)
                     if (jniDir.exists()) {
-                        val filteredSourceSets = androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variant.name }
+                        val filteredSourceSets = androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variantName }
                         filteredSourceSets.forEach { sourceSet -> sourceSet.jniLibs.srcDir(jniDir) }
                     }
                 }
@@ -58,8 +47,7 @@ class JNILibsProcessor : BaseProject() {
         }
     }
 
-    private fun copySoLibsTask(variant: LibraryVariant): TaskProvider<Copy> {
-        val variantName = variant.name
+    private fun copySoLibsTask(variantName: String): TaskProvider<Copy> {
         val capitalizedVariant = variantName.replaceFirstChar(Char::titlecase)
 
         val projectExt = project.extensions.getByType(Extension::class.java)

@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
@@ -27,14 +26,14 @@ class VariantTaskProvider: BaseProject() {
     fun processDataBinding(
         bundleTask: TaskProvider<Task>,
         aarLibraries: Collection<AndroidArchiveLibrary>,
-        variant: LibraryVariant,
+        variantName: String,
     ) {
         bundleTask.configure { task ->
             task.doLast {
                 aarLibraries.forEach {
                     val dataBindingFolder = it.getDataBindingFolder()
                     if (dataBindingFolder.exists()) {
-                        val filePath = getReBundleFilePath(dataBindingFolder.name, variant)
+                        val filePath = getReBundleFilePath(dataBindingFolder.name, variantName)
                         File(filePath).mkdirs()
                         project.copy { copyTask ->
                             copyTask.from(dataBindingFolder)
@@ -44,7 +43,7 @@ class VariantTaskProvider: BaseProject() {
 
                     val dataBindingLogFolder = it.getDataBindingLogFolder()
                     if (dataBindingLogFolder.exists()) {
-                        val filePath = getReBundleFilePath(dataBindingLogFolder.name, variant)
+                        val filePath = getReBundleFilePath(dataBindingLogFolder.name, variantName)
                         File(filePath).mkdirs()
                         project.copy { copyTask ->
                             copyTask.from(dataBindingLogFolder)
@@ -56,5 +55,5 @@ class VariantTaskProvider: BaseProject() {
         }
     }
 
-    private fun getReBundleFilePath(folderName: String, variant: LibraryVariant) = "${DirectoryManager.getReBundleDirectory(variant.name).path}/$folderName"
+    private fun getReBundleFilePath(folderName: String, variantName: String) = "${DirectoryManager.getReBundleDirectory(variantName).path}/$folderName"
 }

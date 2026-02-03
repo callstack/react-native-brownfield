@@ -1,13 +1,3 @@
-@file:Suppress("DEPRECATION")
-
-/**
- * Suppressing because of LibraryVariant.
- * We can't use the new `com.android.build.gradle.api.LibraryVariant`
- * as of now.
- *
- * We may want to re-visit this in future.
- */
-
 package com.callstack.react.brownfield.processors
 
 import com.callstack.react.brownfield.exceptions.TaskNotFound
@@ -30,11 +20,9 @@ class ProguardProcessor : BaseProject() {
             throw TaskNotFound("Task $mergeTaskName not found")
         }
 
-        mergeFileTask.configure { task ->
-            task.doLast {
-                val outputFile = it.outputs.files.singleFile
-                doLast(proguardRules, outputFile)
-            }
+        mergeFileTask.get().doLast {
+            val outputFile = it.outputs.files.singleFile
+            doLast(proguardRules, outputFile)
         }
     }
 
@@ -46,11 +34,9 @@ class ProguardProcessor : BaseProject() {
         val mergeName = "merge${capitalizedVariantName}GeneratedProguardFiles"
         mergeGenerateProguardTask = project.tasks.named(mergeName)
 
-        mergeGenerateProguardTask.configure { task ->
-            task.doLast {
-                val outputFile = it.outputs.files.singleFile
-                doLast(proguardRules, outputFile)
-            }
+        mergeGenerateProguardTask.get().doLast {
+            val outputFile = it.outputs.files.singleFile
+            doLast(proguardRules, outputFile)
         }
     }
 

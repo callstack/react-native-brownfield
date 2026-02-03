@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.LoggerWrapper
 import com.android.build.gradle.internal.coverage.JacocoReportTask.JacocoReportWorkerAction.Companion.logger
@@ -16,7 +17,6 @@ import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.ExplodeAarTask
-import com.callstack.react.brownfield.shared.GenerateTPLAar
 import com.callstack.react.brownfield.shared.JsonInstance
 import com.callstack.react.brownfield.shared.ProcessArtifactsTask
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
@@ -109,12 +109,12 @@ constructor(
                         val taskName = lineSplits[1]
                         val artifactProject = project.rootProject.project(projectPath)
 
-                        artifactProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
+                        if (taskName.contains(capitalizedVariantName)) {
+                            artifactProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
+                        }
                     }
                 }
             }
-
-            val processManifestTask = variant.outputs.first().processManifestProvider.get()
 
             val artifacts = readArtifacts(processArtifactsTask.get().artifactOutput.get().asFile)
             val filteredArtifacts = artifacts.filter { it.bundleTaskName?.contains(capitalizedVariantName) == true }
@@ -129,9 +129,13 @@ constructor(
                 aarLibraries.add(archiveLibrary)
             }
 
+            /**
+             * Flat IDs to be put into the variant property, required for RClass Transformer
+             */
             val packageIDs = aarLibraries.map { it.getPackageName() }
             VariantPackagesProperty.getVariantPackagesProperty().put(variant.name, packageIDs)
 
+            val processManifestTask = variant.outputs.first().processManifestProvider.get()
             processManifestTask.doLast {
                 // manifest-merger
                 val buildDir = project.layout.buildDirectory.get()
@@ -159,11 +163,9 @@ constructor(
                 throw TaskNotFound("Task $taskPath not found")
             }
 
-            aarLibraries.forEach {
-                variant.registerGeneratedResFolders(
-                    project.files(it.getResDir()),
-                )
-            }
+            variant.registerGeneratedResFolders(
+                project.files(aarLibraries.map { it.getResDir() }),
+            )
 
             /** =======  GENERATE ASSETS ========= */
             val assetsTask = variant.mergeAssetsProvider.get()
@@ -174,21 +176,23 @@ constructor(
 
                 filteredSourceSets.forEach { sourceSet ->
                     val filteredAarLibs = aarLibraries.filter { it.getAssetsDir().exists() }
-                    filteredAarLibs.forEach {
-                        sourceSet.assets.srcDir(it.getAssetsDir())
+                    if (!filteredAarLibs.isEmpty()) {
+                        sourceSet.assets.srcDirs(filteredAarLibs.map { it.getAssetsDir() })
                     }
                 }
             }
 
-            jniLibsProcessor.processJniLibs(aarLibraries, variant)
-            val proguardRules = aarLibraries.map { it.getProguardRules() }
+            /** ===== jniLibsProcessor ===== */
+            jniLibsProcessor.processJniLibs(aarLibraries, variant.name)
 
+            /** ===== proguardProcessor ===== */
+            val proguardRules = aarLibraries.map { it.getProguardRules() }
             proguardProcessor.processConsumerFiles(proguardRules, capitalizedVariantName)
             proguardProcessor.processGeneratedFiles(proguardRules, capitalizedVariantName)
 
             /** ===== processDataBinding ===== */
             val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
-            variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant)
+            variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant.name)
         }
     }
 
