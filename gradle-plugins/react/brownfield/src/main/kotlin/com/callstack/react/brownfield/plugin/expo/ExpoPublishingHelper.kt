@@ -6,6 +6,7 @@ import com.callstack.react.brownfield.plugin.RNBrownfieldPlugin.Companion.EXPO_P
 import com.callstack.react.brownfield.plugin.expo.utils.BrownfieldPublishingInfo
 import com.callstack.react.brownfield.plugin.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.plugin.expo.utils.POMDependency
+import com.callstack.react.brownfield.plugin.expo.utils.VersionMediatingSet
 import com.callstack.react.brownfield.plugin.expo.utils.asExpoGradleProjectProjection
 import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.Logging
@@ -34,20 +35,22 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         brownfieldAppProject.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
 
         brownfieldAppProject.afterEvaluate {
-            val publishableExpoProjects = getPublishableExpoProjects()
+            val discoverableExpoProjects = getDiscoverableExpoProjects()
 
             Logging.log(
-                "Discovered ${publishableExpoProjects.size} publishable Expo projects: " + publishableExpoProjects.joinToString(
+                "Discovered ${discoverableExpoProjects.size} discoverable Expo projects: " + discoverableExpoProjects.joinToString(
                     ", "
                 ) { it.name })
 
-            val discoveredExpoTransitiveDependencies = mutableSetOf<POMDependency>()
-            publishableExpoProjects.forEach { expoProj ->
-                val expoProjPOMDependencies = discoverExpoTransitiveDependenciesForPublication(
+            val discoveredExpoTransitiveDependencies = VersionMediatingSet()
+            discoverableExpoProjects.forEach { expoProj ->
+                val maybeExpoProjPOMDependencies = discoverExpoTransitiveDependenciesForPublication(
                     expoGPProjection = expoProj,
                 )
 
-                discoveredExpoTransitiveDependencies.addAll(expoProjPOMDependencies)
+                if (maybeExpoProjPOMDependencies != null) {
+                    discoveredExpoTransitiveDependencies.addAll(maybeExpoProjPOMDependencies)
+                }
             }
 
             Logging.log("Discovered a total of ${discoveredExpoTransitiveDependencies.size} unique Expo transitive dependencies for brownfield app project publishing")
@@ -65,7 +68,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             groupId == brownfieldAppProject.rootProject.name
         val isExpoArtifact =
             Constants.BROWNFIELD_EXPO_GROUP_IDS_BLACKLIST.contains(groupId)
-//        val isRNArtifact = Constants.BROWNFIELD_RN_ARTIFACTS_BLACKLIST.contains(
+//      TODO: is this correct to be eliminated?  val isRNArtifact = Constants.BROWNFIELD_RN_ARTIFACTS_BLACKLIST.contains(
 //            FilterPackageInfo(
 //                groupId = groupId,
 //                artifactId = artifactId,
@@ -79,7 +82,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
      * Modifies the generated Gradle Module Metadata file to inject Expo transitive dependencies.
      * @param discoveredExpoTransitiveDependencies Set of POMDependency representing Expo transitive dependencies to add.
      */
-    protected fun reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies: Set<POMDependency>) {
+    protected fun reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies: VersionMediatingSet) {
         val removeDependenciesFromModuleFileTask =
             brownfieldAppProject.tasks.register("removeDependenciesFromModuleFile")
         removeDependenciesFromModuleFileTask.configure { task ->
@@ -159,7 +162,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
      * Modifies the generated Maven POM file to inject Expo transitive dependencies.
      * @param discoveredExpoTransitiveDependencies Set of POMDependency representing Expo transitive dependencies to add.
      */
-    protected fun reconfigurePOM(discoveredExpoTransitiveDependencies: Set<POMDependency>) {
+    protected fun reconfigurePOM(discoveredExpoTransitiveDependencies: VersionMediatingSet) {
         brownfieldAppProject.pluginManager.withPlugin("maven-publish") {
             brownfieldAppProject.extensions.configure(PublishingExtension::class.java) { publishing ->
                 publishing.publications.withType(MavenPublication::class.java)
@@ -232,7 +235,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
     fun discoverExpoTransitiveDependenciesForPublication(
         expoGPProjection: ExpoGradleProjectProjection,
-    ): List<POMDependency> {
+    ): List<POMDependency>? {
         val publication = getPublishingInfo(expoGPProjection)
             ?: throw IllegalStateException("Cannot configure publishing for Expo project ${expoGPProjection.name} - could not determine publishing info")
 
@@ -251,7 +254,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 )
 
         if (!pomFile.exists()) {
-            throw IllegalStateException("Expo package '$expoGPProjection.name' does not have a POM file in its local-maven-repo: $pomFile")
+            return null
         }
 
         val xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pomFile)
@@ -297,7 +300,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         return dependencies
     }
 
-    protected fun getPublishableExpoProjects(): List<ExpoGradleProjectProjection> {
+    protected fun getDiscoverableExpoProjects(): List<ExpoGradleProjectProjection> {
         val expoExtension =
             (brownfieldAppProject.rootProject.gradle.extensions.findByType(Class.forName("expo.modules.plugin.ExpoGradleExtension"))
                 ?: throw IllegalStateException(
@@ -328,7 +331,9 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             // to which the original entities are projected
             .map { expoGradleProject -> expoGradleProject.asExpoGradleProjectProjection() }
             .filter { expoGradleProjectProjection ->
-                return@filter expoGradleProjectProjection.usePublication
+                return@filter expoGradleProjectProjection.usePublication || Constants.BROWNFIELD_EXPO_WHITELISTED_DEPENDENCY_DISCOVERY_MODULES.contains(
+                    expoGradleProjectProjection.name
+                )
             }
     }
 
