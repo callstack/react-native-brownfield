@@ -1,4 +1,4 @@
-package com.callstack.react.brownfield.plugin.expo.utils
+package com.callstack.react.brownfield.expo.utils
 
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.capitalized

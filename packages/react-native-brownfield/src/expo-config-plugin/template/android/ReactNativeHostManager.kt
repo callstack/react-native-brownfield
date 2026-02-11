@@ -1,6 +1,7 @@
 package {{PACKAGE_NAME}}
 
 import android.app.Application
+import android.content.res.Configuration
 import com.callstack.reactnativebrownfield.OnJSBundleLoaded
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.PackageList
@@ -17,20 +18,6 @@ object ReactNativeHostManager {
         loadReactNative(application)
 
         ApplicationLifecycleDispatcher.onApplicationCreate(application)
-
-        application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-            override fun onActivityStarted(activity: Activity) {}
-            override fun onActivityResumed(activity: Activity) {}
-            override fun onActivityPaused(activity: Activity) {}
-            override fun onActivityStopped(activity: Activity) {}
-            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-            override fun onActivityDestroyed(activity: Activity) {}
-
-            override fun onConfigurationChanged(activity: Activity, newConfig: Configuration) {
-                ApplicationLifecycleDispatcher.onConfigurationChanged(application, newConfig)
-            }
-        })
 
         val reactNativeHost = ReactNativeHostWrapper(
             application,
@@ -58,6 +45,10 @@ object ReactNativeHostManager {
             )
         }
 
-        ReactNativeBrownfield.initialize(application, reactHost)
+        ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)
+    }
+
+    fun onConfigurationChanged(application: Application, newConfig: Configuration) {
+        ApplicationLifecycleDispatcher.onConfigurationChanged(application, newConfig)
     }
 }

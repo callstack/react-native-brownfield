@@ -102,7 +102,7 @@ The gist is below:
 // Your artifact
 
 // handlerId is the name of RN module loaded, eg: Enterprise
-RNEventHandler.sendEvent("navigate_to_faq", handlerId);
+RNEventHandler.sendEvent('navigate_to_faq', handlerId);
 ```
 
 ```kt
@@ -120,5 +120,17 @@ fun sendEvent(event: String, handlerId: String) {
 // EventHandlerRegistry
 fun sendEvent(event: String, handlerId: String) {
     eventHandlers[handlerId].invoke(event)
+}
+```
+
+### Expo
+
+If you are building an Expo application, make sure to add the following block to your Activity:
+
+```kt
+override fun onConfigurationChanged(newConfig: Configuration) {
+    super.onConfigurationChanged(newConfig)
+
+    ReactNativeHostManager.onConfigurationChanged(application, newConfig)
 }
 ```

@@ -85,9 +85,9 @@ publishing {
     }
 }
 
-signing {
-    sign(publishing.publications["mavenLocal"])
-}
+//signing {
+//    sign(publishing.publications["mavenLocal"])
+//}
 
 repositories {
     mavenCentral()
@@ -98,6 +98,7 @@ dependencies {
     implementation(libs.agp)
     implementation(libs.common)
     implementation(libs.asm.commons)
+    implementation(libs.versioncompare)
 }
 
 tasks.named("detekt").configure {

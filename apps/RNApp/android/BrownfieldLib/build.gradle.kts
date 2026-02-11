@@ -14,7 +14,7 @@ publishing {
         create<MavenPublication>("mavenAar") {
             groupId = "com.rnapp"
             artifactId = "brownfieldlib"
-            version = "0.0.1-local"
+            version = "0.0.1-SNAPSHOT"
             afterEvaluate {
                 from(components.getByName("default"))
             }

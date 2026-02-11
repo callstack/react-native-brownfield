@@ -1,5 +1,6 @@
 package com.callstack.brownfield.android.example
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -37,6 +38,12 @@ import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 import com.callstack.rnbrownfield.demo.expoapp.ReactNativeHostManager
 
 class MainActivity : AppCompatActivity() {
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        ReactNativeHostManager.onConfigurationChanged(application, newConfig)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
         enableEdgeToEdge()

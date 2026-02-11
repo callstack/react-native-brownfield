@@ -1,4 +1,4 @@
-package com.callstack.react.brownfield.plugin.expo.utils
+package com.callstack.react.brownfield.expo.utils
 
 /**
  * Partial projection interface for data class expo.modules.plugin.configuration.GradleProject

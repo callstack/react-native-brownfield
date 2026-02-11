@@ -1,18 +1,37 @@
 package com.callstack.react.brownfield.shared
 
-import com.callstack.react.brownfield.plugin.expo.utils.POMDependency
+import com.callstack.react.brownfield.expo.utils.DependencyInfo
+import com.callstack.react.brownfield.utils.StringMatcher
+import io.github.g00fy2.versioncompare.Version
 
 /**
  * A condition that checks if a certain Expo version meets specific criteria
- * and returns a set of POMDependency objects if applicable.
+ * and returns a set of DependencyInfo objects if applicable.
  */
-fun interface ExpoVersionCondition {
+fun interface ExpoVersionConditionalDepSet {
     /**
-     * Checks if the condition is applicable for the given Expo version.
+     * Gets the dependency set if it is applicable for the given Expo version.
      * @param expoVersion The Expo version to check.
-     * @return A set of POMDependency objects if the condition is met; otherwise, null.
+     * @return A set of DependencyInfo objects if the condition is met; otherwise, null.
      */
-    fun checkIfApplicable(expoVersion: String): Set<POMDependency>?
+    fun getIfApplicable(expoVersion: String): Set<DependencyInfo>?
+}
+
+data class ArtifactMatcher(
+    val groupId: StringMatcher? = null,
+    val artifactId: StringMatcher? = null,
+) {
+    fun matches(groupId: String, artifactId: String): Boolean {
+        val groupMatches = groupIdMatcher()?.matches(groupId) ?: true
+        val artifactMatches = artifactIdMatcher()?.matches(artifactId) ?: true
+        return groupMatches && artifactMatches
+    }
+
+    private fun groupIdMatcher(): StringMatcher? =
+        groupId
+
+    private fun artifactIdMatcher(): StringMatcher? =
+        artifactId
 }
 
 object Constants {
@@ -22,41 +41,43 @@ object Constants {
     const val RE_BUNDLE_FOLDER = "aar_rebundle"
     const val INTERMEDIATES_TEMP_DIR = PLUGIN_NAME
 
-    val BROWNFIELD_EXPO_WHITELISTED_DEPENDENCY_DISCOVERY_MODULES =
+    val BROWNFIELD_EXPO_TRANSITIVE_DEPS_WHITELISTED_MODULES_FOR_DISCOVERY =
         setOf("expo-modules-core", "expo-constants", "expo")
-    val BROWNFIELD_EXPO_GROUP_IDS_BLACKLIST = setOf(
+    val BROWNFIELD_EXPO_TRANSITIVE_DEPS_ARTIFACTS_BLACKLIST = setOf(
         // below: groupIds of Expo components in node_modules
-        "host.exp.exponent", "BareExpo", "expo",
+        ArtifactMatcher(groupId = StringMatcher.literal("host.exp.exponent")),
+        ArtifactMatcher(groupId = StringMatcher.literal("BareExpo")),
+        ArtifactMatcher(groupId = StringMatcher.regex("expo.*")),
+
         // below: groupId of the local Expo app itself that may be referenced by some of the Expo packages
-        "ExpoApp"
-    )
-    val BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES = setOf<ExpoVersionCondition>(
-        // below: required by https://github.com/expo/expo/blob/main/packages/expo-constants/android/build.gradle
-        ExpoVersionCondition { expoVersion ->
-            if (expoVersion)
+        ArtifactMatcher(groupId = StringMatcher.literal("ExpoApp")),
 
-                setOf(
-                    POMDependency(
-                        groupId = "commons-io",
-                        artifactId = "commons-io",
-                        version = "18.2.0",
-                        scope = "implementation",
-                        optional = false
-                    )
-                )
-        },
-
-        // below:
-        POMDependency(
-            groupId = "com.facebook.react",
-            artifactId = "hermes-android",
-            version = "0.72.1",
-            scope = "implementation",
-            optional = false
+        // below: a broken transitive dependency that has no version specified and thus breaks the build
+        ArtifactMatcher(
+            groupId = StringMatcher.literal("org.jetbrains.kotlin"),
+            artifactId = StringMatcher.literal("kotlin-build-tools-impl")
         )
     )
-//    TODO: is this correct to be eliminated? val BROWNFIELD_RN_ARTIFACTS_BLACKLIST = setOf(
-//        FilterPackageInfo(groupId = "com.facebook.react", artifactId = "react-android"),
-//        FilterPackageInfo(groupId = "com.facebook.react", artifactId = "hermes-android")
-//    )
+
+    // TODO: substitute this with proper detection of third-party transitive dependencies
+    val BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES = setOf<ExpoVersionConditionalDepSet>(
+        // below: required by rnscreens
+        ExpoVersionConditionalDepSet { expoVersion ->
+            when (Version(expoVersion) < Version("55.0.0")) {
+                true -> setOf(
+                    DependencyInfo.fromGradleDep(
+                        groupId = "io.coil-kt.coil3",
+                        artifactId = "coil-compose",
+                        version = "3.2.0",
+                    ), DependencyInfo.fromGradleDep(
+                        groupId = "io.coil-kt.coil3",
+                        artifactId = "coil-network-okhttp",
+                        version = "3.2.0",
+                    )
+                )
+
+                false -> null
+            }
+        },
+    )
 }

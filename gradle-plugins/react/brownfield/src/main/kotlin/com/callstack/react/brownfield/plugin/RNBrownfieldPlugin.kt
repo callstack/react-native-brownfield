@@ -1,7 +1,7 @@
 package com.callstack.react.brownfield.plugin
 
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
-import com.callstack.react.brownfield.plugin.expo.ExpoPublishingHelper
+import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
@@ -26,7 +26,10 @@ constructor(
     private lateinit var project: Project
     private lateinit var extension: Extension
     private lateinit var projectConfigurations: ProjectConfigurations
-    private var isExpoProject: Boolean = false
+    private var maybeExpoProject: Project? = null
+
+    private val isExpoProject: Boolean
+        get() = maybeExpoProject != null
 
     override fun apply(project: Project) {
         verifyAndroidPluginApplied(project)
@@ -39,7 +42,10 @@ constructor(
          */
         if (this.isExpoProject) {
             Logging.log("Expo project detected.")
-            ExpoPublishingHelper(project).configure()
+            ExpoPublishingHelper(
+                brownfieldAppProject = project,
+                expoProject = maybeExpoProject!!
+            ).configure()
         }
 
         RNSourceSets.configure(project, extension)
@@ -60,7 +66,7 @@ constructor(
         projectConfigurations = ProjectConfigurations(project)
         VariantPackagesProperty.setVariantPackagesProperty(project)
 
-        this.isExpoProject = project.findProject(EXPO_PROJECT_LOCATOR) != null
+        this.maybeExpoProject = project.findProject(EXPO_PROJECT_LOCATOR)
     }
 
     /**

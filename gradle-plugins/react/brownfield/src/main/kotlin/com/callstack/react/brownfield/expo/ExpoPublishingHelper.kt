@@ -1,17 +1,18 @@
-package com.callstack.react.brownfield.plugin.expo
+package com.callstack.react.brownfield.expo
 
 import com.android.build.gradle.LibraryExtension
 import com.android.utils.forEach
+import com.callstack.react.brownfield.expo.utils.BrownfieldPublishingInfo
+import com.callstack.react.brownfield.expo.utils.DependencyInfo
+import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
+import com.callstack.react.brownfield.expo.utils.VersionMediatingDependencySet
+import com.callstack.react.brownfield.expo.utils.asExpoGradleProjectProjection
 import com.callstack.react.brownfield.plugin.RNBrownfieldPlugin.Companion.EXPO_PROJECT_LOCATOR
-import com.callstack.react.brownfield.plugin.expo.utils.BrownfieldPublishingInfo
-import com.callstack.react.brownfield.plugin.expo.utils.ExpoGradleProjectProjection
-import com.callstack.react.brownfield.plugin.expo.utils.POMDependency
-import com.callstack.react.brownfield.plugin.expo.utils.VersionMediatingSet
-import com.callstack.react.brownfield.plugin.expo.utils.asExpoGradleProjectProjection
 import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.Logging
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import groovy.util.NodeList
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -30,7 +31,7 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
 }
 
 
-open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
+open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProject: Project) {
     fun configure() {
         brownfieldAppProject.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
 
@@ -42,47 +43,50 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                     ", "
                 ) { it.name })
 
-            val discoveredExpoTransitiveDependencies = VersionMediatingSet()
-            discoverableExpoProjects.forEach { expoProj ->
-                val maybeExpoProjPOMDependencies = discoverExpoTransitiveDependenciesForPublication(
-                    expoGPProjection = expoProj,
-                )
+            val expoTransitiveDependencies = discoverAllExpoTransitiveDependencies(
+                expoProjects = discoverableExpoProjects
+            )
+            expoTransitiveDependencies.addAll(getAdditionalExpoDependencies())
 
-                if (maybeExpoProjPOMDependencies != null) {
-                    discoveredExpoTransitiveDependencies.addAll(maybeExpoProjPOMDependencies)
-                }
-            }
-
-            Logging.log("Discovered a total of ${discoveredExpoTransitiveDependencies.size} unique Expo transitive dependencies for brownfield app project publishing")
-            discoveredExpoTransitiveDependencies.forEach {
+            Logging.log("Collected a total of ${expoTransitiveDependencies.size} unique Expo transitive dependencies for brownfield app project publishing")
+            expoTransitiveDependencies.forEach {
                 Logging.log("(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, ${if (it.optional) "optional" else "required"})")
             }
 
-            reconfigurePOM(discoveredExpoTransitiveDependencies)
-            reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies)
+            reconfigurePOM(expoTransitiveDependencies)
+            reconfigureGradleModuleJSON(expoTransitiveDependencies)
         }
+    }
+
+    protected fun getAdditionalExpoDependencies(): VersionMediatingDependencySet {
+        return VersionMediatingDependencySet.from(
+            source = Constants.BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES
+                .mapNotNull { conditionalDepSet ->
+                    conditionalDepSet.getIfApplicable(expoProject.version as String)
+                }
+                .flatten()
+        )
     }
 
     protected fun shouldExcludeDependency(groupId: String, artifactId: String): Boolean {
         val isRootProjectArtifact =
             groupId == brownfieldAppProject.rootProject.name
         val isExpoArtifact =
-            Constants.BROWNFIELD_EXPO_GROUP_IDS_BLACKLIST.contains(groupId)
-//      TODO: is this correct to be eliminated?  val isRNArtifact = Constants.BROWNFIELD_RN_ARTIFACTS_BLACKLIST.contains(
-//            FilterPackageInfo(
-//                groupId = groupId,
-//                artifactId = artifactId,
-//            )
-//        )
+            Constants.BROWNFIELD_EXPO_TRANSITIVE_DEPS_ARTIFACTS_BLACKLIST.any {
+                it.matches(
+                    groupId = groupId,
+                    artifactId = artifactId
+                )
+            }
 
         return (isRootProjectArtifact || isExpoArtifact)
     }
 
     /**
      * Modifies the generated Gradle Module Metadata file to inject Expo transitive dependencies.
-     * @param discoveredExpoTransitiveDependencies Set of POMDependency representing Expo transitive dependencies to add.
+     * @param discoveredExpoTransitiveDependencies Set of DependencyInfo representing Expo transitive dependencies to add.
      */
-    protected fun reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies: VersionMediatingSet) {
+    protected fun reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
         val removeDependenciesFromModuleFileTask =
             brownfieldAppProject.tasks.register("removeDependenciesFromModuleFile")
         removeDependenciesFromModuleFileTask.configure { task ->
@@ -151,7 +155,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             }
         }
 
-//        brownfieldAppProject.tasks.named("generateMetadataFileForMavenAarPublication") {
         brownfieldAppProject.tasks.withType(GenerateModuleMetadata::class.java)
             .configureEach {
                 it.finalizedBy(removeDependenciesFromModuleFileTask.get())
@@ -160,9 +163,9 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
     /**
      * Modifies the generated Maven POM file to inject Expo transitive dependencies.
-     * @param discoveredExpoTransitiveDependencies Set of POMDependency representing Expo transitive dependencies to add.
+     * @param discoveredExpoTransitiveDependencies Set of DependencyInfo representing Expo transitive dependencies to add.
      */
-    protected fun reconfigurePOM(discoveredExpoTransitiveDependencies: VersionMediatingSet) {
+    protected fun reconfigurePOM(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
         brownfieldAppProject.pluginManager.withPlugin("maven-publish") {
             brownfieldAppProject.extensions.configure(PublishingExtension::class.java) { publishing ->
                 publishing.publications.withType(MavenPublication::class.java)
@@ -174,35 +177,9 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
                             // below: obtains a view of the <dependencies> node(s) inside the POM XML; in practice, there should be only one such node
                             val dependenciesNodeList =
-                                root.get("dependencies") as groovy.util.NodeList
+                                root.get("dependencies") as NodeList
                             val dependenciesNode =
                                 dependenciesNodeList.first() as groovy.util.Node
-
-                            // below: filter out dependencies that should be excluded
-                            dependenciesNode.children()
-                                .filterIsInstance<groovy.util.Node>()
-                                .filter { dependency ->
-                                    val groupId =
-                                        (dependency["groupId"] as groovy.util.NodeList).text()
-                                    val artifactId =
-                                        (dependency["artifactId"] as groovy.util.NodeList).text()
-
-                                    val shouldBeExcluded = shouldExcludeDependency(
-                                        groupId = groupId,
-                                        artifactId = artifactId
-                                    )
-
-                                    if (shouldBeExcluded) {
-                                        Logging.log(
-                                            "Removing excluded dependency from POM: $groupId:$artifactId"
-                                        )
-                                    }
-
-                                    shouldBeExcluded
-                                }
-                                .forEach { dependency ->
-                                    dependenciesNode.remove(dependency)
-                                }
 
                             // below: inject the discovered Expo transitive dependencies into the POM's <dependencies> node
                             discoveredExpoTransitiveDependencies.forEach { dependencyToAdd ->
@@ -227,20 +204,73 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                                     }
                                 }
                             }
+
+                            // below: filter out dependencies that should be excluded
+                            dependenciesNode.children()
+                                .filterIsInstance<groovy.util.Node>()
+                                .filter { dependency ->
+                                    val groupId =
+                                        (dependency["groupId"] as NodeList).text()
+                                    val artifactId =
+                                        (dependency["artifactId"] as NodeList).text()
+
+                                    val shouldBeExcluded = shouldExcludeDependency(
+                                        groupId = groupId,
+                                        artifactId = artifactId
+                                    )
+
+                                    if (shouldBeExcluded) {
+                                        Logging.log(
+                                            "Removing excluded dependency from POM: $groupId:$artifactId"
+                                        )
+                                    }
+
+                                    shouldBeExcluded
+                                }
+                                .forEach { dependency ->
+                                    dependenciesNode.remove(dependency)
+                                }
                         }
                     }
             }
         }
     }
 
+    fun discoverAllExpoTransitiveDependencies(expoProjects: Iterable<ExpoGradleProjectProjection>): VersionMediatingDependencySet {
+        var discoveredExpoTransitiveDependencies = VersionMediatingDependencySet()
+        expoProjects.forEach { expoProj ->
+            val maybeTransitiveDepsForProj = discoverExpoTransitiveDependenciesForPublication(
+                expoGPProjection = expoProj,
+            )
+
+            if (maybeTransitiveDepsForProj != null) {
+                discoveredExpoTransitiveDependencies.addAll(
+                    maybeTransitiveDepsForProj
+                )
+            }
+        }
+
+        discoveredExpoTransitiveDependencies = discoveredExpoTransitiveDependencies.filter {
+            shouldExcludeDependency(
+                groupId = it.groupId,
+                artifactId = it.artifactId
+            ).not()
+        }
+
+        return discoveredExpoTransitiveDependencies
+    }
+
     fun discoverExpoTransitiveDependenciesForPublication(
         expoGPProjection: ExpoGradleProjectProjection,
-    ): List<POMDependency>? {
+    ): VersionMediatingDependencySet? {
         val publication = getPublishingInfo(expoGPProjection)
             ?: throw IllegalStateException("Cannot configure publishing for Expo project ${expoGPProjection.name} - could not determine publishing info")
 
-        val expoPkgLocalMavenRepo =
-            File(expoGPProjection.sourceDir).parentFile.resolve("local-maven-repo")
+        val pkgProjectDir = File(expoGPProjection.sourceDir)
+        val pkgProject = brownfieldAppProject.rootProject.allprojects.find {
+            it.projectDir.canonicalFile == pkgProjectDir.canonicalFile
+        }
+        val expoPkgLocalMavenRepo = pkgProjectDir.parentFile.resolve("local-maven-repo")
 
         val pomFile =
             expoPkgLocalMavenRepo
@@ -253,35 +283,29 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                     }/${publication.artifactId}/${publication.version}/${publication.artifactId}-${publication.version}.pom"
                 )
 
-        if (!pomFile.exists()) {
-            return null
-        }
+        val dependencies = VersionMediatingDependencySet()
+        var depsDiscoverySource = ""
 
-        val xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pomFile)
-        val dependenciesNodes = xml.getElementsByTagName("dependencies")
+        if (pomFile.exists()) {
+            // firstly, try reading transitive dependencies from the POM file
+            val xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pomFile)
+            val dependenciesNodes = xml.getElementsByTagName("dependencies")
 
-        val dependencies = mutableListOf<POMDependency>()
+            depsDiscoverySource = "POM file"
 
-        dependenciesNodes.forEach { depNodeList ->
-            depNodeList.childNodes.forEach { depNode ->
-                // below: some nodes are not dependencies, but pure text, in which case their name is '#text'
-                if (depNode.nodeName == "dependency") {
-                    val groupId = depNode.getChildNodeByName("groupId")!!.textContent
-                    val maybeArtifactId = depNode.getChildNodeByName("artifactId")
+            dependenciesNodes.forEach { depNodeList ->
+                depNodeList.childNodes.forEach { depNode ->
+                    // below: some nodes are not dependencies, but pure text, in which case their name is '#text'
+                    if (depNode.nodeName == "dependency") {
+                        val groupId = depNode.getChildNodeByName("groupId")!!.textContent
+                        val maybeArtifactId = depNode.getChildNodeByName("artifactId")
 
-                    // below: the plugin already packs Expo packages inside the brownfield AAR, so only transitive
-                    // deps are needed in the POM; Expo packages themselves should not be declared as dependencies
-                    if (!shouldExcludeDependency(
-                            groupId = groupId,
-                            artifactId = maybeArtifactId?.textContent ?: ""
-                        )
-                    ) {
                         val artifactId = maybeArtifactId!!.textContent
                         val version = depNode.getChildNodeByName("version")?.textContent
                         val scope = depNode.getChildNodeByName("scope")?.textContent
                         val optional = depNode.getChildNodeByName("optional")?.textContent
 
-                        val dependencyInfo = POMDependency(
+                        val dependencyInfo = DependencyInfo(
                             groupId = groupId,
                             artifactId = artifactId,
                             version = version,
@@ -293,13 +317,72 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                     }
                 }
             }
+        } else if (pkgProject != null) {
+            // as fallback, iterate Gradle's resolved dependencies for the Expo project
+            depsDiscoverySource = "Gradle resolved dependencies"
+
+            pkgProject.configurations
+                .filter { cfg ->
+                    setOf(
+                        "test",
+                        "androidTest",
+                        "kapt",
+                        "annotationProcessor",
+                        "lint",
+                        "detached"
+                    ).none {
+                        cfg.name.contains(it, ignoreCase = true)
+                    }
+                }
+                .filter { cfg ->
+                    setOf("compile", "implementation", "api", "runtime").any {
+                        cfg.name.contains(it, ignoreCase = true)
+                    }
+                }
+                .forEach { cfg ->
+                    cfg.dependencies
+                        .filter { dep ->
+                            dep.group != null
+                        }.forEach { dep ->
+                            dependencies.add(
+                                DependencyInfo.fromGradleDep(
+                                    groupId = dep.group!!,
+                                    artifactId = dep.name,
+                                    version = dep.version,
+                                )
+                            )
+                        }
+                }
+        } else {
+            // if no POM & no Gradle project have been resolved, there is no source for the data
+
+            Logging.log(
+                "WARNING: Could not discover transitive dependencies for Expo project '${expoGPProjection.name}' "
+                        + "- no POM file found at expected location $pomFile and no Gradle project could be "
+                        + "resolved for Expo project located at ${expoGPProjection.sourceDir}"
+            )
+
+            return null
         }
 
-        Logging.log("Discovered ${dependencies.size} POM transitive dependencies for Expo project '${expoGPProjection.name}'")
+        // below: the plugin already packs Expo packages inside the brownfield AAR, so only transitive
+        // deps are needed in the POM; Expo packages themselves should not be declared as dependencies
+        dependencies.removeAll { dep ->
+            shouldExcludeDependency(
+                groupId = dep.groupId,
+                artifactId = dep.artifactId
+            )
+        }
+
+        Logging.log("Discovered ${dependencies.size} transitive dependencies for Expo project '${expoGPProjection.name}' from $depsDiscoverySource")
 
         return dependencies
     }
 
+    /**
+     * Discovers Expo projects in the current brownfield app project that are marked for publication.
+     * @return List of ExpoGradleProjectProjection representing the discoverable Expo projects.
+     */
     protected fun getDiscoverableExpoProjects(): List<ExpoGradleProjectProjection> {
         val expoExtension =
             (brownfieldAppProject.rootProject.gradle.extensions.findByType(Class.forName("expo.modules.plugin.ExpoGradleExtension"))
@@ -331,7 +414,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             // to which the original entities are projected
             .map { expoGradleProject -> expoGradleProject.asExpoGradleProjectProjection() }
             .filter { expoGradleProjectProjection ->
-                return@filter expoGradleProjectProjection.usePublication || Constants.BROWNFIELD_EXPO_WHITELISTED_DEPENDENCY_DISCOVERY_MODULES.contains(
+                return@filter expoGradleProjectProjection.usePublication || Constants.BROWNFIELD_EXPO_TRANSITIVE_DEPS_WHITELISTED_MODULES_FOR_DISCOVERY.contains(
                     expoGradleProjectProjection.name
                 )
             }

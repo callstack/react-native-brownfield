@@ -63,10 +63,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.brownfieldlib)
 
-//    implementation("commons-io:commons-io:2.6")
-//    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
-//    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
-
     implementation(libs.androidx.fragment.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
