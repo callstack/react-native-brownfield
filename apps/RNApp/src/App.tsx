@@ -1,14 +1,13 @@
 import { NavigationContainer } from '@react-navigation/native';
 
-import { HomeScreen } from '@callstack/brownfield-shared/HomeScreen';
-
 import { Stack } from './navigation/RootStack';
+import { RNHomeScreen } from './RNHomeScreen';
 
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Home" component={RNHomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

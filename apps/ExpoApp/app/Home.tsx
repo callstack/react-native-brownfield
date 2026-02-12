@@ -1,6 +1,9 @@
+import { StyleSheet } from 'react-native';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 
 import { HomeScreen } from '@callstack/brownfield-shared/HomeScreen';
+
+import { Image } from 'expo-image';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -8,6 +11,15 @@ export default function Home() {
 
   return (
     <HomeScreen
+      name="Expo"
+      extraContents={
+        <Image
+          style={styles.image}
+          source="https://picsum.photos/800/800"
+          contentFit="cover"
+          transition={1000}
+        />
+      }
       navigation={{
         ...(navigation as any),
         push: (route, routeParams) => {
@@ -23,3 +35,11 @@ export default function Home() {
     />
   );
 }
+
+const styles = StyleSheet.create({
+  image: {
+    flex: 1,
+    width: '100%',
+    borderRadius: 20,
+  },
+});

@@ -8,9 +8,12 @@ import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 import { getRandomTheme } from './utils';
 
 export function HomeScreen({
+  name,
   navigation,
   route,
+  extraContents,
 }: {
+  name: string;
   navigation: {
     addListener: (event: string, listener: () => void) => void;
     canGoBack: () => boolean;
@@ -25,6 +28,7 @@ export function HomeScreen({
       };
     };
   };
+  extraContents: React.ReactNode;
 }) {
   const colors = route.params?.theme
     ? // vanilla setup using react-navigation gives an object, expo-router gives a serialized representation
@@ -45,7 +49,7 @@ export function HomeScreen({
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>
       <Text style={[styles.text, { color: colors.secondary }]}>
-        React Native Screen
+        {name} Screen
       </Text>
 
       <Text style={[styles.text, { color: colors.secondary }]}>
@@ -79,6 +83,8 @@ export function HomeScreen({
         color={colors.secondary}
         title="Go back"
       />
+
+      <View style={styles.extraContentsContainer}>{extraContents}</View>
     </View>
   );
 }
@@ -88,10 +94,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   text: {
     fontSize: 30,
     fontWeight: 'bold',
     margin: 10,
+  },
+  extraContentsContainer: {
+    marginTop: 20,
+    flex: 1,
+    width: '100%',
   },
 });
