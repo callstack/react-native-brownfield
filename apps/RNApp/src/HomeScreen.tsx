@@ -1,32 +1,15 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useStore } from '@callstack/brownie';
-import './BrownfieldStore.brownie';
-import {
-  createNativeStackNavigator,
-  type NativeStackScreenProps,
-} from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
-import { NavigationContainer } from '@react-navigation/native';
 
-const getRandomValue = () => Math.round(Math.random() * 255);
-const getRandomTheme = () => {
-  const primary = [getRandomValue(), getRandomValue(), getRandomValue()];
-  const secondary = [
-    255 - (primary?.[0] || 0),
-    255 - (primary?.[1] || 0),
-    255 - (primary?.[2] || 0),
-  ];
-
-  return {
-    primary: `rgb(${primary[0]}, ${primary[1]}, ${primary[2]})`,
-    secondary: `rgb(${secondary[0]}, ${secondary[1]}, ${secondary[2]})`,
-  };
-};
+import type { RootStackParamList } from './navigation/RootStack';
+import { getRandomTheme } from './utils';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-function HomeScreen({ navigation, route }: Props) {
+export function HomeScreen({ navigation, route }: Props) {
   const colors = route.params?.theme || getRandomTheme();
   const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
@@ -76,21 +59,6 @@ function HomeScreen({ navigation, route }: Props) {
         title="Go back"
       />
     </View>
-  );
-}
-type RootStackParamList = {
-  Home: { theme: { primary: string; secondary: string } };
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-export default function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
   );
 }
 
