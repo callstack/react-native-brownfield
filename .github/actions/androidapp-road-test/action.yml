@@ -34,6 +34,8 @@ runs:
           ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-
           ${{ runner.os }}-android-androidapp-gradle-
 
+    # == RN app ==
+
     - name: Package AAR with the Brownfield CLI
       run: |
         cd ${{ inputs.rn-project-path }}
@@ -53,6 +55,8 @@ runs:
     - name: Verify release AAR exists in Maven Local
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
       shell: bash
+
+    # == AndroidApp ==
 
     - name: Build native Android Brownfield app
       run: yarn run build:example:android-consumer:${{ inputs.flavor }}

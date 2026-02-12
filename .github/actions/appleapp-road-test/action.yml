@@ -1,0 +1,85 @@
+name: Apple road test (selected RN app & AppleApp)
+description: Package the given RN app as XCFramework, and build the corresponding AppleApp scheme
+
+inputs:
+  scheme:
+    description: 'AppleApp scheme to build (Expo or Vanilla)'
+    required: true
+
+  rn-project-path:
+    description: 'Path to the RN project to build'
+    required: true
+
+runs:
+  using: composite
+  env:
+    USE_CCACHE: 1
+    CCACHE_DIR: ${{ github.workspace }}/.ios_ccache
+    CCACHE_BASEDIR: ${{ github.workspace }}
+    CCACHE_COMPRESS: '1'
+  steps:
+    - name: Checkout
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+    - name: Setup
+      uses: ./.github/actions/setup
+
+    - name: Prepare iOS environment
+      uses: ./.github/actions/prepare-ios
+
+    - name: Install ccache
+      run: brew install ccache
+
+    - name: Enable ccache
+      run: echo "$(brew --prefix)/opt/ccache/libexec" >> $GITHUB_PATH
+
+    - name: Restore RNApp & AppleApp ccache
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: |
+          .ios_ccache
+        key: ${{ runner.os }}-rnapp-appleapp-${{ inputs.scheme }}-ios-ccache-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path), format('{0}/ios/*.xcodeproj/project.pbxproj', inputs.rn-project-path), 'apps/AppleApp/Brownfield Apple App.xcodeproj/project.pbxproj') }}
+        restore-keys: |
+          ${{ runner.os }}-rnapp-appleapp-${{ inputs.scheme }}-ios-ccache-
+
+    # == RN app ==
+
+    - name: Restore Pods cache (RNApp)
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: |
+          ${{ inputs.rn-project-path }}/ios/Pods
+        key: ${{ runner.os }}-rnapp-ios-pods-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path)) }}
+        restore-keys: |
+          ${{ runner.os }}-rnapp-ios-pods-
+
+    - name: Install pods (RNApp)
+      run: |
+        cd ${{ inputs.rn-project-path }}/ios
+        pod install
+
+    - name: Restore DerivedData cache (RNApp)
+      uses: actions/cache@v5
+      with:
+        path: ${{ inputs.rn-project-path }}/ios/build
+        key: ${{ runner.os }}-ios-rnapp-derived-data-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path), format('{0}/ios/*.xcodeproj/project.pbxproj', inputs.rn-project-path)) }}
+        restore-keys: |
+          ${{ runner.os }}-ios-rnapp-derived-data-
+
+    - name: Package iOS framework with the Brownfield CLI
+      run: |
+        cd ${{ inputs.rn-project-path }}
+        yarn run brownfield:package:ios
+
+    # == AppleApp ==
+
+    - name: Build Brownfield iOS native app
+      run: |
+        yarn run build:example:ios-consumer
+
+    # ==============
+
+    - name: Log ccache stats
+      uses: ./.github/actions/ccache-summary
+      with:
+        name: RNApp & AppleApp
