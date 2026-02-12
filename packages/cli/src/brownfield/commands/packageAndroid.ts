@@ -11,6 +11,7 @@ import {
   actionRunner,
   curryOptions,
 } from '../../shared/index.js';
+import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
 
 export const packageAndroidCommand = curryOptions(
@@ -23,6 +24,10 @@ export const packageAndroidCommand = curryOptions(
 ).action(
   actionRunner(async (options: PackageAarFlags) => {
     const { projectRoot, platformConfig } = getProjectInfo('android');
+    await runExpoPrebuildIfNeeded({
+      projectRoot,
+      platform: 'android',
+    });
 
     await packageAarAction({
       projectRoot,

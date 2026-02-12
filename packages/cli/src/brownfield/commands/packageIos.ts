@@ -17,6 +17,7 @@ import { Command } from 'commander';
 
 import { isBrownieInstalled } from '../../brownie/config.js';
 import { runCodegen } from '../../brownie/commands/codegen.js';
+import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
 import {
   actionRunner,
@@ -39,6 +40,7 @@ export const packageIosCommand = curryOptions(
 ).action(
   actionRunner(async (options: AppleBuildFlags) => {
     const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
+    await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
 
     if (!userConfig.project.ios) {
       throw new Error('iOS project not found.');

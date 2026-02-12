@@ -12,6 +12,7 @@ import {
   ExampleUsage,
 } from '../../shared/index.js';
 import { getProjectInfo } from '../utils/project.js';
+import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 
 export const publishAndroidCommand = curryOptions(
   new Command('publish:android').description(
@@ -21,6 +22,10 @@ export const publishAndroidCommand = curryOptions(
 ).action(
   actionRunner(async (options: PublishLocalAarFlags) => {
     const { projectRoot, platformConfig } = getProjectInfo('android');
+    await runExpoPrebuildIfNeeded({
+      projectRoot,
+      platform: 'android',
+    });
 
     await publishLocalAarAction({
       projectRoot,
