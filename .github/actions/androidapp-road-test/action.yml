@@ -1,0 +1,59 @@
+name: Android road test (selected RN app & AndroidApp)
+description: Package the given RN app as AAR, publish to Maven Local, and build the corresponding AndroidApp flavor
+
+inputs:
+  flavor:
+    description: 'AndroidApp flavor to build (expo or vanilla)'
+    required: true
+
+  rn-project-path:
+    description: 'Path to the RN project to build'
+    required: true
+
+  rn-project-maven-path:
+    description: 'Maven path to the RN project, e.g. com/rnapp/brownfieldlib'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup
+      uses: ./.github/actions/setup
+
+    - name: Prepare Android environment
+      uses: ./.github/actions/prepare-android
+
+    - name: Restore Gradle cache
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-
+          ${{ runner.os }}-android-androidapp-gradle-
+
+    - name: Package AAR with the Brownfield CLI
+      run: |
+        cd apps/${{ inputs.rn-project-path }}
+        yarn run brownfield:package:android
+      shell: bash
+
+    - name: Publish AAR artifact to Maven Local
+      run: |
+        cd apps/${{ inputs.rn-project-path }}
+        yarn run brownfield:publish:android
+      shell: bash
+
+    - name: Verify debug AAR exists in Maven Local
+      run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-debug.aar
+      shell: bash
+
+    - name: Verify release AAR exists in Maven Local
+      run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
+      shell: bash
+
+    - name: Build native Android Brownfield app
+      run: yarn run build:example:android-consumer:${{ inputs.flavor }}
+      shell: bash

@@ -67,8 +67,8 @@ jobs:
       - name: Build integrated Android tester app
         run: yarn run build:tester-integrated:android
 
-  android-rnapp-androidapp:
-    name: Android road test (RNApp & AndroidApp)
+  android-androidapp-expo:
+    name: Android road test (RNApp & AndroidApp - Expo)
     runs-on: ubuntu-latest
     needs: build-lint
 
@@ -76,45 +76,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Prepare Android environment
-        uses: ./.github/actions/prepare-android
-
-      - name: Restore Gradle cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      - name: Run RNApp -> AndroidApp road test (Expo)
+        uses: ./.github/actions/androidapp-road-test
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-android-rnapp-androidapp-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-android-rnapp-androidapp-gradle-
+          flavor: expo
+          rn-project-path: apps/ExpoApp
+          rn-project-maven-path: com/expoapp/brownfieldlib
 
-      # == RNApp ==
+  android-androidapp-vanilla:
+    name: Android road test (RNApp & AndroidApp - Vanilla)
+    runs-on: ubuntu-latest
+    needs: build-lint
 
-      - name: Package AAR with the Brownfield CLI
-        run: |
-          cd apps/RNApp
-          yarn run brownfield:package:android
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Publish AAR artifact to Maven Local
-        run: |
-          cd apps/RNApp
-          yarn run brownfield:publish:android
-
-      - name: Verify debug AAR exists in Maven Local
-        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-debug.aar
-
-      - name: Verify release AAR exists in Maven Local
-        run: stat ~/.m2/repository/com/rnapp/brownfieldlib/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
-
-      # == AndroidApp ==
-
-      - name: Build native Android Brownfield app
-        run: |
-          yarn run build:example:android-consumer
+      - name: Run RNApp -> AndroidApp road test (Vanilla)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: vanilla
+          rn-project-path: apps/RNApp
+          rn-project-maven-path: com/rnapp/brownfieldlib
 
   ios-tester-integrated:
     name: iOS road test (TesterIntegrated)
