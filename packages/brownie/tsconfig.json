@@ -3,5 +3,6 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "./lib/typescript",
+    "moduleSuffixes": [".ios", ".android", ""]
   }
 }
