@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Project } from 'ts-morph';
 
+import { NoBrownieStoresError } from './errors/NoBrownieStoresError.js';
+
 export interface DiscoveredStore {
   name: string;
   schemaPath: string;
@@ -75,7 +77,7 @@ export function discoverStores(
   const brownieFiles = findBrownieFiles(rootDir);
 
   if (brownieFiles.length === 0) {
-    throw new Error(
+    throw new NoBrownieStoresError(
       'No brownie store files found. Create a file ending with .brownie.ts ' +
         '(e.g., MyStore.brownie.ts)'
     );

@@ -15,8 +15,6 @@ import {
 
 import { Command } from 'commander';
 
-import { isBrownieInstalled } from '../../brownie/config.js';
-import { runCodegen } from '../../brownie/commands/codegen.js';
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
 import {
@@ -24,6 +22,7 @@ import {
   curryOptions,
   ExampleUsage,
 } from '../../shared/index.js';
+import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
@@ -63,10 +62,10 @@ export const packageIosCommand = curryOptions(
     const packageDir = path.join(dotBrownfieldDir, 'package', 'build');
     const configuration = options.configuration ?? 'Debug';
 
-    const hasBrownie = isBrownieInstalled(projectRoot);
-    if (hasBrownie) {
-      await runCodegen({ platform: 'swift' });
-    }
+    const { hasBrownie } = await runBrownieCodegenIfApplicable(
+      projectRoot,
+      'swift'
+    );
 
     await packageIosAction(
       options,

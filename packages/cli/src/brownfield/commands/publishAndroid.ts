@@ -13,6 +13,7 @@ import {
 } from '../../shared/index.js';
 import { getProjectInfo } from '../utils/project.js';
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
+import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 
 export const publishAndroidCommand = curryOptions(
   new Command('publish:android').description(
@@ -26,6 +27,8 @@ export const publishAndroidCommand = curryOptions(
       projectRoot,
       platform: 'android',
     });
+
+    await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
 
     await publishLocalAarAction({
       projectRoot,

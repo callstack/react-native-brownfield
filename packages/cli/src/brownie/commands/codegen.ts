@@ -15,6 +15,7 @@ import { generateSwift } from '../generators/swift.js';
 import { generateKotlin } from '../generators/kotlin.js';
 import { discoverStores, type DiscoveredStore } from '../store-discovery.js';
 import type { Platform } from '../types.js';
+import { NoBrownieStoresError } from '../errors/NoBrownieStoresError.js';
 
 function getOutputPath(dir: string, name: string, ext: string): string {
   return path.join(dir, `${name}.${ext}`);
@@ -100,25 +101,37 @@ export async function runCodegen({ platform }: RunCodegenOptions) {
     process.exit(1);
   }
 
-  const stores = discoverStores();
-  const isMultipleStores = stores.length > 1;
-  const schemaList = stores.map((s) => path.basename(s.schemaPath)).join(', ');
+  try {
+    const stores = discoverStores();
+    const isMultipleStores = stores.length > 1;
+    const schemaList = stores
+      .map((s) => path.basename(s.schemaPath))
+      .join(', ');
 
-  logger.info(
-    styleText('cyan', `Generating store types from ${schemaList}...`)
-  );
+    logger.info(
+      styleText('cyan', `Generating store types from ${schemaList}...`)
+    );
 
-  for (const store of stores) {
-    let platforms: Platform[];
+    for (const store of stores) {
+      let platforms: Platform[];
 
-    if (platform) {
-      platforms = [platform];
-    } else {
-      // Only generate Swift by default (Kotlin not yet released)
-      platforms = ['swift'];
+      if (platform) {
+        platforms = [platform];
+      } else {
+        // Only generate Swift by default (Kotlin not yet released)
+        platforms = ['swift'];
+      }
+
+      await generateForStore(store, config, platforms, isMultipleStores);
     }
-
-    await generateForStore(store, config, platforms, isMultipleStores);
+  } catch (error) {
+    if (error instanceof NoBrownieStoresError) {
+      logger.error(error.message);
+      outro('No brownie stores found, nothing was generated.');
+      return;
+    } else {
+      throw error;
+    }
   }
 
   outro('Done!');
