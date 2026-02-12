@@ -45,7 +45,7 @@
         "@callstack/react-native-brownfield",
         {
           "ios": {
-            "frameworkName": "BrownfieldExpoApp"
+            "frameworkName": "BrownfieldLib"
           },
           "android": {
             "moduleName": "brownfield-expo-app"

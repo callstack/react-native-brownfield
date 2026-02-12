@@ -198,7 +198,7 @@ jobs:
       - name: Run RNApp -> AppleApp road test (Vanilla)
         uses: ./.github/actions/appleapp-road-test
         with:
-          scheme: vanilla
+          variant: vanilla
           rn-project-path: apps/RNApp
 
   ios-appleapp-expo:
@@ -213,5 +213,5 @@ jobs:
       - name: Run RNApp -> AppleApp road test (Expo)
         uses: ./.github/actions/appleapp-road-test
         with:
-          scheme: expo
+          variant: expo
           rn-project-path: apps/RNApp

@@ -12,7 +12,7 @@
     "prebuild": "expo prebuild",
     "brownfield:package:android": "brownfield package:android --module-name brownfield-expo-app --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfield-expo-app",
-    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldExpoApp --configuration Release"
+    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release"
   },
   "dependencies": {
     "@callstack/brownie": "workspace:^",

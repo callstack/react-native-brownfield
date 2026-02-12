@@ -2285,6 +2285,8 @@ __metadata:
 "@callstack/brownfield-example-ios-app@workspace:apps/AppleApp":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-ios-app@workspace:apps/AppleApp"
+  dependencies:
+    "@rock-js/tools": "npm:^0.12.8"
   languageName: unknown
   linkType: soft
 
