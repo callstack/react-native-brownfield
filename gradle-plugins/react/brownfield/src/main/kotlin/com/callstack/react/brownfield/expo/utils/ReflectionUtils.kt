@@ -6,8 +6,10 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
 object ReflectionUtils {
-
-    fun invokeMethod(obj: Any?, method: Method): Any? {
+    fun invokeMethod(
+        obj: Any?,
+        method: Method,
+    ): Any? {
         try {
             return obj?.javaClass
                 ?.getMethod(method.name)
@@ -20,7 +22,7 @@ object ReflectionUtils {
             } catch (e: NoSuchMethodException) {
                 Logging.error(
                     "Method ${method.name} nor a getter for this name have not been found on ExpoGradleProjectProjection",
-                    e
+                    e,
                 )
             }
         }
@@ -31,12 +33,12 @@ object ReflectionUtils {
     fun <T : Any> wrapObjectProxy(
         target: Any,
         projection: Class<T>,
-        nested: List<Class<*>> = emptyList()
+        nested: List<Class<*>> = emptyList(),
     ): T {
         @Suppress("UNCHECKED_CAST")
         return Proxy.newProxyInstance(
             projection.classLoader,
-            arrayOf(projection)
+            arrayOf(projection),
         ) { _, method, _ ->
             val value = invokeMethod(target, method)
 
@@ -53,7 +55,7 @@ object ReflectionUtils {
                         else -> {
                             wrapObjectProxy(
                                 value,
-                                nestedProjection
+                                nestedProjection,
                             )
                         }
                     }
@@ -69,8 +71,9 @@ fun Any.asExpoGradleProjectProjection(): ExpoGradleProjectProjection {
     return ReflectionUtils.wrapObjectProxy(
         this,
         ExpoGradleProjectProjection::class.java,
-        nested = listOf(
-            ExpoPublication::class.java
-        )
+        nested =
+            listOf(
+                ExpoPublication::class.java,
+            ),
     )
 }

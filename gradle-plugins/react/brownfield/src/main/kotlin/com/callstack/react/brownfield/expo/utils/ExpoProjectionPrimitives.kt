@@ -11,7 +11,6 @@ interface ExpoGradleProjectProjection {
     val sourceDir: String
 }
 
-
 /**
  * Partial projection interface for data class expo.modules.plugin.configuration.Publication
  * resolved via reflection.

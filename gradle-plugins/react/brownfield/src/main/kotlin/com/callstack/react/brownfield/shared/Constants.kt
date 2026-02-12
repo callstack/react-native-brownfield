@@ -21,17 +21,18 @@ data class ArtifactMatcher(
     val groupId: StringMatcher? = null,
     val artifactId: StringMatcher? = null,
 ) {
-    fun matches(groupId: String, artifactId: String): Boolean {
+    fun matches(
+        groupId: String,
+        artifactId: String,
+    ): Boolean {
         val groupMatches = groupIdMatcher()?.matches(groupId) ?: true
         val artifactMatches = artifactIdMatcher()?.matches(artifactId) ?: true
         return groupMatches && artifactMatches
     }
 
-    private fun groupIdMatcher(): StringMatcher? =
-        groupId
+    private fun groupIdMatcher(): StringMatcher? = groupId
 
-    private fun artifactIdMatcher(): StringMatcher? =
-        artifactId
+    private fun artifactIdMatcher(): StringMatcher? = artifactId
 }
 
 object Constants {
@@ -43,40 +44,42 @@ object Constants {
 
     val BROWNFIELD_EXPO_TRANSITIVE_DEPS_WHITELISTED_MODULES_FOR_DISCOVERY =
         setOf("expo-modules-core", "expo-constants", "expo")
-    val BROWNFIELD_EXPO_TRANSITIVE_DEPS_ARTIFACTS_BLACKLIST = setOf(
-        // below: groupIds of Expo components in node_modules
-        ArtifactMatcher(groupId = StringMatcher.literal("host.exp.exponent")),
-        ArtifactMatcher(groupId = StringMatcher.literal("BareExpo")),
-        ArtifactMatcher(groupId = StringMatcher.regex("expo.*")),
-
-        // below: groupId of the local Expo app itself that may be referenced by some of the Expo packages
-        ArtifactMatcher(groupId = StringMatcher.literal("ExpoApp")),
-
-        // below: a broken transitive dependency that has no version specified and thus breaks the build
-        ArtifactMatcher(
-            groupId = StringMatcher.literal("org.jetbrains.kotlin"),
-            artifactId = StringMatcher.literal("kotlin-build-tools-impl")
+    val BROWNFIELD_EXPO_TRANSITIVE_DEPS_ARTIFACTS_BLACKLIST =
+        setOf(
+            // below: groupIds of Expo components in node_modules
+            ArtifactMatcher(groupId = StringMatcher.literal("host.exp.exponent")),
+            ArtifactMatcher(groupId = StringMatcher.literal("BareExpo")),
+            ArtifactMatcher(groupId = StringMatcher.regex("expo.*")),
+            // below: groupId of the local Expo app itself that may be referenced by some of the Expo packages
+            ArtifactMatcher(groupId = StringMatcher.literal("ExpoApp")),
+            // below: a broken transitive dependency that has no version specified and thus breaks the build
+            ArtifactMatcher(
+                groupId = StringMatcher.literal("org.jetbrains.kotlin"),
+                artifactId = StringMatcher.literal("kotlin-build-tools-impl"),
+            ),
         )
-    )
 
-    val BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES = setOf<ExpoVersionConditionalDepSet>(
-        // below: required by rnscreens
-        ExpoVersionConditionalDepSet { expoVersion ->
-            when (Version(expoVersion) < Version("55.0.0")) {
-                true -> setOf(
-                    DependencyInfo.fromGradleDep(
-                        groupId = "io.coil-kt.coil3",
-                        artifactId = "coil-compose",
-                        version = "3.2.0",
-                    ), DependencyInfo.fromGradleDep(
-                        groupId = "io.coil-kt.coil3",
-                        artifactId = "coil-network-okhttp",
-                        version = "3.2.0",
-                    )
-                )
+    val BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES =
+        setOf<ExpoVersionConditionalDepSet>(
+            // below: required by rnscreens
+            ExpoVersionConditionalDepSet { expoVersion ->
+                when (Version(expoVersion) < Version("55.0.0")) {
+                    true ->
+                        setOf(
+                            DependencyInfo.fromGradleDep(
+                                groupId = "io.coil-kt.coil3",
+                                artifactId = "coil-compose",
+                                version = "3.2.0",
+                            ),
+                            DependencyInfo.fromGradleDep(
+                                groupId = "io.coil-kt.coil3",
+                                artifactId = "coil-network-okhttp",
+                                version = "3.2.0",
+                            ),
+                        )
 
-                false -> null
-            }
-        },
-    )
+                    false -> null
+                }
+            },
+        )
 }

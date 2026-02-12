@@ -61,7 +61,7 @@ class JNILibsProcessor : BaseProject() {
                                 androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variant.name }
                             filteredSourceSets.forEach { sourceSet ->
                                 sourceSet.jniLibs.srcDir(
-                                    jniDir
+                                    jniDir,
                                 )
                             }
                         }

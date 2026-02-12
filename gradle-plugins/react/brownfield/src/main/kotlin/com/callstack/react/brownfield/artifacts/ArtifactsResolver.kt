@@ -122,8 +122,8 @@ class ArtifactsResolver(
                         handleUnResolvedArtifacts(
                             configuration,
                             variant,
-                            resolvedArtifacts
-                        )
+                            resolvedArtifacts,
+                        ),
                     )
                 }
             }
@@ -141,8 +141,8 @@ class ArtifactsResolver(
         variant: LibraryVariant,
     ): Boolean {
         return configuration.name == CONFIG_NAME || configuration.name == variant.buildType.name + CONFIG_SUFFIX ||
-                configuration.name == variant.flavorName + CONFIG_SUFFIX ||
-                configuration.name == variant.name + CONFIG_SUFFIX
+            configuration.name == variant.flavorName + CONFIG_SUFFIX ||
+            configuration.name == variant.name + CONFIG_SUFFIX
     }
 
     private fun resolveArtifacts(configuration: Configuration): Collection<ResolvedArtifact> {
@@ -151,7 +151,7 @@ class ArtifactsResolver(
             if (artifact.type != ARTIFACT_TYPE_AAR && artifact.type != ARTIFACT_TYPE_JAR) {
                 throw ProjectConfigurationException(
                     "Unsupported dependency. Please provide either Aar or Jar dependency",
-                    listOf()
+                    listOf(),
                 )
             }
             artifacts.add(artifact)

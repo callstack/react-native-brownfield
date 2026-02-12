@@ -11,7 +11,7 @@ data class DependencyInfo(
     val artifactId: String,
     val version: String?,
     val scope: String,
-    val optional: Boolean
+    val optional: Boolean,
 ) {
     companion object {
         fun fromGradleDep(
@@ -24,7 +24,7 @@ data class DependencyInfo(
                 artifactId = artifactId,
                 version = version,
                 scope = "compile",
-                optional = false
+                optional = false,
             )
         }
     }

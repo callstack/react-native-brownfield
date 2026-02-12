@@ -43,8 +43,9 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
         return try {
             val publishArtifact =
                 artifact::class.members.find { it.name == "publishArtifact" }?.call(artifact)
-            val buildDependencies = publishArtifact?.javaClass?.getMethod("getBuildDependencies")
-                ?.invoke(publishArtifact)
+            val buildDependencies =
+                publishArtifact?.javaClass?.getMethod("getBuildDependencies")
+                    ?.invoke(publishArtifact)
             @Suppress("UNCHECKED_CAST")
             buildDependencies as? Set<Any> ?: emptySet()
         } catch (ignore: MissingPropertyException) {
@@ -79,7 +80,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
         val javacDir = getClassPathDirFiles().first()
         project.fileTree(outputDir).forEach { path ->
             pathsToDelete.add(
-                Paths.get(outputDir.absolutePath).relativize(Paths.get(path.absolutePath))
+                Paths.get(outputDir.absolutePath).relativize(Paths.get(path.absolutePath)),
             )
         }
         outputDir.deleteRecursively()
@@ -115,7 +116,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
         return project.file(
             "$buildDir/intermediates/aar_libs_directory/${variant.name}/sync${
                 variant.name.replaceFirstChar(
-                    Char::titlecase
+                    Char::titlecase,
                 )
             }LibJars/libs",
         )

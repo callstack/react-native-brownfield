@@ -30,10 +30,12 @@ open class VersionMediatingDependencySet : Iterable<DependencyInfo> {
         val existingVersion = existing.version
         val newVersion = element.version
 
-        if (newVersion != null && (existingVersion == null || compareVersions(
-                newVersion,
-                existingVersion
-            ) > 0)
+        if (newVersion != null && (
+                existingVersion == null || compareVersions(
+                    newVersion,
+                    existingVersion,
+                ) > 0
+            )
         ) {
             backingMap[key] = element
             return true
@@ -47,9 +49,10 @@ open class VersionMediatingDependencySet : Iterable<DependencyInfo> {
     }
 
     fun filter(predicate: (DependencyInfo) -> Boolean): VersionMediatingDependencySet {
-        backingMap = backingMap.filter {
-            predicate(it.value)
-        }.toMutableMap()
+        backingMap =
+            backingMap.filter {
+                predicate(it.value)
+            }.toMutableMap()
 
         return this
     }
@@ -74,7 +77,10 @@ open class VersionMediatingDependencySet : Iterable<DependencyInfo> {
         }
     }
 
-    private fun compareVersions(version1: String, version2: String): Int {
+    private fun compareVersions(
+        version1: String,
+        version2: String,
+    ): Int {
         return Version(version1).compareTo(Version(version2))
     }
 

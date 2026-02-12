@@ -163,6 +163,5 @@ class VariantTaskProvider(private val variantHelper: VariantHelper) : BaseProjec
         }
     }
 
-    private fun getReBundleFilePath(folderName: String) =
-        "${DirectoryManager.getReBundleDirectory(variant).path}/$folderName"
+    private fun getReBundleFilePath(folderName: String) = "${DirectoryManager.getReBundleDirectory(variant).path}/$folderName"
 }

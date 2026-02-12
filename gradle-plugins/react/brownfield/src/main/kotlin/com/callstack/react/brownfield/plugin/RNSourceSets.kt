@@ -93,10 +93,11 @@ object RNSourceSets {
         val rnEntryPointTask = appProject.tasks.findByName(rnEntryPointTaskName) ?: return
 
         task.dependsOn(rnEntryPointTask)
-        val sourceFile = File(
-            moduleBuildDir.toString(),
-            "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java"
-        )
+        val sourceFile =
+            File(
+                moduleBuildDir.toString(),
+                "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java",
+            )
         task.doLast {
             if (sourceFile.exists()) {
                 var content = sourceFile.readText()
