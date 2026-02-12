@@ -99,6 +99,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
      * @param discoveredExpoTransitiveDependencies Set of DependencyInfo
      * representing Expo transitive dependencies to add.
      */
+    @Suppress("LongMethod")
     protected fun reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
         val removeDependenciesFromModuleFileTask =
             brownfieldAppProject.tasks.register("removeDependenciesFromModuleFile")
@@ -182,6 +183,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
      * @param discoveredExpoTransitiveDependencies Set of DependencyInfo
      * representing Expo transitive dependencies to add.
      */
+    @Suppress("LongMethod")
     protected fun reconfigurePOM(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
         brownfieldAppProject.pluginManager.withPlugin("maven-publish") {
             brownfieldAppProject.extensions.configure(PublishingExtension::class.java) { publishing ->
@@ -289,7 +291,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
     fun discoverExpoTransitiveDependenciesForPublication(expoGPProjection: ExpoGradleProjectProjection): VersionMediatingDependencySet? {
         val publication =
             getPublishingInfo(expoGPProjection)
-                ?: throw IllegalStateException(
+                ?: error(
                     "Cannot configure publishing for Expo project " +
                         "${expoGPProjection.name} - could not determine publishing info",
                 )
@@ -314,76 +316,23 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
                 )
 
         val dependencies = VersionMediatingDependencySet()
-        var depsDiscoverySource = ""
+        var depsDiscoverySource: String
 
         if (pomFile.exists()) {
             // firstly, try reading transitive dependencies from the POM file
             val xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pomFile)
-            val dependenciesNodes = xml.getElementsByTagName("dependencies")
 
             depsDiscoverySource = "POM file"
 
-            dependenciesNodes.forEach { depNodeList ->
-                depNodeList.childNodes.forEach { depNode ->
-                    // below: some nodes are not dependencies, but pure text, in which case their name is '#text'
-                    if (depNode.nodeName == "dependency") {
-                        val groupId = depNode.getChildNodeByName("groupId")!!.textContent
-                        val maybeArtifactId = depNode.getChildNodeByName("artifactId")
-
-                        val artifactId = maybeArtifactId!!.textContent
-                        val version = depNode.getChildNodeByName("version")?.textContent
-                        val scope = depNode.getChildNodeByName("scope")?.textContent
-                        val optional = depNode.getChildNodeByName("optional")?.textContent
-
-                        val dependencyInfo =
-                            DependencyInfo(
-                                groupId = groupId,
-                                artifactId = artifactId,
-                                version = version,
-                                scope = scope ?: "compile",
-                                optional = optional?.toBoolean() ?: false,
-                            )
-
-                        dependencies.add(dependencyInfo)
-                    }
-                }
-            }
+            appendExpoTransitiveDependenciesFromMavenPOM(
+                xml.getElementsByTagName("dependencies"),
+                dependencies,
+            )
         } else if (pkgProject != null) {
             // as fallback, iterate Gradle's resolved dependencies for the Expo project
             depsDiscoverySource = "Gradle resolved dependencies"
 
-            pkgProject.configurations
-                .filter { cfg ->
-                    setOf(
-                        "test",
-                        "androidTest",
-                        "kapt",
-                        "annotationProcessor",
-                        "lint",
-                        "detached",
-                    ).none {
-                        cfg.name.contains(it, ignoreCase = true)
-                    }
-                }
-                .filter { cfg ->
-                    setOf("compile", "implementation", "api", "runtime").any {
-                        cfg.name.contains(it, ignoreCase = true)
-                    }
-                }
-                .forEach { cfg ->
-                    cfg.dependencies
-                        .filter { dep ->
-                            dep.group != null
-                        }.forEach { dep ->
-                            dependencies.add(
-                                DependencyInfo.fromGradleDep(
-                                    groupId = dep.group!!,
-                                    artifactId = dep.name,
-                                    version = dep.version,
-                                ),
-                            )
-                        }
-                }
+            appendExpoTransitiveDependenciesFromGradle(pkgProject, dependencies)
         } else {
             // if no POM & no Gradle project have been resolved, there is no source for the data
 
@@ -413,18 +362,83 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
         return dependencies
     }
 
+    protected fun appendExpoTransitiveDependenciesFromMavenPOM(
+        dependenciesNodes: org.w3c.dom.NodeList,
+        dependencies: VersionMediatingDependencySet,
+    ) {
+        dependenciesNodes.forEach { depNodeList ->
+            depNodeList.childNodes.forEach { depNode ->
+                // below: some nodes are not dependencies, but pure text, in which case their name is '#text'
+                if (depNode.nodeName == "dependency") {
+                    val groupId = depNode.getChildNodeByName("groupId")!!.textContent
+                    val maybeArtifactId = depNode.getChildNodeByName("artifactId")
+
+                    val artifactId = maybeArtifactId!!.textContent
+                    val version = depNode.getChildNodeByName("version")?.textContent
+                    val scope = depNode.getChildNodeByName("scope")?.textContent
+                    val optional = depNode.getChildNodeByName("optional")?.textContent
+
+                    val dependencyInfo =
+                        DependencyInfo(
+                            groupId = groupId,
+                            artifactId = artifactId,
+                            version = version,
+                            scope = scope ?: "compile",
+                            optional = optional?.toBoolean() ?: false,
+                        )
+
+                    dependencies.add(dependencyInfo)
+                }
+            }
+        }
+    }
+
+    protected fun appendExpoTransitiveDependenciesFromGradle(
+        pkgProject: Project,
+        dependencies: VersionMediatingDependencySet,
+    ) {
+        pkgProject.configurations
+            .filter { cfg ->
+                setOf(
+                    "test",
+                    "androidTest",
+                    "kapt",
+                    "annotationProcessor",
+                    "lint",
+                    "detached",
+                ).none {
+                    cfg.name.contains(it, ignoreCase = true)
+                }
+            }
+            .filter { cfg ->
+                setOf("compile", "implementation", "api", "runtime").any {
+                    cfg.name.contains(it, ignoreCase = true)
+                }
+            }
+            .forEach { cfg ->
+                cfg.dependencies
+                    .filter { dep ->
+                        dep.group != null
+                    }.forEach { dep ->
+                        dependencies.add(
+                            DependencyInfo.fromGradleDep(
+                                groupId = dep.group!!,
+                                artifactId = dep.name,
+                                version = dep.version,
+                            ),
+                        )
+                    }
+            }
+    }
+
     /**
      * Discovers Expo projects in the current brownfield app project that are marked for publication.
      * @return List of ExpoGradleProjectProjection representing the discoverable Expo projects.
      */
     protected fun getDiscoverableExpoProjects(): List<ExpoGradleProjectProjection> {
         val expoExtension =
-            (
-                brownfieldAppProject.rootProject.gradle.extensions.findByType(Class.forName("expo.modules.plugin.ExpoGradleExtension"))
-                    ?: throw IllegalStateException(
-                        "Expo Gradle extension not found. This should never happen in an Expo project.",
-                    )
-            )
+            brownfieldAppProject.rootProject.gradle.extensions.findByType(Class.forName("expo.modules.plugin.ExpoGradleExtension"))
+                ?: error("Expo Gradle extension not found. This should never happen in an Expo project.")
 
         // expoExtension.config
         val config =
@@ -460,42 +474,40 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
     }
 
     fun getPublishingInfo(expoGPProjection: ExpoGradleProjectProjection): BrownfieldPublishingInfo? {
-        return (
-            expoGPProjection.publication?.let {
-                BrownfieldPublishingInfo(
-                    groupId = it.groupId,
-                    artifactId = it.artifactId,
-                    version = it.version,
-                )
-            } ?: run {
-                val targetProject =
-                    brownfieldAppProject.rootProject.allprojects.firstOrNull {
-                        it.projectDir.absoluteFile.path == expoGPProjection.sourceDir
-                    }
-
-                if (targetProject == null) {
-                    return null
+        return expoGPProjection.publication?.let {
+            BrownfieldPublishingInfo(
+                groupId = it.groupId,
+                artifactId = it.artifactId,
+                version = it.version,
+            )
+        } ?: run {
+            val targetProject =
+                brownfieldAppProject.rootProject.allprojects.firstOrNull {
+                    it.projectDir.absoluteFile.path == expoGPProjection.sourceDir
                 }
 
-                val targetProjectAndroidLibExt =
-                    targetProject.extensions.getByType(LibraryExtension::class.java)
-
-                val packagePieces = targetProjectAndroidLibExt.namespace!!.split(".")
-                val artifactId = packagePieces.last()
-                // below: remove the trailing artifactId component -> leaves only the groupId components
-                val groupId = packagePieces.dropLast(1).joinToString(".")
-
-                (
-                    BrownfieldPublishingInfo(
-                        groupId = groupId,
-                        artifactId = artifactId,
-                        version = (
-                            targetProjectAndroidLibExt.defaultConfig.versionName
-                                ?: targetProject.version.toString()
-                        ),
-                    )
-                )
+            if (targetProject == null) {
+                return null
             }
-        )
+
+            val targetProjectAndroidLibExt =
+                targetProject.extensions.getByType(LibraryExtension::class.java)
+
+            val packagePieces = targetProjectAndroidLibExt.namespace!!.split(".")
+            val artifactId = packagePieces.last()
+            // below: remove the trailing artifactId component -> leaves only the groupId components
+            val groupId = packagePieces.dropLast(1).joinToString(".")
+
+            (
+                BrownfieldPublishingInfo(
+                    groupId = groupId,
+                    artifactId = artifactId,
+                    version = (
+                        targetProjectAndroidLibExt.defaultConfig.versionName
+                            ?: targetProject.version.toString()
+                    ),
+                )
+            )
+        }
     }
 }
