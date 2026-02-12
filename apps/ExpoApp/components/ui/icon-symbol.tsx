@@ -21,6 +21,7 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  plus: 'add',
 } as IconMapping;
 
 /**
@@ -33,12 +34,14 @@ export function IconSymbol({
   size = 24,
   color,
   style,
+  onPress,
 }: {
   name: IconSymbolName;
   size?: number;
   color: string | OpaqueColorValue;
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
+  onPress?: () => void;
 }) {
   return (
     <MaterialIcons
@@ -46,6 +49,7 @@ export function IconSymbol({
       size={size}
       name={MAPPING[name]}
       style={style}
+      onPress={onPress}
     />
   );
 }

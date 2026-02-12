@@ -24,8 +24,7 @@ export function addFrameworkTarget(
   const existingTarget = project.pbxTargetByName(frameworkName);
   if (existingTarget) {
     Logger.logDebug(
-      `Framework target "${frameworkName}" already exists, skipping creation`,
-      existingTarget
+      `Framework target "${frameworkName}" already exists, skipping creation`
     );
 
     return null;
