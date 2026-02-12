@@ -36,13 +36,13 @@ runs:
 
     - name: Package AAR with the Brownfield CLI
       run: |
-        cd apps/${{ inputs.rn-project-path }}
+        cd ${{ inputs.rn-project-path }}
         yarn run brownfield:package:android
       shell: bash
 
     - name: Publish AAR artifact to Maven Local
       run: |
-        cd apps/${{ inputs.rn-project-path }}
+        cd ${{ inputs.rn-project-path }}
         yarn run brownfield:publish:android
       shell: bash
 
