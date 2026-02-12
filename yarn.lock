@@ -2255,7 +2255,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@callstack/brownfield-example-rn-app@workspace:apps/RNApp":
+"@callstack/brownfield-example-rn-app@workspace:^, @callstack/brownfield-example-rn-app@workspace:apps/RNApp":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-rn-app@workspace:apps/RNApp"
   dependencies:
@@ -10808,6 +10808,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "expoapp@workspace:apps/ExpoApp"
   dependencies:
+    "@callstack/brownfield-example-rn-app": "workspace:^"
+    "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@expo/vector-icons": "npm:^15.0.3"
     "@react-navigation/bottom-tabs": "npm:^7.4.0"
