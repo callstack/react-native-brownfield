@@ -14,7 +14,7 @@ import { PackageManagerTabs } from '@theme';
 
 ## Installation
 
-The React Native Brownfield library is intended to be installed in a React Native app that is later consumed as a framework artifact by your native iOS or Android app.
+The React Native Brownfield library is intended to be installed in a **React Native app** that is later consumed as a **framework artifact** by your native iOS or Android app.
 
 In your React Native project run:
 
@@ -22,181 +22,66 @@ In your React Native project run:
 
 ### iOS Setup
 
-Run `pod install` in your iOS directory.
+Run **`pod install`** in your iOS directory.
 
 ### Android Setup
 
-The library will be automatically linked via autolinking.
+The library will be **automatically linked** via autolinking.
 
-### Packaging React Native app as a framework
+## What is the Brownfield CLI?
 
-First, we need to package our React Native app as an XCFramework or Fat-AAR.
+The `@callstack/react-native-brownfield` package includes a [**built-in CLI**](/docs/cli/introduction) that handles the complex process of packaging your React Native app into native framework artifacts.
 
-#### With the built-in CLI
+### Why do you need it?
 
-For best experience, you can use the built-in `brownfield` CLI that comes with this library to package your React Native app for iOS and Android.
+Integrating React Native into an existing native app requires packaging your JavaScript code and native dependencies into formats that native apps can consume:
 
-Follow [the CLI documentation here](/docs/cli/introduction) to see how to use it.
-
-#### For Expo apps
-
-For Expo apps, the CLI is the preferred way to package your React Native app as an XCFramework or Fat-AAR. Additionally, `@callstack/react-native-brownfield` ships an Expo plugin that you need to configure in your `app.json` file:
-
-```json
-{
-  "plugins": [
-    [
-      "@callstack/react-native-brownfield",
-      {
-        "ios": {
-          "frameworkName": "BrownfieldExpoApp"
-        },
-        "android": {
-          "moduleName": "brownfield-expo-app"
-        },
-        "debug": true
-      }
-    ]
-  ]
-}
-```
-
-Then, follow [the CLI documentation here](/docs/cli/introduction) to see how to package the application.
+- **iOS** → **XCFramework** (`.xcframework`)
+- **Android** → **AAR** (`.aar`)
 
 #### With Rock
 
-It is very likely you will find Rock the easiest way to use brownfield in your React Native project. Rock provides for instance a clean template with `@callstack/react-native-brownfield` already integrated so you can easily bootstrap a new, clean brownfield project with zero manual configuration required. Below you will find instructions both for bootstrapping a new brownfield project and integrating your existing React Native app with Rock.
+Without the CLI, this process involves:
 
-Follow [Integrating with Native Apps](https://www.rockjs.dev/docs/brownfield/intro) steps in Rock docs and run:
+- Manually configuring build scripts
+- Bundling JavaScript with the correct settings
+- Compiling native code for multiple architectures
+- Handling Hermes bytecode compilation
+- Managing native dependencies and linking
 
-- `rock package:ios` for iOS
-- `rock package:aar` for Android
+The **Brownfield CLI automates all of this** with simple commands.
 
-### With Custom Scripts
+### What does it do?
 
-Instead of using Rock, you can create your own custom packaging scripts. Here are base versions for iOS and Android that you'll need to adjust for your project-specific setup:
+| Command                 | Platform | Output                                                                                               |
+| ----------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| **`package:ios`**       | iOS      | Creates an XCFramework containing your React Native app, Hermes runtime, and all native dependencies |
+| **`package:aar`**       | Android  | Creates a Fat-AAR containing your React Native app bundled with all native dependencies              |
+| **`publish-local:aar`** | Android  | Publishes the AAR to your local Maven repository for easy consumption                                |
 
-- [Example iOS script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-xcframework.sh)
-- [Example Android script](https://github.com/callstackincubator/modern-brownfield-ref/blob/main/scripts/build-aar.sh)
+### How does it make integration easier?
 
-## Native iOS App
-
-In your native iOS app, initialize React Native and display it where you like. For example, to display React Native views in SwiftUI, use the provided `ReactNativeView` component:
-
-```swift
-import SwiftUI
-import ReactBrownfield // exposed by RN app framework
-
-@main
-struct MyApp: App {
-  init() {
-    ReactNativeBrownfield.shared.startReactNative {
-      print("React Native bundle loaded")
-    }
-  }
-
-  var body: some Scene {
-    WindowGroup {
-      ContentView()
-    }
-  }
-}
-
-struct ContentView: View {
-  var body: some View {
-    NavigationView {
-      VStack {
-        Text("Welcome to the Native App")
-          .padding()
-
-        NavigationLink("Push React Native Screen") {
-          ReactNativeView(moduleName: "ReactNative")
-            .navigationBarHidden(true)
-        }
-      }
-    }
-  }
-}
-```
-
-For more detailed instructions and API for iOS, see docs for:
-
-- [Objective-C](/docs/api-reference/objective-c)
-- [Swift](/docs/api-reference/swift)
-
-## Native Android App
-
-In your native Android app, create a new `RNAppFragment.kt`:
-
-```kt
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-
-class RNAppFragment : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? = ReactNativeBrownfield.shared.createView(activity, "BrownFieldTest")
-}
-```
-
-Add a button to your `activity_main.xml`:
-
-```xml
-<Button
-    android:id="@+id/show_rn_app_btn"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Show RN App"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-```
-
-Add a fragment container:
-
-```xml
-<FrameLayout
-    android:id="@+id/fragmentContainer"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
-```
-
-Update your `MainActivity` to initialize React Native and show the fragment:
-
-```kt
-class MainActivity : AppCompatActivity() {
-    private lateinit var showRNAppBtn: Button
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        ReactNativeHostManager.shared.initialize(this.application) {
-          println("JS bundle loaded")
-        }
-
-        showRNAppBtn = findViewById(R.id.show_rn_app_btn)
-        showRNAppBtn.setOnClickListener {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, RNAppFragment())
-                .commit()
-        }
-    }
-
-}
-```
-
-For more detailed instructions and API for Android, see docs for:
-
-- [Java](/docs/api-reference/java)
-- [Kotlin](/docs/api-reference/kotlin)
+1. **No Node.js in your native app** - Your native iOS/Android app doesn't need Node.js, npm, or any JavaScript tooling installed
+2. **Single artifact** - All React Native code and dependencies are bundled into one file
+3. **Debug & Release support** - The CLI handles both configurations automatically
+4. **Architecture support** - Builds for all required CPU architectures (arm64, x86_64, etc.)
 
 ## Next Steps
 
-- Check out the [API Reference](/docs/api-reference/swift) for detailed documentation
-- Read the [Guidelines](/docs/guides/guidelines) for best practices
+Now that you have the library installed, follow the platform-specific guides to package your React Native app and integrate it with your native app:
+
+- [**iOS Integration**](/docs/getting-started/ios) - Package as XCFramework and integrate with your iOS app
+- [**Android Integration**](/docs/getting-started/android) - Package as AAR and integrate with your Android app
+
+## API Reference
+
+For detailed API documentation, see:
+
+- [Swift API](/docs/api-reference/react-native-brownfield/swift)
+- [Objective-C API](/docs/api-reference/react-native-brownfield/objective-c)
+- [Kotlin API](/docs/api-reference/react-native-brownfield/kotlin)
+- [Java API](/docs/api-reference/react-native-brownfield/java)
+
+## Guidelines
+
+Read the [**Guidelines**](/docs/guides/guidelines) for best practices on integrating React Native into your native app.

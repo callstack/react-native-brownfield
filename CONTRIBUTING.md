@@ -24,7 +24,6 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `typecheck` - runs TypeScript type checking on all TS source files in the monorepo _[Turbo]_
 - `build` - runs all `build*` tasks in the Turbo repo - see below for more details _[Turbo]_
 - `dev` - runs all `dev` tasks in all workspaces
-- `release` - releases a new version of React Native Brownfield package using `release-it`
 - `brownfield:plugin:publish:local` - publishes the Brownfield Gradle plugin to your local Maven repository for testing purposes
 - `build:brownfield` - builds the React Native Brownfield package (`packages/react-native-brownfield`) _[Turbo]_
 - `build:docs` - builds the documentation site (`docs/`) _[Turbo]_

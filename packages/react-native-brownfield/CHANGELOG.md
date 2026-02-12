@@ -1,5 +1,25 @@
 # @callstack/react-native-brownfield
 
+## 2.2.0
+
+### Minor Changes
+
+- [#212](https://github.com/callstack/react-native-brownfield/pull/212) [`4728945`](https://github.com/callstack/react-native-brownfield/commit/47289457b9bdbe50cf3c65a78c7f1d9d555dca9c) Thanks [@gronxb](https://github.com/gronxb)! - feat(ios): add bundleURL provider for dynamic bundle loading
+
+### Patch Changes
+
+- [#216](https://github.com/callstack/react-native-brownfield/pull/216) [`8ce3ea1`](https://github.com/callstack/react-native-brownfield/commit/8ce3ea10e0719adac7396dea8f171753e901b31d) Thanks [@thymikee](https://github.com/thymikee)! - chore: remove release-it
+
+- Updated dependencies [[`8ce3ea1`](https://github.com/callstack/react-native-brownfield/commit/8ce3ea10e0719adac7396dea8f171753e901b31d)]:
+  - @callstack/brownfield-cli@1.0.4
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`2347775`](https://github.com/callstack/react-native-brownfield/commit/23477753b16ee189b82c1aee3eac98a56c79f52a)]:
+  - @callstack/brownfield-cli@1.0.3
+
 ## 2.1.0
 
 ### Minor Changes

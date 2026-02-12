@@ -57,7 +57,30 @@ As you can see the issue here is that now we are mixing the native App with reac
 
 ## Expo Brownfield
 
-If you are building an Expo application, additionally to the standard brownfield approach, make sure to add the following block to your Activity:
+If you are building an Expo application, additionally to the standard brownfield approach, make sure to do the following:
+
+1. Add the following block to your `app.json` file:
+
+```json
+{
+  "plugins": [
+    [
+      "@callstack/react-native-brownfield",
+      {
+        "ios": {
+          "frameworkName": "BrownfieldExpoApp"
+        },
+        "android": {
+          "moduleName": "brownfield-expo-app"
+        },
+        "debug": true
+      }
+    ]
+  ]
+}
+```
+
+2. Add the following block to your Activity:
 
 ```kt
 override fun onConfigurationChanged(newConfig: Configuration) {
