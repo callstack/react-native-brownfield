@@ -141,7 +141,7 @@ fun ReactNativeView(
         arguments = Bundle().apply {
             putString(
                 ReactNativeFragmentArgNames.ARG_MODULE_NAME,
-                "main"
+                ReactNativeConstants.MAIN_MODULE_NAME
             )
         }
     )
