@@ -38,6 +38,31 @@ For best experience, you can use the built-in `brownfield` CLI that comes with t
 
 Follow [the CLI documentation here](/docs/cli/introduction) to see how to use it.
 
+#### For Expo apps
+
+For Expo apps, the CLI is the preferred way to package your React Native app as an XCFramework or Fat-AAR. Additionally, `@callstack/react-native-brownfield` ships an Expo plugin that you need to configure in your `app.json` file:
+
+```json
+{
+  "plugins": [
+    [
+      "@callstack/react-native-brownfield",
+      {
+        "ios": {
+          "frameworkName": "BrownfieldExpoApp"
+        },
+        "android": {
+          "moduleName": "brownfield-expo-app"
+        },
+        "debug": true
+      }
+    ]
+  ]
+}
+```
+
+Then, follow [the CLI documentation here](/docs/cli/introduction) to see how to package the application.
+
 #### With Rock
 
 It is very likely you will find Rock the easiest way to use brownfield in your React Native project. Rock provides for instance a clean template with `@callstack/react-native-brownfield` already integrated so you can easily bootstrap a new, clean brownfield project with zero manual configuration required. Below you will find instructions both for bootstrapping a new brownfield project and integrating your existing React Native app with Rock.
