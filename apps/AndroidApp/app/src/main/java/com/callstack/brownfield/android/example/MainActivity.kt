@@ -34,8 +34,6 @@ import androidx.fragment.compose.AndroidFragment
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
-// import com.rnapp.brownfieldlib.ReactNativeHostManager
-import com.callstack.rnbrownfield.demo.expoapp.ReactNativeHostManager
 
 class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {

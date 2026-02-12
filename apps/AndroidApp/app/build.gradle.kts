@@ -28,6 +28,16 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "app"
+    productFlavors {
+        create("expo") {
+            dimension = "app"
+        }
+        create("vanilla") {
+            dimension = "app"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -61,7 +71,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
-    implementation(libs.brownfieldlib)
+    add("expoImplementation", libs.brownfieldlib.expo)
+    add("vanillaImplementation", libs.brownfieldlib.vanilla)
 
     implementation(libs.androidx.fragment.compose)
     testImplementation(libs.junit)

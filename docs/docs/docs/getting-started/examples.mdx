@@ -5,6 +5,9 @@ You can find example projects demonstrating the usage of React Native Brownfield
 It contains the following apps:
 
 - `RNApp` - a React Native app that is packaged using React Native Brownfield to an artifact consumed in native apps, in which you can refer to an exemplar usage of the library for packaging a React Native app to a consumable artifact
-- `AndroidApp` - an Android app consuming the packaged artifact from `RNApp`, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native Android app
+- `ExpoApp` - an Expo app that is packaged analogously to the above using React Native Brownfield Expo config plugin
+- `AndroidApp` - an Android app consuming the packaged artifact from `RNApp` or `ExpoApp`, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native Android app; this app comes in two flavors:
+  - `expo` - which uses the artifact produced from `ExpoApp`
+  - `vanilla` - which uses the artifact produced from `RNApp`
 - `iOSApp` - an iOS app consuming the packaged artifact from `RNApp`, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native iOS app
 - TesterIntegrated` - a native app (iOS and Android) with React Native Brownfield integrated directly into the native project without the intermediate step of packaging an artifact; this app serves mostly internal repo testing purposes
