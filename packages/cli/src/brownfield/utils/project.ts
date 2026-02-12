@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type {
   AndroidProjectConfig,
   ProjectConfig,
@@ -32,8 +34,26 @@ export function getExpoConfigIfIsExpo(projectRoot: string) {
   }
 }
 
+/**
+ * Checks if the project is an Expo project; checks both if installed and explicitly listed
+ * in the project's package.json to prevent false positives in a monorepo setup
+ * @param projectRoot The project root path
+ * @returns Whether the project is an Expo project
+ */
 export function isExpoProject(projectRoot: string): boolean {
-  return getExpoConfigIfIsExpo(projectRoot) !== null;
+  const hasExpoConfig = getExpoConfigIfIsExpo(projectRoot) !== null;
+
+  // additionally, it is needed to check if the project depends on Expo packages explicitly
+  // to prevent false positives in a monorepo setup
+  const rnProjectRoot = findProjectRoot();
+  const packageJsonPath = path.join(rnProjectRoot, 'package.json');
+  const dependsOnExpo =
+    fs.existsSync(packageJsonPath) &&
+    ['dependencies', 'peerDependencies', 'devDependencies'].some(
+      (key) => JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))[key]?.expo
+    );
+
+  return hasExpoConfig && dependsOnExpo;
 }
 
 /**
