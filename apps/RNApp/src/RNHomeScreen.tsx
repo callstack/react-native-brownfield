@@ -4,7 +4,6 @@ import { HomeScreen } from '@callstack/brownfield-shared/HomeScreen';
 
 import type { RootStackParamList } from './navigation/RootStack';
 
-// type props from Stack.Navigator -> Stack.Screen
 export function RNHomeScreen({
   navigation,
   route,
