@@ -50,12 +50,21 @@ export const packageIosCommand = curryOptions(
       throw new Error('iOS Xcode project not found in the configuration.');
     }
 
-    const dotBrownfieldDir = path.join(
-      userConfig.project.ios.sourceDir,
+    let dotBrownfieldDir = path.join(
+      // for Expo projects, platformConfig?.sourceDir == "", but for non-Expo projects, it's "ios"
+      ...(userConfig.project.ios.sourceDir.trim().length > 0
+        ? [userConfig.project.ios.sourceDir]
+        : [projectRoot, 'ios']),
       '.brownfield'
     );
 
+    // non-Expo projects have a relative sourceDir path, so we need to make it absolute
+    if (!path.isAbsolute(dotBrownfieldDir)) {
+      dotBrownfieldDir = path.join(projectRoot, dotBrownfieldDir);
+    }
+
     options.buildFolder ??= path.join(dotBrownfieldDir, 'build');
+
     // The new_architecture.rb script scans Info.plist and fails on binary plist files,
     // which is the case for our XCFrameworks.
     // We're reusing the "build" directory which is excluded from the scan.
