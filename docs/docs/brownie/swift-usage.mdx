@@ -28,8 +28,8 @@ struct MyApp: App {
       print("React Native loaded")
     }
 
-    // Initialize store with initial state
-    _ = Store(initialState, key: BrownfieldStore.storeName)
+    // Register store with initial state
+    BrownfieldStore.register(initialState)
   }
 
   var body: some Scene {
@@ -287,3 +287,10 @@ $counter.set { $0 + 1 }  // increment using current value
 | `StoreManager.get(key:as:)` | Retrieve typed store by key |
 | `shared.snapshot(key:)`     | Get raw snapshot dictionary |
 | `shared.removeStore(key:)`  | Remove and cleanup store    |
+
+### BrownieStoreProtocol
+
+| Method         | Description                           |
+| -------------- | ------------------------------------- |
+| `register(_:)` | Register store with initial state     |
+| `storeName`    | Static property with store identifier |

@@ -9,8 +9,6 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    environment:
-      name: release
     permissions:
       contents: write
       id-token: write
@@ -26,10 +24,16 @@ jobs:
         with:
           restore-turbo-cache: 'false' # in release workflow, build from scratch
 
+
+      - name: Build
+        run: yarn build
+
       - name: Create Release Pull Request or Publish to NPM
         uses: changesets/action@e9cc34b540dd3ad1b030c57fd97269e8f6ad905a # v1.4.9
         with:
-          version: yarn version-packages
-          publish: yarn publish-packages
+          version: yarn ci:version
+          publish: yarn ci:publish
           commit: 'chore(release): version packages'
           title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

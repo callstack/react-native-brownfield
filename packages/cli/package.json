@@ -1,10 +1,10 @@
 {
   "name": "@callstack/brownfield-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
-    "brownfield": "./dist/main.js"
+    "brownfield": "dist/main.js"
   },
   "type": "module",
   "contributors": [
@@ -12,6 +12,9 @@
     "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
+  "repository": {
+    "url": "https://github.com/callstack/react-native-brownfield"
+  },
   "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
   "exports": {
     ".": {
@@ -53,7 +56,8 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"

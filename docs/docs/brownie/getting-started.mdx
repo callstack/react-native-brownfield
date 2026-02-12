@@ -1,0 +1,151 @@
+# Getting Started
+
+This guide walks you through setting up Brownie from scratch - defining stores, generating native types, building XCFrameworks, and using shared state in both React Native and Swift.
+
+## Prerequisites
+
+Before starting, ensure you have:
+
+- Completed the [React Native Brownfield Quick Start](/docs/getting-started/quick-start) guide
+- React Native project with `@callstack/react-native-brownfield` installed
+- Native iOS app (SwiftUI or UIKit)
+- Xcode 15+
+
+## Step 1: Install Brownie
+
+In your React Native project:
+
+```bash
+npm install @callstack/brownie
+```
+
+## Step 2: Define Your Store
+
+Create a store definition file with the `.brownie.ts` extension:
+
+```ts
+// src/stores/AppStore.brownie.ts
+import type { BrownieStore } from '@callstack/brownie';
+
+interface AppStore extends BrownieStore {
+  counter: number;
+}
+
+declare module '@callstack/brownie' {
+  interface BrownieStores {
+    AppStore: AppStore;
+  }
+}
+```
+
+Import the store in your app entry point:
+
+```ts
+// App.tsx
+import './stores/AppStore.brownie';
+```
+
+## Step 3: Use the Store in React Native
+
+```tsx
+import { useStore } from '@callstack/brownie';
+
+function Counter() {
+  const [counter, setState] = useStore('AppStore', (s) => s.counter);
+
+  return (
+    <View>
+      <Text>Count: {counter}</Text>
+      <Button
+        title="Increment"
+        onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+      />
+    </View>
+  );
+}
+```
+
+## Step 4: Build XCFrameworks
+
+The CLI generates native types and builds everything into XCFrameworks:
+
+```bash
+npx brownfield package:ios --scheme YourScheme --configuration Release
+```
+
+This produces the following in `ios/.brownfield/package/`:
+
+- `YourScheme.xcframework` - Your React Native module
+- `Brownie.xcframework` - Shared state library
+- `ReactBrownfield.xcframework` - Brownfield integration
+- `hermesvm.xcframework` - JavaScript engine (or `hermes.xcframework` for RN < 0.82.0)
+
+:::info
+The `package:ios` command automatically runs `brownfield codegen` to generate Swift types from your `.brownie.ts` files.
+:::
+
+## Step 5: Add Frameworks to Native App
+
+1. Open your native Xcode project
+2. Drag all XCFrameworks from `ios/.brownfield/package/` into your project
+3. In target settings → **General** → **Frameworks, Libraries, and Embedded Content**, set all to **Embed & Sign**
+
+## Step 6: Register Store in Swift
+
+In your app's entry point, register the store with initial state:
+
+```swift
+import Brownie
+import ReactBrownfield
+import SwiftUI
+
+let initialState = AppStore(counter: 0)
+
+@main
+struct MyApp: App {
+  init() {
+    ReactNativeBrownfield.shared.startReactNative {
+      print("React Native loaded")
+    }
+
+    AppStore.register(initialState)
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}
+```
+
+## Step 7: Use the Store in SwiftUI
+
+```swift
+import Brownie
+import SwiftUI
+
+struct CounterView: View {
+  @UseStore(\AppStore.counter) var counter
+
+  var body: some View {
+    VStack {
+      Text("Count: \(Int(counter))")
+      Button("Increment") {
+        $counter.set { $0 + 1 }
+      }
+    }
+  }
+}
+```
+
+## Done!
+
+State changes now sync automatically between React Native and Swift. Increment from either side and both update immediately.
+
+## Next Steps
+
+- [Defining Stores](/brownie/store-definition) - Nested objects and multiple stores
+- [TypeScript Usage](/brownie/typescript-usage) - Advanced React Native patterns
+- [Swift Usage](/brownie/swift-usage) - UIKit integration and API reference
+- [XCFramework Packaging](/brownie/xcframework-packaging) - SPM distribution and advanced options

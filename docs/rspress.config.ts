@@ -8,9 +8,9 @@ export default withCallstackPreset(
       description: 'React Native Brownfield Documentation',
       editUrl:
         'https://github.com/callstack/react-native-brownfield/tree/main/docs',
-      icon: '/img/tractor.png',
-      logoLight: '/img/tractor.png',
-      logoDark: '/img/tractor.png',
+      icon: '/logo.svg',
+      logoLight: '/logo-light.svg',
+      logoDark: '/logo-dark.svg',
       rootDir: 'docs',
       rootUrl: 'https://callstack.github.io/react-native-brownfield/',
       socials: {

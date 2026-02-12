@@ -1,16 +1,19 @@
 {
   "name": "@callstack/brownie",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "license": "MIT",
   "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "bin": {
-    "brownfield": "./lib/commonjs/scripts/brownfield.js"
+    "brownfield": "lib/commonjs/scripts/brownfield.js"
   },
   "contributors": [
     "Artur Morys-Magiera <artus9033@gmail.com>",
     "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
+  "repository": {
+    "url": "https://github.com/callstack/react-native-brownfield"
+  },
   "description": "Shared state management between React Native and Native apps",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -48,12 +51,14 @@
     "src",
     "lib",
     "ios",
+    "cpp",
     "*.podspec",
     "!ios/build",
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public",

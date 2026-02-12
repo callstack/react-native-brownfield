@@ -16,8 +16,8 @@ struct BrownfieldAppleApp: App {
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
         }
-        
-        _ = Store(initialState, key: BrownfieldStore.storeName)
+
+        BrownfieldStore.register(initialState)
     }
 
     var body: some Scene {

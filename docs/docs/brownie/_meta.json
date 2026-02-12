@@ -6,6 +6,11 @@
   },
   {
     "type": "file",
+    "name": "getting-started",
+    "label": "Getting Started"
+  },
+  {
+    "type": "file",
     "name": "store-definition",
     "label": "Defining Stores"
   },

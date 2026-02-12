@@ -1,9 +1,9 @@
 <a href="https://www.callstack.com/open-source?utm_campaign=generic&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield" align="center">
-  <img alt="React Native Brownfield" src="https://github.com/callstack/react-native-brownfield/raw/refs/heads/main/img/brownfield-banner.jpg">
+  <img alt="Brownfield CLI" src="https://github.com/callstack/react-native-brownfield/raw/refs/heads/main/img/brownfield-banner.jpg">
 </a>
 
 <p align="center">
-  A set of helpers to make your brownfield integration smooth and easy.
+  CLI for Brownie and Brownfield, a tool for generating state management code, packaging & publishing Brownfield artifacts.
 </p>
 
 ---
@@ -21,20 +21,15 @@
 
 ## Features
 
-- **Easily integrate** React Native with an existing native app
-- Start React Native with **one method** and invoke code as soon as it's loaded
-- Compatible with **both legacy and new React Native architecture**!
-- Reuse the same instance of React Native between different components
-- Use predefined **native building blocks** - crafted for React Native
-- Disable and enable **native gestures and hardware buttons** from JavaScript
-- Works well with **any native navigation** pattern, as well as any React Native JavaScript-based navigation
-- Compatible with all native languages **Objective-C**, **Swift**, **Java** and **Kotlin**
-- Supports UIKit and SwiftUI on iOS and Fragments and Jetpack Compose on Android
-- Out-of-the-box **CLI** that automates the build process
+- **Shared State** - Single source of truth accessible from both TypeScript and Swift
+- **Type Safety** - Full type inference from TypeScript schema to generated Swift types
+- **React Integration** - `useStore` hook with selector support for optimal re-renders
+- **SwiftUI Integration** - `@UseStore` property wrapper for reactive UI updates
+- **UIKit Support** - Subscribe-based API for imperative UI updates
 
 ## Documentation
 
-For full documentation, visit [our documentation](https://oss.callstack.com/react-native-brownfield/).
+For full documentation, visit [our documentation](https://oss.callstack.com/react-native-brownfield/brownie/overview).
 
 <a href="https://www.callstack.com/ebooks/incremental-react-native-adoption-in-native-apps?utm_campaign=brownfield&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield" align="center">
   <img alt="Download a free copy of Incremental React Native adoption in native apps ebook" src="https://github.com/user-attachments/assets/ba42bb29-1e7a-4683-80c5-2602afb1a7e6">
@@ -45,19 +40,6 @@ For full documentation, visit [our documentation](https://oss.callstack.com/reac
 React Native Brownfield is an open source project and will always remain free to use. If you think it's cool, please star it 🌟. [Callstack](https://callstack.com) is a group of React and React Native geeks, contact us at [hello@callstack.com](mailto:hello@callstack.com) if you need any help with these or just want to say hi!
 
 Like the project? ⚛️ [Join the team](https://callstack.com/careers/?utm_campaign=Senior_RN&utm_source=github&utm_medium=readme) who does amazing stuff for clients and drives React Native Open Source! 🔥
-
-## Contributors
-
-Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
-| [<img src="https://avatars0.githubusercontent.com/u/7837457?s=460&v=4" width="100px;" alt="Michał Chudziak"/><br /><sub><b>Michał Chudziak</b></sub>](https://twitter.com/michalchudziak)<br />[💻](https://github.com/callstack/react-native-brownfield/commits?author=michalchudziak "Code") [📖](https://github.com/callstack/react-native-brownfield/commits?author=michalchudziak "Documentation") [🤔](#ideas-michalchudziak "Ideas, Planning, & Feedback") | [<img src="https://avatars1.githubusercontent.com/u/16336501?s=400&v=4" width="100px;" alt="Piotr Drapich"/><br /><sub><b>Piotr Drapich</b></sub>](https://twitter.com/dratwas)<br />[💻](https://github.com/callstack/react-native-brownfield/commits?author=dratwas "Code") [🤔](#ideas-dratwas "Ideas, Planning, & Feedback") |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
 
 <!-- badges -->
 
