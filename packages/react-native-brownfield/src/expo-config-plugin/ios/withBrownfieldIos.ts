@@ -57,7 +57,10 @@ export const withBrownfieldIos: ConfigPlugin<
         `Adding ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
       );
 
-      addExpoPre55ShellPatchScriptPhase(project, frameworkTargetUUIDIfAdded);
+      addExpoPre55ShellPatchScriptPhase(project, {
+        frameworkName: props.ios.frameworkName,
+        frameworkTargetUUID: frameworkTargetUUIDIfAdded,
+      });
     } else {
       Logger.logDebug(
         `Skipping ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`

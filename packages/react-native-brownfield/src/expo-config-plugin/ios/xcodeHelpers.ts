@@ -242,7 +242,13 @@ export function copyBundleReactNativePhase(
 
 export function addExpoPre55ShellPatchScriptPhase(
   project: XcodeProject,
-  frameworkTargetUUID: string
+  {
+    frameworkName,
+    frameworkTargetUUID,
+  }: {
+    frameworkName: string;
+    frameworkTargetUUID: string;
+  }
 ) {
   project.addBuildPhase(
     [
@@ -253,7 +259,9 @@ export function addExpoPre55ShellPatchScriptPhase(
     frameworkTargetUUID,
     {
       shellPath: '/bin/sh',
-      shellScript: renderTemplate('ios', 'patchExpoPre55.sh'),
+      shellScript: renderTemplate('ios', 'patchExpoPre55.sh', {
+        '{{FRAMEWORK_NAME}}': frameworkName,
+      }),
     }
   );
 }
