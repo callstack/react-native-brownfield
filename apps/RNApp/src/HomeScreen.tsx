@@ -61,8 +61,6 @@ export function HomeScreen({
         color={colors.secondary}
         title="Go back"
       />
-
-      <View style={styles.extraContentsContainer}>{extraContents}</View>
     </View>
   );
 }
@@ -78,10 +76,5 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     margin: 10,
-  },
-  extraContentsContainer: {
-    marginTop: 20,
-    flex: 1,
-    width: '100%',
   },
 });

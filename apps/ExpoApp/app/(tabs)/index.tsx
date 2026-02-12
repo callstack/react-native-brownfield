@@ -3,7 +3,6 @@ import '../../BrownfieldStore.brownie';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { Platform, StyleSheet, View } from 'react-native';
-import { useStore } from '@callstack/brownie';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
@@ -12,7 +11,7 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
 export default function HomeScreen() {
-  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+  // TODO: const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
   return (
     <ParallaxScrollView
@@ -85,13 +84,13 @@ export default function HomeScreen() {
               alignContent: 'center',
             }}
           >
-            Brownie state store counter: {counter}
+            Brownie state store counter: {0}
           </ThemedText>
           <IconSymbol
             name="plus"
             size={24}
             color="black"
-            onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+            // onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
           />
         </View>
       </ThemedView>
