@@ -16,7 +16,6 @@
     "codegen": "brownfield codegen"
   },
   "dependencies": {
-    "@callstack/brownfield-shared": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
     "@react-navigation/native": "^7.0.15",
