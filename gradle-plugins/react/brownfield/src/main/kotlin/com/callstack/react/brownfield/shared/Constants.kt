@@ -59,7 +59,6 @@ object Constants {
         )
     )
 
-    // TODO: substitute this with proper detection of third-party transitive dependencies
     val BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES = setOf<ExpoVersionConditionalDepSet>(
         // below: required by rnscreens
         ExpoVersionConditionalDepSet { expoVersion ->
