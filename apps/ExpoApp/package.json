@@ -15,13 +15,10 @@
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release"
   },
   "dependencies": {
-    "@callstack/brownfield-example-rn-app": "workspace:^",
+    "@callstack/brownfield-shared": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
     "@expo/vector-icons": "^15.0.3",
-    "@react-navigation/bottom-tabs": "^7.4.0",
-    "@react-navigation/elements": "^2.6.3",
-    "@react-navigation/native": "^7.1.8",
     "expo": "~54.0.31",
     "expo-constants": "~18.0.13",
     "expo-font": "~14.0.10",

@@ -1,16 +1,37 @@
+import './BrownfieldStore.brownie';
+
 import { useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useStore } from '@callstack/brownie';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 
-import type { RootStackParamList } from './navigation/RootStack';
 import { getRandomTheme } from './utils';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
-
-export function HomeScreen({ navigation, route }: Props) {
-  const colors = route.params?.theme || getRandomTheme();
+export function HomeScreen({
+  navigation,
+  route,
+}: {
+  navigation: {
+    addListener: (event: string, listener: () => void) => void;
+    canGoBack: () => boolean;
+    goBack: () => void;
+    push: (route: string, params: Record<string, any>) => void;
+  };
+  route: {
+    params: {
+      theme: {
+        primary: string;
+        secondary: string;
+      };
+    };
+  };
+}) {
+  const colors = route.params?.theme
+    ? // vanilla setup using react-navigation gives an object, expo-router gives a serialized representation
+      typeof route.params.theme === 'string'
+      ? JSON.parse(route.params.theme)
+      : route.params.theme
+    : getRandomTheme();
   const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
   useEffect(() => {

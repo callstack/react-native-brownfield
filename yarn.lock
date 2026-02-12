@@ -2255,13 +2255,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@callstack/brownfield-example-rn-app@workspace:^, @callstack/brownfield-example-rn-app@workspace:apps/RNApp":
+"@callstack/brownfield-example-rn-app@workspace:apps/RNApp":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-rn-app@workspace:apps/RNApp"
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-shared": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@react-native-community/cli": "npm:20.0.0"
@@ -2269,7 +2270,6 @@ __metadata:
     "@react-native-community/cli-platform-ios": "npm:20.0.0"
     "@react-native/babel-preset": "npm:0.82.1"
     "@react-native/metro-config": "npm:0.82.1"
-    "@react-native/new-app-screen": "npm:0.82.1"
     "@react-native/typescript-config": "npm:0.82.1"
     "@react-navigation/native": "npm:^7.0.15"
     "@react-navigation/native-stack": "npm:^7.2.1"
@@ -2321,6 +2321,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@callstack/brownfield-shared@workspace:^, @callstack/brownfield-shared@workspace:apps/shared":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-shared@workspace:apps/shared"
+  peerDependencies:
+    "@callstack/brownie": "*"
+    "@callstack/react-native-brownfield": "*"
+    react: "*"
+    react-native: "*"
+  languageName: unknown
+  linkType: soft
+
 "@callstack/brownie@workspace:^, @callstack/brownie@workspace:packages/brownie":
   version: 0.0.0-use.local
   resolution: "@callstack/brownie@workspace:packages/brownie"
@@ -2340,7 +2351,6 @@ __metadata:
     nodemon: "npm:^3.1.11"
     quicktype-core: "npm:^23.2.6"
     quicktype-typescript-input: "npm:^23.2.6"
-    react: "npm:19.1.1"
     react-native: "npm:0.82.1"
     react-native-builder-bob: "npm:^0.40.17"
     ts-morph: "npm:^27.0.2"
@@ -5486,20 +5496,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native/new-app-screen@npm:0.82.1":
-  version: 0.82.1
-  resolution: "@react-native/new-app-screen@npm:0.82.1"
-  peerDependencies:
-    "@types/react": ^19.1.0
-    react: "*"
-    react-native: "*"
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 10/488a7f7f81b28e7d2031144c25307d6d7fe357f07ac6814a459925ddc1b82f3fb7cfa6497a94218a42f1839b5a4ce3289c10584c4d82998192ce0341925e5512
-  languageName: node
-  linkType: hard
-
 "@react-native/normalize-colors@npm:0.81.5":
   version: 0.81.5
   resolution: "@react-native/normalize-colors@npm:0.81.5"
@@ -5590,26 +5586,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/elements@npm:^2.6.3, @react-navigation/elements@npm:^2.9.4":
-  version: 2.9.4
-  resolution: "@react-navigation/elements@npm:2.9.4"
-  dependencies:
-    color: "npm:^4.2.3"
-    use-latest-callback: "npm:^0.2.4"
-    use-sync-external-store: "npm:^1.5.0"
-  peerDependencies:
-    "@react-native-masked-view/masked-view": ">= 0.2.0"
-    "@react-navigation/native": ^7.1.27
-    react: ">= 18.2.0"
-    react-native: "*"
-    react-native-safe-area-context: ">= 4.0.0"
-  peerDependenciesMeta:
-    "@react-native-masked-view/masked-view":
-      optional: true
-  checksum: 10/0a6b3264c551042075ffe3c13c04c2332e05588ed413b14bff9e0eea142e47a76fe34d573c13277b6047f0de230ae42150c47359c552d5dce1cb697253df0228
-  languageName: node
-  linkType: hard
-
 "@react-navigation/elements@npm:^2.9.3":
   version: 2.9.3
   resolution: "@react-navigation/elements@npm:2.9.3"
@@ -5627,6 +5603,26 @@ __metadata:
     "@react-native-masked-view/masked-view":
       optional: true
   checksum: 10/96cd302eef1ebbbaa2eea205e47ae9f5644e909a4995fc8944b6160ab9586adec2a82b02e09714a2df92034bc90148649225fd080fb040d1b18d2428f603979d
+  languageName: node
+  linkType: hard
+
+"@react-navigation/elements@npm:^2.9.4":
+  version: 2.9.4
+  resolution: "@react-navigation/elements@npm:2.9.4"
+  dependencies:
+    color: "npm:^4.2.3"
+    use-latest-callback: "npm:^0.2.4"
+    use-sync-external-store: "npm:^1.5.0"
+  peerDependencies:
+    "@react-native-masked-view/masked-view": ">= 0.2.0"
+    "@react-navigation/native": ^7.1.27
+    react: ">= 18.2.0"
+    react-native: "*"
+    react-native-safe-area-context: ">= 4.0.0"
+  peerDependenciesMeta:
+    "@react-native-masked-view/masked-view":
+      optional: true
+  checksum: 10/0a6b3264c551042075ffe3c13c04c2332e05588ed413b14bff9e0eea142e47a76fe34d573c13277b6047f0de230ae42150c47359c552d5dce1cb697253df0228
   languageName: node
   linkType: hard
 
@@ -10808,13 +10804,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "expoapp@workspace:apps/ExpoApp"
   dependencies:
-    "@callstack/brownfield-example-rn-app": "workspace:^"
+    "@callstack/brownfield-shared": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@expo/vector-icons": "npm:^15.0.3"
-    "@react-navigation/bottom-tabs": "npm:^7.4.0"
-    "@react-navigation/elements": "npm:^2.6.3"
-    "@react-navigation/native": "npm:^7.1.8"
     "@types/react": "npm:~19.1.0"
     eslint: "npm:^9.25.0"
     eslint-config-expo: "npm:~10.0.0"

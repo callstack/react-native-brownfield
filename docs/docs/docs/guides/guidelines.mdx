@@ -55,6 +55,18 @@ ReactNativeHostManager.initialize(application)
 
 As you can see the issue here is that now we are mixing the native App with react-native APIs, which is discouraged. If we stick to the above approach then the native App is free of interacting with react-native directly.
 
+## Expo Brownfield
+
+If you are building an Expo application, additionally to the standard brownfield approach, make sure to add the following block to your Activity:
+
+```kt
+override fun onConfigurationChanged(newConfig: Configuration) {
+    super.onConfigurationChanged(newConfig)
+
+    ReactNativeHostManager.onConfigurationChanged(application, newConfig)
+}
+```
+
 ## Advanced Use Cases
 
 If you built on top of the above approach, then you can rather easily scale it to incorporate advanced use cases. We will discuss here only one case but you can extend it to your need as the gist remains the same.
@@ -120,17 +132,5 @@ fun sendEvent(event: String, handlerId: String) {
 // EventHandlerRegistry
 fun sendEvent(event: String, handlerId: String) {
     eventHandlers[handlerId].invoke(event)
-}
-```
-
-### Expo
-
-If you are building an Expo application, make sure to add the following block to your Activity:
-
-```kt
-override fun onConfigurationChanged(newConfig: Configuration) {
-    super.onConfigurationChanged(newConfig)
-
-    ReactNativeHostManager.onConfigurationChanged(application, newConfig)
 }
 ```

@@ -1,5 +1,5 @@
-import App from '@callstack/brownfield-example-rn-app/src/App';
+import Home from './Home';
 
 export default function Index() {
-  return <App />;
+  return <Home />;
 }

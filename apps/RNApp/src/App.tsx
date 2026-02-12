@@ -1,9 +1,8 @@
-import '../BrownfieldStore.brownie';
-
 import { NavigationContainer } from '@react-navigation/native';
 
+import { HomeScreen } from '@callstack/brownfield-shared/HomeScreen';
+
 import { Stack } from './navigation/RootStack';
-import { HomeScreen } from './HomeScreen';
 
 export default function App() {
   return (

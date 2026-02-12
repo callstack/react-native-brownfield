@@ -1,0 +1,14 @@
+{
+  "name": "@callstack/brownfield-shared",
+  "version": "0.0.1",
+  "private": true,
+  "peerDependencies": {
+    "@callstack/brownie": "*",
+    "@callstack/react-native-brownfield": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
