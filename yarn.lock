@@ -2249,6 +2249,39 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@callstack/brownfield-example-expo-app@workspace:apps/ExpoApp":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-example-expo-app@workspace:apps/ExpoApp"
+  dependencies:
+    "@callstack/brownie": "workspace:^"
+    "@callstack/react-native-brownfield": "workspace:^"
+    "@expo/vector-icons": "npm:^15.0.3"
+    "@types/react": "npm:~19.1.0"
+    eslint: "npm:^9.25.0"
+    eslint-config-expo: "npm:~10.0.0"
+    expo: "npm:~54.0.31"
+    expo-constants: "npm:~18.0.13"
+    expo-font: "npm:~14.0.10"
+    expo-haptics: "npm:~15.0.8"
+    expo-image: "npm:~3.0.11"
+    expo-linking: "npm:~8.0.11"
+    expo-router: "npm:~6.0.21"
+    expo-splash-screen: "npm:~31.0.13"
+    expo-status-bar: "npm:~3.0.9"
+    expo-symbols: "npm:~1.0.8"
+    expo-system-ui: "npm:~6.0.9"
+    expo-web-browser: "npm:~15.0.10"
+    react: "npm:19.1.0"
+    react-dom: "npm:19.1.0"
+    react-native: "npm:0.81.5"
+    react-native-reanimated: "npm:~4.1.1"
+    react-native-safe-area-context: "npm:~5.6.0"
+    react-native-screens: "npm:~4.16.0"
+    react-native-worklets: "npm:0.5.1"
+    typescript: "npm:~5.9.2"
+  languageName: unknown
+  linkType: soft
+
 "@callstack/brownfield-example-ios-app@workspace:apps/AppleApp":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-ios-app@workspace:apps/AppleApp"
@@ -10804,39 +10837,6 @@ __metadata:
   checksum: 10/f7aa03ff726b7eea176212b431fd75e9678be95843111fb416161aa01b0670bc7d9d5ea958877eec675fbf99010b57dbbf50430bec22666aa220013592d5d5ac
   languageName: node
   linkType: hard
-
-"expoapp@workspace:apps/ExpoApp":
-  version: 0.0.0-use.local
-  resolution: "expoapp@workspace:apps/ExpoApp"
-  dependencies:
-    "@callstack/brownie": "workspace:^"
-    "@callstack/react-native-brownfield": "workspace:^"
-    "@expo/vector-icons": "npm:^15.0.3"
-    "@types/react": "npm:~19.1.0"
-    eslint: "npm:^9.25.0"
-    eslint-config-expo: "npm:~10.0.0"
-    expo: "npm:~54.0.31"
-    expo-constants: "npm:~18.0.13"
-    expo-font: "npm:~14.0.10"
-    expo-haptics: "npm:~15.0.8"
-    expo-image: "npm:~3.0.11"
-    expo-linking: "npm:~8.0.11"
-    expo-router: "npm:~6.0.21"
-    expo-splash-screen: "npm:~31.0.13"
-    expo-status-bar: "npm:~3.0.9"
-    expo-symbols: "npm:~1.0.8"
-    expo-system-ui: "npm:~6.0.9"
-    expo-web-browser: "npm:~15.0.10"
-    react: "npm:19.1.0"
-    react-dom: "npm:19.1.0"
-    react-native: "npm:0.81.5"
-    react-native-reanimated: "npm:~4.1.1"
-    react-native-safe-area-context: "npm:~5.6.0"
-    react-native-screens: "npm:~4.16.0"
-    react-native-worklets: "npm:0.5.1"
-    typescript: "npm:~5.9.2"
-  languageName: unknown
-  linkType: soft
 
 "exponential-backoff@npm:^3.1.1":
   version: 3.1.3
