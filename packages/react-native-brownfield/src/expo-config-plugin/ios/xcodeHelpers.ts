@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import type { ModProps, XcodeProject } from '@expo/config-plugins';
+
 import { Logger } from '../logging';
 import type { ResolvedBrownfieldPluginIosConfig } from '../types';
 import { SourceModificationError } from '../errors/SourceModificationError';
@@ -264,4 +265,45 @@ export function addExpoPre55ShellPatchScriptPhase(
       }),
     }
   );
+
+  // make sure the patch phase is after the expo configure phase,
+  // otherwise the patched file will be overwritten by the expo configure phase
+  const nativeTargetSection = project.pbxNativeTargetSection();
+
+  const brownfieldTarget = Object.entries(nativeTargetSection).find(
+    ([_key, value]) =>
+      typeof value === 'object' &&
+      (value as any)?.productType.includes(
+        'com.apple.product-type.framework'
+      ) &&
+      (value as any)?.name === frameworkName
+  )![0];
+
+  const buildPhases: { value: string; comment?: string }[] =
+    nativeTargetSection[brownfieldTarget].buildPhases;
+
+  const expoConfigurePhaseIndex = buildPhases.findIndex(
+    (phase) =>
+      (phase as any)?.comment?.toLowerCase() ===
+      '[Expo] Configure project'.toLowerCase()
+  );
+
+  const patchExpoModulesProviderPhaseIndex = buildPhases.findIndex(
+    (phase) =>
+      (phase as any)?.comment?.toLowerCase() ===
+      'Patch ExpoModulesProvider'.toLowerCase()
+  );
+
+  // ensure patch expo modules provider phase is after expo configure phase
+  if (patchExpoModulesProviderPhaseIndex < expoConfigurePhaseIndex) {
+    const element = buildPhases.splice(
+      patchExpoModulesProviderPhaseIndex,
+      1
+    )[0]; // pop the element at patchExpoModulesProviderPhaseIndex
+    buildPhases.splice(expoConfigurePhaseIndex, 0, element); // insert the element at expoConfigurePhaseIndex ("after")
+  }
+
+  nativeTargetSection[brownfieldTarget].buildPhases = buildPhases;
+
+  project.writeSync();
 }

@@ -13,4 +13,8 @@ if [ -f "$FILE" ]; then
 
   # 2. Replace class visibility
   sed -i '' 's/public class ExpoModulesProvider/internal class ExpoModulesProvider/' "$FILE"
+
+  echo "Patched $FILE to hide Expo from public interface"
+  echo "Contents of $FILE:"
+  cat "$FILE"
 fi
