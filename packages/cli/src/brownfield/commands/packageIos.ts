@@ -79,6 +79,17 @@ export const packageIosCommand = curryOptions(
 
     // TODO: ARTUR install pods here
 
+    // TODO: ARTUR - below:
+    // const existingTarget = project.pbxTargetByName(frameworkName);
+    // const frameworkTargetUUID = Object.entries(
+    //   project.pbxNativeTargetSection()
+    // ).find(
+    //   ([_key, value]) =>
+    //     (value as any)?.productReference === frameworkName
+    // )?.[0];
+    // // load xcodeproj from platformConfig?.xcodeProject?.path using 'xcode' package
+    // ensureExpoPre55ShellPatchScriptPhaseIsOrdered(project, frameworkTargetUUID)
+
     await packageIosAction(
       options,
       {
@@ -95,17 +106,6 @@ export const packageIosCommand = curryOptions(
       },
       platformConfig
     );
-
-    // TODO: ARTUR - below:
-    // const existingTarget = project.pbxTargetByName(frameworkName);
-    // const frameworkTargetUUID = Object.entries(
-    //   project.pbxNativeTargetSection()
-    // ).find(
-    //   ([_key, value]) =>
-    //     (value as any)?.productReference === frameworkName
-    // )?.[0];
-    // load xcodeproj from platformConfig?.xcodeProject?.path using 'xcode' package
-    // ensureExpoPre55ShellPatchScriptPhaseIsOrdered(project, frameworkTargetUUID)
 
     if (hasBrownie) {
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
