@@ -52,7 +52,9 @@ export async function runExpoPrebuildIfNeeded({
     return false;
   }
 
-  logger.info(`Expo project detected. Running expo prebuild for ${platform}...`);
+  logger.info(
+    `Expo project detected. Running expo prebuild for ${platform}...`
+  );
 
   const args = ['expo', 'prebuild', '--platform', platform];
   if (platform === 'ios') {

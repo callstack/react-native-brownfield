@@ -18,7 +18,10 @@ export function addFrameworkTarget(
   project: XcodeProject,
   modRequest: ModProps<XcodeProject>,
   options: ResolvedBrownfieldPluginIosConfig
-): string | null {
+): {
+  frameworkTargetUUID: string;
+  targetAlreadyExists: boolean;
+} {
   const { frameworkName, bundleIdentifier } = options;
 
   // check if target already exists
@@ -28,7 +31,23 @@ export function addFrameworkTarget(
       `Framework target "${frameworkName}" already exists, skipping creation`
     );
 
-    return null;
+    const frameworkTargetUUID = Object.entries(
+      project.pbxNativeTargetSection()
+    ).find(
+      ([_key, value]) =>
+        (value as any)?.productReference === existingTarget.productReference
+    )?.[0];
+
+    if (!frameworkTargetUUID) {
+      throw new SourceModificationError(
+        `Failed to find framework target UUID for ${frameworkName}, although it can be resolved by name`
+      );
+    }
+
+    return {
+      frameworkTargetUUID,
+      targetAlreadyExists: true,
+    };
   }
 
   Logger.logDebug(`Adding iOS framework target: ${frameworkName}`);
@@ -130,7 +149,10 @@ export function addFrameworkTarget(
 
   Logger.logInfo(`Successfully added framework target: ${frameworkName}`);
 
-  return frameworkTarget.uuid;
+  return {
+    frameworkTargetUUID: frameworkTarget.uuid,
+    targetAlreadyExists: false,
+  };
 }
 
 /**
@@ -265,22 +287,24 @@ export function addExpoPre55ShellPatchScriptPhase(
       }),
     }
   );
+}
 
-  // make sure the patch phase is after the expo configure phase,
-  // otherwise the patched file will be overwritten by the expo configure phase
+/**
+ * Makes sure the patch expo modules provider phase is after the expo configure phase,
+ * otherwise the patched file would be overwritten by the expo configure phase
+ * @param project The Xcode project
+ * @param frameworkTargetUUID The UUID of the framework target
+ * @returns True if the build phases were modified, false otherwise
+ */
+export function ensureExpoPre55ShellPatchScriptPhaseIsOrdered(
+  project: XcodeProject,
+  frameworkTargetUUID: string
+) {
+  let modified = false;
   const nativeTargetSection = project.pbxNativeTargetSection();
 
-  const brownfieldTarget = Object.entries(nativeTargetSection).find(
-    ([_key, value]) =>
-      typeof value === 'object' &&
-      (value as any)?.productType.includes(
-        'com.apple.product-type.framework'
-      ) &&
-      (value as any)?.name === frameworkName
-  )![0];
-
   const buildPhases: { value: string; comment?: string }[] =
-    nativeTargetSection[brownfieldTarget].buildPhases;
+    nativeTargetSection[frameworkTargetUUID].buildPhases;
 
   const expoConfigurePhaseIndex = buildPhases.findIndex(
     (phase) =>
@@ -301,9 +325,12 @@ export function addExpoPre55ShellPatchScriptPhase(
       1
     )[0]; // pop the element at patchExpoModulesProviderPhaseIndex
     buildPhases.splice(expoConfigurePhaseIndex, 0, element); // insert the element at expoConfigurePhaseIndex ("after")
+    modified = true;
   }
 
-  nativeTargetSection[brownfieldTarget].buildPhases = buildPhases;
+  nativeTargetSection[frameworkTargetUUID].buildPhases = buildPhases;
 
   project.writeSync();
+
+  return modified;
 }

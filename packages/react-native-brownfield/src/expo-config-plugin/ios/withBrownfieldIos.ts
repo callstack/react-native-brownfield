@@ -31,13 +31,18 @@ export const withBrownfieldIos: ConfigPlugin<
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
 
-    const frameworkTargetUUIDIfAdded = addFrameworkTarget(
+    const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
       props.ios
     );
 
-    if (!frameworkTargetUUIDIfAdded) {
+    const expoMajor = config.sdkVersion
+      ? parseInt(config.sdkVersion.split('.')[0], 10)
+      : -1;
+    const isExpoPre55 = expoMajor < 55;
+
+    if (targetAlreadyExists) {
       Logger.logDebug(
         `Skipping further Xcode modifications as framework target was already present`
       );
@@ -46,20 +51,17 @@ export const withBrownfieldIos: ConfigPlugin<
     }
 
     // copy the "Bundle React Native code and images" build phase from the main target to the framework target
-    copyBundleReactNativePhase(project, frameworkTargetUUIDIfAdded);
+    copyBundleReactNativePhase(project, frameworkTargetUUID);
 
     // for Expo SDK versions < 55, add a script phase to patch ExpoModulesProvider.swift
-    const major = config.sdkVersion
-      ? parseInt(config.sdkVersion.split('.')[0], 10)
-      : -1;
-    if (major < 55) {
+    if (isExpoPre55) {
       Logger.logDebug(
         `Adding ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
       );
 
       addExpoPre55ShellPatchScriptPhase(project, {
         frameworkName: props.ios.frameworkName,
-        frameworkTargetUUID: frameworkTargetUUIDIfAdded,
+        frameworkTargetUUID: frameworkTargetUUID,
       });
     } else {
       Logger.logDebug(

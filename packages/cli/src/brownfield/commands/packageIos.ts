@@ -77,6 +77,8 @@ export const packageIosCommand = curryOptions(
       'swift'
     );
 
+    // TODO: ARTUR install pods here
+
     await packageIosAction(
       options,
       {
@@ -89,9 +91,21 @@ export const packageIosCommand = curryOptions(
         usePrebuiltRNCore: false, // for brownfield, it is required to build RN from source
         packageDir, // the output directory for artifacts
         skipCache: true, // cache is dependent on existence of Rock config file
+        // TODO: ARTUR disable installing pods in packageIosAction
       },
       platformConfig
     );
+
+    // TODO: ARTUR - below:
+    // const existingTarget = project.pbxTargetByName(frameworkName);
+    // const frameworkTargetUUID = Object.entries(
+    //   project.pbxNativeTargetSection()
+    // ).find(
+    //   ([_key, value]) =>
+    //     (value as any)?.productReference === frameworkName
+    // )?.[0];
+    // load xcodeproj from platformConfig?.xcodeProject?.path using 'xcode' package
+    // ensureExpoPre55ShellPatchScriptPhaseIsOrdered(project, frameworkTargetUUID)
 
     if (hasBrownie) {
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
