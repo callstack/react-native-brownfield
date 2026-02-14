@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "codegen": "brownfield codegen"
+    "codegen": "brownfield codegen",
+    "brownfield:navigation-codegen": "brownfield-navigation-codegen brownfield.navigation.ts"
   },
   "dependencies": {
     "@callstack/brownie": "workspace:^",

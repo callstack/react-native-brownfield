@@ -11,6 +11,7 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 import type { MessageEvent } from '@callstack/react-native-brownfield';
+import { BrownfieldNavigation } from '@callstack/react-native-brownfield';
 
 import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
@@ -169,6 +170,18 @@ export function HomeScreen({
           }}
           color={colors.secondary}
           title="Go back"
+        />
+
+        <Button
+          onPress={() => BrownfieldNavigation.navigateToSettings()}
+          color={colors.secondary}
+          title="Open native settings"
+        />
+
+        <Button
+          onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
+          color={colors.secondary}
+          title="Open native referrals"
         />
       </View>
     </View>
