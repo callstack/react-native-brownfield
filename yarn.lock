@@ -2410,6 +2410,7 @@ __metadata:
     "@expo/config-plugins": ^54.0.4
   bin:
     brownfield: lib/commonjs/scripts/brownfield.js
+    brownfield-navigation-codegen: lib/commonjs/scripts/brownfield-navigation.js
   languageName: unknown
   linkType: soft
 
