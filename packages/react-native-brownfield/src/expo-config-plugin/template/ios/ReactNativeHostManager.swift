@@ -41,7 +41,7 @@ public class ReactNativeHostManager {
   ) -> UIView {
     return
       (expoDelegate?.recreateRootView(
-        withBundleURL: nil, moduleName: "main", initialProps: initialProps,
+        withBundleURL: reactNativeDelegate?.bundleURL(), moduleName: moduleName, initialProps: initialProps,
         launchOptions: launchOptions))!
   }
 }
