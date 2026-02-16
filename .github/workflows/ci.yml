@@ -97,7 +97,7 @@ jobs:
         with:
           flavor: expo
           rn-project-path: apps/ExpoApp
-          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp/brownfield-expo-app
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp/brownfieldlib
 
   android-androidapp-vanilla:
     name: Android road test (RNApp & AndroidApp - Vanilla)

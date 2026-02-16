@@ -48,7 +48,7 @@
             "frameworkName": "BrownfieldLib"
           },
           "android": {
-            "moduleName": "brownfield-expo-app"
+            "moduleName": "brownfieldlib"
           },
           "debug": true
         }
