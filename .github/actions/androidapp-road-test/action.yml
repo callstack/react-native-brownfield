@@ -34,7 +34,26 @@ runs:
           ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-
           ${{ runner.os }}-android-androidapp-gradle-
 
+    # == Brownfield Gradle Plugin ==
+    - name: Publish Brownfield Gradle Plugin to Maven Local
+      run: |
+        yarn run brownfield:plugin:publish:local
+      shell: bash
+
     # == RN app ==
+    - name: Prebuild Expo app
+      if: ${{ inputs.flavor == 'expo' }}
+      run: |
+        cd ${{ inputs.rn-project-path }}
+        yarn run expo prebuild --platform android
+      shell: bash
+
+    - name: Patch ExpoApp Android build.gradle for CI
+      if: ${{ inputs.flavor == 'expo' }}
+      run: |
+        cd ${{ inputs.rn-project-path }}
+        yarn run brownfield:prepare:android:ci
+      shell: bash
 
     - name: Package AAR with the Brownfield CLI
       run: |
