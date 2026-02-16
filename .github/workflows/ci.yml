@@ -188,7 +188,7 @@ jobs:
 
   ios-appleapp-vanilla:
     name: iOS road test (RNApp & AppleApp - Vanilla)
-    runs-on: ubuntu-latest
+    runs-on: macos-26
     needs: build-lint
 
     steps:
@@ -203,7 +203,7 @@ jobs:
 
   ios-appleapp-expo:
     name: iOS road test (RNApp & AppleApp - Expo)
-    runs-on: ubuntu-latest
+    runs-on: macos-26
     needs: build-lint
 
     steps:
