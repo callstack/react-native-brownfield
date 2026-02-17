@@ -59,6 +59,7 @@ runs:
           ${{ runner.os }}-rnapp-${{ inputs.variant }}-ios-pods-
 
     - name: Install pods (RN ${{ inputs.variant }} app)
+      if: inputs.variant == 'vanilla'
       run: |
         cd ${{ inputs.rn-project-path }}/ios
         pod install
