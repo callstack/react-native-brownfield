@@ -13,7 +13,7 @@
     "brownfield:prepare:android:ci": "node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts",
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
-    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Debug"
+    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release"
   },
   "dependencies": {
     "@callstack/brownie": "workspace:^",
