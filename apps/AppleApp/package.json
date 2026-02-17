@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "internal::build::common": "xcodebuild -project \"Brownfield Apple App.xcodeproj\" -scheme \"Brownfield Apple App\" -configuration Release -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build",
-    "build:example:ios-consumer:expo": "node prepareXCFrameworks.js --appName ExpoApp && yarn internal::build::common",
-    "build:example:ios-consumer:vanilla": "node prepareXCFrameworks.js --appName RNApp && yarn internal::build::common"
+    "internal::build::common": "xcodebuild -project \"Brownfield Apple App.xcodeproj\" -scheme \"Brownfield Apple App\" -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build",
+    "build:example:ios-consumer:expo": "node prepareXCFrameworks.js --appName ExpoApp && yarn internal::build::common -configuration Release",
+    "build:example:ios-consumer:vanilla": "node prepareXCFrameworks.js --appName RNApp && yarn internal::build::common -configuration \"Release Vanilla\""
   },
   "devDependencies": {
     "@rock-js/tools": "^0.12.8"

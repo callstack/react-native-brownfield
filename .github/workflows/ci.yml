@@ -210,8 +210,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AppleApp road test (Expo)
+      - name: Run ExpoApp -> AppleApp road test (Expo)
         uses: ./.github/actions/appleapp-road-test
         with:
           variant: expo
-          rn-project-path: apps/RNApp
+          rn-project-path: apps/ExpoApp
