@@ -155,6 +155,29 @@ export function addFrameworkTarget(
   };
 }
 
+export function addSourceFilesBuildPhase(
+  project: XcodeProject,
+  frameworkTargetUUID: string,
+  options: ResolvedBrownfieldPluginIosConfig
+) {
+  const filePaths = getFrameworkSourceFiles(options).map(
+    (file) => file.relativePath
+  );
+
+  const sourceFiles = filePaths.filter(
+    (filePath) => !filePath.endsWith('.plist')
+  );
+
+  project.addBuildPhase(
+    sourceFiles,
+    'PBXSourcesBuildPhase',
+    options.frameworkName,
+    frameworkTargetUUID,
+    'framework',
+    '""'
+  );
+}
+
 /**
  * Returns build settings for the framework target
  * @param options The user configuration

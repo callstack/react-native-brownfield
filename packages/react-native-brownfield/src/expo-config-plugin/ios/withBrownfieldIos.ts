@@ -7,6 +7,7 @@ import {
 import {
   addExpoPre55ShellPatchScriptPhase,
   addFrameworkTarget,
+  addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
@@ -68,6 +69,8 @@ export const withBrownfieldIos: ConfigPlugin<
         `Skipping ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
       );
     }
+
+    addSourceFilesBuildPhase(project, frameworkTargetUUID, props.ios);
 
     return xcodeConfig;
   });
