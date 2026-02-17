@@ -1,18 +1,13 @@
-import '../../BrownfieldStore.brownie';
-
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 
 export default function HomeScreen() {
-  // TODO: const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
-
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -70,29 +65,6 @@ export default function HomeScreen() {
             </Link.Menu>
           </Link.Menu>
         </Link>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <ThemedText
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              alignContent: 'center',
-            }}
-          >
-            Brownie state store counter: {0}
-          </ThemedText>
-          <IconSymbol
-            name="plus"
-            size={24}
-            color="black"
-            // onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
-          />
-        </View>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>

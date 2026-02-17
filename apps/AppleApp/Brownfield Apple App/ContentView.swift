@@ -19,7 +19,7 @@ struct ContentView: View {
 struct RNViewRepresentable: UIViewRepresentable {
 
     func makeUIView(context: Context) -> UIView {
-        return ReactNativeHostManager.shared.loadView(moduleName: "main", initialProps: nil, launchOptions: nil)
+        return ReactNativeHostManager.shared.loadView(moduleName: "RNApp", initialProps: nil, launchOptions: nil)
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {

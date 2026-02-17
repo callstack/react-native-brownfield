@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-example-expo-app",
-  "main": "expo-router/entry",
+  "main": "./entry.tsx",
   "version": "1.0.0",
   "private": true,
   "scripts": {
