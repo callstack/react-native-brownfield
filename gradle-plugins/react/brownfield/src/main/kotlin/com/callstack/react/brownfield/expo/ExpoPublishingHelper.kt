@@ -48,7 +48,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
                 discoverAllExpoTransitiveDependencies(
                     expoProjects = discoverableExpoProjects,
                 )
-            expoTransitiveDependencies.addAll(getAdditionalExpoDependencies())
 
             Logging.log(
                 "Collected a total of ${expoTransitiveDependencies.size} unique Expo transitive " +
@@ -64,17 +63,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
             reconfigurePOM(expoTransitiveDependencies)
             reconfigureGradleModuleJSON(expoTransitiveDependencies)
         }
-    }
-
-    protected fun getAdditionalExpoDependencies(): VersionMediatingDependencySet {
-        return VersionMediatingDependencySet.from(
-            source =
-                Constants.BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES
-                    .mapNotNull { conditionalDepSet ->
-                        conditionalDepSet.getIfApplicable(expoProject.version as String)
-                    }
-                    .flatten(),
-        )
     }
 
     protected fun shouldExcludeDependency(

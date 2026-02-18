@@ -58,28 +58,4 @@ object Constants {
                 artifactId = StringMatcher.literal("kotlin-build-tools-impl"),
             ),
         )
-
-    val BROWNFIELD_EXPO_INJECT_PREDEFINED_DEPENDENCIES =
-        setOf<ExpoVersionConditionalDepSet>(
-            // below: required by rnscreens
-            ExpoVersionConditionalDepSet { expoVersion ->
-                when (Version(expoVersion) < Version("55.0.0")) {
-                    true ->
-                        setOf(
-                            DependencyInfo.fromGradleDep(
-                                groupId = "io.coil-kt.coil3",
-                                artifactId = "coil-compose",
-                                version = "3.2.0",
-                            ),
-                            DependencyInfo.fromGradleDep(
-                                groupId = "io.coil-kt.coil3",
-                                artifactId = "coil-network-okhttp",
-                                version = "3.2.0",
-                            ),
-                        )
-
-                    false -> null
-                }
-            },
-        )
 }

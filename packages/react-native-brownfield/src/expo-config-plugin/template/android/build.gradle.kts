@@ -84,4 +84,7 @@ android {
 dependencies {
     api("com.facebook.react:react-android:{{RN_VERSION}}")
     api("com.facebook.react:hermes-android:{{RN_VERSION}}")
+
+    api("io.coil-kt.coil3:coil-compose:3.2.0")
+    api("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
 }
