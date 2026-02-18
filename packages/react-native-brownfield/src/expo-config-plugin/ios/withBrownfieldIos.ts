@@ -28,6 +28,11 @@ import { Logger } from '../logging';
 export const withBrownfieldIos: ConfigPlugin<
   ResolvedBrownfieldPluginConfigWithIos
 > = (config, props) => {
+  const expoMajor = config.sdkVersion
+    ? parseInt(config.sdkVersion.split('.')[0], 10)
+    : -1;
+  const isExpoPre55 = expoMajor < 55;
+
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
@@ -37,11 +42,6 @@ export const withBrownfieldIos: ConfigPlugin<
       modRequest,
       props.ios
     );
-
-    const expoMajor = config.sdkVersion
-      ? parseInt(config.sdkVersion.split('.')[0], 10)
-      : -1;
-    const isExpoPre55 = expoMajor < 55;
 
     if (targetAlreadyExists) {
       Logger.logDebug(
@@ -81,7 +81,8 @@ export const withBrownfieldIos: ConfigPlugin<
 
     podfileConfig.modResults.contents = modifyPodfile(
       podfileConfig.modResults.contents,
-      frameworkName
+      frameworkName,
+      isExpoPre55
     );
 
     return podfileConfig;

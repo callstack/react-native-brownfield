@@ -52,7 +52,11 @@ ${BROWNFIELD_POD_HOOK_MARKER_END}
  * @param frameworkName The name of the framework target to add
  * @returns The modified Podfile content
  */
-export function modifyPodfile(podfile: string, frameworkName: string): string {
+export function modifyPodfile(
+  podfile: string,
+  frameworkName: string,
+  isExpoPre55: boolean
+): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
     Logger.logDebug(
@@ -92,6 +96,9 @@ export function modifyPodfile(podfile: string, frameworkName: string): string {
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
-  modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
+  if (isExpoPre55) {
+    modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
+  }
+
   return modifiedPodfile;
 }
