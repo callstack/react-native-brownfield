@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build:example:android-consumer:expo": "./gradlew assembleExpoDebug",
-    "build:example:android-consumer:vanilla": "./gradlew assembleVanillaDebug"
+    "build:example:android-consumer:expo": "./gradlew assembleExpoRelease",
+    "build:example:android-consumer:vanilla": "./gradlew assembleVanillaRelease"
   }
 }
