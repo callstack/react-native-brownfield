@@ -55,46 +55,6 @@ ReactNativeHostManager.initialize(application)
 
 As you can see the issue here is that now we are mixing the native App with react-native APIs, which is discouraged. If we stick to the above approach then the native App is free of interacting with react-native directly.
 
-## Expo Brownfield
-
-If you are building an Expo application, additionally to the standard brownfield approach, make sure to do the following:
-
-1. Add the following block to your `app.json` file:
-
-```json
-{
-  "plugins": [
-    [
-      "@callstack/react-native-brownfield",
-      {
-        "ios": {
-          "frameworkName": "BrownfieldExpoApp"
-        },
-        "android": {
-          "moduleName": "brownfield-expo-app"
-        },
-        "debug": true
-      }
-    ]
-  ]
-}
-```
-
-2. Add the following block to your Activity:
-
-```kt
-override fun onConfigurationChanged(newConfig: Configuration) {
-    super.onConfigurationChanged(newConfig)
-
-    ReactNativeHostManager.onConfigurationChanged(application, newConfig)
-}
-```
-
-After which you can use the CLI appropriately:
-
-- for Android: `brownfield package:android --module-name brownfield-expo-app --variant release`
-- for iOS: `brownfield package:ios --scheme BrownfieldExpoApp --configuration Release`
-
 ## Advanced Use Cases
 
 If you built on top of the above approach, then you can rather easily scale it to incorporate advanced use cases. We will discuss here only one case but you can extend it to your need as the gist remains the same.
