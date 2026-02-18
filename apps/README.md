@@ -7,5 +7,7 @@ This directory contains demo projects showcasing the usage of the `react-native-
 - `AndroidApp` - the native Android application that integrates the RNApp AAR package (a "consumer" of the RNApp library); it comes in two flavors:
   - `expo` - which uses the artifact produced from `ExpoApp`
   - `vanilla` - which uses the artifact produced from `RNApp`
-- `iOSApp` - the native iOS application that integrates the RNApp XCFramework package (a "consumer" of the RNApp library)
+- `AppleApp` - the native iOS application that integrates the RNApp XCFramework package (a "consumer" of the RNApp library); it comes in two configurations:
+  - `expo` - which uses the artifact produced from `ExpoApp`
+  - `vanilla` - which uses the artifact produced from `RNApp`
 - `TesterIntegrated` - a native tester application that integrates the native projects with and React Native project inside a single application, consuming the brownfield module directly, without packaging to an artifact; this is mostly useful for internal development purposes and is not as meaningful for end users of React Native Brownfield
