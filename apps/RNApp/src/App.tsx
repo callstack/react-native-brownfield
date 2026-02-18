@@ -1,3 +1,5 @@
+import '../BrownfieldStore.brownie';
+
 import { NavigationContainer } from '@react-navigation/native';
 
 import { Stack } from './navigation/RootStack';

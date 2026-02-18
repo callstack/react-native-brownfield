@@ -1,20 +1,17 @@
-import '../BrownfieldStore.brownie';
-
 import { useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useStore } from '@callstack/brownie';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 
 import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
+import Counter from './components/counter';
 
 export function HomeScreen({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
   const colors = route.params?.theme ? route.params.theme : getRandomTheme();
-  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -30,15 +27,7 @@ export function HomeScreen({
         React Native Screen
       </Text>
 
-      <Text style={[styles.text, { color: colors.secondary }]}>
-        Count: {counter}
-      </Text>
-
-      <Button
-        onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
-        color={colors.secondary}
-        title="Increment"
-      />
+      <Counter colors={colors} />
 
       <Button
         onPress={() => {

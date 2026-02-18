@@ -1,20 +1,14 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, StyleSheet, Text, View } from 'react-native';
-import { useStore } from '@callstack/brownie';
+import { StyleSheet, Text, View } from 'react-native';
+import Counter from './components/counter';
 
 export default function RNApp() {
-  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
-
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Expo React Native Brownfield</Text>
 
       <View style={styles.content}>
-        <Text style={styles.text}>Brownie Store Counter: {counter}</Text>
-        <Button
-          title="Increment"
-          onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
-        />
+        <Counter />
       </View>
     </SafeAreaView>
   );
