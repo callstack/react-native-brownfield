@@ -40,8 +40,7 @@ public class ReactNativeHostManager {
     launchOptions: [AnyHashable: Any]?
   ) -> UIView {
     let bundleURL = reactNativeDelegate?.bundleURL()
-    return
-    (expoDelegate?.recreateRootView(
+    return (expoDelegate?.recreateRootView(
       withBundleURL: bundleURL, moduleName: moduleName, initialProps: initialProps,
       launchOptions: launchOptions))!
   }
