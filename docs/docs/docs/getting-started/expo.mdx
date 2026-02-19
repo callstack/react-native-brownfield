@@ -14,19 +14,8 @@ This guide walks you through packaging your Expo React Native app as an **AAR** 
 ```json
 {
   "plugins": [
-    [
-      "@callstack/react-native-brownfield",
-      {
-        "ios": {
-          "frameworkName": "BrownfieldLib"
-        },
-        "android": {
-          "moduleName": "brownfieldlib"
-        },
-        "debug": true
-      }
+    "@callstack/react-native-brownfield",
     ]
-  ]
 }
 ```
 
@@ -41,6 +30,8 @@ This guide walks you through packaging your Expo React Native app as an **AAR** 
   }
 }
 ```
+
+> The names `brownfieldlib` or `BrownfieldLib` are the default for AAR and Framework. You can configure different names, see [here](expo#plugin-options).
 
 That is pretty much it from the configuration step. Now let's start with generating the AAR and later consuming it.
 
@@ -164,3 +155,63 @@ let RNView = ReactNativeHostManager.shared.loadView(moduleName: "ExpoRNApp", ini
 You can see the demo integration in [Apple App](https://github.com/callstack/react-native-brownfield/blob/main/apps/AppleApp/Brownfield%20Apple%20App/BrownfieldAppleApp.swift) as well
 
 4. Build and install the iOS application 🚀
+
+<hr/>
+
+## Plugin Options
+
+You can pass plugin options through the second item in the `plugins` tuple in `app.json`:
+
+```json
+{
+  "plugins": [
+    [
+      "@callstack/react-native-brownfield",
+      {
+        "ios": {
+          "frameworkName": "MyBrownfieldLib",
+          "bundleIdentifier": "com.example.app.brownfield",
+          ...
+        },
+        "android": {
+          "moduleName": "mybrownfieldlib",
+          "packageName": "com.example.mybrownfieldlib",
+          ...
+        }
+      }
+    ]
+  ]
+}
+```
+
+### iOS
+
+- `frameworkName` (`string`, default: `"BrownfieldLib"`)
+  - Name of the generated framework. This is also used as the XCFramework name.
+- `bundleIdentifier` (`string`, default: app bundle identifier + `.brownfield`)
+  - Bundle identifier assigned to the generated framework.
+- `buildSettings` (`Record<string, string | boolean | number>`, optional)
+  - Additional Xcode build settings applied when building the framework.
+- `deploymentTarget` (`string`, default: `"15.0"`)
+  - Minimum iOS version supported by the generated framework.
+- `frameworkVersion` (`string`, default: `"1"`)
+  - Framework version used for Apple build settings (must be an integer or floating point value, for example `"1"` or `"2.1"`).
+
+### Android
+
+- `moduleName` (`string`, default: `"brownfieldlib"`)
+  - Name of the generated Android library module.
+- `packageName` (`string`, default: app package name)
+  - Package name used for the Android library module.
+- `minSdkVersion` (`number`, default: `24`)
+  - Minimum Android SDK supported by the library.
+- `targetSdkVersion` (`number`, default: `35`)
+  - Target Android SDK version for the library.
+- `compileSdkVersion` (`number`, default: `35`)
+  - Compile Android SDK version used to build the library.
+- `groupId` (`string`, default: package name)
+  - Maven group ID used when publishing the AAR.
+- `artifactId` (`string`, default: module name)
+  - Maven artifact ID used when publishing the AAR.
+- `version` (`string`, default: `"0.0.1-SNAPSHOT"`)
+  - Maven version used when publishing the AAR.
