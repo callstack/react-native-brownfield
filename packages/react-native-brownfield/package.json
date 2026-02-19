@@ -1,6 +1,6 @@
 {
   "name": "@callstack/react-native-brownfield",
-  "version": "2.2.0",
+  "version": "3.0.0-rc.1",
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
   "bin": {
