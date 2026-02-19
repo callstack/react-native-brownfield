@@ -6,3 +6,9 @@
 public let ReactNativeBundle = Bundle(for: InternalClassForBundle.self)
 
 class InternalClassForBundle {}
+
+extension ReactNativeBrownfield {
+  public func ensureExpoModulesProvider() {
+    let _ = ExpoModulesProvider()
+  }
+}

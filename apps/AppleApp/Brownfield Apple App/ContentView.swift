@@ -1,5 +1,4 @@
 import ReactBrownfield
-import BrownfieldLib
 import Brownie
 import SwiftUI
 
@@ -17,33 +16,12 @@ struct ContentView: View {
     }
 }
 
-#if USE_EXPO_HOST
-struct RNViewRepresentable: UIViewRepresentable {
-    
-    func makeUIView(context: Context) -> UIView {
-        return ReactNativeHostManager.shared.loadView(moduleName: "RNApp", initialProps: nil, launchOptions: nil)
-    }
-    
-    func updateUIView(_ uiView: UIView, context: Context) {
-        // Update the view when SwiftUI state changes
-    }
-}
-#endif
-
 struct MainScreen: View {
-    var rnView: some View {
-#if USE_EXPO_HOST
-        RNViewRepresentable()
-#else
-        ReactNativeView(moduleName: "RNApp")
-#endif
-    }
-    
     var body: some View {
         VStack(spacing: 16) {
             GreetingCard(name: "iOS")
             
-            rnView
+            ReactNativeView(moduleName: "RNApp")
                 .navigationBarHidden(true)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .background(Color(UIColor.systemBackground))

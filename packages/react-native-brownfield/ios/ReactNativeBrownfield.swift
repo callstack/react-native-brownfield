@@ -3,6 +3,10 @@ internal import React
 internal import React_RCTAppDelegate
 internal import ReactAppDependencyProvider
 
+#if canImport(Expo)
+internal import Expo
+#endif
+
 class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"
   var bundlePath = "main.jsbundle"
@@ -34,16 +38,23 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
 
 @objc public class ReactNativeBrownfield: NSObject {
   public static let shared = ReactNativeBrownfield()
-  private var onBundleLoaded: (() -> Void)?
-  private var delegate = ReactNativeBrownfieldDelegate()
-  
   /**
    * Path to JavaScript root.
    * Default value: "index"
    */
-  @objc public var entryFile: String = "index" {
+  @objc public var entryFile: String = {
+    #if canImport(Expo)
+    return ".expo/.virtual-metro-entry"
+    #else
+    return "index"
+    #endif
+  }() {
     didSet {
-      delegate.entryFile = entryFile
+      #if canImport(Expo)
+        ExpoHostRuntime.shared.entryFile = entryFile
+      #else
+        ReactNativeHostRuntime.shared.entryFile = entryFile
+      #endif
     }
   }
   /**
@@ -56,6 +67,143 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * Default value: "main.jsbundle"
    */
   @objc public var bundlePath: String = "main.jsbundle" {
+      didSet {
+        #if canImport(Expo)
+          ExpoHostRuntime.shared.bundlePath = bundlePath
+        #else
+          ReactNativeHostRuntime.shared.bundlePath = bundlePath
+        #endif
+      }
+  }
+  /**
+   * Bundle instance to lookup the JavaScript bundle.
+   * Default value: Bundle.main
+   */
+  @objc public var bundle: Bundle = Bundle.main {
+    didSet {
+      #if canImport(Expo)
+        ExpoHostRuntime.shared.bundle = bundle
+      #else
+        ReactNativeHostRuntime.shared.bundle = bundle
+      #endif
+    }
+  }
+  /**
+   * Dynamic bundle URL provider called on every bundle load.
+   * When set, this overrides the default bundleURL() behavior in the delegate.
+   * Returns a URL to load a custom bundle, or nil to use default behavior.
+   * Default value: nil
+   */
+  @objc public var bundleURLOverride: (() -> URL?)? = nil {
+    didSet {
+      #if canImport(Expo)
+        ExpoHostRuntime.shared.bundleURLOverride = bundleURLOverride
+      #else
+        ReactNativeHostRuntime.shared.bundleURLOverride = bundleURLOverride
+      #endif
+    }
+  }
+
+  /**
+   * Starts React Native with default parameters.
+   */
+  @objc public func startReactNative() {
+    #if canImport(Expo)
+      ExpoHostRuntime.shared.startReactNative()
+    #else
+      ReactNativeHostRuntime.shared.startReactNative()
+    #endif
+  }
+  
+  @objc public func view(
+    moduleName: String,
+    initialProps: [AnyHashable: Any]?,
+    launchOptions: [AnyHashable: Any]? = nil
+  ) -> UIView? {
+    #if canImport(Expo)
+      ExpoHostRuntime.shared.view(
+        moduleName: moduleName,
+        initialProps: initialProps,
+        launchOptions: launchOptions
+      )
+    #else
+      ReactNativeHostRuntime.shared.view(
+        moduleName: moduleName,
+        initialProps: initialProps,
+        launchOptions: launchOptions
+      )
+    #endif
+  }
+
+  /**
+   * Mirrors host manager app delegate API for bare React Native.
+   */
+  @objc public func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    #if canImport(Expo)
+      return ExpoHostRuntime.shared.application(
+        application,
+        didFinishLaunchingWithOptions: launchOptions
+      )
+    #else
+      return ReactNativeHostRuntime.shared.application(
+        application,
+        didFinishLaunchingWithOptions: launchOptions
+      )
+    #endif
+  }
+  
+  /**
+   * Starts React Native with optional callback when bundle is loaded.
+   *
+   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
+   */
+  @objc public func startReactNative(onBundleLoaded: (() -> Void)?) {
+    #if canImport(Expo)
+      ExpoHostRuntime.shared.startReactNative(onBundleLoaded: onBundleLoaded)
+    #else
+      ReactNativeHostRuntime.shared.startReactNative(onBundleLoaded: onBundleLoaded)
+    #endif
+  }
+}
+
+extension Notification.Name {
+  /**
+   * Notification sent when React Native wants to navigate back to native screen.
+   */
+  public static let popToNative = Notification.Name("PopToNativeNotification")
+  /**
+   * Notification sent to enable/disable the pop gesture recognizer.
+   */
+  public static let togglePopGestureRecognizer = Notification.Name("TogglePopGestureRecognizerNotification")
+}
+
+private final class ReactNativeHostRuntime: NSObject {
+  public static let shared = ReactNativeHostRuntime()
+  private var onBundleLoaded: (() -> Void)?
+  private var delegate = ReactNativeBrownfieldDelegate()
+
+  /**
+   * Path to JavaScript root.
+   * Default value: "index"
+   */
+  public var entryFile: String = "index" {
+    didSet {
+      delegate.entryFile = entryFile
+    }
+  }
+  /**
+   * Path to bundle fallback resource.
+   * Default value: nil
+   */
+  public var fallbackResource: String? = nil
+  /**
+   * Path to JavaScript bundle file.
+   * Default value: "main.jsbundle"
+   */
+  public var bundlePath: String = "main.jsbundle" {
     didSet {
       delegate.bundlePath = bundlePath
     }
@@ -64,7 +212,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * Bundle instance to lookup the JavaScript bundle.
    * Default value: Bundle.main
    */
-  @objc public var bundle: Bundle = Bundle.main {
+  public var bundle: Bundle = Bundle.main {
     didSet {
       delegate.bundle = bundle
     }
@@ -75,7 +223,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
    * Returns a URL to load a custom bundle, or nil to use default behavior.
    * Default value: nil
    */
-  @objc public var bundleURLOverride: (() -> URL?)? = nil {
+  public var bundleURLOverride: (() -> URL?)? = nil {
     didSet {
       delegate.bundleURLOverride = bundleURLOverride
     }
@@ -95,11 +243,11 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   /**
    * Starts React Native with default parameters.
    */
-  @objc public func startReactNative() {
+  public func startReactNative() {
     startReactNative(onBundleLoaded: nil)
   }
   
-  @objc public func view(
+  public func view(
     moduleName: String,
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
@@ -110,23 +258,23 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
       launchOptions: launchOptions
     )
   }
+
+  /**
+   * Mirrors host manager app delegate API for bare React Native.
+   */
+  public func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    return true
+  }
   
   /**
    * Starts React Native with optional callback when bundle is loaded.
    *
    * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
    */
-  @objc public func startReactNative(onBundleLoaded: (() -> Void)?) {
-    startReactNative(onBundleLoaded: onBundleLoaded, launchOptions: nil)
-  }
-  
-  /**
-   * Starts React Native with optional callback and launch options.
-   *
-   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
-   * @param launchOptions Launch options, typically passed from AppDelegate.
-   */
-  @objc public func startReactNative(onBundleLoaded: (() -> Void)?, launchOptions: [AnyHashable: Any]?) {
+  public func startReactNative(onBundleLoaded: (() -> Void)?) {
     guard reactNativeFactory == nil else { return }
     
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -159,13 +307,138 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   }
 }
 
-extension Notification.Name {
+
+#if canImport(Expo)
+private final class ExpoHostRuntime {
+  static let shared = ExpoHostRuntime()
+
+  private var delegate = ExpoHostRuntimeDelegate()
+  private var reactNativeFactory: RCTReactNativeFactory?
+  private var expoDelegate: ExpoAppDelegate?
+
   /**
-   * Notification sent when React Native wants to navigate back to native screen.
+   * Starts React Native with default parameters.
    */
-  public static let popToNative = Notification.Name("PopToNativeNotification")
+  public func startReactNative() {
+    startReactNative(onBundleLoaded: nil)
+  }
   /**
-   * Notification sent to enable/disable the pop gesture recognizer.
+   * Starts React Native with optional callback when bundle is loaded.
+   *
+   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
    */
-  public static let togglePopGestureRecognizer = Notification.Name("TogglePopGestureRecognizerNotification")
+  public func startReactNative(onBundleLoaded: (() -> Void)?) {
+    guard reactNativeFactory == nil else { return }
+
+    let factory = ExpoReactNativeFactory(delegate: delegate)
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+
+    reactNativeFactory = factory
+
+    let appDelegate = ExpoAppDelegate()
+    appDelegate.bindReactNativeFactory(factory)
+    expoDelegate = appDelegate
+  }
+
+   /**
+   * Path to JavaScript root.
+   * Default value: ".expo/.virtual-metro-entry"
+   */
+  public var entryFile: String = ".expo/.virtual-metro-entry" {
+    didSet {
+        delegate.entryFile = entryFile
+    }
+  }
+  /**
+   * Path to bundle fallback resource.
+   * Default value: nil
+   */
+  public var fallbackResource: String? = nil
+  /**
+   * Path to JavaScript bundle file.
+   * Default value: "main.jsbundle"
+   */
+  public var bundlePath: String = "main.jsbundle" {
+    didSet {
+        delegate.bundlePath = bundlePath
+    }
+  }
+  /**
+   * Bundle instance to lookup the JavaScript bundle.
+   * Default value: Bundle.main
+   */
+  public var bundle: Bundle = Bundle.main {
+    didSet {
+        delegate.bundle = bundle
+    }
+  }
+  /**
+   * Dynamic bundle URL provider called on every bundle load.
+   * When set, this overrides the default bundleURL() behavior in the delegate.
+   * Returns a URL to load a custom bundle, or nil to use default behavior.
+   * Default value: nil
+   */
+  public var bundleURLOverride: (() -> URL?)? = nil {
+    didSet {
+        delegate.bundleURLOverride = bundleURLOverride
+    }
+  }
+
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    return expoDelegate?.application(
+      application,
+      didFinishLaunchingWithOptions: launchOptions
+    ) != nil
+  }
+
+  func view(
+    moduleName: String,
+    initialProps: [AnyHashable: Any]?,
+    launchOptions: [AnyHashable: Any]?
+  ) -> UIView {
+    let bundleURL = delegate.bundleURL()
+      
+    if let view = expoDelegate?.recreateRootView(
+      withBundleURL: bundleURL,
+      moduleName: moduleName,
+      initialProps: initialProps,
+      launchOptions: launchOptions
+    ) {
+      return view
+    }
+
+    return UIView(frame: .zero)
+  }
 }
+
+class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
+  var entryFile = ".expo/.virtual-metro-entry"
+  var bundlePath = "main.jsbundle"
+  var bundle = Bundle.main
+  var bundleURLOverride: (() -> URL?)? = nil
+
+  override func sourceURL(for bridge: RCTBridge) -> URL? {
+    // needed to return the correct URL for expo-dev-client.
+    bridge.bundleURL ?? bundleURL()
+  }
+  
+  override func bundleURL() -> URL? {
+    if let bundleURLProvider = bundleURLOverride { return bundleURLProvider() }
+#if DEBUG
+    return RCTBundleURLProvider.sharedSettings().jsBundleURL(
+      forBundleRoot: entryFile)
+#else
+    let resourceURLComponents = bundlePath.components(separatedBy: ".")
+    let withoutLast = resourceURLComponents[..<(resourceURLComponents.count - 1)]
+    let resourceName = withoutLast.joined()
+    let fileExtension = resourceURLComponents.last ?? ""
+      
+    return bundle.url(forResource: resourceName, withExtension: fileExtension)
+#endif
+  }
+}
+#endif
+

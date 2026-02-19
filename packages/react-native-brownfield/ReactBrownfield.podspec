@@ -22,6 +22,10 @@ Pod::Spec.new do |spec|
 
   spec.dependency 'ReactAppDependencyProvider'
   add_dependency(spec, "React-RCTAppDelegate")
+  
+  if ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] == '1'
+    spec.dependency 'Expo'
+  end
 
   install_modules_dependencies(spec)
 end
