@@ -30,6 +30,7 @@ class ArtifactsResolver(
     private val configurations: MutableCollection<Configuration>,
     private val baseProject: BaseProject,
     private val extension: Extension,
+    private val hasExpo: Boolean,
 ) :
     GradleProps() {
     companion object {
@@ -74,9 +75,11 @@ class ArtifactsResolver(
         expoConfig?.dependencies?.forEach {
             if (extension.resolveLocalDependencies) {
                 if (it is DefaultProjectDependency) {
+                    val projectDependency =
+                        expoProject.dependencies.project(mapOf("path" to ":${it.name}"))
                     baseProject.project.dependencies.add(
                         CONFIG_NAME,
-                        expoProject.dependencies.project(mapOf("path" to ":${it.name}")),
+                        projectDependency,
                     )
                 } else {
                     baseProject.project.dependencies.add(
@@ -89,7 +92,7 @@ class ArtifactsResolver(
     }
 
     private fun embedDefaultDependencies(configName: String) {
-        if (extension.isExpo) {
+        if (this.hasExpo) {
             embedExpoDependencies()
         }
 
@@ -97,9 +100,11 @@ class ArtifactsResolver(
         val defaultDependencies = config?.dependencies?.filterIsInstance<DefaultProjectDependency>()
         defaultDependencies?.forEach { dependency ->
             if (extension.resolveLocalDependencies) {
+                val projectDependency =
+                    baseProject.project.dependencies.project(mapOf("path" to ":${dependency.name}"))
                 baseProject.project.dependencies.add(
                     CONFIG_NAME,
-                    baseProject.project.dependencies.project(mapOf("path" to ":${dependency.name}")),
+                    projectDependency,
                 )
             }
         }
@@ -113,7 +118,13 @@ class ArtifactsResolver(
                 if (isEmbedConfig(configuration, variant)) {
                     val resolvedArtifacts = resolveArtifacts(configuration)
                     artifacts.addAll(resolvedArtifacts)
-                    artifacts.addAll(handleUnResolvedArtifacts(configuration, variant, resolvedArtifacts))
+                    artifacts.addAll(
+                        handleUnResolvedArtifacts(
+                            configuration,
+                            variant,
+                            resolvedArtifacts,
+                        ),
+                    )
                 }
             }
 
@@ -138,7 +149,10 @@ class ArtifactsResolver(
         val artifacts = ArrayList<ResolvedArtifact>()
         configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
             if (artifact.type != ARTIFACT_TYPE_AAR && artifact.type != ARTIFACT_TYPE_JAR) {
-                throw ProjectConfigurationException("Unsupported dependency. Please provide either Aar or Jar dependency", listOf())
+                throw ProjectConfigurationException(
+                    "Unsupported dependency. Please provide either Aar or Jar dependency",
+                    listOf(),
+                )
             }
             artifacts.add(artifact)
         }

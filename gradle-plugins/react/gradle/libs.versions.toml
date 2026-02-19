@@ -5,14 +5,15 @@ detekt = "1.23.7"
 agp = "8.5.2"
 common = "31.2.2" # do not bump it for now, as it throws an error for incompatible AGP used
 asm-commons = "9.7"
+versioncompare = "1.5.0"
 
 [plugins]
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinJvm" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint"}
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt"}
-
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", name = "agp", version.ref = "agp" }
 common = { module = "com.android.tools:common", version.ref = "common" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm-commons" }
+versioncompare = { module = "io.github.g00fy2:versioncompare", version.ref = "versioncompare" }

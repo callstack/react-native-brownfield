@@ -6,12 +6,14 @@ import {
 
 import { Command } from 'commander';
 
-import { getProjectInfo } from '../utils/index.js';
 import {
   actionRunner,
   curryOptions,
   ExampleUsage,
 } from '../../shared/index.js';
+import { getProjectInfo } from '../utils/project.js';
+import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
+import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 
 export const publishAndroidCommand = curryOptions(
   new Command('publish:android').description(
@@ -21,6 +23,12 @@ export const publishAndroidCommand = curryOptions(
 ).action(
   actionRunner(async (options: PublishLocalAarFlags) => {
     const { projectRoot, platformConfig } = getProjectInfo('android');
+    await runExpoPrebuildIfNeeded({
+      projectRoot,
+      platform: 'android',
+    });
+
+    await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
 
     await publishLocalAarAction({
       projectRoot,

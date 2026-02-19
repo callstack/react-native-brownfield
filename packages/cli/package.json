@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-cli",
-  "version": "1.0.4",
+  "version": "2.0.0-rc.1",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
@@ -67,15 +67,15 @@
     "@react-native-community/cli-config-android": "*"
   },
   "dependencies": {
+    "@expo/config": "^12.0.13",
     "@react-native-community/cli-config": "^20.0.0",
     "@react-native-community/cli-config-android": "^20.0.0",
-    "@rock-js/platform-android": "^0.12.6",
-    "@rock-js/platform-apple-helpers": "^0.12.6",
-    "@rock-js/plugin-brownfield-android": "^0.12.6",
-    "@rock-js/plugin-brownfield-ios": "^0.12.6",
-    "@rock-js/tools": "^0.12.6",
+    "@rock-js/platform-android": "^0.12.8",
+    "@rock-js/platform-apple-helpers": "^0.12.8",
+    "@rock-js/plugin-brownfield-android": "^0.12.8",
+    "@rock-js/plugin-brownfield-ios": "^0.12.8",
+    "@rock-js/tools": "^0.12.8",
     "commander": "^14.0.2",
-    "lodash.clonedeep": "^4.5.0",
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
@@ -87,7 +87,6 @@
     "@react-native/eslint-config": "0.82.1",
     "@types/babel__core": "^7.20.5",
     "@types/babel__preset-env": "^7.10.0",
-    "@types/lodash.clonedeep": "^4.5.9",
     "@types/node": "^25.0.8",
     "@vitest/coverage-v8": "^4.0.17",
     "eslint": "^9.28.0",

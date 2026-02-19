@@ -12,6 +12,11 @@ object VariantPackagesProperty {
     }
 
     fun setVariantPackagesProperty(project: Project) {
-        properties = project.objects.mapProperty(String::class.java, List::class.java as Class<List<AndroidArchiveLibrary>>)
+        @Suppress("UNCHECKED_CAST")
+        properties =
+            project.objects.mapProperty(
+                String::class.java,
+                List::class.java as Class<List<AndroidArchiveLibrary>>,
+            )
     }
 }

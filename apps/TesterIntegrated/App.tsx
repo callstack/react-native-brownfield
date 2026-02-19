@@ -1,6 +1,7 @@
+import './BrownfieldStore.brownie';
+
 import { useStore } from '@callstack/brownie';
 import { useEffect } from 'react';
-import './BrownfieldStore.brownie';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 
 import {

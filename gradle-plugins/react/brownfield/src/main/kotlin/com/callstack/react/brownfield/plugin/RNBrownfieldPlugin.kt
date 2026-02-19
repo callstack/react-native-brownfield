@@ -1,6 +1,7 @@
 package com.callstack.react.brownfield.plugin
 
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
+import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
@@ -25,6 +26,10 @@ class RNBrownfieldPlugin
         private lateinit var project: Project
         private lateinit var extension: Extension
         private lateinit var projectConfigurations: ProjectConfigurations
+        private var maybeExpoProject: Project? = null
+
+        private val isExpoProject: Boolean
+            get() = maybeExpoProject != null
 
         override fun apply(project: Project) {
             verifyAndroidPluginApplied(project)
@@ -35,10 +40,12 @@ class RNBrownfieldPlugin
              * This ensures that the expo modules are available to link with the
              * android library, when it is evaluated.
              */
-            val expoProjectPath = ":expo"
-            val hasExpoProject = project.findProject(expoProjectPath) != null
-            if (hasExpoProject) {
-                project.evaluationDependsOn(expoProjectPath)
+            if (this.isExpoProject) {
+                Logging.log("Expo project detected.")
+                ExpoPublishingHelper(
+                    brownfieldAppProject = project,
+                    expoProject = maybeExpoProject!!,
+                ).configure()
             }
 
             RNSourceSets.configure(project, extension)
@@ -58,6 +65,8 @@ class RNBrownfieldPlugin
             this.extension = project.extensions.create(Extension.NAME, Extension::class.java)
             projectConfigurations = ProjectConfigurations(project)
             VariantPackagesProperty.setVariantPackagesProperty(project)
+
+            this.maybeExpoProject = project.findProject(EXPO_PROJECT_LOCATOR)
         }
 
         /**
@@ -82,10 +91,20 @@ class RNBrownfieldPlugin
         private fun afterEvaluate() {
             val baseProject = BaseProject()
             baseProject.project = project
-            val artifactsResolver = ArtifactsResolver(projectConfigurations.getConfigurations(), baseProject, extension)
+            val artifactsResolver =
+                ArtifactsResolver(
+                    projectConfigurations.getConfigurations(),
+                    baseProject,
+                    extension,
+                    this.isExpoProject,
+                )
             artifactsResolver.calculatedValueContainerFactory = calculatedValueContainerFactory
             artifactsResolver.taskDependencyFactory = taskDependencyFactory
             artifactsResolver.fileResolver = fileResolver
             artifactsResolver.processArtifacts()
+        }
+
+        companion object {
+            const val EXPO_PROJECT_LOCATOR = ":expo"
         }
     }

@@ -17,6 +17,7 @@ import com.callstack.react.brownfield.artifacts.ArtifactsResolver.Companion.ARTI
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.provider.ListProperty
@@ -26,7 +27,7 @@ import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
-    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.capitalized()
     private val variantHelper = VariantHelper(variant)
     private val variantTaskProvider = VariantTaskProvider(variantHelper)
     private val jniLibsProcessor = JNILibsProcessor()
@@ -77,7 +78,8 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
 
     private fun mergeClassesAndJars(bundleTask: TaskProvider<Task>) {
         val syncLibTask = project.tasks.named(variantHelper.getSyncLibJarsTaskPath())
-        val extractAnnotationsTask = project.tasks.named("extract${capitalizedVariantName}Annotations")
+        val extractAnnotationsTask =
+            project.tasks.named("extract${capitalizedVariantName}Annotations")
 
         mergeClassTask = variantTaskProvider.classesMergeTask(aarLibraries, jarFiles, explodeTasks)
         syncLibTask.configure {
@@ -96,7 +98,8 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
         }
 
         if (!variant.buildType.isMinifyEnabled) {
-            val mergeJars = variantTaskProvider.jarMergeTask(syncLibTask, aarLibraries, jarFiles, explodeTasks)
+            val mergeJars =
+                variantTaskProvider.jarMergeTask(syncLibTask, aarLibraries, jarFiles, explodeTasks)
             project.tasks.named("bundle${capitalizedVariantName}LocalLintAar").configure {
                 it.dependsOn(mergeJars)
             }
@@ -153,8 +156,8 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
         zipFolder: File,
         artifact: ResolvedArtifact,
     ): Copy {
-        val group = artifact.moduleVersion.id.group.replaceFirstChar(Char::titlecase)
-        val name = artifact.name.replaceFirstChar(Char::titlecase)
+        val group = artifact.moduleVersion.id.group.capitalized()
+        val name = artifact.name.capitalized()
         val taskName = "explode$group$name$capitalizedVariantName"
         val explodeTask =
             project.tasks.create(taskName, Copy::class.java) {
