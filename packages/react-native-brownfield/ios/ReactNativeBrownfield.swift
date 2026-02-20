@@ -57,11 +57,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
       #endif
     }
   }
-  /**
-   * Path to bundle fallback resource.
-   * Default value: nil
-   */
-  @objc public var fallbackResource: String? = nil
+
   /**
    * Path to JavaScript bundle file.
    * Default value: "main.jsbundle"
@@ -194,11 +190,7 @@ private final class ReactNativeHostRuntime: NSObject {
       delegate.entryFile = entryFile
     }
   }
-  /**
-   * Path to bundle fallback resource.
-   * Default value: nil
-   */
-  public var fallbackResource: String? = nil
+
   /**
    * Path to JavaScript bundle file.
    * Default value: "main.jsbundle"
@@ -349,11 +341,7 @@ private final class ExpoHostRuntime {
         delegate.entryFile = entryFile
     }
   }
-  /**
-   * Path to bundle fallback resource.
-   * Default value: nil
-   */
-  public var fallbackResource: String? = nil
+
   /**
    * Path to JavaScript bundle file.
    * Default value: "main.jsbundle"
@@ -410,7 +398,7 @@ private final class ExpoHostRuntime {
       return view
     }
 
-    return UIView(frame: .zero)
+    return nil
   }
 }
 
