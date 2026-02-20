@@ -2350,7 +2350,7 @@ PODS:
     - SocketRocket
   - ReactAppDependencyProvider (0.82.1):
     - ReactCodegen
-  - ReactBrownfield (2.2.0):
+  - ReactBrownfield (3.0.0-rc.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2843,7 +2843,7 @@ SPEC CHECKSUMS:
   React-utils: f06ff240e06e2bd4b34e48f1b34cac00866e8979
   React-webperformancenativemodule: b3398f8175fa96d992c071b1fa59bd6f9646b840
   ReactAppDependencyProvider: a45ef34bb22dc1c9b2ac1f74167d9a28af961176
-  ReactBrownfield: 65d6bf15ccb7501d3982ec05f8d37b697e9b3480
+  ReactBrownfield: ce231a9060b34e1fe8f91ec8416f21dc6da8b4b5
   ReactCodegen: 0bce2d209e2e802589f4c5ff76d21618200e74cb
   ReactCommon: 801eff8cb9c940c04d3a89ce399c343ee3eff654
   RNScreens: d6413aeb1878cdafd3c721e2c5218faf5d5d3b13

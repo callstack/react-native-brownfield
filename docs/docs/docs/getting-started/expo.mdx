@@ -111,7 +111,7 @@ This should only take a few minutes.
 - Follow the step for adding the frameworks to your iOS App - [here](/docs/getting-started/ios#6-add-the-framework-to-your-ios-app)
 <hr/>
 
-1. Call the `ReactNativeHostManager.shared.initialize()` from your Application Entry point:
+1. Call the following functions from your Application Entry point:
 
 ```swift
 @main
@@ -119,7 +119,11 @@ struct IosApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     init() {
-        ReactNativeHostManager.shared.initialize()
+        ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+        ReactNativeBrownfield.shared.startReactNative {
+            print("React Native has been loaded")
+        }
+        ReactNativeBrownfield.shared.ensureExpoModulesProvider()
     }
     
     var body: some Scene {
@@ -140,19 +144,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        return ReactNativeHostManager.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
+        return ReactNativeBrownfield.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }
 ```
 
-3. Use the `ReactNativeHostManager.loadView` to present the UI
+3. Use the `ReactNativeView` or `ReactNativeViewController` to present the UI
 
-```
-let RNView = ReactNativeHostManager.shared.loadView(moduleName: "ExpoRNApp", initialProps: nil, launchOptions: nil)
+```swift
+ReactNativeView(moduleName: "ExpoRNApp")
+  .background(Color(UIColor.systemBackground))
 ```
 
-> This returns a UIView, so if you're using SwiftUI, you will have to wrap this in UIViewRrepresentable .
-You can see the demo integration in [Apple App](https://github.com/callstack/react-native-brownfield/blob/main/apps/AppleApp/Brownfield%20Apple%20App/BrownfieldAppleApp.swift) as well
+> You can also use `ReactNativeBrownfield.shared.view(moduleName, initialProps)` which returns a UIView.
 
 4. Build and install the iOS application 🚀
 
