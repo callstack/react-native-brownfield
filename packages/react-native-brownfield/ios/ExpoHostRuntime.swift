@@ -124,10 +124,9 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
     return RCTBundleURLProvider.sharedSettings().jsBundleURL(
       forBundleRoot: entryFile)
 #else
-    let resourceURLComponents = bundlePath.components(separatedBy: ".")
-    let withoutLast = resourceURLComponents[..<(resourceURLComponents.count - 1)]
-    let resourceName = withoutLast.joined()
-    let fileExtension = resourceURLComponents.last ?? ""
+    let (resourceName, fileExtension) = BrownfieldBundlePathResolver.resourceComponents(
+      from: bundlePath
+    )
 
     return bundle.url(forResource: resourceName, withExtension: fileExtension)
 #endif
