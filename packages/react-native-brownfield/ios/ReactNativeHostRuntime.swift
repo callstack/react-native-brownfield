@@ -31,9 +31,9 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   }
 }
 
-final class ReactNativeHostRuntime: NSObject {
+final class ReactNativeHostRuntime {
   public static let shared = ReactNativeHostRuntime()
-  private var onBundleLoaded: (() -> Void)?
+  private let jsBundleLoadObserver = JSBundleLoadObserver()
   private var delegate = ReactNativeBrownfieldDelegate()
 
   /**
@@ -128,28 +128,7 @@ final class ReactNativeHostRuntime: NSObject {
     self.reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
 
     if let onBundleLoaded {
-      self.onBundleLoaded = onBundleLoaded
-      if RCTIsNewArchEnabled() {
-        NotificationCenter.default.addObserver(
-          self,
-          selector: #selector(jsLoaded),
-          name: NSNotification.Name("RCTInstanceDidLoadBundle"),
-          object: nil
-        )
-      } else {
-        NotificationCenter.default.addObserver(
-          self,
-          selector: #selector(jsLoaded),
-          name: NSNotification.Name("RCTJavaScriptDidLoadNotification"),
-          object: nil
-        )
-      }
+      jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
     }
-  }
-
-  @objc private func jsLoaded(_ notification: Notification) {
-    onBundleLoaded?()
-    onBundleLoaded = nil
-    NotificationCenter.default.removeObserver(self)
   }
 }

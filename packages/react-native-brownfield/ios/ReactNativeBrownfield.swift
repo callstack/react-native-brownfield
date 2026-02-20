@@ -9,7 +9,7 @@ internal import Expo
 
   /**
    * Path to JavaScript root.
-   * Default value: "index"
+   * Default value: "index" for bare React Native, ".expo/.virtual-metro-entry" when built with Expo.
    */
   @objc public var entryFile: String = {
     #if canImport(Expo)
@@ -61,7 +61,7 @@ internal import Expo
    * Returns a URL to load a custom bundle, or nil to use default behavior.
    * Default value: nil
    */
-  @objc public var bundleURLOverride: (() -> URL?)? {
+  @objc public var bundleURLOverride: (() -> URL?)? = nil {
     didSet {
       #if canImport(Expo)
       ExpoHostRuntime.shared.bundleURLOverride = bundleURLOverride
@@ -103,7 +103,7 @@ internal import Expo
   }
 
   /**
-   * Mirrors host manager app delegate API for bare React Native.
+   * Mirrors the host runtime app delegate API, forwarding to Expo or bare React Native as appropriate.
    */
   @objc public func application(
     _ application: UIApplication,

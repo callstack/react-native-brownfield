@@ -9,6 +9,7 @@ internal import Expo
 final class ExpoHostRuntime {
   static let shared = ExpoHostRuntime()
 
+  private let jsBundleLoadObserver = JSBundleLoadObserver()
   private var delegate = ExpoHostRuntimeDelegate()
   private var reactNativeFactory: RCTReactNativeFactory?
   private var expoDelegate: ExpoAppDelegate?
@@ -35,6 +36,10 @@ final class ExpoHostRuntime {
     let appDelegate = ExpoAppDelegate()
     appDelegate.bindReactNativeFactory(factory)
     expoDelegate = appDelegate
+
+    if let onBundleLoaded {
+      jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
+    }
   }
 
   /**
@@ -91,19 +96,15 @@ final class ExpoHostRuntime {
     moduleName: String,
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]?
-  ) -> UIView {
+  ) -> UIView? {
     let bundleURL = delegate.bundleURL()
 
-    if let view = expoDelegate?.recreateRootView(
+    return expoDelegate?.recreateRootView(
       withBundleURL: bundleURL,
       moduleName: moduleName,
       initialProps: initialProps,
       launchOptions: launchOptions
-    ) {
-      return view
-    }
-
-    return UIView(frame: .zero)
+    )
   }
 }
 
