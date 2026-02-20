@@ -22,11 +22,15 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
 #if DEBUG
     return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: entryFile)
 #else
-    let (resourceName, fileExtension) = BrownfieldBundlePathResolver.resourceComponents(
-      from: bundlePath
-    )
-
-    return bundle.url(forResource: resourceName, withExtension: fileExtension)
+    do {
+      let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
+        from: bundlePath
+      )
+      return bundle.url(forResource: resourceName, withExtension: fileExtension)
+    } catch {
+      assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")
+      return nil
+    }
 #endif
   }
 }
