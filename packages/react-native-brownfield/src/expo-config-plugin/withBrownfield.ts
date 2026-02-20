@@ -28,12 +28,12 @@ function resolveConfig(
   Logger.setIsDebug(config.debug ?? false);
 
   const androidPackage = expoConfig.android?.package;
-  const androidModuleName = config.android?.moduleName ?? 'brownfield';
+  const androidModuleName = config.android?.moduleName ?? 'brownfieldlib';
 
   return {
     ios: expoConfig.ios
       ? {
-          frameworkName: config.ios?.frameworkName ?? 'App',
+          frameworkName: config.ios?.frameworkName ?? 'BrownfieldLib',
           bundleIdentifier:
             config.ios?.bundleIdentifier ??
             `${expoConfig.ios.bundleIdentifier}.brownfield`,
