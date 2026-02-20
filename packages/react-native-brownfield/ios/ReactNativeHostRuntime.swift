@@ -31,7 +31,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   }
 }
 
-private final class ReactNativeHostRuntime: NSObject {
+final class ReactNativeHostRuntime: NSObject {
   public static let shared = ReactNativeHostRuntime()
   private var onBundleLoaded: (() -> Void)?
   private var delegate = ReactNativeBrownfieldDelegate()

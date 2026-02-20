@@ -6,7 +6,7 @@ internal import ReactAppDependencyProvider
 #if canImport(Expo)
 internal import Expo
 
-private final class ExpoHostRuntime {
+final class ExpoHostRuntime {
   static let shared = ExpoHostRuntime()
 
   private var delegate = ExpoHostRuntimeDelegate()
