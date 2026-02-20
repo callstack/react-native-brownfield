@@ -41,18 +41,7 @@
           }
         }
       ],
-      [
-        "@callstack/react-native-brownfield",
-        {
-          "ios": {
-            "frameworkName": "BrownfieldLib"
-          },
-          "android": {
-            "moduleName": "brownfieldlib"
-          },
-          "debug": true
-        }
-      ]
+      "@callstack/react-native-brownfield"
     ],
     "experiments": {
       "typedRoutes": true,

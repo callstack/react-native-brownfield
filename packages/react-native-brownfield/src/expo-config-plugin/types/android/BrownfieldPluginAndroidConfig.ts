@@ -4,7 +4,7 @@
 export interface BrownfieldPluginAndroidConfig {
   /**
    * The name of the Android library module to create
-   * @default "brownfield"
+   * @default "brownfieldlib"
    */
   moduleName?: string;
 

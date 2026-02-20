@@ -5,7 +5,7 @@ export interface BrownfieldPluginIosConfig {
   /**
    * The name of the framework to create
    * This will be used as the XCFramework name
-   * @default "App"
+   * @default "BrownfieldLib"
    */
   frameworkName?: string;
 

@@ -16,7 +16,7 @@ struct ContentView: View {
     }
 }
 
-struct MainScreen: View {
+struct MainScreen: View {    
     var body: some View {
         VStack(spacing: 16) {
             GreetingCard(name: "iOS")
