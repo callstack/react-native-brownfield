@@ -61,6 +61,7 @@
   "files": [
     "src",
     "lib",
+    "scripts",
     "android",
     "ios",
     "cpp",
