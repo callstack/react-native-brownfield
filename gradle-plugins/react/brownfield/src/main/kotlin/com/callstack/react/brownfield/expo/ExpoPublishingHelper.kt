@@ -7,7 +7,6 @@ import com.callstack.react.brownfield.expo.utils.DependencyInfo
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.expo.utils.VersionMediatingDependencySet
 import com.callstack.react.brownfield.expo.utils.asExpoGradleProjectProjection
-import com.callstack.react.brownfield.plugin.RNBrownfieldPlugin.Companion.EXPO_PROJECT_LOCATOR
 import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.Logging
 import groovy.json.JsonOutput
@@ -352,14 +351,18 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
     ) {
         dependenciesNodes.forEach { depNodeList ->
             depNodeList.childNodes.forEach { depNode ->
-                // below: some nodes are not dependencies, but pure text, in which case their name is '#text'
-                if (depNode.nodeName == "dependency") {
+                /**
+                 * below: some nodes are not dependencies, but pure text, in which case their name is '#text'
+                 *
+                 * only add dependencies with compile scope
+                 */
+                val scope = depNode.getChildNodeByName("scope")?.textContent
+                if (depNode.nodeName == "dependency" && scope == "compile") {
                     val groupId = depNode.getChildNodeByName("groupId")!!.textContent
                     val maybeArtifactId = depNode.getChildNodeByName("artifactId")
 
                     val artifactId = maybeArtifactId!!.textContent
                     val version = depNode.getChildNodeByName("version")?.textContent
-                    val scope = depNode.getChildNodeByName("scope")?.textContent
                     val optional = depNode.getChildNodeByName("optional")?.textContent
 
                     val dependencyInfo =
@@ -367,7 +370,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                             groupId = groupId,
                             artifactId = artifactId,
                             version = version,
-                            scope = scope ?: "compile",
+                            scope = scope,
                             optional = optional?.toBoolean() ?: false,
                         )
 
