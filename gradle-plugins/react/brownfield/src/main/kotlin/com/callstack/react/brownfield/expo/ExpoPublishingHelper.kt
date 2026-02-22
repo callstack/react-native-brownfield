@@ -384,38 +384,19 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         pkgProject: Project,
         dependencies: VersionMediatingDependencySet,
     ) {
-        pkgProject.configurations
-            .filter { cfg ->
-                setOf(
-                    "test",
-                    "androidTest",
-                    "kapt",
-                    "annotationProcessor",
-                    "lint",
-                    "detached",
-                ).none {
-                    cfg.name.contains(it, ignoreCase = true)
+        listOf("implementation", "api").forEach {
+            pkgProject.configurations.getByName(it).dependencies.forEach { dep ->
+                if (dep.group != null) {
+                    dependencies.add(
+                        DependencyInfo.fromGradleDep(
+                            groupId = dep.group!!,
+                            artifactId = dep.name,
+                            version = dep.version,
+                        ),
+                    )
                 }
             }
-            .filter { cfg ->
-                setOf("implementation", "api").any {
-                    cfg.name.contains(it, ignoreCase = true)
-                }
-            }
-            .forEach { cfg ->
-                cfg.dependencies
-                    .filter { dep ->
-                        dep.group != null
-                    }.forEach { dep ->
-                        dependencies.add(
-                            DependencyInfo.fromGradleDep(
-                                groupId = dep.group!!,
-                                artifactId = dep.name,
-                                version = dep.version,
-                            ),
-                        )
-                    }
-            }
+        }
     }
 
     /**
