@@ -398,7 +398,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 }
             }
             .filter { cfg ->
-                setOf("compile", "implementation", "api", "runtime").any {
+                setOf("implementation", "api").any {
                     cfg.name.contains(it, ignoreCase = true)
                 }
             }
