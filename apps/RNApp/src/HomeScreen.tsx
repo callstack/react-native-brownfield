@@ -10,8 +10,7 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
-import type { MessageEvent } from '@callstack/react-native-brownfield';
-import { BrownfieldNavigation } from '@callstack/react-native-brownfield';
+import BrownfieldNavigation from 'react-native-brownfield-navigation';
 
 import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';

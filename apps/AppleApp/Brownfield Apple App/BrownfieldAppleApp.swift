@@ -3,6 +3,7 @@ import Brownie
 import ReactBrownfield
 import SwiftUI
 import UIKit
+import BrownfieldNavigation
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     var window: UIWindow?

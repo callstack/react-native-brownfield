@@ -125,6 +125,37 @@ export const packageIosCommand = curryOptions(
         `Brownie.xcframework created at ${colorLink(relativeToCwd(brownieOutputPath))}`
       );
     }
+
+    const productsPath = path.join(options.buildFolder, 'Build', 'Products');
+    const brownfieldNavigationOutputPath = path.join(packageDir, 'BrownfieldNavigation.xcframework');
+
+    await mergeFrameworks({
+      sourceDir: userConfig.project.ios.sourceDir,
+      frameworkPaths: [
+        path.join(
+          productsPath,
+          `${configuration}-iphoneos`,
+          'BrownfieldNavigation',
+          'BrownfieldNavigation.framework'
+        ),
+        path.join(
+          productsPath,
+          `${configuration}-iphonesimulator`,
+          'BrownfieldNavigation',
+          'BrownfieldNavigation.framework'
+        ),
+      ],
+      outputPath: brownfieldNavigationOutputPath,
+    });
+
+    // Strip the binary from Brownie.xcframework to make it interface-only.
+    // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
+    // (which contains Brownie symbols) and Brownie.xcframework.
+    await stripFrameworkBinary(brownfieldNavigationOutputPath);
+
+    logger.success(
+      `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
+    );
   })
 );
 

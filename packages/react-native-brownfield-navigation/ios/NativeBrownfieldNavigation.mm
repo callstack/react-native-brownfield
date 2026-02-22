@@ -1,9 +1,9 @@
 #import "NativeBrownfieldNavigation.h"
 
-#if __has_include("ReactBrownfield/ReactBrownfield-Swift.h")
-#import "ReactBrownfield/ReactBrownfield-Swift.h"
+#if __has_include("BrownfieldNavigation/BrownfieldNavigation-Swift.h")
+#import "BrownfieldNavigation/BrownfieldNavigation-Swift.h"
 #else
-#import "ReactBrownfield-Swift.h"
+#import "BrownfieldNavigation-Swift.h"
 #endif
 
 @implementation NativeBrownfieldNavigation

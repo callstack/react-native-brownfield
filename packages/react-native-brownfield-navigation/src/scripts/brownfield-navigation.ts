@@ -182,7 +182,7 @@ export default TurboModuleRegistry.getEnforcing<Spec>(
 `;
 }
 
-function generateBrownfieldNavigationTS(methods: MethodSignature[]): string {
+function generateIndexTs(methods: MethodSignature[]): string {
   const functionImplementations = methods
     .map((m) => {
       const params = m.params
@@ -251,10 +251,10 @@ function generateObjCImplementation(methods: MethodSignature[]): string {
 
   return `#import "NativeBrownfieldNavigation.h"
 
-#if __has_include("ReactBrownfield/ReactBrownfield-Swift.h")
-#import "ReactBrownfield/ReactBrownfield-Swift.h"
+#if __has_include("BrownfieldNavigation/BrownfieldNavigation-Swift.h")
+#import "BrownfieldNavigation/BrownfieldNavigation-Swift.h"
 #else
-#import "ReactBrownfield-Swift.h"
+#import "BrownfieldNavigation-Swift.h"
 #endif
 
 @implementation NativeBrownfieldNavigation
@@ -409,15 +409,15 @@ function main(): void {
 
   // Generate all files
   const turboModuleSpec = generateTurboModuleSpec(methods);
-  const brownfieldNavigationTS = generateBrownfieldNavigationTS(methods);
+  const indexTS = generateIndexTs(methods);
   const swiftDelegate = generateSwiftDelegate(methods);
   const objcImpl = generateObjCImplementation(methods);
 
   if (dryRun) {
     console.log('\n--- Generated: src/NativeBrownfieldNavigation.ts ---');
     console.log(turboModuleSpec);
-    console.log('\n--- Generated: src/BrownfieldNavigation.ts ---');
-    console.log(brownfieldNavigationTS);
+    console.log('\n--- Generated: src/index.ts ---');
+    console.log(indexTS);
     console.log('\n--- Generated: ios/BrownfieldNavigationDelegate.swift ---');
     console.log(swiftDelegate);
     console.log('\n--- Generated: ios/NativeBrownfieldNavigation.mm ---');
@@ -432,25 +432,19 @@ function main(): void {
       'src',
       'NativeBrownfieldNavigation.ts'
     ),
-    navigationTs: path.join(PACKAGE_ROOT, 'src', 'BrownfieldNavigation.ts'),
+    navigationTs: path.join(PACKAGE_ROOT, 'src', 'index.ts'),
     swiftDelegate: path.join(
       PACKAGE_ROOT,
       'ios',
-      'BrownfieldNavigation',
       'BrownfieldNavigationDelegate.swift'
     ),
-    objcImpl: path.join(
-      PACKAGE_ROOT,
-      'ios',
-      'BrownfieldNavigation',
-      'NativeBrownfieldNavigation.mm'
-    ),
+    objcImpl: path.join(PACKAGE_ROOT, 'ios', 'NativeBrownfieldNavigation.mm'),
   };
 
   fs.writeFileSync(paths.turboModuleSpec, turboModuleSpec);
   console.log(`\nGenerated: ${paths.turboModuleSpec}`);
 
-  fs.writeFileSync(paths.navigationTs, brownfieldNavigationTS);
+  fs.writeFileSync(paths.navigationTs, indexTS);
   console.log(`Generated: ${paths.navigationTs}`);
 
   fs.writeFileSync(paths.swiftDelegate, swiftDelegate);

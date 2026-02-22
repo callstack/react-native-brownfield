@@ -2317,6 +2317,7 @@ __metadata:
     prettier: "npm:3.7.4"
     react: "npm:19.1.1"
     react-native: "npm:0.82.1"
+    react-native-brownfield-navigation: ./package.tgz
     react-native-monorepo-config: "npm:^0.3.2"
     react-native-safe-area-context: "npm:^5.6.2"
     react-native-screens: "npm:^4.19.0"
@@ -2410,7 +2411,6 @@ __metadata:
     "@expo/config-plugins": ^54.0.4
   bin:
     brownfield: lib/commonjs/scripts/brownfield.js
-    brownfield-navigation-codegen: lib/commonjs/scripts/brownfield-navigation.js
   languageName: unknown
   linkType: soft
 
@@ -16531,6 +16531,44 @@ __metadata:
     "@callstack/rspress-preset": "npm:^0.5.1"
     "@rspress/core": "npm:2.0.0-rc.4"
     "@types/node": "npm:^25.0.8"
+  languageName: unknown
+  linkType: soft
+
+"react-native-brownfield-navigation@file:./package.tgz::locator=%40callstack%2Fbrownfield-example-rn-app%40workspace%3Aapps%2FRNApp":
+  version: 1.0.0
+  resolution: "react-native-brownfield-navigation@file:./package.tgz#./package.tgz::hash=a9171c&locator=%40callstack%2Fbrownfield-example-rn-app%40workspace%3Aapps%2FRNApp"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  bin:
+    brownfield-navigation-codegen: lib/commonjs/scripts/brownfield-navigation.js
+  checksum: 10/27d40696088964e12afd1950ce7a965798e62592e3a6710984b6d352602bf98590cc5895c5255e55c89179399814a5b4f447eea2f2d7e4b5a76e0ef1cf9f5a6e
+  languageName: node
+  linkType: hard
+
+"react-native-brownfield-navigation@workspace:packages/react-native-brownfield-navigation":
+  version: 0.0.0-use.local
+  resolution: "react-native-brownfield-navigation@workspace:packages/react-native-brownfield-navigation"
+  dependencies:
+    "@babel/core": "npm:^7.25.2"
+    "@babel/preset-env": "npm:^7.25.3"
+    "@babel/runtime": "npm:^7.25.0"
+    "@react-native/babel-preset": "npm:0.82.1"
+    "@types/jest": "npm:^30.0.0"
+    "@types/react": "npm:^19.1.1"
+    eslint: "npm:^9.28.0"
+    globals: "npm:^16.2.0"
+    import: "npm:^0.0.6"
+    nodemon: "npm:^3.1.11"
+    react: "npm:19.1.1"
+    react-native: "npm:0.82.1"
+    react-native-builder-bob: "npm:^0.40.17"
+    typescript: "npm:5.9.3"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  bin:
+    brownfield-navigation-codegen: lib/commonjs/scripts/brownfield-navigation.js
   languageName: unknown
   linkType: soft
 

@@ -1,7 +1,6 @@
 import { Platform } from 'react-native';
 
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
-import BrownfieldNavigation from './BrownfieldNavigation';
 
 export interface MessageEvent {
   data: unknown;
@@ -88,4 +87,3 @@ const ReactNativeBrownfield = {
 };
 
 export default ReactNativeBrownfield;
-export { BrownfieldNavigation };
