@@ -1,6 +1,10 @@
 import path from 'node:path';
 
-import type { ModProps, XcodeProject } from '@expo/config-plugins';
+import {
+  type ModProps,
+  type XcodeProject,
+  IOSConfig,
+} from '@expo/config-plugins';
 
 import { Logger } from '../logging';
 import type { ResolvedBrownfieldPluginIosConfig } from '../types';
@@ -286,35 +290,83 @@ export function copyBundleReactNativePhase(
   }
 }
 
-function resolveErrorMessageForAppTargetName(
-  applicationTargets: string[]
-): string {
-  return applicationTargets.length > 1
-    ? `Multiple iOS application targets found in the Xcode project (${applicationTargets.join(', ')}). Please set ios.appTargetName in plugin options.`
-    : 'Could not determine the iOS app target name from the Xcode project. Please set `ios.appTargetName` in the `react-native-brownfield` plugin configuration in your Expo config (for example, app.json).';
+function resolveAppTargetName(
+  project: XcodeProject,
+  modRequest: ModProps<XcodeProject>
+): string | null {
+  const appTargets = IOSConfig.Target.getNativeTargets(project)
+    .map(([, target]) => {
+      if (
+        !IOSConfig.Target.isTargetOfType(
+          target,
+          IOSConfig.Target.TargetType.APPLICATION
+        )
+      ) {
+        return null;
+      }
+
+      const name = IOSConfig.XcodeUtils.unquote(target.name ?? '').trim();
+
+      return name ?? null;
+    })
+    .filter((name): name is string => !!name);
+
+  // 1) Unambiguous first application-type target
+  if (appTargets.length === 1) {
+    return appTargets[0];
+  } else {
+    Logger.logWarning(
+      'Multiple application targets found in the Xcode project. Falling back to the CNG-derived name from mod compiler.'
+    );
+  }
+
+  // 2) CNG-derived name from mod compiler (`modRequest.projectName`) - only if it exists in the filtered application-type list of Xcode project targets
+  const cngDerivedProjectName = modRequest.projectName;
+  if (cngDerivedProjectName && appTargets.includes(cngDerivedProjectName)) {
+    return cngDerivedProjectName;
+  } else {
+    Logger.logWarning(
+      'CNG-derived name from mod compiler is not set or is not an application target. Falling back to the unfiltered-type target name.'
+    );
+  }
+
+  // 3) PBX "first native target" fallback
+  try {
+    const [, firstAppTarget] = IOSConfig.Target.findFirstNativeTarget(project);
+    const name = IOSConfig.XcodeUtils.unquote(firstAppTarget.name ?? '').trim();
+    return name || null;
+  } catch {
+    Logger.logWarning(
+      'No first native target of any type found in the Xcode project. This was the last resort fallback.'
+    );
+  }
+
+  Logger.logError(
+    `Could not determine the iOS app target name from the Xcode project. Please adjust your Xcode project to have exactly one application target.`
+  );
+
+  return null;
 }
 
 export function addExpoPre55ShellPatchScriptPhase(
+  modRequest: ModProps<XcodeProject>,
   project: XcodeProject,
   {
     frameworkName,
     frameworkTargetUUID,
-    appTargetName,
   }: {
     frameworkName: string;
     frameworkTargetUUID: string;
-    appTargetName: string;
   }
 ) {
-  const applicationTargets = getApplicationTargetNames(project);
-  const resolvedAppTargetName =
-    appTargetName || getApplicationTargetName(applicationTargets);
+  const resolvedAppTargetName = resolveAppTargetName(project, modRequest);
+
+  Logger.logInfo(`Resolved iOS app target name: ${resolvedAppTargetName}`);
 
   if (!resolvedAppTargetName) {
-    const errorMessage =
-      resolveErrorMessageForAppTargetName(applicationTargets);
-
-    throw new SourceModificationError(errorMessage);
+    throw new SourceModificationError(
+      `Could not determine the iOS app target name from the Xcode project.`
+    );
   }
 
   project.addBuildPhase(
@@ -332,41 +384,6 @@ export function addExpoPre55ShellPatchScriptPhase(
       }),
     }
   );
-}
-
-/**
- *
- * @param applicationTargets iOS application target names
- * @returns First iOS application target name if there is exactly one, otherwise null
- */
-function getApplicationTargetName(applicationTargets: string[]): string | null {
-  if (applicationTargets.length !== 1) return null;
-  return applicationTargets[0];
-}
-
-/**
- * Returns iOS application target names from PBXNativeTarget section.
- */
-function getApplicationTargetNames(project: XcodeProject): string[] {
-  const nativeTargets = project.pbxNativeTargetSection();
-  const applicationTargets = new Set<string>();
-
-  for (const [key, value] of Object.entries(nativeTargets)) {
-    if (key.endsWith('_comment')) continue;
-
-    const target = value as any;
-    const productType = String(target?.productType ?? '').replace(/"/g, '');
-    if (productType !== 'com.apple.product-type.application') continue;
-
-    const targetName = String(target?.name ?? '')
-      .replace(/"/g, '')
-      .trim();
-    if (targetName) {
-      applicationTargets.add(targetName);
-    }
-  }
-
-  return [...applicationTargets];
 }
 
 /**

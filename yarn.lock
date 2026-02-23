@@ -2420,6 +2420,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
     "@callstack/brownfield-cli": "workspace:^"
+    "@expo/config-plugins": "npm:^54.0.4"
     "@react-native/babel-preset": "npm:0.82.1"
     "@types/jest": "npm:^30.0.0"
     "@types/react": "npm:^19.1.1"
@@ -2432,8 +2433,7 @@ __metadata:
     react-native-builder-bob: "npm:^0.40.17"
     typescript: "npm:5.9.3"
   peerDependencies:
-    react: "*"
-    react-native: "*"
+    "@expo/config-plugins": ^54.0.4
   bin:
     brownfield: lib/commonjs/scripts/brownfield.js
   languageName: unknown
