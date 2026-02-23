@@ -12,7 +12,7 @@
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "repository": {
-    "url": "https://github.com/callstack/react-native-brownfield"
+    "url": "git+https://github.com/callstack/react-native-brownfield.git"
   },
   "description": "Shared state management between React Native and Native apps",
   "main": "lib/commonjs/index",
