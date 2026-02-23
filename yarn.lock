@@ -2251,9 +2251,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@callstack/brownfield-example-expo-app@workspace:apps/ExpoApp":
+"@callstack/brownfield-example-expo-app-54@workspace:apps/ExpoApp54":
   version: 0.0.0-use.local
-  resolution: "@callstack/brownfield-example-expo-app@workspace:apps/ExpoApp"
+  resolution: "@callstack/brownfield-example-expo-app-54@workspace:apps/ExpoApp54"
   dependencies:
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
