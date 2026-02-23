@@ -84,19 +84,24 @@ jobs:
         run: yarn run build:tester-integrated:android
 
   android-androidapp-expo:
-    name: Android road test (RNApp & AndroidApp - Expo)
+    name: Android road test (RNApp & AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest
     needs: build-lint
+    strategy:
+      matrix:
+        include:
+          - version: '54'
+          - version: '55'
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AndroidApp road test (Expo)
+      - name: Run RNApp -> AndroidApp road test (Expo ${{ matrix.version }})
         uses: ./.github/actions/androidapp-road-test
         with:
-          flavor: expo
-          rn-project-path: apps/ExpoApp
+          flavor: expo${{ matrix.version }}
+          rn-project-path: apps/ExpoApp${{ matrix.version }}
           rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp/brownfieldlib
 
   android-androidapp-vanilla:
