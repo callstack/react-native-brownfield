@@ -1,6 +1,6 @@
 {
   "name": "@callstack/react-native-brownfield",
-  "version": "3.0.0-rc.1",
+  "version": "3.0.0-rc.2",
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
   "bin": {
@@ -11,7 +11,7 @@
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "repository": {
-    "url": "https://github.com/callstack/react-native-brownfield"
+    "url": "git+https://github.com/callstack/react-native-brownfield.git"
   },
   "description": "Brownfield helpers for React Native",
   "main": "lib/commonjs/index",

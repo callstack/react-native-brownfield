@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownie",
-  "version": "0.0.5",
+  "version": "3.0.0-rc.2",
   "license": "MIT",
   "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "bin": {
@@ -12,7 +12,7 @@
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "repository": {
-    "url": "https://github.com/callstack/react-native-brownfield"
+    "url": "git+https://github.com/callstack/react-native-brownfield.git"
   },
   "description": "Shared state management between React Native and Native apps",
   "main": "lib/commonjs/index",

@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-cli",
-  "version": "2.0.0-rc.1",
+  "version": "3.0.0-rc.2",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
@@ -13,7 +13,7 @@
   ],
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "repository": {
-    "url": "https://github.com/callstack/react-native-brownfield"
+    "url": "git+https://github.com/callstack/react-native-brownfield.git"
   },
   "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
   "exports": {
