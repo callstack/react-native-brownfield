@@ -1,15 +1,14 @@
 {
   "expo": {
-    "name": "ExpoApp54",
-    "slug": "ExpoApp54",
+    "name": "xd55",
+    "slug": "xd55",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expoapp",
+    "scheme": "expoapp55",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp"
     },
     "android": {
@@ -19,7 +18,6 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.callstack.rnbrownfield.demo.expoapp"
     },
@@ -32,12 +30,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
+          "backgroundColor": "#208AEF",
+          "android": {
+            "image": "./assets/images/splash-icon.png",
+            "imageWidth": 76
           }
         }
       ],

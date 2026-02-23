@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "prebuild": "expo prebuild",
-    "brownfield:prepare:android:ci": "node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts",
+    "brownfield:prepare:android:ci": "cd .. && node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts ExpoApp54",
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release"
