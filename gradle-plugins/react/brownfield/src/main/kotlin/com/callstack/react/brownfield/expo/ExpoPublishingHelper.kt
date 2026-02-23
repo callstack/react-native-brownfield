@@ -384,9 +384,11 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         pkgProject: Project,
         dependencies: VersionMediatingDependencySet,
     ) {
-        listOf("implementation", "api").forEach {
-            val configuration = pkgProject.configurations.findByName(it)
-            configuration?.dependencies?.forEach { dep ->
+        val configurations = pkgProject.configurations.matching {
+            it.name.contains("implementation", ignoreCase = true) || it.name.contains("api", ignoreCase = true)
+        }
+        configurations.forEach {
+            it.dependencies.forEach { dep ->
                 if (dep.group != null) {
                     dependencies.add(
                         DependencyInfo.fromGradleDep(
