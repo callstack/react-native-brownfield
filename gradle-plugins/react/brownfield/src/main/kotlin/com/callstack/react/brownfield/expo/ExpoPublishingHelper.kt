@@ -7,7 +7,6 @@ import com.callstack.react.brownfield.expo.utils.DependencyInfo
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.expo.utils.VersionMediatingDependencySet
 import com.callstack.react.brownfield.expo.utils.asExpoGradleProjectProjection
-import com.callstack.react.brownfield.plugin.RNBrownfieldPlugin.Companion.EXPO_PROJECT_LOCATOR
 import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.Logging
 import groovy.json.JsonOutput
@@ -30,39 +29,35 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
         }
 }
 
-open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProject: Project) {
-    fun configure() {
-        brownfieldAppProject.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
+open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
+    fun afterEvaluate() {
+        val discoverableExpoProjects = getDiscoverableExpoProjects()
 
-        brownfieldAppProject.afterEvaluate {
-            val discoverableExpoProjects = getDiscoverableExpoProjects()
+        Logging.log(
+            "Discovered ${discoverableExpoProjects.size} discoverable Expo projects: " +
+                discoverableExpoProjects.joinToString(
+                    ", ",
+                ) { it.name },
+        )
 
-            Logging.log(
-                "Discovered ${discoverableExpoProjects.size} discoverable Expo projects: " +
-                    discoverableExpoProjects.joinToString(
-                        ", ",
-                    ) { it.name },
+        val expoTransitiveDependencies =
+            discoverAllExpoTransitiveDependencies(
+                expoProjects = discoverableExpoProjects,
             )
 
-            val expoTransitiveDependencies =
-                discoverAllExpoTransitiveDependencies(
-                    expoProjects = discoverableExpoProjects,
-                )
-
+        Logging.log(
+            "Collected a total of ${expoTransitiveDependencies.size} unique Expo transitive " +
+                "dependencies for brownfield app project publishing",
+        )
+        expoTransitiveDependencies.forEach {
             Logging.log(
-                "Collected a total of ${expoTransitiveDependencies.size} unique Expo transitive " +
-                    "dependencies for brownfield app project publishing",
+                "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
+                    "${if (it.optional) "optional" else "required"})",
             )
-            expoTransitiveDependencies.forEach {
-                Logging.log(
-                    "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
-                        "${if (it.optional) "optional" else "required"})",
-                )
-            }
-
-            reconfigurePOM(expoTransitiveDependencies)
-            reconfigureGradleModuleJSON(expoTransitiveDependencies)
         }
+
+        reconfigurePOM(expoTransitiveDependencies)
+        reconfigureGradleModuleJSON(expoTransitiveDependencies)
     }
 
     protected fun shouldExcludeDependency(
@@ -356,14 +351,18 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
     ) {
         dependenciesNodes.forEach { depNodeList ->
             depNodeList.childNodes.forEach { depNode ->
-                // below: some nodes are not dependencies, but pure text, in which case their name is '#text'
-                if (depNode.nodeName == "dependency") {
+                /**
+                 * below: some nodes are not dependencies, but pure text, in which case their name is '#text'
+                 *
+                 * Only add dependencies with compile scope, if scope is null, default to compile
+                 */
+                val scope = depNode.getChildNodeByName("scope")?.textContent
+                if (depNode.nodeName == "dependency" && (scope == null || scope == "compile")) {
                     val groupId = depNode.getChildNodeByName("groupId")!!.textContent
                     val maybeArtifactId = depNode.getChildNodeByName("artifactId")
 
                     val artifactId = maybeArtifactId!!.textContent
                     val version = depNode.getChildNodeByName("version")?.textContent
-                    val scope = depNode.getChildNodeByName("scope")?.textContent
                     val optional = depNode.getChildNodeByName("optional")?.textContent
 
                     val dependencyInfo =
@@ -385,38 +384,22 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project, val expoProje
         pkgProject: Project,
         dependencies: VersionMediatingDependencySet,
     ) {
-        pkgProject.configurations
-            .filter { cfg ->
-                setOf(
-                    "test",
-                    "androidTest",
-                    "kapt",
-                    "annotationProcessor",
-                    "lint",
-                    "detached",
-                ).none {
-                    cfg.name.contains(it, ignoreCase = true)
+        val configurations = pkgProject.configurations.matching {
+            it.name.contains("implementation", ignoreCase = true) || it.name.contains("api", ignoreCase = true)
+        }
+        configurations.forEach {
+            it.dependencies.forEach { dep ->
+                if (dep.group != null) {
+                    dependencies.add(
+                        DependencyInfo.fromGradleDep(
+                            groupId = dep.group!!,
+                            artifactId = dep.name,
+                            version = dep.version,
+                        ),
+                    )
                 }
             }
-            .filter { cfg ->
-                setOf("compile", "implementation", "api", "runtime").any {
-                    cfg.name.contains(it, ignoreCase = true)
-                }
-            }
-            .forEach { cfg ->
-                cfg.dependencies
-                    .filter { dep ->
-                        dep.group != null
-                    }.forEach { dep ->
-                        dependencies.add(
-                            DependencyInfo.fromGradleDep(
-                                groupId = dep.group!!,
-                                artifactId = dep.name,
-                                version = dep.version,
-                            ),
-                        )
-                    }
-            }
+        }
     }
 
     /**
