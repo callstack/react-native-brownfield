@@ -3,7 +3,7 @@ description: Package the given RN app as AAR, publish to Maven Local, and build 
 
 inputs:
   flavor:
-    description: 'AndroidApp flavor to build (expo or vanilla)'
+    description: 'AndroidApp flavor to build (expo<version> or vanilla)'
     required: true
 
   rn-project-path:
@@ -42,14 +42,14 @@ runs:
 
     # == RN app ==
     - name: Prebuild Expo app
-      if: ${{ inputs.flavor == 'expo' }}
+      if: ${{ startsWith(inputs.flavor, 'expo') }}
       run: |
         cd ${{ inputs.rn-project-path }}
         yarn run expo prebuild --platform android
       shell: bash
 
     - name: Patch ExpoApp Android build.gradle for CI
-      if: ${{ inputs.flavor == 'expo' }}
+      if: ${{ startsWith(inputs.flavor, 'expo') }}
       run: |
         cd ${{ inputs.rn-project-path }}
         yarn run brownfield:prepare:android:ci
@@ -78,5 +78,5 @@ runs:
     # == AndroidApp ==
 
     - name: Build native Android Brownfield app
-      run: yarn run build:example:android-consumer:${{ inputs.flavor }}
+      run: yarn run build:example:android-consumer:${{ startsWith(inputs.flavor, 'expo') && 'expo' || inputs.flavor }}
       shell: bash

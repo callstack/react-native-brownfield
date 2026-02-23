@@ -2,10 +2,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const projectDirName = process.argv[2];
+if (!projectDirName) {
+  throw new Error('Project directory name is required');
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const SNAPSHOT_VERSION = '1.0.0-SNAPSHOT';
-const targetPath = path.resolve(__dirname, '..', 'android', 'build.gradle');
+const targetPath = path.resolve(
+  __dirname,
+  projectDirName,
+  'android',
+  'build.gradle'
+);
 
 function ensureMavenLocalInBuildscriptRepositories(contents: string): string {
   const buildscriptReposRegex =

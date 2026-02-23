@@ -83,7 +83,7 @@ runs:
 
     - name: Build Brownfield iOS native app (${{ inputs.variant }})
       run: |
-        yarn run build:example:ios-consumer:${{ inputs.variant }}
+        yarn run build:example:ios-consumer:${{ startsWith(inputs.variant, 'expo') && 'expo' || inputs.variant }}
       shell: bash
 
     # ==============
