@@ -32,7 +32,6 @@ export const withBrownfieldIos: ConfigPlugin<
     ? parseInt(config.sdkVersion.split('.')[0], 10)
     : -1;
   const isExpoPre55 = expoMajor < 55;
-
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
@@ -60,7 +59,7 @@ export const withBrownfieldIos: ConfigPlugin<
         `Adding ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
       );
 
-      addExpoPre55ShellPatchScriptPhase(project, {
+      addExpoPre55ShellPatchScriptPhase(modRequest, project, {
         frameworkName: props.ios.frameworkName,
         frameworkTargetUUID: frameworkTargetUUID,
       });

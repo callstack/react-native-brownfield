@@ -5,6 +5,7 @@ import { PackageManagerTabs } from '@theme';
 This guide walks you through packaging your Expo React Native app as an **AAR** or **XCFramework** and integrating it into your native **Android** or **iOS** application.
 
 ## Prerequisites
+
 - Install the `@callstack/react-native-brownfield` package from the quick start [section](/docs/getting-started/quick-start#installation)
 
 ## Configuration
@@ -13,9 +14,7 @@ This guide walks you through packaging your Expo React Native app as an **AAR** 
 
 ```json
 {
-  "plugins": [
-    "@callstack/react-native-brownfield",
-    ]
+  "plugins": ["@callstack/react-native-brownfield"]
 }
 ```
 
@@ -55,7 +54,7 @@ This should only take a few minutes.
 
 > That is all from the AAR steps. We can now consume the AAR inside a native Android App.
 
-### AAR: Present RN UI 
+### AAR: Present RN UI
 
 1. Call the `ReactNativeHostManager.initialize` in your Activity or Application:
 
@@ -80,6 +79,7 @@ override fun onConfigurationChanged(newConfig: Configuration) {
 ```
 
 3. Use either of the following APIs to present the UI:
+
 - ReactNativeFragment
   - See the example [here](https://github.com/callstack/react-native-brownfield/blob/41c81059acda8b134b6fea6bbbcf918c20d16552/apps/AndroidApp/app/src/main/java/com/callstack/brownfield/android/example/MainActivity.kt#L133)
 - ReactNativeFragment.createReactNativeFragment
@@ -90,7 +90,7 @@ override fun onConfigurationChanged(newConfig: Configuration) {
 
 4. Build and install the android application 🚀
 
-<hr/>
+<hr />
 
 ## iOS Integration
 
@@ -109,7 +109,7 @@ This should only take a few minutes.
 ##### Pre-Requisites
 
 - Follow the step for adding the frameworks to your iOS App - [here](/docs/getting-started/ios#6-add-the-framework-to-your-ios-app)
-<hr/>
+  <hr />
 
 1. Call the following functions from your Application Entry point:
 
@@ -117,7 +117,7 @@ This should only take a few minutes.
 @main
 struct IosApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
     init() {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
         ReactNativeBrownfield.shared.startReactNative {
@@ -125,7 +125,7 @@ struct IosApp: App {
         }
         ReactNativeBrownfield.shared.ensureExpoModulesProvider()
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -139,7 +139,7 @@ struct IosApp: App {
 ```swift
 class AppDelegate: NSObject, UIApplicationDelegate {
     var window: UIWindow?
-    
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
@@ -160,7 +160,7 @@ ReactNativeView(moduleName: "ExpoRNApp")
 
 4. Build and install the iOS application 🚀
 
-<hr/>
+<hr />
 
 ## Plugin Options
 
@@ -200,6 +200,14 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
   - Minimum iOS version supported by the generated framework.
 - `frameworkVersion` (`string`, default: `"1"`)
   - Framework version used for Apple build settings (must be an integer or floating point value, for example `"1"` or `"2.1"`).
+
+> The plugin will determine the application target automatically. The auto-detection path works as follows:
+>
+> 1. _Common for all cases_: scan the iOS targets for ones of type `com.apple.product-type.application`
+> 2. Use the first matching strategy:
+>    - CNG-derived name from mod compiler (`modRequest.projectName`) - only if it exists in the filtered application-type list of Xcode project targets
+>    - Unambiguous first application-type target - if there is exactly one
+>    - PBX "first native target" fallback - last resort fallback that selects the first native target of any type
 
 ### Android
 
