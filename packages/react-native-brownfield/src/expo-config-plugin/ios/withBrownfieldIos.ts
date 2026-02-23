@@ -14,6 +14,7 @@ import { modifyPodfile } from './podfileHelpers';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
 import { Logger } from '../logging';
+import { getExpoInfo } from '../expoUtils';
 
 /**
  * iOS Config Plugin for integration with @callstack/react-native-brownfield.
@@ -28,10 +29,8 @@ import { Logger } from '../logging';
 export const withBrownfieldIos: ConfigPlugin<
   ResolvedBrownfieldPluginConfigWithIos
 > = (config, props) => {
-  const expoMajor = config.sdkVersion
-    ? parseInt(config.sdkVersion.split('.')[0], 10)
-    : -1;
-  const isExpoPre55 = expoMajor < 55;
+  const { isExpoPre55 } = getExpoInfo(config);
+
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
