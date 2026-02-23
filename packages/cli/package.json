@@ -76,6 +76,8 @@
     "@rock-js/plugin-brownfield-ios": "^0.12.8",
     "@rock-js/tools": "^0.12.8",
     "commander": "^14.0.2",
+    "quicktype-core": "^23.2.6",
+    "quicktype-typescript-input": "^23.2.6",
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {

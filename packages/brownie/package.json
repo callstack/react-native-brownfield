@@ -70,8 +70,6 @@
   },
   "dependencies": {
     "@callstack/brownfield-cli": "workspace:^",
-    "quicktype-core": "^23.2.6",
-    "quicktype-typescript-input": "^23.2.6",
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
