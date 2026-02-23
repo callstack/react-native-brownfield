@@ -354,10 +354,10 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 /**
                  * below: some nodes are not dependencies, but pure text, in which case their name is '#text'
                  *
-                 * only add dependencies with compile scope
+                 * Only add dependencies with compile scope, if scope is null, default to compile
                  */
                 val scope = depNode.getChildNodeByName("scope")?.textContent
-                if (depNode.nodeName == "dependency" && scope == "compile") {
+                if (depNode.nodeName == "dependency" && (scope == null || scope == "compile")) {
                     val groupId = depNode.getChildNodeByName("groupId")!!.textContent
                     val maybeArtifactId = depNode.getChildNodeByName("artifactId")
 
@@ -370,7 +370,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                             groupId = groupId,
                             artifactId = artifactId,
                             version = version,
-                            scope = scope,
+                            scope = scope ?: "compile",
                             optional = optional?.toBoolean() ?: false,
                         )
 
@@ -385,7 +385,8 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         dependencies: VersionMediatingDependencySet,
     ) {
         listOf("implementation", "api").forEach {
-            pkgProject.configurations.getByName(it).dependencies.forEach { dep ->
+            val configuration = pkgProject.configurations.findByName(it)
+            configuration?.dependencies?.forEach { dep ->
                 if (dep.group != null) {
                     dependencies.add(
                         DependencyInfo.fromGradleDep(
