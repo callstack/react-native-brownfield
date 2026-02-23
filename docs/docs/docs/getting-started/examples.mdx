@@ -5,7 +5,8 @@ You can find example projects demonstrating the usage of React Native Brownfield
 It contains the following apps:
 
 - `RNApp` - a React Native app that is packaged using React Native Brownfield to an artifact consumed in native apps, in which you can refer to an exemplar usage of the library for packaging a React Native app to a consumable artifact
-- `ExpoApp` - an Expo app that is packaged analogously to the above using React Native Brownfield Expo config plugin
+- `ExpoApp54` - the Expo application that is packaged analogously to the above using React Native Brownfield Expo config plugin; this app uses Expo SDK v54, which is an important test case since pre-55 versions require additional configuration steps
+- `ExpoApp` - another Expo application similar to `ExpoApp55`, but using Expo SDK v55
 - `AndroidApp` - an Android app consuming the packaged artifact from `RNApp` or `ExpoApp`, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native Android app; this app comes in two flavors:
   - `expo` - which uses the artifact produced from `ExpoApp`
   - `vanilla` - which uses the artifact produced from `RNApp`
@@ -13,3 +14,7 @@ It contains the following apps:
   - `expo` - which uses the artifact produced from `ExpoApp`
   - `vanilla` - which uses the artifact produced from `RNApp`
 - `TesterIntegrated` - a native app (iOS and Android) with React Native Brownfield integrated directly into the native project without the intermediate step of packaging an artifact; this app serves mostly internal repo testing purposes
+
+## Additional notes
+
+There are 2 demo apps for Expo: `ExpoApp` (Expo 55 SDK) and `ExpoApp54` (Expo 54 SDK). This is to test our setup works with bost pre- and post-55 Expo SDK versions. It is important since the pre-55 Expo versions require additional handling, which is not applied by our Expo config plugin for Expo >= 55.
