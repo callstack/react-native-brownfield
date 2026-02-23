@@ -4,8 +4,9 @@
 export interface BrownfieldPluginIosConfig {
   /**
    * The name of the iOS app target
-   * If not provided, the plugin will try to determine the application target name from the Xcode project
-   * @default - ""
+   * If not provided, the plugin will try to determine the application target name from the Xcode project.
+   * Auto-detection works only when there is exactly one iOS application target.
+   * @default ""
    */
   appTargetName?: string;
 

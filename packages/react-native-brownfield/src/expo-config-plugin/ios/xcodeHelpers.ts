@@ -298,13 +298,16 @@ export function addExpoPre55ShellPatchScriptPhase(
     appTargetName: string;
   }
 ) {
+  const applicationTargets = getApplicationTargetNames(project);
   const resolvedAppTargetName =
-    appTargetName || getApplicationTargetName(project);
+    appTargetName || getApplicationTargetName(applicationTargets);
 
   if (!resolvedAppTargetName) {
-    throw new SourceModificationError(
-      'Could not determine the iOS app target name from the Xcode project. Please provide the app target name in plugin options.'
-    );
+    const errorMessage =
+      applicationTargets.length > 1
+        ? `Multiple iOS application targets found in the Xcode project (${applicationTargets.join(', ')}). Please set ios.appTargetName in plugin options.`
+        : 'Could not determine the iOS app target name from the Xcode project. Please provide the app target name in plugin options.';
+    throw new SourceModificationError(errorMessage);
   }
 
   project.addBuildPhase(
@@ -325,10 +328,21 @@ export function addExpoPre55ShellPatchScriptPhase(
 }
 
 /**
- * Returns the iOS application target name from PBXNativeTarget section.
+ *
+ * @param applicationTargets iOS application target names
+ * @returns First iOS application target name if there is exactly one, otherwise null
  */
-function getApplicationTargetName(project: XcodeProject): string | null {
+function getApplicationTargetName(applicationTargets: string[]): string | null {
+  if (applicationTargets.length !== 1) return null;
+  return applicationTargets[0];
+}
+
+/**
+ * Returns iOS application target names from PBXNativeTarget section.
+ */
+function getApplicationTargetNames(project: XcodeProject): string[] {
   const nativeTargets = project.pbxNativeTargetSection();
+  const applicationTargets = new Set<string>();
 
   for (const [key, value] of Object.entries(nativeTargets)) {
     if (key.endsWith('_comment')) continue;
@@ -340,10 +354,12 @@ function getApplicationTargetName(project: XcodeProject): string | null {
     const targetName = String(target?.name ?? '')
       .replace(/"/g, '')
       .trim();
-    if (targetName) return targetName;
+    if (targetName) {
+      applicationTargets.add(targetName);
+    }
   }
 
-  return null;
+  return [...applicationTargets];
 }
 
 /**
