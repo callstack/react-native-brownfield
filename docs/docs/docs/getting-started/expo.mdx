@@ -173,6 +173,7 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
       "@callstack/react-native-brownfield",
       {
         "ios": {
+          "appTargetName": "MyApp",
           "frameworkName": "MyBrownfieldLib",
           "bundleIdentifier": "com.example.app.brownfield",
           ...
@@ -189,6 +190,13 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
 ```
 
 ### iOS
+
+- `appTargetName` (`string`, optional)
+  - Name of the iOS Application Target.
+
+> If not provided, the plugin will try to determine the application target name from the Xcode project.
+> 
+> Auto-detection works only when there is exactly one iOS application target.
 
 - `frameworkName` (`string`, default: `"BrownfieldLib"`)
   - Name of the generated framework. This is also used as the XCFramework name.
