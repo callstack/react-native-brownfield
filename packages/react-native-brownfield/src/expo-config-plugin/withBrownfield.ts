@@ -33,6 +33,7 @@ function resolveConfig(
   return {
     ios: expoConfig.ios
       ? {
+          appTargetName: config.ios?.appTargetName ?? '',
           frameworkName: config.ios?.frameworkName ?? 'BrownfieldLib',
           bundleIdentifier:
             config.ios?.bundleIdentifier ??

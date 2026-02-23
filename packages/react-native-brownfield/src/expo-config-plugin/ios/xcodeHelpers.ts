@@ -291,11 +291,22 @@ export function addExpoPre55ShellPatchScriptPhase(
   {
     frameworkName,
     frameworkTargetUUID,
+    appTargetName,
   }: {
     frameworkName: string;
     frameworkTargetUUID: string;
+    appTargetName: string;
   }
 ) {
+  const resolvedAppTargetName =
+    appTargetName || getApplicationTargetName(project);
+
+  if (!resolvedAppTargetName) {
+    throw new SourceModificationError(
+      'Could not determine the iOS app target name from the Xcode project. Please provide the app target name in plugin options.'
+    );
+  }
+
   project.addBuildPhase(
     [
       // no associated files
@@ -306,10 +317,33 @@ export function addExpoPre55ShellPatchScriptPhase(
     {
       shellPath: '/bin/sh',
       shellScript: renderTemplate('ios', 'patchExpoPre55.sh', {
+        '{{APP_TARGET_NAME}}': resolvedAppTargetName,
         '{{FRAMEWORK_NAME}}': frameworkName,
       }),
     }
   );
+}
+
+/**
+ * Returns the iOS application target name from PBXNativeTarget section.
+ */
+function getApplicationTargetName(project: XcodeProject): string | null {
+  const nativeTargets = project.pbxNativeTargetSection();
+
+  for (const [key, value] of Object.entries(nativeTargets)) {
+    if (key.endsWith('_comment')) continue;
+
+    const target = value as any;
+    const productType = String(target?.productType ?? '').replace(/"/g, '');
+    if (productType !== 'com.apple.product-type.application') continue;
+
+    const targetName = String(target?.name ?? '')
+      .replace(/"/g, '')
+      .trim();
+    if (targetName) return targetName;
+  }
+
+  return null;
 }
 
 /**

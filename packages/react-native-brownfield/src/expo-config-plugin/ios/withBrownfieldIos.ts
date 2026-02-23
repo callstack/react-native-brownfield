@@ -63,6 +63,7 @@ export const withBrownfieldIos: ConfigPlugin<
       addExpoPre55ShellPatchScriptPhase(project, {
         frameworkName: props.ios.frameworkName,
         frameworkTargetUUID: frameworkTargetUUID,
+        appTargetName: props.ios.appTargetName,
       });
     } else {
       Logger.logDebug(
