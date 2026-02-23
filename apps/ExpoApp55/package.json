@@ -1,5 +1,5 @@
 {
-  "name": "expoapp55",
+  "name": "@callstack/brownfield-example-expo-app-55",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
