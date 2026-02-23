@@ -286,6 +286,14 @@ export function copyBundleReactNativePhase(
   }
 }
 
+function resolveErrorMessageForAppTargetName(
+  applicationTargets: string[]
+): string {
+  return applicationTargets.length > 1
+    ? `Multiple iOS application targets found in the Xcode project (${applicationTargets.join(', ')}). Please set ios.appTargetName in plugin options.`
+    : 'Could not determine the iOS app target name from the Xcode project. Please set `ios.appTargetName` in the `react-native-brownfield` plugin configuration in your Expo config (for example, app.json).';
+}
+
 export function addExpoPre55ShellPatchScriptPhase(
   project: XcodeProject,
   {
@@ -304,9 +312,8 @@ export function addExpoPre55ShellPatchScriptPhase(
 
   if (!resolvedAppTargetName) {
     const errorMessage =
-      applicationTargets.length > 1
-        ? `Multiple iOS application targets found in the Xcode project (${applicationTargets.join(', ')}). Please set ios.appTargetName in plugin options.`
-        : 'Could not determine the iOS app target name from the Xcode project. Please provide the app target name in plugin options.';
+      resolveErrorMessageForAppTargetName(applicationTargets);
+
     throw new SourceModificationError(errorMessage);
   }
 
