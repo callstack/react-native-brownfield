@@ -31,33 +31,33 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
 
 open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
     fun afterEvaluate() {
-            val discoverableExpoProjects = getDiscoverableExpoProjects()
+        val discoverableExpoProjects = getDiscoverableExpoProjects()
 
-            Logging.log(
-                "Discovered ${discoverableExpoProjects.size} discoverable Expo projects: " +
-                    discoverableExpoProjects.joinToString(
-                        ", ",
-                    ) { it.name },
+        Logging.log(
+            "Discovered ${discoverableExpoProjects.size} discoverable Expo projects: " +
+                discoverableExpoProjects.joinToString(
+                    ", ",
+                ) { it.name },
+        )
+
+        val expoTransitiveDependencies =
+            discoverAllExpoTransitiveDependencies(
+                expoProjects = discoverableExpoProjects,
             )
 
-            val expoTransitiveDependencies =
-                discoverAllExpoTransitiveDependencies(
-                    expoProjects = discoverableExpoProjects,
-                )
-
+        Logging.log(
+            "Collected a total of ${expoTransitiveDependencies.size} unique Expo transitive " +
+                "dependencies for brownfield app project publishing",
+        )
+        expoTransitiveDependencies.forEach {
             Logging.log(
-                "Collected a total of ${expoTransitiveDependencies.size} unique Expo transitive " +
-                    "dependencies for brownfield app project publishing",
+                "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
+                    "${if (it.optional) "optional" else "required"})",
             )
-            expoTransitiveDependencies.forEach {
-                Logging.log(
-                    "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
-                        "${if (it.optional) "optional" else "required"})",
-                )
-            }
+        }
 
-            reconfigurePOM(expoTransitiveDependencies)
-            reconfigureGradleModuleJSON(expoTransitiveDependencies)
+        reconfigurePOM(expoTransitiveDependencies)
+        reconfigureGradleModuleJSON(expoTransitiveDependencies)
     }
 
     protected fun shouldExcludeDependency(
