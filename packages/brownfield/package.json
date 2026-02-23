@@ -11,7 +11,7 @@
   ],
   "homepage": "https://oss.callstack.com/react-native-brownfield",
   "repository": {
-    "url": "https://github.com/callstack/react-native-brownfield/packages/brownfield"
+    "url": "git+https://github.com/callstack/react-native-brownfield/packages/brownfield"
   },
   "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
   "exports": {
