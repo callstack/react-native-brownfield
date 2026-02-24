@@ -19,6 +19,7 @@
  */
 
 import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
 
 // Resolve script directory in both CJS and ESM runtimes.
@@ -206,6 +207,68 @@ function generateIndexTs(methods: MethodSignature[]): string {
 
 const BrownfieldNavigation = {
 ${functionImplementations},
+};
+
+export default BrownfieldNavigation;
+`;
+}
+
+function transpileWithConsumerBabel(tsCode: string): string {
+  const nodeRequire = createRequire(scriptFile);
+  const moduleCandidates = [process.cwd(), PACKAGE_ROOT];
+
+  function resolveOrThrow(moduleName: string): string {
+    for (const modulePath of moduleCandidates) {
+      try {
+        return nodeRequire.resolve(moduleName, { paths: [modulePath] });
+      } catch {
+        // Try next location
+      }
+    }
+
+    throw new Error(
+      `Could not resolve "${moduleName}". Install it in your app devDependencies.`
+    );
+  }
+
+  const babelCorePath = resolveOrThrow('@babel/core');
+  const rnPresetPath = resolveOrThrow('@react-native/babel-preset');
+  const babelCore = nodeRequire(babelCorePath) as {
+    transformSync: (
+      source: string,
+      options: Record<string, unknown>
+    ) => { code?: string | null } | null;
+  };
+
+  const transformed = babelCore.transformSync(tsCode, {
+    filename: 'index.ts',
+    babelrc: false,
+    configFile: false,
+    comments: false,
+    compact: true,
+    minified: true,
+    presets: [[rnPresetPath, {}]],
+  });
+
+  if (!transformed?.code) {
+    throw new Error('Babel transpilation failed for generated index.ts');
+  }
+
+  return transformed.code;
+}
+
+function generateIndexDts(methods: MethodSignature[]): string {
+  const methodSignatures = methods
+    .map((m) => {
+      const params = m.params
+        .map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.type}`)
+        .join(', ');
+      return `  ${m.name}: (${params}) => ${m.returnType};`;
+    })
+    .join('\n');
+
+  return `declare const BrownfieldNavigation: {
+${methodSignatures}
 };
 
 export default BrownfieldNavigation;
@@ -410,6 +473,8 @@ function main(): void {
   // Generate all files
   const turboModuleSpec = generateTurboModuleSpec(methods);
   const indexTS = generateIndexTs(methods);
+  const transpiledIndexJs = transpileWithConsumerBabel(indexTS);
+  const indexDts = generateIndexDts(methods);
   const swiftDelegate = generateSwiftDelegate(methods);
   const objcImpl = generateObjCImplementation(methods);
 
@@ -418,6 +483,12 @@ function main(): void {
     console.log(turboModuleSpec);
     console.log('\n--- Generated: src/index.ts ---');
     console.log(indexTS);
+    console.log('\n--- Generated (Babel): lib/{commonjs,module}/index.js ---');
+    console.log(transpiledIndexJs);
+    console.log(
+      '\n--- Generated: lib/typescript/{commonjs,module}/src/index.d.ts ---'
+    );
+    console.log(indexDts);
     console.log('\n--- Generated: ios/BrownfieldNavigationDelegate.swift ---');
     console.log(swiftDelegate);
     console.log('\n--- Generated: ios/NativeBrownfieldNavigation.mm ---');
@@ -433,6 +504,24 @@ function main(): void {
       'NativeBrownfieldNavigation.ts'
     ),
     navigationTs: path.join(PACKAGE_ROOT, 'src', 'index.ts'),
+    commonjsIndexJs: path.join(PACKAGE_ROOT, 'lib', 'commonjs', 'index.js'),
+    moduleIndexJs: path.join(PACKAGE_ROOT, 'lib', 'module', 'index.js'),
+    commonjsIndexDts: path.join(
+      PACKAGE_ROOT,
+      'lib',
+      'typescript',
+      'commonjs',
+      'src',
+      'index.d.ts'
+    ),
+    moduleIndexDts: path.join(
+      PACKAGE_ROOT,
+      'lib',
+      'typescript',
+      'module',
+      'src',
+      'index.d.ts'
+    ),
     swiftDelegate: path.join(
       PACKAGE_ROOT,
       'ios',
@@ -446,6 +535,18 @@ function main(): void {
 
   fs.writeFileSync(paths.navigationTs, indexTS);
   console.log(`Generated: ${paths.navigationTs}`);
+
+  fs.writeFileSync(paths.commonjsIndexJs, transpiledIndexJs);
+  console.log(`Generated: ${paths.commonjsIndexJs}`);
+
+  fs.writeFileSync(paths.moduleIndexJs, transpiledIndexJs);
+  console.log(`Generated: ${paths.moduleIndexJs}`);
+
+  fs.writeFileSync(paths.commonjsIndexDts, indexDts);
+  console.log(`Generated: ${paths.commonjsIndexDts}`);
+
+  fs.writeFileSync(paths.moduleIndexDts, indexDts);
+  console.log(`Generated: ${paths.moduleIndexDts}`);
 
   fs.writeFileSync(paths.swiftDelegate, swiftDelegate);
   console.log(`Generated: ${paths.swiftDelegate}`);
