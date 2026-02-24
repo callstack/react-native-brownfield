@@ -8,6 +8,14 @@ class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
   companion object {
     var shouldPopToNative: Boolean = false
+    private const val LOG_TAG = "ReactNativeBrownfieldModule"
+
+    fun emitMessageFromNative(text: String) {
+      Log.w(
+          LOG_TAG,
+          "ReactNativeBrownfieldModule::emitMessageFromNative only supports the New Architecture. This call is ineffective and will not cause any messages to be emitted."
+      )
+    }
   }
 
   @ReactMethod
