@@ -1,8 +1,5 @@
-import './BrownfieldStore.brownie';
-
-import { useStore } from '@callstack/brownie';
-import { useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import PostMessageScreen from './PostMessageScreen';
 
 import {
   createNativeStackNavigator,
@@ -10,6 +7,8 @@ import {
 } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 import { NavigationContainer } from '@react-navigation/native';
+import { useStore } from '@callstack/brownie';
+import { useEffect } from 'react';
 
 const getRandomValue = () => Math.round(Math.random() * 255);
 const getRandomTheme = () => {
@@ -28,6 +27,7 @@ const getRandomTheme = () => {
 
 type RootStackParamList = {
   Home: { theme: { primary: string; secondary: string } };
+  PostMessage: undefined;
 };
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -84,6 +84,14 @@ function HomeScreen({ navigation, route }: HomeScreenProps) {
 
       <Button
         onPress={() => {
+          navigation.push('PostMessage');
+        }}
+        color={colors.secondary}
+        title="Go to PostMessage Screen"
+      />
+
+      <Button
+        onPress={() => {
           if (navigation.canGoBack()) {
             navigation.goBack();
           } else {
@@ -104,6 +112,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="PostMessage" component={PostMessageScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
