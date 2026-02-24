@@ -7,16 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6108E5342F40A26800EA8FA1 /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6108E5332F40A26800EA8FA1 /* BrownfieldNavigation.xcframework */; };
-		6108E5352F40A26800EA8FA1 /* BrownfieldNavigation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6108E5332F40A26800EA8FA1 /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		798DE8D72F0EC98E00CFC6F3 /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC7E2EF5781F009EC2E3 /* BrownfieldLib.xcframework */; };
-		798DE8D82F0EC98E00CFC6F3 /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC7E2EF5781F009EC2E3 /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		798DE8DA2F0EC98F00CFC6F3 /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC7F2EF5781F009EC2E3 /* hermesvm.xcframework */; };
-		798DE8DB2F0EC98F00CFC6F3 /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC7F2EF5781F009EC2E3 /* hermesvm.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		798DE8DC2F0EC99000CFC6F3 /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC802EF5781F009EC2E3 /* ReactBrownfield.xcframework */; };
-		798DE8DD2F0EC99000CFC6F3 /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC802EF5781F009EC2E3 /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		79A9BC812EF5781F009EC2E3 /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC822EF5781F009EC2E3 /* Brownie.xcframework */; };
-		79A9BC832EF5781F009EC2E3 /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A9BC822EF5781F009EC2E3 /* Brownie.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6162B59C2F4DB20800EE908E /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CA2F3E93D90099076A /* BrownfieldLib.xcframework */; };
+		6162B59D2F4DB20800EE908E /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CA2F3E93D90099076A /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6162B59E2F4DB20800EE908E /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CB2F3E93D90099076A /* Brownie.xcframework */; };
+		6162B59F2F4DB20800EE908E /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CB2F3E93D90099076A /* Brownie.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6162B5A02F4DB20800EE908E /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CC2F3E93D90099076A /* hermesvm.xcframework */; };
+		6162B5A12F4DB20800EE908E /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CC2F3E93D90099076A /* hermesvm.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6162B5A22F4DB20800EE908E /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CD2F3E93D90099076A /* ReactBrownfield.xcframework */; };
+		6162B5A32F4DB20800EE908E /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79A7F5CD2F3E93D90099076A /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6162B5A42F4DB20F00EE908E /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6162B5882F4DB17600EE908E /* BrownfieldNavigation.xcframework */; };
+		6162B5A52F4DB20F00EE908E /* BrownfieldNavigation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6162B5882F4DB17600EE908E /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,15 +26,11 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7926B0E92F4E5A6800694E68 /* Brownie.xcframework in Embed Frameworks */,
-				7926B0E52F4E5A6600694E68 /* hermesvm.xcframework in Embed Frameworks */,
-				7926B0E72F4E5A6700694E68 /* ReactBrownfield.xcframework in Embed Frameworks */,
-				7926B0E32F4E5A6400694E68 /* BrownfieldLib.xcframework in Embed Frameworks */,
-				6108E5352F40A26800EA8FA1 /* BrownfieldNavigation.xcframework in Embed Frameworks */,
-				798DE8DB2F0EC98F00CFC6F3 /* hermesvm.xcframework in Embed Frameworks */,
-				798DE8DD2F0EC99000CFC6F3 /* ReactBrownfield.xcframework in Embed Frameworks */,
-				798DE8D82F0EC98E00CFC6F3 /* BrownfieldLib.xcframework in Embed Frameworks */,
-				79A9BC832EF5781F009EC2E3 /* Brownie.xcframework in Embed Frameworks */,
+				6162B5A52F4DB20F00EE908E /* BrownfieldNavigation.xcframework in Embed Frameworks */,
+				6162B5A12F4DB20800EE908E /* hermesvm.xcframework in Embed Frameworks */,
+				6162B5A32F4DB20800EE908E /* ReactBrownfield.xcframework in Embed Frameworks */,
+				6162B59F2F4DB20800EE908E /* Brownie.xcframework in Embed Frameworks */,
+				6162B59D2F4DB20800EE908E /* BrownfieldLib.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -63,11 +59,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6108E5342F40A26800EA8FA1 /* BrownfieldNavigation.xcframework in Frameworks */,
-				798DE8DA2F0EC98F00CFC6F3 /* hermesvm.xcframework in Frameworks */,
-				798DE8DC2F0EC99000CFC6F3 /* ReactBrownfield.xcframework in Frameworks */,
-				798DE8D72F0EC98E00CFC6F3 /* BrownfieldLib.xcframework in Frameworks */,
-				79A9BC812EF5781F009EC2E3 /* Brownie.xcframework in Frameworks */,
+				6162B5A42F4DB20F00EE908E /* BrownfieldNavigation.xcframework in Frameworks */,
+				6162B59E2F4DB20800EE908E /* Brownie.xcframework in Frameworks */,
+				6162B5A22F4DB20800EE908E /* ReactBrownfield.xcframework in Frameworks */,
+				6162B5A02F4DB20800EE908E /* hermesvm.xcframework in Frameworks */,
+				6162B59C2F4DB20800EE908E /* BrownfieldLib.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,7 +73,6 @@
 		6108E5322F40A26800EA8FA1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6108E5332F40A26800EA8FA1 /* BrownfieldNavigation.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -88,10 +83,11 @@
 				793C76A92EEBF938008A2A34 /* Brownfield Apple App */,
 				6108E5322F40A26800EA8FA1 /* Frameworks */,
 				793C76A82EEBF938008A2A34 /* Products */,
-				7926B0DA2F4E5A6100694E68 /* BrownfieldLib.xcframework */,
-				7926B0DB2F4E5A6100694E68 /* Brownie.xcframework */,
-				7926B0DC2F4E5A6100694E68 /* hermesvm.xcframework */,
-				7926B0DD2F4E5A6100694E68 /* ReactBrownfield.xcframework */,
+				79A7F5CA2F3E93D90099076A /* BrownfieldLib.xcframework */,
+				6162B5882F4DB17600EE908E /* BrownfieldNavigation.xcframework */,
+				79A7F5CB2F3E93D90099076A /* Brownie.xcframework */,
+				79A7F5CC2F3E93D90099076A /* hermesvm.xcframework */,
+				79A7F5CD2F3E93D90099076A /* ReactBrownfield.xcframework */,
 			);
 			sourceTree = "<group>";
 		};

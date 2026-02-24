@@ -8,14 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		62EC06ABD6800F3F094FA816 /* libPods-RNApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEBB51C04533EA04E3870854 /* libPods-RNApp.a */; };
+		6B73CC22B85BD76687FBBB0E /* libPods-RNApp-BrownfieldLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D088C2D4E364ED2F678520A /* libPods-RNApp-BrownfieldLib.a */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		79BD1EE92EEBFB76003AA29F /* BrownfieldLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79BD1EE32EEBFB76003AA29F /* BrownfieldLib.framework */; };
 		79BD1EEA2EEBFB76003AA29F /* BrownfieldLib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79BD1EE32EEBFB76003AA29F /* BrownfieldLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79F35E8C2EEC1D4500E64860 /* BrownfieldLib.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F35E8A2EEC1D4500E64860 /* BrownfieldLib.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		86691FE9C4AAE39317BCD748 /* libPods-RNApp-BrownfieldLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 154909BB9553504F94A33BFD /* libPods-RNApp-BrownfieldLib.a */; };
 		C66C2A65406C527E9529D08F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-		D84003B16F0D4998B526C709 /* libPods-RNApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA852C4DF1077C0DB7F6341E /* libPods-RNApp.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,7 +47,6 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RNApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RNApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = RNApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		154909BB9553504F94A33BFD /* libPods-RNApp-BrownfieldLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNApp-BrownfieldLib.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-RNApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNApp.debug.xcconfig"; path = "Target Support Files/Pods-RNApp/Pods-RNApp.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-RNApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNApp.release.xcconfig"; path = "Target Support Files/Pods-RNApp/Pods-RNApp.release.xcconfig"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = RNApp/AppDelegate.swift; sourceTree = "<group>"; };
@@ -55,9 +54,10 @@
 		79F35E8A2EEC1D4500E64860 /* BrownfieldLib.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrownfieldLib.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RNApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8A02E03D9F74B585B0A8F7F7 /* Pods-RNApp-BrownfieldLib.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNApp-BrownfieldLib.debug.xcconfig"; path = "Target Support Files/Pods-RNApp-BrownfieldLib/Pods-RNApp-BrownfieldLib.debug.xcconfig"; sourceTree = "<group>"; };
+		9D088C2D4E364ED2F678520A /* libPods-RNApp-BrownfieldLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNApp-BrownfieldLib.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BEBB51C04533EA04E3870854 /* libPods-RNApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8C030F60E402FD6CFBB3904 /* Pods-RNApp-BrownfieldLib.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNApp-BrownfieldLib.release.xcconfig"; path = "Target Support Files/Pods-RNApp-BrownfieldLib/Pods-RNApp-BrownfieldLib.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		FA852C4DF1077C0DB7F6341E /* libPods-RNApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,7 +66,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				79BD1EE92EEBFB76003AA29F /* BrownfieldLib.framework in Frameworks */,
-				D84003B16F0D4998B526C709 /* libPods-RNApp.a in Frameworks */,
+				62EC06ABD6800F3F094FA816 /* libPods-RNApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				86691FE9C4AAE39317BCD748 /* libPods-RNApp-BrownfieldLib.a in Frameworks */,
+				6B73CC22B85BD76687FBBB0E /* libPods-RNApp-BrownfieldLib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,8 +97,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				FA852C4DF1077C0DB7F6341E /* libPods-RNApp.a */,
-				154909BB9553504F94A33BFD /* libPods-RNApp-BrownfieldLib.a */,
+				BEBB51C04533EA04E3870854 /* libPods-RNApp.a */,
+				9D088C2D4E364ED2F678520A /* libPods-RNApp-BrownfieldLib.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
