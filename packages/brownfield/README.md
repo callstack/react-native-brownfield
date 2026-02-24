@@ -29,7 +29,7 @@
 
 ## Documentation
 
-For full documentation, visit [our documentation](https://oss.callstack.com/react-native-brownfield/brownie/overview).
+For full documentation, visit [our documentation](https://oss.callstack.com/react-native-brownfield/docs/getting-started/introduction).
 
 <a href="https://www.callstack.com/ebooks/incremental-react-native-adoption-in-native-apps?utm_campaign=brownfield&utm_source=github&utm_medium=referral&utm_content=react-native-brownfield" align="center">
   <img alt="Download a free copy of Incremental React Native adoption in native apps ebook" src="https://github.com/user-attachments/assets/ba42bb29-1e7a-4683-80c5-2602afb1a7e6">
