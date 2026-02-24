@@ -20,11 +20,9 @@ class ReactNativeBrownfieldModule(val reactContext: ReactApplicationContext) :
                     "No instance of ReactNativeBrownfieldModule found. Message will not be emitted."
                 )
             }
-//            sharedInstance?.reactContext?.currentActivity?.runOnUiThread {
             sharedInstance?.emitOnBrownfieldMessage(buildReadableMap {
                 put("text", text)
             })
-//            }
         }
     }
 
