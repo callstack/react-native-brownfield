@@ -1,5 +1,5 @@
 {
-  "name": "react-native-brownfield-navigation",
+  "name": "@callstack/brownfield-navigation",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Hur Ali",
@@ -7,6 +7,7 @@
     "brownfield-navigation-codegen": "lib/commonjs/scripts/brownfield-navigation.js"
   },
   "description": "Brownfield navigation helpers for React Native",
+  "homepage": "https://github.com/callstack/react-native-brownfield",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "./lib/typescript/commonjs/src/index.d.ts",

@@ -6,7 +6,7 @@
 
 #ifdef __cplusplus
 
-#import <ReactNativeBrownfield/ReactNativeBrownfield.h>
+#import <NativeBrownfieldNavigation/NativeBrownfieldNavigation.h>
 
 @interface NativeBrownfieldNavigation : NSObject <NativeBrownfieldNavigationSpec>
 
