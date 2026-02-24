@@ -2,10 +2,11 @@ import ReactBrownfield
 import SwiftUI
 
 struct MessagesView: View {
-    @State private var messages: [ChatMessage] = []
     @State private var draft: String = ""
     @State private var nextId: Int = 0
     @State private var observer: NSObjectProtocol?
+    @State private var showToast = false
+    @State private var toastText = ""
 
     var body: some View {
         MaterialCard {
@@ -42,13 +43,8 @@ struct MessagesView: View {
                 {
                     text = t
                 }
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                    messages.insert(
-                        ChatMessage(id: nextId, text: text, fromRN: true),
-                        at: 0
-                    )
-                    nextId += 1
-                }
+                toastText = text
+                showToast = true
             }
         }
         .onDisappear {
@@ -57,5 +53,10 @@ struct MessagesView: View {
                 observer = nil
             }
         }
+        .overlay(
+            showToast
+                ? Toast(message: toastText, isShowing: $showToast)
+                    .padding(.bottom, 50) : nil
+        )
     }
 }

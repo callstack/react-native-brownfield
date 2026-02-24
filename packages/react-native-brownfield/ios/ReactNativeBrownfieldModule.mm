@@ -6,8 +6,9 @@
 #import "ReactBrownfield-Swift.h"
 #endif
 
-@implementation ReactNativeBrownfieldModule
+#import "Private/BrownfieldEventEmitter.h"
 
+@implementation ReactNativeBrownfieldModule
 RCT_EXPORT_MODULE(ReactNativeBrownfield);
 
 - (instancetype)init {
@@ -27,11 +28,8 @@ RCT_EXPORT_MODULE(ReactNativeBrownfield);
 
 - (void)handleNativeToJSMessage:(NSNotification *)notification {
   NSString *message = notification.userInfo[@"message"];
-  if (message && self.bridge) {
-    [self.bridge enqueueJSCall:@"RCTDeviceEventEmitter"
-                        method:@"emit"
-                          args:@[@"brownfieldMessage", message]
-                    completion:nil];
+  if (message) {
+    [BrownfieldEventEmitter emitMessage:message];
   }
 }
 
