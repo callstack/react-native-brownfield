@@ -381,28 +381,9 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         pkgProject: Project,
         dependencies: VersionMediatingDependencySet,
     ) {
-        val excludedConfigurationNameParts =
-            setOf(
-                "test",
-                "androidTest",
-                "kapt",
-                "annotationProcessor",
-                "lint",
-                "detached",
-            )
-        val configurations = pkgProject.configurations.matching {
-            val includeByName =
-                it.name.contains("implementation", ignoreCase = true) ||
-                    it.name.contains("api", ignoreCase = true)
-
-            val excludedByName = excludedConfigurationNameParts.any { excluded ->
-                it.name.contains(excluded, ignoreCase = true)
-            }
-
-            includeByName && !excludedByName
-        }
-        configurations.forEach {
-            it.dependencies.forEach { dep ->
+        listOf("implementation", "api", "runtime").forEach {
+            val configuration = pkgProject.configurations.findByName(it)
+            configuration?.dependencies?.forEach { dep ->
                 if (dep.group != null) {
                     dependencies.add(
                         DependencyInfo.fromGradleDep(
