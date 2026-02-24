@@ -2,7 +2,6 @@ package com.callstack.reactnativebrownfield
 
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
@@ -18,7 +17,6 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -124,15 +122,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
     }
 
     fun postMessage(message: String) {
-        val context = reactHost.currentReactContext ?: run {
-            Log.w(LOG_TAG, "currentReactContext is null, cannot proceed")
-            return
-        }
-        context.runOnUiQueueThread {
-            context
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                .emit("brownfieldMessage", message)
-        }
+        ReactNativeBrownfieldModule.emitMessageFromNative(message)
     }
 
     fun addMessageListener(listener: OnMessageListener) {

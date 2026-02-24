@@ -14,7 +14,6 @@ Pod::Spec.new do |spec|
 
   spec.module_name = "ReactBrownfield"
   spec.source       = { :git => "git@github.com:callstack/react-native-brownfield.git", :tag => "#{spec.version}" }
-  spec.private_header_files = 'ios/Private/**/*.h'
   spec.source_files  = "ios/**/*.{h,m,mm,swift}"
   spec.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
@@ -22,7 +21,6 @@ Pod::Spec.new do |spec|
   }
 
   spec.dependency 'ReactAppDependencyProvider'
-  spec.dependency 'React-Core'
   add_dependency(spec, "React-RCTAppDelegate")
   
   if ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] == '1'

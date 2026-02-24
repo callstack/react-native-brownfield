@@ -6,14 +6,17 @@
 #import "ReactBrownfield-Swift.h"
 #endif
 
-#import "Private/BrownfieldEventEmitter.h"
-
 @implementation ReactNativeBrownfieldModule
+
 RCT_EXPORT_MODULE(ReactNativeBrownfield);
+
+static ReactNativeBrownfieldModule *_sharedInstance = nil;
 
 - (instancetype)init {
   self = [super init];
   if (self) {
+    _sharedInstance = self;
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleNativeToJSMessage:)
                                                  name:@"BrownfieldMessageToJSNotification"
@@ -29,7 +32,15 @@ RCT_EXPORT_MODULE(ReactNativeBrownfield);
 - (void)handleNativeToJSMessage:(NSNotification *)notification {
   NSString *message = notification.userInfo[@"message"];
   if (message) {
-    [BrownfieldEventEmitter emitMessage:message];
+    [ReactNativeBrownfieldModule emitMessageFromNative:message];
+  }
+}
+
++ (void)emitMessageFromNative:(NSString *)message {
+  if (_sharedInstance) {
+    [_sharedInstance emitOnBrownfieldMessage:@{ @"text": message }];
+  } else {
+    NSLog(@"ReactNativeBrownfieldModule is not initialized, dropping message");
   }
 }
 

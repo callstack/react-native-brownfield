@@ -1,10 +1,4 @@
-import { Platform, NativeEventEmitter, NativeModules } from 'react-native';
-
-const emitter = new NativeEventEmitter(
-  Platform.OS === 'ios'
-    ? NativeModules.BrownfieldEventEmitter
-    : NativeModules.ReactNativeBrownfield
-);
+import { Platform } from 'react-native';
 
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
 
@@ -41,13 +35,15 @@ const ReactNativeBrownfield = {
   onMessage: (
     callback: (event: MessageEvent) => void
   ): { remove: () => void } => {
-    const subscription = emitter.addListener('brownfieldMessage', (raw) => {
-      try {
-        callback({ data: JSON.parse(raw) });
-      } catch {
-        callback({ data: raw });
+    const subscription = ReactNativeBrownfieldModule.onBrownfieldMessage(
+      (payload) => {
+        try {
+          callback({ data: JSON.parse(payload.text) });
+        } catch {
+          callback({ data: payload.text });
+        }
       }
-    });
+    );
     return { remove: () => subscription.remove() };
   },
 };

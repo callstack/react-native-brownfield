@@ -1,12 +1,35 @@
 package com.callstack.reactnativebrownfield
 
+import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.buildReadableMap
 
-class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
+class ReactNativeBrownfieldModule(val reactContext: ReactApplicationContext) :
     NativeReactNativeBrownfieldModuleSpec(reactContext) {
     companion object {
         var shouldPopToNative: Boolean = false
+        private const val LOG_TAG = "ReactNativeBrownfieldModule"
+
+        private var sharedInstance: ReactNativeBrownfieldModule? = null
+
+        fun emitMessageFromNative(text: String) {
+            if (sharedInstance == null) {
+                Log.w(
+                    LOG_TAG,
+                    "No instance of ReactNativeBrownfieldModule found. Message will not be emitted."
+                )
+            }
+//            sharedInstance?.reactContext?.currentActivity?.runOnUiThread {
+            sharedInstance?.emitOnBrownfieldMessage(buildReadableMap {
+                put("text", text)
+            })
+//            }
+        }
+    }
+
+    init {
+        sharedInstance = this
     }
 
     @ReactMethod
@@ -25,10 +48,10 @@ class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
         shouldPopToNative = enabled
     }
 
-    @ReactMethod
     override fun postMessage(message: String) {
         ReactNativeBrownfield.shared.dispatchMessage(message)
     }
+
 
     private fun onBackPressed() {
         reactApplicationContext.currentActivity?.runOnUiThread {

@@ -1,5 +1,9 @@
-import type { TurboModule } from 'react-native';
+import type { CodegenTypes, TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
+
+export type BrownfieldMessagePayload = {
+  text: string;
+};
 
 export interface Spec extends TurboModule {
   /**
@@ -23,6 +27,9 @@ export interface Spec extends TurboModule {
    * Send a serialized JSON message to the native host application.
    */
   postMessage(message: string): void;
+
+  // Event emitter - must be readonly
+  readonly onBrownfieldMessage: CodegenTypes.EventEmitter<BrownfieldMessagePayload>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('ReactNativeBrownfield');
