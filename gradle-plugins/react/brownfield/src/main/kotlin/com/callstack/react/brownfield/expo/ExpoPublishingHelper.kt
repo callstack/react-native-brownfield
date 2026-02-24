@@ -362,7 +362,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                     val version = depNode.getChildNodeByName("version")?.textContent
                     val optional = depNode.getChildNodeByName("optional")?.textContent
                     val scope = depNode.getChildNodeByName("scope")?.textContent
-                    
                     val dependencyInfo =
                         DependencyInfo(
                             groupId = groupId,
