@@ -353,18 +353,16 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             depNodeList.childNodes.forEach { depNode ->
                 /**
                  * below: some nodes are not dependencies, but pure text, in which case their name is '#text'
-                 *
-                 * Only add dependencies with compile scope, if scope is null, default to compile
                  */
-                val scope = depNode.getChildNodeByName("scope")?.textContent
-                if (depNode.nodeName == "dependency" && (scope == null || scope == "compile")) {
+                if (depNode.nodeName == "dependency") {
                     val groupId = depNode.getChildNodeByName("groupId")!!.textContent
                     val maybeArtifactId = depNode.getChildNodeByName("artifactId")
 
                     val artifactId = maybeArtifactId!!.textContent
                     val version = depNode.getChildNodeByName("version")?.textContent
                     val optional = depNode.getChildNodeByName("optional")?.textContent
-
+                    val scope = depNode.getChildNodeByName("scope")?.textContent
+                    
                     val dependencyInfo =
                         DependencyInfo(
                             groupId = groupId,
@@ -384,8 +382,25 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         pkgProject: Project,
         dependencies: VersionMediatingDependencySet,
     ) {
+        val excludedConfigurationNameParts =
+            setOf(
+                "test",
+                "androidTest",
+                "kapt",
+                "annotationProcessor",
+                "lint",
+                "detached",
+            )
         val configurations = pkgProject.configurations.matching {
-            it.name.contains("implementation", ignoreCase = true) || it.name.contains("api", ignoreCase = true)
+            val includeByName =
+                it.name.contains("implementation", ignoreCase = true) ||
+                    it.name.contains("api", ignoreCase = true)
+
+            val excludedByName = excludedConfigurationNameParts.any { excluded ->
+                it.name.contains(excluded, ignoreCase = true)
+            }
+
+            includeByName && !excludedByName
         }
         configurations.forEach {
             it.dependencies.forEach { dep ->
