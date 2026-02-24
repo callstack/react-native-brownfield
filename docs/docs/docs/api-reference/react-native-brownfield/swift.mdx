@@ -28,13 +28,13 @@ ReactNativeBrownfield.shared
 
 #### Properties
 
-| Property            | Type               | Default         | Description                                                                                   |
-| ------------------- | ------------------ | --------------- | --------------------------------------------------------------------------------------------- |
-| `entryFile`         | `String`           | `index`         | Path to JavaScript root.                                                                      |
-| `fallbackResource`  | `String?`          | `nil`           | Path to bundle fallback resource.                                                             |
-| `bundlePath`        | `String`           | `main.jsbundle` | Path to bundle fallback resource.                                                             |
-| `bundle`            | `Bundle`           | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource.                                     |
-| `bundleURLOverride` | `(() -> URL?)?`    | `nil`           | Dynamic bundle URL provider called on every bundle load. When set, overrides default behavior. |
+| Property            | Type            | Default         | Description                                                                                    |
+| ------------------- | --------------- | --------------- | ---------------------------------------------------------------------------------------------- |
+| `entryFile`         | `String`        | `index`         | Path to JavaScript root.                                                                       |
+| `fallbackResource`  | `String?`       | `nil`           | Path to bundle fallback resource.                                                              |
+| `bundlePath`        | `String`        | `main.jsbundle` | Path to bundle fallback resource.                                                              |
+| `bundle`            | `Bundle`        | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource.                                      |
+| `bundleURLOverride` | `(() -> URL?)?` | `nil`           | Dynamic bundle URL provider called on every bundle load. When set, overrides default behavior. |
 
 ---
 
@@ -84,6 +84,43 @@ let view = ReactNativeBrownfield.shared.view(
   moduleName: "ReactNative",
   initialProps: ["score": 12]
 )
+```
+
+##### `postMessage`
+
+Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event and can be received using `ReactNativeBrownfield.onMessage()` on the JS side.
+
+| Param     | Required | Type     | Description                         |
+| --------- | -------- | -------- | ----------------------------------- |
+| `message` | Yes      | `String` | A JSON-encoded string to send to JS |
+
+**Examples:**
+
+```swift
+let payload = ["action": "greet", "name": "Alice"]
+let json = try! JSONSerialization.data(withJSONObject: payload)
+ReactNativeBrownfield.shared.postMessage(String(data: json, encoding: .utf8)!)
+```
+
+##### `onMessage`
+
+Subscribe to messages sent from JavaScript via `ReactNativeBrownfield.postMessage()`. Returns an observer token that can be used to unsubscribe.
+
+| Param     | Required | Type                         | Description                               |
+| --------- | -------- | ---------------------------- | ----------------------------------------- |
+| `handler` | Yes      | `@escaping (String) -> Void` | Callback invoked with the raw JSON string |
+
+Returns: `NSObjectProtocol` - pass this to `NotificationCenter.default.removeObserver(_:)` to unsubscribe.
+
+**Examples:**
+
+```swift
+let observer = ReactNativeBrownfield.shared.onMessage { message in
+  print("Received from JS: \(message)")
+}
+
+// Later, to unsubscribe:
+NotificationCenter.default.removeObserver(observer)
 ```
 
 ---

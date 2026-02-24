@@ -25,6 +25,17 @@ class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
         shouldPopToNative = enabled
     }
 
+    @ReactMethod
+    override fun postMessage(message: String) {
+        ReactNativeBrownfield.shared.dispatchMessage(message)
+    }
+
+    @ReactMethod
+    override fun addListener(eventName: String) {}
+
+    @ReactMethod
+    override fun removeListeners(count: Double) {}
+
     private fun onBackPressed() {
         reactApplicationContext.currentActivity?.runOnUiThread {
             reactApplicationContext.currentActivity?.onBackPressed()

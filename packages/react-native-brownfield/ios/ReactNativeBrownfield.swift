@@ -134,4 +134,39 @@ internal import Expo
     ReactNativeHostRuntime.shared.startReactNative(onBundleLoaded: onBundleLoaded)
     #endif
   }
+
+  /**
+   * Send a JSON-serialized message to the React Native JS layer.
+   * The message is delivered as a `brownfieldMessage` DeviceEventEmitter event.
+   *
+   * @param message A JSON string to send to JavaScript.
+   */
+  @objc public func postMessage(_ message: String) {
+    let userInfo: [String: Any] = ["message": message]
+    DispatchQueue.main.async {
+      NotificationCenter.default.post(
+        name: Notification.Name.brownfieldMessageToJS,
+        object: nil,
+        userInfo: userInfo
+      )
+    }
+  }
+
+  /**
+   * Subscribe to messages sent from JavaScript via `ReactNativeBrownfield.postMessage()`.
+   *
+   * @param handler Called with the raw JSON string sent from JS.
+   * @return An observer token. Pass it to `NotificationCenter.default.removeObserver(_:)` to unsubscribe.
+   */
+  @objc public func onMessage(_ handler: @escaping (String) -> Void) -> NSObjectProtocol {
+    return NotificationCenter.default.addObserver(
+      forName: Notification.Name.brownfieldMessageFromJS,
+      object: nil,
+      queue: .main
+    ) { notification in
+      if let message = notification.userInfo?["message"] as? String {
+        handler(message)
+      }
+    }
+  }
 }

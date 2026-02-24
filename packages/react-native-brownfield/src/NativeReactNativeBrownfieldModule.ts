@@ -18,6 +18,21 @@ export interface Spec extends TurboModule {
    * @platform android
    */
   setHardwareBackButtonEnabled(enabled: boolean): void;
+
+  /**
+   * Send a serialized JSON message to the native host application.
+   */
+  postMessage(message: string): void;
+
+  /**
+   * Required by NativeEventEmitter.
+   */
+  addListener(eventName: string): void;
+
+  /**
+   * Required by NativeEventEmitter.
+   */
+  removeListeners(count: number): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('ReactNativeBrownfield');

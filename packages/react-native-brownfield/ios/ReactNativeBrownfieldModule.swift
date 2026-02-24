@@ -15,4 +15,11 @@ public class ReactNativeBrownfieldModuleImpl: NSObject {
       NotificationCenter.default.post(name: Notification.Name.popToNative, object: nil, userInfo: userInfo)
     }
   }
+
+  static public func postMessage(_ message: String) {
+    let userInfo: [String: Any] = ["message": message]
+    DispatchQueue.main.async {
+      NotificationCenter.default.post(name: Notification.Name.brownfieldMessageFromJS, object: nil, userInfo: userInfo)
+    }
+  }
 }

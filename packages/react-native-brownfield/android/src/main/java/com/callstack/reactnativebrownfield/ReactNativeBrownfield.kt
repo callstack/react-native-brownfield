@@ -2,6 +2,7 @@ package com.callstack.reactnativebrownfield
 
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
@@ -17,10 +18,16 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
+import com.facebook.react.modules.core.DeviceEventManagerModule
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 fun interface OnJSBundleLoaded {
     operator fun invoke(initialized: Boolean)
+}
+
+fun interface OnMessageListener {
+    fun onMessage(message: String)
 }
 
 /**
@@ -31,9 +38,12 @@ fun interface OnJSBundleLoaded {
 private const val RN_THRESHOLD_VERSION = "0.80.0"
 
 class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
+    private val messageListeners = CopyOnWriteArrayList<OnMessageListener>()
+
     companion object {
         private lateinit var instance: ReactNativeBrownfield
         private val initialized = AtomicBoolean()
+        private const val LOG_TAG = "ReactNativeBrownfield"
 
         @JvmStatic
         val shared: ReactNativeBrownfield get() = instance
@@ -109,6 +119,30 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                 }
             })
             shared.reactHost.start()
+        }
+    }
+
+    fun postMessage(message: String) {
+        val context = reactHost.currentReactContext ?: run {
+            Log.w(LOG_TAG, "currentReactContext is null, cannot proceed")
+            return
+        }
+        context
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            .emit("brownfieldMessage", message)
+    }
+
+    fun addMessageListener(listener: OnMessageListener) {
+        messageListeners.add(listener)
+    }
+
+    fun removeMessageListener(listener: OnMessageListener) {
+        messageListeners.remove(listener)
+    }
+
+    internal fun dispatchMessage(message: String) {
+        for (listener in messageListeners) {
+            listener.onMessage(message)
         }
     }
 

@@ -1,5 +1,11 @@
-import { Platform } from 'react-native';
+import { DeviceEventEmitter, Platform } from 'react-native';
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
+
+export interface MessageEvent {
+  data: unknown;
+}
+
+const MESSAGE_EVENT = 'brownfieldMessage';
 
 const ReactNativeBrownfield = {
   popToNative: (animated?: boolean): void => {
@@ -20,6 +26,27 @@ const ReactNativeBrownfield = {
     } else {
       console.warn('Not implemented: setNativeGesturesAndButtonsEnabled');
     }
+  },
+
+  postMessage: (data: unknown): void => {
+    const serialized = JSON.stringify(data);
+    ReactNativeBrownfieldModule.postMessage(serialized);
+  },
+
+  onMessage: (
+    callback: (event: MessageEvent) => void
+  ): { remove: () => void } => {
+    const subscription = DeviceEventEmitter.addListener(
+      MESSAGE_EVENT,
+      (raw: string) => {
+        try {
+          callback({ data: JSON.parse(raw) });
+        } catch {
+          callback({ data: raw });
+        }
+      }
+    );
+    return { remove: () => subscription.remove() };
   },
 };
 
