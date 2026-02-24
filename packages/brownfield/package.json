@@ -52,12 +52,12 @@
     "@callstack/brownfield-cli": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^25.0.8",
-    "eslint": "^9.28.0",
+    "@types/node": "^25.3.0",
+    "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-node-import": "^1.0.5",
-    "eslint-plugin-prettier": "^5.1.3",
-    "prettier": "^3.7.4",
+    "eslint-plugin-node-import": "^1.2.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.1",
     "typescript": "5.9.3"
   },
   "engines": {
