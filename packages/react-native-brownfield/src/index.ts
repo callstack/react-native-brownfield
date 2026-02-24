@@ -42,7 +42,6 @@ const ReactNativeBrownfield = {
     callback: (event: MessageEvent) => void
   ): { remove: () => void } => {
     const subscription = emitter.addListener('brownfieldMessage', (raw) => {
-      console.log('onMessage', raw);
       try {
         callback({ data: JSON.parse(raw) });
       } catch {

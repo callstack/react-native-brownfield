@@ -19,11 +19,11 @@ struct ContentView: View {
         NavigationView {
 
             VStack(spacing: 16) {
-                GreetingCard(name: "iOS")
+                GreetingCard(name: "iOS Expo")
 
                 MessagesView()
 
-                ReactNativeView(moduleName: "RNApp")
+                ReactNativeView(moduleName: "main")
                     .navigationBarHidden(true)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .background(Color(UIColor.systemBackground))
