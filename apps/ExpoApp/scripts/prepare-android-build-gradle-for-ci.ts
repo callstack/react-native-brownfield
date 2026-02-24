@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const SNAPSHOT_VERSION = '1.0.0-SNAPSHOT';
+const SNAPSHOT_VERSION = '1.0.1-SNAPSHOT';
 const targetPath = path.resolve(__dirname, '..', 'android', 'build.gradle');
 
 function ensureMavenLocalInBuildscriptRepositories(contents: string): string {
