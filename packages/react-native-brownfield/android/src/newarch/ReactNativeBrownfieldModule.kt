@@ -30,12 +30,6 @@ class ReactNativeBrownfieldModule(reactContext: ReactApplicationContext) :
         ReactNativeBrownfield.shared.dispatchMessage(message)
     }
 
-    @ReactMethod
-    override fun addListener(eventName: String) {}
-
-    @ReactMethod
-    override fun removeListeners(count: Double) {}
-
     private fun onBackPressed() {
         reactApplicationContext.currentActivity?.runOnUiThread {
             reactApplicationContext.currentActivity?.onBackPressed()

@@ -87,7 +87,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                     packageList = (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
                         .filterIsInstance<ReactPackage>(),
                     jsMainModulePath = options["mainModuleName"] as? String ?: "index",
-                    jsBundleAssetPath = options["bundleAssetPath"] as? String ?: "index.android.bundle",
+                    jsBundleAssetPath = options["bundleAssetPath"] as? String
+                        ?: "index.android.bundle",
                     jsBundleFilePath = options["bundleFilePath"] as? String,
                     useDevSupport = options["useDeveloperSupport"] as? Boolean
                         ?: ReactBuildConfig.DEBUG,
@@ -127,9 +128,11 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             Log.w(LOG_TAG, "currentReactContext is null, cannot proceed")
             return
         }
-        context
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-            .emit("brownfieldMessage", message)
+        context.runOnUiQueueThread {
+            context
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("brownfieldMessage", message)
+        }
     }
 
     fun addMessageListener(listener: OnMessageListener) {
