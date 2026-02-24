@@ -381,6 +381,10 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         pkgProject: Project,
         dependencies: VersionMediatingDependencySet,
     ) {
+        /**
+         * Not accounting for variant specific configurations as Expo packages are not
+         * using it. Should we face any issues/needs to account for it, we can do it here.
+         */
         listOf("implementation", "api", "runtime").forEach {
             val configuration = pkgProject.configurations.findByName(it)
             configuration?.dependencies?.forEach { dep ->
