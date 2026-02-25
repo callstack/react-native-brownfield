@@ -121,14 +121,32 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
     }
 
+    /**
+     * Send a serialized JSON message to the React Native JS application. This resembles the web `window.postMessage` API.
+     * @note This method is available only on the New Architecture - on Old Architecture, it will be a no-op.
+     * @param message - The serialized JSON message to send to the React Native JS application.
+     * @example
+     * val json = JSONObject().put("text", text).toString()
+     * ReactNativeBrownfield.shared.postMessage(json)
+     */
     fun postMessage(message: String) {
         ReactNativeBrownfieldModule.emitMessageFromNative(message)
     }
 
+    /**
+     * Register a listener for messages sent from the React Native JS application.
+     * @note This method is available only on the New Architecture - on Old Architecture, it will be a no-op.
+     * @param listener - The listener to register.
+     */
     fun addMessageListener(listener: OnMessageListener) {
         messageListeners.add(listener)
     }
 
+    /**
+     * Remove a previously registered message listener.
+     * @note This method is available only on the New Architecture - on Old Architecture, it will be a no-op.
+     * @param listener - The listener to remove.
+     */
     fun removeMessageListener(listener: OnMessageListener) {
         messageListeners.remove(listener)
     }

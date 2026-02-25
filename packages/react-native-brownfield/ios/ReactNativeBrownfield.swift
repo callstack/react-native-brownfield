@@ -136,10 +136,13 @@ internal import Expo
   }
 
   /**
-   * Send a JSON-serialized message to the React Native JS layer.
+   * Send a serialized JSON message to the React Native JS application.
    * The message is delivered as a `brownfieldMessage` DeviceEventEmitter event.
    *
-   * @param message A JSON string to send to JavaScript.
+   * @param message - The serialized JSON message to send to the React Native JS application.
+   * @example
+   * let json = "{\"text\":\"\(text)\"}"
+   * ReactNativeBrownfield.shared.postMessage(json)
    */
   @objc public func postMessage(_ message: String) {
     let userInfo: [String: Any] = ["message": message]
