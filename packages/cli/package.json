@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-cli",
-  "version": "3.0.0-rc.2",
+  "version": "3.0.0",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
