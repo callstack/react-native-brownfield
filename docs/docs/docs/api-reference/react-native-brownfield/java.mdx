@@ -179,6 +179,64 @@ FrameLayout reactView = ReactNativeBrownfield.getShared().createView(
 container.addView(reactView);
 ```
 
+##### `postMessage`
+
+Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event and can be received using `ReactNativeBrownfield.onMessage()` on the JS side.
+
+| Param   | Required | Type     | Description                         |
+| ------- | -------- | -------- | ----------------------------------- |
+| message | Yes      | `String` | A JSON-encoded string to send to JS |
+
+> [!Note]
+> This method is available only on the New Architecture; on Old Architecture, it will be a no-op.
+
+**Example:**
+
+```java
+import org.json.JSONObject;
+
+JSONObject payload = new JSONObject();
+payload.put("action", "greet");
+payload.put("name", "Alice");
+
+ReactNativeBrownfield.getShared().postMessage(payload.toString());
+```
+
+##### `addMessageListener`
+
+Register a listener for messages sent from JavaScript via `ReactNativeBrownfield.postMessage()`.
+
+| Param    | Required | Type                | Description                               |
+| -------- | -------- | ------------------- | ----------------------------------------- |
+| listener | Yes      | `OnMessageListener` | Callback invoked with the raw JSON string |
+
+**Example:**
+
+```java
+import com.callstack.reactnativebrownfield.OnMessageListener;
+
+OnMessageListener listener = message -> {
+  JSONObject json = new JSONObject(message);
+  Log.d("Brownfield", "Received: " + json.optString("text"));
+};
+
+ReactNativeBrownfield.getShared().addMessageListener(listener);
+```
+
+##### `removeMessageListener`
+
+Remove a previously registered message listener.
+
+| Param    | Required | Type                | Description            |
+| -------- | -------- | ------------------- | ---------------------- |
+| listener | Yes      | `OnMessageListener` | The listener to remove |
+
+**Example:**
+
+```java
+ReactNativeBrownfield.getShared().removeMessageListener(listener);
+```
+
 ---
 
 ### `ReactNativeFragment`

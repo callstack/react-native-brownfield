@@ -42,14 +42,99 @@ ReactNativeBrownfield.popToNative(animated: boolean);
 
 **Parameters:**
 
-| Param    | Type      | Description                              |
-| -------- | --------- | ---------------------------------------- |
+| Param    | Type      | Description                                  |
+| -------- | --------- | -------------------------------------------- |
 | animated | `boolean` | Whether to animate the transition (iOS only) |
 
 **Example:**
 
 ```ts
 ReactNativeBrownfield.popToNative(true);
+```
+
+### postMessage
+
+Send a JSON-serializable message to the native host application. This resembles the web `window.postMessage` API.
+
+```ts
+ReactNativeBrownfield.postMessage(data: any);
+```
+
+**Parameters:**
+
+| Param | Type  | Description                                            |
+| ----- | ----- | ------------------------------------------------------ |
+| data  | `any` | Any JSON-serializable value to send to the native host |
+
+> [!Note]
+> This method is available both on the New Architecture and the Old Architecture.
+
+**Example:**
+
+```ts
+ReactNativeBrownfield.postMessage({ action: 'greet', name: 'Alice' });
+```
+
+### onMessage
+
+Subscribe to messages sent from the native host application. Returns a subscription object with a `remove()` method for cleanup.
+
+```ts
+const subscription = ReactNativeBrownfield.onMessage(
+  callback: (event: MessageEvent) => void
+);
+```
+
+**Parameters:**
+
+| Param    | Type                            | Description                               |
+| -------- | ------------------------------- | ----------------------------------------- |
+| callback | `(event: MessageEvent) => void` | Handler invoked for each incoming message |
+
+The `MessageEvent` object has a `data` property containing the deserialized message payload.
+
+**Returns:** `{ remove: () => void }` - call `remove()` to unsubscribe.
+
+**Example:**
+
+```ts
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import type { MessageEvent } from '@callstack/react-native-brownfield';
+
+const subscription = ReactNativeBrownfield.onMessage((event: MessageEvent) => {
+  console.log('Received from native:', event.data);
+});
+
+// Later, to unsubscribe:
+subscription.remove();
+```
+
+**Full example with React hooks:**
+
+```tsx
+import { useEffect, useState } from 'react';
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import type { MessageEvent } from '@callstack/react-native-brownfield';
+
+function MyComponent() {
+  const [lastMessage, setLastMessage] = useState<unknown>(null);
+
+  useEffect(() => {
+    const sub = ReactNativeBrownfield.onMessage((event: MessageEvent) => {
+      setLastMessage(event.data);
+    });
+    return () => sub.remove();
+  }, []);
+
+  return (
+    <Button
+      title="Send to Native"
+      onPress={() => {
+        ReactNativeBrownfield.postMessage({ greeting: 'Hello!' });
+      }}
+    />
+  );
+}
 ```
 
 :::note
