@@ -3,7 +3,8 @@ buildscript {
     kotlinVersion: "2.0.21",
     minSdkVersion: 24,
     compileSdkVersion: 36,
-    targetSdkVersion: 36
+    targetSdkVersion: 36,
+    cmakeVersion: "3.22.1"
   ]
 
   ext.getExtOrDefault = { prop ->
@@ -40,6 +41,12 @@ android {
   defaultConfig {
     minSdkVersion getExtOrDefault("minSdkVersion")
     targetSdkVersion getExtOrDefault("targetSdkVersion")
+
+    externalNativeBuild {
+      cmake {
+        cppFlags "-std=c++20 -fexceptions -frtti"
+      }
+    }
   }
 
   buildFeatures {
@@ -59,6 +66,13 @@ android {
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  externalNativeBuild {
+    cmake {
+      path "src/main/cpp/CMakeLists.txt"
+      version getExtOrDefault("cmakeVersion")
+    }
   }
 }
 
