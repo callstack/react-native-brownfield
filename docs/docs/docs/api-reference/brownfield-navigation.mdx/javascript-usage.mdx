@@ -1,0 +1,61 @@
+# JavaScript Usage
+
+Use the generated JavaScript API after native delegate registration is complete.
+
+## Import and call methods
+
+```ts
+import BrownfieldNavigation from '@callstack/brownfield-navigation';
+
+BrownfieldNavigation.navigateToSettings();
+BrownfieldNavigation.navigateToReferrals('user-123');
+```
+
+## Example screen usage
+
+```tsx
+import { Button, View } from 'react-native';
+import BrownfieldNavigation from '@callstack/brownfield-navigation';
+
+export function NativeLinks() {
+  return (
+    <View>
+      <Button
+        title="Open native settings"
+        onPress={() => BrownfieldNavigation.navigateToSettings()}
+      />
+      <Button
+        title="Open native referrals"
+        onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
+      />
+    </View>
+  );
+}
+```
+
+## Best practices
+
+- Keep JS method names aligned with actual native destinations.
+- Pass stable, explicit params (`userId`, IDs, flags) rather than derived UI state.
+- Add runtime guards in app startup so delegate registration always happens first.
+
+## When to run codegen again
+
+Rerun codegen if any of these change:
+
+- Method names
+- Method parameters
+- Method return types
+
+```bash
+yarn brownfield:navigation-codegen
+```
+
+## Common errors
+
+- **`undefined is not a function` on method call**:
+  method was changed in spec, but app was not regenerated/rebuilt.
+- **Native crash on method call**:
+  delegate was not registered before JS usage.
+- **Method exists but does nothing**:
+  native delegate method was generated but not implemented in host app.

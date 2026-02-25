@@ -1,0 +1,99 @@
+# Native Integration
+
+After codegen, implement the generated delegate interface in your host app and register it before JavaScript uses the module.
+
+## Android
+
+### 1) Implement `BrownfieldNavigationDelegate`
+
+Implement the generated delegate methods in your host `Activity` (or another class with access to navigation context):
+
+```kotlin
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
+
+class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
+  override fun navigateToSettings() {
+    startActivity(Intent(this, SettingsActivity::class.java))
+  }
+
+  override fun navigateToReferrals(userId: String) {
+    startActivity(
+      Intent(this, ReferralsActivity::class.java)
+        .putExtra(ReferralsActivity.EXTRA_USER_ID, userId)
+    )
+  }
+}
+```
+
+### 2) Register the delegate during startup
+
+Register before any React Native screen can call `BrownfieldNavigation.*`:
+
+```kotlin
+import android.os.Bundle
+import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
+
+override fun onCreate(savedInstanceState: Bundle?) {
+  super.onCreate(savedInstanceState)
+  BrownfieldNavigationManager.setDelegate(this)
+  // Initialize React Native host
+}
+```
+
+## iOS
+
+### 1) Implement `BrownfieldNavigationDelegate`
+
+```swift
+import BrownfieldNavigation
+import SwiftUI
+import UIKit
+
+public final class RNNavigationDelegate: BrownfieldNavigationDelegate {
+  public func navigateToSettings() {
+    present(SettingsScreen())
+  }
+
+  public func navigateToReferrals(userId: String) {
+    present(ReferralsScreen(userId: userId))
+  }
+
+  private func present<Content: View>(_ view: Content) {
+    DispatchQueue.main.async {
+      let hostingController = UIHostingController(rootView: view)
+      UIApplication.shared.topMostViewController()?
+        .present(hostingController, animated: true)
+    }
+  }
+}
+```
+
+### 2) Register the delegate at app startup
+
+```swift
+import BrownfieldNavigation
+
+@main
+struct BrownfieldAppleApp: App {
+  init() {
+    BrownfieldNavigationManager.shared.setDelegate(
+      navigationDelegate: RNNavigationDelegate()
+    )
+  }
+}
+```
+
+## Lifecycle Requirements
+
+- Register delegate before rendering JS that might call the module.
+- Keep navigation on main/UI thread.
+- Re-register delegate if your host object is recreated.
+- Treat missing delegate as a startup bug: runtime calls require a registered delegate.
+
+## Troubleshooting
+
+- **Method added in TS but not visible natively**: rerun codegen and rebuild.
+- **Calls crash on app launch**: verify delegate registration happens before RN route rendering.
+- **Wrong screen opens**: check native delegate method wiring and params mapping.
