@@ -15,7 +15,6 @@
     "@callstack/brownfield-example-ios-app",
     "@callstack/brownfield-example-rn-app",
     "@callstack/brownfield-example-expo-app",
-    "@callstack/react-native-brownfield-tester-integrated",
     "@callstack/brownfield-gradle-plugin-react"
   ],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
