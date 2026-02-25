@@ -27,6 +27,10 @@ static ReactNativeBrownfieldModule *_sharedInstance = nil;
 
 - (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+  if (_sharedInstance == self) {
+    _sharedInstance = nil;
+  }
 }
 
 - (void)handleNativeToJSMessage:(NSNotification *)notification {
