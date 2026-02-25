@@ -52,6 +52,8 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
                     Toast.LENGTH_LONG
                 ).show()
             }
+
+            registerBrownieStoreIfNeeded()
         }
 
         setContent {
