@@ -20,9 +20,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +55,8 @@ class MainActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             }
+
+            registerBrownieStoreIfNeeded()
         }
 
         setContent {
@@ -99,7 +102,17 @@ fun GreetingCard(
     name: String,
     modifier: Modifier = Modifier
 ) {
-    var counter by rememberSaveable { mutableStateOf(0) }
+    var counter by remember { mutableIntStateOf(0) }
+
+    DisposableEffect(Unit) {
+        val unsubscribe = subscribeToBrownieCounter { updatedCounter ->
+            counter = updatedCounter
+        }
+
+        onDispose {
+            unsubscribe()
+        }
+    }
 
     Card(
         modifier = modifier,
@@ -125,7 +138,7 @@ fun GreetingCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Button(onClick = { counter++ }) {
+            Button(onClick = { incrementBrownieCounter() }) {
                 Text("Increment counter")
             }
         }
