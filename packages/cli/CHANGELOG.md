@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 3.0.0
+
+### Patch Changes
+
+- [#255](https://github.com/callstack/react-native-brownfield/pull/255) [`48358b2`](https://github.com/callstack/react-native-brownfield/commit/48358b2dcce578aa5052e66cc3454524da8c7992) Thanks [@artus9033](https://github.com/artus9033)! - chore: release stable v3
+
 ## 1.0.4
 
 ### Patch Changes
