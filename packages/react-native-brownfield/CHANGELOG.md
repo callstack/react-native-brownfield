@@ -1,5 +1,16 @@
 # @callstack/react-native-brownfield
 
+## 3.0.0
+
+### Patch Changes
+
+- [#255](https://github.com/callstack/react-native-brownfield/pull/255) [`48358b2`](https://github.com/callstack/react-native-brownfield/commit/48358b2dcce578aa5052e66cc3454524da8c7992) Thanks [@artus9033](https://github.com/artus9033)! - chore: release stable v3
+
+- [#239](https://github.com/callstack/react-native-brownfield/pull/239) [`828bda3`](https://github.com/callstack/react-native-brownfield/commit/828bda32f39153085f5053becc7e9de16d284be5) Thanks [@hurali97](https://github.com/hurali97)! - fix: autodetect iOS app target name for Expo pre-55 patch script phase
+
+- Updated dependencies [[`48358b2`](https://github.com/callstack/react-native-brownfield/commit/48358b2dcce578aa5052e66cc3454524da8c7992)]:
+  - @callstack/brownfield-cli@3.0.0
+
 ## 2.2.0
 
 ### Minor Changes
