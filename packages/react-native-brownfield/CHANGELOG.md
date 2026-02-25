@@ -1,5 +1,11 @@
 # @callstack/react-native-brownfield
 
+## 3.1.0
+
+### Minor Changes
+
+- [#252](https://github.com/callstack/react-native-brownfield/pull/252) [`d5c8609`](https://github.com/callstack/react-native-brownfield/commit/d5c8609485b072eb73be0158d49908fa399d8950) Thanks [@artus9033](https://github.com/artus9033)! - feat: added postMessage API
+
 ## 3.0.0
 
 ### Patch Changes
