@@ -31,6 +31,9 @@ const scriptDir = path.dirname(scriptFile);
 
 // Package root is one level up from scripts/
 const PACKAGE_ROOT = path.resolve(scriptDir, '../../../');
+const DEFAULT_ANDROID_JAVA_PACKAGE = 'com.callstack.nativebrownfieldnavigation';
+const ANDROID_JAVA_PACKAGE_NAME = DEFAULT_ANDROID_JAVA_PACKAGE;
+const ANDROID_JAVA_PACKAGE_PATH_SEGMENTS = ANDROID_JAVA_PACKAGE_NAME.split('.');
 
 // ============================================================================
 // Types
@@ -69,6 +72,14 @@ const TS_TO_SWIFT_TYPE: Record<string, string> = {
   Object: '[String: Any]',
 };
 
+const TS_TO_KOTLIN_TYPE: Record<string, string> = {
+  string: 'String',
+  number: 'Double',
+  boolean: 'Boolean',
+  void: 'Unit',
+  Object: 'ReadableMap',
+};
+
 function mapTsTypeToObjC(tsType: string, nullable: boolean = false): string {
   if (tsType.startsWith('Promise<')) {
     return 'void';
@@ -92,6 +103,20 @@ function mapTsTypeToSwift(tsType: string, optional: boolean = false): string {
   }
 
   const mapped = TS_TO_SWIFT_TYPE[tsType];
+  if (mapped) {
+    return optional ? `${mapped}?` : mapped;
+  }
+
+  return optional ? 'Any?' : 'Any';
+}
+
+function mapTsTypeToKotlin(tsType: string, optional: boolean = false): string {
+  if (tsType.startsWith('Promise<')) {
+    const inner = tsType.slice(8, -1);
+    return mapTsTypeToKotlin(inner, optional);
+  }
+
+  const mapped = TS_TO_KOTLIN_TYPE[tsType];
   if (mapped) {
     return optional ? `${mapped}?` : mapped;
   }
@@ -339,6 +364,108 @@ ${methodImpls}
 `;
 }
 
+function generateKotlinDelegate(
+  methods: MethodSignature[],
+  kotlinPackageName: string
+): string {
+  const methodSignatures = methods
+    .map((m) => {
+      const params = m.params
+        .map((p) => `${p.name}: ${mapTsTypeToKotlin(p.type, p.optional)}`)
+        .join(', ');
+      const returnType =
+        m.returnType === 'void'
+          ? ''
+          : `: ${mapTsTypeToKotlin(m.returnType, false)}`;
+      return `  fun ${m.name}(${params})${returnType}`;
+    })
+    .join('\n');
+
+  return `package ${kotlinPackageName}
+
+interface BrownfieldNavigationDelegate {
+${methodSignatures}
+}
+`;
+}
+
+function generateKotlinModule(
+  methods: MethodSignature[],
+  kotlinPackageName: string
+): string {
+  const hasAsyncMethod = methods.some((m) => m.isAsync);
+  const hasObjectType = methods.some(
+    (m) =>
+      m.returnType.includes('Object') ||
+      m.params.some((p) => p.type === 'Object')
+  );
+
+  const methodImpls = methods
+    .map((m) => {
+      if (m.isAsync) {
+        return generateAsyncKotlinMethod(m);
+      }
+      return generateSyncKotlinMethod(m);
+    })
+    .join('\n\n');
+
+  return `package ${kotlinPackageName}
+
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactMethod${
+    hasAsyncMethod ? '\nimport com.facebook.react.bridge.Promise' : ''
+  }${hasObjectType ? '\nimport com.facebook.react.bridge.ReadableMap' : ''}
+
+class NativeBrownfieldNavigationModule(
+  reactContext: ReactApplicationContext
+) : NativeBrownfieldNavigationSpec(reactContext) {
+${methodImpls}
+
+  companion object {
+    const val NAME = "NativeBrownfieldNavigation"
+  }
+}
+`;
+}
+
+function generateSyncKotlinMethod(method: MethodSignature): string {
+  const params = method.params
+    .map((p) => `${p.name}: ${mapTsTypeToKotlin(p.type, p.optional)}`)
+    .join(', ');
+  const args = method.params.map((p) => p.name).join(', ');
+
+  const signature = `  @ReactMethod\n  override fun ${method.name}(${params})${
+    method.returnType === 'void'
+      ? ''
+      : `: ${mapTsTypeToKotlin(method.returnType, false)}`
+  }`;
+
+  if (method.returnType === 'void') {
+    return `${signature} {
+    BrownfieldNavigationManager.getDelegate().${method.name}(${args})
+  }`;
+  }
+
+  return `${signature} {
+    return BrownfieldNavigationManager.getDelegate().${method.name}(${args})
+  }`;
+}
+
+function generateAsyncKotlinMethod(method: MethodSignature): string {
+  const paramsWithTypes = method.params
+    .map((p) => `${p.name}: ${mapTsTypeToKotlin(p.type, p.optional)}`)
+    .join(', ');
+  const params =
+    paramsWithTypes.length > 0
+      ? `${paramsWithTypes}, promise: Promise`
+      : 'promise: Promise';
+
+  return `  @ReactMethod
+  override fun ${method.name}(${params}) {
+    promise.reject("not_implemented", "${method.name} is not implemented")
+  }`;
+}
+
 function generateSyncObjCMethod(method: MethodSignature): string {
   const { name, params, returnType } = method;
 
@@ -477,6 +604,11 @@ function main(): void {
   const indexDts = generateIndexDts(methods);
   const swiftDelegate = generateSwiftDelegate(methods);
   const objcImpl = generateObjCImplementation(methods);
+  const kotlinDelegate = generateKotlinDelegate(
+    methods,
+    ANDROID_JAVA_PACKAGE_NAME
+  );
+  const kotlinModule = generateKotlinModule(methods, ANDROID_JAVA_PACKAGE_NAME);
 
   if (dryRun) {
     console.log('\n--- Generated: src/NativeBrownfieldNavigation.ts ---');
@@ -493,6 +625,14 @@ function main(): void {
     console.log(swiftDelegate);
     console.log('\n--- Generated: ios/NativeBrownfieldNavigation.mm ---');
     console.log(objcImpl);
+    console.log(
+      `\n--- Generated: android/src/main/java/${ANDROID_JAVA_PACKAGE_NAME.replaceAll('.', '/')}/BrownfieldNavigationDelegate.kt ---`
+    );
+    console.log(kotlinDelegate);
+    console.log(
+      `\n--- Generated: android/src/main/java/${ANDROID_JAVA_PACKAGE_NAME.replaceAll('.', '/')}/NativeBrownfieldNavigationModule.kt ---`
+    );
+    console.log(kotlinModule);
     return;
   }
 
@@ -528,6 +668,24 @@ function main(): void {
       'BrownfieldNavigationDelegate.swift'
     ),
     objcImpl: path.join(PACKAGE_ROOT, 'ios', 'NativeBrownfieldNavigation.mm'),
+    kotlinDelegate: path.join(
+      PACKAGE_ROOT,
+      'android',
+      'src',
+      'main',
+      'java',
+      ...ANDROID_JAVA_PACKAGE_PATH_SEGMENTS,
+      'BrownfieldNavigationDelegate.kt'
+    ),
+    kotlinModule: path.join(
+      PACKAGE_ROOT,
+      'android',
+      'src',
+      'main',
+      'java',
+      ...ANDROID_JAVA_PACKAGE_PATH_SEGMENTS,
+      'NativeBrownfieldNavigationModule.kt'
+    ),
   };
 
   fs.writeFileSync(paths.turboModuleSpec, turboModuleSpec);
@@ -553,6 +711,12 @@ function main(): void {
 
   fs.writeFileSync(paths.objcImpl, objcImpl);
   console.log(`Generated: ${paths.objcImpl}`);
+
+  fs.writeFileSync(paths.kotlinDelegate, kotlinDelegate);
+  console.log(`Generated: ${paths.kotlinDelegate}`);
+
+  fs.writeFileSync(paths.kotlinModule, kotlinModule);
+  console.log(`Generated: ${paths.kotlinModule}`);
 
   console.log('\nCodegen complete!');
   console.log('');
