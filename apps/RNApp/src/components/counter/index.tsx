@@ -1,15 +1,24 @@
-import { StyleSheet, Text } from 'react-native';
+import { Button, StyleSheet, Text } from 'react-native';
+import { useStore } from '@callstack/brownie';
 
 type CounterProps = {
   colors: { primary: string; secondary: string };
 };
 
 const Counter = ({ colors }: CounterProps) => {
+  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+
   return (
     <>
       <Text style={[styles.text, { color: colors.secondary }]}>
-        Brownie: To be implemented
+        Count: {counter}
       </Text>
+
+      <Button
+        onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
+        color={colors.secondary}
+        title="Increment"
+      />
     </>
   );
 };
