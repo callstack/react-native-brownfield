@@ -168,6 +168,64 @@ AndroidView(
 )
 ```
 
+##### `postMessage`
+
+Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event and can be received using `ReactNativeBrownfield.onMessage()` on the JS side.
+
+| Param   | Required | Type     | Description                         |
+| ------- | -------- | -------- | ----------------------------------- |
+| message | Yes      | `String` | A JSON-encoded string to send to JS |
+
+> [!Note]
+> This method is available only on the New Architecture; on Old Architecture, it will be a no-op.
+
+**Example:**
+
+```kotlin
+import org.json.JSONObject
+
+val payload = JSONObject().apply {
+  put("action", "greet")
+  put("name", "Alice")
+}
+ReactNativeBrownfield.shared.postMessage(payload.toString())
+```
+
+##### `addMessageListener`
+
+Register a listener for messages sent from JavaScript via `ReactNativeBrownfield.postMessage()`.
+
+| Param    | Required | Type                | Description                               |
+| -------- | -------- | ------------------- | ----------------------------------------- |
+| listener | Yes      | `OnMessageListener` | Callback invoked with the raw JSON string |
+
+**Example:**
+
+```kotlin
+import com.callstack.reactnativebrownfield.OnMessageListener
+
+val listener = OnMessageListener { message ->
+  val json = JSONObject(message)
+  Log.d("Brownfield", "Received: ${json.optString("text")}")
+}
+
+ReactNativeBrownfield.shared.addMessageListener(listener)
+```
+
+##### `removeMessageListener`
+
+Remove a previously registered message listener.
+
+| Param    | Required | Type                | Description            |
+| -------- | -------- | ------------------- | ---------------------- |
+| listener | Yes      | `OnMessageListener` | The listener to remove |
+
+**Example:**
+
+```kotlin
+ReactNativeBrownfield.shared.removeMessageListener(listener)
+```
+
 ---
 
 ### `ReactNativeFragment`

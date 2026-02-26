@@ -82,6 +82,48 @@ Creates a React Native view for the specified module name.
 UIView *view = [[ReactNativeBrownfield shared] viewWithModuleName:@"ReactNative" initialProps:@{@"score": @12}];
 ```
 
+##### `postMessage`
+
+Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event.
+
+| Param     | Required | Type       | Description                         |
+| --------- | -------- | ---------- | ----------------------------------- |
+| `message` | Yes      | `NSString` | A JSON-encoded string to send to JS |
+
+> [!Note]
+> This method is available only on the New Architecture; on Old Architecture, it will be a no-op.
+
+**Examples:**
+
+```objc
+NSDictionary *payload = @{@"action": @"greet", @"name": @"Alice"};
+NSData *data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
+NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+[[ReactNativeBrownfield shared] postMessage:json];
+```
+
+##### `onMessage`
+
+Subscribe to messages sent from JavaScript. Returns an observer token.
+
+| Param     | Required | Type                  | Description                            |
+| --------- | -------- | --------------------- | -------------------------------------- |
+| `handler` | Yes      | `void(^)(NSString *)` | Block invoked with the raw JSON string |
+
+Returns: `id<NSObject>` - pass to `[[NSNotificationCenter defaultCenter] removeObserver:]` to unsubscribe.
+
+**Examples:**
+
+```objc
+id observer = [[ReactNativeBrownfield shared] onMessage:^(NSString *message) {
+    NSLog(@"Received from JS: %@", message);
+}];
+
+// Later:
+[[NSNotificationCenter defaultCenter] removeObserver:observer];
+```
+
 ---
 
 ### `ReactNativeViewController`

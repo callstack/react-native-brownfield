@@ -9,43 +9,28 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.compose.AndroidFragment
-import com.callstack.brownie.Store
-import com.callstack.brownie.StoreManager
-import com.callstack.brownie.store
-import com.callstack.brownie.subscribe
+import com.callstack.brownfield.android.example.components.GreetingCard
+import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
 import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 import com.rnapp.brownfieldlib.BrownfieldStore
 import com.rnapp.brownfieldlib.User
-
-private fun brownieStore(): Store<BrownfieldStore>? {
-    return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
-}
 
 class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -102,70 +87,19 @@ private fun MainScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally // center top bar content
     ) {
         GreetingCard(
-            name = "Android",
-            modifier = Modifier.fillMaxWidth()
+            name = ReactNativeConstants.APP_NAME,
         )
+
+        PostMessageCard()
+
+        Spacer(modifier = Modifier.height(1.dp))
 
         ReactNativeView(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
         )
-    }
-}
-
-@Composable
-fun GreetingCard(
-    name: String,
-    modifier: Modifier = Modifier
-) {
-    var counter by remember { mutableIntStateOf(0) }
-
-    DisposableEffect(Unit) {
-        val store = brownieStore()
-        val unsubscribe = store?.subscribe(
-            selector = { state -> state.counter.toInt() },
-            onChange = { updatedCounter -> counter = updatedCounter }
-        ) ?: {}
-
-        onDispose {
-            unsubscribe()
-        }
-    }
-
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = "Hello native $name 👋",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
-            )
-
-            Text(
-                text = "You clicked the button $counter time${if (counter == 1) "" else "s"}",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Button(onClick = {
-                brownieStore()?.set { state ->
-                    state.copy(counter = state.counter + 1)
-                }
-            }) {
-                Text("Increment counter")
-            }
-        }
     }
 }
 
