@@ -11,6 +11,9 @@ import brownfieldCommands, {
 import brownieCommands, {
   groupName as brownieCommandsGroupName,
 } from './brownie/index.js';
+import navigationCommands, {
+  groupName as navigationCommandsGroupName,
+} from './navigation/index.js';
 
 const program = new Command();
 
@@ -72,6 +75,7 @@ function registrationHelper(
 
 registrationHelper(brownfieldCommands, brownfieldCommandsGroupName);
 registrationHelper(brownieCommands, brownieCommandsGroupName);
+registrationHelper(navigationCommands, navigationCommandsGroupName);
 
 program.commandsGroup('Utility commands').helpCommand('help [command]');
 

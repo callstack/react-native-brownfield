@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "license": "MIT",
   "author": "Hur Ali",
-  "bin": {
-    "brownfield-navigation-codegen": "lib/commonjs/scripts/brownfield-navigation.js"
-  },
   "description": "Brownfield navigation helpers for React Native",
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "main": "lib/commonjs/index",
@@ -24,6 +21,9 @@
       }
     },
     "./package.json": "./package.json"
+  },
+  "bin": {
+    "brownfield": "lib/commonjs/scripts/brownfield.js"
   },
   "scripts": {
     "lint": "eslint .",
@@ -54,6 +54,9 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@callstack/brownfield-cli": "workspace:^"
   },
   "peerDependencies": {
     "react": "*",

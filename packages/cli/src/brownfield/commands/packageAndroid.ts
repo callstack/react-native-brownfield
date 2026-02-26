@@ -14,6 +14,7 @@ import {
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
+import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 
 export const packageAndroidCommand = curryOptions(
   new Command('package:android').description('Build Android AAR'),
@@ -31,6 +32,7 @@ export const packageAndroidCommand = curryOptions(
     });
 
     await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
+    runNavigationCodegenIfApplicable(projectRoot);
 
     await packageAarAction({
       projectRoot,

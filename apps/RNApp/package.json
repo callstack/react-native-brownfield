@@ -14,7 +14,7 @@
     "start": "react-native start",
     "test": "jest",
     "codegen": "brownfield codegen",
-    "brownfield:navigation-codegen": "brownfield-navigation-codegen brownfield.navigation.ts"
+    "codegen:navigation": "brownfield navigation:codegen brownfield.navigation.ts"
   },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",

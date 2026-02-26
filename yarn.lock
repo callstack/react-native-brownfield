@@ -2365,6 +2365,7 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-cli": "workspace:^"
     "@react-native/babel-preset": "npm:0.82.1"
     "@types/jest": "npm:^30.0.0"
     "@types/react": "npm:^19.1.1"
@@ -2380,7 +2381,7 @@ __metadata:
     react: "*"
     react-native: "*"
   bin:
-    brownfield-navigation-codegen: lib/commonjs/scripts/brownfield-navigation.js
+    brownfield: lib/commonjs/scripts/brownfield.js
   languageName: unknown
   linkType: soft
 

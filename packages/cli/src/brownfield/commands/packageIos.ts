@@ -23,6 +23,7 @@ import {
   ExampleUsage,
 } from '../../shared/index.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
+import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 
 export const packageIosCommand = curryOptions(
@@ -76,6 +77,7 @@ export const packageIosCommand = curryOptions(
       projectRoot,
       'swift'
     );
+    runNavigationCodegenIfApplicable(projectRoot);
 
     await packageIosAction(
       options,
