@@ -32,9 +32,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.compose.AndroidFragment
+import com.callstack.brownie.Store
+import com.callstack.brownie.StoreManager
+import com.callstack.brownie.store
+import com.callstack.brownie.subscribe
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
+import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
+import com.rnapp.brownfieldlib.BrownfieldStore
+import com.rnapp.brownfieldlib.User
+
+private fun brownieStore(): Store<BrownfieldStore>? {
+    return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
+}
 
 class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -56,7 +67,14 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
 
-            registerBrownieStoreIfNeeded()
+            registerStoreIfNeeded(
+                storeName = BrownfieldStore.STORE_NAME
+            ) {
+                BrownfieldStore(
+                    counter = 0.0,
+                    user = User(name = "Username")
+                )
+            }
         }
 
         setContent {
@@ -105,9 +123,11 @@ fun GreetingCard(
     var counter by remember { mutableIntStateOf(0) }
 
     DisposableEffect(Unit) {
-        val unsubscribe = subscribeToBrownieCounter { updatedCounter ->
-            counter = updatedCounter
-        }
+        val store = brownieStore()
+        val unsubscribe = store?.subscribe(
+            selector = { state -> state.counter.toInt() },
+            onChange = { updatedCounter -> counter = updatedCounter }
+        ) ?: {}
 
         onDispose {
             unsubscribe()
@@ -138,7 +158,11 @@ fun GreetingCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Button(onClick = { incrementBrownieCounter() }) {
+            Button(onClick = {
+                brownieStore()?.set { state ->
+                    state.copy(counter = state.counter + 1)
+                }
+            }) {
                 Text("Increment counter")
             }
         }
