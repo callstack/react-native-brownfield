@@ -100,6 +100,43 @@ std::shared_ptr<brownie::BrownieStore> getStoreOrNull(const std::string &storeKe
   return brownie::BrownieStoreManager::shared().getStore(storeKey);
 }
 
+template <typename TCallback>
+void withStore(JNIEnv *env, jstring storeKey, TCallback &&callback) {
+  auto store = getStoreOrNull(fromJString(env, storeKey));
+  if (!store) {
+    return;
+  }
+
+  callback(std::move(store));
+}
+
+template <typename TCallback>
+jstring withStoreResult(JNIEnv *env, jstring storeKey, TCallback &&callback) {
+  auto store = getStoreOrNull(fromJString(env, storeKey));
+  if (!store) {
+    return nullptr;
+  }
+
+  return callback(std::move(store));
+}
+
+template <typename TCallback>
+void withParsedJson(const std::string &json, TCallback &&callback) {
+  try {
+    callback(folly::parseJson(json));
+  } catch (const std::exception &) {
+    // Keep native bridge resilient to malformed payloads from Kotlin callers.
+  }
+}
+
+jstring toJsonJStringOrNull(JNIEnv *env, const folly::dynamic &value) {
+  try {
+    return toJString(env, folly::toJson(value));
+  } catch (const std::exception &) {
+    return nullptr;
+  }
+}
+
 } // namespace
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
@@ -142,18 +179,11 @@ Java_com_callstack_brownie_BrownieStoreBridge_nativeSetValue(JNIEnv *env,
                                                               jstring valueJson,
                                                               jstring propKey,
                                                               jstring storeKey) {
-  auto store = getStoreOrNull(fromJString(env, storeKey));
-  if (!store) {
-    return;
-  }
-
-  auto key = fromJString(env, propKey);
-  auto json = fromJString(env, valueJson);
-  try {
-    store->set(key, folly::parseJson(json));
-  } catch (const std::exception &) {
-    // Keep native bridge resilient to malformed payloads from Kotlin callers.
-  }
+  withStore(env, storeKey, [env, propKey, valueJson](std::shared_ptr<brownie::BrownieStore> store) {
+    auto key = fromJString(env, propKey);
+    auto json = fromJString(env, valueJson);
+    withParsedJson(json, [&store, &key](folly::dynamic value) { store->set(key, std::move(value)); });
+  });
 }
 
 extern "C" JNIEXPORT jstring JNICALL
@@ -161,35 +191,19 @@ Java_com_callstack_brownie_BrownieStoreBridge_nativeGetValue(JNIEnv *env,
                                                               jclass,
                                                               jstring propKey,
                                                               jstring storeKey) {
-  auto store = getStoreOrNull(fromJString(env, storeKey));
-  if (!store) {
-    return nullptr;
-  }
-
-  auto key = fromJString(env, propKey);
-  auto value = store->get(key);
-
-  try {
-    return toJString(env, folly::toJson(value));
-  } catch (const std::exception &) {
-    return nullptr;
-  }
+  return withStoreResult(env, storeKey, [env, propKey](std::shared_ptr<brownie::BrownieStore> store) {
+    auto key = fromJString(env, propKey);
+    return toJsonJStringOrNull(env, store->get(key));
+  });
 }
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_callstack_brownie_BrownieStoreBridge_nativeGetSnapshot(JNIEnv *env,
                                                                  jclass,
                                                                  jstring storeKey) {
-  auto store = getStoreOrNull(fromJString(env, storeKey));
-  if (!store) {
-    return nullptr;
-  }
-
-  try {
-    return toJString(env, folly::toJson(store->getSnapshot()));
-  } catch (const std::exception &) {
-    return nullptr;
-  }
+  return withStoreResult(env, storeKey, [env](std::shared_ptr<brownie::BrownieStore> store) {
+    return toJsonJStringOrNull(env, store->getSnapshot());
+  });
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -197,17 +211,10 @@ Java_com_callstack_brownie_BrownieStoreBridge_nativeSetState(JNIEnv *env,
                                                               jclass,
                                                               jstring stateJson,
                                                               jstring storeKey) {
-  auto store = getStoreOrNull(fromJString(env, storeKey));
-  if (!store) {
-    return;
-  }
-
-  auto json = fromJString(env, stateJson);
-  try {
-    store->setState(folly::parseJson(json));
-  } catch (const std::exception &) {
-    // Keep native bridge resilient to malformed payloads from Kotlin callers.
-  }
+  withStore(env, storeKey, [env, stateJson](std::shared_ptr<brownie::BrownieStore> store) {
+    auto json = fromJString(env, stateJson);
+    withParsedJson(json, [&store](folly::dynamic state) { store->setState(std::move(state)); });
+  });
 }
 
 extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *, void *) {
