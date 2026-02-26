@@ -23,8 +23,6 @@ fun <State> BrownieStoreDefinition<State>.register(initialState: State): Store<S
 class StoreManager private constructor() {
   companion object {
     val shared: StoreManager = StoreManager()
-
-    fun <State> get(key: String): Store<State>? = shared.store(key)
   }
 
   private val lock = ReentrantLock()
@@ -36,13 +34,6 @@ class StoreManager private constructor() {
     }
   }
 
-  @Suppress("UNCHECKED_CAST")
-  fun <State> store(key: String): Store<State>? {
-    lock.withLock {
-      return stores[key] as? Store<State>
-    }
-  }
-
   fun removeStore(key: String) {
     val store = lock.withLock {
       stores.remove(key) as? Store<*>
@@ -50,12 +41,6 @@ class StoreManager private constructor() {
 
     store?.dispose()
     BrownieStoreBridge.removeStore(key)
-  }
-
-  fun snapshot(key: String): String? = BrownieStoreBridge.getSnapshot(key)
-
-  fun setValue(key: String, property: String, valueJson: String) {
-    BrownieStoreBridge.setValue(valueJson, property, key)
   }
 
   fun clear() {
