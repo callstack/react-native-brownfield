@@ -31,6 +31,12 @@ import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
+import com.rnapp.brownfieldlib.BrownfieldStore
+import com.rnapp.brownfieldlib.User
+
+private fun brownieStore(): Store<BrownfieldStore>? {
+    return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
+}
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -53,7 +59,14 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
                 ).show()
             }
 
-            registerBrownieStoreIfNeeded()
+            registerStoreIfNeeded(
+                storeName = BrownfieldStore.STORE_NAME
+            ) {
+                BrownfieldStore(
+                    counter = 0.0,
+                    user = User(name = "Username")
+                )
+            }
         }
 
         setContent {
