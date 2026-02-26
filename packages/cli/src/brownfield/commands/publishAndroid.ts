@@ -30,7 +30,7 @@ export const publishAndroidCommand = curryOptions(
     });
 
     await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
-    runNavigationCodegenIfApplicable(projectRoot);
+    await runNavigationCodegenIfApplicable(projectRoot);
 
     await publishLocalAarAction({
       projectRoot,

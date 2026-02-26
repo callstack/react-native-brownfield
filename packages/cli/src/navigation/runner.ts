@@ -22,6 +22,7 @@ import {
   generateKotlinDelegate,
   generateKotlinModule,
 } from './generators/android.js';
+import { generateNavigationModels } from './generators/models.js';
 import type { GeneratedNavigationArtifacts } from './types.js';
 
 interface RunNavigationCodegenOptions {
@@ -38,9 +39,11 @@ interface NavigationOutputPaths {
   commonjsIndexDts: string;
   moduleIndexDts: string;
   swiftDelegate: string;
+  swiftModels: string;
   objcImplementation: string;
   kotlinDelegate: string;
   kotlinModule: string;
+  kotlinModels: string;
 }
 
 function getOutputPaths(
@@ -75,6 +78,7 @@ function getOutputPaths(
       'ios',
       'BrownfieldNavigationDelegate.swift'
     ),
+    swiftModels: path.join(packageRoot, 'ios', 'BrownfieldNavigationModels.swift'),
     objcImplementation: path.join(
       packageRoot,
       'ios',
@@ -97,6 +101,15 @@ function getOutputPaths(
       'java',
       ...androidPackagePathSegments,
       'NativeBrownfieldNavigationModule.kt'
+    ),
+    kotlinModels: path.join(
+      packageRoot,
+      'android',
+      'src',
+      'main',
+      'java',
+      ...androidPackagePathSegments,
+      'BrownfieldNavigationModels.kt'
     ),
   };
 }
@@ -126,6 +139,11 @@ function writeArtifacts(
   fs.writeFileSync(paths.swiftDelegate, artifacts.swiftDelegate);
   logger.success(`Generated ${paths.swiftDelegate}`);
 
+  if (artifacts.swiftModels) {
+    fs.writeFileSync(paths.swiftModels, artifacts.swiftModels);
+    logger.success(`Generated ${paths.swiftModels}`);
+  }
+
   fs.writeFileSync(paths.objcImplementation, artifacts.objcImplementation);
   logger.success(`Generated ${paths.objcImplementation}`);
 
@@ -134,6 +152,11 @@ function writeArtifacts(
 
   fs.writeFileSync(paths.kotlinModule, artifacts.kotlinModule);
   logger.success(`Generated ${paths.kotlinModule}`);
+
+  if (artifacts.kotlinModels) {
+    fs.writeFileSync(paths.kotlinModels, artifacts.kotlinModels);
+    logger.success(`Generated ${paths.kotlinModels}`);
+  }
 }
 
 function printDryRun(
@@ -152,6 +175,10 @@ function printDryRun(
   logger.log(artifacts.indexDts);
   logger.info('\n--- Generated: ios/BrownfieldNavigationDelegate.swift ---\n');
   logger.log(artifacts.swiftDelegate);
+  if (artifacts.swiftModels) {
+    logger.info('\n--- Generated: ios/BrownfieldNavigationModels.swift ---\n');
+    logger.log(artifacts.swiftModels);
+  }
   logger.info('\n--- Generated: ios/NativeBrownfieldNavigation.mm ---\n');
   logger.log(artifacts.objcImplementation);
   logger.info(
@@ -162,13 +189,19 @@ function printDryRun(
     `\n--- Generated: android/src/main/java/${androidJavaPackageName.replaceAll('.', '/')}/NativeBrownfieldNavigationModule.kt ---\n`
   );
   logger.log(artifacts.kotlinModule);
+  if (artifacts.kotlinModels) {
+    logger.info(
+      `\n--- Generated: android/src/main/java/${androidJavaPackageName.replaceAll('.', '/')}/BrownfieldNavigationModels.kt ---\n`
+    );
+    logger.log(artifacts.kotlinModels);
+  }
 }
 
-export function runNavigationCodegen({
+export async function runNavigationCodegen({
   specPath,
   dryRun = false,
   projectRoot = process.cwd(),
-}: RunNavigationCodegenOptions): void {
+}: RunNavigationCodegenOptions): Promise<void> {
   const resolvedSpecPath = resolveNavigationSpecPath(specPath, projectRoot);
   if (!fs.existsSync(resolvedSpecPath)) {
     throw new Error(`Spec file not found: ${resolvedSpecPath}`);
@@ -187,6 +220,11 @@ export function runNavigationCodegen({
   const packageRoot = getNavigationPackagePath(projectRoot);
   const androidJavaPackageName = DEFAULT_ANDROID_JAVA_PACKAGE;
   const indexTs = generateIndexTs(methods);
+  const models = await generateNavigationModels({
+    specPath: resolvedSpecPath,
+    methods,
+    kotlinPackageName: androidJavaPackageName,
+  });
 
   const artifacts: GeneratedNavigationArtifacts = {
     turboModuleSpec: generateTurboModuleSpec(methods),
@@ -198,6 +236,16 @@ export function runNavigationCodegen({
     kotlinDelegate: generateKotlinDelegate(methods, androidJavaPackageName),
     kotlinModule: generateKotlinModule(methods, androidJavaPackageName),
   };
+
+  if (models.modelTypeNames.length > 0) {
+    logger.info(
+      `Generating quicktype models for types: ${models.modelTypeNames.join(', ')}`
+    );
+    artifacts.swiftModels = models.swiftModels;
+    artifacts.kotlinModels = models.kotlinModels;
+  } else {
+    logger.info('No complex model types found; skipping quicktype model generation');
+  }
 
   if (dryRun) {
     printDryRun(androidJavaPackageName, artifacts);

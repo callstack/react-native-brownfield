@@ -18,7 +18,7 @@ export async function runNavigationCodegenCommand({
   dryRun = false,
 }: NavigationCodegenActionOptions): Promise<void> {
   intro('Running Brownfield Navigation codegen');
-  runNavigationCodegen({
+  await runNavigationCodegen({
     specPath,
     dryRun,
   });

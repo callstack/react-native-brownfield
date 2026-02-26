@@ -2,15 +2,15 @@ import { isNavigationInstalled } from '../config.js';
 import { isNavigationSpecPresent } from '../spec-discovery.js';
 import { runNavigationCodegen } from '../runner.js';
 
-export function runNavigationCodegenIfApplicable(
+export async function runNavigationCodegenIfApplicable(
   projectRoot: string,
   specPath?: string
-): { hasNavigation: boolean; hasSpec: boolean } {
+): Promise<{ hasNavigation: boolean; hasSpec: boolean }> {
   const hasNavigation = isNavigationInstalled(projectRoot);
   const hasSpec = hasNavigation && isNavigationSpecPresent(specPath, projectRoot);
 
   if (hasSpec) {
-    runNavigationCodegen({ specPath, projectRoot });
+    await runNavigationCodegen({ specPath, projectRoot });
   }
 
   return { hasNavigation, hasSpec };

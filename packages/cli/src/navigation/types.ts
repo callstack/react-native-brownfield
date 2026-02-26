@@ -20,4 +20,6 @@ export interface GeneratedNavigationArtifacts {
   objcImplementation: string;
   kotlinDelegate: string;
   kotlinModule: string;
+  swiftModels?: string;
+  kotlinModels?: string;
 }

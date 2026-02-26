@@ -77,7 +77,7 @@ export const packageIosCommand = curryOptions(
       projectRoot,
       'swift'
     );
-    runNavigationCodegenIfApplicable(projectRoot);
+    await runNavigationCodegenIfApplicable(projectRoot);
 
     await packageIosAction(
       options,

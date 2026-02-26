@@ -32,7 +32,7 @@ export const packageAndroidCommand = curryOptions(
     });
 
     await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
-    runNavigationCodegenIfApplicable(projectRoot);
+    await runNavigationCodegenIfApplicable(projectRoot);
 
     await packageAarAction({
       projectRoot,

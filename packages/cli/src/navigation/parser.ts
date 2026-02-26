@@ -1,55 +1,43 @@
 import fs from 'node:fs';
+import { Project } from 'ts-morph';
 
 import type { MethodParam, MethodSignature } from './types.js';
 
 export function parseNavigationSpec(specPath: string): MethodSignature[] {
-  const content = fs.readFileSync(specPath, 'utf-8');
+  if (!fs.existsSync(specPath)) {
+    throw new Error(`Spec file not found: ${specPath}`);
+  }
 
-  const interfaceMatch = content.match(
-    /export interface (?:BrownfieldNavigationSpec|Spec)\s*\{([^}]+)\}/s
-  );
+  const project = new Project({ skipAddingFilesFromTsConfig: true });
+  const sourceFile = project.addSourceFileAtPath(specPath);
+  const specInterface =
+    sourceFile.getInterface('BrownfieldNavigationSpec') ??
+    sourceFile.getInterface('Spec');
 
-  if (!interfaceMatch?.[1]) {
+  if (!specInterface) {
     throw new Error(
       'Could not find BrownfieldNavigationSpec or Spec interface in spec file'
     );
   }
 
-  const methods: MethodSignature[] = [];
-  const methodRegex = /(\w+)\s*\(([^)]*)\)\s*:\s*(Promise<[^>]+>|[^;]+)\s*;/g;
+  return specInterface.getMethods().map((method): MethodSignature => {
+    const name = method.getName();
+    const params: MethodParam[] = method.getParameters().map((param) => {
+      const typeNode = param.getTypeNode();
+      return {
+        name: param.getName(),
+        type: typeNode?.getText() ?? 'unknown',
+        optional: param.isOptional(),
+      };
+    });
+    const returnTypeNode = method.getReturnTypeNode();
+    const returnType = returnTypeNode?.getText() ?? 'void';
 
-  let match: RegExpExecArray | null;
-  while ((match = methodRegex.exec(interfaceMatch[1])) !== null) {
-    const name = match[1];
-    const paramsStr = match[2];
-    const returnType = match[3];
-
-    if (!name || !returnType) {
-      continue;
-    }
-
-    const params: MethodParam[] = [];
-    if (paramsStr?.trim()) {
-      const paramParts = paramsStr.split(',');
-      for (const param of paramParts) {
-        const paramMatch = param.trim().match(/(\w+)(\?)?:\s*(.+)/);
-        if (paramMatch?.[1] && paramMatch[3]) {
-          params.push({
-            name: paramMatch[1],
-            type: paramMatch[3].trim(),
-            optional: Boolean(paramMatch[2]),
-          });
-        }
-      }
-    }
-
-    methods.push({
+    return {
       name,
       params,
-      returnType: returnType.trim(),
-      isAsync: returnType.trim().startsWith('Promise<'),
-    });
-  }
-
-  return methods;
+      returnType,
+      isAsync: returnType.startsWith('Promise<'),
+    };
+  });
 }
