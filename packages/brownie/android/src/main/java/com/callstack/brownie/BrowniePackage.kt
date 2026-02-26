@@ -6,7 +6,9 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 
-
+/**
+ * React Native package that registers the Brownie TurboModule.
+ */
 class BrowniePackage : BaseReactPackage() {
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
     return if (name == BrownieModule.NAME) {
