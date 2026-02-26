@@ -7,6 +7,8 @@ This guide walks you through setting up Brownie from scratch and then integratin
 Before starting, ensure you have:
 
 - Completed the [React Native Brownfield Quick Start](/docs/getting-started/quick-start) guide
+- Completed the [iOS Integration](/docs/getting-started/ios) guide
+- Completed the [Android Integration](/docs/getting-started/android) guide
 - React Native project with `@callstack/react-native-brownfield` installed
 - Native host app (iOS and/or Android)
 - Xcode 15+ (for iOS)
@@ -146,9 +148,9 @@ struct CounterView: View {
 
 ## Android
 
-### Step 4: Add GSON
+### Step 4: Add gson dependency
 
-Add the GSON dependency to your android module for brownfield:
+Add the gson dependency to your android module for brownfield:
 
 ```kts
 api("com.google.code.gson:gson:2.13.1")
