@@ -55,7 +55,11 @@ class BrownieModule(reactContext: ReactApplicationContext) :
     didInstallJSI.set(true)
   }
 
+  companion object {
+    const val NAME = "Brownie"
+  }
+
   override fun getName(): String {
-    return "Brownie"
+    return NAME
   }
 }
