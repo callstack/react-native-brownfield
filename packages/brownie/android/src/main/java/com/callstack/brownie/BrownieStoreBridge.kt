@@ -4,16 +4,10 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 object BrownieStoreBridge {
-  private var legacyStoreDidChangeListener: ((String) -> Unit)? = null
   private val storeDidChangeListeners = ConcurrentHashMap<String, (String) -> Unit>()
 
   init {
     System.loadLibrary("brownie")
-  }
-
-  @Synchronized
-  fun setStoreDidChangeListener(listener: ((String) -> Unit)?) {
-    legacyStoreDidChangeListener = listener
   }
 
   fun addStoreDidChangeListener(listener: (String) -> Unit): String {
@@ -56,7 +50,6 @@ object BrownieStoreBridge {
 
   @JvmStatic
   private fun onStoreDidChange(storeKey: String) {
-    legacyStoreDidChangeListener?.invoke(storeKey)
     storeDidChangeListeners.values.forEach { listener ->
       listener.invoke(storeKey)
     }

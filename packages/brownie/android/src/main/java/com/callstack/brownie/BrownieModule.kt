@@ -10,6 +10,7 @@ class BrownieModule(reactContext: ReactApplicationContext) :
   NativeBrownieModuleSpec(reactContext) {
   private val mainHandler = Handler(Looper.getMainLooper())
   private val didInstallJSI = AtomicBoolean(false)
+  private var storeDidChangeListenerId: String? = null
 
   private val storeDidChangeListener: (String) -> Unit = { storeKey ->
     val eventPayload =
@@ -27,7 +28,7 @@ class BrownieModule(reactContext: ReactApplicationContext) :
   }
 
   init {
-    BrownieStoreBridge.setStoreDidChangeListener(storeDidChangeListener)
+    storeDidChangeListenerId = BrownieStoreBridge.addStoreDidChangeListener(storeDidChangeListener)
   }
 
   override fun initialize() {
@@ -36,7 +37,8 @@ class BrownieModule(reactContext: ReactApplicationContext) :
   }
 
   override fun invalidate() {
-    BrownieStoreBridge.setStoreDidChangeListener(null)
+    storeDidChangeListenerId?.let(BrownieStoreBridge::removeStoreDidChangeListener)
+    storeDidChangeListenerId = null
     StoreManager.shared.clear()
     super.invalidate()
   }
