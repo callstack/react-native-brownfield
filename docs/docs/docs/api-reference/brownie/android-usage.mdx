@@ -1,0 +1,134 @@
+# Android Usage
+
+Use stores in Android apps with Kotlin.
+
+This page shows the recommended path first, then advanced customization APIs.
+
+## Easy Path (Recommended)
+
+Use generated Kotlin types with the built-in Gson serializer.
+
+### 1. Register Store Once
+
+Register your store during app startup (for example in `Activity.onCreate` when `savedInstanceState == null`):
+
+```kotlin
+import com.callstack.brownie.registerStoreIfNeeded
+import com.callstack.rnapp.brownfieldlib.BrownfieldStore
+import com.callstack.rnapp.brownfieldlib.User
+
+registerStoreIfNeeded(
+  storeName = BrownfieldStore.STORE_NAME
+) {
+  BrownfieldStore(
+    counter = 0.0,
+    user = User(name = "Username")
+  )
+}
+```
+
+`registerStoreIfNeeded` returns `null` when the same key is already registered, which keeps registration idempotent across lifecycle re-entries.
+
+### 2. Retrieve the Typed Store
+
+```kotlin
+import com.callstack.brownie.Store
+import com.callstack.brownie.StoreManager
+import com.callstack.brownie.store
+import com.callstack.rnapp.brownfieldlib.BrownfieldStore
+
+val store: Store<BrownfieldStore>? = StoreManager.shared.store(BrownfieldStore.STORE_NAME)
+```
+
+### 3. Read, Update, and Subscribe
+
+```kotlin
+// Read current state
+val current = store?.state
+
+// Update whole state with copy()
+store?.set { state ->
+  state.copy(counter = state.counter + 1)
+}
+
+// Subscribe to full state changes
+val unsubscribe = store?.subscribe { newState ->
+  println("Counter: ${newState.counter}")
+}
+
+// Subscribe to a selected slice only
+val unsubscribeCounter = store?.subscribe(
+  selector = { state -> state.counter.toInt() },
+  onChange = { counter -> println("Counter: $counter") }
+)
+
+// Cleanup subscription
+unsubscribe?.invoke()
+unsubscribeCounter?.invoke()
+```
+
+## Advanced Path (Custom Serialization)
+
+Use this when default Gson serialization is not enough (custom formats, compatibility rules, encrypted payloads, etc.).
+
+### Option A: Custom Serializer Interface
+
+```kotlin
+import com.callstack.brownie.BrownieStoreSerializer
+import com.callstack.brownie.brownieStoreDefinition
+import com.callstack.brownie.register
+
+data class SessionState(val token: String, val expiresAt: Long)
+
+object SessionSerializer : BrownieStoreSerializer<SessionState> {
+  override fun encode(state: SessionState): String {
+    // Replace with your own format
+    return """{"token":"${state.token}","expiresAt":${state.expiresAt}}"""
+  }
+
+  override fun decode(snapshotJson: String): SessionState {
+    // Replace with your own parser
+    TODO("Decode snapshotJson into SessionState")
+  }
+}
+
+val sessionStore = brownieStoreDefinition(
+  storeName = "SessionStore",
+  serializer = SessionSerializer
+).register(
+  initialState = SessionState(token = "", expiresAt = 0L)
+)
+```
+
+### Option B: Encode/Decode Lambdas
+
+```kotlin
+import com.callstack.brownie.brownieStoreDefinition
+import com.callstack.brownie.register
+
+data class SessionState(val token: String, val expiresAt: Long)
+
+val sessionStore = brownieStoreDefinition(
+  storeName = "SessionStore",
+  encode = { state ->
+    """{"token":"${state.token}","expiresAt":${state.expiresAt}}"""
+  },
+  decode = { snapshotJson ->
+    // Replace with your own parser
+    TODO("Decode snapshotJson into SessionState")
+  }
+).register(
+  initialState = SessionState(token = "", expiresAt = 0L)
+)
+```
+
+Both advanced options produce the same `Store<State>` API as the easy path.
+
+## API Summary
+
+- `registerStoreIfNeeded(storeName, initialState)` - Easy one-time registration.
+- `registerStore(storeName, initialState)` - Always creates/registers store.
+- `brownieStoreDefinition(...)` - Store definition API (default or custom serializer).
+- `StoreManager.shared.store<T>(key)` - Retrieve typed store by key.
+- `Store.set { ... }` - Update full typed state.
+- `Store.subscribe { ... }` and selector `subscribe(...)` - Observe state changes.

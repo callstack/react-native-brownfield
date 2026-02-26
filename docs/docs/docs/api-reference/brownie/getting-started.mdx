@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide walks you through setting up Brownie from scratch - defining stores, generating native types, building XCFrameworks, and using shared state in both React Native and Swift.
+This guide walks you through setting up Brownie from scratch and then integrating it per platform.
 
 ## Prerequisites
 
@@ -8,18 +8,21 @@ Before starting, ensure you have:
 
 - Completed the [React Native Brownfield Quick Start](/docs/getting-started/quick-start) guide
 - React Native project with `@callstack/react-native-brownfield` installed
-- Native iOS app (SwiftUI or UIKit)
-- Xcode 15+
+- Native host app (iOS and/or Android)
+- Xcode 15+ (for iOS)
+- Android Studio (for Android)
 
-## Step 1: Install Brownie
+## Shared Setup
 
-In your React Native project:
+### Step 1: Install Brownie
+
+In your React Native app:
 
 ```bash
 npm install @callstack/brownie
 ```
 
-## Step 2: Define Your Store
+### Step 2: Define Your Store
 
 Create a store definition file with the `.brownie.ts` extension:
 
@@ -45,7 +48,7 @@ Import the store in your app entry point:
 import './stores/AppStore.brownie';
 ```
 
-## Step 3: Use the Store in React Native
+### Step 3: Use the Store in React Native
 
 ```tsx
 import { useStore } from '@callstack/brownie';
@@ -65,15 +68,17 @@ function Counter() {
 }
 ```
 
-## Step 4: Build XCFrameworks
+## iOS
 
-The CLI generates native types and builds everything into XCFrameworks:
+### Step 4: Build XCFrameworks
+
+The CLI generates Swift types and builds iOS artifacts:
 
 ```bash
 npx brownfield package:ios --scheme YourScheme --configuration Release
 ```
 
-This produces the following in `ios/.brownfield/package/`:
+This produces files in `ios/.brownfield/package/`:
 
 - `YourScheme.xcframework` - Your React Native module
 - `Brownie.xcframework` - Shared state library
@@ -84,13 +89,13 @@ This produces the following in `ios/.brownfield/package/`:
 The `package:ios` command automatically runs `brownfield codegen` to generate Swift types from your `.brownie.ts` files.
 :::
 
-## Step 5: Add Frameworks to Native App
+### Step 5: Add Frameworks to Native App
 
 1. Open your native Xcode project
 2. Drag all XCFrameworks from `ios/.brownfield/package/` into your project
 3. In target settings → **General** → **Frameworks, Libraries, and Embedded Content**, set all to **Embed & Sign**
 
-## Step 6: Register Store in Swift
+### Step 6: Register Store in Swift
 
 In your app's entry point, register the store with initial state:
 
@@ -119,7 +124,7 @@ struct MyApp: App {
 }
 ```
 
-## Step 7: Use the Store in SwiftUI
+### Step 7: Use the Store in SwiftUI
 
 ```swift
 import Brownie
@@ -139,13 +144,87 @@ struct CounterView: View {
 }
 ```
 
+## Android
+
+### Step 4: Add GSON
+
+Add the GSON dependency to your android module for brownfield:
+
+```kts
+api("com.google.code.gson:gson:2.13.1")
+```
+
+Otherwise, you can also add it to your native App:
+
+```kts
+implementation("com.google.code.gson:gson:2.13.1")
+```
+
+### Step 5: Add AAR
+
+The CLI generates Kotlin types and builds AAR:
+
+```bash
+npx brownfield package:android --module-name :YourModuleName --variant release
+```
+
+Once it succeeds, publish the AAR to local maven:
+
+```bash
+npx brownfield publish:android --module-name :YourModuleName
+```
+
+:::info
+The `package:android` command automatically runs `brownfield codegen` to generate Kotlin types from your `.brownie.ts` files.
+:::
+
+### Step 6: Register Store in Android
+
+Register once during app startup:
+
+```kotlin
+import com.callstack.brownie.registerStoreIfNeeded
+import com.rnapp.brownfieldlib.AppStore
+
+registerStoreIfNeeded(
+  storeName = AppStore.STORE_NAME
+) {
+  AppStore(counter = 0.0)
+}
+```
+
+### Step 7: Read and Update Store from Native UI
+
+```kotlin
+import com.callstack.brownie.StoreManager
+import com.callstack.brownie.store
+import com.rnapp.brownfieldlib.AppStore
+
+val store = StoreManager.shared.store<AppStore>(AppStore.STORE_NAME)
+
+// Read
+val counter = store?.state?.counter ?: 0.0
+
+// Update
+store?.set { state ->
+  state.copy(counter = state.counter + 1)
+}
+
+// Observe
+val unsubscribe = store?.subscribe(
+  selector = { state -> state.counter.toInt() },
+  onChange = { updated -> println("Counter: $updated") }
+)
+```
+
 ## Done!
 
-State changes now sync automatically between React Native and Swift. Increment from either side and both update immediately.
+State changes now sync automatically between React Native and native host code on both platforms.
 
 ## Next Steps
 
 - [Defining Stores](/docs/api-reference/brownie/store-definition) - Nested objects and multiple stores
 - [TypeScript Usage](/docs/api-reference/brownie/typescript-usage) - Advanced React Native patterns
 - [Swift Usage](/docs/api-reference/brownie/swift-usage) - UIKit integration and API reference
+- [Android Usage](/docs/api-reference/brownie/android-usage) - Kotlin setup, easy path, and advanced serializers
 - [XCFramework Packaging](/docs/api-reference/brownie/xcframework-packaging) - SPM distribution and advanced options
