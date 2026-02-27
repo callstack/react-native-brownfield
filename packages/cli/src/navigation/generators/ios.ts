@@ -164,7 +164,6 @@ function generateAsyncObjCMethod(method: MethodSignature): string {
     .join(' ');
 
   return `${signature} {
-    // TODO: Implement async call to delegate
     reject(@"not_implemented", @"${name} is not implemented", nil);
 }`;
 }

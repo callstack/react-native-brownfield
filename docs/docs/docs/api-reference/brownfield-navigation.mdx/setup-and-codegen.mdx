@@ -40,6 +40,8 @@ export interface BrownfieldNavigationSpec {
 
 :::info
 Prefer simple synchronous navigation methods (`void`).
+<br/>
+Async Promise-based methods are not currently supported by the generated native code on iOS and Android — they will compile, but the generated implementations will reject with a `not_implemented` error.
 :::
 
 ## 2) Add a codegen script
