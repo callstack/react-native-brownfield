@@ -118,8 +118,8 @@ export async function runCodegen({ platform }: RunCodegenOptions) {
       if (platform) {
         platforms = [platform];
       } else {
-        // Only generate Swift by default (Kotlin not yet released)
-        platforms = ['swift'];
+        // Generate both Swift and Kotlin by default
+        platforms = ['swift', 'kotlin'];
       }
 
       await generateForStore(store, config, platforms, isMultipleStores);
