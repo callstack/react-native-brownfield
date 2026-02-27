@@ -31,8 +31,6 @@ import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
-import com.rnapp.brownfieldlib.BrownfieldStore
-import com.rnapp.brownfieldlib.User
 
 private fun brownieStore(): Store<BrownfieldStore>? {
     return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
