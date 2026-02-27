@@ -17,10 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.callstack.brownfield.android.example.BrownfieldStore
 import com.callstack.brownie.Store
 import com.callstack.brownie.StoreManager
 import com.callstack.brownie.store
-import com.rnapp.brownfieldlib.BrownfieldStore
 import com.callstack.brownie.subscribe
 
 private fun brownieStore(): Store<BrownfieldStore>? {

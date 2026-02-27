@@ -29,8 +29,6 @@ import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppThe
 import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
-import com.rnapp.brownfieldlib.BrownfieldStore
-import com.rnapp.brownfieldlib.User
 
 class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
