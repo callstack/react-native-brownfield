@@ -55,6 +55,12 @@ android {
     prefab true
   }
 
+  packaging {
+    jniLibs {
+      excludes += ["**/libc++_shared.so"]
+    }
+  }
+
   buildTypes {
     release {
       minifyEnabled false
