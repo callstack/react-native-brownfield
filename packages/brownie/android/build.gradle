@@ -41,6 +41,7 @@ android {
   defaultConfig {
     minSdkVersion getExtOrDefault("minSdkVersion")
     targetSdkVersion getExtOrDefault("targetSdkVersion")
+    consumerProguardFiles "consumer-rules.pro"
 
     externalNativeBuild {
       cmake {
