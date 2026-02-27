@@ -20,6 +20,10 @@ runs:
       run: yarn install
       shell: bash
 
+    - name: Build packages
+      run: yarn build
+      shell: bash
+
     - name: Restore Turbo cache
       if: inputs.restore-turbo-cache == 'true'
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5

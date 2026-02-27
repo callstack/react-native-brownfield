@@ -23,6 +23,7 @@ import {
   ExampleUsage,
 } from '../../shared/index.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
+import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 
 export const packageIosCommand = curryOptions(
@@ -76,6 +77,7 @@ export const packageIosCommand = curryOptions(
       projectRoot,
       'swift'
     );
+    const { hasNavigation } = await runNavigationCodegenIfApplicable(projectRoot);
 
     await packageIosAction(
       options,
@@ -116,13 +118,44 @@ export const packageIosCommand = curryOptions(
         outputPath: brownieOutputPath,
       });
 
-      // Strip the binary from Brownie.xcframework to make it interface-only.
+      // Strip the binary from Browniexcframework to make it interface-only.
       // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
       // (which contains Brownie symbols) and Brownie.xcframework.
       stripFrameworkBinary(brownieOutputPath);
 
       logger.success(
         `Brownie.xcframework created at ${colorLink(relativeToCwd(brownieOutputPath))}`
+      );
+    }
+
+    if (hasNavigation) {
+      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
+      const brownfieldNavigationOutputPath = path.join(packageDir, 'BrownfieldNavigation.xcframework');
+  
+      await mergeFrameworks({
+        sourceDir: userConfig.project.ios.sourceDir,
+        frameworkPaths: [
+          path.join(
+            productsPath,
+            `${configuration}-iphoneos`,
+            'BrownfieldNavigation',
+            'BrownfieldNavigation.framework'
+          ),
+          path.join(
+            productsPath,
+            `${configuration}-iphonesimulator`,
+            'BrownfieldNavigation',
+            'BrownfieldNavigation.framework'
+          ),
+        ],
+        outputPath: brownfieldNavigationOutputPath,
+      });
+  
+  
+      stripFrameworkBinary(brownfieldNavigationOutputPath);
+  
+      logger.success(
+        `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
       );
     }
   })

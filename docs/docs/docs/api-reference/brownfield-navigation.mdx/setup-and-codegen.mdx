@@ -1,0 +1,91 @@
+# Setup and Codegen
+
+This guide covers the required setup to define your navigation contract and generate bridge files for `@callstack/brownfield-navigation`.
+
+## Prerequisites
+
+Before you start:
+
+- Your React Native app has `@callstack/brownfield-navigation` installed.
+- Your app has Babel dependencies available (`@babel/core`, `@react-native/babel-preset`), which are used during codegen.
+- You know where your app root is (the folder containing your app `package.json`).
+
+## 1) Create `brownfield.navigation.ts`
+
+Create a new file named `brownfield.navigation.ts` in your React Native app root.
+
+Example:
+
+```ts
+// brownfield.navigation.ts
+export interface BrownfieldNavigationSpec {
+  /**
+   * Navigate to a native Settings screen.
+   */
+  navigateToSettings(): void;
+
+  /**
+   * Navigate to a native Referrals screen.
+   */
+  navigateToReferrals(userId: string): void;
+}
+```
+
+### Supported method signatures
+
+- Method name: any valid TypeScript identifier.
+- Params: typed and optional params are supported (for example `userId?: string`).
+- Return type: `void` is the common and recommended type for navigation actions.
+- Interface name: `BrownfieldNavigationSpec` (or `Spec`) is supported by the parser.
+
+:::info
+Prefer simple synchronous navigation methods (`void`).
+<br/>
+Async Promise-based methods are not currently supported by the generated native code on iOS and Android — they will compile, but the generated implementations will reject with a `not_implemented` error.
+:::
+
+## 2) Add a codegen script
+
+Add a script to your app `package.json`:
+
+```json
+{
+  "scripts": {
+    "brownfield:navigation-codegen": "brownfield navigation:codegen"
+  }
+}
+```
+
+## 3) Run codegen
+
+From your app root:
+
+```bash
+yarn brownfield:navigation-codegen
+```
+
+## 4) What gets generated
+
+Codegen updates `@callstack/brownfield-navigation` with your contract:
+
+- `src/NativeBrownfieldNavigation.ts` (TurboModule spec)
+- `src/index.ts` (JavaScript API surface)
+- `ios/BrownfieldNavigationDelegate.swift` (delegate protocol)
+- `ios/NativeBrownfieldNavigation.mm` (native module implementation)
+- Android delegate/module files under:
+  `android/src/main/java/com/callstack/nativebrownfieldnavigation/`
+
+## 5) Regenerate when contract changes
+
+Any time you add, remove, or rename methods in `brownfield.navigation.ts`, rerun:
+
+```bash
+yarn brownfield:navigation-codegen
+```
+
+Then recompile native apps.
+
+## Next
+
+- Continue with [Native Integration](/docs/api-reference/brownfield-navigation.mdx/native-integration)
+- Then wire JS calls from [JavaScript Usage](/docs/api-reference/brownfield-navigation.mdx/javascript-usage)

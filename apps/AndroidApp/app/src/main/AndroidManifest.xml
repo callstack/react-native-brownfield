@@ -14,6 +14,14 @@
         android:theme="@style/Theme.AndroidBrownfieldApp"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ReferralsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AndroidBrownfieldApp" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AndroidBrownfieldApp" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AndroidBrownfieldApp">

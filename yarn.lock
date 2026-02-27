@@ -2255,6 +2255,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-expo-app@workspace:apps/ExpoApp"
   dependencies:
+    "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@expo/vector-icons": "npm:^15.0.3"
@@ -2299,6 +2300,7 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@react-native-community/cli": "npm:20.0.0"
@@ -2354,6 +2356,33 @@ __metadata:
     quicktype-typescript-input: "npm:^23.2.6"
     turbo: "npm:^2.7.4"
     typescript: "npm:5.9.3"
+  languageName: unknown
+  linkType: soft
+
+"@callstack/brownfield-navigation@workspace:^, @callstack/brownfield-navigation@workspace:packages/brownfield-navigation":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-navigation@workspace:packages/brownfield-navigation"
+  dependencies:
+    "@babel/core": "npm:^7.25.2"
+    "@babel/preset-env": "npm:^7.25.3"
+    "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-cli": "workspace:^"
+    "@react-native/babel-preset": "npm:0.82.1"
+    "@types/jest": "npm:^30.0.0"
+    "@types/react": "npm:^19.1.1"
+    eslint: "npm:^9.28.0"
+    globals: "npm:^16.2.0"
+    import: "npm:^0.0.6"
+    nodemon: "npm:^3.1.11"
+    react: "npm:19.1.1"
+    react-native: "npm:0.82.1"
+    react-native-builder-bob: "npm:^0.40.17"
+    typescript: "npm:5.9.3"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  bin:
+    brownfield: lib/commonjs/scripts/brownfield.js
   languageName: unknown
   linkType: soft
 
