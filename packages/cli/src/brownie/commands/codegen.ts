@@ -142,8 +142,8 @@ export const codegenCommand = new Command('codegen')
   .addOption(
     new Option(
       '-p, --platform <platform>',
-      'Generate for specific platform (swift)'
-    ).choices(['swift'])
+      'Generate for specific platform (swift|kotlin)'
+    ).choices(['swift', 'kotlin'])
   )
   .action(
     actionRunner(async (options: RunCodegenOptions) => {
