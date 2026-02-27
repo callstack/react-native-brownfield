@@ -45,7 +45,10 @@ class Store<State>(
   }
 
   /**
-   * Updates state with [updater], pushes it to C++, then notifies local subscribers.
+   * Updates state with [updater] and pushes it to C++.
+   *
+   * Listener notification is triggered via the native storeDidChange callback and [rebuildState]
+   * to keep Kotlin updates consistent with cross-runtime updates.
    */
   fun set(updater: (State) -> State) {
     val newState =
@@ -55,7 +58,6 @@ class Store<State>(
       }
 
     pushStateToCxx(newState)
-    notifyListeners(newState)
   }
 
   /**
