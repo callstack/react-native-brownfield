@@ -26,6 +26,7 @@ import androidx.fragment.compose.AndroidFragment
 import com.callstack.brownfield.android.example.components.GreetingCard
 import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
+import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 
@@ -47,6 +48,15 @@ class MainActivity : AppCompatActivity() {
                     "React Native has been loaded",
                     Toast.LENGTH_LONG
                 ).show()
+            }
+
+            registerStoreIfNeeded(
+                storeName = BrownfieldStore.STORE_NAME
+            ) {
+                BrownfieldStore(
+                    counter = 0.0,
+                    user = User(name = "Username")
+                )
             }
         }
 

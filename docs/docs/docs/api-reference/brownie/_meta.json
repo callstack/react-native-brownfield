@@ -26,6 +26,11 @@
   },
   {
     "type": "file",
+    "name": "android-usage",
+    "label": "Android Usage"
+  },
+  {
+    "type": "file",
     "name": "swift-usage",
     "label": "Swift Usage"
   },

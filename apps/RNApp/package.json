@@ -45,6 +45,10 @@
     "react-test-renderer": "19.1.1",
     "typescript": "^5.9.3"
   },
+  "brownie": {
+    "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
+    "kotlinPackageName": "com.rnapp.brownfieldlib"
+  },
   "engines": {
     "node": ">=20"
   }
