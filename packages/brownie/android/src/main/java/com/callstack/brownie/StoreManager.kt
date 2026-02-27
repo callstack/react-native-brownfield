@@ -27,6 +27,24 @@ class StoreManager private constructor() {
   }
 
   /**
+   * Registers a new store only when [key] is currently absent.
+   *
+   * Returns the created store when registration succeeds, otherwise `null`.
+   * The check and registration are atomic under [lock].
+   */
+  fun <State> registerIfAbsent(key: String, createStore: () -> Store<State>): Store<State>? {
+    return lock.withLock {
+      if (stores.containsKey(key)) {
+        return@withLock null
+      }
+
+      val store = createStore()
+      stores[key] = store
+      store
+    }
+  }
+
+  /**
    * Retrieves a typed store by key when the runtime state type matches [clazz].
    */
   fun <State> store(key: String, clazz: Class<State>): Store<State>? {
