@@ -148,7 +148,18 @@ struct CounterView: View {
 
 ## Android
 
-### Step 4: Add gson dependency
+### Step 4: Add brownie configuration
+
+Add the following block to your package.json:
+
+```json
+"brownie": {
+  "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
+  "kotlinPackageName": "com.rnapp.brownfieldlib"
+},
+```
+
+### Step 5: Add gson dependency
 
 Add the gson dependency to your android module for brownfield:
 
@@ -162,7 +173,7 @@ Otherwise, you can also add it to your native App:
 implementation("com.google.code.gson:gson:2.13.1")
 ```
 
-### Step 5: Add AAR
+### Step 6: Add AAR
 
 The CLI generates Kotlin types and builds AAR:
 
@@ -180,7 +191,7 @@ npx brownfield publish:android --module-name :YourModuleName
 The `package:android` command automatically runs `brownfield codegen` to generate Kotlin types from your `.brownie.ts` files.
 :::
 
-### Step 6: Register Store in Android
+### Step 7: Register Store in Android
 
 Register once during app startup:
 
@@ -195,7 +206,7 @@ registerStoreIfNeeded(
 }
 ```
 
-### Step 7: Read and Update Store from Native UI
+### Step 8: Read and Update Store from Native UI
 
 ```kotlin
 import com.callstack.brownie.StoreManager

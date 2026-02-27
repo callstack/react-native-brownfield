@@ -7,7 +7,7 @@
     "ios": "react-native run-ios",
     "build:example:android-rn": "react-native build-android",
     "build:example:ios-rn": "react-native build-ios",
-    "brownfield:package:android": "brownfield package:android --module-name :BrownfieldLib --variant debug",
+    "brownfield:package:android": "brownfield package:android --module-name :BrownfieldLib --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name :BrownfieldLib",
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release",
     "lint": "eslint .",
@@ -44,6 +44,10 @@
     "react-native-monorepo-config": "^0.3.2",
     "react-test-renderer": "19.1.1",
     "typescript": "^5.9.3"
+  },
+  "brownie": {
+    "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
+    "kotlinPackageName": "com.rnapp.brownfieldlib"
   },
   "engines": {
     "node": ">=20"
