@@ -1,8 +1,5 @@
 package com.callstack.brownie
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicBoolean
-
 /**
  * Registers a new [Store] instance from this definition and the provided initial state.
  */
@@ -27,26 +24,17 @@ inline fun <reified State : Any> registerStore(
   initialState: State,
 ): Store<State> = registerStore(storeName, initialState, State::class.java)
 
-private object BrownieStoreRegistrationTracker {
-  private val didRegisterByKey = ConcurrentHashMap<String, AtomicBoolean>()
-
-  /**
-   * Returns true only for the first registration attempt of a given store key.
-   */
-  fun markRegistered(key: String): Boolean {
-    val registrationFlag = didRegisterByKey.getOrPut(key) { AtomicBoolean(false) }
-    return registrationFlag.compareAndSet(false, true)
-  }
-}
-
 /**
  * Registers once per store name and returns null when the store was already registered.
+ *
+ * Idempotency is based on whether a store with this [storeName] currently exists
+ * in [StoreManager], so clearing or removing a store allows registration again
+ * within the same process.
  */
 fun <State> BrownieStoreDefinition<State>.registerIfNeeded(initialState: () -> State): Store<State>? {
-  if (!BrownieStoreRegistrationTracker.markRegistered(storeName)) {
-    return null
+  return StoreManager.shared.registerIfAbsent(storeName) {
+    register(initialState())
   }
-  return register(initialState())
 }
 
 /**
