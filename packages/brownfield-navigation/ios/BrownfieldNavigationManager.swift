@@ -13,6 +13,9 @@ public class BrownfieldNavigationManager: NSObject {
   }
   
   @objc public func getDelegate() -> BrownfieldNavigationDelegate {
-    return self.navigationDelegate!
+    guard let delegate = navigationDelegate else {
+      fatalError("BrownfieldNavigationDelegate not set. Call setDelegate() before using navigation.")
+    }
+    return delegate
   }
 }
