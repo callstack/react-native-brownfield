@@ -22,6 +22,9 @@ class StoreManager private constructor() {
    */
   fun <State> register(store: Store<State>, key: String) {
     lock.withLock {
+      check(!stores.containsKey(key)) {
+        "Store with key '$key' is already registered. Remove the previous store first using Store.close() or StoreManager.removeStore(key)"
+      }
       stores[key] = store
     }
   }
