@@ -78,19 +78,8 @@ struct BrownfieldAppleApp: App {
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
         }
-        
-//        let mgr = ReactBrownfield.BrownfieldNavigationManager.shared
-//        print("SWIFT mgr:", Unmanaged.passUnretained(mgr).toOpaque())
-//        print("SWIFT class:", NSStringFromClass(type(of: mgr)))
-//        print("SWIFT bundle:", Bundle(for: ReactBrownfield.BrownfieldNavigationManager.self).bundlePath)
-//        ReactBrownfield.BrownfieldNavigationManager.shared.setDelegate(navigationDelegate: RNNavigationDelegate())
-        
-        let mgr = BrownfieldNavigationManager.shared
-        print("11 SWIFT mgr:", Unmanaged.passUnretained(mgr).toOpaque())
-        print("11 SWIFT class:", NSStringFromClass(type(of: mgr)))
-        print("11 SWIFT bundle:", Bundle(for: BrownfieldNavigationManager.self).bundlePath)
-        
-        mgr.setDelegate(
+
+        BrownfieldNavigationManager.shared.setDelegate(
             navigationDelegate: RNNavigationDelegate()
         )
 

@@ -118,9 +118,6 @@ export const packageIosCommand = curryOptions(
         outputPath: brownieOutputPath,
       });
 
-      // Strip the binary from Brownie.xcframework to make it interface-only.
-      // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
-      // (which contains Brownie symbols) and Brownie.xcframework.
       stripFrameworkBinary(brownieOutputPath);
 
       logger.success(
