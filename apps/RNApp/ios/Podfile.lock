@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BrownfieldNavigation (1.0.0):
+  - BrownfieldNavigation (3.0.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2803,7 +2803,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  BrownfieldNavigation: 3141ebc18a1dbeb374fff7ae12b2f5d9d1272f2f
+  BrownfieldNavigation: 12a34a451661d8f685beebab19d4ba7b43efc409
   Brownie: 981350e32e072e5b55b624eb8810ba9bbc9683d9
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6

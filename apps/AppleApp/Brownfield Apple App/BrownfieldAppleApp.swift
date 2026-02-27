@@ -25,7 +25,7 @@ public class RNNavigationDelegate: BrownfieldNavigationDelegate {
         present(SettingsScreen())
     }
 
-    public func navigateToReferrals(userId: String) {
+    public func navigateToReferrals(_ userId: String) {
         present(ReferralsScreen(userId: userId))
     }
 

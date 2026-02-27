@@ -50,9 +50,10 @@ export function generateSwiftDelegate(methods: MethodSignature[]): string {
   const protocolMethods = methods
     .map((method) => {
       const params = method.params
-        .map((param) => {
+        .map((param, index) => {
           const swiftType = mapTsTypeToSwift(param.type, param.optional);
-          return `${param.name}: ${swiftType}`;
+          const label = index === 0 ? '_' : param.name;
+          return `${label} ${param.name}: ${swiftType}`;
         })
         .join(', ');
 
@@ -124,8 +125,7 @@ function generateSyncObjCMethod(method: MethodSignature): string {
   if (params.length > 0) {
     delegateCall += params
       .map((param, index) => {
-        const label =
-          index === 0 ? `With${capitalizeFirst(param.name)}` : param.name;
+        const label = index === 0 ? '' : param.name;
         return `${label}:${param.name}`;
       })
       .join(' ');
@@ -166,8 +166,4 @@ function generateAsyncObjCMethod(method: MethodSignature): string {
   return `${signature} {
     reject(@"not_implemented", @"${name} is not implemented", nil);
 }`;
-}
-
-function capitalizeFirst(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
 }
