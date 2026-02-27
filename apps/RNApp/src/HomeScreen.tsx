@@ -170,25 +170,19 @@ export function HomeScreen({
           color={colors.secondary}
           title="Go back"
         />
-
-        <Button
-          onPress={() => BrownfieldNavigation.navigateToSettings()}
-          color={colors.secondary}
-          title="Open native settings"
-        />
-
-        <Button
-          onPress={() => BrownfieldNavigation.navigateToSettings()}
-          color={colors.secondary}
-          title="Open native settings"
-        />
-
-        <Button
-          onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
-          color={colors.secondary}
-          title="Open native referrals"
-        />
       </View>
+
+      <Button
+        onPress={() => BrownfieldNavigation.navigateToSettings()}
+        color={colors.secondary}
+        title="Open native settings"
+      />
+
+      <Button
+        onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
+        color={colors.secondary}
+        title="Open native referrals"
+      />
     </View>
   );
 }
