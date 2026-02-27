@@ -77,7 +77,7 @@ export const packageIosCommand = curryOptions(
       projectRoot,
       'swift'
     );
-    await runNavigationCodegenIfApplicable(projectRoot);
+    const { hasNavigation } = await runNavigationCodegenIfApplicable(projectRoot);
 
     await packageIosAction(
       options,
@@ -118,6 +118,9 @@ export const packageIosCommand = curryOptions(
         outputPath: brownieOutputPath,
       });
 
+      // Strip the binary from Browniexcframework to make it interface-only.
+      // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
+      // (which contains Brownie symbols) and Brownie.xcframework.
       stripFrameworkBinary(brownieOutputPath);
 
       logger.success(
@@ -125,36 +128,36 @@ export const packageIosCommand = curryOptions(
       );
     }
 
-    const productsPath = path.join(options.buildFolder, 'Build', 'Products');
-    const brownfieldNavigationOutputPath = path.join(packageDir, 'BrownfieldNavigation.xcframework');
-
-    await mergeFrameworks({
-      sourceDir: userConfig.project.ios.sourceDir,
-      frameworkPaths: [
-        path.join(
-          productsPath,
-          `${configuration}-iphoneos`,
-          'BrownfieldNavigation',
-          'BrownfieldNavigation.framework'
-        ),
-        path.join(
-          productsPath,
-          `${configuration}-iphonesimulator`,
-          'BrownfieldNavigation',
-          'BrownfieldNavigation.framework'
-        ),
-      ],
-      outputPath: brownfieldNavigationOutputPath,
-    });
-
-    // Strip the binary from Brownie.xcframework to make it interface-only.
-    // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
-    // (which contains Brownie symbols) and Brownie.xcframework.
-    await stripFrameworkBinary(brownfieldNavigationOutputPath);
-
-    logger.success(
-      `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
-    );
+    if (hasNavigation) {
+      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
+      const brownfieldNavigationOutputPath = path.join(packageDir, 'BrownfieldNavigation.xcframework');
+  
+      await mergeFrameworks({
+        sourceDir: userConfig.project.ios.sourceDir,
+        frameworkPaths: [
+          path.join(
+            productsPath,
+            `${configuration}-iphoneos`,
+            'BrownfieldNavigation',
+            'BrownfieldNavigation.framework'
+          ),
+          path.join(
+            productsPath,
+            `${configuration}-iphonesimulator`,
+            'BrownfieldNavigation',
+            'BrownfieldNavigation.framework'
+          ),
+        ],
+        outputPath: brownfieldNavigationOutputPath,
+      });
+  
+  
+      stripFrameworkBinary(brownfieldNavigationOutputPath);
+  
+      logger.success(
+        `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
+      );
+    }
   })
 );
 
