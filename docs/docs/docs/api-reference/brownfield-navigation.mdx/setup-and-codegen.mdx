@@ -8,7 +8,6 @@ Before you start:
 
 - Your React Native app has `@callstack/brownfield-navigation` installed.
 - Your app has Babel dependencies available (`@babel/core`, `@react-native/babel-preset`), which are used during codegen.
-- You know where your app root is (the folder containing your app `package.json`).
 
 ## 1) Create `brownfield.navigation.ts`
 
@@ -44,27 +43,15 @@ Prefer simple synchronous navigation methods (`void`).
 Async Promise-based methods are not currently supported by the generated native code on iOS and Android — they will compile, but the generated implementations will reject with a `not_implemented` error.
 :::
 
-## 2) Add a codegen script
-
-Add a script to your app `package.json`:
-
-```json
-{
-  "scripts": {
-    "brownfield:navigation-codegen": "brownfield navigation:codegen"
-  }
-}
-```
-
-## 3) Run codegen
+## 2) Run codegen
 
 From your app root:
 
 ```bash
-yarn brownfield:navigation-codegen
+npx brownfield navigation:codegen
 ```
 
-## 4) What gets generated
+## 3) What gets generated
 
 Codegen updates `@callstack/brownfield-navigation` with your contract:
 
@@ -75,12 +62,12 @@ Codegen updates `@callstack/brownfield-navigation` with your contract:
 - Android delegate/module files under:
   `android/src/main/java/com/callstack/nativebrownfieldnavigation/`
 
-## 5) Regenerate when contract changes
+## 4) Regenerate when contract changes
 
 Any time you add, remove, or rename methods in `brownfield.navigation.ts`, rerun:
 
 ```bash
-yarn brownfield:navigation-codegen
+npx brownfield navigation:codegen
 ```
 
 Then recompile native apps.

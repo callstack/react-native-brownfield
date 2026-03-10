@@ -2,6 +2,10 @@
 
 After codegen, implement the generated delegate interface in your host app and register it before JavaScript uses the module.
 
+## Pre-Requisite:
+
+Ensure that the `BrownfieldNavigation.xcframework` is linked to the native host app. If you ran `npx brownfield package:ios` the generated frameworks should be under `ios/.brownfield` folder.
+
 ## Android
 
 ### 1) Implement `BrownfieldNavigationDelegate`
