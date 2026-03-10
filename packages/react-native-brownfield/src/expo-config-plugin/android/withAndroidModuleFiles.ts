@@ -72,8 +72,8 @@ export function createAndroidModule({
       content: renderTemplate(
         'android',
         isExpoPre55
-          ? 'ReactNativeHostManager-pre55.kt'
-          : 'ReactNativeHostManager-post55.kt',
+          ? 'ReactNativeHostManager.pre55.kt'
+          : 'ReactNativeHostManager.post55.kt',
         {
           '{{PACKAGE_NAME}}': android.packageName,
         }
