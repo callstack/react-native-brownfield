@@ -10,6 +10,7 @@ import type {
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
 import { getExpoInfo } from '../expoUtils';
+import { getHermesArtifact } from './utils/hermes';
 
 /**
  * Creates the Android library module directory structure and files
@@ -45,6 +46,11 @@ export function createAndroidModule({
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
+  const hermesArtifact = getHermesArtifact(rnVersion);
+  Logger.logDebug(
+    `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
+  );
+
   // generate module files
   const files: RenderedTemplateFile[] = [
     {
@@ -57,6 +63,7 @@ export function createAndroidModule({
         '{{ARTIFACT_ID}}': android.artifactId,
         '{{ARTIFACT_VERSION}}': android.version,
         '{{RN_VERSION}}': rnVersion,
+        '{{HERMES_ARTIFACT}}': `${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`,
       }),
     },
     {

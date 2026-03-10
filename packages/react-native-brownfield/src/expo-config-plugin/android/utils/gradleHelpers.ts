@@ -1,5 +1,5 @@
 import { brownfieldGradlePluginDependency } from './constants';
-import { Logger } from '../logging';
+import { Logger } from '../../logging';
 
 /**
  * Modifies the root build.gradle to add the Brownfield Gradle plugin dependency
