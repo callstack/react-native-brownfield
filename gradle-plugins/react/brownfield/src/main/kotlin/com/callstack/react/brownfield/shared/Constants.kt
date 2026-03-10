@@ -49,8 +49,6 @@ object Constants {
             ArtifactMatcher(groupId = StringMatcher.literal("host.exp.exponent")),
             ArtifactMatcher(groupId = StringMatcher.literal("BareExpo")),
             ArtifactMatcher(groupId = StringMatcher.regex("expo.*")),
-            // below: groupId of the local Expo app itself that may be referenced by some of the Expo packages
-            ArtifactMatcher(groupId = StringMatcher.literal("ExpoApp")),
             // below: a broken transitive dependency that has no version specified and thus breaks the build
             ArtifactMatcher(
                 groupId = StringMatcher.literal("org.jetbrains.kotlin"),

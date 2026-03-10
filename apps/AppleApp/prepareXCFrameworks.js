@@ -89,4 +89,44 @@ for (const file of fs.readdirSync(targetPackagePath)) {
   logger.success(`${file} prepared`);
 }
 
+logger.info('Patching entrypoint name in ContentView.swift');
+const filePath = path.join(
+  __dirname,
+  'Brownfield Apple App',
+  'components',
+  'ContentView.swift'
+);
+const contentViewFileContents = fs.readFileSync(filePath, 'utf8');
+const moduleNameRegex = /moduleName: ".*"/g;
+
+if (!contentViewFileContents.match(moduleNameRegex)) {
+  throw new Error('moduleName not found in ContentView.swift');
+}
+
+const isVanillaApp = appName === 'RNApp';
+
+let updatedContentViewFileContents = contentViewFileContents.replace(
+  moduleNameRegex,
+  `moduleName: "${
+    isVanillaApp ? 'RNApp' : 'main' // default to main for Expo apps
+  }"`
+);
+
+logger.success(`Entrypoint name patched in ${filePath}`);
+
+logger.info('Patching GreetingCard name in ContentView.swift');
+
+// replace GreetingCard(name: "...") with GreetingCard(name: "${appName}")
+const greetingCardNameRegex = /GreetingCard\(name: ".*"/g;
+if (!updatedContentViewFileContents.match(greetingCardNameRegex)) {
+  throw new Error('GreetingCard name not found in ContentView.swift');
+}
+
+updatedContentViewFileContents = updatedContentViewFileContents.replace(
+  greetingCardNameRegex,
+  `GreetingCard(name: "iOS ${isVanillaApp ? 'Vanilla' : 'Expo'}"`
+);
+
+fs.writeFileSync(filePath, updatedContentViewFileContents);
+
 outro(`Done!`);

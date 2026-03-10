@@ -1,7 +1,0 @@
-{
-  "extends": "../../tsconfig",
-  "references": [
-    { "path": "../../packages/brownie" },
-    { "path": "../../packages/react-native-brownfield" }
-  ]
-}

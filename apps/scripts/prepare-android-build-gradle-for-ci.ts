@@ -9,13 +9,8 @@ if (!projectDirName) {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const SNAPSHOT_VERSION = '1.0.0-SNAPSHOT';
-const targetPath = path.resolve(
-  __dirname,
-  projectDirName,
-  'android',
-  'build.gradle'
-);
+const SNAPSHOT_VERSION = '1.0.1-SNAPSHOT';
+const targetPath = path.resolve(__dirname, '..', 'android', 'build.gradle');
 
 function ensureMavenLocalInBuildscriptRepositories(contents: string): string {
   const buildscriptReposRegex =
