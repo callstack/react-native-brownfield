@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build:example:android-consumer:expo": "./gradlew assembleExpoRelease",
+    "build:example:android-consumer:expo": "./gradlew assembleExpo55Release",
+    "build:example:android-consumer:expo55": "./gradlew assembleExpo55Release",
+    "build:example:android-consumer:expo54": "./gradlew assembleExpo54Release",
     "build:example:android-consumer:vanilla": "./gradlew assembleVanillaRelease"
   }
 }

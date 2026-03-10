@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp"
+      "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp54"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +21,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.callstack.rnbrownfield.demo.expoapp"
+      "package": "com.callstack.rnbrownfield.demo.expoapp54"
     },
     "web": {
       "output": "static",

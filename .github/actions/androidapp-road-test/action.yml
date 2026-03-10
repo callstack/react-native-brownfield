@@ -78,5 +78,5 @@ runs:
     # == AndroidApp ==
 
     - name: Build native Android Brownfield app
-      run: yarn run build:example:android-consumer:${{ startsWith(inputs.flavor, 'expo') && 'expo' || inputs.flavor }}
+      run: yarn run build:example:android-consumer:${{ inputs.flavor }}
       shell: bash

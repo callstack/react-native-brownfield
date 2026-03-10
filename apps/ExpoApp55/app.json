@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp"
+      "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp55"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +19,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.callstack.rnbrownfield.demo.expoapp"
+      "package": "com.callstack.rnbrownfield.demo.expoapp55"
     },
     "web": {
       "output": "static",

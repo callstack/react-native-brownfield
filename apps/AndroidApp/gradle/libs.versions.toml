@@ -15,7 +15,8 @@ material = "1.13.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-brownfieldlib-expo = { module = "com.callstack.rnbrownfield.demo.expoapp:brownfieldlib", version.ref = "brownfieldlib" }
+brownfieldlib-expo55 = { module = "com.callstack.rnbrownfield.demo.expoapp55:brownfieldlib", version.ref = "brownfieldlib" }
+brownfieldlib-expo54 = { module = "com.callstack.rnbrownfield.demo.expoapp54:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-vanilla = { module = "com.rnapp:brownfieldlib", version.ref = "brownfieldlib" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
