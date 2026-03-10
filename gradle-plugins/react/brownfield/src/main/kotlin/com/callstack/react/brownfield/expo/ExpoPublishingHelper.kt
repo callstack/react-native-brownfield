@@ -97,7 +97,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                         @Suppress("UNCHECKED_CAST")
                         (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
                             Logging.log(
-                                "Injecting dependency to Gradle module JSON for variant" +
+                                "Injecting dependency to Gradle module JSON for variant " +
                                     "'${variant["name"]}': ${dependencyToAdd.groupId}:" +
                                     "${dependencyToAdd.artifactId}:${dependencyToAdd.version}",
                             )
@@ -338,7 +338,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         }
 
         Logging.log(
-            "Discovered ${dependencies.size} transitive dependencies for Expo project" +
+            "Discovered ${dependencies.size} transitive dependencies for Expo project " +
                 "'${expoGPProjection.name}' from $depsDiscoverySource",
         )
 
