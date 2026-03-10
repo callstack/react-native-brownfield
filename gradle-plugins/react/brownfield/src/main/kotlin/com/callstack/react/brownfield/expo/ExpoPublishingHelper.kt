@@ -354,10 +354,10 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 /**
                  * below: some nodes are not dependencies, but pure text, in which case their name is '#text'
                  *
-                 * Only add dependencies with compile scope, if scope is null, default to compile
+                 * Only add dependencies with compile or runtime scope, if scope is null, default to compile
                  */
                 val scope = depNode.getChildNodeByName("scope")?.textContent
-                if (depNode.nodeName == "dependency" && (scope == null || scope == "compile")) {
+                if (depNode.nodeName == "dependency" && (scope == null || setOf("compile", "runtime").contains(scope))) {
                     val groupId = depNode.getChildNodeByName("groupId")!!.textContent
                     val maybeArtifactId = depNode.getChildNodeByName("artifactId")
 
