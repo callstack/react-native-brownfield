@@ -37,7 +37,7 @@ final class ExpoHostRuntime {
     // below: https://github.com/expo/expo/pull/39418/changes/5abd332b55b2ee7daee848284ed5f7fe1639452e
     // has removed bindReactNativeFactory method from ExpoAppDelegate
     #if !EXPO_SDK_GTE_55 // this define comes from the Brownfield Expo config plugin
-      appDelegate.bindReactNativeFactory?(factory: factory)
+      appDelegate.bindReactNativeFactory(factory)
     #endif
     expoDelegate = appDelegate
 
