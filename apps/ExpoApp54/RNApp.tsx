@@ -1,7 +1,8 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import Counter from './components/counter';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
+
+import Counter from './components/counter';
 
 export default function RNApp() {
   return (

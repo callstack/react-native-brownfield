@@ -2402,6 +2402,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-expo-app-55@workspace:apps/ExpoApp55"
   dependencies:
+    "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@expo/vector-icons": "npm:^15.0.2"

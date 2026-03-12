@@ -9,7 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import type { Message } from '@/components/postMessage/Message';
 import { MessageBubble } from '@/components/postMessage/MessageBubble';
 
-export default function HomeScreen() {
+export default function PostMessageTab() {
   const [messages, setMessages] = useState<Message[]>([]);
   const flatListRef = useRef<FlatList<Message>>(null);
 
