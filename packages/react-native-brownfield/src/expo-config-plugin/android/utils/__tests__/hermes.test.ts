@@ -4,7 +4,7 @@ import { getHermesArtifact } from '../hermes';
 import { Logger } from '../../../logging';
 
 // Mock Logger.logWarning to prevent console output during tests
-vi.mock('../../logging', () => ({
+vi.mock('../../../logging', () => ({
   Logger: {
     logWarning: vi.fn(),
   },

@@ -69,7 +69,7 @@ jobs:
         with:
           flavor: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
-          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp/brownfieldlib
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp${{ matrix.version }}/brownfieldlib
 
   android-androidapp-vanilla:
     name: Android road test (RNApp & AndroidApp - Vanilla)
