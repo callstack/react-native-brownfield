@@ -6,6 +6,10 @@ const BROWNFIELD_POD_HOOK_MARKER_START =
   '# >>> react-native-brownfield expo phase ordering >>>';
 const BROWNFIELD_POD_HOOK_MARKER_END =
   '# <<< react-native-brownfield expo phase ordering <<<';
+const BROWNFIELD_EXPO_PRE55_SWIFT_DEFINES_MARKER_START =
+  '# >>> react-native-brownfield expo pre55 swift defines >>>';
+const BROWNFIELD_EXPO_PRE55_SWIFT_DEFINES_MARKER_END =
+  '# <<< react-native-brownfield expo pre55 swift defines <<<';
 const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
 const REACT_NATIVE_PODS_REQUIRE_REGEX =
   /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
@@ -47,6 +51,46 @@ ${BROWNFIELD_POD_HOOK_MARKER_END}
   modifiedPodfile = `${modifiedPodfile.trimEnd()}\n\n${hook}\n`;
 
   return modifiedPodfile;
+}
+
+function ensureExpoPre55VersionDefine(
+  podfile: string,
+  frameworkName: string
+): string {
+  if (podfile.includes(BROWNFIELD_EXPO_PRE55_SWIFT_DEFINES_MARKER_START)) {
+    return podfile;
+  }
+
+  const hook = `
+    ${BROWNFIELD_EXPO_PRE55_SWIFT_DEFINES_MARKER_START}
+    installer.aggregate_targets.each do |aggregate_target|
+      next unless aggregate_target.user_targets.any? { |t| t.name == '${frameworkName}' }
+
+      pods_target_name = aggregate_target.name
+      target = installer.pods_project.targets.find { |t| t.name == pods_target_name }
+      puts "[Brownfield] Adding definition of EXPO_PRE_55 for target: #{target.name}"
+
+      target.build_configurations.each do |config|
+        conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
+        conditions = conditions.to_s
+        config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_PRE_55"
+      end
+    end
+    ${BROWNFIELD_EXPO_PRE55_SWIFT_DEFINES_MARKER_END}
+`;
+
+  const postInstallMatch = podfile.match(
+    /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
+  );
+
+  if (postInstallMatch) {
+    const [whole, start, content, end] = postInstallMatch;
+    const updated = `${start}${content.trimEnd()}\n${hook}\n${end}`;
+    return podfile.replace(whole, updated);
+  }
+
+  // if there is no post_install, append one
+  return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
 }
 
 /**
@@ -101,6 +145,10 @@ export function modifyPodfile(
 
   if (isExpoPre55) {
     modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
+    modifiedPodfile = ensureExpoPre55VersionDefine(
+      modifiedPodfile,
+      frameworkName
+    );
   }
 
   return modifiedPodfile;
