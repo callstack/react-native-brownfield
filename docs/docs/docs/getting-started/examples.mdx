@@ -17,3 +17,5 @@ It contains the following apps:
 ## Additional notes
 
 There are 2 demo apps for Expo: `ExpoApp` (Expo 55 SDK) and `ExpoApp54` (Expo 54 SDK). This is to test our setup works with bost pre- and post-55 Expo SDK versions. It is important since the pre-55 Expo versions require additional handling, which is not applied by our Expo config plugin for Expo >= 55.
+
+The ReactBrownfield iOS Pods project (namely `ExpoHostRuntime.swift`) depends on the `EXPO_SDK_GTE_55` compile-time define. This define is added to the project from the Podfile, injected by the Expo config plugin for Expo SDK versions >= 55.

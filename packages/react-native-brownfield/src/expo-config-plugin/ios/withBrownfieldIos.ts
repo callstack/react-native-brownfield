@@ -29,7 +29,7 @@ import { getExpoInfo } from '../expoUtils';
 export const withBrownfieldIos: ConfigPlugin<
   ResolvedBrownfieldPluginConfigWithIos
 > = (config, props) => {
-  const { isExpoPre55 } = getExpoInfo(config);
+  const { isExpoPre55, expoMajor } = getExpoInfo(config);
 
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
@@ -80,7 +80,7 @@ export const withBrownfieldIos: ConfigPlugin<
     podfileConfig.modResults.contents = modifyPodfile(
       podfileConfig.modResults.contents,
       frameworkName,
-      isExpoPre55
+      expoMajor
     );
 
     return podfileConfig;

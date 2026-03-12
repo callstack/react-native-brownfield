@@ -33,12 +33,13 @@ final class ExpoHostRuntime {
 
     reactNativeFactory = factory
 
-    expoDelegate = ExpoAppDelegate()
+    let appDelegate = ExpoAppDelegate()
     // below: https://github.com/expo/expo/pull/39418/changes/5abd332b55b2ee7daee848284ed5f7fe1639452e
     // has removed bindReactNativeFactory method from ExpoAppDelegate
-    #if EXPO_PRE_55 // this define comes from the Brownfield Expo config plugin
-      expoDelegate.bindReactNativeFactory?(factory: factory)
+    #if !EXPO_SDK_GTE_55 // this define comes from the Brownfield Expo config plugin
+      appDelegate.bindReactNativeFactory?(factory: factory)
     #endif
+    expoDelegate = appDelegate
 
     if let onBundleLoaded {
       jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
@@ -104,15 +105,15 @@ final class ExpoHostRuntime {
 
     // below: https://github.com/expo/expo/commit/2013760c46cde1404872d181a691da72fbf207a4
     // has moved the recreateRootView method to ExpoReactNativeFactory
-    #if EXPO_PRE_55 // this define comes from the Brownfield Expo config plugin
-      return expoDelegate.recreateRootView?(
+    #if EXPO_SDK_GTE_55 // this define comes from the Brownfield Expo config plugin
+      return (reactNativeFactory as? ExpoReactNativeFactory)?.recreateRootView(
         withBundleURL: bundleURL,
         moduleName: moduleName,
         initialProps: initialProps,
         launchOptions: launchOptions
       )
     #else
-      return reactNativeFactory.recreateRootView?(
+      return expoDelegate?.recreateRootView(
         withBundleURL: bundleURL,
         moduleName: moduleName,
         initialProps: initialProps,
