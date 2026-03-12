@@ -32,6 +32,11 @@
       "types": "./dist/brownie/index.d.ts",
       "default": "./dist/brownie/index.js"
     },
+    "./navigation": {
+      "source": "./src/navigation/index.ts",
+      "types": "./dist/navigation/index.d.ts",
+      "default": "./dist/navigation/index.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {

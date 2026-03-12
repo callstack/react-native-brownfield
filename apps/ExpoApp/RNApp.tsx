@@ -1,6 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import Counter from './components/counter';
+import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
 export default function RNApp() {
   return (
@@ -9,6 +10,15 @@ export default function RNApp() {
 
       <View style={styles.content}>
         <Counter />
+
+        <Button
+          title="Navigate to Settings"
+          onPress={() => BrownfieldNavigation.navigateToSettings()}
+        />
+        <Button
+          title="Navigate to Referrals"
+          onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
+        />
       </View>
     </SafeAreaView>
   );

@@ -16,6 +16,7 @@
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release"
   },
   "dependencies": {
+    "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
     "@expo/vector-icons": "^15.0.3",

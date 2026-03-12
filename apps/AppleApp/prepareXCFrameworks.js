@@ -79,6 +79,7 @@ const validNames = [
   'Brownie.xcframework',
   'hermesvm.xcframework',
   'ReactBrownfield.xcframework',
+  'BrownfieldNavigation.xcframework',
 ];
 
 for (const file of fs.readdirSync(targetPackagePath)) {

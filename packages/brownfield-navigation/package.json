@@ -1,0 +1,92 @@
+{
+  "name": "@callstack/brownfield-navigation",
+  "version": "3.0.0",
+  "license": "MIT",
+  "author": "Hur Ali",
+  "description": "Brownfield navigation helpers for React Native",
+  "homepage": "https://github.com/callstack/react-native-brownfield",
+  "main": "lib/commonjs/index",
+  "module": "lib/module/index",
+  "types": "./lib/typescript/commonjs/src/index.d.ts",
+  "react-native": "src/index",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/typescript/module/src/index.d.ts",
+        "default": "./lib/module/index.js"
+      },
+      "require": {
+        "types": "./lib/typescript/commonjs/src/index.d.ts",
+        "default": "./lib/commonjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "brownfield": "lib/commonjs/scripts/brownfield.js"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "bob build",
+    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\"",
+    "build:brownfield": "yarn run build",
+    "prepack": "cp ../../README.md ./README.md",
+    "postpack": "rm ./README.md"
+  },
+  "files": [
+    "src",
+    "lib",
+    "android",
+    "ios",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@callstack/brownfield-cli": "workspace:^"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@react-native/babel-preset": "0.82.1",
+    "@types/jest": "^30.0.0",
+    "@types/react": "^19.1.1",
+    "eslint": "^9.28.0",
+    "globals": "^16.2.0",
+    "import": "^0.0.6",
+    "nodemon": "^3.1.11",
+    "react": "19.1.1",
+    "react-native": "0.82.1",
+    "react-native-builder-bob": "^0.40.17",
+    "typescript": "5.9.3"
+  },
+  "codegenConfig": {
+    "name": "NativeBrownfieldNavigation",
+    "type": "modules",
+    "jsSrcsDir": "./src",
+    "android": {
+      "javaPackageName": "com.callstack.nativebrownfieldnavigation"
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
