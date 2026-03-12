@@ -37,7 +37,8 @@
           }
         }
       ],
-      "@callstack/react-native-brownfield"
+      "@callstack/react-native-brownfield",
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,
