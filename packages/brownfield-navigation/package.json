@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-navigation",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "license": "MIT",
   "author": "Hur Ali",
   "description": "Brownfield navigation helpers for React Native",
