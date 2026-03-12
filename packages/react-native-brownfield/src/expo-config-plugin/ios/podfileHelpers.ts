@@ -60,15 +60,15 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
 
   const hook = `
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START}
-    installer.aggregate_targets.each do |aggregate_target|
-      pods_target_name = aggregate_target.name
-      target = installer.pods_project.targets.find { |t| t.name == pods_target_name }
-      puts "[Brownfield] Adding definition of EXPO_SDK_GTE_55 for target: #{target.name}"
+    installer.pods_project.targets.each do |target|
+      if target.name == 'ReactBrownfield'
+        puts "[Brownfield] Adding definition of EXPO_SDK_GTE_55 to target: #{target.name}"
 
-      target.build_configurations.each do |config|
-        conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
-        conditions = conditions.to_s
-        config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_SDK_GTE_55"
+        target.build_configurations.each do |config|
+          conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
+          conditions = conditions.to_s
+          config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_SDK_GTE_55"
+        end
       end
     end
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END}
