@@ -119,5 +119,5 @@ jobs:
       - name: Run ExpoApp -> AppleApp road test (Expo ${{ matrix.version }})
         uses: ./.github/actions/appleapp-road-test
         with:
-          variant: expo
+          variant: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
