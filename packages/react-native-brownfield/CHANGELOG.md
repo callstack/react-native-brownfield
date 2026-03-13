@@ -1,5 +1,16 @@
 # @callstack/react-native-brownfield
 
+## 3.3.0
+
+### Minor Changes
+
+- [#248](https://github.com/callstack/react-native-brownfield/pull/248) [`b0a6f41`](https://github.com/callstack/react-native-brownfield/commit/b0a6f4185aad4e8759b90ccaf9867be493a979ec) Thanks [@artus9033](https://github.com/artus9033)! - feat: support Expo 55
+
+### Patch Changes
+
+- Updated dependencies [[`b0a6f41`](https://github.com/callstack/react-native-brownfield/commit/b0a6f4185aad4e8759b90ccaf9867be493a979ec)]:
+  - @callstack/brownfield-cli@3.3.0
+
 ## 3.2.1
 
 ### Patch Changes
