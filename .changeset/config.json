@@ -5,7 +5,15 @@
     { "repo": "callstack/react-native-brownfield" }
   ],
   "commit": false,
-  "fixed": [["*"]],
+  "fixed": [
+    [
+      "brownfield",
+      "@callstack/brownfield-navigation",
+      "@callstack/brownie",
+      "@callstack/brownfield-cli",
+      "@callstack/react-native-brownfield"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
