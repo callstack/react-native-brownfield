@@ -26,6 +26,9 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `build:docs` - builds the documentation site (`docs/`) _[Turbo]_
 - `build:example:android-rn` - builds the example React Native app for Android (`apps/RNApp/android`)
 - `build:example:ios-rn` - builds the example React Native app for iOS (`apps/RNApp/ios`)
-- `build:example:android-consumer:expo` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo RN app (`apps/ExpoApp`) artifact
+- `build:example:android-consumer:expo55` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 55 RN app (`apps/ExpoApp55`) artifact
+- - `build:example:android-consumer:expo54` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
 - - `build:example:android-consumer:vanilla` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
-- `build:example:ios-consumer` - builds the example native Apple consumer app (`apps/AppleApp`)
+- `build:example:ios-consumer:expo55` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 55 RN app (`apps/ExpoApp55`) artifact
+- `build:example:ios-consumer:expo54` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
+- `build:example:ios-consumer:vanilla` - builds the example native iOS consumer (`apps/AppleApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact

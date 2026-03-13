@@ -103,16 +103,21 @@ jobs:
           rn-project-path: apps/RNApp
 
   ios-appleapp-expo:
-    name: iOS road test (RNApp & AppleApp - Expo)
+    name: iOS road test (RNApp & AppleApp - Expo ${{ matrix.version }})
     runs-on: macos-26
     needs: build-lint
+    strategy:
+      matrix:
+        include:
+          - version: '54'
+          - version: '55'
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run ExpoApp -> AppleApp road test (Expo)
+      - name: Run ExpoApp -> AppleApp road test (Expo ${{ matrix.version }})
         uses: ./.github/actions/appleapp-road-test
         with:
           variant: expo
-          rn-project-path: apps/ExpoApp
+          rn-project-path: apps/ExpoApp${{ matrix.version }}
