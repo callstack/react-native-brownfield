@@ -338,7 +338,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         }
 
         Logging.log(
-            "Discovered ${dependencies.size} transitive dependencies for Expo project" +
+            "Discovered ${dependencies.size} transitive dependencies for Expo project " +
                 "'${expoGPProjection.name}' from $depsDiscoverySource",
         )
 

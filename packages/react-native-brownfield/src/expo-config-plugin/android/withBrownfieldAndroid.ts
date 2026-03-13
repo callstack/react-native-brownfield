@@ -4,7 +4,10 @@ import {
   type ConfigPlugin,
 } from '@expo/config-plugins';
 
-import { modifyRootBuildGradle, modifySettingsGradle } from './gradleHelpers';
+import {
+  modifyRootBuildGradle,
+  modifySettingsGradle,
+} from './utils/gradleHelpers';
 import { withAndroidModuleFiles } from './withAndroidModuleFiles';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../types';
 

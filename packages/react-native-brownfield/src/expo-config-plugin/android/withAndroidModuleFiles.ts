@@ -9,6 +9,8 @@ import type {
 } from '../types';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
+import { getExpoInfo } from '../expoUtils';
+import { getHermesArtifact } from './utils/hermes';
 
 /**
  * Creates the Android library module directory structure and files
@@ -17,7 +19,13 @@ export function createAndroidModule({
   androidDir,
   config,
   rnVersion,
+  isExpoPre55,
 }: {
+  /**
+   * Whether the Expo project is pre-55
+   */
+  isExpoPre55: boolean;
+
   /**
    * The root Android directory path
    */
@@ -38,6 +46,11 @@ export function createAndroidModule({
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
+  const hermesArtifact = getHermesArtifact(rnVersion);
+  Logger.logDebug(
+    `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
+  );
+
   // generate module files
   const files: RenderedTemplateFile[] = [
     {
@@ -50,6 +63,7 @@ export function createAndroidModule({
         '{{ARTIFACT_ID}}': android.artifactId,
         '{{ARTIFACT_VERSION}}': android.version,
         '{{RN_VERSION}}': rnVersion,
+        '{{HERMES_ARTIFACT}}': `${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`,
       }),
     },
     {
@@ -62,9 +76,15 @@ export function createAndroidModule({
     },
     {
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
-      content: renderTemplate('android', 'ReactNativeHostManager.kt', {
-        '{{PACKAGE_NAME}}': android.packageName,
-      }),
+      content: renderTemplate(
+        'android',
+        isExpoPre55
+          ? 'ReactNativeHostManager.pre55.kt'
+          : 'ReactNativeHostManager.post55.kt',
+        {
+          '{{PACKAGE_NAME}}': android.packageName,
+        }
+      ),
     },
     {
       relativePath: 'consumer-rules.pro',
@@ -127,10 +147,13 @@ export const withAndroidModuleFiles: ConfigPlugin<
         );
       }
 
+      const { isExpoPre55 } = getExpoInfo(config);
+
       createAndroidModule({
         androidDir,
         config: props,
         rnVersion,
+        isExpoPre55,
       });
 
       return dangerousConfig;

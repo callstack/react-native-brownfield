@@ -50,7 +50,8 @@
     "dev": "nodemon --ext '*' --watch src --exec \"bob build\"",
     "build:brownfield": "yarn run build",
     "prepack": "cp ../../README.md ./README.md",
-    "postpack": "rm ./README.md"
+    "postpack": "rm ./README.md",
+    "test": "vitest run"
   },
   "keywords": [
     "react-native-brownfield",
@@ -95,6 +96,7 @@
     "@react-native/babel-preset": "0.82.1",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.1.1",
+    "@vitest/coverage-v8": "^4.0.17",
     "eslint": "^9.28.0",
     "globals": "^16.2.0",
     "import": "^0.0.6",
@@ -102,7 +104,8 @@
     "react": "19.1.1",
     "react-native": "0.82.1",
     "react-native-builder-bob": "^0.40.17",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^4.0.17"
   },
   "codegenConfig": {
     "name": "ReactNativeBrownfield",
