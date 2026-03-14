@@ -9,8 +9,6 @@ import {
 } from './commands/publishAndroid.js';
 import { packageIosCommand, packageIosExample } from './commands/packageIos.js';
 
-export * from './utils/index.js';
-
 export const groupName = `${styleText(['bold', 'blueBright'], '@callstack/react-native-brownfield')}${styleText('whiteBright', ' - utilities for React Native Brownfield projects')}`;
 
 export const Commands = {

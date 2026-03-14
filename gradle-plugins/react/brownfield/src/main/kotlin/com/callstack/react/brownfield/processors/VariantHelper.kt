@@ -17,6 +17,7 @@ import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
+import com.callstack.react.brownfield.utils.capitalized
 import groovy.lang.MissingPropertyException
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ResolvedArtifact
@@ -28,7 +29,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
-    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.capitalized()
 
     fun getVariant(): LibraryVariant {
         return variant
@@ -40,8 +41,12 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
     fun getTaskDependencies(artifact: ResolvedArtifact): Set<Any> {
         return try {
-            val publishArtifact = artifact::class.members.find { it.name == "publishArtifact" }?.call(artifact)
-            val buildDependencies = publishArtifact?.javaClass?.getMethod("getBuildDependencies")?.invoke(publishArtifact)
+            val publishArtifact =
+                artifact::class.members.find { it.name == "publishArtifact" }?.call(artifact)
+            val buildDependencies =
+                publishArtifact?.javaClass?.getMethod("getBuildDependencies")
+                    ?.invoke(publishArtifact)
+            @Suppress("UNCHECKED_CAST")
             buildDependencies as? Set<Any> ?: emptySet()
         } catch (ignore: MissingPropertyException) {
             emptySet()
@@ -49,12 +54,14 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
     }
 
     fun getSyncLibJarsTaskPath(): String {
-        return "sync${variant.name.replaceFirstChar(Char::titlecase)}LibJars"
+        return "sync${variant.name.capitalized()}LibJars"
     }
 
     private fun getClassPathDirFiles(): ConfigurableFileCollection {
         return project.files(
-            "$buildDir/intermediates/javac/${variant.name}/compile${variant.name.replaceFirstChar(Char::titlecase)}JavaWithJavac/classes",
+            "$buildDir/intermediates/javac/${variant.name}/compile${
+                variant.name.capitalized()
+            }JavaWithJavac/classes",
         )
     }
 
@@ -72,7 +79,9 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
         val pathsToDelete = mutableListOf<Path>()
         val javacDir = getClassPathDirFiles().first()
         project.fileTree(outputDir).forEach { path ->
-            pathsToDelete.add(Paths.get(outputDir.absolutePath).relativize(Paths.get(path.absolutePath)))
+            pathsToDelete.add(
+                Paths.get(outputDir.absolutePath).relativize(Paths.get(path.absolutePath)),
+            )
         }
         outputDir.deleteRecursively()
         pathsToDelete.forEach { path ->
@@ -82,7 +91,7 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
     fun classesMergeTaskDoLast(
         outputDir: File,
-        aarLibraries: Collection<com.callstack.react.brownfield.utils.AndroidArchiveLibrary>,
+        aarLibraries: Collection<AndroidArchiveLibrary>,
         jarFiles: MutableList<File>,
     ) {
         MergeProcessor.mergeClassesJarIntoClasses(project, aarLibraries, outputDir)
@@ -105,7 +114,11 @@ class VariantHelper(private val variant: LibraryVariant) : BaseProject() {
 
     fun getLibsDirFile(): File {
         return project.file(
-            "$buildDir/intermediates/aar_libs_directory/${variant.name}/sync${variant.name.replaceFirstChar(Char::titlecase)}LibJars/libs",
+            "$buildDir/intermediates/aar_libs_directory/${variant.name}/sync${
+                variant.name.replaceFirstChar(
+                    Char::titlecase,
+                )
+            }LibJars/libs",
         )
     }
 

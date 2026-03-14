@@ -3,5 +3,6 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "./lib/typescript"
-  }
+  },
+  "include": ["package.json", "src"]
 }

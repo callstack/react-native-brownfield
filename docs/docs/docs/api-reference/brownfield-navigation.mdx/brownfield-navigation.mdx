@@ -1,0 +1,26 @@
+# Brownfield Navigation
+
+`@callstack/brownfield-navigation` lets React Native code call into your host app navigation.
+You define a TypeScript contract once, generate native bridge files, and implement that contract in Android/iOS delegates.
+
+## How It Works
+
+1. You create a `brownfield.navigation.ts` spec in your React Native app.
+2. You run `brownfield-navigation-codegen` to generate native bridge/delegate files.
+3. Native host code implements `BrownfieldNavigationDelegate`.
+4. You register the delegate at startup.
+5. JavaScript calls `BrownfieldNavigation.<method>()`.
+
+## Guides
+
+- [Setup and Codegen](/docs/api-reference/brownfield-navigation.mdx/setup-and-codegen)
+- [Native Integration](/docs/api-reference/brownfield-navigation.mdx/native-integration)
+- [JavaScript Usage](/docs/api-reference/brownfield-navigation.mdx/javascript-usage)
+
+## Example Projects
+
+Use these apps as end-to-end references:
+
+- `apps/RNApp` for the spec file and JavaScript calls
+- `apps/AndroidApp` for Android delegate implementation
+- `apps/AppleApp` for iOS delegate implementation

@@ -2,6 +2,7 @@
   "name": "react-native-brownfield-docs",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "installConfig": {
     "hoistingLimits": "workspaces"
   },
@@ -12,10 +13,10 @@
     "preview": "rspress preview"
   },
   "dependencies": {
-    "@callstack/rspress-preset": "^0.5.1",
-    "@rspress/core": "2.0.0-rc.4"
+    "@callstack/rspress-preset": "^0.6.0",
+    "@rspress/core": "2.0.5"
   },
   "devDependencies": {
-    "@types/node": "^25.0.8"
+    "@types/node": "^25.5.0"
   }
 }

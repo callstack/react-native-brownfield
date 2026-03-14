@@ -5,7 +5,15 @@
     { "repo": "callstack/react-native-brownfield" }
   ],
   "commit": false,
-  "fixed": [],
+  "fixed": [
+    [
+      "brownfield",
+      "@callstack/brownfield-navigation",
+      "@callstack/brownie",
+      "@callstack/brownfield-cli",
+      "@callstack/react-native-brownfield"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
@@ -14,7 +22,8 @@
     "@callstack/brownfield-example-android-app",
     "@callstack/brownfield-example-ios-app",
     "@callstack/brownfield-example-rn-app",
-    "@callstack/react-native-brownfield-tester-integrated",
+    "@callstack/brownfield-example-expo-app-54",
+    "@callstack/brownfield-example-expo-app-55",
     "@callstack/brownfield-gradle-plugin-react"
   ],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {

@@ -16,13 +16,14 @@ import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Utils
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Task
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
-    private val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+    private val capitalizedVariantName = variant.name.capitalized()
 
     fun processConsumerFiles(
         aarLibs: Collection<AndroidArchiveLibrary>,
@@ -69,10 +70,12 @@ class ProguardProcessor(variant: LibraryVariant) : BaseProject() {
     ) {
         try {
             val outputFileToMerge =
+                @Suppress("USELESS_IS_CHECK")
                 if (outputFile is File) {
                     outputFile
                 } else {
-                    (outputFile as? RegularFileProperty)?.get()?.asFile ?: error("Invalid output file")
+                    (outputFile as? RegularFileProperty)?.get()?.asFile
+                        ?: error("Invalid output file")
                 }
             Utils.mergeFiles(files, outputFileToMerge)
         } catch (e: NoSuchFileException) {

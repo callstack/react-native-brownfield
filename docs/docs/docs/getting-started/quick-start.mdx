@@ -30,7 +30,7 @@ The library will be **automatically linked** via autolinking.
 
 ## What is the Brownfield CLI?
 
-The `@callstack/react-native-brownfield` package includes a **built-in CLI** that handles the complex process of packaging your React Native app into native framework artifacts.
+The `@callstack/react-native-brownfield` package includes a [**built-in CLI**](/docs/cli/introduction) that handles the complex process of packaging your React Native app into native framework artifacts.
 
 ### Why do you need it?
 
@@ -38,6 +38,8 @@ Integrating React Native into an existing native app requires packaging your Jav
 
 - **iOS** → **XCFramework** (`.xcframework`)
 - **Android** → **AAR** (`.aar`)
+
+#### Without the CLI
 
 Without the CLI, this process involves:
 
@@ -51,11 +53,11 @@ The **Brownfield CLI automates all of this** with simple commands.
 
 ### What does it do?
 
-| Command                 | Platform | Output                                                                                               |
-| ----------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| **`package:ios`**       | iOS      | Creates an XCFramework containing your React Native app, Hermes runtime, and all native dependencies |
-| **`package:aar`**       | Android  | Creates a Fat-AAR containing your React Native app bundled with all native dependencies              |
-| **`publish-local:aar`** | Android  | Publishes the AAR to your local Maven repository for easy consumption                                |
+| Command               | Platform | Output                                                                                               |
+| --------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| **`package:ios`**     | iOS      | Creates an XCFramework containing your React Native app, Hermes runtime, and all native dependencies |
+| **`package:android`** | Android  | Creates a Fat-AAR containing your React Native app bundled with all native dependencies              |
+| **`publish:android`** | Android  | Publishes the AAR to your local Maven repository for easy consumption                                |
 
 ### How does it make integration easier?
 

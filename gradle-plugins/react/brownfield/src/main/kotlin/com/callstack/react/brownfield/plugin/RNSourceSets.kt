@@ -4,6 +4,7 @@ import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
@@ -45,9 +46,13 @@ object RNSourceSets {
 
     private fun configureSourceSets() {
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+            val capitalizedVariantName = variant.name.capitalized()
 
             androidExtension.sourceSets.getByName("main") { sourceSet ->
+                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
+            }
+
+            androidExtension.sourceSets.getByName(variant.name) { sourceSet ->
                 for (bundlePathSegment in listOf(
                     // outputs for RN <= 0.81
                     "createBundle${capitalizedVariantName}JsAndAssets",
@@ -57,8 +62,6 @@ object RNSourceSets {
                     sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
                     sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
                 }
-
-                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
             }
         }
 
@@ -73,7 +76,8 @@ object RNSourceSets {
 
     private fun getLibraryNameSpace(): String {
         val nameSpace = androidExtension.namespace
-        return nameSpace ?: throw NameSpaceNotFound("namespace must be defined in your android library build.gradle")
+        return nameSpace
+            ?: throw NameSpaceNotFound("namespace must be defined in your android library build.gradle")
     }
 
     private fun patchRNEntryPoint(
@@ -89,7 +93,11 @@ object RNSourceSets {
         val rnEntryPointTask = appProject.tasks.findByName(rnEntryPointTaskName) ?: return
 
         task.dependsOn(rnEntryPointTask)
-        val sourceFile = File(moduleBuildDir.toString(), "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java")
+        val sourceFile =
+            File(
+                moduleBuildDir.toString(),
+                "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java",
+            )
         task.doLast {
             if (sourceFile.exists()) {
                 var content = sourceFile.readText()

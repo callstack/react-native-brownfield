@@ -28,13 +28,12 @@ A singleton that keeps an instance of `ReactNativeBrownfield` object.
 
 #### Properties
 
-| Property           | Type       | Default         | Description                                               |
-| ------------------ | ---------- | --------------- | --------------------------------------------------------- |
-| `entryFile`        | `NSString` | `index`         | Path to JavaScript entry file in development.                                  |
-| `fallbackResource` | `NSString` | `nil`           | Path to bundle fallback resource.                         |
-| `bundlePath`       | `NSString` | `main.jsbundle` | Path to JavaScript bundle file.                         |
-| `bundle`           | `NSBundle` | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource. |
-| `bundleURLOverride` | `NSURL * _Nullable (^)(void)`    | `nil`           | Dynamic bundle URL provider called on every bundle load. When set, overrides default behavior. |
+| Property            | Type               | Default         | Description                                                                                                |
+| ------------------- | ------------------ | --------------- | ---------------------------------------------------------------------------------------------------------- |
+| `entryFile`         | `NSString`         | `index`         | Path to JavaScript entry file in development.                                                              |
+| `bundlePath`        | `NSString`         | `main.jsbundle` | Path to JavaScript bundle file.                                                                            |
+| `bundle`            | `NSBundle`         | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource.                                                  |
+| `bundleURLOverride` | `NSURL *(^)(void)` | `nil`           | Dynamic bundle URL provider called on every bundle load. When set, overrides default bundle load behavior. |
 
 ---
 
@@ -44,10 +43,9 @@ A singleton that keeps an instance of `ReactNativeBrownfield` object.
 
 Starts React Native, produces an instance of React Native. You can use it to initialize React Native in your app.
 
-| Param            | Required | Type            | Description                                        |
-| ---------------- | -------- | --------------- | -------------------------------------------------- |
-| `onBundleLoaded` | No       | `void(^)(void)` | Callback invoked after JS bundle is fully loaded.  |
-| `launchOptions`  | No       | `NSDictionary`  | Launch options, typically passed from AppDelegate. |
+| Param            | Required | Type            | Description                                       |
+| ---------------- | -------- | --------------- | ------------------------------------------------- |
+| `onBundleLoaded` | No       | `void(^)(void)` | Callback invoked after JS bundle is fully loaded. |
 
 **Examples:**
 
@@ -59,12 +57,6 @@ Starts React Native, produces an instance of React Native. You can use it to ini
 [[ReactNativeBrownfield shared] startReactNative:^(void){
     NSLog(@"React Native started");
 }];
-```
-
-```objc
-[[ReactNativeBrownfield shared] startReactNative:^(void){
-    NSLog(@"React Native started");
-}, launchOptions];
 ```
 
 ##### `view`
@@ -81,6 +73,59 @@ Creates a React Native view for the specified module name.
 
 ```objc
 UIView *view = [[ReactNativeBrownfield shared] viewWithModuleName:@"ReactNative" initialProps:@{@"score": @12}];
+```
+
+##### `application:didFinishLaunchingWithOptions:`
+
+Mirrors the host runtime app delegate API. Call this from your `AppDelegate` if you need to forward launch options to the brownfield runtime (e.g. when using Expo).
+
+| Param           | Required | Type              | Description                |
+| --------------- | -------- | ----------------- | -------------------------- |
+| `application`   | Yes      | `UIApplication *` | The application instance.  |
+| `launchOptions` | No       | `NSDictionary *`  | Launch options dictionary. |
+
+Returns: `BOOL` – return value is passed through from the runtime.
+
+##### `postMessage`
+
+Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event.
+
+| Param     | Required | Type       | Description                         |
+| --------- | -------- | ---------- | ----------------------------------- |
+| `message` | Yes      | `NSString` | A JSON-encoded string to send to JS |
+
+> [!Note]
+> This method is available only on the New Architecture; on Old Architecture, it will be a no-op.
+
+**Examples:**
+
+```objc
+NSDictionary *payload = @{@"action": @"greet", @"name": @"Alice"};
+NSData *data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
+NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+[[ReactNativeBrownfield shared] postMessage:json];
+```
+
+##### `onMessage`
+
+Subscribe to messages sent from JavaScript. Returns an observer token.
+
+| Param     | Required | Type                  | Description                            |
+| --------- | -------- | --------------------- | -------------------------------------- |
+| `handler` | Yes      | `void(^)(NSString *)` | Block invoked with the raw JSON string |
+
+Returns: `id<NSObject>` - pass to `[[NSNotificationCenter defaultCenter] removeObserver:]` to unsubscribe.
+
+**Examples:**
+
+```objc
+id observer = [[ReactNativeBrownfield shared] onMessage:^(NSString *message) {
+    NSLog(@"Received from JS: %@", message);
+}];
+
+// Later:
+[[NSNotificationCenter defaultCenter] removeObserver:observer];
 ```
 
 ---
