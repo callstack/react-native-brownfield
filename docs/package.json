@@ -2,6 +2,7 @@
   "name": "react-native-brownfield-docs",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "installConfig": {
     "hoistingLimits": "workspaces"
   },
