@@ -25,13 +25,13 @@
   },
   "packageManager": "yarn@4.12.0",
   "dependencies": {
-    "@changesets/changelog-github": "^0.5.2",
-    "@changesets/cli": "^2.29.8",
+    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/cli": "^2.30.0",
     "@expo/config-plugins": "^54.0.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.3.1",
-    "@commitlint/config-conventional": "^20.3.1",
+    "@commitlint/cli": "^20.4.4",
+    "@commitlint/config-conventional": "^20.4.4",
     "@eslint/compat": "^2.0.1",
     "@eslint/eslintrc": "^3.3.3",
     "@expo/config-types": "^54.0.10",
@@ -41,11 +41,11 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-node-import": "^1.2.0",
     "eslint-plugin-prettier": "^5.5.5",
-    "lefthook": "^2.0.15",
+    "lefthook": "^2.1.4",
     "prettier": "^3.8.1",
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",
-    "turbo": "^2.8.10",
+    "turbo": "^2.8.17",
     "typescript": "5.9.3"
   },
   "commitlint": {

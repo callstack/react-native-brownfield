@@ -11,6 +11,6 @@
     "internal::build::common": "xcodebuild -project \"Brownfield Apple App.xcodeproj\" -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build"
   },
   "devDependencies": {
-    "@rock-js/tools": "^0.12.8"
+    "@rock-js/tools": "^0.12.12"
   }
 }

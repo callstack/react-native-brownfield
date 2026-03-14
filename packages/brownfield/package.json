@@ -52,7 +52,7 @@
     "@callstack/brownfield-cli": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^25.3.0",
+    "@types/node": "^25.5.0",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-node-import": "^1.2.0",
