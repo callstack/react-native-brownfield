@@ -113,11 +113,11 @@ Use the brownfield CLI to package your React Native app:
 npx brownfield package:ios --scheme <framework_target_name> --configuration Release
 ```
 
-This creates the XCFramework in **`.brownfield/ios/package/`**.
+This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative to your project root).
 
 ## 6. Add the Framework to Your iOS App
 
-1. Open **`.brownfield/ios/package`** directory
+1. Open **`ios/.brownfield/package/build`** directory (relative to your React Native project root)
 2. Drag these files into your native iOS app's Xcode project:
    - **`hermesvm.xcframework`** - JavaScript runtime
    - **`ReactBrownfield.xcframework`** - React Native Brownfield library

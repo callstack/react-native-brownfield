@@ -29,7 +29,7 @@ Available arguments:
 | --extra-params         | Custom params that will be passed to xcodebuild command                                                                                                                           |
 | --export-extra-params  | Custom params that will be passed to xcodebuild export archive command. Example: `--export-extra-params "-allowProvisioningUpdates"`                                              |
 | --export-options-plist | Name of the export options file for archiving. Defaults to: `ExportOptions.plist`                                                                                                 |
-| --build-folder         | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath". By default, the '\<iOS project folder>/build' path will be used.                                     |
+| --build-folder         | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath". By default, the '\<iOS project folder>/.brownfield/build' path will be used.                         |
 | --destination          | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values: "simulator", "device", or xcodebuild destinations |
 | --archive              | Create an Xcode archive (IPA) of the build, required for uploading to App Store Connect or distributing to TestFlight                                                             |
 | --no-install-pods      | Skip automatic CocoaPods installation                                                                                                                                             |
@@ -37,13 +37,14 @@ Available arguments:
 | --local                | Force local build with xcodebuild                                                                                                                                                 |
 | --verbose              | Enable verbose logging                                                                                                                                                            |
 
-The build directory will be placed in the `<iOS project folder>/.brownfield/build` folder by default and the build outputs (XCFrameworks) will be created in the `<iOS project folder>/.brownfield/package` folder:
+The build directory will be placed in the `<iOS project folder>/.brownfield/build` folder by default and the build outputs (XCFrameworks) will be created in the `<iOS project folder>/.brownfield/package/build` folder:
 
-- `package/<scheme name>.xcframework`, e.g. in the `apps/RNApp` demo project, the output will be at `apps/RNApp/ios/.brownfield/package/BrownfieldLib.xcframework`.
-- `package/hermesvm.xcframework` for RN >= 0.82.0 or `package/hermes.xcframework` otherwise
-- `ReactBrownfield.xcframework`
+- `package/build/<scheme name>.xcframework`, e.g. in the `apps/RNApp` demo project, the output will be at `apps/RNApp/ios/.brownfield/package/build/BrownfieldLib.xcframework`.
+- `package/build/hermesvm.xcframework` for RN >= 0.82.0 or `package/build/hermes.xcframework` otherwise
+- `package/build/ReactBrownfield.xcframework`
+- `package/build/BrownfieldNavigation.xcframework`
 
-The consumer project needs to embed all 3 frameworks.
+When using Brownie or brownfield-navigation, you will also get `Brownie.xcframework` and/or `BrownfieldNavigation.xcframework` in the same folder. The consumer project needs to embed all required frameworks (at least 3: scheme, Hermes, ReactBrownfield).
 
 ## Android
 

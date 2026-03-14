@@ -73,12 +73,15 @@ The CLI generates native types and builds everything into XCFrameworks:
 npx brownfield package:ios --scheme YourScheme --configuration Release
 ```
 
-This produces the following in `ios/.brownfield/package/`:
+This produces the following in `ios/.brownfield/package/build/`:
 
 - `YourScheme.xcframework` - Your React Native module
 - `Brownie.xcframework` - Shared state library
 - `ReactBrownfield.xcframework` - Brownfield integration
+- `BrownfieldNavigation.xcframework` - Brownfield navigation integration
 - `hermesvm.xcframework` - JavaScript engine (or `hermes.xcframework` for RN < 0.82.0)
+
+The `ios/.brownfield/build/` directory contains the build cache.
 
 :::info
 The `package:ios` command automatically runs `brownfield codegen` to generate Swift types from your `.brownie.ts` files.
@@ -87,7 +90,7 @@ The `package:ios` command automatically runs `brownfield codegen` to generate Sw
 ## Step 5: Add Frameworks to Native App
 
 1. Open your native Xcode project
-2. Drag all XCFrameworks from `ios/.brownfield/package/` into your project
+2. Drag all XCFrameworks from `ios/.brownfield/package/build/` into your project
 3. In target settings → **General** → **Frameworks, Libraries, and Embedded Content**, set all to **Embed & Sign**
 
 ## Step 6: Register Store in Swift
