@@ -27,14 +27,11 @@ import androidx.fragment.compose.AndroidFragment
 import com.callstack.brownfield.android.example.components.GreetingCard
 import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
+import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
-
-private fun brownieStore(): Store<BrownfieldStore>? {
-    return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
-}
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     override fun onConfigurationChanged(newConfig: Configuration) {
