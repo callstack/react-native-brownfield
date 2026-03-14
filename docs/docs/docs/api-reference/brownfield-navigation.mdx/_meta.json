@@ -1,0 +1,22 @@
+[
+  {
+    "type": "file",
+    "name": "brownfield-navigation",
+    "label": "Overview"
+  },
+  {
+    "type": "file",
+    "name": "setup-and-codegen",
+    "label": "Setup and Codegen"
+  },
+  {
+    "type": "file",
+    "name": "native-integration",
+    "label": "Native Integration"
+  },
+  {
+    "type": "file",
+    "name": "javascript-usage",
+    "label": "JavaScript Usage"
+  }
+]
