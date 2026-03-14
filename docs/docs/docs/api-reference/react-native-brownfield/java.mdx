@@ -158,12 +158,11 @@ ReactNativeBrownfield.getShared()
 
 Creates a React Native view with a given module name. It automatically uses an instance of React Native created in `initialize` method. This is useful when embedding React Native views directly in your native layouts.
 
-| Param         | Required | Type               | Description                                                |
-| ------------- | -------- | ------------------ | ---------------------------------------------------------- |
-| context       | Yes      | `Context`          | Android context to create the view                         |
-| activity      | No       | `FragmentActivity` | Activity hosting the view, used for lifecycle management   |
-| moduleName    | Yes      | `String`           | Name of React Native component registered to `AppRegistry` |
-| launchOptions | No       | `Bundle`           | Initial properties to be passed to React Native component  |
+| Param         | Required | Type               | Description                                                                                                                                           |
+| ------------- | -------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| activity      | No       | `FragmentActivity` | Activity hosting the view, used for lifecycle management. Required for proper lifecycle; may be null only when using a custom `ReactDelegateWrapper`. |
+| moduleName    | Yes      | `String`           | Name of React Native component registered to `AppRegistry`                                                                                            |
+| launchOptions | No       | `Bundle`           | Initial properties to be passed to React Native component                                                                                             |
 
 Returns: `FrameLayout` - A view containing the React Native component.
 
@@ -172,9 +171,21 @@ Returns: `FrameLayout` - A view containing the React Native component.
 ```java
 // In a Fragment or Activity
 FrameLayout reactView = ReactNativeBrownfield.getShared().createView(
-  context,
   activity,
   "ReactNative"
+);
+container.addView(reactView);
+```
+
+```java
+// With initial properties
+Bundle props = new Bundle();
+props.putInt("score", 12);
+FrameLayout reactView = ReactNativeBrownfield.getShared().createView(
+  activity,
+  "ReactNative",
+  null,
+  props
 );
 container.addView(reactView);
 ```

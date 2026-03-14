@@ -31,8 +31,7 @@ ReactNativeBrownfield.shared
 | Property            | Type            | Default         | Description                                                                                    |
 | ------------------- | --------------- | --------------- | ---------------------------------------------------------------------------------------------- |
 | `entryFile`         | `String`        | `index`         | Path to JavaScript root.                                                                       |
-| `fallbackResource`  | `String?`       | `nil`           | Path to bundle fallback resource.                                                              |
-| `bundlePath`        | `String`        | `main.jsbundle` | Path to bundle fallback resource.                                                              |
+| `bundlePath`        | `String`        | `main.jsbundle` | Path to JavaScript bundle file.                                                                |
 | `bundle`            | `Bundle`        | `Bundle.main`   | Bundle instance to lookup the JavaScript bundle resource.                                      |
 | `bundleURLOverride` | `(() -> URL?)?` | `nil`           | Dynamic bundle URL provider called on every bundle load. When set, overrides default behavior. |
 
@@ -44,10 +43,9 @@ ReactNativeBrownfield.shared
 
 Starts React Native. You can use it to initialize React Native in your app.
 
-| Param            | Required | Type                  | Description                                        |
-| ---------------- | -------- | --------------------- | -------------------------------------------------- |
-| `onBundleLoaded` | No       | `(() -> Void)?`       | Callback invoked after JS bundle is fully loaded.  |
-| `launchOptions`  | No       | `[AnyHashable: Any]?` | Launch options, typically passed from AppDelegate. |
+| Param            | Required | Type            | Description                                       |
+| ---------------- | -------- | --------------- | ------------------------------------------------- |
+| `onBundleLoaded` | No       | `(() -> Void)?` | Callback invoked after JS bundle is fully loaded. |
 
 **Examples:**
 
@@ -59,12 +57,6 @@ ReactNativeBrownfield.shared.startReactNative()
 ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
   print("React Native started")
 })
-```
-
-```swift
-ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
-  print("React Native started")
-}, launchOptions: launchOptions)
 ```
 
 ##### `view`
@@ -103,6 +95,29 @@ Send a JSON string to the React Native JS layer. The message is delivered as a `
 let payload = ["action": "greet", "name": "Alice"]
 let json = try! JSONSerialization.data(withJSONObject: payload)
 ReactNativeBrownfield.shared.postMessage(String(data: json, encoding: .utf8)!)
+```
+
+##### `application(_:didFinishLaunchingWithOptions:)`
+
+Mirrors the host runtime app delegate API. Call this from your `AppDelegate` if you need to forward `application(_:didFinishLaunchingWithOptions:)` to the brownfield runtime (e.g. when using Expo).
+
+| Param           | Required | Type                                     | Description                |
+| --------------- | -------- | ---------------------------------------- | -------------------------- |
+| `application`   | Yes      | `UIApplication`                          | The application instance.  |
+| `launchOptions` | No       | `[UIApplication.LaunchOptionsKey: Any]?` | Launch options dictionary. |
+
+Returns: `Bool` – return value is passed through from the runtime.
+
+**Example:**
+
+```swift
+func application(
+  _ application: UIApplication,
+  didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+) -> Bool {
+  ReactNativeBrownfield.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
+  return true
+}
 ```
 
 ##### `onMessage`
