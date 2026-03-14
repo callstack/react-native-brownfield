@@ -1,5 +1,16 @@
 # @callstack/brownie
 
+## 3.3.1
+
+### Patch Changes
+
+- [#246](https://github.com/callstack/react-native-brownfield/pull/246) [`5484065`](https://github.com/callstack/react-native-brownfield/commit/5484065da9dc86a420af2be692fcdefa32fbb2af) Thanks [@artus9033](https://github.com/artus9033)! - chore: upgrade dependencies
+
+- [#246](https://github.com/callstack/react-native-brownfield/pull/246) [`5484065`](https://github.com/callstack/react-native-brownfield/commit/5484065da9dc86a420af2be692fcdefa32fbb2af) Thanks [@artus9033](https://github.com/artus9033)! - chore: upgrade dependencies
+
+- Updated dependencies [[`5484065`](https://github.com/callstack/react-native-brownfield/commit/5484065da9dc86a420af2be692fcdefa32fbb2af), [`54ab7ab`](https://github.com/callstack/react-native-brownfield/commit/54ab7ab01bd6f95439cc8b702d4124552e22ad55), [`5484065`](https://github.com/callstack/react-native-brownfield/commit/5484065da9dc86a420af2be692fcdefa32fbb2af)]:
+  - @callstack/brownfield-cli@3.3.1
+
 ## 3.3.0
 
 ### Patch Changes
