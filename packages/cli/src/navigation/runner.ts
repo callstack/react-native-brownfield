@@ -261,6 +261,7 @@ export async function runNavigationCodegen({
 
   if (dryRun) {
     printDryRun(androidJavaPackageName, artifacts);
+    outro('Brownfield Navigation codegen done');
     return;
   }
 
