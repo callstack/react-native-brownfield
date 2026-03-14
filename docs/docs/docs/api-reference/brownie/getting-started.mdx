@@ -76,10 +76,10 @@ npx brownfield package:ios --scheme YourScheme --configuration Release
 This produces the following in `ios/.brownfield/package/build/`:
 
 - `YourScheme.xcframework` - Your React Native module
-- `Brownie.xcframework` - Shared state library
-- `ReactBrownfield.xcframework` - Brownfield integration
-- `BrownfieldNavigation.xcframework` - Brownfield navigation integration
 - `hermesvm.xcframework` - JavaScript engine (or `hermes.xcframework` for RN < 0.82.0)
+- `ReactBrownfield.xcframework` - Brownfield integration
+- `Brownie.xcframework` - Shared state library (only when using the Brownie package)
+- `BrownfieldNavigation.xcframework` - Brownfield navigation integration (only when using the brownfield-navigation package)
 
 The `ios/.brownfield/build/` directory contains the build cache.
 

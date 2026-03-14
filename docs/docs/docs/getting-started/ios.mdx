@@ -119,9 +119,11 @@ This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative t
 
 1. Open **`ios/.brownfield/package/build`** directory (relative to your React Native project root)
 2. Drag these files into your native iOS app's Xcode project:
-   - **`hermesvm.xcframework`** - JavaScript runtime
+   - **`<framework_target_name>.xcframework`** - Your React Native framework
+   - **`hermesvm.xcframework`** - JavaScript runtime (or `hermes.xcframework` for RN < 0.82.0)
    - **`ReactBrownfield.xcframework`** - React Native Brownfield library
-   - **`<framework_target_name>.xcframework`** - Your framework
+   - `Brownie.xcframework` - Brownie shared state library (only when using the Brownie package)
+   - `BrownfieldNavigation.xcframework` - Brownfield navigation integration (only when using the brownfield-navigation package) for React Native navigation
 
 ![Frameworks in Xcode Sidebar](/images/frameworks-sidebar.png)
 

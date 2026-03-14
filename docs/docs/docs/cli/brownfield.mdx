@@ -42,9 +42,17 @@ The build directory will be placed in the `<iOS project folder>/.brownfield/buil
 - `package/build/<scheme name>.xcframework`, e.g. in the `apps/RNApp` demo project, the output will be at `apps/RNApp/ios/.brownfield/package/build/BrownfieldLib.xcframework`.
 - `package/build/hermesvm.xcframework` for RN >= 0.82.0 or `package/build/hermes.xcframework` otherwise
 - `package/build/ReactBrownfield.xcframework`
-- `package/build/BrownfieldNavigation.xcframework`
+- `package/build/Brownie.xcframework` (only when using the Brownie package)
+- `package/build/BrownfieldNavigation.xcframework` (only when using the Navigation package)
 
-When using Brownie or brownfield-navigation, you will also get `Brownie.xcframework` and/or `BrownfieldNavigation.xcframework` in the same folder. The consumer project needs to embed all required frameworks (at least 3: scheme, Hermes, ReactBrownfield).
+The consumer project needs to embed the required frameworks:
+
+- `<scheme name>.xcframework` - Your React Native module
+- `hermesvm.xcframework` - JavaScript runtime (or `hermes.xcframework` for RN < 0.82.0)
+- `ReactBrownfield.xcframework` - React Native Brownfield library
+
+If you are using the Brownie package, you will also need to embed `Brownie.xcframework`.
+If you are using the brownfield-navigation package, you will also need to embed `BrownfieldNavigation.xcframework`.
 
 ## Android
 

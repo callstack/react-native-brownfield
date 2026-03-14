@@ -137,11 +137,12 @@ ReactNativeBrownfield.shared
 
 Creates a React Native view with a given module name. It automatically uses an instance of React Native created in `initialize` method. This is useful when embedding React Native views directly in your native layouts or Jetpack Compose UI.
 
-| Param         | Required | Type               | Description                                                                                                                                           |
-| ------------- | -------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| activity      | No       | `FragmentActivity` | Activity hosting the view, used for lifecycle management. Required for proper lifecycle; may be null only when using a custom `ReactDelegateWrapper`. |
-| moduleName    | Yes      | `String`           | Name of React Native component registered to `AppRegistry`                                                                                            |
-| launchOptions | No       | `Bundle`           | Initial properties to be passed to React Native component                                                                                             |
+| Param         | Required | Type                   | Description                                                                                                                                    |
+| ------------- | -------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| activity      | No       | `FragmentActivity`     | Activity hosting the view, used for lifecycle management. Required for proper lifecycle; may be null only when using a custom `reactDelegate`. |
+| moduleName    | Yes      | `String`               | Name of React Native component registered to `AppRegistry`.                                                                                    |
+| launchOptions | No       | `Bundle`               | Initial properties to be passed to React Native component.                                                                                     |
+| reactDelegate | No       | `ReactDelegateWrapper` | Optional custom delegate. If passed, the `activity` argument is ignored.                                                                       |
 
 Returns: `FrameLayout` - A view containing the React Native component.
 
