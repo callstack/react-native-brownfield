@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { logger } from '@rock-js/tools';
+import { intro, logger, outro } from '@rock-js/tools';
 import {
   DEFAULT_ANDROID_JAVA_PACKAGE,
   getNavigationPackagePath,
@@ -53,7 +53,11 @@ function getOutputPaths(
   const androidPackagePathSegments = androidJavaPackageName.split('.');
 
   return {
-    turboModuleSpec: path.join(packageRoot, 'src', 'NativeBrownfieldNavigation.ts'),
+    turboModuleSpec: path.join(
+      packageRoot,
+      'src',
+      'NativeBrownfieldNavigation.ts'
+    ),
     navigationTs: path.join(packageRoot, 'src', 'index.ts'),
     commonjsIndexJs: path.join(packageRoot, 'lib', 'commonjs', 'index.js'),
     moduleIndexJs: path.join(packageRoot, 'lib', 'module', 'index.js'),
@@ -78,7 +82,11 @@ function getOutputPaths(
       'ios',
       'BrownfieldNavigationDelegate.swift'
     ),
-    swiftModels: path.join(packageRoot, 'ios', 'BrownfieldNavigationModels.swift'),
+    swiftModels: path.join(
+      packageRoot,
+      'ios',
+      'BrownfieldNavigationModels.swift'
+    ),
     objcImplementation: path.join(
       packageRoot,
       'ios',
@@ -207,6 +215,8 @@ export async function runNavigationCodegen({
     throw new Error(`Spec file not found: ${resolvedSpecPath}`);
   }
 
+  intro(`Running Brownfield Navigation codegen`);
+
   logger.info(`Parsing spec file: ${resolvedSpecPath}`);
   const methods = parseNavigationSpec(resolvedSpecPath);
   if (methods.length === 0) {
@@ -214,7 +224,7 @@ export async function runNavigationCodegen({
   }
 
   logger.info(
-    `Found ${methods.length} method(s): ${methods.map((method) => method.name).join(', ')}`
+    `Found ${methods.length} method${methods.length === 1 ? '' : 's'}: ${methods.map((method) => method.name).join(', ')}`
   );
 
   const packageRoot = getNavigationPackagePath(projectRoot);
@@ -244,7 +254,9 @@ export async function runNavigationCodegen({
     artifacts.swiftModels = models.swiftModels;
     artifacts.kotlinModels = models.kotlinModels;
   } else {
-    logger.info('No complex model types found; skipping quicktype model generation');
+    logger.info(
+      'No complex model types found; skipping quicktype model generation'
+    );
   }
 
   if (dryRun) {
@@ -252,5 +264,10 @@ export async function runNavigationCodegen({
     return;
   }
 
-  writeArtifacts(getOutputPaths(packageRoot, androidJavaPackageName), artifacts);
+  writeArtifacts(
+    getOutputPaths(packageRoot, androidJavaPackageName),
+    artifacts
+  );
+
+  outro('Brownfield Navigation codegen done');
 }
