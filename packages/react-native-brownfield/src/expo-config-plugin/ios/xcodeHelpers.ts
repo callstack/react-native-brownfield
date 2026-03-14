@@ -1,6 +1,10 @@
 import path from 'node:path';
 
-import type { ModProps, XcodeProject } from '@expo/config-plugins';
+import {
+  type ModProps,
+  type XcodeProject,
+  IOSConfig,
+} from '@expo/config-plugins';
 
 import { Logger } from '../logging';
 import type { ResolvedBrownfieldPluginIosConfig } from '../types';
@@ -286,7 +290,66 @@ export function copyBundleReactNativePhase(
   }
 }
 
+function resolveAppTargetName(
+  project: XcodeProject,
+  modRequest: ModProps<XcodeProject>
+): string | null {
+  const appTargets = IOSConfig.Target.getNativeTargets(project)
+    .map(([, target]) => {
+      if (
+        !IOSConfig.Target.isTargetOfType(
+          target,
+          IOSConfig.Target.TargetType.APPLICATION
+        )
+      ) {
+        return null;
+      }
+
+      const name = IOSConfig.XcodeUtils.unquote(target.name ?? '').trim();
+
+      return name ?? null;
+    })
+    .filter((name): name is string => !!name);
+
+  // 1) Unambiguous first application-type target
+  if (appTargets.length === 1) {
+    return appTargets[0];
+  } else {
+    Logger.logWarning(
+      'Multiple application targets found in the Xcode project. Falling back to the CNG-derived name from mod compiler.'
+    );
+  }
+
+  // 2) CNG-derived name from mod compiler (`modRequest.projectName`) - only if it exists in the filtered application-type list of Xcode project targets
+  const cngDerivedProjectName = modRequest.projectName;
+  if (cngDerivedProjectName && appTargets.includes(cngDerivedProjectName)) {
+    return cngDerivedProjectName;
+  } else {
+    Logger.logWarning(
+      'CNG-derived name from mod compiler is not set or is not an application target. Falling back to the unfiltered-type target name.'
+    );
+  }
+
+  // 3) PBX "first native target" fallback
+  try {
+    const [, firstAppTarget] = IOSConfig.Target.findFirstNativeTarget(project);
+    const name = IOSConfig.XcodeUtils.unquote(firstAppTarget.name ?? '').trim();
+    return name || null;
+  } catch {
+    Logger.logWarning(
+      'No first native target of any type found in the Xcode project. This was the last resort fallback.'
+    );
+  }
+
+  Logger.logError(
+    `Could not determine the iOS app target name from the Xcode project. Please adjust your Xcode project to have exactly one application target.`
+  );
+
+  return null;
+}
+
 export function addExpoPre55ShellPatchScriptPhase(
+  modRequest: ModProps<XcodeProject>,
   project: XcodeProject,
   {
     frameworkName,
@@ -296,6 +359,16 @@ export function addExpoPre55ShellPatchScriptPhase(
     frameworkTargetUUID: string;
   }
 ) {
+  const resolvedAppTargetName = resolveAppTargetName(project, modRequest);
+
+  Logger.logInfo(`Resolved iOS app target name: ${resolvedAppTargetName}`);
+
+  if (!resolvedAppTargetName) {
+    throw new SourceModificationError(
+      `Could not determine the iOS app target name from the Xcode project.`
+    );
+  }
+
   project.addBuildPhase(
     [
       // no associated files
@@ -306,6 +379,7 @@ export function addExpoPre55ShellPatchScriptPhase(
     {
       shellPath: '/bin/sh',
       shellScript: renderTemplate('ios', 'patchExpoPre55.sh', {
+        '{{APP_TARGET_NAME}}': resolvedAppTargetName,
         '{{FRAMEWORK_NAME}}': frameworkName,
       }),
     }

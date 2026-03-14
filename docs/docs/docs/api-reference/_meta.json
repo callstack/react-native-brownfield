@@ -6,6 +6,11 @@
   },
   {
     "type": "dir",
+    "name": "brownfield-navigation.mdx",
+    "label": "BrownfieldNavigation"
+  },
+  {
+    "type": "dir",
     "name": "brownie",
     "label": "Brownie"
   }

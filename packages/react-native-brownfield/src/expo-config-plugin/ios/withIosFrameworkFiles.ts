@@ -29,10 +29,6 @@ export function getFrameworkSourceFiles(
         '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
       }),
     },
-    {
-      relativePath: 'ReactNativeHostManager.swift',
-      content: renderTemplate('ios', 'ReactNativeHostManager.swift', {}),
-    },
   ];
 }
 

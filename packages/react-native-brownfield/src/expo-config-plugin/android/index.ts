@@ -3,4 +3,7 @@ export {
   withAndroidModuleFiles,
   createAndroidModule,
 } from './withAndroidModuleFiles';
-export { modifyRootBuildGradle, modifySettingsGradle } from './gradleHelpers';
+export {
+  modifyRootBuildGradle,
+  modifySettingsGradle,
+} from './utils/gradleHelpers';

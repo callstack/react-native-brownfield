@@ -33,7 +33,10 @@ android {
 
     flavorDimensions += "app"
     productFlavors {
-        create("expo") {
+        create("expo54") {
+            dimension = "app"
+        }
+        create("expo55") {
             dimension = "app"
         }
         create("vanilla") {
@@ -74,7 +77,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
-    add("expoImplementation", libs.brownfieldlib.expo)
+    add("expo55Implementation", libs.brownfieldlib.expo55)
+    add("expo54Implementation", libs.brownfieldlib.expo54)
     add("vanillaImplementation", libs.brownfieldlib.vanilla)
 
     implementation(libs.androidx.fragment.compose)

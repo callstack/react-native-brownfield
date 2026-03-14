@@ -42,10 +42,7 @@ class RNBrownfieldPlugin
              */
             if (this.isExpoProject) {
                 Logging.log("Expo project detected.")
-                ExpoPublishingHelper(
-                    brownfieldAppProject = project,
-                    expoProject = maybeExpoProject!!,
-                ).configure()
+                project.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
             }
 
             RNSourceSets.configure(project, extension)
@@ -54,6 +51,12 @@ class RNBrownfieldPlugin
 
             project.afterEvaluate {
                 afterEvaluate()
+
+                if (this.isExpoProject) {
+                    ExpoPublishingHelper(
+                        brownfieldAppProject = project,
+                    ).afterEvaluate()
+                }
             }
         }
 

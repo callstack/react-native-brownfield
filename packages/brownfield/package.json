@@ -1,6 +1,6 @@
 {
   "name": "brownfield",
-  "version": "1.0.4",
+  "version": "3.3.0",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": "dist/index.js",
@@ -11,7 +11,7 @@
   ],
   "homepage": "https://oss.callstack.com/react-native-brownfield",
   "repository": {
-    "url": "https://github.com/callstack/react-native-brownfield/packages/brownfield"
+    "url": "git+https://github.com/callstack/react-native-brownfield/packages/brownfield"
   },
   "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
   "exports": {
@@ -52,12 +52,12 @@
     "@callstack/brownfield-cli": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^25.0.8",
-    "eslint": "^9.28.0",
+    "@types/node": "^25.5.0",
+    "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-node-import": "^1.0.5",
-    "eslint-plugin-prettier": "^5.1.3",
-    "prettier": "^3.7.4",
+    "eslint-plugin-node-import": "^1.2.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.1",
     "typescript": "5.9.3"
   },
   "engines": {

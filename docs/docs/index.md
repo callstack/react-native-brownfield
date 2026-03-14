@@ -19,7 +19,7 @@ features:
     details: Package your React Native app as XCFramework (iOS) or AAR (Android) for easy distribution with <code>brownfield</code> CLI.
     icon: <img src="/react-native-brownfield/animation.svg" />
   - title: Type-safe state sync
-    details: Single-source-of-truth state synchronization between React Native and native code with type-safe code generation from TypeScript to Swift with Brownie library.
+    details: Comes with a message exchange lag between native and RN. <br/> <br/> Single-source-of-truth state synchronization between React Native and native code with type-safe code generation from TypeScript to Swift with Brownie library.
     icon: <img src="/react-native-brownfield/arrows-horizontal.svg" />
   - title: Modern UI frameworks supported
     details: First-class support for modern UI frameworks including SwiftUI and Jetpack Compose.

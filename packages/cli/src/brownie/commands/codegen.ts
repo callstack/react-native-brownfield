@@ -134,7 +134,7 @@ export async function runCodegen({ platform }: RunCodegenOptions) {
     }
   }
 
-  outro('Done!');
+  outro('Brownie codegen done');
 }
 
 export const codegenCommand = new Command('codegen')

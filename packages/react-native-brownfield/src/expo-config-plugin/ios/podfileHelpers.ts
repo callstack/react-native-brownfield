@@ -6,56 +6,99 @@ const BROWNFIELD_POD_HOOK_MARKER_START =
   '# >>> react-native-brownfield expo phase ordering >>>';
 const BROWNFIELD_POD_HOOK_MARKER_END =
   '# <<< react-native-brownfield expo phase ordering <<<';
+const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
+  '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>';
+const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
+  '# <<< react-native-brownfield Expo SDK 55+ swift defines <<<';
+const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
+const REACT_NATIVE_PODS_REQUIRE_REGEX =
+  /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
+
+function ensureBrownfieldPostIntegrateRequire(podfile: string): string {
+  if (podfile.includes('scripts/react_native_brownfield_post_integrate')) {
+    return podfile;
+  }
+
+  const reactNativePodsRequireMatch = podfile.match(
+    REACT_NATIVE_PODS_REQUIRE_REGEX
+  );
+  if (reactNativePodsRequireMatch) {
+    const requireLine = reactNativePodsRequireMatch[0];
+    return podfile.replace(
+      requireLine,
+      `${requireLine}\n${BROWNFIELD_POST_INTEGRATE_REQUIRE}\n`
+    );
+  }
+
+  return `${BROWNFIELD_POST_INTEGRATE_REQUIRE}\n\n${podfile}`;
+}
 
 function ensureExpoPhaseOrderingHook(podfile: string): string {
-  if (podfile.includes(BROWNFIELD_POD_HOOK_MARKER_START)) {
-    return podfile;
+  let modifiedPodfile = ensureBrownfieldPostIntegrateRequire(podfile);
+
+  if (modifiedPodfile.includes(BROWNFIELD_POD_HOOK_MARKER_START)) {
+    return modifiedPodfile;
   }
 
   const hook = `
 ${BROWNFIELD_POD_HOOK_MARKER_START}
-def reorder_brownfield_expo_patch_phase!(installer)
-  projects = installer.aggregate_targets.map(&:user_project).compact.uniq
-  projects.each do |project|
-    modified = false
-
-    project.native_targets.each do |target|
-      phases = target.build_phases
-      expo_idx = phases.index { |p| p.respond_to?(:name) && p.name == '[Expo] Configure project' }
-      patch_idx = phases.index { |p| p.respond_to?(:name) && p.name == 'Patch ExpoModulesProvider' }
-
-      next if expo_idx.nil? || patch_idx.nil?
-      next if patch_idx > expo_idx
-
-      patch = phases.delete_at(patch_idx)
-      expo_idx = phases.index { |p| p.respond_to?(:name) && p.name == '[Expo] Configure project' }
-      phases.insert(expo_idx + 1, patch)
-      modified = true
-    end
-
-    project.save if modified
-  end
-end
-
 post_integrate do |installer|
-  reorder_brownfield_expo_patch_phase!(installer)
+  react_native_brownfield_post_integrate(installer)
 end
 ${BROWNFIELD_POD_HOOK_MARKER_END}
 `;
 
-  return `${podfile.trimEnd()}\n\n${hook}\n`;
+  modifiedPodfile = `${modifiedPodfile.trimEnd()}\n\n${hook}\n`;
+
+  return modifiedPodfile;
+}
+
+function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
+  if (podfile.includes(BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START)) {
+    return podfile;
+  }
+
+  const hook = `
+    ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START}
+    installer.pods_project.targets.each do |target|
+      if target.name == 'ReactBrownfield'
+        puts "[Brownfield] Adding definition of EXPO_SDK_GTE_55 to target: #{target.name}"
+
+        target.build_configurations.each do |config|
+          conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
+          conditions = conditions.to_s
+          config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_SDK_GTE_55"
+        end
+      end
+    end
+    ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END}
+`;
+
+  const postInstallMatch = podfile.match(
+    /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
+  );
+
+  if (postInstallMatch) {
+    const [whole, start, content, end] = postInstallMatch;
+    const updated = `${start}${content.trimEnd()}\n${hook}\n${end}`;
+    return podfile.replace(whole, updated);
+  }
+
+  // if there is no post_install, append one
+  return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
 }
 
 /**
  * Modifies the Podfile to include the Brownfield framework target
  * @param podfile The original Podfile content
  * @param frameworkName The name of the framework target to add
+ * @param expoMajor The major version of the Expo SDK
  * @returns The modified Podfile content
  */
 export function modifyPodfile(
   podfile: string,
   frameworkName: string,
-  isExpoPre55: boolean
+  expoMajor: number
 ): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
@@ -96,8 +139,11 @@ export function modifyPodfile(
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
-  if (isExpoPre55) {
+  if (expoMajor < 55) {
     modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
+  } else {
+    // Expo SDK >= 55
+    modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
   }
 
   return modifiedPodfile;
