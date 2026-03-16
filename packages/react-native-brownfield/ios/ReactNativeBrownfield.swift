@@ -122,6 +122,31 @@ internal import Expo
     #endif
   }
 
+  @objc public func application(
+    _ app: UIApplication,
+    open url: URL,
+    options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) -> Bool {
+    #if canImport(Expo)
+    return ExpoHostRuntime.shared.application(app, open: url, options: options)
+    #else
+    return ReactNativeHostRuntime.shared.application(app, open: url, options: options)
+    #endif
+  }
+
+  // Universal Links
+  @objc public func application(
+    _ application: UIApplication,
+    continue userActivity: NSUserActivity,
+    restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
+  ) -> Bool {
+    #if canImport(Expo)
+    return ExpoHostRuntime.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+    #else
+    return ReactNativeHostRuntime.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+    #endif
+  }
+
   /**
    * Starts React Native with optional callback when bundle is loaded.
    *
