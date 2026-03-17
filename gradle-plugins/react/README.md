@@ -20,7 +20,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-+       classpath("com.callstack.react:brownfield-gradle-plugin:1.0.1")
++       classpath("com.callstack.react:brownfield-gradle-plugin:1.0.2")
     }
 }
 ```
@@ -59,7 +59,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-+       classpath("com.callstack.react:brownfield-gradle-plugin:1.0.1-SNAPSHOT")
++       classpath("com.callstack.react:brownfield-gradle-plugin:1.0.2-SNAPSHOT")
     }
 }
 ```
