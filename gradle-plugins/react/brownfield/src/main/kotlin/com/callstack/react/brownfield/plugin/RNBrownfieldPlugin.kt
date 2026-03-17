@@ -45,11 +45,11 @@ class RNBrownfieldPlugin
                 project.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
             }
 
-            RNSourceSets.configure(project, extension)
             projectConfigurations.setup()
             registerRClassTransformer()
 
             project.afterEvaluate {
+                RNSourceSets.configure(project, extension)
                 afterEvaluate()
 
                 if (this.isExpoProject) {
