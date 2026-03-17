@@ -59,7 +59,8 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
 
         if (capitalizedVariantName.contains("Release")) {
             val projectExt = project.extensions.getByType(Extension::class.java)
-            prepareTask.dependsOn(":${projectExt.appProjectName}:createBundle${capitalizedVariantName}JsAndAssets")
+            val appProject = project.rootProject.project(projectExt.appProjectName)
+            prepareTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
