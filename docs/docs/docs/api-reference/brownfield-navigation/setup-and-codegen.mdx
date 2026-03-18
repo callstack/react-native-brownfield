@@ -39,9 +39,11 @@ export interface BrownfieldNavigationSpec {
 
 :::info
 Prefer simple synchronous navigation methods (`void`).
-<br/>
-Async Promise-based methods are not currently supported by the generated native code on iOS and Android — they will compile, but the generated implementations will reject with a `not_implemented` error.
-:::
+
+<br />
+Async Promise-based methods are not currently supported by the generated native
+code on iOS and Android — they will compile, but the generated implementations
+will reject with a `not_implemented` error. :::
 
 ## 2) Run codegen
 
@@ -74,5 +76,5 @@ Then recompile native apps.
 
 ## Next
 
-- Continue with [Native Integration](/docs/api-reference/brownfield-navigation.mdx/native-integration)
-- Then wire JS calls from [JavaScript Usage](/docs/api-reference/brownfield-navigation.mdx/javascript-usage)
+- Continue with [Native Integration](/docs/api-reference/brownfield-navigation/native-integration)
+- Then wire JS calls from [JavaScript Usage](/docs/api-reference/brownfield-navigation/javascript-usage)
