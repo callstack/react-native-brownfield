@@ -2,16 +2,16 @@
   {
     "type": "dir",
     "name": "react-native-brownfield",
-    "label": "ReactNativeBrownfield"
+    "label": "iOS & Android integration"
   },
   {
     "type": "dir",
-    "name": "brownfield-navigation.mdx",
-    "label": "BrownfieldNavigation"
+    "name": "brownfield-navigation",
+    "label": "Navigation"
   },
   {
     "type": "dir",
     "name": "brownie",
-    "label": "Brownie"
+    "label": "State Management"
   }
 ]
