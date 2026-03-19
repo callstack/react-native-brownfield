@@ -5,7 +5,7 @@
  * We can't use the new `com.android.build.gradle.api.LibraryVariant`
  * as of now.
  *
- * We may want to re-visit this in future.
+ * We may want to re-visit this in the future.
  */
 
 package com.callstack.react.brownfield.processors
@@ -17,6 +17,7 @@ import com.callstack.react.brownfield.artifacts.ArtifactsResolver.Companion.ARTI
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
+import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ResolvedArtifact
@@ -57,7 +58,9 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
         }
 
         if (capitalizedVariantName.contains("Release")) {
-            prepareTask.dependsOn(":app:createBundle${capitalizedVariantName}JsAndAssets")
+            val projectExt = project.extensions.getByType(Extension::class.java)
+            val appProject = project.rootProject.project(projectExt.appProjectName)
+            prepareTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
