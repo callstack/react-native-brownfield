@@ -1,5 +1,17 @@
 # @callstack/brownfield-cli
 
+## 3.4.0
+
+### Patch Changes
+
+- [#246](https://github.com/callstack/react-native-brownfield/pull/246) [`5484065`](https://github.com/callstack/react-native-brownfield/commit/5484065da9dc86a420af2be692fcdefa32fbb2af) Thanks [@artus9033](https://github.com/artus9033)! - chore: upgrade dependencies
+
+- [#275](https://github.com/callstack/react-native-brownfield/pull/275) [`dd8b8a0`](https://github.com/callstack/react-native-brownfield/commit/dd8b8a0b532fe779c1f2ce018577ad748b887ee0) Thanks [@artus9033](https://github.com/artus9033)! - chore: bump up Gradle plugin version
+
+- [#271](https://github.com/callstack/react-native-brownfield/pull/271) [`54ab7ab`](https://github.com/callstack/react-native-brownfield/commit/54ab7ab01bd6f95439cc8b702d4124552e22ad55) Thanks [@artus9033](https://github.com/artus9033)! - feat: improved logging in brownfield CLI codegens
+
+- [#246](https://github.com/callstack/react-native-brownfield/pull/246) [`5484065`](https://github.com/callstack/react-native-brownfield/commit/5484065da9dc86a420af2be692fcdefa32fbb2af) Thanks [@artus9033](https://github.com/artus9033)! - chore: upgrade dependencies
+
 ## 3.3.0
 
 ### Minor Changes
