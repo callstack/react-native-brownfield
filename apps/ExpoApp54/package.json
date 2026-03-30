@@ -47,7 +47,7 @@
     "typescript": "~5.9.3"
   },
   "brownie": {
-    "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp/Generated/",
-    "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp"
+    "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp54/Generated/",
+    "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp54"
   }
 }

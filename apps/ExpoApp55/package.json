@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-example-expo-app-55",
-  "main": "expo-router/entry",
+  "main": "./entry.tsx",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
@@ -51,5 +51,9 @@
     "eslint-config-expo": "~55.0.0",
     "typescript": "~5.9.2"
   },
-  "private": true
+  "private": true,
+  "brownie": {
+    "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/",
+    "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp55"
+  }
 }
