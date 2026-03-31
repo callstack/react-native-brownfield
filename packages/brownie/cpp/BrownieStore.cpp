@@ -16,16 +16,18 @@ folly::dynamic BrownieStore::get(const std::string &key) const {
 }
 
 void BrownieStore::set(const std::string &key, folly::dynamic value) {
+  ChangeCallback callback;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (!state_.isObject()) {
       state_ = folly::dynamic::object();
     }
     state_[key] = std::move(value);
+    callback = changeCallback_;
   }
 
-  if (changeCallback_) {
-    changeCallback_();
+  if (callback) {
+    callback();
   }
 }
 
@@ -35,13 +37,15 @@ folly::dynamic BrownieStore::getSnapshot() const {
 }
 
 void BrownieStore::setState(folly::dynamic state) {
+  ChangeCallback callback;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     state_ = std::move(state);
+    callback = changeCallback_;
   }
 
-  if (changeCallback_) {
-    changeCallback_();
+  if (callback) {
+    callback();
   }
 }
 

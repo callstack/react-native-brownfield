@@ -13,7 +13,7 @@ runs:
     - name: Use appropriate Xcode version
       uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
       with:
-        xcode-version: '26'
+        xcode-version: '26.3'
 
     - name: Setup Ruby
       uses: ruby/setup-ruby@5dd816ae0186f20dfa905997a64104db9a8221c7 # v1.280.0

@@ -113,7 +113,7 @@ describe('runCodegen', () => {
     expect(mockGenerateSwift).not.toHaveBeenCalled();
   });
 
-  it('generates only swift by default even when kotlin is configured', async () => {
+  it('generates swift and kotlin by default when kotlin is configured', async () => {
     tempDir = createTempPackageJson({
       brownie: {
         kotlin: './Generated',
@@ -124,7 +124,13 @@ describe('runCodegen', () => {
     await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalled();
-    expect(mockGenerateKotlin).not.toHaveBeenCalled();
+    expect(mockGenerateKotlin).toHaveBeenCalledWith({
+      name: 'TestStore',
+      schemaPath: '/path/to/TestStore.brownie.ts',
+      typeName: 'TestStore',
+      outputPath: 'Generated/TestStore.kt',
+      packageName: undefined,
+    });
   });
 
   it('generates only specified platform', async () => {

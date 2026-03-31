@@ -8,20 +8,42 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.callstack.brownfield.android.example.BrownfieldStore
+import com.callstack.brownie.Store
+import com.callstack.brownie.StoreManager
+import com.callstack.brownie.store
+import com.callstack.brownie.subscribe
+
+private fun brownieStore(): Store<BrownfieldStore>? {
+    return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
+}
 
 @Composable
 fun GreetingCard(
     name: String,
 ) {
-    var counter by rememberSaveable { mutableIntStateOf(0) }
+    var counter by remember { mutableIntStateOf(0) }
+
+    DisposableEffect(Unit) {
+        val store = brownieStore()
+        val unsubscribe = store?.subscribe(
+            selector = { state -> state.counter.toInt() },
+            onChange = { updatedCounter -> counter = updatedCounter }
+        ) ?: {}
+
+        onDispose {
+            unsubscribe()
+        }
+    }
 
     MaterialCard {
         Column(
@@ -43,7 +65,11 @@ fun GreetingCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Button(onClick = { counter++ }) {
+            Button(onClick = {
+                brownieStore()?.set { state ->
+                    state.copy(counter = state.counter + 1)
+                }
+            }) {
                 Text("Increment counter")
             }
         }
