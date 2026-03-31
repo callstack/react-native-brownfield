@@ -1,5 +1,16 @@
 # @callstack/brownie
 
+## 3.5.0
+
+### Minor Changes
+
+- [#257](https://github.com/callstack/react-native-brownfield/pull/257) [`d0e6203`](https://github.com/callstack/react-native-brownfield/commit/d0e62039c8a080c648abbbeace047e72fadce28b) Thanks [@hurali97](https://github.com/hurali97)! - add brownie android
+
+### Patch Changes
+
+- Updated dependencies [[`d0e6203`](https://github.com/callstack/react-native-brownfield/commit/d0e62039c8a080c648abbbeace047e72fadce28b)]:
+  - @callstack/brownfield-cli@3.5.0
+
 ## 3.4.0
 
 ### Patch Changes
