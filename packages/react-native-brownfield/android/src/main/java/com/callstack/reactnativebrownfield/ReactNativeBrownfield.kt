@@ -167,7 +167,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         val resolvedDelegate =
             reactDelegate ?: ReactDelegateWrapper(activity, reactHost, moduleName, launchOptions)
 
-        val mBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        val backPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // invoked for JS stack back navigation
                 resolvedDelegate.onBackPressed()
@@ -175,11 +175,12 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
 
         // Register back press callback
-        activity?.onBackPressedDispatcher?.addCallback(mBackPressedCallback)
+        activity?.onBackPressedDispatcher?.addCallback(backPressedCallback)
         // invoked on the last RN screen exit
         resolvedDelegate.setHardwareBackHandler {
-            mBackPressedCallback.isEnabled = false
+            backPressedCallback.isEnabled = false
             activity?.onBackPressedDispatcher?.onBackPressed()
+            backPressedCallback.isEnabled = true
         }
 
         /**
