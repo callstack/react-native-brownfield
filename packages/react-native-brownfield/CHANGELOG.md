@@ -1,5 +1,14 @@
 # @callstack/react-native-brownfield
 
+## 3.5.1
+
+### Patch Changes
+
+- [#288](https://github.com/callstack/react-native-brownfield/pull/288) [`096cc3b`](https://github.com/callstack/react-native-brownfield/commit/096cc3bbf580d9bf22374fa8b67021d2f29e211c) Thanks [@marcinszalski-callstack](https://github.com/marcinszalski-callstack)! - fix: restore back-button propagation from native to RN
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.5.1
+
 ## 3.5.0
 
 ### Minor Changes
