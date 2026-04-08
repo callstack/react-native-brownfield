@@ -17,7 +17,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
-//            ReactNativeBrownfield.shared.initializeExpoUpdates()
         }
         
         return ReactNativeBrownfield.shared.application(

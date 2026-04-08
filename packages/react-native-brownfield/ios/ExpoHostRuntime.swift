@@ -67,11 +67,12 @@ final class ExpoHostRuntime {
     //   AppController.initializeWithoutStarting()
     
 //    updatesController = AppController.sharedInstance
-//    if !didStartUpdatesController {
-//      didStartUpdatesController = true
-//      updatesController?.start()
-//    }
+    if !didStartUpdatesController {
+        print("== starting app controller")
+      didStartUpdatesController = true
       AppController.sharedInstance.start()
+    }
+//      AppController.sharedInstance.start()
   }
   #endif
 
@@ -124,8 +125,13 @@ final class ExpoHostRuntime {
     if !AppController.isInitialized() {
       AppController.initializeWithoutStarting()
     }
-      
-      AppController.sharedInstance.start()
+
+//      if !didStartUpdatesController {
+//          print("== starting app controller")
+//        didStartUpdatesController = true
+//        AppController.sharedInstance.start()
+//      }
+//      AppController.sharedInstance.start()
     #endif
       return ExpoAppDelegateSubscriberManager.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -257,18 +263,23 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
       forBundleRoot: entryFile)
 #else
     #if canImport(EXUpdates)
+      print("=== expo updates initialized -- \(AppController.isInitialized())")
       print("=== expo launch asset URL -- \(AppController.sharedInstance.launchAssetUrl())")
     if AppController.isInitialized(),
        let launchAssetURL = AppController.sharedInstance.launchAssetUrl() {
+      print("=== expo using updates launch asset URL")
       return launchAssetURL
     }
+      print("=== expo updates launch asset missing, falling back to bundled JS")
     #endif
     do {
         print("=== expo release")
       let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
         from: bundlePath
       )
-      return bundle.url(forResource: resourceName, withExtension: fileExtension)
+      let bundledURL = bundle.url(forResource: resourceName, withExtension: fileExtension)
+      print("=== expo bundled JS candidate -- \(String(describing: bundledURL))")
+      return bundledURL
     } catch {
       assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")
       return nil

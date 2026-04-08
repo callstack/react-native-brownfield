@@ -13,6 +13,7 @@ internal import EXUpdates
     self.moduleName = moduleName
     self.initialProperties = initialProperties
     AppController.sharedInstance.delegate = updatesDelegate
+      AppController.sharedInstance.start()
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -28,9 +29,7 @@ internal import EXUpdates
       }
 
     if !moduleName.isEmpty {
-      // Added to handle the cases when EXUpdates is never and disabled
-      renderReactNativeViewIfNeeded()
-        
+
       NotificationCenter.default.addObserver(
         self,
         selector: #selector(togglePopGestureRecognizer(_:)),

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>EXUpdatesCheckOnLaunch</key>
-	<string>NEVER</string>
+	<string>ALWAYS</string>
 	<key>EXUpdatesEnabled</key>
-	<true/>
+	<false/>
 	<key>EXUpdatesLaunchWaitMs</key>
 	<integer>0</integer>
 	<key>EXUpdatesRequestHeaders</key>
