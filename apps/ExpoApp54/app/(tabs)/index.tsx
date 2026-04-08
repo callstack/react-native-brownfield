@@ -1,11 +1,116 @@
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Alert, Button, StyleSheet, View } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import * as Updates from 'expo-updates';
+
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label: string
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${ms}ms`));
+    }, ms);
+
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
+async function logUpdatesDiagnostics() {
+  try {
+    const extra = await Updates.getExtraParamsAsync();
+    console.log('== updates diagnostics', {
+      isEnabled: Updates.isEnabled,
+      channel: Updates.channel,
+      runtimeVersion: Updates.runtimeVersion,
+      updateId: Updates.updateId,
+      isEmbeddedLaunch: Updates.isEmbeddedLaunch,
+      emergencyLaunchReason: Updates.emergencyLaunchReason ?? null,
+      launchDuration: Updates.launchDuration ?? null,
+      manifestKeys: Object.keys(Updates.manifest ?? {}),
+      extraParams: extra,
+    });
+  } catch (error) {
+    console.log('== updates diagnostics error', error);
+  }
+}
+
+async function checkForUpdate() {
+  try {
+    console.log('== checkForUpdateAsync start');
+    // const update = await withTimeout(
+    //   Updates.checkForUpdateAsync(),
+    //   15000,
+    //   'checkForUpdateAsync'
+    // );
+    const update = await Updates.checkForUpdateAsync();
+
+    console.log('== checkForUpdateAsync isAvailable -- ', update.isAvailable);
+    console.log(
+      '== checkForUpdateAsync isRollBackToEmbedded -- ',
+      update.isRollBackToEmbedded
+    );
+    console.log('== checkForUpdateAsync ID -- ', update.manifest?.id);
+    console.log(
+      '== checkForUpdateAsync assets -- ',
+      update.manifest?.assets.length
+    );
+    if (update.isAvailable) {
+      const fetchUpdateResult = await Updates.fetchUpdateAsync();
+      console.log(
+        '== fetchUpdateAsync result ',
+        fetchUpdateResult.isNew,
+        fetchUpdateResult.manifest?.id,
+        fetchUpdateResult.isRollBackToEmbedded,
+        fetchUpdateResult.manifest?.assets.length
+      );
+
+      await Updates.reloadAsync({
+        reloadScreenOptions: {
+          spinner: {
+            enabled: true,
+            color: 'red',
+            size: 'large',
+          },
+        },
+      });
+
+      // console.log('== update applied', update);
+      // Alert.alert(
+      //   'Update available',
+      //   'Please restart the app to apply the update'
+      // );
+    } else {
+      Alert.alert('No update available');
+    }
+  } catch (error) {
+    console.log('== checkForUpdateAsync/fetchUpdateAsync failed', error);
+    Alert.alert('Update check failed', String(error));
+  }
+}
+
+async function readLogs() {
+  try {
+    const logs = await Updates.readLogEntriesAsync();
+    console.log('== readLogs result', logs);
+  } catch (error) {
+    console.log('== readLogs error', error);
+  }
+}
 
 export default function HomeScreen() {
   return (
@@ -20,11 +125,20 @@ export default function HomeScreen() {
         }
       >
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Welcome to Expo 54!</ThemedText>
+          <ThemedText type="title">Welcome to Expo 54! - Test</ThemedText>
           <HelloWave />
         </ThemedView>
         <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+          <Button
+            title="Fetch Update - Now"
+            onPress={() => {
+              // readLogs();
+              // logUpdatesDiagnostics();
+              checkForUpdate();
+              // BrownfieldNavigation.navigateToSettings()
+            }}
+          />
+          {/* <ThemedText type="subtitle">Step 1: Try it</ThemedText>
           <ThemedText>
             Edit{' '}
             <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{' '}
@@ -37,7 +151,7 @@ export default function HomeScreen() {
               })}
             </ThemedText>{' '}
             to open developer tools.
-          </ThemedText>
+          </ThemedText> */}
         </ThemedView>
         <ThemedView style={styles.stepContainer}>
           <Link href="/modal">

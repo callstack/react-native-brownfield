@@ -182,6 +182,218 @@ export function addSourceFilesBuildPhase(
   );
 }
 
+function normalizePbxString(value: unknown): string {
+  return String(value ?? '').replace(/^"(.*)"$/, '$1');
+}
+
+function findSupportingGroupUuid(project: XcodeProject): string | null {
+  const groups = (project as any).hash?.project?.objects?.PBXGroup;
+  if (!groups) {
+    return null;
+  }
+
+  for (const [groupUuid, group] of Object.entries(groups)) {
+    if (groupUuid.endsWith('_comment')) {
+      continue;
+    }
+
+    const groupName = normalizePbxString((group as any)?.name);
+    const groupPath = normalizePbxString((group as any)?.path);
+
+    if (groupName === 'Supporting' || groupPath.endsWith('/Supporting')) {
+      return groupUuid;
+    }
+  }
+
+  return null;
+}
+
+function getOrCreateExpoPlistFileReference(project: XcodeProject): string {
+  const fileReferences = project.pbxFileReferenceSection() as Record<
+    string,
+    any
+  >;
+  const normalizedTargetPath = 'Supporting/Expo.plist';
+
+  let fallbackExpoPlistFileRefUuid: string | null = null;
+
+  for (const [fileRefUuid, fileRef] of Object.entries(fileReferences)) {
+    if (fileRefUuid.endsWith('_comment')) {
+      continue;
+    }
+
+    const filePath = normalizePbxString((fileRef as any)?.path);
+    const fileName = normalizePbxString((fileRef as any)?.name);
+    const normalizedPath = filePath.replace(/^\.\//, '');
+
+    if (
+      normalizedPath === normalizedTargetPath ||
+      normalizedPath.endsWith(`/${normalizedTargetPath}`)
+    ) {
+      return fileRefUuid;
+    }
+
+    if (
+      !fallbackExpoPlistFileRefUuid &&
+      (normalizedPath === 'Expo.plist' || fileName === 'Expo.plist')
+    ) {
+      fallbackExpoPlistFileRefUuid = fileRefUuid;
+    }
+  }
+
+  if (fallbackExpoPlistFileRefUuid) {
+    return fallbackExpoPlistFileRefUuid;
+  }
+
+  const supportingGroupUuid = findSupportingGroupUuid(project);
+  if (!supportingGroupUuid) {
+    throw new SourceModificationError(
+      'Could not find the "Supporting" PBXGroup needed for Expo.plist resource wiring'
+    );
+  }
+
+  const fileRefUuid = (project as any).generateUuid();
+  fileReferences[fileRefUuid] = {
+    isa: 'PBXFileReference',
+    fileEncoding: 4,
+    lastKnownFileType: 'text.plist.xml',
+    path: 'Expo.plist',
+    sourceTree: '"<group>"',
+  };
+  fileReferences[`${fileRefUuid}_comment`] = 'Expo.plist';
+
+  const groups = (project as any).hash?.project?.objects?.PBXGroup as
+    | Record<string, any>
+    | undefined;
+  const supportingGroup = groups?.[supportingGroupUuid];
+  if (supportingGroup) {
+    const children = Array.isArray(supportingGroup.children)
+      ? supportingGroup.children
+      : [];
+
+    const hasExpoPlistChild = children.some((child: any) => {
+      if (typeof child === 'string') {
+        return child === fileRefUuid;
+      }
+
+      return child?.value === fileRefUuid;
+    });
+
+    if (!hasExpoPlistChild) {
+      children.push({
+        value: fileRefUuid,
+        comment: 'Expo.plist',
+      });
+      supportingGroup.children = children;
+    }
+  }
+
+  Logger.logDebug('Created PBXFileReference for Supporting/Expo.plist');
+
+  return fileRefUuid;
+}
+
+/**
+ * Ensures the framework target contains the app-level Supporting/Expo.plist in
+ * PBXResourcesBuildPhase. This is idempotent and safe to call repeatedly.
+ */
+export function ensureFrameworkHasExpoPlistResource(
+  project: XcodeProject,
+  frameworkTargetUUID: string
+): void {
+  const nativeTargets = (project as any).hash?.project?.objects
+    ?.PBXNativeTarget as Record<string, any> | undefined;
+  const frameworkTarget = nativeTargets?.[frameworkTargetUUID];
+  if (!frameworkTarget) {
+    throw new SourceModificationError(
+      `Framework target UUID "${frameworkTargetUUID}" not found while wiring Expo.plist as a resource`
+    );
+  }
+
+  const resourceBuildPhases =
+    (project as any).hash?.project?.objects?.PBXResourcesBuildPhase ?? {};
+  const resourcesBuildPhaseUuid = (frameworkTarget.buildPhases ?? [])
+    .map((phase: { value?: string } | string) =>
+      typeof phase === 'string' ? phase : phase?.value
+    )
+    .find(
+      (phaseUuid: string | undefined) =>
+        !!phaseUuid && !!resourceBuildPhases[phaseUuid]
+    );
+
+  let resolvedResourcesBuildPhaseUuid = resourcesBuildPhaseUuid;
+  if (!resolvedResourcesBuildPhaseUuid) {
+    // Some existing projects can have a framework target without an explicit
+    // resources phase. Create one so Expo.plist can be added safely.
+    resolvedResourcesBuildPhaseUuid = (project as any).generateUuid();
+    resourceBuildPhases[resolvedResourcesBuildPhaseUuid] = {
+      isa: 'PBXResourcesBuildPhase',
+      buildActionMask: 2147483647,
+      files: [],
+      runOnlyForDeploymentPostprocessing: 0,
+    };
+    resourceBuildPhases[`${resolvedResourcesBuildPhaseUuid}_comment`] =
+      'Resources';
+
+    const targetBuildPhases = Array.isArray(frameworkTarget.buildPhases)
+      ? frameworkTarget.buildPhases
+      : [];
+    targetBuildPhases.push({
+      value: resolvedResourcesBuildPhaseUuid,
+      comment: 'Resources',
+    });
+    frameworkTarget.buildPhases = targetBuildPhases;
+
+    Logger.logDebug(
+      `Created missing PBXResourcesBuildPhase for framework target "${frameworkTargetUUID}"`
+    );
+  }
+
+  const expoPlistFileRefUuid = getOrCreateExpoPlistFileReference(project);
+  const resourcesBuildPhase =
+    resourceBuildPhases[resolvedResourcesBuildPhaseUuid];
+  const buildFileSection = project.pbxBuildFileSection() as Record<string, any>;
+  const files = Array.isArray(resourcesBuildPhase.files)
+    ? resourcesBuildPhase.files
+    : [];
+
+  const hasExpoPlistResource = files.some(
+    (phaseFile: { value?: string } | string) => {
+      const buildFileUuid =
+        typeof phaseFile === 'string' ? phaseFile : phaseFile?.value;
+      if (!buildFileUuid) {
+        return false;
+      }
+
+      return buildFileSection[buildFileUuid]?.fileRef === expoPlistFileRefUuid;
+    }
+  );
+
+  if (hasExpoPlistResource) {
+    Logger.logDebug(
+      'Framework resources already include Supporting/Expo.plist'
+    );
+    return;
+  }
+
+  const buildFileUuid = (project as any).generateUuid();
+  buildFileSection[buildFileUuid] = {
+    isa: 'PBXBuildFile',
+    fileRef: expoPlistFileRefUuid,
+  };
+  buildFileSection[`${buildFileUuid}_comment`] = 'Expo.plist in Resources';
+
+  files.push({
+    value: buildFileUuid,
+    comment: 'Expo.plist in Resources',
+  });
+  resourcesBuildPhase.files = files;
+
+  Logger.logDebug(
+    'Added Supporting/Expo.plist to framework PBXResourcesBuildPhase'
+  );
+}
+
 /**
  * Returns build settings for the framework target
  * @param options The user configuration

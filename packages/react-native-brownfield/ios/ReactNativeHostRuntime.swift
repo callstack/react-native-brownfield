@@ -120,12 +120,26 @@ final class ReactNativeHostRuntime {
     return true
   }
 
+      /**
+     * Mirrors host manager app delegate API for bare React Native.
+     */
+    public func application(
+      _ application: UIApplication,
+      willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+      return true
+    }
+
   public func application(
     _ app: UIApplication,
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
     return RCTLinkingManager.application(app, open: url, options: options)
+  }
+
+  public func initializeRNUpdates() {
+   print("== initializeRNUpdates")
   }
 
   public func application(

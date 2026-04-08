@@ -13,10 +13,65 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication
             .LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        print("==== Brownfield: Initializing...")
+        ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+        ReactNativeBrownfield.shared.startReactNative {
+            print("React Native has been loaded")
+//            ReactNativeBrownfield.shared.initializeExpoUpdates()
+        }
+        
         return ReactNativeBrownfield.shared.application(
             application,
             didFinishLaunchingWithOptions: launchOptions
         )
+    }
+    
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        return ReactNativeBrownfield.shared.application(application, willFinishLaunchingWithOptions: launchOptions)
+    }
+    
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        ReactNativeBrownfield.shared.applicationDidBecomeActive(application)
+    }
+    
+    func applicationWillResignActive(_ application: UIApplication) {
+        ReactNativeBrownfield.shared.applicationWillResignActive(application)
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        ReactNativeBrownfield.shared.applicationDidEnterBackground(application)
+    }
+    
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        ReactNativeBrownfield.shared.applicationWillEnterForeground(application)
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        ReactNativeBrownfield.shared.applicationWillTerminate(application)
+    }
+    
+    func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
+        ReactNativeBrownfield.shared.applicationDidReceiveMemoryWarning(application)
+    }
+    
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
+        ReactNativeBrownfield.shared.application(application, handleEventsForBackgroundURLSession: identifier, completionHandler: completionHandler)
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        ReactNativeBrownfield.shared.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: any Error) {
+        ReactNativeBrownfield.shared.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        ReactNativeBrownfield.shared.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
+    }
+    
+    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        ReactNativeBrownfield.shared.application(application, performFetchWithCompletionHandler: completionHandler)
     }
 }
 
@@ -74,10 +129,12 @@ struct BrownfieldAppleApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     init() {
-        ReactNativeBrownfield.shared.bundle = ReactNativeBundle
-        ReactNativeBrownfield.shared.startReactNative {
-            print("React Native has been loaded")
-        }
+//        print("==== Brownfield: Initializing...")
+//        ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+//        ReactNativeBrownfield.shared.startReactNative {
+//            print("React Native has been loaded")
+////            ReactNativeBrownfield.shared.initializeExpoUpdates()
+//        }
 
         BrownfieldNavigationManager.shared.setDelegate(
             navigationDelegate: RNNavigationDelegate()

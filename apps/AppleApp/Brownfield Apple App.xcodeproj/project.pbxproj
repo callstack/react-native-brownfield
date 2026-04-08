@@ -17,6 +17,7 @@
 		614B23992F50633200CB6363 /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23902F50633200CB6363 /* hermesvm.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		614B239A2F50633200CB6363 /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23912F50633200CB6363 /* ReactBrownfield.xcframework */; };
 		614B239B2F50633200CB6363 /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23912F50633200CB6363 /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		619CC6202F7FCAC300EE3987 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 619CC61F2F7FCAC300EE3987 /* Expo.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,6 +44,7 @@
 		614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BrownfieldNavigation.xcframework; path = package/BrownfieldNavigation.xcframework; sourceTree = "<group>"; };
 		614B23902F50633200CB6363 /* hermesvm.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = hermesvm.xcframework; path = package/hermesvm.xcframework; sourceTree = "<group>"; };
 		614B23912F50633200CB6363 /* ReactBrownfield.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactBrownfield.xcframework; path = package/ReactBrownfield.xcframework; sourceTree = "<group>"; };
+		619CC61F2F7FCAC300EE3987 /* Expo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		793C76A72EEBF938008A2A34 /* Brownfield Apple App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -85,6 +87,7 @@
 		793C769E2EEBF938008A2A34 = {
 			isa = PBXGroup;
 			children = (
+				619CC61F2F7FCAC300EE3987 /* Expo.plist */,
 				793C76A92EEBF938008A2A34 /* Brownfield Apple App */,
 				6108E5322F40A26800EA8FA1 /* Frameworks */,
 				793C76A82EEBF938008A2A34 /* Products */,
@@ -164,6 +167,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				619CC6202F7FCAC300EE3987 /* Expo.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

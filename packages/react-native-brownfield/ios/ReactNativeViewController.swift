@@ -1,13 +1,18 @@
 import UIKit
 internal import React
+internal import EXUpdates
 
 @objc public class ReactNativeViewController: UIViewController {
   private var moduleName: String
   private var initialProperties: [String: Any]?
+  private let updatesDelegate = ReactNativeUpdatesDelegate()
+  private var hasRenderedReactNativeView = false
+    
 
   @objc public init(moduleName: String, initialProperties: [String: Any]? = nil) {
     self.moduleName = moduleName
     self.initialProperties = initialProperties
+    AppController.sharedInstance.delegate = updatesDelegate
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -17,14 +22,15 @@ internal import React
 
   public override func viewDidLoad() {
     super.viewDidLoad()
+      
+      updatesDelegate.onDidStart = { [weak self] in
+        self?.renderReactNativeViewIfNeeded()
+      }
 
     if !moduleName.isEmpty {
-      view = ReactNativeBrownfield.shared.view(
-        moduleName: moduleName,
-        initialProps: initialProperties,
-        launchOptions: nil
-      )
-
+      // Added to handle the cases when EXUpdates is never and disabled
+      renderReactNativeViewIfNeeded()
+        
       NotificationCenter.default.addObserver(
         self,
         selector: #selector(togglePopGestureRecognizer(_:)),
@@ -61,5 +67,33 @@ internal import React
     DispatchQueue.main.async { [weak self] in
       self?.navigationController?.popViewController(animated: animated)
     }
+  }
+
+  private func renderReactNativeViewIfNeeded() {
+      print("==== rendering now -- \(moduleName)")
+      guard !moduleName.isEmpty else { return }
+    
+    print("==== rendering now")
+    DispatchQueue.main.async { [weak self] in
+      guard let self else { return }
+        print("==== rendering !hasRenderedRNView")
+      guard let reactView = ReactNativeBrownfield.shared.view(
+        moduleName: self.moduleName,
+        initialProps: self.initialProperties,
+        launchOptions: nil
+      ) else { return }
+      self.view = reactView
+//      self.hasRenderedReactNativeView = true
+        print("==== rendering hasRenderedRNView")
+    }
+  }
+}
+
+private final class ReactNativeUpdatesDelegate: NSObject, AppControllerDelegate {
+  var onDidStart: (() -> Void)?
+
+  func appController(_ appController: any EXUpdates.AppControllerInterface, didStartWithSuccess success: Bool) {
+      print("==== appController didStartWithSuccess -- \(success)")
+      onDidStart?()
   }
 }
