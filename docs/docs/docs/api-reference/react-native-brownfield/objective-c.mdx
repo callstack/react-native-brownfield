@@ -47,6 +47,8 @@ Starts React Native, produces an instance of React Native. You can use it to ini
 | ---------------- | -------- | --------------- | ------------------------------------------------- |
 | `onBundleLoaded` | No       | `void(^)(void)` | Callback invoked after JS bundle is fully loaded. |
 
+Root initial props can be passed through the `initialProps` argument of `createView`. That `NSDictionary` is forwarded as the root view's initial properties - the same concept as [initial props on `ReactRootView`](https://reactnative.dev/docs/communication-android#passing-properties-from-native-to-react-native).
+
 **Examples:**
 
 ```objc

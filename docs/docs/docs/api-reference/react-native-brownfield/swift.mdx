@@ -47,6 +47,8 @@ Starts React Native. You can use it to initialize React Native in your app.
 | ---------------- | -------- | --------------- | ------------------------------------------------- |
 | `onBundleLoaded` | No       | `(() -> Void)?` | Callback invoked after JS bundle is fully loaded. |
 
+Root initial props can be passed through the `initialProps` argument of `view`. That `[AnyHashable: Any]?` is forwarded as the root view's initial properties - the same concept as [initial props on `ReactRootView`](https://reactnative.dev/docs/communication-android#passing-properties-from-native-to-react-native).
+
 **Examples:**
 
 ```swift
