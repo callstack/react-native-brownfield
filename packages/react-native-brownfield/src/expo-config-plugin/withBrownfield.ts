@@ -25,7 +25,7 @@ function resolveConfig(
   config: BrownfieldPluginConfig = {},
   expoConfig: ExpoConfig
 ): ResolvedBrownfieldPluginConfig {
-  Logger.setIsDebug(true);
+  Logger.setIsDebug(config.debug ?? false);
 
   const androidPackage = expoConfig.android?.package;
   const androidModuleName = config.android?.moduleName ?? 'brownfieldlib';
@@ -54,7 +54,7 @@ function resolveConfig(
           version: config.android?.version ?? '0.0.1-SNAPSHOT',
         }
       : null,
-    debug: true, // config.debug ?? false,
+    debug: config.debug ?? false,
   };
 }
 

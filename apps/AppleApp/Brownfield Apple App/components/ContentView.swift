@@ -15,29 +15,18 @@ let initialState = BrownfieldStore(
 )
 
 struct ContentView: View {
-    @State var showRN: Bool = false
-    
     var body: some View {
         NavigationView {
 
             VStack(spacing: 16) {
                 GreetingCard(name: "iOS Expo")
 
-//                MessagesView()
-                
-                Button("Go to RN") {
-//                    ReactNativeBrownfield.shared.initializeExpoUpdates()
-//                    showRN = true
-                }
-                
-                if (!showRN) {
-                    ReactNativeView(moduleName: "main")
-                        .navigationBarHidden(true)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .background(Color(UIColor.systemBackground))
-                }
-
-
+                MessagesView()
+    
+                ReactNativeView(moduleName: "main")
+                    .navigationBarHidden(true)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .background(Color(UIColor.systemBackground))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(16)

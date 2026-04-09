@@ -122,25 +122,22 @@ internal import Expo
     #endif
   }
 
-      /**
-     * Mirrors the host runtime app delegate API, forwarding to Expo or bare React Native as appropriate.
-     */
-    @objc public func application(
-      _ application: UIApplication,
-      willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
-      #if canImport(Expo)
+  @objc public func application(
+    _ application: UIApplication,
+    willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    #if canImport(Expo)
       return ExpoHostRuntime.shared.application(
         application,
         willFinishLaunchingWithOptions: launchOptions
       )
-      #else
+    #else
       return ReactNativeHostRuntime.shared.application(
         application,
         willFinishLaunchingWithOptions: launchOptions
       )
-      #endif
-    }
+    #endif
+  }
 
   @objc public func application(
     _ app: UIApplication,

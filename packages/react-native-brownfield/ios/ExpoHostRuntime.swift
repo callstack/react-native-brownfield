@@ -181,8 +181,7 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
       let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
         from: bundlePath
       )
-      let bundledURL = bundle.url(forResource: resourceName, withExtension: fileExtension)
-      return bundledURL
+      return bundle.url(forResource: resourceName, withExtension: fileExtension)
     } catch {
       assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")
       return nil

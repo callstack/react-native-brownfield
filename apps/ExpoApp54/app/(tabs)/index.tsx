@@ -1,35 +1,12 @@
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { Alert, Button, StyleSheet, View } from 'react-native';
+import { Button, Platform, StyleSheet, View } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import * as Updates from 'expo-updates';
-
-async function checkForUpdate() {
-  try {
-    const update = await Updates.checkForUpdateAsync();
-    if (update.isAvailable) {
-      await Updates.fetchUpdateAsync();
-
-      await Updates.reloadAsync({
-        reloadScreenOptions: {
-          spinner: {
-            enabled: true,
-            color: 'red',
-            size: 'large',
-          },
-        },
-      });
-    } else {
-      Alert.alert('No update available');
-    }
-  } catch (error) {
-    Alert.alert('Update check failed', String(error));
-  }
-}
+import { checkAndFetchUpdate } from '@/utils/expo-rn-updates';
 
 export default function HomeScreen() {
   return (
@@ -48,8 +25,8 @@ export default function HomeScreen() {
           <HelloWave />
         </ThemedView>
         <ThemedView style={styles.stepContainer}>
-          <Button title="Fetch Update - Now" onPress={checkForUpdate} />
-          {/* <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+          <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
+          <ThemedText type="subtitle">Step 1: Try it</ThemedText>
           <ThemedText>
             Edit{' '}
             <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{' '}
@@ -62,7 +39,7 @@ export default function HomeScreen() {
               })}
             </ThemedText>{' '}
             to open developer tools.
-          </ThemedText> */}
+          </ThemedText>
         </ThemedView>
         <ThemedView style={styles.stepContainer}>
           <Link href="/modal">
