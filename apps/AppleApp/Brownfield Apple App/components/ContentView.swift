@@ -22,7 +22,7 @@ struct ContentView: View {
                 GreetingCard(name: "iOS Expo")
 
                 MessagesView()
-    
+
                 ReactNativeView(moduleName: "main")
                     .navigationBarHidden(true)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
