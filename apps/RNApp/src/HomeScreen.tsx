@@ -15,6 +15,7 @@ import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
 import Counter from './components/counter';
+import { useNativeOsVersionLabel } from './nativeHostContext';
 
 interface Message {
   id: string;
@@ -71,6 +72,7 @@ export function HomeScreen({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
+  const nativeOsVersionLabel = useNativeOsVersionLabel();
   const colors = route.params?.theme ? route.params.theme : getRandomTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const flatListRef = useRef<FlatList<Message>>(null);
@@ -121,6 +123,15 @@ export function HomeScreen({
       <Text style={[styles.text, { color: colors.secondary }]}>
         React Native Screen
       </Text>
+
+      {nativeOsVersionLabel ? (
+        <Text
+          style={[styles.nativeOsVersionLabel, { color: colors.secondary }]}
+          accessibilityLabel="Native OS version"
+        >
+          {nativeOsVersionLabel}
+        </Text>
+      ) : null}
 
       <Counter colors={colors} />
 
@@ -198,6 +209,12 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  nativeOsVersionLabel: {
+    fontSize: 11,
+    opacity: 0.85,
+    marginBottom: 4,
+    textAlign: 'center',
   },
   messageSection: {
     flex: 1,
