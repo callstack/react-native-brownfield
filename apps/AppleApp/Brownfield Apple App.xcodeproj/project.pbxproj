@@ -11,7 +11,7 @@
 		614B23932F50633200CB6363 /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238D2F50633200CB6363 /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		614B23942F50633200CB6363 /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238E2F50633200CB6363 /* Brownie.xcframework */; };
 		614B23952F50633200CB6363 /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238E2F50633200CB6363 /* Brownie.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		614B23962F50633200CB6363 /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */; };
+		614B23962F50633200CB6363 /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (Required, ); }; };
 		614B23972F50633200CB6363 /* BrownfieldNavigation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		614B23982F50633200CB6363 /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23902F50633200CB6363 /* hermesvm.xcframework */; };
 		614B23992F50633200CB6363 /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23902F50633200CB6363 /* hermesvm.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };

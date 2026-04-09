@@ -17,11 +17,6 @@ final class ExpoHostRuntime {
   private var reactNativeFactory: RCTReactNativeFactory?
   private var expoDelegate: ExpoAppDelegate?
 
-  #if canImport(EXUpdates)
-  private var updatesController: InternalAppControllerInterface?
-  private var didStartUpdatesController = false
-  #endif
-
   /**
    * Starts React Native with default parameters.
    */
@@ -53,28 +48,6 @@ final class ExpoHostRuntime {
       jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
     }
   }
-
-  public func initializeExpoUpdates() {
-    print("== initializeExpoUpdates")
-    #if canImport(EXUpdates)
-    initializeUpdatesControllerIfNeeded()
-    #endif
-  }
-
-  #if canImport(EXUpdates)
-  private func initializeUpdatesControllerIfNeeded() {
-    // if !AppController.isInitialized() {
-    //   AppController.initializeWithoutStarting()
-    
-//    updatesController = AppController.sharedInstance
-    if !didStartUpdatesController {
-        print("== starting app controller")
-      didStartUpdatesController = true
-      AppController.sharedInstance.start()
-    }
-//      AppController.sharedInstance.start()
-  }
-  #endif
 
   /**
    * Path to JavaScript root.
@@ -120,20 +93,12 @@ final class ExpoHostRuntime {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
-    print("== application didFinishLaunchingWithOptions")
-    #if canImport(EXUpdates)
+#if canImport(EXUpdates)
     if !AppController.isInitialized() {
       AppController.initializeWithoutStarting()
     }
-
-//      if !didStartUpdatesController {
-//          print("== starting app controller")
-//        didStartUpdatesController = true
-//        AppController.sharedInstance.start()
-//      }
-//      AppController.sharedInstance.start()
-    #endif
-      return ExpoAppDelegateSubscriberManager.application(application, didFinishLaunchingWithOptions: launchOptions)
+#endif
+    return ExpoAppDelegateSubscriberManager.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   // Linking API; base implementation courtesy of Expo, licensed under the MIT License - changes were made to call the method on expo delegate - https://github.com/expo/expo/blob/main/apps/bare-expo/ios/AppDelegate.swift
@@ -155,67 +120,12 @@ final class ExpoHostRuntime {
     return (expoDelegate?.application(application, continue: userActivity, restorationHandler: restorationHandler) ?? false) || result
   }
     
-    func application(
-      _ application: UIApplication,
-      willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
-        return ExpoAppDelegateSubscriberManager.application(application, willFinishLaunchingWithOptions: launchOptions)
-    }
-    
-    func applicationDidBecomeActive(_ application: UIApplication) {
-      ExpoAppDelegateSubscriberManager.applicationDidBecomeActive(application)
-    }
-
-    func applicationWillResignActive(_ application: UIApplication) {
-      ExpoAppDelegateSubscriberManager.applicationWillResignActive(application)
-    }
-
-    func applicationDidEnterBackground(_ application: UIApplication) {
-      ExpoAppDelegateSubscriberManager.applicationDidEnterBackground(application)
-    }
-
-    func applicationWillEnterForeground(_ application: UIApplication) {
-      ExpoAppDelegateSubscriberManager.applicationWillEnterForeground(application)
-    }
-
-   func applicationWillTerminate(_ application: UIApplication) {
-      ExpoAppDelegateSubscriberManager.applicationWillTerminate(application)
-    }
-    
-    func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
-      ExpoAppDelegateSubscriberManager.applicationDidReceiveMemoryWarning(application)
-    }
-    
-    func application(
-      _ application: UIApplication,
-      handleEventsForBackgroundURLSession identifier: String,
-      completionHandler: @escaping () -> Void
-    ) {
-      ExpoAppDelegateSubscriberManager.application(application, handleEventsForBackgroundURLSession: identifier, completionHandler: completionHandler)
-    }
-    
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-      ExpoAppDelegateSubscriberManager.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-    }
-
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-      ExpoAppDelegateSubscriberManager.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
-    }
-    
-    func application(
-      _ application: UIApplication,
-      didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-      ExpoAppDelegateSubscriberManager.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
-    }
-    
-    func application(
-      _ application: UIApplication,
-      performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-      ExpoAppDelegateSubscriberManager.application(application, performFetchWithCompletionHandler: completionHandler)
-    }
+  func application(
+    _ application: UIApplication,
+    willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    return ExpoAppDelegateSubscriberManager.application(application, willFinishLaunchingWithOptions: launchOptions)
+  }
 
   func view(
     moduleName: String,
@@ -258,27 +168,20 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
   override func bundleURL() -> URL? {
     if let bundleURLProvider = bundleURLOverride { return bundleURLProvider() }
 #if DEBUG
-      print("=== expo isDebug")
     return RCTBundleURLProvider.sharedSettings().jsBundleURL(
       forBundleRoot: entryFile)
 #else
     #if canImport(EXUpdates)
-      print("=== expo updates initialized -- \(AppController.isInitialized())")
-      print("=== expo launch asset URL -- \(AppController.sharedInstance.launchAssetUrl())")
     if AppController.isInitialized(),
        let launchAssetURL = AppController.sharedInstance.launchAssetUrl() {
-      print("=== expo using updates launch asset URL")
       return launchAssetURL
     }
-      print("=== expo updates launch asset missing, falling back to bundled JS")
     #endif
     do {
-        print("=== expo release")
       let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
         from: bundlePath
       )
       let bundledURL = bundle.url(forResource: resourceName, withExtension: fileExtension)
-      print("=== expo bundled JS candidate -- \(String(describing: bundledURL))")
       return bundledURL
     } catch {
       assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")

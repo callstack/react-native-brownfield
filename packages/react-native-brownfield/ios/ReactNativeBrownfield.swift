@@ -141,69 +141,6 @@ internal import Expo
       )
       #endif
     }
-    
-    @objc public func applicationDidBecomeActive(_ application: UIApplication) {
-        ExpoHostRuntime.shared.applicationDidBecomeActive(application)
-    }
-
-    @objc public func applicationWillResignActive(_ application: UIApplication) {
-        ExpoHostRuntime.shared.applicationWillResignActive(application)
-    }
-
-    @objc public func applicationDidEnterBackground(_ application: UIApplication) {
-        ExpoHostRuntime.shared.applicationDidEnterBackground(application)
-    }
-
-    @objc public  func applicationWillEnterForeground(_ application: UIApplication) {
-        ExpoHostRuntime.shared.applicationWillEnterForeground(application)
-    }
-
-    @objc public func applicationWillTerminate(_ application: UIApplication) {
-        ExpoHostRuntime.shared.applicationWillTerminate(application)
-    }
-    
-    @objc public func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
-        ExpoHostRuntime.shared.applicationDidReceiveMemoryWarning(application)
-    }
-    
-    @objc public func application(
-      _ application: UIApplication,
-      handleEventsForBackgroundURLSession identifier: String,
-      completionHandler: @escaping () -> Void
-    ) {
-        ExpoHostRuntime.shared.application(application, handleEventsForBackgroundURLSession: identifier, completionHandler: completionHandler)
-    }
-    
-    @objc public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        ExpoHostRuntime.shared.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-    }
-
-    @objc public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        ExpoHostRuntime.shared.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
-    }
-    
-    @objc public func application(
-      _ application: UIApplication,
-      didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-      ExpoAppDelegateSubscriberManager.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
-    }
-    
-    @objc public func application(
-      _ application: UIApplication,
-      performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-      ExpoAppDelegateSubscriberManager.application(application, performFetchWithCompletionHandler: completionHandler)
-    }
-
-  @objc public func initializeExpoUpdates() {
-    #if canImport(Expo)
-    ExpoHostRuntime.shared.initializeExpoUpdates()
-    #else
-    ReactNativeHostRuntime.shared.initializeRNUpdates()
-    #endif
-  }
 
   @objc public func application(
     _ app: UIApplication,

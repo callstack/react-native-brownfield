@@ -138,10 +138,6 @@ final class ReactNativeHostRuntime {
     return RCTLinkingManager.application(app, open: url, options: options)
   }
 
-  public func initializeRNUpdates() {
-   print("== initializeRNUpdates")
-  }
-
   public func application(
     _ application: UIApplication,
     continue userActivity: NSUserActivity,
