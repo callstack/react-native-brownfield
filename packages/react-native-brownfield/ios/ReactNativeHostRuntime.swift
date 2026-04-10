@@ -59,6 +59,7 @@ final class ReactNativeHostRuntime {
       delegate.bundlePath = bundlePath
     }
   }
+
   /**
    * Bundle instance to lookup the JavaScript bundle.
    * Default value: Bundle.main
@@ -68,6 +69,7 @@ final class ReactNativeHostRuntime {
       delegate.bundle = bundle
     }
   }
+
   /**
    * Dynamic bundle URL provider called on every bundle load.
    * When set, this overrides the default bundleURL() behavior in the delegate.
@@ -79,17 +81,23 @@ final class ReactNativeHostRuntime {
       delegate.bundleURLOverride = bundleURLOverride
     }
   }
+
   /**
    * React Native factory instance created when starting React Native.
    * Default value: nil
    */
   private var reactNativeFactory: RCTReactNativeFactory? = nil
-  /**
-   * Root view factory used to create React Native views.
-   */
-  lazy private var rootViewFactory: RCTRootViewFactory? = {
-    return reactNativeFactory?.rootViewFactory
-  }()
+
+  private var factory: RCTReactNativeFactory {
+    if let existingFactory = reactNativeFactory {
+      return existingFactory
+    }
+
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+    let createdFactory = RCTReactNativeFactory(delegate: delegate)
+    reactNativeFactory = createdFactory
+    return createdFactory
+  }
 
   /**
    * Starts React Native with default parameters.
@@ -98,12 +106,28 @@ final class ReactNativeHostRuntime {
     startReactNative(onBundleLoaded: nil)
   }
 
+  /**
+   * Stops React Native and releases the underlying factory instance.
+   */
+  public func stopReactNative() {
+    if !Thread.isMainThread {
+      DispatchQueue.main.async { [weak self] in self?.stopReactNative() }
+      return
+    }
+
+    guard let factory = reactNativeFactory else { return }
+
+    factory.bridge?.invalidate()
+
+    reactNativeFactory = nil
+  }
+
   public func view(
     moduleName: String,
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    rootViewFactory?.view(
+    factory.rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions

@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BrownfieldNavigation (3.0.0):
+  - BrownfieldNavigation (3.5.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -28,7 +28,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - Brownie (3.0.0):
+  - Brownie (3.5.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -1838,7 +1838,7 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-safe-area-context (5.6.2):
+  - react-native-safe-area-context (5.7.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -1856,8 +1856,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.6.2)
-    - react-native-safe-area-context/fabric (= 5.6.2)
+    - react-native-safe-area-context/common (= 5.7.0)
+    - react-native-safe-area-context/fabric (= 5.7.0)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1868,7 +1868,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-safe-area-context/common (5.6.2):
+  - react-native-safe-area-context/common (5.7.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -1896,7 +1896,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-safe-area-context/fabric (5.6.2):
+  - react-native-safe-area-context/fabric (5.7.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2378,7 +2378,7 @@ PODS:
     - SocketRocket
   - ReactAppDependencyProvider (0.82.1):
     - ReactCodegen
-  - ReactBrownfield (3.0.0):
+  - ReactBrownfield (3.5.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2494,7 +2494,7 @@ PODS:
     - React-perflogger (= 0.82.1)
     - React-utils (= 0.82.1)
     - SocketRocket
-  - RNScreens (4.19.0):
+  - RNScreens (4.24.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2521,10 +2521,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.19.0)
+    - RNScreens/common (= 4.24.0)
     - SocketRocket
     - Yoga
-  - RNScreens/common (4.19.0):
+  - RNScreens/common (4.24.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2803,8 +2803,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  BrownfieldNavigation: 12a34a451661d8f685beebab19d4ba7b43efc409
-  Brownie: 981350e32e072e5b55b624eb8810ba9bbc9683d9
+  BrownfieldNavigation: b25cd0c4b253b653743be92d141ffe475e42474d
+  Brownie: ac5a447e77a9d7713ebdb4e71a6083f00b4364f5
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: 0aa6183b9afe3c31fc65b5d1eeef1f3c19b63bfa
@@ -2844,7 +2844,7 @@ SPEC CHECKSUMS:
   React-logger: 500f2fa5697d224e63c33d913c8a4765319e19bf
   React-Mapbuffer: 4c50cf6af44286015a20a5995d5321f625c93459
   React-microtasksnativemodule: a84b9331106616ab1fa36de9ae555718d4bbdcf5
-  react-native-safe-area-context: 0a3b034bb63a5b684dd2f5fffd3c90ef6ed41ee8
+  react-native-safe-area-context: eda63a662750758c1fdd7e719c9f1026c8d161cb
   React-NativeModulesApple: efd0906463c79d9b86197dbcf0d58358dff8c5ed
   React-oscompat: 95875e81f5d4b3c7b2c888d5bd2c9d83450d8bdb
   React-perflogger: 2e229bf33e42c094fd64516d89ec1187a2b79b5b
@@ -2875,10 +2875,10 @@ SPEC CHECKSUMS:
   React-utils: f06ff240e06e2bd4b34e48f1b34cac00866e8979
   React-webperformancenativemodule: b3398f8175fa96d992c071b1fa59bd6f9646b840
   ReactAppDependencyProvider: a45ef34bb22dc1c9b2ac1f74167d9a28af961176
-  ReactBrownfield: 03a2fd2f61109c00810b8d82af6f8907095191ed
+  ReactBrownfield: 9d232f72e023ff2cca3bd6d4de188b2292125c83
   ReactCodegen: 0bce2d209e2e802589f4c5ff76d21618200e74cb
   ReactCommon: 801eff8cb9c940c04d3a89ce399c343ee3eff654
-  RNScreens: d6413aeb1878cdafd3c721e2c5218faf5d5d3b13
+  RNScreens: e902eba58a27d3ad399a495d578e8aba3ea0f490
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 526f25666395d30c297d53154398ffd249eaf9e1
 

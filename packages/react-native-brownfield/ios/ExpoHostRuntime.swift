@@ -14,6 +14,17 @@ final class ExpoHostRuntime {
   private var reactNativeFactory: RCTReactNativeFactory?
   private var expoDelegate: ExpoAppDelegate?
 
+  private var factory: RCTReactNativeFactory {
+    if let existingFactory = reactNativeFactory {
+      return existingFactory
+    }
+
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+    let createdFactory = ExpoReactNativeFactory(delegate: delegate)
+    reactNativeFactory = createdFactory
+    return createdFactory
+  }
+
   /**
    * Starts React Native with default parameters.
    */
@@ -44,6 +55,24 @@ final class ExpoHostRuntime {
     if let onBundleLoaded {
       jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
     }
+  }
+
+  /**
+   * Stops React Native and releases the underlying factory instance.
+   */
+  public func stopReactNative() {
+    if !Thread.isMainThread {
+      DispatchQueue.main.async { [weak self] in self?.stopReactNative() }
+      return
+    }
+
+    #if !EXPO_SDK_GTE_55 
+    guard let factory = reactNativeFactory else { return }
+    factory.bridge?.invalidate()
+    #endif
+
+    reactNativeFactory = nil
+    expoDelegate = nil
   }
 
   /**
@@ -125,19 +154,19 @@ final class ExpoHostRuntime {
     // below: https://github.com/expo/expo/commit/2013760c46cde1404872d181a691da72fbf207a4
     // has moved the recreateRootView method to ExpoReactNativeFactory
     #if EXPO_SDK_GTE_55 // this define comes from the Brownfield Expo config plugin
-      return (reactNativeFactory as? ExpoReactNativeFactory)?.recreateRootView(
-        withBundleURL: bundleURL,
-        moduleName: moduleName,
-        initialProps: initialProps,
-        launchOptions: launchOptions
-      )
+    return (factory as? ExpoReactNativeFactory)?.recreateRootView(
+      withBundleURL: bundleURL,
+      moduleName: moduleName,
+      initialProps: initialProps,
+      launchOptions: launchOptions
+    )
     #else
-      return expoDelegate?.recreateRootView(
-        withBundleURL: bundleURL,
-        moduleName: moduleName,
-        initialProps: initialProps,
-        launchOptions: launchOptions
-      )
+    return expoDelegate?.recreateRootView(
+      withBundleURL: bundleURL,
+      moduleName: moduleName,
+      initialProps: initialProps,
+      launchOptions: launchOptions
+    )
     #endif
   }
 }

@@ -27,6 +27,13 @@ struct ContentView: View {
                     .navigationBarHidden(true)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .background(Color(UIColor.systemBackground))
+                
+                Button("Stop React Native") {
+                    ReactNativeBrownfield.shared.stopReactNative()
+                }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.top)
+                    .foregroundColor(.red)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(16)
