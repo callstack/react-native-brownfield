@@ -64,7 +64,10 @@ A function used to initialize a React Native Brownfield singleton. Keep in mind 
 
 > `*` - From the marked fields, exactly one must be specified, excluding the others. See examples below.
 
-**Available options:**
+> [!Note]
+> The `options` map for `initialize` is unrelated to the initial props passed to the root component. For passing in initial props, use the [`launchOptions` argument of `createView`](#createview).
+
+**Available `options` entries:**
 
 - `useDeveloperSupport`: `Boolean` - Flag to use dev support.
 - `packages`: `List<ReactPackage>` - List of your React Native Native modules.
@@ -166,6 +169,8 @@ Creates a React Native view with a given module name. It automatically uses an i
 | reactDelegate | No       | `ReactDelegateWrapper` | Optional custom delegate. If passed, the `activity` argument is ignored.                                                                         |
 
 Returns: `FrameLayout` - A view containing the React Native component.
+
+Root initial props can be passed through the `launchOptions` argument. That `Bundle` is forwarded as the root view's initial properties - the same concept as [initial props on `ReactRootView`](https://reactnative.dev/docs/communication-android#passing-properties-from-native-to-react-native).
 
 **Examples:**
 

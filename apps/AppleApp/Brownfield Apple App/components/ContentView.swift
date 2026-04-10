@@ -23,7 +23,13 @@ struct ContentView: View {
 
                 MessagesView()
 
-                ReactNativeView(moduleName: "main")
+                ReactNativeView(
+                    moduleName: "main",
+                    initialProperties: [
+                        "nativeOsVersionLabel":
+                            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+                    ]
+                )
                     .navigationBarHidden(true)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .background(Color(UIColor.systemBackground))

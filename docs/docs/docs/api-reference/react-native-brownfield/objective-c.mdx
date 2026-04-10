@@ -69,6 +69,8 @@ Creates a React Native view for the specified module name.
 | `initialProps`  | No       | `NSDictionary` | Initial properties to be passed to React Native component.  |
 | `launchOptions` | No       | `NSDictionary` | Launch options, typically passed from AppDelegate.          |
 
+Root initial props can be passed through the `initialProps` argument. That `NSDictionary` is forwarded as the root view's initial properties - the same concept as [initial props on `RCTRootView`](https://reactnative.dev/docs/communication-ios#passing-properties-from-native-to-react-native).
+
 **Examples:**
 
 ```objc
