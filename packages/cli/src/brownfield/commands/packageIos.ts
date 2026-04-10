@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -94,6 +95,17 @@ export const packageIosCommand = curryOptions(
       },
       platformConfig
     );
+
+    const reactBrownfieldXcframeworkPath = path.join(
+      packageDir,
+      'ReactBrownfield.xcframework'
+    );
+    if (fs.existsSync(reactBrownfieldXcframeworkPath)) {
+      // Strip the binary from ReactBrownfield.xcframework to make it interface-only.
+      // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
+      // (which contains ReactBrownfield symbols) and ReactBrownfield.xcframework.
+      stripFrameworkBinary(reactBrownfieldXcframeworkPath);
+    }
 
     if (hasBrownie) {
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
