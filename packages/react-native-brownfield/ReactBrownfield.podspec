@@ -25,6 +25,7 @@ Pod::Spec.new do |spec|
   
   if ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] == '1'
     spec.dependency 'Expo'
+    spec.dependency 'EXUpdates'
   end
 
   install_modules_dependencies(spec)

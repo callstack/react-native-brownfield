@@ -1,5 +1,6 @@
 package com.callstack.brownfield.android.example
 
+//import com.callstack.brownie.registerStoreIfNeeded
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
@@ -28,11 +29,12 @@ import androidx.fragment.compose.AndroidFragment
 import com.callstack.brownfield.android.example.components.GreetingCard
 import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
-import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
+import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
+import expo.modules.updates.procedures.SomeHostManager
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -53,16 +55,18 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
                     "React Native has been loaded",
                     Toast.LENGTH_LONG
                 ).show()
+
+                SomeHostManager.setReactHost(ReactNativeBrownfield.shared.reactHost)
             }
 
-            registerStoreIfNeeded(
-                storeName = BrownfieldStore.STORE_NAME
-            ) {
-                BrownfieldStore(
-                    counter = 0.0,
-                    user = User(name = "Username")
-                )
-            }
+//            registerStoreIfNeeded(
+//                storeName = BrownfieldStore.STORE_NAME
+//            ) {
+//                BrownfieldStore(
+//                    counter = 0.0,
+//                    user = User(name = "Username")
+//                )
+//            }
         }
 
         setContent {
@@ -102,11 +106,13 @@ private fun MainScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally // center top bar content
     ) {
+        Spacer(modifier = Modifier.height(3.dp))
+
         GreetingCard(
             name = ReactNativeConstants.APP_NAME,
         )
 
-        PostMessageCard()
+//        PostMessageCard()
 
         Spacer(modifier = Modifier.height(1.dp))
 

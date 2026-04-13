@@ -1,0 +1,45 @@
+diff --git a/ios/EXUpdates/UpdatesConfig.swift b/ios/EXUpdates/UpdatesConfig.swift
+index 09a1e145a9f5a938e10dd3c59eedfd213ad54346..787c1a8f7ae6a010fff4200ffebe31742e9a25eb 100644
+--- a/ios/EXUpdates/UpdatesConfig.swift
++++ b/ios/EXUpdates/UpdatesConfig.swift
+@@ -141,7 +141,8 @@ public final class UpdatesConfig: NSObject {
+   }
+ 
+   private static func configDictionaryWithExpoPlist(mergingOtherDictionary: [String: Any]?) throws -> [String: Any] {
+-    guard let configPlistPath = Bundle.main.path(forResource: PlistName, ofType: "plist") else {
++    let bundle = Bundle(for: UpdatesConfig.self)
++    guard let configPlistPath = bundle.path(forResource: PlistName, ofType: "plist") else {
+       throw UpdatesConfigError.ExpoUpdatesConfigPlistError
+     }
+ 
+diff --git a/ios/EXUpdates/UpdatesUtils.swift b/ios/EXUpdates/UpdatesUtils.swift
+index a1e2c9af4ebaf9e50db2acaabfa876fc46d22454..0b96a7062dbcd021339a9daeb4397b3c7715b96d 100644
+--- a/ios/EXUpdates/UpdatesUtils.swift
++++ b/ios/EXUpdates/UpdatesUtils.swift
+@@ -108,18 +108,22 @@ public final class UpdatesUtils: NSObject {
+     return assetFilesMap
+   }
+ 
++  private static func getBundle() -> Bundle {
++    return Bundle(for: UpdatesUtils.self)
++  }
++
+   internal static func url(forBundledAsset asset: UpdateAsset) -> URL? {
+     guard let mainBundleDir = asset.mainBundleDir else {
+-      return Bundle.main.url(forResource: asset.mainBundleFilename, withExtension: asset.type)
++      return getBundle().url(forResource: asset.mainBundleFilename, withExtension: asset.type)
+     }
+-    return Bundle.main.url(forResource: asset.mainBundleFilename, withExtension: asset.type, subdirectory: mainBundleDir)
++    return getBundle().url(forResource: asset.mainBundleFilename, withExtension: asset.type, subdirectory: mainBundleDir)
+   }
+ 
+   internal static func path(forBundledAsset asset: UpdateAsset) -> String? {
+     guard let mainBundleDir = asset.mainBundleDir else {
+-      return Bundle.main.path(forResource: asset.mainBundleFilename, ofType: asset.type)
++      return getBundle().path(forResource: asset.mainBundleFilename, ofType: asset.type)
+     }
+-    return Bundle.main.path(forResource: asset.mainBundleFilename, ofType: asset.type, inDirectory: mainBundleDir)
++    return getBundle().path(forResource: asset.mainBundleFilename, ofType: asset.type, inDirectory: mainBundleDir)
+   }
+ 
+   /**

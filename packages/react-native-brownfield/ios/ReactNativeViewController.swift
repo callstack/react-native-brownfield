@@ -1,13 +1,25 @@
 import UIKit
 internal import React
+#if canImport(EXUpdates)
+internal import EXUpdates
+#endif
 
 @objc public class ReactNativeViewController: UIViewController {
   private var moduleName: String
   private var initialProperties: [String: Any]?
 
+#if canImport(EXUpdates)
+  private let expoUpdatesDelegate = ReactNativeExpoUpdatesDelegate()
+#endif
+    
+
   @objc public init(moduleName: String, initialProperties: [String: Any]? = nil) {
     self.moduleName = moduleName
     self.initialProperties = initialProperties
+#if canImport(EXUpdates)
+    AppController.sharedInstance.delegate = expoUpdatesDelegate
+    AppController.sharedInstance.start()
+#endif
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -17,14 +29,17 @@ internal import React
 
   public override func viewDidLoad() {
     super.viewDidLoad()
+#if canImport(EXUpdates)
+    expoUpdatesDelegate.onDidStart = { [weak self] in
+      self?.renderReactNativeView()
+    }
+#endif
 
     if !moduleName.isEmpty {
-      view = ReactNativeBrownfield.shared.view(
-        moduleName: moduleName,
-        initialProps: initialProperties,
-        launchOptions: nil
-      )
-
+#if !canImport(EXUpdates)
+      renderReactNativeView()
+#endif
+        
       NotificationCenter.default.addObserver(
         self,
         selector: #selector(togglePopGestureRecognizer(_:)),
@@ -61,5 +76,27 @@ internal import React
     DispatchQueue.main.async { [weak self] in
       self?.navigationController?.popViewController(animated: animated)
     }
+  }
+
+  private func renderReactNativeView() {
+    guard !moduleName.isEmpty else { return }
+    
+    DispatchQueue.main.async { [weak self] in
+      guard let self else { return }
+      guard let reactView = ReactNativeBrownfield.shared.view(
+        moduleName: self.moduleName,
+        initialProps: self.initialProperties,
+        launchOptions: nil
+      ) else { return }
+      self.view = reactView
+    }
+  }
+}
+
+private final class ReactNativeExpoUpdatesDelegate: NSObject, AppControllerDelegate {
+  var onDidStart: (() -> Void)?
+
+  func appController(_ appController: any EXUpdates.AppControllerInterface, didStartWithSuccess success: Bool) {
+      onDidStart?()
   }
 }

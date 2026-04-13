@@ -61,6 +61,7 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             val projectExt = project.extensions.getByType(Extension::class.java)
             val appProject = project.rootProject.project(projectExt.appProjectName)
             prepareTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
+            prepareTask.dependsOn("${appProject.path}:create${capitalizedVariantName}UpdatesResources")
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)

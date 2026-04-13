@@ -123,6 +123,23 @@ internal import Expo
   }
 
   @objc public func application(
+    _ application: UIApplication,
+    willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    #if canImport(Expo)
+      return ExpoHostRuntime.shared.application(
+        application,
+        willFinishLaunchingWithOptions: launchOptions
+      )
+    #else
+      return ReactNativeHostRuntime.shared.application(
+        application,
+        willFinishLaunchingWithOptions: launchOptions
+      )
+    #endif
+  }
+
+  @objc public func application(
     _ app: UIApplication,
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
