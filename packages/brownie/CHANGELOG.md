@@ -1,5 +1,14 @@
 # @callstack/brownie
 
+## 3.5.2
+
+### Patch Changes
+
+- [#299](https://github.com/callstack/react-native-brownfield/pull/299) [`a01f676`](https://github.com/callstack/react-native-brownfield/commit/a01f676919d58c101bc802c6a4202b1922fc6d48) Thanks [@artus9033](https://github.com/artus9033)! - fix: build Brownie Android with support for 16KB page sizes
+
+- Updated dependencies [[`5ac357b`](https://github.com/callstack/react-native-brownfield/commit/5ac357bb8802ecf3562d92be191f6681ae94a055)]:
+  - @callstack/brownfield-cli@3.5.2
+
 ## 3.5.1
 
 ### Patch Changes

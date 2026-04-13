@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 3.5.2
+
+### Patch Changes
+
+- [#296](https://github.com/callstack/react-native-brownfield/pull/296) [`5ac357b`](https://github.com/callstack/react-native-brownfield/commit/5ac357bb8802ecf3562d92be191f6681ae94a055) Thanks [@hurali97](https://github.com/hurali97)! - fix duplicate symbols for react-brownfield
+
 ## 3.5.1
 
 ## 3.5.0
