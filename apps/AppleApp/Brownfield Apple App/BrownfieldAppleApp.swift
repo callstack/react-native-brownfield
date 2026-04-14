@@ -1,5 +1,5 @@
 import BrownfieldLib
-import Brownie
+//import Brownie
 import ReactBrownfield
 import SwiftUI
 import UIKit
@@ -91,7 +91,7 @@ struct BrownfieldAppleApp: App {
             ReactNativeBrownfield.shared.ensureExpoModulesProvider()
         #endif
 
-        BrownfieldStore.register(initialState)
+//        BrownfieldStore.register(initialState)
     }
 
     var body: some Scene {
