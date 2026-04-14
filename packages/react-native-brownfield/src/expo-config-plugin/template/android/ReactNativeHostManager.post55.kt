@@ -9,7 +9,6 @@ import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ExpoReactHostFactory
-import expo.modules.updates.UpdatesController
 
 object ReactNativeHostManager {
     fun initialize(application: Application, onJSBundleLoaded: OnJSBundleLoaded? = null) {
@@ -25,10 +24,6 @@ object ReactNativeHostManager {
         }
 
         ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)
-
-        UpdatesController.setReactHostProvider {
-            ReactNativeBrownfield.shared.reactHost
-        }
     }
 
     fun onConfigurationChanged(application: Application, newConfig: Configuration) {

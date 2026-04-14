@@ -1,0 +1,203 @@
+diff --git a/android/src/main/java/expo/modules/updates/UpdatesController.kt b/android/src/main/java/expo/modules/updates/UpdatesController.kt
+index 9abf5b3bb92cda5bc4ab7501c35abe2bffeed59c..4ce541561208d8cd1ccaaf46f49211a5818a4015 100644
+--- a/android/src/main/java/expo/modules/updates/UpdatesController.kt
++++ b/android/src/main/java/expo/modules/updates/UpdatesController.kt
+@@ -2,6 +2,7 @@ package expo.modules.updates
+ 
+ import android.content.Context
+ import com.facebook.react.ReactApplication
++import com.facebook.react.ReactHost
+ import expo.modules.updates.events.IUpdatesEventManagerObserver
+ import expo.modules.updates.loader.LoaderTask
+ import expo.modules.updates.logging.UpdatesErrorCode
+@@ -25,6 +26,19 @@ object UpdatesController {
+   @Volatile
+   private var overrideConfiguration: UpdatesConfiguration? = null
+ 
++  @Volatile
++  private var reactHost: ReactHost? = null
++
++  @JvmStatic
++  fun setReactHost(reactHost: ReactHost) {
++    this.reactHost = reactHost
++  }
++
++  @JvmStatic
++  fun getReactHost(): ReactHost? {
++    return reactHost
++  }
++
+   @JvmStatic
+   val instance: IUpdatesController
+     get() {
+diff --git a/android/src/main/java/expo/modules/updates/UpdatesPackage.kt b/android/src/main/java/expo/modules/updates/UpdatesPackage.kt
+index df17124d19bc734e32594237f7aff3085ea1573f..035d5be5e3189153d32a880ec48b8f45a0fb37d2 100644
+--- a/android/src/main/java/expo/modules/updates/UpdatesPackage.kt
++++ b/android/src/main/java/expo/modules/updates/UpdatesPackage.kt
+@@ -49,6 +49,10 @@ class UpdatesPackage : Package {
+       override fun onReactInstanceException(useDeveloperSupport: Boolean, exception: Exception) {
+         UpdatesController.instance.onReactInstanceException(exception)
+       }
++
++      override fun onDidCreateReactHost(context: Context, reactNativeHost: ReactHost) {
++        UpdatesController.setReactHost(reactNativeHost)
++      }
+     }
+     return listOf(handler)
+   }
+diff --git a/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt b/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
+index 3bf9f207ae7d3c46151103d8f809821a9df20d56..1ccb4877c2fcefd2c63d43dcc59664c83932805f 100644
+--- a/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
++++ b/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
+@@ -2,7 +2,6 @@ package expo.modules.updates.procedures
+ 
+ import android.app.Activity
+ import android.content.Context
+-import com.facebook.react.ReactApplication
+ import expo.modules.updates.launcher.Launcher
+ import expo.modules.updates.statemachine.UpdatesStateEvent
+ import kotlinx.coroutines.CoroutineScope
+@@ -20,16 +19,11 @@ class RecreateReactContextProcedure(
+   override val loggerTimerLabel = "timer-recreate-react-context"
+ 
+   override suspend fun run(procedureContext: ProcedureContext) {
+-    val reactApplication = context.applicationContext as? ReactApplication ?: run inner@{
+-      callback.onFailure(Exception("Could not reload application. Ensure you have passed the correct instance of ReactApplication into UpdatesController.initialize()."))
+-      return
+-    }
+-
+     procedureContext.processStateEvent(UpdatesStateEvent.Restart())
+     callback.onSuccess()
+     procedureScope.launch {
+       withContext(Dispatchers.Main) {
+-        reactApplication.restart(weakActivity?.get(), "Restart from RecreateReactContextProcedure")
++        RestartReactAppExtensions.restart(weakActivity?.get(), "Restart from RecreateReactContextProcedure")
+       }
+     }
+     procedureContext.resetStateAfterRestart()
+diff --git a/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt b/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
+index 4cbb7670f0a1853f9ecc9a5e41d033884df793fb..6a74db0df9083635588534e88fb154cdc432c453 100644
+--- a/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
++++ b/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
+@@ -2,7 +2,6 @@ package expo.modules.updates.procedures
+ 
+ import android.app.Activity
+ import android.content.Context
+-import com.facebook.react.ReactApplication
+ import expo.modules.updates.UpdatesConfiguration
+ import expo.modules.updates.db.DatabaseHolder
+ import expo.modules.updates.db.Reaper
+@@ -40,11 +39,6 @@ class RelaunchProcedure(
+   override val loggerTimerLabel = "timer-relaunch"
+ 
+   override suspend fun run(procedureContext: ProcedureContext) {
+-    val reactApplication = context as? ReactApplication ?: run inner@{
+-      callback.onFailure(Exception("Could not reload application. Ensure you have passed the correct instance of ReactApplication into UpdatesController.initialize()."))
+-      return
+-    }
+-
+     procedureContext.processStateEvent(UpdatesStateEvent.Restart())
+ 
+     val newLauncher = DatabaseLauncher(
+@@ -71,7 +65,7 @@ class RelaunchProcedure(
+     procedureScope.launch {
+       withContext(Dispatchers.Main) {
+         reloadScreenManager?.show(weakActivity?.get())
+-        reactApplication.restart(weakActivity?.get(), "Restart from RelaunchProcedure")
++        RestartReactAppExtensions.restart(weakActivity?.get(), "Restart from RelaunchProcedure")
+       }
+     }
+ 
+diff --git a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
+index 7392ca808be584f994a26f5b7294cd2d29f1fc8d..23252f652bcfbab569541d5ed2d371b7843e2e09 100644
+--- a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
++++ b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
+@@ -2,19 +2,29 @@ package expo.modules.updates.procedures
+ 
+ import android.app.Activity
+ import com.facebook.react.ReactApplication
++import com.facebook.react.ReactHost
+ import com.facebook.react.common.LifecycleState
++import expo.modules.updates.UpdatesController
+ 
+-/**
+- * An extension for [ReactApplication] to restart the app
+- *
+- * @param activity For bridgeless mode if the ReactHost is destroyed, we need an Activity to resume it.
+- * @param reason The restart reason. Only used on bridgeless mode.
+- */
+-internal fun ReactApplication.restart(activity: Activity?, reason: String) {
+-  val reactHost = this.reactHost
+-  check(reactHost != null)
+-  if (reactHost.lifecycleState != LifecycleState.RESUMED && activity != null) {
+-    reactHost.onHostResume(activity)
++private fun getReactHostReflectively(app: ReactApplication): ReactHost? {
++  return runCatching {
++    app.javaClass.getMethod("getReactHost").invoke(app) as? ReactHost
++  }.getOrNull()
++}
++
++object RestartReactAppExtensions {
++  /**
++   * A function to restart the app
++   *
++   * @param activity For bridgeless mode if the ReactHost is destroyed, we need an Activity to resume it.
++   * @param reason The restart reason. Only used on bridgeless mode.
++   */
++  internal fun restart(activity: Activity?, reason: String) {
++    val reactHost = UpdatesController.getReactHost() ?: getReactHostReflectively(activity?.application as ReactApplication)
++    check(reactHost != null)
++    if (reactHost.lifecycleState != LifecycleState.RESUMED && activity != null) {
++      reactHost.onHostResume(activity)
++    }
++    reactHost.reload(reason)
+   }
+-  reactHost.reload(reason)
+ }
+\ No newline at end of file
+diff --git a/ios/EXUpdates/UpdatesConfig.swift b/ios/EXUpdates/UpdatesConfig.swift
+index 75df5a42c4b2622cfc51ca6bddb22e00497118cb..21779ae0ab8ac717f4b7688139d9aefc88dd89be 100644
+--- a/ios/EXUpdates/UpdatesConfig.swift
++++ b/ios/EXUpdates/UpdatesConfig.swift
+@@ -145,7 +145,8 @@ public final class UpdatesConfig: NSObject {
+   }
+ 
+   private static func configDictionaryWithExpoPlist(mergingOtherDictionary: [String: Any]?) throws -> [String: Any] {
+-    guard let configPlistPath = Bundle.main.path(forResource: PlistName, ofType: "plist") else {
++    let bundle = Bundle(for: UpdatesConfig.self)
++    guard let configPlistPath = bundle.path(forResource: PlistName, ofType: "plist") else {
+       throw UpdatesConfigError.ExpoUpdatesConfigPlistError
+     }
+ 
+diff --git a/ios/EXUpdates/UpdatesUtils.swift b/ios/EXUpdates/UpdatesUtils.swift
+index a1e2c9af4ebaf9e50db2acaabfa876fc46d22454..9260c47bf28d5fb3ae31df966d9af775683836fe 100644
+--- a/ios/EXUpdates/UpdatesUtils.swift
++++ b/ios/EXUpdates/UpdatesUtils.swift
+@@ -108,18 +108,23 @@ public final class UpdatesUtils: NSObject {
+     return assetFilesMap
+   }
+ 
++   
++  private static func getBundle() -> Bundle {
++    return Bundle(for: UpdatesConfig.self)
++  }
++
+   internal static func url(forBundledAsset asset: UpdateAsset) -> URL? {
+     guard let mainBundleDir = asset.mainBundleDir else {
+-      return Bundle.main.url(forResource: asset.mainBundleFilename, withExtension: asset.type)
++      return getBundle().url(forResource: asset.mainBundleFilename, withExtension: asset.type)
+     }
+-    return Bundle.main.url(forResource: asset.mainBundleFilename, withExtension: asset.type, subdirectory: mainBundleDir)
++    return getBundle().url(forResource: asset.mainBundleFilename, withExtension: asset.type, subdirectory: mainBundleDir)
+   }
+ 
+   internal static func path(forBundledAsset asset: UpdateAsset) -> String? {
+     guard let mainBundleDir = asset.mainBundleDir else {
+-      return Bundle.main.path(forResource: asset.mainBundleFilename, ofType: asset.type)
++      return getBundle().path(forResource: asset.mainBundleFilename, ofType: asset.type)
+     }
+-    return Bundle.main.path(forResource: asset.mainBundleFilename, ofType: asset.type, inDirectory: mainBundleDir)
++    return getBundle().path(forResource: asset.mainBundleFilename, ofType: asset.type, inDirectory: mainBundleDir)
+   }
+ 
+   /**

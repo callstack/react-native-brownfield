@@ -81,18 +81,18 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
-//    override fun navigateToSettings() {
-//        startActivity(Intent(this, SettingsActivity::class.java))
-//    }
-//
-//    override fun navigateToReferrals(userId: String) {
-//        startActivity(
-//            Intent(this, ReferralsActivity::class.java).putExtra(
-//                ReferralsActivity.EXTRA_USER_ID,
-//                userId
-//            )
-//        )
-//    }
+    override fun navigateToSettings() {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
+    override fun navigateToReferrals(userId: String) {
+        startActivity(
+            Intent(this, ReferralsActivity::class.java).putExtra(
+                ReferralsActivity.EXTRA_USER_ID,
+                userId
+            )
+        )
+    }
 }
 
 @Composable
