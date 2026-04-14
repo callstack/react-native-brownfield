@@ -31,7 +31,7 @@ index 6ff694ccecafac0da2ffa2538500341e07e858d8..a670c0b833f33cf00981bc95daf44afa
    val instance: IUpdatesController
      get() {
 diff --git a/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt b/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
-index 3bf9f207ae7d3c46151103d8f809821a9df20d56..9b59e20160ef2b0b8813d270bea372090696d4c2 100644
+index 3bf9f207ae7d3c46151103d8f809821a9df20d56..1ccb4877c2fcefd2c63d43dcc59664c83932805f 100644
 --- a/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
 +++ b/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
 @@ -2,7 +2,6 @@ package expo.modules.updates.procedures
@@ -42,7 +42,7 @@ index 3bf9f207ae7d3c46151103d8f809821a9df20d56..9b59e20160ef2b0b8813d270bea37209
  import expo.modules.updates.launcher.Launcher
  import expo.modules.updates.statemachine.UpdatesStateEvent
  import kotlinx.coroutines.CoroutineScope
-@@ -20,11 +19,6 @@ class RecreateReactContextProcedure(
+@@ -20,16 +19,11 @@ class RecreateReactContextProcedure(
    override val loggerTimerLabel = "timer-recreate-react-context"
  
    override suspend fun run(procedureContext: ProcedureContext) {
@@ -54,8 +54,14 @@ index 3bf9f207ae7d3c46151103d8f809821a9df20d56..9b59e20160ef2b0b8813d270bea37209
      procedureContext.processStateEvent(UpdatesStateEvent.Restart())
      callback.onSuccess()
      procedureScope.launch {
+       withContext(Dispatchers.Main) {
+-        reactApplication.restart(weakActivity?.get(), "Restart from RecreateReactContextProcedure")
++        RestartReactAppExtensions.restart(weakActivity?.get(), "Restart from RecreateReactContextProcedure")
+       }
+     }
+     procedureContext.resetStateAfterRestart()
 diff --git a/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt b/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
-index 64cc2870d28557c07217e1f78ad86e0fabe70bee..37250105d472b7d9998aaf84e080e6ff920975cc 100644
+index 64cc2870d28557c07217e1f78ad86e0fabe70bee..f2cf6a958d4da3f0a29040a6e101ce819c0696b7 100644
 --- a/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
 +++ b/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
 @@ -43,11 +43,6 @@ class RelaunchProcedure(
@@ -79,6 +85,15 @@ index 64cc2870d28557c07217e1f78ad86e0fabe70bee..37250105d472b7d9998aaf84e080e6ff
        } catch (e: Exception) {
          logger.error("Could not reset launchAssetFile for the ReactApplication", e, UpdatesErrorCode.Unknown)
        }
+@@ -84,7 +79,7 @@ class RelaunchProcedure(
+     procedureScope.launch {
+       withContext(Dispatchers.Main) {
+         reloadScreenManager?.show(weakActivity?.get())
+-        reactApplication.restart(weakActivity?.get(), "Restart from RelaunchProcedure")
++        RestartReactAppExtensions.restart(weakActivity?.get(), "Restart from RelaunchProcedure")
+       }
+     }
+ 
 @@ -127,13 +122,16 @@ class RelaunchProcedure(
     * [com.facebook.react.ReactInstanceManager].
     */
@@ -98,7 +113,7 @@ index 64cc2870d28557c07217e1f78ad86e0fabe70bee..37250105d472b7d9998aaf84e080e6ff
      val jsBundleLoaderField = instanceManager.javaClass.getDeclaredField("mBundleLoader")
      jsBundleLoaderField.isAccessible = true
 diff --git a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
-index 25c6e804d31f9ee915acdf5f363af07e7b7bf424..f2eb67f28780392f0d93f98ea6d4718241f9bf0d 100644
+index 25c6e804d31f9ee915acdf5f363af07e7b7bf424..3a90db88ac3e70fae3c6d909c955210093f306f9 100644
 --- a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
 +++ b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
 @@ -2,25 +2,42 @@ package expo.modules.updates.procedures
@@ -160,7 +175,6 @@ index 25c6e804d31f9ee915acdf5f363af07e7b7bf424..f2eb67f28780392f0d93f98ea6d47182
 +    getReactNativeHostReflectively(activity?.application as ReactApplication)?.reactInstanceManager?.recreateReactContextInBackground()
 +  }
  }
-\ No newline at end of file
 diff --git a/ios/EXUpdates/UpdatesConfig.swift b/ios/EXUpdates/UpdatesConfig.swift
 index 09a1e145a9f5a938e10dd3c59eedfd213ad54346..787c1a8f7ae6a010fff4200ffebe31742e9a25eb 100644
 --- a/ios/EXUpdates/UpdatesConfig.swift
