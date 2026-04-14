@@ -39,11 +39,6 @@ final class ExpoHostRuntime {
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
     guard reactNativeFactory == nil else { return }
 
-    let factory = ExpoReactNativeFactory(delegate: delegate)
-    delegate.dependencyProvider = RCTAppDependencyProvider()
-
-    reactNativeFactory = factory
-
     let appDelegate = ExpoAppDelegate()
     // below: https://github.com/expo/expo/pull/39418/changes/5abd332b55b2ee7daee848284ed5f7fe1639452e
     // has removed bindReactNativeFactory method from ExpoAppDelegate
