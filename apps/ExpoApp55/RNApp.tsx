@@ -1,8 +1,9 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
+import { checkAndFetchUpdate } from './src/utils/expo-rn-updates';
 
-import Counter from './src/components/counter';
+// import Counter from './src/components/counter';
 
 export default function RNApp() {
   return (
@@ -10,7 +11,7 @@ export default function RNApp() {
       <Text style={styles.title}>Expo React Native Brownfield</Text>
 
       <View style={styles.content}>
-        <Counter />
+        {/* <Counter /> */}
 
         <Button
           title="Navigate to Settings"
@@ -20,6 +21,7 @@ export default function RNApp() {
           title="Navigate to Referrals"
           onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
         />
+        <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
       </View>
     </SafeAreaView>
   );
