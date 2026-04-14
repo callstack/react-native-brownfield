@@ -20,6 +20,17 @@ import {
 } from './utils/androidManifest';
 import { getHermesArtifact } from './utils/hermes';
 
+function isExpoUpdatesInstalled(projectRoot: string): boolean {
+  try {
+    require.resolve('expo-updates/package.json', {
+      paths: [projectRoot],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Creates the Android library module directory structure and files
  */
@@ -28,7 +39,13 @@ export function createAndroidModule({
   config,
   rnVersion,
   isExpoPre55,
+  projectRoot,
 }: {
+  /**
+   * Expo app root (used to detect optional dependencies such as expo-updates)
+   */
+  projectRoot?: string;
+
   /**
    * Whether the Expo project is pre-55
    */
@@ -51,6 +68,8 @@ export function createAndroidModule({
 }): void {
   const { android } = config;
   const moduleDir = path.join(androidDir, android.moduleName);
+  const hasExpoUpdates =
+    projectRoot !== undefined && isExpoUpdatesInstalled(projectRoot);
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
@@ -85,9 +104,19 @@ export function createAndroidModule({
         isExpoPre55
           ? 'ReactNativeHostManager.pre55.kt'
           : 'ReactNativeHostManager.post55.kt',
-        {
-          '{{PACKAGE_NAME}}': android.packageName,
-        }
+        isExpoPre55
+          ? {
+              '{{PACKAGE_NAME}}': android.packageName,
+              '{{EXPO_UPDATES_IMPORTS}}': hasExpoUpdates
+                ? 'import expo.modules.updates.UpdatesController'
+                : '',
+              '{{EXPO_UPDATES_REACT_HOST_BLOCK}}': hasExpoUpdates
+                ? '\n        UpdatesController.setReactHost(reactHost)\n'
+                : '\n',
+            }
+          : {
+              '{{PACKAGE_NAME}}': android.packageName,
+            }
       ),
     },
     {
@@ -243,6 +272,7 @@ export const withAndroidModuleFiles: ConfigPlugin<
         config: props,
         rnVersion,
         isExpoPre55,
+        projectRoot: dangerousConfig.modRequest.projectRoot,
       });
 
       return dangerousConfig;

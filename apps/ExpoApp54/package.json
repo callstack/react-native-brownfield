@@ -31,7 +31,7 @@
     "expo-status-bar": "~3.0.9",
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
-    "expo-updates": "patch:expo-updates@npm%3A55.0.20#~/.yarn/patches/expo-updates-npm-55.0.20-be281bcd39.patch",
+    "expo-updates": "patch:expo-updates@npm%3A29.0.16#~/.yarn/patches/expo-updates-npm-29.0.16-1c5c89eb83.patch",
     "expo-web-browser": "~15.0.10",
     "react": "19.1.0",
     "react-dom": "19.1.0",

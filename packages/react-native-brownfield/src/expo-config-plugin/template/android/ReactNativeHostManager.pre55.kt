@@ -12,6 +12,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ExpoReactHostFactory
 import expo.modules.ReactNativeHostWrapper
+{{EXPO_UPDATES_IMPORTS}}
 
 object ReactNativeHostManager {
     fun initialize(application: Application, onJSBundleLoaded: OnJSBundleLoaded? = null) {
@@ -44,7 +45,7 @@ object ReactNativeHostManager {
                 reactNativeHost = reactNativeHost
             )
         }
-
+        {{EXPO_UPDATES_REACT_HOST_BLOCK}}
         ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)
     }
 

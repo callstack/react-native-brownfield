@@ -1,27 +1,5 @@
-diff --git a/android/src/main/java/expo/modules/updates/ReactHostProvider.kt b/android/src/main/java/expo/modules/updates/ReactHostProvider.kt
-new file mode 100644
-index 0000000..26304b2
---- /dev/null
-+++ b/android/src/main/java/expo/modules/updates/ReactHostProvider.kt
-@@ -0,0 +1,16 @@
-+package expo.modules.updates
-+
-+import com.facebook.react.ReactHost
-+
-+/**
-+ * Supplies the [ReactHost] for brownfield / embedded React Native setups where
-+ * [android.app.Application] is not the standard [com.facebook.react.ReactApplication]
-+ * with a framework-provided `reactHost`.
-+ *
-+ * Register via [UpdatesController.setReactHostProvider] on the main thread after the host exists.
-+ */
-+fun interface ReactHostProvider {
-+  fun getReactHost(): ReactHost?
-+
-+  fun isReactHostReady(): Boolean = getReactHost() != null
-+}
 diff --git a/android/src/main/java/expo/modules/updates/UpdatesController.kt b/android/src/main/java/expo/modules/updates/UpdatesController.kt
-index 6ff694c..7999bb7 100644
+index 6ff694ccecafac0da2ffa2538500341e07e858d8..a670c0b833f33cf00981bc95daf44afa879cc69d 100644
 --- a/android/src/main/java/expo/modules/updates/UpdatesController.kt
 +++ b/android/src/main/java/expo/modules/updates/UpdatesController.kt
 @@ -2,6 +2,7 @@ package expo.modules.updates
@@ -32,60 +10,159 @@ index 6ff694c..7999bb7 100644
  import expo.modules.updates.events.IUpdatesEventManagerObserver
  import expo.modules.updates.loader.LoaderTask
  import expo.modules.updates.logging.UpdatesErrorCode
-@@ -25,6 +26,26 @@ object UpdatesController {
+@@ -25,6 +26,19 @@ object UpdatesController {
    @Volatile
    private var overrideConfiguration: UpdatesConfiguration? = null
  
 +  @Volatile
-+  private var reactHostProvider: ReactHostProvider? = null
-+
-+  /**
-+   * Returns the [ReactHost] from [reactHostProvider], if registered.
-+   * Intended for main-thread use, consistent with React Native.
-+   */
-+  @JvmStatic
-+  fun getReactHost(): ReactHost? = reactHostProvider?.getReactHost()
++  private var reactHost: ReactHost? = null
 +
 +  @JvmStatic
-+  fun setReactHostProvider(provider: ReactHostProvider?) {
-+    reactHostProvider = provider
++  fun setReactHost(reactHost: ReactHost) {
++    this.reactHost = reactHost
 +  }
 +
 +  @JvmStatic
-+  fun clearReactHostProvider() {
-+    reactHostProvider = null
++  fun getReactHost(): ReactHost? {
++    return reactHost
 +  }
 +
    @JvmStatic
    val instance: IUpdatesController
      get() {
+diff --git a/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt b/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
+index 3bf9f207ae7d3c46151103d8f809821a9df20d56..9b59e20160ef2b0b8813d270bea372090696d4c2 100644
+--- a/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
++++ b/android/src/main/java/expo/modules/updates/procedures/RecreateReactContextProcedure.kt
+@@ -2,7 +2,6 @@ package expo.modules.updates.procedures
+ 
+ import android.app.Activity
+ import android.content.Context
+-import com.facebook.react.ReactApplication
+ import expo.modules.updates.launcher.Launcher
+ import expo.modules.updates.statemachine.UpdatesStateEvent
+ import kotlinx.coroutines.CoroutineScope
+@@ -20,11 +19,6 @@ class RecreateReactContextProcedure(
+   override val loggerTimerLabel = "timer-recreate-react-context"
+ 
+   override suspend fun run(procedureContext: ProcedureContext) {
+-    val reactApplication = context.applicationContext as? ReactApplication ?: run inner@{
+-      callback.onFailure(Exception("Could not reload application. Ensure you have passed the correct instance of ReactApplication into UpdatesController.initialize()."))
+-      return
+-    }
+-
+     procedureContext.processStateEvent(UpdatesStateEvent.Restart())
+     callback.onSuccess()
+     procedureScope.launch {
+diff --git a/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt b/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
+index 64cc2870d28557c07217e1f78ad86e0fabe70bee..37250105d472b7d9998aaf84e080e6ff920975cc 100644
+--- a/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
++++ b/android/src/main/java/expo/modules/updates/procedures/RelaunchProcedure.kt
+@@ -43,11 +43,6 @@ class RelaunchProcedure(
+   override val loggerTimerLabel = "timer-relaunch"
+ 
+   override suspend fun run(procedureContext: ProcedureContext) {
+-    val reactApplication = context as? ReactApplication ?: run inner@{
+-      callback.onFailure(Exception("Could not reload application. Ensure you have passed the correct instance of ReactApplication into UpdatesController.initialize()."))
+-      return
+-    }
+-
+     procedureContext.processStateEvent(UpdatesStateEvent.Restart())
+ 
+     val oldLaunchAssetFile = getCurrentLauncher().launchAssetFile
+@@ -74,7 +69,7 @@ class RelaunchProcedure(
+     val newLaunchAssetFile = getCurrentLauncher().launchAssetFile
+     if (newLaunchAssetFile != null && newLaunchAssetFile != oldLaunchAssetFile) {
+       try {
+-        replaceLaunchAssetFileIfNeeded(reactApplication, newLaunchAssetFile)
++        replaceLaunchAssetFileIfNeeded(newLaunchAssetFile)
+       } catch (e: Exception) {
+         logger.error("Could not reset launchAssetFile for the ReactApplication", e, UpdatesErrorCode.Unknown)
+       }
+@@ -127,13 +122,16 @@ class RelaunchProcedure(
+    * [com.facebook.react.ReactInstanceManager].
+    */
+   private fun replaceLaunchAssetFileIfNeeded(
+-    reactApplication: ReactApplication,
+     launchAssetFile: String
+   ) {
+     if (ReactNativeFeatureFlags.enableBridgelessArchitecture) {
+       return
+     }
+ 
++    val reactApplication = context as? ReactApplication ?: run inner@{
++      callback.onFailure(Exception("Could not reload application. Ensure you have passed the correct instance of ReactApplication into UpdatesController.initialize()."))
++      return
++    }
+     val instanceManager = reactApplication.reactNativeHost.reactInstanceManager
+     val jsBundleLoaderField = instanceManager.javaClass.getDeclaredField("mBundleLoader")
+     jsBundleLoaderField.isAccessible = true
 diff --git a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
-index 25c6e80..6c78d12 100644
+index 25c6e804d31f9ee915acdf5f363af07e7b7bf424..f2eb67f28780392f0d93f98ea6d4718241f9bf0d 100644
 --- a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
 +++ b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
-@@ -4,6 +4,7 @@ import android.app.Activity
+@@ -2,25 +2,42 @@ package expo.modules.updates.procedures
+ 
+ import android.app.Activity
  import com.facebook.react.ReactApplication
++import com.facebook.react.ReactHost
++import com.facebook.react.ReactNativeHost
  import com.facebook.react.common.LifecycleState
  import expo.modules.rncompatibility.ReactNativeFeatureFlags
 +import expo.modules.updates.UpdatesController
  
- /**
-  * An extension for [ReactApplication] to restart the app
-@@ -13,8 +14,10 @@ import expo.modules.rncompatibility.ReactNativeFeatureFlags
-  */
- internal fun ReactApplication.restart(activity: Activity?, reason: String) {
-   if (ReactNativeFeatureFlags.enableBridgelessArchitecture) {
+-/**
+- * An extension for [ReactApplication] to restart the app
+- *
+- * @param activity For bridgeless mode if the ReactHost is destroyed, we need an Activity to resume it.
+- * @param reason The restart reason. Only used on bridgeless mode.
+- */
+-internal fun ReactApplication.restart(activity: Activity?, reason: String) {
+-  if (ReactNativeFeatureFlags.enableBridgelessArchitecture) {
 -    val reactHost = this.reactHost
 -    check(reactHost != null)
-+    val reactHost = UpdatesController.getReactHost() ?: this.reactHost
-+    check(reactHost != null) {
-+      "ReactHost is null. For brownfield embeds, call UpdatesController.setReactHostProvider(...) before reload."
-+    }
-     if (reactHost.lifecycleState != LifecycleState.RESUMED && activity != null) {
-       reactHost.onHostResume(activity)
+-    if (reactHost.lifecycleState != LifecycleState.RESUMED && activity != null) {
+-      reactHost.onHostResume(activity)
++private fun getReactHostReflectively(app: ReactApplication): ReactHost? {
++  return runCatching {
++    app.javaClass.getMethod("getReactHost").invoke(app) as? ReactHost
++  }.getOrNull()
++}
++
++private fun getReactNativeHostReflectively(app: ReactApplication): ReactNativeHost? {
++  return runCatching {
++    app.javaClass.getMethod("getReactNativeHost").invoke(app) as? ReactNativeHost
++  }.getOrNull()
++}
++
++object RestartReactAppExtensions {
++  /**
++   * A function to restart the app
++   *
++   * @param activity For bridgeless mode if the ReactHost is destroyed, we need an Activity to resume it.
++   * @param reason The restart reason. Only used on bridgeless mode.
++   */
++  fun restart(activity: Activity?, reason: String) {
++    if (ReactNativeFeatureFlags.enableBridgelessArchitecture) {
++      val reactHost = UpdatesController.getReactHost() ?: getReactHostReflectively(activity?.application as ReactApplication)
++      check(reactHost != null)
++      if (reactHost.lifecycleState != LifecycleState.RESUMED && activity != null) {
++        reactHost.onHostResume(activity)
++      }
++      reactHost.reload(reason)
++      return
      }
+-    reactHost.reload(reason)
+-    return
+-  }
+ 
+-  reactNativeHost.reactInstanceManager.recreateReactContextInBackground()
++    getReactNativeHostReflectively(activity?.application as ReactApplication)?.reactInstanceManager?.recreateReactContextInBackground()
++  }
+ }
+\ No newline at end of file
 diff --git a/ios/EXUpdates/UpdatesConfig.swift b/ios/EXUpdates/UpdatesConfig.swift
-index 09a1e14..787c1a8 100644
+index 09a1e145a9f5a938e10dd3c59eedfd213ad54346..787c1a8f7ae6a010fff4200ffebe31742e9a25eb 100644
 --- a/ios/EXUpdates/UpdatesConfig.swift
 +++ b/ios/EXUpdates/UpdatesConfig.swift
 @@ -141,7 +141,8 @@ public final class UpdatesConfig: NSObject {
@@ -99,7 +176,7 @@ index 09a1e14..787c1a8 100644
      }
  
 diff --git a/ios/EXUpdates/UpdatesUtils.swift b/ios/EXUpdates/UpdatesUtils.swift
-index a1e2c9a..0b96a70 100644
+index a1e2c9af4ebaf9e50db2acaabfa876fc46d22454..0b96a7062dbcd021339a9daeb4397b3c7715b96d 100644
 --- a/ios/EXUpdates/UpdatesUtils.swift
 +++ b/ios/EXUpdates/UpdatesUtils.swift
 @@ -108,18 +108,22 @@ public final class UpdatesUtils: NSObject {
