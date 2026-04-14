@@ -33,7 +33,6 @@ import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
-import expo.modules.updates.procedures.SomeHostManager
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -54,8 +53,6 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
                     "React Native has been loaded",
                     Toast.LENGTH_LONG
                 ).show()
-
-                SomeHostManager.setReactHost(ReactNativeBrownfield.shared.reactHost)
             }
 
 //            registerStoreIfNeeded(
@@ -84,18 +81,18 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
-    override fun navigateToSettings() {
-        startActivity(Intent(this, SettingsActivity::class.java))
-    }
-
-    override fun navigateToReferrals(userId: String) {
-        startActivity(
-            Intent(this, ReferralsActivity::class.java).putExtra(
-                ReferralsActivity.EXTRA_USER_ID,
-                userId
-            )
-        )
-    }
+//    override fun navigateToSettings() {
+//        startActivity(Intent(this, SettingsActivity::class.java))
+//    }
+//
+//    override fun navigateToReferrals(userId: String) {
+//        startActivity(
+//            Intent(this, ReferralsActivity::class.java).putExtra(
+//                ReferralsActivity.EXTRA_USER_ID,
+//                userId
+//            )
+//        )
+//    }
 }
 
 @Composable

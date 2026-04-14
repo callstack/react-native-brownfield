@@ -1,5 +1,91 @@
+diff --git a/android/src/main/java/expo/modules/updates/ReactHostProvider.kt b/android/src/main/java/expo/modules/updates/ReactHostProvider.kt
+new file mode 100644
+index 0000000..26304b2
+--- /dev/null
++++ b/android/src/main/java/expo/modules/updates/ReactHostProvider.kt
+@@ -0,0 +1,16 @@
++package expo.modules.updates
++
++import com.facebook.react.ReactHost
++
++/**
++ * Supplies the [ReactHost] for brownfield / embedded React Native setups where
++ * [android.app.Application] is not the standard [com.facebook.react.ReactApplication]
++ * with a framework-provided `reactHost`.
++ *
++ * Register via [UpdatesController.setReactHostProvider] on the main thread after the host exists.
++ */
++fun interface ReactHostProvider {
++  fun getReactHost(): ReactHost?
++
++  fun isReactHostReady(): Boolean = getReactHost() != null
++}
+diff --git a/android/src/main/java/expo/modules/updates/UpdatesController.kt b/android/src/main/java/expo/modules/updates/UpdatesController.kt
+index 6ff694c..7999bb7 100644
+--- a/android/src/main/java/expo/modules/updates/UpdatesController.kt
++++ b/android/src/main/java/expo/modules/updates/UpdatesController.kt
+@@ -2,6 +2,7 @@ package expo.modules.updates
+ 
+ import android.content.Context
+ import com.facebook.react.ReactApplication
++import com.facebook.react.ReactHost
+ import expo.modules.updates.events.IUpdatesEventManagerObserver
+ import expo.modules.updates.loader.LoaderTask
+ import expo.modules.updates.logging.UpdatesErrorCode
+@@ -25,6 +26,26 @@ object UpdatesController {
+   @Volatile
+   private var overrideConfiguration: UpdatesConfiguration? = null
+ 
++  @Volatile
++  private var reactHostProvider: ReactHostProvider? = null
++
++  /**
++   * Returns the [ReactHost] from [reactHostProvider], if registered.
++   * Intended for main-thread use, consistent with React Native.
++   */
++  @JvmStatic
++  fun getReactHost(): ReactHost? = reactHostProvider?.getReactHost()
++
++  @JvmStatic
++  fun setReactHostProvider(provider: ReactHostProvider?) {
++    reactHostProvider = provider
++  }
++
++  @JvmStatic
++  fun clearReactHostProvider() {
++    reactHostProvider = null
++  }
++
+   @JvmStatic
+   val instance: IUpdatesController
+     get() {
+diff --git a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
+index 25c6e80..6c78d12 100644
+--- a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
++++ b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
+@@ -4,6 +4,7 @@ import android.app.Activity
+ import com.facebook.react.ReactApplication
+ import com.facebook.react.common.LifecycleState
+ import expo.modules.rncompatibility.ReactNativeFeatureFlags
++import expo.modules.updates.UpdatesController
+ 
+ /**
+  * An extension for [ReactApplication] to restart the app
+@@ -13,8 +14,10 @@ import expo.modules.rncompatibility.ReactNativeFeatureFlags
+  */
+ internal fun ReactApplication.restart(activity: Activity?, reason: String) {
+   if (ReactNativeFeatureFlags.enableBridgelessArchitecture) {
+-    val reactHost = this.reactHost
+-    check(reactHost != null)
++    val reactHost = UpdatesController.getReactHost() ?: this.reactHost
++    check(reactHost != null) {
++      "ReactHost is null. For brownfield embeds, call UpdatesController.setReactHostProvider(...) before reload."
++    }
+     if (reactHost.lifecycleState != LifecycleState.RESUMED && activity != null) {
+       reactHost.onHostResume(activity)
+     }
 diff --git a/ios/EXUpdates/UpdatesConfig.swift b/ios/EXUpdates/UpdatesConfig.swift
-index 09a1e145a9f5a938e10dd3c59eedfd213ad54346..787c1a8f7ae6a010fff4200ffebe31742e9a25eb 100644
+index 09a1e14..787c1a8 100644
 --- a/ios/EXUpdates/UpdatesConfig.swift
 +++ b/ios/EXUpdates/UpdatesConfig.swift
 @@ -141,7 +141,8 @@ public final class UpdatesConfig: NSObject {
@@ -13,7 +99,7 @@ index 09a1e145a9f5a938e10dd3c59eedfd213ad54346..787c1a8f7ae6a010fff4200ffebe3174
      }
  
 diff --git a/ios/EXUpdates/UpdatesUtils.swift b/ios/EXUpdates/UpdatesUtils.swift
-index a1e2c9af4ebaf9e50db2acaabfa876fc46d22454..0b96a7062dbcd021339a9daeb4397b3c7715b96d 100644
+index a1e2c9a..0b96a70 100644
 --- a/ios/EXUpdates/UpdatesUtils.swift
 +++ b/ios/EXUpdates/UpdatesUtils.swift
 @@ -108,18 +108,22 @@ public final class UpdatesUtils: NSObject {
