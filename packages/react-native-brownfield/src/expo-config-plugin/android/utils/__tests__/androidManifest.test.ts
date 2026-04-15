@@ -3,8 +3,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import {
-  extractApplicationMetaDataFromAndroidManifest,
-  extractStringResourcesFromResourcesXml,
+  extractApplicationMetaData,
+  extractStringResourcesFromXml,
   renderLibraryManifestApplication,
   renderLibraryStringResources,
 } from '../androidManifest';
@@ -128,7 +128,7 @@ describe('android manifest helpers', () => {
     );
   });
 
-  it('keeps typed extraction aligned for android:value entries and referenced string resources', () => {
+  it('keeps raw XML extraction aligned for android:value entries and referenced string resources', () => {
     const androidDir = createAndroidDir();
     const manifestContent = `<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -138,122 +138,49 @@ describe('android manifest helpers', () => {
     <meta-data android:name="com.example.NOT_UPDATES" android:value="ignored" />
   </application>
 </manifest>`;
-    const typedManifest = {
-      manifest: {
-        $: {
-          'xmlns:android': 'http://schemas.android.com/apk/res/android',
-        },
-        queries: [],
-        application: [
-          {
-            $: {
-              'android:name': '.MainApplication',
-            },
-            'meta-data': [
-              {
-                $: {
-                  'android:name': 'expo.modules.updates.ENABLED',
-                  'android:value': 'true',
-                },
-              },
-              {
-                $: {
-                  'android:name': 'expo.modules.updates.EXPO_RUNTIME_VERSION',
-                  'android:value': '@string/expo_runtime_version',
-                },
-              },
-              {
-                $: {
-                  'android:name': 'com.example.NOT_UPDATES',
-                  'android:value': 'ignored',
-                },
-              },
-            ],
-          },
-        ],
-      },
-    };
-
-    writeAppStrings(
-      androidDir,
-      `<?xml version="1.0" encoding="utf-8"?>
+    const stringsContent = `<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="expo_runtime_version">1.0.0-preview</string>
-</resources>`
-    );
+</resources>`;
+
+    writeAppManifest(androidDir, manifestContent);
+    writeAppStrings(androidDir, stringsContent);
 
     const fileMetaData = extractExpoUpdatesApplicationMetaData(manifestContent);
-    const typedMetaData = extractApplicationMetaDataFromAndroidManifest(
-      typedManifest
-    ).filter(({ name }) => name.startsWith('expo.modules.updates.'));
+    const rawMetaData = extractApplicationMetaData(manifestContent).filter(
+      ({ name }) => name.startsWith('expo.modules.updates.')
+    );
 
-    expect(typedMetaData).toEqual(fileMetaData);
+    expect(rawMetaData).toEqual(fileMetaData);
     expect(
-      extractStringResourcesFromResourcesXml(
-        {
-          resources: {
-            string: [
-              {
-                $: { name: 'expo_runtime_version' },
-                _: '1.0.0-preview',
-              },
-            ],
-          },
-        },
-        ['expo_runtime_version']
-      )
+      extractStringResourcesFromXml(stringsContent, ['expo_runtime_version'])
     ).toEqual(readExpoUpdatesStringResources(androidDir, 'app', fileMetaData));
   });
 
-  it('supports android:resource entries in the typed manifest adapter', () => {
-    const metaDataEntries = extractApplicationMetaDataFromAndroidManifest({
-      manifest: {
-        $: {
-          'xmlns:android': 'http://schemas.android.com/apk/res/android',
-        },
-        queries: [],
-        application: [
-          {
-            $: {
-              'android:name': '.MainApplication',
-            },
-            'meta-data': [
-              {
-                $: {
-                  'android:name': 'expo.modules.updates.EXPO_RUNTIME_VERSION',
-                  'android:resource': '@string/expo_runtime_version',
-                },
-              },
-              {
-                $: {
-                  'android:name': 'com.example.NOT_UPDATES',
-                  'android:resource': '@string/ignored',
-                },
-              },
-            ],
-          },
-        ],
-      },
-    }).filter(({ name }) => name.startsWith('expo.modules.updates.'));
-
-    expect(metaDataEntries).toEqual([
+  it('ignores android:resource entries because only android:value metadata is supported', () => {
+    expect(
+      extractApplicationMetaData(`<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:name=".MainApplication">
+    <meta-data
+      android:name="expo.modules.updates.EXPO_RUNTIME_VERSION"
+      android:resource="@string/expo_runtime_version" />
+    <meta-data android:name="expo.modules.updates.ENABLED" android:value="true" />
+  </application>
+</manifest>`)
+    ).toEqual([
       {
-        name: 'expo.modules.updates.EXPO_RUNTIME_VERSION',
-        value: '@string/expo_runtime_version',
+        name: 'expo.modules.updates.ENABLED',
+        value: 'true',
       },
     ]);
+
     expect(
-      extractStringResourcesFromResourcesXml(
-        {
-          resources: {
-            string: [
-              {
-                $: { name: 'expo_runtime_version' },
-                _: '2.0.0',
-              },
-            ],
-          },
-        },
+      extractStringResourcesFromXml(
+        `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="expo_runtime_version">2.0.0</string>
+</resources>`,
         ['expo_runtime_version']
       )
     ).toEqual([

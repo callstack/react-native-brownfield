@@ -1,5 +1,3 @@
-import type { AndroidConfig } from '@expo/config-plugins';
-
 export type AndroidManifestMetaDataEntry = {
   name: string;
   value: string;
@@ -32,28 +30,6 @@ export function extractApplicationMetaData(
     );
 }
 
-export function extractApplicationMetaDataFromAndroidManifest(
-  androidManifest: AndroidConfig.Manifest.AndroidManifest
-): AndroidManifestMetaDataEntry[] {
-  const application = androidManifest.manifest.application?.[0];
-
-  if (!application?.['meta-data']) {
-    return [];
-  }
-
-  return application['meta-data']
-    .map((metaDataItem) =>
-      parseMetaDataAttributes(
-        metaDataItem.$['android:name'],
-        metaDataItem.$['android:value'] ?? metaDataItem.$['android:resource']
-      )
-    )
-    .filter(
-      (metaDataEntry): metaDataEntry is AndroidManifestMetaDataEntry =>
-        metaDataEntry !== null
-    );
-}
-
 export function extractStringResourcesFromXml(
   stringsContent: string,
   resourceNames: string[]
@@ -64,32 +40,6 @@ export function extractStringResourcesFromXml(
 
   return resourceNames
     .map((name) => extractStringResource(stringsContent, name))
-    .filter(
-      (stringResource): stringResource is AndroidStringResourceEntry =>
-        stringResource !== null
-    );
-}
-
-export function extractStringResourcesFromResourcesXml(
-  stringsXml: AndroidConfig.Resources.ResourceXML,
-  resourceNames: string[]
-): AndroidStringResourceEntry[] {
-  if (resourceNames.length === 0) {
-    return [];
-  }
-
-  return resourceNames
-    .map((name) => {
-      const stringItem = stringsXml.resources.string?.find(
-        (item) => item.$.name === name
-      );
-
-      if (!stringItem || stringItem._ === undefined) {
-        return null;
-      }
-
-      return { name, value: stringItem._ };
-    })
     .filter(
       (stringResource): stringResource is AndroidStringResourceEntry =>
         stringResource !== null
