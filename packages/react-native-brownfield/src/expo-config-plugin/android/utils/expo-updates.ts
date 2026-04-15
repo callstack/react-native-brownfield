@@ -9,14 +9,8 @@ import {
   extractStringResourcesFromXml,
 } from './androidManifest';
 
-const APP_MANIFEST_PATH_SEGMENTS = [
-  'app',
-  'src',
-  'main',
-  'AndroidManifest.xml',
-];
+const APP_MANIFEST_PATH_SEGMENTS = ['src', 'main', 'AndroidManifest.xml'];
 const APP_STRINGS_PATH_SEGMENTS = [
-  'app',
   'src',
   'main',
   'res',
@@ -39,9 +33,14 @@ const EXPO_UPDATES_META_DATA_PREFIX = 'expo.modules.updates.';
 
 /** Classification: Expo Updates-specific logic used by production code. */
 export function readExpoUpdatesApplicationMetaData(
-  androidDir: string
+  androidDir: string,
+  appModuleName: string
 ): AndroidManifestMetaDataEntry[] {
-  const manifestPath = path.join(androidDir, ...APP_MANIFEST_PATH_SEGMENTS);
+  const manifestPath = path.join(
+    androidDir,
+    appModuleName,
+    ...APP_MANIFEST_PATH_SEGMENTS
+  );
 
   if (!fs.existsSync(manifestPath)) {
     Logger.logDebug(
@@ -67,6 +66,7 @@ export function extractExpoUpdatesApplicationMetaData(
 /** Classification: Expo Updates-specific logic used by production code. */
 export function readExpoUpdatesStringResources(
   androidDir: string,
+  appModuleName: string,
   metaDataEntries: AndroidManifestMetaDataEntry[]
 ): AndroidStringResourceEntry[] {
   const stringResourceNames = getReferencedStringResourceNames(metaDataEntries);
@@ -75,7 +75,11 @@ export function readExpoUpdatesStringResources(
     return [];
   }
 
-  const stringsPath = path.join(androidDir, ...APP_STRINGS_PATH_SEGMENTS);
+  const stringsPath = path.join(
+    androidDir,
+    appModuleName,
+    ...APP_STRINGS_PATH_SEGMENTS
+  );
 
   if (!fs.existsSync(stringsPath)) {
     Logger.logDebug(

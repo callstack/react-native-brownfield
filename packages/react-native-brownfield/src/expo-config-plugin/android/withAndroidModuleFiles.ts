@@ -222,9 +222,14 @@ export function syncAndroidModuleExpoUpdatesFromAppFiles({
   // results. This keeps Expo Updates sync compatible with the dangerous/finalized
   // mod phases, where other config plugins may already have rewritten the app
   // manifest or strings resources that we need to mirror into the library module.
-  const expoUpdatesMetaData = readExpoUpdatesApplicationMetaData(androidDir);
+  const appModuleName = config.android.moduleName;
+  const expoUpdatesMetaData = readExpoUpdatesApplicationMetaData(
+    androidDir,
+    appModuleName
+  );
   const expoUpdatesStringResources = readExpoUpdatesStringResources(
     androidDir,
+    appModuleName,
     expoUpdatesMetaData
   );
 

@@ -26,7 +26,7 @@ describe('android manifest helpers', () => {
   it('returns an empty array when the generated app manifest does not exist', () => {
     const androidDir = createAndroidDir();
 
-    expect(readExpoUpdatesApplicationMetaData(androidDir)).toEqual([]);
+    expect(readExpoUpdatesApplicationMetaData(androidDir, 'app')).toEqual([]);
   });
 
   it('returns an empty array when the application node has no Expo Updates metadata', () => {
@@ -42,7 +42,7 @@ describe('android manifest helpers', () => {
 </manifest>`
     );
 
-    expect(readExpoUpdatesApplicationMetaData(androidDir)).toEqual([]);
+    expect(readExpoUpdatesApplicationMetaData(androidDir, 'app')).toEqual([]);
   });
 
   it('preserves Expo Updates metadata values exactly as they appear in the app manifest', () => {
@@ -105,7 +105,7 @@ describe('android manifest helpers', () => {
 </resources>`
     );
 
-    const stringResources = readExpoUpdatesStringResources(androidDir, [
+    const stringResources = readExpoUpdatesStringResources(androidDir, 'app', [
       {
         name: 'expo.modules.updates.EXPO_RUNTIME_VERSION',
         value: '@string/expo_runtime_version',
@@ -202,7 +202,7 @@ describe('android manifest helpers', () => {
         },
         ['expo_runtime_version']
       )
-    ).toEqual(readExpoUpdatesStringResources(androidDir, fileMetaData));
+    ).toEqual(readExpoUpdatesStringResources(androidDir, 'app', fileMetaData));
   });
 
   it('supports android:resource entries in the typed manifest adapter', () => {
