@@ -23,7 +23,7 @@ struct ContentView: View {
 
                 MessagesView()
 
-                ReactNativeView(moduleName: "RNApp")
+                ReactNativeView(moduleName: "main")
                     .navigationBarHidden(true)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .background(Color(UIColor.systemBackground))

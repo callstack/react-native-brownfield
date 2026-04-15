@@ -148,9 +148,20 @@ describe('android manifest helpers', () => {
   }
 
   function writeAppStrings(androidDir: string, stringsContent: string): void {
-    const stringsPath = path.join(androidDir, 'app', 'src', 'main', 'res', 'values');
+    const stringsPath = path.join(
+      androidDir,
+      'app',
+      'src',
+      'main',
+      'res',
+      'values'
+    );
 
     fs.mkdirSync(stringsPath, { recursive: true });
-    fs.writeFileSync(path.join(stringsPath, 'strings.xml'), stringsContent, 'utf8');
+    fs.writeFileSync(
+      path.join(stringsPath, 'strings.xml'),
+      stringsContent,
+      'utf8'
+    );
   }
 });
