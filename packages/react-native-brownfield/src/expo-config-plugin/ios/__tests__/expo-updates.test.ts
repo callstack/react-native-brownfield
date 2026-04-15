@@ -1,7 +1,7 @@
 import {
   ensureFrameworkHasExpoPlistResource,
   selectExpoPlistFileReference,
-} from '../xcodeHelpers';
+} from '../utils/expo-updates';
 
 describe('selectExpoPlistFileReference', () => {
   it('selects the exact Supporting/Expo.plist reference when present', () => {

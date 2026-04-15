@@ -9,9 +9,9 @@ import {
   addFrameworkTarget,
   addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
-  ensureFrameworkHasExpoPlistResource,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
+import { ensureFrameworkHasExpoPlistResource } from './utils/expo-updates';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
 import { Logger } from '../logging';
