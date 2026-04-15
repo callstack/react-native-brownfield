@@ -5,13 +5,8 @@ import * as path from 'node:path';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../../types';
 import {
   createAndroidModule,
-  syncAndroidModuleManifest,
-  syncAndroidModuleStringResources,
+  syncAndroidModuleExpoUpdatesFromAppFiles,
 } from '../withAndroidModuleFiles';
-import {
-  extractExpoUpdatesApplicationMetaDataFromAndroidManifest,
-  extractExpoUpdatesStringResourcesFromResourcesXml,
-} from '../utils/androidManifest';
 
 describe('createAndroidModule', () => {
   const tempDirectories: string[] = [];
@@ -100,7 +95,7 @@ describe('createAndroidModule', () => {
 `);
   });
 
-  it('overwrites existing library metadata with the final Expo manifest values', () => {
+  it('overwrites existing library Expo Updates files with the finalized app file values', () => {
     const androidDir = createAndroidDir();
     const config = createConfig();
 
@@ -110,8 +105,16 @@ describe('createAndroidModule', () => {
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <application android:name=".MainApplication">
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="NEVER" />
+    <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="@string/expo_runtime_version" />
   </application>
 </manifest>`
+    );
+    writeAppStrings(
+      androidDir,
+      `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="expo_runtime_version">1.0.0</string>
+</resources>`
     );
 
     createAndroidModule({
@@ -121,50 +124,37 @@ describe('createAndroidModule', () => {
       isExpoPre55: false,
     });
 
-    const finalExpoMetaData =
-      extractExpoUpdatesApplicationMetaDataFromAndroidManifest({
-        manifest: {
-          $: {
-            'xmlns:android': 'http://schemas.android.com/apk/res/android',
-          },
-          queries: [],
-          application: [
-            {
-              $: {
-                'android:name': '.MainApplication',
-              },
-              'meta-data': [
-                {
-                  $: {
-                    'android:name':
-                      'expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH',
-                    'android:value': 'ALWAYS',
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      });
+    writeAppManifest(
+      androidDir,
+      `<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:name=".MainApplication">
+    <meta-data android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="ALWAYS" />
+    <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="@string/expo_runtime_version" />
+  </application>
+</manifest>`
+    );
+    writeAppStrings(
+      androidDir,
+      `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="expo_runtime_version">2.0.0</string>
+</resources>`
+    );
 
-    syncAndroidModuleManifest({
+    syncAndroidModuleExpoUpdatesFromAppFiles({
       androidDir,
       config,
-      expoUpdatesMetaData: finalExpoMetaData,
-    });
-
-    syncAndroidModuleStringResources({
-      androidDir,
-      config,
-      expoUpdatesStringResources:
-        extractExpoUpdatesStringResourcesFromResourcesXml(
-          { resources: {} },
-          finalExpoMetaData
-        ),
     });
 
     expect(readLibraryManifest(androidDir)).toContain(
       'android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="ALWAYS"'
+    );
+    expect(readLibraryManifest(androidDir)).not.toContain(
+      'android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="NEVER"'
+    );
+    expect(readLibraryStrings(androidDir)).toContain(
+      '<string name="expo_runtime_version">2.0.0</string>'
     );
   });
 

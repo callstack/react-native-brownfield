@@ -3,12 +3,16 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import {
-  extractExpoUpdatesApplicationMetaData,
-  readExpoUpdatesApplicationMetaData,
-  readExpoUpdatesStringResources,
+  extractApplicationMetaDataFromAndroidManifest,
+  extractStringResourcesFromResourcesXml,
   renderLibraryManifestApplication,
   renderLibraryStringResources,
 } from '../androidManifest';
+import {
+  extractExpoUpdatesApplicationMetaData,
+  readExpoUpdatesApplicationMetaData,
+  readExpoUpdatesStringResources,
+} from '../expo-updates';
 
 describe('android manifest helpers', () => {
   const tempDirectories: string[] = [];
@@ -122,6 +126,142 @@ describe('android manifest helpers', () => {
     expect(renderLibraryStringResources(stringResources)).toBe(
       '  <string name="expo_runtime_version">1.0.0-preview</string>'
     );
+  });
+
+  it('keeps typed extraction aligned for android:value entries and referenced string resources', () => {
+    const androidDir = createAndroidDir();
+    const manifestContent = `<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:name=".MainApplication">
+    <meta-data android:name="expo.modules.updates.ENABLED" android:value="true" />
+    <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="@string/expo_runtime_version" />
+    <meta-data android:name="com.example.NOT_UPDATES" android:value="ignored" />
+  </application>
+</manifest>`;
+    const typedManifest = {
+      manifest: {
+        $: {
+          'xmlns:android': 'http://schemas.android.com/apk/res/android',
+        },
+        queries: [],
+        application: [
+          {
+            $: {
+              'android:name': '.MainApplication',
+            },
+            'meta-data': [
+              {
+                $: {
+                  'android:name': 'expo.modules.updates.ENABLED',
+                  'android:value': 'true',
+                },
+              },
+              {
+                $: {
+                  'android:name': 'expo.modules.updates.EXPO_RUNTIME_VERSION',
+                  'android:value': '@string/expo_runtime_version',
+                },
+              },
+              {
+                $: {
+                  'android:name': 'com.example.NOT_UPDATES',
+                  'android:value': 'ignored',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    writeAppStrings(
+      androidDir,
+      `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="expo_runtime_version">1.0.0-preview</string>
+</resources>`
+    );
+
+    const fileMetaData = extractExpoUpdatesApplicationMetaData(manifestContent);
+    const typedMetaData = extractApplicationMetaDataFromAndroidManifest(
+      typedManifest
+    ).filter(({ name }) => name.startsWith('expo.modules.updates.'));
+
+    expect(typedMetaData).toEqual(fileMetaData);
+    expect(
+      extractStringResourcesFromResourcesXml(
+        {
+          resources: {
+            string: [
+              {
+                $: { name: 'expo_runtime_version' },
+                _: '1.0.0-preview',
+              },
+            ],
+          },
+        },
+        ['expo_runtime_version']
+      )
+    ).toEqual(readExpoUpdatesStringResources(androidDir, fileMetaData));
+  });
+
+  it('supports android:resource entries in the typed manifest adapter', () => {
+    const metaDataEntries = extractApplicationMetaDataFromAndroidManifest({
+      manifest: {
+        $: {
+          'xmlns:android': 'http://schemas.android.com/apk/res/android',
+        },
+        queries: [],
+        application: [
+          {
+            $: {
+              'android:name': '.MainApplication',
+            },
+            'meta-data': [
+              {
+                $: {
+                  'android:name': 'expo.modules.updates.EXPO_RUNTIME_VERSION',
+                  'android:resource': '@string/expo_runtime_version',
+                },
+              },
+              {
+                $: {
+                  'android:name': 'com.example.NOT_UPDATES',
+                  'android:resource': '@string/ignored',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    }).filter(({ name }) => name.startsWith('expo.modules.updates.'));
+
+    expect(metaDataEntries).toEqual([
+      {
+        name: 'expo.modules.updates.EXPO_RUNTIME_VERSION',
+        value: '@string/expo_runtime_version',
+      },
+    ]);
+    expect(
+      extractStringResourcesFromResourcesXml(
+        {
+          resources: {
+            string: [
+              {
+                $: { name: 'expo_runtime_version' },
+                _: '2.0.0',
+              },
+            ],
+          },
+        },
+        ['expo_runtime_version']
+      )
+    ).toEqual([
+      {
+        name: 'expo_runtime_version',
+        value: '2.0.0',
+      },
+    ]);
   });
 
   function createAndroidDir(): string {

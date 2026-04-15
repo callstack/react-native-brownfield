@@ -1,59 +1,42 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-
 import type { AndroidConfig } from '@expo/config-plugins';
 
-import { Logger } from '../../logging';
-
+/** Classification: generic Android utility data shape. */
 export type AndroidManifestMetaDataEntry = {
   name: string;
   value: string;
 };
 
+/** Classification: generic Android utility data shape. */
 export type AndroidStringResourceEntry = {
   name: string;
   value: string;
 };
 
-const APP_MANIFEST_PATH_SEGMENTS = [
-  'app',
-  'src',
-  'main',
-  'AndroidManifest.xml',
-];
-const APP_STRINGS_PATH_SEGMENTS = [
-  'app',
-  'src',
-  'main',
-  'res',
-  'values',
-  'strings.xml',
-];
 const APPLICATION_BLOCK_REGEX = /<application\b[\s\S]*?<\/application>/;
 const META_DATA_TAG_REGEX =
   /<meta-data\b[\s\S]*?(?:\/>|>[\s\S]*?<\/meta-data>)/g;
 const STRING_TAG_REGEX = /<string\b[\s\S]*?>[\s\S]*?<\/string>/g;
-const STRING_REFERENCE_REGEX = /^@string\/([A-Za-z0-9_.]+)$/;
-const EXPO_UPDATES_META_DATA_PREFIX = 'expo.modules.updates.';
 
-export function readExpoUpdatesApplicationMetaData(
-  androidDir: string
+/** Classification: generic Android utility parser. */
+export function extractApplicationMetaData(
+  manifestContent: string
 ): AndroidManifestMetaDataEntry[] {
-  const manifestPath = path.join(androidDir, ...APP_MANIFEST_PATH_SEGMENTS);
+  const applicationBlock = manifestContent.match(APPLICATION_BLOCK_REGEX)?.[0];
 
-  if (!fs.existsSync(manifestPath)) {
-    Logger.logDebug(
-      `App manifest not found, skipping metadata copy: ${manifestPath}`
-    );
+  if (!applicationBlock) {
     return [];
   }
 
-  return extractExpoUpdatesApplicationMetaData(
-    fs.readFileSync(manifestPath, 'utf8')
-  );
+  return (applicationBlock.match(META_DATA_TAG_REGEX) ?? [])
+    .map(parseMetaDataTag)
+    .filter(
+      (metaDataEntry): metaDataEntry is AndroidManifestMetaDataEntry =>
+        metaDataEntry !== null
+    );
 }
 
-export function extractExpoUpdatesApplicationMetaDataFromAndroidManifest(
+/** Classification: generic Android utility parser. */
+export function extractApplicationMetaDataFromAndroidManifest(
   androidManifest: AndroidConfig.Manifest.AndroidManifest
 ): AndroidManifestMetaDataEntry[] {
   const application = androidManifest.manifest.application?.[0];
@@ -75,84 +58,33 @@ export function extractExpoUpdatesApplicationMetaDataFromAndroidManifest(
     );
 }
 
-export function extractExpoUpdatesApplicationMetaData(
-  manifestContent: string
-): AndroidManifestMetaDataEntry[] {
-  const applicationBlock = manifestContent.match(APPLICATION_BLOCK_REGEX)?.[0];
-
-  if (!applicationBlock) {
+/** Classification: generic Android utility parser. */
+export function extractStringResourcesFromXml(
+  stringsContent: string,
+  resourceNames: string[]
+): AndroidStringResourceEntry[] {
+  if (resourceNames.length === 0) {
     return [];
   }
 
-  return (applicationBlock.match(META_DATA_TAG_REGEX) ?? [])
-    .map(parseMetaDataTag)
+  return resourceNames
+    .map((name) => extractStringResource(stringsContent, name))
     .filter(
-      (metaDataEntry): metaDataEntry is AndroidManifestMetaDataEntry =>
-        metaDataEntry !== null
+      (stringResource): stringResource is AndroidStringResourceEntry =>
+        stringResource !== null
     );
 }
 
-export function renderLibraryManifestApplication(
-  metaDataEntries: AndroidManifestMetaDataEntry[]
-): string {
-  if (metaDataEntries.length === 0) {
-    return '';
-  }
-
-  const renderedMetaDataEntries = metaDataEntries
-    .map(
-      ({ name, value }) =>
-        `    <meta-data android:name="${name}" android:value="${value}" />`
-    )
-    .join('\n');
-
-  return `  <application>\n${renderedMetaDataEntries}\n  </application>`;
-}
-
-export function readExpoUpdatesStringResources(
-  androidDir: string,
-  metaDataEntries: AndroidManifestMetaDataEntry[]
-): AndroidStringResourceEntry[] {
-  const stringResourceNames = [
-    ...new Set(
-      metaDataEntries
-        .map(({ value }) => value.match(STRING_REFERENCE_REGEX)?.[1])
-        .filter((name): name is string => name !== undefined)
-    ),
-  ];
-
-  if (stringResourceNames.length === 0) {
-    return [];
-  }
-
-  const stringsPath = path.join(androidDir, ...APP_STRINGS_PATH_SEGMENTS);
-
-  if (!fs.existsSync(stringsPath)) {
-    Logger.logDebug(
-      `App strings not found, skipping string resource copy: ${stringsPath}`
-    );
-    return [];
-  }
-
-  const stringsContent = fs.readFileSync(stringsPath, 'utf8');
-
-  return extractExpoUpdatesStringResourcesFromXml(
-    stringsContent,
-    metaDataEntries
-  );
-}
-
-export function extractExpoUpdatesStringResourcesFromResourcesXml(
+/** Classification: generic Android utility parser. */
+export function extractStringResourcesFromResourcesXml(
   stringsXml: AndroidConfig.Resources.ResourceXML,
-  metaDataEntries: AndroidManifestMetaDataEntry[]
+  resourceNames: string[]
 ): AndroidStringResourceEntry[] {
-  const stringResourceNames = getReferencedStringResourceNames(metaDataEntries);
-
-  if (stringResourceNames.length === 0) {
+  if (resourceNames.length === 0) {
     return [];
   }
 
-  return stringResourceNames
+  return resourceNames
     .map((name) => {
       const stringItem = stringsXml.resources.string?.find(
         (item) => item.$.name === name
@@ -170,6 +102,25 @@ export function extractExpoUpdatesStringResourcesFromResourcesXml(
     );
 }
 
+/** Classification: generic Android utility renderer. */
+export function renderLibraryManifestApplication(
+  metaDataEntries: AndroidManifestMetaDataEntry[]
+): string {
+  if (metaDataEntries.length === 0) {
+    return '';
+  }
+
+  const renderedMetaDataEntries = metaDataEntries
+    .map(
+      ({ name, value }) =>
+        `    <meta-data android:name="${name}" android:value="${value}" />`
+    )
+    .join('\n');
+
+  return `  <application>\n${renderedMetaDataEntries}\n  </application>`;
+}
+
+/** Classification: generic Android utility renderer. */
 export function renderLibraryStringResources(
   stringResources: AndroidStringResourceEntry[]
 ): string {
@@ -195,14 +146,9 @@ function parseMetaDataAttributes(
   name: string | undefined,
   value: string | undefined
 ): AndroidManifestMetaDataEntry | null {
-  if (!name?.startsWith(EXPO_UPDATES_META_DATA_PREFIX)) {
+  if (name === undefined || value === undefined) {
     return null;
   }
-
-  if (value === undefined) {
-    return null;
-  }
-
   return { name, value };
 }
 
@@ -225,36 +171,6 @@ function extractStringResource(
   }
 
   return { name: resourceName, value };
-}
-
-function extractExpoUpdatesStringResourcesFromXml(
-  stringsContent: string,
-  metaDataEntries: AndroidManifestMetaDataEntry[]
-): AndroidStringResourceEntry[] {
-  const stringResourceNames = getReferencedStringResourceNames(metaDataEntries);
-
-  if (stringResourceNames.length === 0) {
-    return [];
-  }
-
-  return stringResourceNames
-    .map((name) => extractStringResource(stringsContent, name))
-    .filter(
-      (stringResource): stringResource is AndroidStringResourceEntry =>
-        stringResource !== null
-    );
-}
-
-function getReferencedStringResourceNames(
-  metaDataEntries: AndroidManifestMetaDataEntry[]
-): string[] {
-  return [
-    ...new Set(
-      metaDataEntries
-        .map(({ value }) => value.match(STRING_REFERENCE_REGEX)?.[1])
-        .filter((name): name is string => name !== undefined)
-    ),
-  ];
 }
 
 function getAndroidAttribute(

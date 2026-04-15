@@ -13,11 +13,13 @@ import { getExpoInfo } from '../expoUtils';
 import {
   type AndroidManifestMetaDataEntry,
   type AndroidStringResourceEntry,
-  readExpoUpdatesApplicationMetaData,
-  readExpoUpdatesStringResources,
   renderLibraryManifestApplication,
   renderLibraryStringResources,
 } from './utils/androidManifest';
+import {
+  readExpoUpdatesApplicationMetaData,
+  readExpoUpdatesStringResources,
+} from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
 
 function isExpoUpdatesInstalled(projectRoot: string): boolean {
@@ -216,6 +218,10 @@ export function syncAndroidModuleExpoUpdatesFromAppFiles({
   androidDir: string;
   config: ResolvedBrownfieldPluginConfigWithAndroid;
 }): void {
+  // Read the finalized app files from disk instead of relying on parsed mod
+  // results. This keeps Expo Updates sync compatible with the dangerous/finalized
+  // mod phases, where other config plugins may already have rewritten the app
+  // manifest or strings resources that we need to mirror into the library module.
   const expoUpdatesMetaData = readExpoUpdatesApplicationMetaData(androidDir);
   const expoUpdatesStringResources = readExpoUpdatesStringResources(
     androidDir,
