@@ -192,6 +192,15 @@ type PbxFileReference = {
   path?: string;
 };
 
+type PbxReferenceLike = { value?: string } | string;
+
+type PbxGroupLike = {
+  [key: string]: unknown;
+  name?: string;
+  path?: string;
+  children?: PbxReferenceLike[];
+};
+
 const EXPO_PLIST_FILE_NAME = 'Expo.plist';
 const EXPO_PLIST_PRIMARY_RELATIVE_PATH = 'Supporting/Expo.plist';
 
@@ -199,153 +208,111 @@ function normalizePbxPathLike(value: unknown): string {
   return normalizePbxString(value).replace(/^\.\//, '');
 }
 
-function findSupportingGroupUuid(project: XcodeProject): string | null {
-  const groups = (project as any).hash?.project?.objects?.PBXGroup;
-  if (!groups) {
-    return null;
+function isSupportingGroup(group: PbxGroupLike): boolean {
+  const groupName = normalizePbxString(group.name);
+  const groupPath = normalizePbxString(group.path);
+
+  return (
+    groupName === 'Supporting' ||
+    groupPath === 'Supporting' ||
+    groupPath.endsWith('/Supporting')
+  );
+}
+
+function groupContainsFileReference(
+  group: PbxGroupLike,
+  fileRefUuid: string
+): boolean {
+  const children = Array.isArray(group.children) ? group.children : [];
+
+  return children.some((child) => {
+    if (typeof child === 'string') {
+      return child === fileRefUuid;
+    }
+
+    return child?.value === fileRefUuid;
+  });
+}
+
+function isPrimaryExpoPlistMatch(
+  fileRefUuid: string,
+  fileRef: PbxFileReference,
+  groups?: Record<string, PbxGroupLike | string>
+): boolean {
+  const normalizedPath = normalizePbxPathLike(fileRef.path);
+  const fileName = normalizePbxString(fileRef.name);
+
+  if (
+    normalizedPath === EXPO_PLIST_PRIMARY_RELATIVE_PATH ||
+    normalizedPath.endsWith(`/${EXPO_PLIST_PRIMARY_RELATIVE_PATH}`)
+  ) {
+    return true;
   }
 
-  for (const [groupUuid, group] of Object.entries(groups)) {
-    if (groupUuid.endsWith('_comment')) {
+  if (
+    normalizedPath !== EXPO_PLIST_FILE_NAME &&
+    fileName !== EXPO_PLIST_FILE_NAME
+  ) {
+    return false;
+  }
+
+  return Object.entries(groups ?? {}).some(([groupUuid, group]) => {
+    if (groupUuid.endsWith('_comment') || typeof group === 'string') {
+      return false;
+    }
+
+    return (
+      isSupportingGroup(group) && groupContainsFileReference(group, fileRefUuid)
+    );
+  });
+}
+
+/**
+ * Selects an existing PBXFileReference for the app-level Expo plist.
+ *
+ * Matches either:
+ * - a file reference whose own path is `Supporting/Expo.plist`
+ * - or an `Expo.plist` file reference that lives under a `Supporting` PBXGroup
+ */
+export function selectExpoPlistFileReference(
+  fileReferences: Record<string, PbxFileReference | string>,
+  groups?: Record<string, PbxGroupLike | string>
+): string | null {
+  for (const [fileRefUuid, fileRef] of Object.entries(fileReferences)) {
+    if (fileRefUuid.endsWith('_comment') || typeof fileRef === 'string') {
       continue;
     }
 
-    const groupName = normalizePbxString((group as any)?.name);
-    const groupPath = normalizePbxString((group as any)?.path);
-
-    if (groupName === 'Supporting' || groupPath.endsWith('/Supporting')) {
-      return groupUuid;
+    if (isPrimaryExpoPlistMatch(fileRefUuid, fileRef, groups)) {
+      return fileRefUuid;
     }
   }
 
   return null;
 }
 
-function isPrimaryExpoPlistMatch(fileRef: PbxFileReference): boolean {
-  const normalizedPath = normalizePbxPathLike(fileRef.path);
-
-  return (
-    normalizedPath === EXPO_PLIST_PRIMARY_RELATIVE_PATH ||
-    normalizedPath.endsWith(`/${EXPO_PLIST_PRIMARY_RELATIVE_PATH}`)
-  );
-}
-
-function isFallbackExpoPlistMatch(fileRef: PbxFileReference): boolean {
-  const normalizedPath = normalizePbxPathLike(fileRef.path);
-  const fileName = normalizePbxString(fileRef.name);
-
-  return (
-    normalizedPath === EXPO_PLIST_FILE_NAME || fileName === EXPO_PLIST_FILE_NAME
-  );
-}
-
-/**
- * Selects an existing PBXFileReference for the app-level Expo plist.
- *
- * Matching rules are intentionally ordered:
- * - first prefer `Supporting/Expo.plist` (including nested project-relative paths)
- * - otherwise fall back to the first loose `Expo.plist` match by `path` or `name`
- */
-export function selectExpoPlistFileReference(
-  fileReferences: Record<string, PbxFileReference | string>
-): string | null {
-  let fallbackExpoPlistFileRefUuid: string | null = null;
-
-  for (const [fileRefUuid, fileRef] of Object.entries(fileReferences)) {
-    if (fileRefUuid.endsWith('_comment') || typeof fileRef === 'string') {
-      continue;
-    }
-
-    if (isPrimaryExpoPlistMatch(fileRef)) {
-      return fileRefUuid;
-    }
-
-    if (!fallbackExpoPlistFileRefUuid && isFallbackExpoPlistMatch(fileRef)) {
-      fallbackExpoPlistFileRefUuid = fileRefUuid;
-    }
-  }
-
-  return fallbackExpoPlistFileRefUuid;
-}
-
 /**
  * Resolves the PBXFileReference UUID for the app-level `Expo.plist`.
- *
- * Current responsibilities:
- * - select an existing `PBXFileReference`, preferring `Supporting/Expo.plist`
- *   over the first loose `Expo.plist` fallback by `path` or `name`
- * - create a new `PBXFileReference` under the `Supporting` PBXGroup when no
- *   existing reference can be reused
- * - ensure the new file reference is linked from the `Supporting` group only once
- *
- * Current edge cases and caveats:
- * - the exact-match path wins over the fallback so common Expo layouts stay
- *   deterministic even when multiple plist-like references exist
- * - the fallback intentionally accepts any `Expo.plist` match, which keeps older
- *   or less structured projects working but can select the wrong plist in more
- *   complex project layouts
- * - PBX values may be stored quoted or unquoted, so callers rely on
- *   `normalizePbxString()` before comparing paths and names
- * - if no suitable file reference exists and the project has no `Supporting`
- *   group, this throws because creating an ungrouped file reference would leave
- *   the project in an inconsistent state
  */
-function getOrCreateExpoPlistFileReference(project: XcodeProject): string {
+function getExpoPlistFileRefOrThrow(project: XcodeProject): string {
   const fileReferences = project.pbxFileReferenceSection() as Record<
     string,
     PbxFileReference | string
   >;
-  const existingExpoPlistFileRefUuid =
-    selectExpoPlistFileReference(fileReferences);
+  const groups = (project as any).hash?.project?.objects?.PBXGroup as
+    | Record<string, PbxGroupLike | string>
+    | undefined;
+  const existingExpoPlistFileRefUuid = selectExpoPlistFileReference(
+    fileReferences,
+    groups
+  );
   if (existingExpoPlistFileRefUuid) {
     return existingExpoPlistFileRefUuid;
   }
 
-  const supportingGroupUuid = findSupportingGroupUuid(project);
-  if (!supportingGroupUuid) {
-    throw new SourceModificationError(
-      'Could not find the "Supporting" PBXGroup needed for Expo.plist resource wiring'
-    );
-  }
-
-  const fileRefUuid = (project as any).generateUuid();
-  fileReferences[fileRefUuid] = {
-    isa: 'PBXFileReference',
-    fileEncoding: 4,
-    lastKnownFileType: 'text.plist.xml',
-    path: EXPO_PLIST_FILE_NAME,
-    sourceTree: '"<group>"',
-  };
-  fileReferences[`${fileRefUuid}_comment`] = EXPO_PLIST_FILE_NAME;
-
-  const groups = (project as any).hash?.project?.objects?.PBXGroup as
-    | Record<string, any>
-    | undefined;
-  const supportingGroup = groups?.[supportingGroupUuid];
-  if (supportingGroup) {
-    const children = Array.isArray(supportingGroup.children)
-      ? supportingGroup.children
-      : [];
-
-    const hasExpoPlistChild = children.some((child: any) => {
-      if (typeof child === 'string') {
-        return child === fileRefUuid;
-      }
-
-      return child?.value === fileRefUuid;
-    });
-
-    if (!hasExpoPlistChild) {
-      children.push(
-        createPbxCommentedReference(fileRefUuid, EXPO_PLIST_FILE_NAME)
-      );
-      supportingGroup.children = children;
-    }
-  }
-
-  Logger.logDebug('Created PBXFileReference for Supporting/Expo.plist');
-
-  return fileRefUuid;
+  throw new SourceModificationError(
+    `Could not find the "${EXPO_PLIST_PRIMARY_RELATIVE_PATH}" PBXFileReference needed for Expo.plist resource wiring`
+  );
 }
 
 type PbxCommentedReference = { value: string; comment: string };
@@ -368,7 +335,7 @@ type PbxBuildFile = {
   fileRef: string;
 };
 
-const RESOURCES_BUILD_PHASE_COMMENT = 'Resources';
+const RESOURCES_BUILD_PHASE_COMMENT = 'Resources test comment';
 const EXPO_PLIST_RESOURCE_COMMENT = 'Expo.plist in Resources';
 const PBX_BUILD_ACTION_MASK_ALL = 2147483647;
 const PBX_RUN_ONLY_FOR_DEPLOYMENT_POSTPROCESSING_DISABLED = 0;
@@ -524,27 +491,6 @@ function addBuildFileToResourcesPhase(
 /**
  * Ensures the framework target contains the app-level `Supporting/Expo.plist`
  * in a `PBXResourcesBuildPhase`. This is idempotent and safe to call repeatedly.
- *
- * Current responsibilities:
- * - resolve the target from `frameworkTargetUUID`
- * - locate a resources build phase already attached to that target
- * - create and attach a new `PBXResourcesBuildPhase` when none can be resolved
- * - resolve or create the underlying `Expo.plist` file reference
- * - detect an existing `PBXBuildFile` for that file reference and avoid
- *   inserting duplicates
- * - create a `PBXBuildFile` entry and attach it to the resources phase when needed
- *
- * Current edge cases and caveats:
- * - if the target UUID cannot be resolved, this throws immediately because the
- *   helper only repairs existing framework targets; it does not create them
- * - the resources-phase lookup only checks whether a target build phase points
- *   at an object present in `PBXResourcesBuildPhase`; if a reference is missing
- *   or corrupt, the helper treats that the same as "no resources phase" and
- *   creates a fresh one
- * - malformed `buildPhases` or `files` arrays are normalized to empty arrays so
- *   the helper can still repair older or partially edited projects
- * - idempotency is based on the resolved `fileRef`, not on display comments, so
- *   repeated plugin runs do not add duplicate `Expo.plist` resource entries
  */
 export function ensureFrameworkHasExpoPlistResource(
   project: XcodeProject,
@@ -560,7 +506,7 @@ export function ensureFrameworkHasExpoPlistResource(
     frameworkTarget
   );
 
-  const expoPlistFileRefUuid = getOrCreateExpoPlistFileReference(project);
+  const expoPlistFileRefUuid = getExpoPlistFileRefOrThrow(project);
   if (
     hasBuildFileForFileRef(project, resourcesBuildPhase, expoPlistFileRefUuid)
   ) {

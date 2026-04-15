@@ -1,11 +1,10 @@
-import { SourceModificationError } from '../../errors/SourceModificationError';
 import {
   ensureFrameworkHasExpoPlistResource,
   selectExpoPlistFileReference,
 } from '../xcodeHelpers';
 
 describe('selectExpoPlistFileReference', () => {
-  it('prefers Supporting/Expo.plist over a loose Expo.plist fallback', () => {
+  it('selects the exact Supporting/Expo.plist reference when present', () => {
     expect(
       selectExpoPlistFileReference({
         FALLBACK_FILE_REF: {
@@ -20,7 +19,44 @@ describe('selectExpoPlistFileReference', () => {
     ).toBe('EXACT_FILE_REF');
   });
 
-  it('falls back to the first loose Expo.plist path match when needed', () => {
+  it('selects Expo.plist from the Supporting group when only the group carries the path', () => {
+    expect(
+      selectExpoPlistFileReference(
+        {
+          FALLBACK_FILE_REF: {
+            path: './Expo.plist',
+          },
+          FALLBACK_FILE_REF_comment: 'Expo.plist',
+          GROUP_BASED_PRIMARY_FILE_REF: {
+            path: 'Expo.plist',
+          },
+          GROUP_BASED_PRIMARY_FILE_REF_comment: 'Expo.plist',
+        },
+        {
+          OTHER_GROUP: {
+            name: 'Config',
+            children: [
+              createCommentedReference('FALLBACK_FILE_REF', 'Expo.plist'),
+            ],
+          },
+          OTHER_GROUP_comment: 'Config',
+          SUPPORTING_GROUP: {
+            name: 'Supporting',
+            path: 'App/Supporting',
+            children: [
+              createCommentedReference(
+                'GROUP_BASED_PRIMARY_FILE_REF',
+                'Expo.plist'
+              ),
+            ],
+          },
+          SUPPORTING_GROUP_comment: 'Supporting',
+        }
+      )
+    ).toBe('GROUP_BASED_PRIMARY_FILE_REF');
+  });
+
+  it('returns null for a loose Expo.plist path match outside Supporting', () => {
     expect(
       selectExpoPlistFileReference({
         FIRST_FALLBACK_FILE_REF: {
@@ -32,10 +68,10 @@ describe('selectExpoPlistFileReference', () => {
         },
         SECOND_FALLBACK_FILE_REF_comment: 'Expo.plist',
       })
-    ).toBe('FIRST_FALLBACK_FILE_REF');
+    ).toBeNull();
   });
 
-  it('falls back to a loose Expo.plist name match when path is not specific', () => {
+  it('returns null for a loose Expo.plist name match outside Supporting', () => {
     expect(
       selectExpoPlistFileReference({
         NAME_ONLY_FILE_REF: {
@@ -44,7 +80,7 @@ describe('selectExpoPlistFileReference', () => {
         },
         NAME_ONLY_FILE_REF_comment: 'Expo.plist',
       })
-    ).toBe('NAME_ONLY_FILE_REF');
+    ).toBeNull();
   });
 
   it('returns null when no Expo.plist reference can be reused', () => {
@@ -159,7 +195,10 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
       project.hash.project.objects.PBXNativeTarget[frameworkTargetUuid]
     ).toEqual({
       buildPhases: [
-        createCommentedReference(resourcesBuildPhaseUuid, 'Resources'),
+        createCommentedReference(
+          resourcesBuildPhaseUuid,
+          'Resources test comment'
+        ),
       ],
     });
     expect(project.hash.project.objects.PBXResourcesBuildPhase).toEqual({
@@ -169,7 +208,7 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
           'Expo.plist in Resources'
         ),
       ]),
-      [`${resourcesBuildPhaseUuid}_comment`]: 'Resources',
+      [`${resourcesBuildPhaseUuid}_comment`]: 'Resources test comment',
     });
     expect(project.pbxBuildFileSection()).toEqual({
       [expoPlistBuildFileUuid]: {
@@ -180,7 +219,45 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
     });
   });
 
-  it('throws a SourceModificationError when Expo.plist must be created without a Supporting group', () => {
+  it('throws when Supporting/Expo.plist is missing even if the Supporting group exists', () => {
+    const frameworkTargetUuid = 'FRAMEWORK_TARGET';
+    const resourcesBuildPhaseUuid = 'RESOURCES_BUILD_PHASE';
+    const project = createMockXcodeProject({
+      fileReferences: {},
+      groups: {
+        SUPPORTING_GROUP: {
+          name: 'Supporting',
+          children: [],
+          path: 'App/Supporting',
+        },
+        SUPPORTING_GROUP_comment: 'Supporting',
+      },
+      nativeTargets: {
+        [frameworkTargetUuid]: {
+          buildPhases: [
+            createCommentedReference(resourcesBuildPhaseUuid, 'Resources'),
+          ],
+        },
+      },
+      resourcesBuildPhases: {
+        [resourcesBuildPhaseUuid]: createResourcesBuildPhase([]),
+        [`${resourcesBuildPhaseUuid}_comment`]: 'Resources',
+      },
+    });
+
+    expect(() =>
+      ensureFrameworkHasExpoPlistResource(project, frameworkTargetUuid)
+    ).toThrow(
+      'Could not find the "Supporting/Expo.plist" PBXFileReference needed for Expo.plist resource wiring'
+    );
+    expect(project.pbxFileReferenceSection()).toEqual({});
+    expect(
+      project.hash.project.objects.PBXGroup.SUPPORTING_GROUP.children
+    ).toEqual([]);
+    expect(project.pbxBuildFileSection()).toEqual({});
+  });
+
+  it('throws the same error when Supporting/Expo.plist is missing and there is no Supporting group', () => {
     const frameworkTargetUuid = 'FRAMEWORK_TARGET';
     const resourcesBuildPhaseUuid = 'RESOURCES_BUILD_PHASE';
     const project = createMockXcodeProject({
@@ -199,22 +276,15 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
       },
     });
 
-    let thrownError: unknown;
-
-    try {
-      ensureFrameworkHasExpoPlistResource(project, frameworkTargetUuid);
-    } catch (error) {
-      thrownError = error;
-    }
-
-    expect(thrownError).toBeInstanceOf(SourceModificationError);
-    expect((thrownError as Error).message).toBe(
-      'Could not find the "Supporting" PBXGroup needed for Expo.plist resource wiring'
+    expect(() =>
+      ensureFrameworkHasExpoPlistResource(project, frameworkTargetUuid)
+    ).toThrow(
+      'Could not find the "Supporting/Expo.plist" PBXFileReference needed for Expo.plist resource wiring'
     );
     expect(project.pbxBuildFileSection()).toEqual({});
   });
 
-  it('uses the exact Supporting/Expo.plist reference when multiple plist-like references exist', () => {
+  it('uses the Supporting-group Expo.plist reference when multiple plist-like references exist', () => {
     const frameworkTargetUuid = 'FRAMEWORK_TARGET';
     const resourcesBuildPhaseUuid = 'RESOURCES_BUILD_PHASE';
     const fallbackExpoPlistFileRefUuid = 'FALLBACK_EXPO_PLIST_FILE_REF';
@@ -228,7 +298,7 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
         },
         [`${fallbackExpoPlistFileRefUuid}_comment`]: 'Expo.plist',
         [exactExpoPlistFileRefUuid]: {
-          path: 'App/Supporting/Expo.plist',
+          path: 'Expo.plist',
         },
         [`${exactExpoPlistFileRefUuid}_comment`]: 'Expo.plist',
       },
@@ -236,14 +306,21 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
         SUPPORTING_GROUP: {
           name: 'Supporting',
           children: [
+            createCommentedReference(exactExpoPlistFileRefUuid, 'Expo.plist'),
+          ],
+          path: 'App/Supporting',
+        },
+        SUPPORTING_GROUP_comment: 'Supporting',
+        OTHER_GROUP: {
+          name: 'Config',
+          children: [
             createCommentedReference(
               fallbackExpoPlistFileRefUuid,
               'Expo.plist'
             ),
-            createCommentedReference(exactExpoPlistFileRefUuid, 'Expo.plist'),
           ],
         },
-        SUPPORTING_GROUP_comment: 'Supporting',
+        OTHER_GROUP_comment: 'Config',
       },
       nativeTargets: {
         [frameworkTargetUuid]: {
