@@ -88,17 +88,6 @@ final class ReactNativeHostRuntime {
    */
   private var reactNativeFactory: RCTReactNativeFactory? = nil
 
-  private var factory: RCTReactNativeFactory {
-    if let existingFactory = reactNativeFactory {
-      return existingFactory
-    }
-
-    delegate.dependencyProvider = RCTAppDependencyProvider()
-    let createdFactory = RCTReactNativeFactory(delegate: delegate)
-    reactNativeFactory = createdFactory
-    return createdFactory
-  }
-
   /**
    * Starts React Native with default parameters.
    */
@@ -115,10 +104,6 @@ final class ReactNativeHostRuntime {
       return
     }
 
-    guard let factory = reactNativeFactory else { return }
-
-    factory.bridge?.invalidate()
-
     reactNativeFactory = nil
   }
 
@@ -127,7 +112,7 @@ final class ReactNativeHostRuntime {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    factory.rootViewFactory.view(
+    reactNativeFactory?.rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions
@@ -167,6 +152,9 @@ final class ReactNativeHostRuntime {
    */
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
     guard reactNativeFactory == nil else { return }
+
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+    reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
 
     if let onBundleLoaded {
       jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
