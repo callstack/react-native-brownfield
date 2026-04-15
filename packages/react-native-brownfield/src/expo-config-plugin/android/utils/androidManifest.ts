@@ -1,12 +1,10 @@
 import type { AndroidConfig } from '@expo/config-plugins';
 
-/** Classification: generic Android utility data shape. */
 export type AndroidManifestMetaDataEntry = {
   name: string;
   value: string;
 };
 
-/** Classification: generic Android utility data shape. */
 export type AndroidStringResourceEntry = {
   name: string;
   value: string;
@@ -17,7 +15,6 @@ const META_DATA_TAG_REGEX =
   /<meta-data\b[\s\S]*?(?:\/>|>[\s\S]*?<\/meta-data>)/g;
 const STRING_TAG_REGEX = /<string\b[\s\S]*?>[\s\S]*?<\/string>/g;
 
-/** Classification: generic Android utility parser. */
 export function extractApplicationMetaData(
   manifestContent: string
 ): AndroidManifestMetaDataEntry[] {
@@ -35,7 +32,6 @@ export function extractApplicationMetaData(
     );
 }
 
-/** Classification: generic Android utility parser. */
 export function extractApplicationMetaDataFromAndroidManifest(
   androidManifest: AndroidConfig.Manifest.AndroidManifest
 ): AndroidManifestMetaDataEntry[] {
@@ -58,7 +54,6 @@ export function extractApplicationMetaDataFromAndroidManifest(
     );
 }
 
-/** Classification: generic Android utility parser. */
 export function extractStringResourcesFromXml(
   stringsContent: string,
   resourceNames: string[]
@@ -75,7 +70,6 @@ export function extractStringResourcesFromXml(
     );
 }
 
-/** Classification: generic Android utility parser. */
 export function extractStringResourcesFromResourcesXml(
   stringsXml: AndroidConfig.Resources.ResourceXML,
   resourceNames: string[]
@@ -102,7 +96,6 @@ export function extractStringResourcesFromResourcesXml(
     );
 }
 
-/** Classification: generic Android utility renderer. */
 export function renderLibraryManifestApplication(
   metaDataEntries: AndroidManifestMetaDataEntry[]
 ): string {
@@ -120,7 +113,6 @@ export function renderLibraryManifestApplication(
   return `  <application>\n${renderedMetaDataEntries}\n  </application>`;
 }
 
-/** Classification: generic Android utility renderer. */
 export function renderLibraryStringResources(
   stringResources: AndroidStringResourceEntry[]
 ): string {

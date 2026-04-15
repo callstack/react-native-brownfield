@@ -21,17 +21,12 @@ const STRING_REFERENCE_REGEX = /^@string\/([A-Za-z0-9_.]+)$/;
 const EXPO_UPDATES_META_DATA_PREFIX = 'expo.modules.updates.';
 
 /**
- * Canonical Expo Updates extraction pipeline.
- *
- * This plugin copies values from the app's finalized Android files while running
+ * This copies values from the app's finalized Android files while running
  * inside `withDangerousMod` / `withFinalizedMod`. In that phase, the stable
  * cross-plugin input is the on-disk XML after Expo and other config plugins have
- * finished mutating it, so production extraction intentionally uses raw file
+ * finished mutating it, so extraction intentionally uses raw file
  * contents as the source of truth.
- *
  */
-
-/** Classification: Expo Updates-specific logic used by production code. */
 export function readExpoUpdatesApplicationMetaData(
   androidDir: string,
   appModuleName: string
@@ -54,7 +49,6 @@ export function readExpoUpdatesApplicationMetaData(
   );
 }
 
-/** Classification: Expo Updates-specific logic used by production code. */
 export function extractExpoUpdatesApplicationMetaData(
   manifestContent: string
 ): AndroidManifestMetaDataEntry[] {
@@ -63,7 +57,6 @@ export function extractExpoUpdatesApplicationMetaData(
   );
 }
 
-/** Classification: Expo Updates-specific logic used by production code. */
 export function readExpoUpdatesStringResources(
   androidDir: string,
   appModuleName: string,

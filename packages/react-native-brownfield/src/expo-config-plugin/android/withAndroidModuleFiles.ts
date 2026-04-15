@@ -218,10 +218,6 @@ export function syncAndroidModuleExpoUpdatesFromAppFiles({
   androidDir: string;
   config: ResolvedBrownfieldPluginConfigWithAndroid;
 }): void {
-  // Read the finalized app files from disk instead of relying on parsed mod
-  // results. This keeps Expo Updates sync compatible with the dangerous/finalized
-  // mod phases, where other config plugins may already have rewritten the app
-  // manifest or strings resources that we need to mirror into the library module.
   const appModuleName = config.android.moduleName;
   const expoUpdatesMetaData = readExpoUpdatesApplicationMetaData(
     androidDir,
