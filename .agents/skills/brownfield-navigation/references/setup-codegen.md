@@ -24,7 +24,7 @@ Out of scope:
 
 1. Confirm prerequisites
    - `@callstack/brownfield-navigation` is installed. Otherwise, install the latest version
-   - Babel deps used by codegen are available (`@babel/core`, `@react-native/babel-preset`).
+   - Babel deps used by codegen are available (`@babel/core`, `@react-native/babel-preset`). Otherwise, install the compatible version OR ask the user.
 
 2. Verify contract file placement and shape
    - File name is exactly `brownfield.navigation.ts`.

@@ -1,6 +1,6 @@
 ---
 name: brownfield-navigation
-description: Allows presenting existing native screens from React Native. Defines the schema in Typescript, run the codegen to generate the bindings, add the function invocation on the JS side. Generate the xcframework/AAR, then add the native bindings like delegate to the native host App.
+description: Allows presenting existing native screens from React Native. Define the schema in TypeScript, run codegen to generate the bindings, invoke the function on the JS side, generate the XCFramework/AAR, and integrate native bindings such as the delegate into the host app.
 license: MIT
 metadata:
   author: Callstack
@@ -37,10 +37,10 @@ npx brownfield publish:android
 
 ## Routing (concern → file)
 
-| Concern | Read |
-|--------|------|
-| JS call sites, `BrownfieldNavigation.*` usage, `undefined is not a function`, params vs generated API | [`javascript-usage.md`](references/javascript-usage.md) |
-| `BrownfieldNavigationDelegate`, `setDelegate` / `shared.setDelegate`, startup crashes, no-op / wrong native route | [`native-integration.md`](references/native-integration.md) |
-| Contract placement, `BrownfieldNavigationSpec` / `Spec`, `navigation:codegen`, generated artifacts, stale or missing outputs | [`setup-codegen.md`](references/setup-codegen.md) |
+Concern | Read
+--------|------
+JS call sites, `BrownfieldNavigation.*` usage, `undefined is not a function`, params vs generated API | [`javascript-usage.md`](references/javascript-usage.md)
+`BrownfieldNavigationDelegate`, `setDelegate` / `shared.setDelegate`, startup crashes, no-op / wrong native route | [`native-integration.md`](references/native-integration.md)
+Contract placement, `BrownfieldNavigationSpec` / `Spec`, `navigation:codegen`, generated artifacts, stale or missing outputs | [`setup-codegen.md`](references/setup-codegen.md)
 
 

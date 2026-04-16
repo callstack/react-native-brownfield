@@ -21,7 +21,7 @@ Out of scope:
 
 ## Procedure
 
-1. Confirm prerequisite
+1. Confirm prerequisites
    - `BrownfieldNavigation.xcframework` is linked in the iOS host app.
      - If applicable, use the artifact produced by `npx brownfield package:ios` in the current project. The exact output path can vary by package manager and workspace layout.
    - `Gson` dependency is added to the Android host app.
@@ -66,8 +66,8 @@ Use this pattern when the host screen or activity owns Android navigation contex
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.callstack.brownfieldnavigation.BrownfieldNavigationDelegate
-import com.callstack.brownfieldnavigation.BrownfieldNavigationManager
+import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
+import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
   override fun onCreate(savedInstanceState: Bundle?) {
