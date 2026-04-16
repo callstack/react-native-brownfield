@@ -25,7 +25,7 @@ Reference these skills when:
 ```bash
 npx brownfield navigation:codegen
 ```
-- Same files are also codegen when:
+- Brownfield packaging commands also run the same navigation codegen as part of packaging workflows:
 ```bash
 # iOS
 npx brownfield package:ios

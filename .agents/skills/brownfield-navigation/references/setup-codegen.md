@@ -1,7 +1,5 @@
 # Brownfield Navigation Setup and Codegen
 
-**Product docs:** Authoritative documentation paths are listed in [`SKILL.md`](SKILL.md) in this folder.
-
 ## Discoverability triggers
 
 - "where to put `brownfield.navigation.ts`"
@@ -39,20 +37,36 @@ Out of scope:
    - Prefer synchronous `void` navigation methods.
    - Warn that Promise-based methods are not currently supported by generated native implementations on iOS/Android; they may compile but reject with `not_implemented`.
 
-4. Run codegen from app root
-   - Command: `npx brownfield navigation:codegen`
+4. Choose the right codegen invocation
+   - Default form: `npx brownfield navigation:codegen`
+   - Explicit path form: `npx brownfield navigation:codegen <specPath>`
+   - Use the default form when your current working directory is the React Native app root and the contract file is the default `./brownfield.navigation.ts`.
+   - Use the explicit-path form when you are running from another directory, when the app lives inside a workspace/monorepo, or when you want to remove ambiguity about which spec file should be parsed.
+   - Relative `specPath` values are resolved from the directory where you run the command; absolute paths also work.
 
-5. Confirm expected generated outputs
-   - `src/NativeBrownfieldNavigation.ts`
-   - `src/index.ts`
-   - `ios/BrownfieldNavigationDelegate.swift`
-   - `ios/NativeBrownfieldNavigation.mm`
-   - Android delegate/module files in `android/src/main/java/com/callstack/nativebrownfieldnavigation/`
+5. Understand the artifact root before verifying outputs
+   - Codegen writes into the installed `@callstack/brownfield-navigation` package root, not into the app directory that contains `brownfield.navigation.ts`.
+   - The exact absolute location depends on the consumer's package manager and workspace layout. It may live under a local `node_modules` tree, a hoisted workspace dependency, or another package-store-managed install location.
+   - Treat the package root as the stable anchor, then verify these generated relative paths beneath it:
+     - `src/NativeBrownfieldNavigation.ts`
+     - `src/index.ts`
+     - `lib/commonjs/index.js`
+     - `lib/module/index.js`
+     - `lib/typescript/commonjs/src/index.d.ts`
+     - `lib/typescript/module/src/index.d.ts`
+     - `ios/BrownfieldNavigationDelegate.swift`
+     - `ios/BrownfieldNavigationModels.swift` when complex model types are generated
+     - `ios/NativeBrownfieldNavigation.mm`
+     - Android files under `android/src/main/java/<generated-package>/`, including `BrownfieldNavigationDelegate.kt`, `NativeBrownfieldNavigationModule.kt`, and `BrownfieldNavigationModels.kt` when complex model types are generated
 
 6. Enforce rerun/rebuild rule
-   - Any add/remove/rename/update of methods in `brownfield.navigation.ts` requires:
-     1) rerunning codegen, then
-     2) recompiling native apps.
+   - Any change that affects the contract surface in `brownfield.navigation.ts` requires rerunning codegen, then rebuilding native apps.
+   - This includes adding, removing, renaming, or retyping methods; changing params or optionality; and introducing/removing model types used by params.
+   - If JavaScript can no longer see a generated method, or native code still behaves like the old contract, assume regeneration or rebuild was skipped.
+   - Safe order:
+     1) update the contract
+     2) rerun codegen
+     3) rebuild iOS and/or Android before retesting
 
 7. Handoff when issue is outside setup/codegen
    - Delegate lifecycle/startup order: [`native-integration.md`](native-integration.md) in this folder.
@@ -60,8 +74,12 @@ Out of scope:
 
 ## Quick reference
 
-- Primary command: `npx brownfield navigation:codegen`
+- Primary commands:
+  - `npx brownfield navigation:codegen`
+  - `npx brownfield navigation:codegen <specPath>`
 - Contract file: `brownfield.navigation.ts` at React Native app root
+- Default command behavior: reads `./brownfield.navigation.ts` from the current working directory
+- Output location: generated files are written under the resolved `@callstack/brownfield-navigation` package root
 - Parser-supported interface names: `BrownfieldNavigationSpec` or `Spec`
 - Safe default return type: `void`
 - Important order:

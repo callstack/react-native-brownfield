@@ -1,7 +1,5 @@
 # Brownfield Navigation JavaScript Usage
 
-**Product docs:** Authoritative documentation paths are listed in [`SKILL.md`](SKILL.md) in this folder.
-
 ## Discoverability triggers
 
 - "how to call BrownfieldNavigation from JS"
@@ -50,6 +48,34 @@ Out of scope:
 6. Route non-JS root causes quickly
    - Spec placement/signature/codegen output questions → [`setup-codegen.md`](setup-codegen.md) in this folder.
    - Delegate implementation/registration/lifecycle questions → [`native-integration.md`](native-integration.md) in this folder.
+
+## Minimal TSX example
+
+Assume the generated contract includes a method like `openNativeProfile(userId: string): void`. The exact method names and params come from the generated `@callstack/brownfield-navigation` module after running codegen.
+
+```tsx
+import React from 'react';
+import {Button, SafeAreaView} from 'react-native';
+import BrownfieldNavigation from '@callstack/brownfield-navigation';
+
+export function ProfileLauncherScreen(): React.JSX.Element {
+  return (
+    <SafeAreaView>
+      <Button
+        title="Open native profile"
+        onPress={() => {
+          BrownfieldNavigation.openNativeProfile('user-123');
+        }}
+      />
+    </SafeAreaView>
+  );
+}
+```
+
+Portable takeaways:
+- Import the generated module from `@callstack/brownfield-navigation`.
+- Call the generated method directly from a user action such as `onPress`.
+- If this method is missing or throws `undefined is not a function`, treat it as a codegen/rebuild drift signal first.
 
 ## Quick reference
 

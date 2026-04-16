@@ -1,7 +1,5 @@
 # Brownfield Navigation Native Integration
 
-**Product docs:** Authoritative documentation paths are listed in [`SKILL.md`](SKILL.md) in this folder.
-
 ## Discoverability triggers
 
 - "implement `BrownfieldNavigationDelegate`"
@@ -25,7 +23,7 @@ Out of scope:
 
 1. Confirm prerequisite
    - `BrownfieldNavigation.xcframework` is linked in the iOS host app.
-     - If applicable, note this comes from `npx brownfield package:ios` under `ios/.brownfield`.
+     - If applicable, use the artifact produced by `npx brownfield package:ios` in the current project. The exact output path can vary by package manager and workspace layout.
    - `Gson` dependency is added to the Android host app.
 
 2. Implement Android delegate
@@ -55,6 +53,84 @@ Out of scope:
    - Method added/changed in TS but missing natively: rerun `npx brownfield navigation:codegen` and rebuild.
    - Crash on launch or first method call: verify delegate registration order vs RN route rendering.
    - Method exists but wrong destination/no-op: verify delegate implementation wiring and parameter mapping.
+
+## Minimal native examples
+
+Assume the generated contract includes a method like `openNativeProfile(userId: string): void`. The generated delegate method name and parameter types come from the current project's `brownfield.navigation.ts`.
+
+### Kotlin example
+
+Use this pattern when the host screen or activity owns Android navigation context:
+
+```kotlin
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.callstack.brownfieldnavigation.BrownfieldNavigationDelegate
+import com.callstack.brownfieldnavigation.BrownfieldNavigationManager
+
+class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    BrownfieldNavigationManager.setDelegate(this)
+  }
+
+  override fun openNativeProfile(userId: String) {
+    val intent = Intent(this, ProfileActivity::class.java).apply {
+      putExtra("userId", userId)
+    }
+    startActivity(intent)
+  }
+}
+```
+
+Portable takeaways:
+- Implement the generated `BrownfieldNavigationDelegate`.
+- Register the delegate before any React Native code can call `BrownfieldNavigation.*`.
+- Map each generated method to an explicit native destination and pass params through unchanged.
+
+### Swift example
+
+Use this pattern when an app-level object can own navigation setup and present UIKit or SwiftUI flows:
+
+```swift
+import BrownfieldNavigation
+import UIKit
+
+final class AppNavigationDelegate: BrownfieldNavigationDelegate {
+  func openNativeProfile(userId: String) {
+    DispatchQueue.main.async {
+      guard let rootViewController = UIApplication.shared.connectedScenes
+        .compactMap({ $0 as? UIWindowScene })
+        .flatMap(\.windows)
+        .first(where: \.isKeyWindow)?
+        .rootViewController else {
+        return
+      }
+
+      let viewController = ProfileViewController(userId: userId)
+      rootViewController.present(viewController, animated: true)
+    }
+  }
+}
+
+final class AppDelegate: UIResponder, UIApplicationDelegate {
+  private let navigationDelegate = AppNavigationDelegate()
+
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    BrownfieldNavigationManager.shared.setDelegate(navigationDelegate: navigationDelegate)
+    return true
+  }
+}
+```
+
+Portable takeaways:
+- Keep a strong reference to the delegate for as long as React Native might call it.
+- Register the delegate during startup, before RN screens that use Brownfield navigation are shown.
+- Perform presentation on the main thread and keep the implementation focused on routing plus param mapping.
 
 ## Quick reference
 
