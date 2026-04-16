@@ -29,11 +29,12 @@ final class ExpoHostRuntime {
     guard reactNativeFactory == nil else { return }
 
     let appDelegate = ExpoAppDelegate()
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+    reactNativeFactory = ExpoReactNativeFactory(delegate: delegate)
     // below: https://github.com/expo/expo/pull/39418/changes/5abd332b55b2ee7daee848284ed5f7fe1639452e
     // has removed bindReactNativeFactory method from ExpoAppDelegate
     #if !EXPO_SDK_GTE_55 // this define comes from the Brownfield Expo config plugin
-    delegate.dependencyProvider = RCTAppDependencyProvider()
-    reactNativeFactory = ExpoReactNativeFactory(delegate: delegate)
+    guard let reactNativeFactory else { return }
     appDelegate.bindReactNativeFactory(reactNativeFactory)
     #endif
     expoDelegate = appDelegate
