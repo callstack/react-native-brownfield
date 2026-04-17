@@ -82,6 +82,17 @@ internal import Expo
     #endif
   }
 
+  /**
+   * Stops React Native.
+   */
+  @objc public func stopReactNative() {
+    #if canImport(Expo)
+    ExpoHostRuntime.shared.stopReactNative()
+    #else
+    ReactNativeHostRuntime.shared.stopReactNative()
+    #endif
+  }
+
   @objc public func view(
     moduleName: String,
     initialProps: [AnyHashable: Any]?,
