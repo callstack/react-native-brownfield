@@ -14,10 +14,11 @@
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release",
-    "eas:stg": "eas update --channel production --message 'testing 1st stg channel update' --platform android"
+    "eas:stg": "eas update --channel production --message 'testing 1st stg channel update' --platform ios"
   },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
+    "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
     "@expo/vector-icons": "^15.0.3",
     "expo": "~54.0.33",
@@ -46,5 +47,9 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.3"
+  },
+  "brownie": {
+    "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp54/Generated/",
+    "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp54"
   }
 }

@@ -218,7 +218,7 @@ export function syncAndroidModuleExpoUpdatesFromAppFiles({
   androidDir: string;
   config: ResolvedBrownfieldPluginConfigWithAndroid;
 }): void {
-  const appModuleName = config.android.moduleName;
+  const appModuleName = 'app';
   const expoUpdatesMetaData = readExpoUpdatesApplicationMetaData(
     androidDir,
     appModuleName

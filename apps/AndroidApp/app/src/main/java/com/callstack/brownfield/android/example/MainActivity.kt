@@ -1,6 +1,6 @@
 package com.callstack.brownfield.android.example
 
-//import com.callstack.brownie.registerStoreIfNeeded
+import com.callstack.brownie.registerStoreIfNeeded
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -30,7 +30,6 @@ import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
-import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 
@@ -55,14 +54,14 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
                 ).show()
             }
 
-//            registerStoreIfNeeded(
-//                storeName = BrownfieldStore.STORE_NAME
-//            ) {
-//                BrownfieldStore(
-//                    counter = 0.0,
-//                    user = User(name = "Username")
-//                )
-//            }
+            registerStoreIfNeeded(
+                storeName = BrownfieldStore.STORE_NAME
+            ) {
+                BrownfieldStore(
+                    counter = 0.0,
+                    user = User(name = "Username")
+                )
+            }
         }
 
         setContent {

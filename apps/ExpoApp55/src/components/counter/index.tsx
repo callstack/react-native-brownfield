@@ -1,17 +1,17 @@
 import { StyleSheet, Text, Button } from 'react-native';
-// import { useStore } from '@callstack/brownie';
+import { useStore } from '@callstack/brownie';
 
 const Counter = () => {
-  // const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
+  const [counter, setState] = useStore('BrownfieldStore', (s) => s.counter);
 
   return (
     <>
-      {/* <Text style={styles.text}>Count: {counter}</Text>
+      <Text style={styles.text}>Count: {counter}</Text>
 
       <Button
         onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
         title="Increment"
-      /> */}
+      />
     </>
   );
 };

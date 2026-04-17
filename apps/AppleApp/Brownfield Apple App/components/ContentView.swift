@@ -1,4 +1,4 @@
-//import Brownie
+import Brownie
 import ReactBrownfield
 import SwiftUI
 import UIKit
@@ -9,10 +9,10 @@ struct ChatMessage: Identifiable {
     let fromRN: Bool
 }
 
-//let initialState = BrownfieldStore(
-//    counter: 0,
-//    user: User(name: "Username")
-//)
+let initialState = BrownfieldStore(
+    counter: 0,
+    user: User(name: "Username")
+)
 
 struct ContentView: View {
     var body: some View {

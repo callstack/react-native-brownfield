@@ -1703,6 +1703,7 @@ __metadata:
   resolution: "@callstack/brownfield-example-expo-app-54@workspace:apps/ExpoApp54"
   dependencies:
     "@callstack/brownfield-navigation": "workspace:^"
+    "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@expo/vector-icons": "npm:^15.0.3"
     "@types/react": "npm:~19.1.10"
@@ -1737,6 +1738,7 @@ __metadata:
   resolution: "@callstack/brownfield-example-expo-app-55@workspace:apps/ExpoApp55"
   dependencies:
     "@callstack/brownfield-navigation": "workspace:^"
+    "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@expo/vector-icons": "npm:^15.0.2"
     "@react-navigation/bottom-tabs": "npm:^7.10.1"

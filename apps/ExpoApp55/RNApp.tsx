@@ -3,7 +3,7 @@ import { Button, StyleSheet, Text, View } from 'react-native';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import { checkAndFetchUpdate } from './src/utils/expo-rn-updates';
 
-// import Counter from './src/components/counter';
+import Counter from './src/components/counter';
 
 export default function RNApp() {
   return (
@@ -11,7 +11,7 @@ export default function RNApp() {
       <Text style={styles.title}>Expo React Native Brownfield</Text>
 
       <View style={styles.content}>
-        {/* <Counter /> */}
+        <Counter />
 
         <Button
           title="Navigate to Settings"
