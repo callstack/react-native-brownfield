@@ -53,11 +53,6 @@ final class ExpoHostRuntime {
       return
     }
 
-    #if !EXPO_SDK_GTE_55 
-    guard let factory = reactNativeFactory else { return }
-    factory.bridge?.invalidate()
-    #endif
-
     reactNativeFactory = nil
     expoDelegate = nil
   }
