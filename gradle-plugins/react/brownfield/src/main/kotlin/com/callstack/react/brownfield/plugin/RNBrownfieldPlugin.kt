@@ -8,6 +8,7 @@ import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
@@ -26,10 +27,9 @@ class RNBrownfieldPlugin
         private lateinit var project: Project
         private lateinit var extension: Extension
         private lateinit var projectConfigurations: ProjectConfigurations
-        private var maybeExpoProject: Project? = null
 
         private val isExpoProject: Boolean
-            get() = maybeExpoProject != null
+            get() = Utils.isExpoProject(project)
 
         override fun apply(project: Project) {
             verifyAndroidPluginApplied(project)
@@ -68,8 +68,6 @@ class RNBrownfieldPlugin
             this.extension = project.extensions.create(Extension.NAME, Extension::class.java)
             projectConfigurations = ProjectConfigurations(project)
             VariantPackagesProperty.setVariantPackagesProperty(project)
-
-            this.maybeExpoProject = project.findProject(EXPO_PROJECT_LOCATOR)
         }
 
         /**
