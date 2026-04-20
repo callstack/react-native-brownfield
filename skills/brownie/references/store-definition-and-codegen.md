@@ -31,7 +31,7 @@ Out of scope:
 2. Confirm schema expectations before generation
    - Scalars (`number`, `string`, `boolean`) are supported.
    - Nested object types are supported and generate native structs/classes.
-   - Union string literals map to string-like native representations.
+  - Union string literals generate native enum types across platforms; for example, `theme: 'light' | 'dark'` emits Kotlin and Swift enum types (such as `Theme`), with generated enum/type names following codegen naming and casing conventions rather than remaining raw string fields.
 
 3. Ensure augmentation is loaded by TypeScript
    - Import each `.brownie.ts` file from app entry point.

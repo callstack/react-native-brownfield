@@ -25,7 +25,7 @@ Out of scope:
 
 1. Package iOS artifacts
    - Run `npx brownfield package:ios --scheme YourScheme --configuration Release`.
-   - Locate generated XCFrameworks under `ios/.brownfield/package/build/` (or `ios/.brownfield/package/` in some setups).
+   - Locate generated XCFrameworks under `ios/.brownfield/package/build/`
    - Confirm output includes:
      - `<scheme>.xcframework`
      - `Brownie.xcframework`

@@ -73,7 +73,7 @@ Out of scope:
   - `npx brownfield package:android --module-name :YourModuleName --variant release`
   - `npx brownfield publish:android --module-name :YourModuleName`
 - iOS packaging outputs (CLI docs):
-  - `ios/.brownfield/package/build/` (or `ios/.brownfield/package/` in some setups)
+  - `ios/.brownfield/package/build/`
 - Error cues this guide handles first:
   - Store file exists but typed APIs are missing
   - Native setup done but store not registered at startup
