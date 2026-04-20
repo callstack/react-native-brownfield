@@ -42,7 +42,7 @@ object Constants {
     const val INTERMEDIATES_TEMP_DIR = PLUGIN_NAME
 
     val BROWNFIELD_EXPO_TRANSITIVE_DEPS_WHITELISTED_MODULES_FOR_DISCOVERY =
-        setOf("expo-modules-core", "expo-constants", "expo")
+        setOf("expo-modules-core", "expo-constants", "expo", "expo-updates")
     val BROWNFIELD_EXPO_TRANSITIVE_DEPS_ARTIFACTS_BLACKLIST =
         setOf(
             // below: groupIds of Expo components in node_modules

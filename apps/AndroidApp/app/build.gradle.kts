@@ -70,10 +70,7 @@ android {
 }
 
 dependencies {
-    implementation("com.google.code.gson:gson:2.13.1")
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    implementation("com.squareup.okhttp3:okhttp-brotli:4.9.2")
+    implementation(libs.gson)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
