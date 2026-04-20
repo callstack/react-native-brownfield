@@ -21,7 +21,9 @@
     "generate:store": "node --experimental-strip-types --no-warnings ./scripts/generate-store.ts"
   },
   "resolutions": {
-    "@types/react": "19.1.1"
+    "@types/react": "19.1.1",
+    "chromium-edge-launcher": "0.3.0",
+    "glob": "13.0.6"
   },
   "packageManager": "yarn@4.12.0",
   "dependencies": {
