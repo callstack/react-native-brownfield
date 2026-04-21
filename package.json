@@ -47,6 +47,7 @@
     "prettier": "^3.8.1",
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",
+    "skillgym": "^0.5.0",
     "turbo": "^2.8.17",
     "typescript": "5.9.3"
   },
