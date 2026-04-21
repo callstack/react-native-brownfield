@@ -17,7 +17,7 @@ const brownfieldNavigationSuite = [
     prompt:
       "Setup brownfield navigation with navigate to profile method. DO NOT read/scan files under packages/** and apps/** OR node_modules/**.",
     assert(report) {
-      assert.fileReads.includes(report, /skills\/brownfield-navigation\/references\/setup-codegen\.md$/);
+      assert.fileReads.includes(report, /brownfield-navigation\/references\/setup-codegen\.md$/);
       assert.commands.includes(report, /npx brownfield navigation:codegen/i);
       assert.output.includes(report, /navigateToProfile/i);
     },
@@ -26,7 +26,7 @@ const brownfieldNavigationSuite = [
     id: "navigation-native-wiring",
     prompt: "How do I use the generated brownfield navigation on the native android app to complete the wiring?",
     assert(report) {
-      assert.fileReads.includes(report, /skills\/brownfield-navigation\/references\/native-integration\.md$/);
+      assert.fileReads.includes(report, /brownfield-navigation\/references\/native-integration\.md$/);
       assert.output.includes(report, /BrownfieldNavigationDelegate/i);
       assert.output.includes(
         report,
