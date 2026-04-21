@@ -1,5 +1,25 @@
 # @callstack/react-native-brownfield
 
+## 3.6.0
+
+### Minor Changes
+
+- [#301](https://github.com/callstack/react-native-brownfield/pull/301) [`c8816e9`](https://github.com/callstack/react-native-brownfield/commit/c8816e9418a472e0e8a388db105121381243e496) Thanks [@marcinszalski-callstack](https://github.com/marcinszalski-callstack)! - feat: add method to deallocate reactNativeFactory instance
+
+### Patch Changes
+
+- Updated dependencies [[`5ac357b`](https://github.com/callstack/react-native-brownfield/commit/5ac357bb8802ecf3562d92be191f6681ae94a055)]:
+  - @callstack/brownfield-cli@3.6.0
+
+## 3.5.1
+
+### Patch Changes
+
+- [#288](https://github.com/callstack/react-native-brownfield/pull/288) [`096cc3b`](https://github.com/callstack/react-native-brownfield/commit/096cc3bbf580d9bf22374fa8b67021d2f29e211c) Thanks [@marcinszalski-callstack](https://github.com/marcinszalski-callstack)! - fix: restore back-button propagation from native to RN
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.5.1
+
 ## 3.5.0
 
 ### Minor Changes

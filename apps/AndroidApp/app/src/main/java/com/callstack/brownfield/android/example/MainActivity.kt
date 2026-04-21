@@ -3,6 +3,7 @@ package com.callstack.brownfield.android.example
 import com.callstack.brownie.registerStoreIfNeeded
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -130,6 +131,15 @@ fun ReactNativeView(
             putString(
                 ReactNativeFragmentArgNames.ARG_MODULE_NAME,
                 ReactNativeConstants.MAIN_MODULE_NAME
+            )
+            putBundle(
+                ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS,
+                Bundle().apply {
+                    putString(
+                        "nativeOsVersionLabel",
+                        "Android ${Build.VERSION.RELEASE}"
+                    )
+                }
             )
         }
     )

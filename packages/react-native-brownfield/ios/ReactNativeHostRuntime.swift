@@ -59,6 +59,7 @@ final class ReactNativeHostRuntime {
       delegate.bundlePath = bundlePath
     }
   }
+
   /**
    * Bundle instance to lookup the JavaScript bundle.
    * Default value: Bundle.main
@@ -68,6 +69,7 @@ final class ReactNativeHostRuntime {
       delegate.bundle = bundle
     }
   }
+
   /**
    * Dynamic bundle URL provider called on every bundle load.
    * When set, this overrides the default bundleURL() behavior in the delegate.
@@ -79,17 +81,12 @@ final class ReactNativeHostRuntime {
       delegate.bundleURLOverride = bundleURLOverride
     }
   }
+
   /**
    * React Native factory instance created when starting React Native.
    * Default value: nil
    */
   private var reactNativeFactory: RCTReactNativeFactory? = nil
-  /**
-   * Root view factory used to create React Native views.
-   */
-  lazy private var rootViewFactory: RCTRootViewFactory? = {
-    return reactNativeFactory?.rootViewFactory
-  }()
 
   /**
    * Starts React Native with default parameters.
@@ -98,12 +95,24 @@ final class ReactNativeHostRuntime {
     startReactNative(onBundleLoaded: nil)
   }
 
+  /**
+   * Stops React Native and releases the underlying factory instance.
+   */
+  public func stopReactNative() {
+    if !Thread.isMainThread {
+      DispatchQueue.main.async { [weak self] in self?.stopReactNative() }
+      return
+    }
+
+    reactNativeFactory = nil
+  }
+
   public func view(
     moduleName: String,
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    rootViewFactory?.view(
+    reactNativeFactory?.rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions
@@ -155,7 +164,7 @@ final class ReactNativeHostRuntime {
     guard reactNativeFactory == nil else { return }
 
     delegate.dependencyProvider = RCTAppDependencyProvider()
-    self.reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
+    reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
 
     if let onBundleLoaded {
       jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)

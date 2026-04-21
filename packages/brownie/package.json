@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownie",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "license": "MIT",
   "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "bin": {
@@ -92,7 +92,7 @@
     "import": "^0.0.6",
     "nodemon": "^3.1.14",
     "react-native": "0.82.1",
-    "react-native-builder-bob": "^0.40.18",
+    "react-native-builder-bob": "^0.41.0",
     "typescript": "5.9.3"
   },
   "codegenConfig": {

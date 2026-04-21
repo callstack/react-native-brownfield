@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@callstack/rspress-preset": "^0.6.0",
-    "@rspress/core": "2.0.5"
+    "@rspress/core": "^2.0.9"
   },
   "devDependencies": {
     "@types/node": "^25.5.0"
