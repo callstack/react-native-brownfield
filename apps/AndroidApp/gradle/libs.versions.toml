@@ -1,7 +1,6 @@
 [versions]
 agp = "9.1.0"
 brownfieldlib = "0.0.1-SNAPSHOT"
-gson = "2.13.1"
 kotlin = "2.3.20"
 coreKtx = "1.18.0"
 junit = "4.13.2"
@@ -20,7 +19,6 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 brownfieldlib-expo55 = { module = "com.callstack.rnbrownfield.demo.expoapp55:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expo54 = { module = "com.callstack.rnbrownfield.demo.expoapp54:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-vanilla = { module = "com.rnapp:brownfieldlib", version.ref = "brownfieldlib" }
-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
