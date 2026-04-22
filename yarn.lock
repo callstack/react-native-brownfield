@@ -1917,8 +1917,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-monorepo@workspace:."
   dependencies:
-    "@callstack/brownfield-navigation": "workspace:^"
-    "@callstack/brownie": "workspace:^"
     "@changesets/changelog-github": "npm:^0.6.0"
     "@changesets/cli": "npm:^2.30.0"
     "@commitlint/cli": "npm:^20.4.4"
