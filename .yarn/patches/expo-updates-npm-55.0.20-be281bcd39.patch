@@ -201,3 +201,28 @@ index a1e2c9af4ebaf9e50db2acaabfa876fc46d22454..9260c47bf28d5fb3ae31df966d9af775
    }
  
    /**
+diff --git a/android/build.gradle b/android/build.gradle
+index c0f4ed40a0ad93db7cd77adf8f95f6641f4207ee..f52a0de0e844fd0e7ca514db358b42f6997d98bb 100644
+--- a/android/build.gradle
++++ b/android/build.gradle
+@@ -114,20 +114,17 @@ android {
+   testOptions {
+     unitTests.includeAndroidResources = true
+ 
+     packagingOptions {
+-      pickFirst "**/libfbjni.so"
+-      pickFirst "**/libc++_shared.so"
+-
+       resources.excludes.add("META-INF/LICENSE.md")
+       resources.excludes.add("META-INF/LICENSE-notice.md")
+     }
+   }
+   packagingOptions {
+     excludes += [
+       "**/libc++_shared.so",
+       "**/libfbjni.so",
+     ]
+   }
+   sourceSets {
+     main.assets.srcDirs += files("$projectDir/src/main/certificates".toString())
+     androidTest.assets.srcDirs += files("$projectDir/src/androidTest/schemas".toString())
