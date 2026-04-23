@@ -32,6 +32,7 @@ runs:
           .turbo
           apps/*/.turbo
           packages/*/.turbo
-        key: ${{ runner.os }}-turbo-${{ hashFiles('.turbo', '**/.turbo') }}
+        key: ${{ runner.os }}-turbo-${{ hashFiles('yarn.lock', 'package-lock.json', 'pnpm-lock.yaml', 'turbo.json', 'apps/*/turbo.json', 'packages/*/turbo.json') }}
         restore-keys: |
           ${{ runner.os }}-turbo-
+
