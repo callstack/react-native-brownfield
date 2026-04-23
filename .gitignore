@@ -64,7 +64,7 @@ buck-out/
 **/Pods
 
 # Yarn
-.yarn/*
+**/.yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
@@ -82,3 +82,8 @@ secring.gpg
 
 # Typescript
 **/*.tsbuildinfo
+
+# skillgym
+.skillgym-results/
+
+.cursor

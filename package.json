@@ -18,7 +18,9 @@
     "brownfield:plugin:publish:local:signed": "bash ./gradle-plugins/publish-to-maven-local.sh",
     "build:brownfield": "turbo run build:brownfield",
     "build:docs": "turbo run build:docs",
-    "generate:store": "node --experimental-strip-types --no-warnings ./scripts/generate-store.ts"
+    "generate:store": "node --experimental-strip-types --no-warnings ./scripts/generate-store.ts",
+    "skillgym:brownie": "skillgym run skillgym/suites/brownie-suite.ts",
+    "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts"
   },
   "resolutions": {
     "@types/react": "19.1.1",
@@ -47,6 +49,7 @@
     "prettier": "^3.8.1",
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",
+    "skillgym": "^0.5.0",
     "turbo": "^2.8.17",
     "typescript": "5.9.3"
   },
