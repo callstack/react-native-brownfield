@@ -182,6 +182,217 @@ export function addSourceFilesBuildPhase(
   );
 }
 
+export type PbxReferenceLike = { value?: string; comment?: string } | string;
+
+export type PbxNativeTarget = {
+  buildPhases?: PbxReferenceLike[];
+  name?: string;
+};
+
+export type PbxResourcesBuildPhase = {
+  isa: 'PBXResourcesBuildPhase';
+  buildActionMask: number;
+  files?: PbxReferenceLike[];
+  runOnlyForDeploymentPostprocessing: number;
+};
+
+export type PbxBuildFile = {
+  isa: 'PBXBuildFile';
+  fileRef: string;
+};
+
+export type PbxCommentedReference = { value: string; comment: string };
+
+const PBX_BUILD_ACTION_MASK_ALL = 2147483647;
+const PBX_RUN_ONLY_FOR_DEPLOYMENT_POSTPROCESSING_DISABLED = 0;
+const PBX_RESOURCES_BUILD_PHASE_ISA = 'PBXResourcesBuildPhase';
+const PBX_BUILD_FILE_ISA = 'PBXBuildFile';
+
+export function createPbxCommentedReference(
+  value: string,
+  comment: string
+): PbxCommentedReference {
+  return { value, comment };
+}
+
+function createResourcesBuildPhase(): PbxResourcesBuildPhase {
+  return {
+    isa: PBX_RESOURCES_BUILD_PHASE_ISA,
+    buildActionMask: PBX_BUILD_ACTION_MASK_ALL,
+    files: [],
+    runOnlyForDeploymentPostprocessing:
+      PBX_RUN_ONLY_FOR_DEPLOYMENT_POSTPROCESSING_DISABLED,
+  };
+}
+
+function createBuildFile(fileRef: string): PbxBuildFile {
+  return {
+    isa: PBX_BUILD_FILE_ISA,
+    fileRef,
+  };
+}
+
+function getRawProjectObjects(project: XcodeProject): Record<string, any> {
+  return (project as any).hash?.project?.objects ?? {};
+}
+
+function getReferencedUuid(
+  reference: PbxReferenceLike | undefined
+): string | null {
+  if (!reference) {
+    return null;
+  }
+
+  return typeof reference === 'string' ? reference : (reference.value ?? null);
+}
+
+function getFrameworkTargetOrThrow(
+  project: XcodeProject,
+  frameworkTargetUUID: string
+): PbxNativeTarget {
+  const nativeTargets = getRawProjectObjects(project).PBXNativeTarget as
+    | Record<string, PbxNativeTarget>
+    | undefined;
+  const frameworkTarget = nativeTargets?.[frameworkTargetUUID];
+
+  if (!frameworkTarget) {
+    throw new SourceModificationError(
+      `Framework target UUID "${frameworkTargetUUID}" not found while wiring a resources build phase`
+    );
+  }
+
+  return frameworkTarget;
+}
+
+function getOrCreateResourcesBuildPhaseForTarget(
+  project: XcodeProject,
+  frameworkTargetUUID: string,
+  frameworkTarget: PbxNativeTarget,
+  resourcesBuildPhaseComment: string
+): PbxResourcesBuildPhase {
+  const rawProjectObjects = getRawProjectObjects(project);
+  const resourceBuildPhases = (rawProjectObjects.PBXResourcesBuildPhase ??
+    {}) as Record<string, PbxResourcesBuildPhase | string>;
+
+  const resourcesBuildPhaseUuid = (frameworkTarget.buildPhases ?? [])
+    .map((phase) => getReferencedUuid(phase))
+    .find((phaseUuid): phaseUuid is string => {
+      return !!phaseUuid && !!resourceBuildPhases[phaseUuid];
+    });
+
+  if (resourcesBuildPhaseUuid) {
+    return resourceBuildPhases[
+      resourcesBuildPhaseUuid
+    ] as PbxResourcesBuildPhase;
+  }
+
+  const createdResourcesBuildPhaseUuid = (project as any).generateUuid();
+  resourceBuildPhases[createdResourcesBuildPhaseUuid] =
+    createResourcesBuildPhase();
+  resourceBuildPhases[`${createdResourcesBuildPhaseUuid}_comment`] =
+    resourcesBuildPhaseComment;
+
+  const targetBuildPhases = Array.isArray(frameworkTarget.buildPhases)
+    ? frameworkTarget.buildPhases
+    : [];
+  targetBuildPhases.push(
+    createPbxCommentedReference(
+      createdResourcesBuildPhaseUuid,
+      resourcesBuildPhaseComment
+    )
+  );
+  frameworkTarget.buildPhases = targetBuildPhases;
+
+  Logger.logDebug(
+    `Created missing PBXResourcesBuildPhase for framework target "${frameworkTargetUUID}"`
+  );
+
+  return resourceBuildPhases[
+    createdResourcesBuildPhaseUuid
+  ] as PbxResourcesBuildPhase;
+}
+
+function hasBuildFileForFileRef(
+  project: XcodeProject,
+  resourcesBuildPhase: PbxResourcesBuildPhase,
+  fileRefUuid: string
+): boolean {
+  const buildFileSection = project.pbxBuildFileSection() as Record<
+    string,
+    PbxBuildFile
+  >;
+  const files = Array.isArray(resourcesBuildPhase.files)
+    ? resourcesBuildPhase.files
+    : [];
+
+  return files.some((phaseFile) => {
+    const buildFileUuid = getReferencedUuid(phaseFile);
+    if (!buildFileUuid) {
+      return false;
+    }
+
+    return buildFileSection[buildFileUuid]?.fileRef === fileRefUuid;
+  });
+}
+
+function addBuildFileToResourcesPhase(
+  project: XcodeProject,
+  resourcesBuildPhase: PbxResourcesBuildPhase,
+  fileRefUuid: string,
+  buildFileComment: string
+): void {
+  const buildFileSection = project.pbxBuildFileSection() as Record<
+    string,
+    PbxBuildFile | string
+  >;
+  const buildFileUuid = (project as any).generateUuid();
+
+  buildFileSection[buildFileUuid] = createBuildFile(fileRefUuid);
+  buildFileSection[`${buildFileUuid}_comment`] = buildFileComment;
+
+  const files = Array.isArray(resourcesBuildPhase.files)
+    ? resourcesBuildPhase.files
+    : [];
+  files.push(createPbxCommentedReference(buildFileUuid, buildFileComment));
+  resourcesBuildPhase.files = files;
+}
+
+type ResourcesBuildPhaseOptions = {
+  resourcesBuildPhaseComment: string;
+  buildFileComment: string;
+};
+
+export function ensureTargetHasFileReferenceInResourcesBuildPhase(
+  project: XcodeProject,
+  frameworkTargetUUID: string,
+  fileRefUuid: string,
+  { resourcesBuildPhaseComment, buildFileComment }: ResourcesBuildPhaseOptions
+): boolean {
+  const frameworkTarget = getFrameworkTargetOrThrow(
+    project,
+    frameworkTargetUUID
+  );
+  const resourcesBuildPhase = getOrCreateResourcesBuildPhaseForTarget(
+    project,
+    frameworkTargetUUID,
+    frameworkTarget,
+    resourcesBuildPhaseComment
+  );
+
+  if (hasBuildFileForFileRef(project, resourcesBuildPhase, fileRefUuid)) {
+    return false;
+  }
+
+  addBuildFileToResourcesPhase(
+    project,
+    resourcesBuildPhase,
+    fileRefUuid,
+    buildFileComment
+  );
+
+  return true;
+}
+
 /**
  * Returns build settings for the framework target
  * @param options The user configuration
@@ -277,10 +488,9 @@ export function copyBundleReactNativePhase(
           (phase: { value: string }) => phase.value === existingPhaseUuid
         )
       ) {
-        target.buildPhases.push({
-          value: existingPhaseUuid,
-          comment: buildPhaseName,
-        });
+        target.buildPhases.push(
+          createPbxCommentedReference(existingPhaseUuid, buildPhaseName)
+        );
 
         Logger.logDebug(
           `Added "${buildPhaseName}" build phase to framework target ${target.name}`

@@ -10,7 +10,28 @@ import type {
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
 import { getExpoInfo } from '../expoUtils';
+import {
+  type AndroidManifestMetaDataEntry,
+  type AndroidStringResourceEntry,
+  renderLibraryManifestApplication,
+  renderLibraryStringResources,
+} from './utils/androidManifest';
+import {
+  readExpoUpdatesApplicationMetaData,
+  readExpoUpdatesStringResources,
+} from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
+
+function isExpoUpdatesInstalled(projectRoot: string): boolean {
+  try {
+    require.resolve('expo-updates/package.json', {
+      paths: [projectRoot],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Creates the Android library module directory structure and files
@@ -20,7 +41,13 @@ export function createAndroidModule({
   config,
   rnVersion,
   isExpoPre55,
+  projectRoot,
 }: {
+  /**
+   * Expo app root (used to detect optional dependencies such as expo-updates)
+   */
+  projectRoot?: string;
+
   /**
    * Whether the Expo project is pre-55
    */
@@ -43,6 +70,8 @@ export function createAndroidModule({
 }): void {
   const { android } = config;
   const moduleDir = path.join(androidDir, android.moduleName);
+  const hasExpoUpdates =
+    projectRoot !== undefined && isExpoUpdatesInstalled(projectRoot);
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
@@ -71,19 +100,25 @@ export function createAndroidModule({
       content: renderTemplate('android', 'gradle.properties', {}),
     },
     {
-      relativePath: 'src/main/AndroidManifest.xml',
-      content: renderTemplate('android', 'AndroidManifest.xml', {}),
-    },
-    {
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
       content: renderTemplate(
         'android',
         isExpoPre55
           ? 'ReactNativeHostManager.pre55.kt'
           : 'ReactNativeHostManager.post55.kt',
-        {
-          '{{PACKAGE_NAME}}': android.packageName,
-        }
+        isExpoPre55
+          ? {
+              '{{PACKAGE_NAME}}': android.packageName,
+              '{{EXPO_UPDATES_IMPORTS}}': hasExpoUpdates
+                ? 'import expo.modules.updates.UpdatesController'
+                : '',
+              '{{EXPO_UPDATES_REACT_HOST_BLOCK}}': hasExpoUpdates
+                ? '\n        UpdatesController.setReactHost(reactHost)\n'
+                : '\n',
+            }
+          : {
+              '{{PACKAGE_NAME}}': android.packageName,
+            }
       ),
     },
     {
@@ -111,9 +146,99 @@ export function createAndroidModule({
     Logger.logDebug(`Created file: ${filePath}`);
   }
 
+  syncAndroidModuleExpoUpdatesFromAppFiles({
+    androidDir,
+    config,
+  });
+
   Logger.logDebug(
     `Android module "${android.moduleName}" created at ${moduleDir}`
   );
+}
+
+export function syncAndroidModuleManifest({
+  androidDir,
+  config,
+  expoUpdatesMetaData,
+}: {
+  androidDir: string;
+  config: ResolvedBrownfieldPluginConfigWithAndroid;
+  expoUpdatesMetaData: AndroidManifestMetaDataEntry[];
+}): void {
+  writeAndroidModuleFile(
+    path.join(androidDir, config.android.moduleName),
+    'src/main/AndroidManifest.xml',
+    renderTemplate('android', 'AndroidManifest.xml', {
+      '{{APPLICATION_BLOCK}}':
+        renderLibraryManifestApplication(expoUpdatesMetaData),
+    })
+  );
+}
+
+export function syncAndroidModuleStringResources({
+  androidDir,
+  config,
+  expoUpdatesStringResources,
+}: {
+  androidDir: string;
+  config: ResolvedBrownfieldPluginConfigWithAndroid;
+  expoUpdatesStringResources: AndroidStringResourceEntry[];
+}): void {
+  writeAndroidModuleFile(
+    path.join(androidDir, config.android.moduleName),
+    'src/main/res/values/strings.xml',
+    renderTemplate('android', 'strings.xml', {
+      '{{STRING_RESOURCES}}': renderLibraryStringResources(
+        expoUpdatesStringResources
+      ),
+    })
+  );
+}
+
+function writeAndroidModuleFile(
+  moduleDir: string,
+  relativePath: string,
+  content: string
+): void {
+  const filePath = path.join(moduleDir, relativePath);
+  const fileDir = path.dirname(filePath);
+
+  if (!fs.existsSync(fileDir)) {
+    fs.mkdirSync(fileDir, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, content, 'utf8');
+  Logger.logDebug(`Created file: ${filePath}`);
+}
+
+export function syncAndroidModuleExpoUpdatesFromAppFiles({
+  androidDir,
+  config,
+}: {
+  androidDir: string;
+  config: ResolvedBrownfieldPluginConfigWithAndroid;
+}): void {
+  const appModuleName = 'app';
+  const expoUpdatesMetaData = readExpoUpdatesApplicationMetaData(
+    androidDir,
+    appModuleName
+  );
+  const expoUpdatesStringResources = readExpoUpdatesStringResources(
+    androidDir,
+    appModuleName,
+    expoUpdatesMetaData
+  );
+
+  syncAndroidModuleManifest({
+    androidDir,
+    config,
+    expoUpdatesMetaData,
+  });
+  syncAndroidModuleStringResources({
+    androidDir,
+    config,
+    expoUpdatesStringResources,
+  });
 }
 
 /**
@@ -154,6 +279,7 @@ export const withAndroidModuleFiles: ConfigPlugin<
         config: props,
         rnVersion,
         isExpoPre55,
+        projectRoot: dangerousConfig.modRequest.projectRoot,
       });
 
       return dangerousConfig;

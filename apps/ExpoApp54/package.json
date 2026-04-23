@@ -13,7 +13,8 @@
     "brownfield:prepare:android:ci": "cd .. && node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts ExpoApp54",
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
-    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release"
+    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release",
+    "eas:stg": "eas update --channel production --message 'testing 1st stg channel update' --platform ios"
   },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
@@ -31,6 +32,7 @@
     "expo-status-bar": "~3.0.9",
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
+    "expo-updates": "patch:expo-updates@npm%3A29.0.16#~/.yarn/patches/expo-updates-npm-29.0.16-1c5c89eb83.patch",
     "expo-web-browser": "~15.0.10",
     "react": "19.1.0",
     "react-dom": "19.1.0",

@@ -1,11 +1,12 @@
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Button, Platform, StyleSheet, View } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { checkAndFetchUpdate } from '@/utils/expo-rn-updates';
 
 export default function HomeScreen() {
   return (
@@ -20,10 +21,11 @@ export default function HomeScreen() {
         }
       >
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Welcome to Expo 54!</ThemedText>
+          <ThemedText type="title">Welcome to Expo 5!</ThemedText>
           <HelloWave />
         </ThemedView>
         <ThemedView style={styles.stepContainer}>
+          <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
           <ThemedText type="subtitle">Step 1: Try it</ThemedText>
           <ThemedText>
             Edit{' '}

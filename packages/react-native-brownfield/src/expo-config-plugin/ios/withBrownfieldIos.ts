@@ -11,6 +11,7 @@ import {
   copyBundleReactNativePhase,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
+import { ensureFrameworkHasExpoPlistResource } from './utils/expo-updates';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
 import { Logger } from '../logging';
@@ -40,6 +41,10 @@ export const withBrownfieldIos: ConfigPlugin<
       modRequest,
       props.ios
     );
+
+    // Ensure Expo.plist is always present in the framework resources phase,
+    // including for pre-existing framework targets.
+    ensureFrameworkHasExpoPlistResource(project, frameworkTargetUUID);
 
     if (targetAlreadyExists) {
       Logger.logDebug(

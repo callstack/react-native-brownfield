@@ -18,6 +18,7 @@ import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ResolvedArtifact
@@ -61,6 +62,10 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             val projectExt = project.extensions.getByType(Extension::class.java)
             val appProject = project.rootProject.project(projectExt.appProjectName)
             prepareTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
+
+            if (Utils.isExpoProject(project)) {
+                prepareTask.dependsOn("${appProject.path}:create${capitalizedVariantName}UpdatesResources")
+            }
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)

@@ -11,16 +11,16 @@ struct GreetingCard: View {
                 .font(.title3)
                 .multilineTextAlignment(.center)
 
-            Text(
-                "You clicked the button \(Int(counter)) time\(counter == 1 ? "" : "s")"
-            )
-            .multilineTextAlignment(.center)
-            .font(.body)
+           Text(
+               "You clicked the button \(Int(counter)) time\(counter == 1 ? "" : "s")"
+           )
+           .multilineTextAlignment(.center)
+           .font(.body)
 
-            Button("Increment counter") {
-                $counter.set { $0 + 1 }
-            }
-            .buttonStyle(.borderedProminent)
+           Button("Increment counter") {
+               $counter.set { $0 + 1 }
+           }
+           .buttonStyle(.borderedProminent)
         }
     }
 }
