@@ -23,7 +23,6 @@ import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
@@ -135,25 +134,13 @@ class ArtifactsResolver(
         resolutionResult.root.dependencies.forEach {
             if (it is ResolvedDependencyResult) {
                 when (val id = it.selected.id) {
-                    is ModuleComponentIdentifier -> {
-//                        println("===----- module ${id.moduleIdentifier.name} ${id.displayName} ")
-                        if (id.displayName !in firstLevelIds) {
-//                            unMatchedArtifacts.add(
-//                                UnresolvedArtifactInfo(
-//                                    id.group,
-//                                    id.module,
-//                                    id.version,
-//                                )
-//                            )
-                        }
-                    }
                     is ProjectComponentIdentifier -> {
-                        val depProj = baseProject.project.project(id.projectPath)
+                        val dependencyProject = baseProject.project.project(id.projectPath)
                         if (id.displayName !in firstLevelIds) {
                             unMatchedArtifacts.add(UnresolvedArtifactInfo(
-                                depProj.group.toString(),
-                                depProj.name,
-                                depProj.version.toString(),
+                                dependencyProject.group.toString(),
+                                dependencyProject.name,
+                                dependencyProject.version.toString(),
                                 baseProject.project.file(id.projectName).absolutePath,
                                 mutableSetOf(),
                                 null,
@@ -184,15 +171,15 @@ class ArtifactsResolver(
                     variant.name
                 )
 
-            when (val asd = resolvedArtifact.id) {
+            when (val artifactResult = resolvedArtifact.id) {
                 is PublishArtifactLocalArtifactMetadata -> {
-                    val deps = asd.buildDependencies.getDependencies(null)
+                    val dependencies = artifactResult.buildDependencies.getDependencies(null)
                     unMatchedArtifacts1.add(UnresolvedArtifactInfo(
                         artifact.moduleGroup,
                         artifact.moduleName,
                         artifact.moduleVersion,
                         resolvedArtifact.file.absolutePath,
-                        deps.map { it.path }.toSet(),
+                        dependencies.map { it.path }.toSet(),
                         bundleProvider?.name,
                     ))
                 }
