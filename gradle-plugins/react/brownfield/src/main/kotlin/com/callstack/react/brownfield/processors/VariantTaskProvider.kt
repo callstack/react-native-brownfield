@@ -3,18 +3,19 @@ package com.callstack.react.brownfield.processors
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-class VariantTaskProvider: BaseProject() {
+class VariantTaskProvider : BaseProject() {
     fun bundleTaskProvider(
         project: Project,
         variantName: String,
     ): TaskProvider<Task> {
-        var bundleTaskPath = "bundle${variantName.replaceFirstChar(Char::titlecase)}"
+        var bundleTaskPath = "bundle${variantName.capitalized()}"
         return try {
             project.tasks.named(bundleTaskPath)
         } catch (_: UnknownTaskException) {
@@ -55,5 +56,10 @@ class VariantTaskProvider: BaseProject() {
         }
     }
 
-    private fun getReBundleFilePath(folderName: String, variantName: String) = "${DirectoryManager.getReBundleDirectory(variantName).path}/$folderName"
+    private fun getReBundleFilePath(
+        folderName: String,
+        variantName: String,
+    ) = "${DirectoryManager.getReBundleDirectory(
+        variantName,
+    ).path}/$folderName"
 }

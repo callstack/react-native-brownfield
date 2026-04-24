@@ -1,0 +1,108 @@
+{
+  "name": "@callstack/brownfield-cli",
+  "version": "3.6.1",
+  "license": "MIT",
+  "author": "Artur Morys-Magiera <artus9033@gmail.com>",
+  "bin": {
+    "brownfield": "dist/main.js"
+  },
+  "type": "module",
+  "contributors": [
+    "Artur Morys-Magiera <artus9033@gmail.com>",
+    "Oskar Kwasniewski <oskarkwasniewski@icloud.com>"
+  ],
+  "homepage": "https://github.com/callstack/react-native-brownfield",
+  "repository": {
+    "url": "git+https://github.com/callstack/react-native-brownfield.git"
+  },
+  "description": "Brownfield CLI for React Native, gathering all packages of the RN brownfield ecosystem",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./brownfield": {
+      "source": "./src/brownfield/index.ts",
+      "types": "./dist/brownfield/index.d.ts",
+      "default": "./dist/brownfield/index.js"
+    },
+    "./brownie": {
+      "source": "./src/brownie/index.ts",
+      "types": "./dist/brownie/index.d.ts",
+      "default": "./dist/brownie/index.js"
+    },
+    "./navigation": {
+      "source": "./src/navigation/index.ts",
+      "types": "./dist/navigation/index.d.ts",
+      "default": "./dist/navigation/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "react-native-brownfield",
+    "react native brownfield",
+    "native",
+    "react native integration",
+    "cli",
+    "brownie",
+    "tooling"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@react-native-community/cli-config": "*",
+    "@react-native-community/cli-config-android": "*"
+  },
+  "dependencies": {
+    "@expo/config": "^12.0.13",
+    "@react-native-community/cli-config": "^20.0.0",
+    "@react-native-community/cli-config-android": "^20.0.0",
+    "@rock-js/platform-android": "^0.12.12",
+    "@rock-js/platform-apple-helpers": "^0.12.12",
+    "@rock-js/plugin-brownfield-android": "^0.12.12",
+    "@rock-js/plugin-brownfield-ios": "^0.12.12",
+    "@rock-js/tools": "^0.12.12",
+    "commander": "^14.0.3",
+    "quicktype-core": "^23.2.6",
+    "quicktype-typescript-input": "^23.2.6",
+    "ts-morph": "^27.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@react-native-community/cli-types": "^20.0.0",
+    "@react-native/babel-preset": "0.82.1",
+    "@react-native/eslint-config": "0.82.1",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__preset-env": "^7.10.0",
+    "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "eslint": "^9.39.3",
+    "globals": "^17.3.0",
+    "nodemon": "^3.1.14",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

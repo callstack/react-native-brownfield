@@ -11,7 +11,7 @@ import java.io.File
 class ProguardProcessor : BaseProject() {
     fun processConsumerFiles(
         proguardRules: List<File>,
-        capitalizedVariantName: String
+        capitalizedVariantName: String,
     ) {
         val mergeTaskName = "merge${capitalizedVariantName}ConsumerProguardFiles"
         val mergeFileTask = project.tasks.named(mergeTaskName)
@@ -28,7 +28,7 @@ class ProguardProcessor : BaseProject() {
 
     fun processGeneratedFiles(
         proguardRules: List<File>,
-        capitalizedVariantName: String
+        capitalizedVariantName: String,
     ) {
         val mergeGenerateProguardTask: TaskProvider<*>?
         val mergeName = "merge${capitalizedVariantName}GeneratedProguardFiles"
@@ -46,10 +46,12 @@ class ProguardProcessor : BaseProject() {
     ) {
         try {
             val outputFileToMerge =
+                @Suppress("USELESS_IS_CHECK")
                 if (outputFile is File) {
                     outputFile
                 } else {
-                    (outputFile as? RegularFileProperty)?.get()?.asFile ?: error("Invalid output file")
+                    (outputFile as? RegularFileProperty)?.get()?.asFile
+                        ?: error("Invalid output file")
                 }
             Utils.mergeFiles(files, outputFileToMerge)
         } catch (e: NoSuchFileException) {

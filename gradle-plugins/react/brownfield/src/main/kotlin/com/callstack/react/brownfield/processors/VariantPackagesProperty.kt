@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.processors
 
-import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import org.gradle.api.Project
 import org.gradle.api.provider.MapProperty
 
@@ -12,10 +11,11 @@ object VariantPackagesProperty {
     }
 
     fun setVariantPackagesProperty(project: Project) {
+        @Suppress("UNCHECKED_CAST")
         properties =
             project.objects.mapProperty(
                 String::class.java,
-                List::class.java as Class<List<String>>
+                List::class.java as Class<List<String>>,
             )
     }
 }

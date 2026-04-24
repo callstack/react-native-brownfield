@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          restore-turbo-cache: 'false' # in release workflow, build from scratch
+
+
+      - name: Build
+        run: yarn build
+
+      - name: Create Release Pull Request or Publish to NPM
+        uses: changesets/action@e9cc34b540dd3ad1b030c57fd97269e8f6ad905a # v1.4.9
+        with:
+          version: yarn ci:version
+          publish: yarn ci:publish
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

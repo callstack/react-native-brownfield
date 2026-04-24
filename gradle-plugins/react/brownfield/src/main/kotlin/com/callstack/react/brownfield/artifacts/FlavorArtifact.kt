@@ -1,10 +1,10 @@
 package com.callstack.react.brownfield.artifacts
 
-import org.gradle.api.component.Artifact
 import com.callstack.react.brownfield.shared.BaseProject
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.api.component.Artifact
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact
 import org.gradle.api.internal.artifacts.result.DefaultResolvedArtifactResult
 import org.gradle.api.internal.file.FileResolver
@@ -18,12 +18,13 @@ import org.gradle.internal.component.model.DefaultIvyArtifactName
 import java.io.File
 
 class FlavorArtifact(
-    private val configuration: Configuration) : BaseProject() {
+    private val configuration: Configuration,
+) : BaseProject() {
     fun createFlavorArtifact(
         fileResolver: FileResolver,
         taskDependencyFactory: TaskDependencyFactory,
         bundleTaskProvider: TaskProvider<Task>?,
-        variantName: String
+        variantName: String,
     ): ResolvedArtifactResult {
         val artifactFile = createArtifactFile(bundleTaskProvider?.get() as Task)
         val artifactName = DefaultIvyArtifactName(artifactFile.name, "aar", "")
@@ -37,7 +38,7 @@ class FlavorArtifact(
             ImmutableCapabilities.EMPTY,
             Describables.of(variantName),
             Artifact::class.java,
-            artifactFile
+            artifactFile,
         )
     }
 

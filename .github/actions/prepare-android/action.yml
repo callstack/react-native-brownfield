@@ -1,0 +1,43 @@
+name: Prepare Android environment
+description: Prepare Android environment and set up the project
+
+inputs:
+  free-disk-space:
+    description: 'Whether to free disk space on the runner'
+    required: false
+    default: 'true'
+
+  run-yarn-build:
+    description: 'Whether to run yarn build'
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Validate Gradle Wrapper
+      uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
+
+    - name: Setup Java
+      uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f # v5
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Free Disk Space (Ubuntu)
+      if: inputs.free-disk-space == 'true'
+      uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+      with:
+        tool-cache: false
+
+        android: false
+        dotnet: true
+        haskell: true
+        large-packages: false
+        docker-images: true
+        swap-storage: false
+
+    - name: Build packages
+      if: inputs.run-yarn-build == 'true'
+      run: yarn build
+      shell: bash

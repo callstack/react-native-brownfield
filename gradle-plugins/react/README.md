@@ -20,7 +20,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-+       classpath("com.callstack.react:brownfield-gradle-plugin:0.6.3")
++       classpath("com.callstack.react:brownfield-gradle-plugin:1.0.2")
     }
 }
 ```
@@ -59,7 +59,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-+       classpath("com.callstack.react:brownfield-gradle-plugin:0.6.3")
++       classpath("com.callstack.react:brownfield-gradle-plugin:1.0.2-SNAPSHOT")
     }
 }
 ```
@@ -134,15 +134,7 @@ dependencies {
 
 **Expo Support**
 
-By default expo support is disabled. You can enable it by setting the following to `true`:
-
-```kts
-reactBrownfield {
-    isExpo = true
-}
-```
-
-This will take care of linking the expo dependencies like `expo-image` to your AAR.
+The plugin supports Expo projects out of the box. Publishing the AAR to Maven Local will also publish the Expo dependencies to Maven Local so that they can be resolved when building the brownfield app.
 
 <hr/>
 <br/>

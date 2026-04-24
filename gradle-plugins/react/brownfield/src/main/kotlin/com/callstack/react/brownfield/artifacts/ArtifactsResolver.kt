@@ -32,6 +32,7 @@ class ArtifactsResolver(
     private val configurations: MutableCollection<Configuration>,
     private val baseProject: BaseProject,
     private val extension: Extension,
+    private val hasExpo: Boolean,
 ) :
     GradleProps() {
     fun processDefaultDependencies() {
@@ -63,36 +64,40 @@ class ArtifactsResolver(
         val expoProject = baseProject.project.rootProject.project("expo")
         val expoConfig = expoProject.configurations.findByName("api")
         expoConfig?.dependencies?.forEach {
-                if (extension.resolveLocalDependencies) {
-                    if (it is DefaultProjectDependency) {
-                        baseProject.project.dependencies.add(
-                            CONFIG_NAME,
-                            expoProject.dependencies.project(mapOf("path" to ":${it.name}")),
-                        )
-                    } else {
-                        baseProject.project.dependencies.add(
-                            CONFIG_NAME,
-                            it,
-                        )
-                    }
+            if (extension.resolveLocalDependencies) {
+                if (it is DefaultProjectDependency) {
+                    val projectDependency =
+                        expoProject.dependencies.project(mapOf("path" to ":${it.name}"))
+                    baseProject.project.dependencies.add(
+                        CONFIG_NAME,
+                        projectDependency,
+                    )
+                } else {
+                    baseProject.project.dependencies.add(
+                        CONFIG_NAME,
+                        it,
+                    )
                 }
+            }
         }
     }
 
     private fun embedDefaultDependencies(configName: String) {
-        if (extension.isExpo) {
+        if (this.hasExpo) {
             embedExpoDependencies()
         }
 
         val config = baseProject.project.configurations.findByName(configName)
         val defaultDependencies = config?.dependencies?.filterIsInstance<DefaultProjectDependency>()
         defaultDependencies?.forEach { dependency ->
-                if (extension.resolveLocalDependencies) {
-                    baseProject.project.dependencies.add(
-                        CONFIG_NAME,
-                        baseProject.project.dependencies.project(mapOf("path" to ":${dependency.name}")),
-                    )
-                }
+            if (extension.resolveLocalDependencies) {
+                val projectDependency =
+                    baseProject.project.dependencies.project(mapOf("path" to ":${dependency.name}"))
+                baseProject.project.dependencies.add(
+                    CONFIG_NAME,
+                    projectDependency,
+                )
+            }
         }
     }
 

@@ -40,6 +40,11 @@ gradlePlugin {
     }
 }
 
+val baseVersion = property("VERSION").toString()
+val isSnapshot = project.findProperty("IS_SNAPSHOT") == "true"
+
+version = if (isSnapshot) "$baseVersion-SNAPSHOT" else baseVersion
+
 publishing {
     publications.withType<MavenPublication>().configureEach {
         artifactId = property("ARTIFACT_ID").toString()
@@ -51,7 +56,7 @@ publishing {
 
             groupId = property("GROUP").toString()
             artifactId = property("ARTIFACT_ID").toString()
-            version = property("VERSION").toString()
+            version = version
 
             pom {
                 name.set(property("DISPLAY_NAME").toString())
@@ -74,6 +79,12 @@ publishing {
     }
 }
 
+val skipSigning: Boolean = project.findProperty("SkipSigning") == "true"
+signing {
+    isRequired = !project.hasProperty("SkipSigning")
+    sign(publishing.publications["mavenLocal"])
+}
+
 repositories {
     mavenCentral()
     google()
@@ -84,6 +95,7 @@ dependencies {
     implementation(libs.common)
     implementation(libs.asm.commons)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation(libs.versioncompare)
 }
 
 tasks.named("detekt").configure {

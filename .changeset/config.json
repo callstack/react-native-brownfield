@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.4/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "callstack/react-native-brownfield" }
+  ],
+  "commit": false,
+  "fixed": [
+    [
+      "brownfield",
+      "@callstack/brownfield-navigation",
+      "@callstack/brownie",
+      "@callstack/brownfield-cli",
+      "@callstack/react-native-brownfield"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "ignore": [
+    "react-native-brownfield-docs",
+    "@callstack/brownfield-example-android-app",
+    "@callstack/brownfield-example-ios-app",
+    "@callstack/brownfield-example-rn-app",
+    "@callstack/brownfield-example-expo-app-54",
+    "@callstack/brownfield-example-expo-app-55",
+    "@callstack/brownfield-gradle-plugin-react"
+  ],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true,
+    "updateInternalDependents": "always"
+  },
+  "snapshot": {
+    "useCalculatedVersion": true
+  }
+}

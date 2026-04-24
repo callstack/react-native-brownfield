@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -28,6 +27,19 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "app"
+    productFlavors {
+        create("expo54") {
+            dimension = "app"
+        }
+        create("expo55") {
+            dimension = "app"
+        }
+        create("vanilla") {
+            dimension = "app"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -39,11 +51,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -51,16 +60,21 @@ android {
 }
 
 dependencies {
+    implementation(libs.gson)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.material)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
-    implementation(libs.brownfieldlib)
+    add("expo55Implementation", libs.brownfieldlib.expo55)
+    add("expo54Implementation", libs.brownfieldlib.expo54)
+    add("vanillaImplementation", libs.brownfieldlib.vanilla)
+
     implementation(libs.androidx.fragment.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

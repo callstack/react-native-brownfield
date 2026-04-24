@@ -1,0 +1,62 @@
+# Code Generation
+
+The Brownfield CLI generates native types from your TypeScript store definitions.
+
+## Usage
+
+```bash
+brownfield codegen          # Generate for all configured platforms
+brownfield codegen -p swift # Generate Swift only
+brownfield --help           # Show help
+brownfield --version        # Show version
+```
+
+## Configuration
+
+Swift files are always generated to `node_modules/@callstack/brownie/ios/Generated/`. This path is auto-resolved and not configurable.
+
+## Generated Output
+
+For this TypeScript definition:
+
+```ts
+interface BrownfieldStore extends BrownieStore {
+  counter: number;
+  user: { name: string };
+}
+```
+
+### Swift Output
+
+Generated to: `node_modules/@callstack/brownie/ios/Generated/BrownfieldStore.swift`
+
+```swift
+import Brownie
+
+public struct BrownfieldStore: Codable {
+    public var counter: Double
+    public var user: User
+}
+
+public struct User: Codable {
+    public var name: String
+}
+
+extension BrownfieldStore: BrownieStoreProtocol {
+    public static let storeName = "BrownfieldStore"
+}
+```
+
+The generated struct:
+
+- Uses `public` access level for framework compatibility
+- Conforms to `Codable` for JSON serialization
+- Conforms to `BrownieStoreProtocol` with auto-generated `storeName`
+- Uses mutable `var` properties
+
+## How It Works
+
+1. CLI recursively finds all `*.brownie.ts` files
+2. Parses `declare module '@callstack/brownie'` blocks using ts-morph
+3. Extracts store names from `BrownieStores` interface
+4. Generates native types using quicktype

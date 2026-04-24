@@ -9,8 +9,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-abstract class ProcessArtifactsTask: DefaultTask() {
-
+abstract class ProcessArtifactsTask : DefaultTask() {
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
@@ -28,7 +27,7 @@ abstract class ProcessArtifactsTask: DefaultTask() {
         artifactOutput.get().asFile.writeText(
             artifacts.joinToString("\n") {
                 JsonInstance.json.encodeToString(it)
-            }
+            },
         )
     }
 

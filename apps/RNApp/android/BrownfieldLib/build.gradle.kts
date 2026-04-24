@@ -14,7 +14,7 @@ publishing {
         create<MavenPublication>("mavenAar") {
             groupId = "com.rnapp"
             artifactId = "brownfieldlib"
-            version = "0.0.1-local"
+            version = "0.0.1-SNAPSHOT"
             afterEvaluate {
                 from(components.getByName("default"))
             }
@@ -22,7 +22,7 @@ publishing {
             pom {
                 withXml {
                     /**
-                     * As a result of `from(components.getByName("default")` all of the project
+                     * As a result of `from(components.getByName("default"))` all of the project
                      * dependencies are added to `pom.xml` file. We do not need the react-native
                      * third party dependencies to be a part of it as we embed those dependencies.
                      */
@@ -45,7 +45,7 @@ publishing {
 val moduleBuildDir: Directory = layout.buildDirectory.get()
 
 /**
- * As a result of `from(components.getByName("default")` all of the project
+ * As a result of `from(components.getByName("default"))` all of the project
  * dependencies are added to `module.json` file. We do not need the react-native
  * third party dependencies to be a part of it as we embed those dependencies.
  */
@@ -123,6 +123,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
-    api("com.facebook.react:react-android:0.82.1")
-    api("com.facebook.react:hermes-android:0.82.1")
+    api("com.facebook.react:react-android:0.85.0")
+    api("com.facebook.hermes:hermes-android:250829098.0.10")
 }

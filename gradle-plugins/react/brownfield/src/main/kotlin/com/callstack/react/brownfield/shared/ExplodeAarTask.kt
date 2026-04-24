@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.shared
 
-import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
@@ -12,8 +11,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class ExplodeAarTask: DefaultTask() {
-
+abstract class ExplodeAarTask : DefaultTask() {
     @get:InputFile
     abstract val inputArtifactListFile: RegularFileProperty
 
@@ -38,9 +36,9 @@ abstract class ExplodeAarTask: DefaultTask() {
         // classes-merge
         variantHelper.classesMergeTaskDoFirst(
             DirectoryManager.getMergeClassDirectory(
-                resolvedVariantName
+                resolvedVariantName,
             ),
-            resolvedVariantName
+            resolvedVariantName,
         )
 
         val aarLibraries = mutableListOf<AndroidArchiveLibrary>()

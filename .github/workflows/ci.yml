@@ -11,6 +11,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-changeset:
+    name: Check changeset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Check changeset
+        if: github.ref != 'refs/heads/main'
+        run: yarn changeset status --since=origin/${{ github.base_ref }}
+
   build-lint:
     name: Build & static code analysis
     runs-on: ubuntu-latest
@@ -30,8 +46,33 @@ jobs:
       - name: Typecheck files
         run: yarn typecheck
 
-  tester-android:
-    name: Integrated tester Android App
+      - name: Test Brownfield CLI (version)
+        run: |
+          yarn workspace @callstack/react-native-brownfield brownfield --version
+
+  android-androidapp-expo:
+    name: Android road test (RNApp & AndroidApp - Expo ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    needs: build-lint
+    strategy:
+      matrix:
+        include:
+          - version: '54'
+          - version: '55'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run RNApp -> AndroidApp road test (Expo ${{ matrix.version }})
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo${{ matrix.version }}
+          rn-project-path: apps/ExpoApp${{ matrix.version }}
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp${{ matrix.version }}/brownfieldlib
+
+  android-androidapp-vanilla:
+    name: Android road test (RNApp & AndroidApp - Vanilla)
     runs-on: ubuntu-latest
     needs: build-lint
 
@@ -39,97 +80,44 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
-
-      - name: Setup Java
-        uses: actions/setup-java@5d7b2146334bacf88728daaa70414a99f5164e0f # v5
+      - name: Run RNApp -> AndroidApp road test (Vanilla)
+        uses: ./.github/actions/androidapp-road-test
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          flavor: vanilla
+          rn-project-path: apps/RNApp
+          rn-project-maven-path: com/rnapp/brownfieldlib
 
-      - name: Setup Node.js
-        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
-        with:
-          node-version: 'lts/*'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build packages
-        run: yarn build
-
-      - name: Restore android build cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-        with:
-          path: |
-            apps/TesterIntegrated/kotlin/build
-            apps/TesterIntegrated/kotlin/app/.cxx
-            apps/TesterIntegrated/kotlin/app/build
-          key: ${{ runner.os }}-tester-android-build-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-tester-android-build-
-
-      - name: Resture Gradle cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-tester-integrated-android-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-tester-integrated-android-gradle-
-
-      - name: Build integrated Android tester app
-        run: yarn run build:tester-integrated:android
-
-  tester-ios:
-    name: Integrated tester iOS App
-    runs-on: macos-latest
+  ios-appleapp-vanilla:
+    name: iOS road test (RNApp & AppleApp - Vanilla)
+    runs-on: macos-26
     needs: build-lint
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Use appropriate Xcode version
-        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+      - name: Run RNApp -> AppleApp road test (Vanilla)
+        uses: ./.github/actions/appleapp-road-test
         with:
-          xcode-version: '16'
+          variant: vanilla
+          rn-project-path: apps/RNApp
 
-      - name: Setup Node.js
-        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
+  ios-appleapp-expo:
+    name: iOS road test (RNApp & AppleApp - Expo ${{ matrix.version }})
+    runs-on: macos-26
+    needs: build-lint
+    strategy:
+      matrix:
+        include:
+          - version: '54'
+          - version: '55'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run ExpoApp -> AppleApp road test (Expo ${{ matrix.version }})
+        uses: ./.github/actions/appleapp-road-test
         with:
-          node-version: 'lts/*'
-          cache: 'yarn'
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@5dd816ae0186f20dfa905997a64104db9a8221c7 # v1.280.0
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build packages
-        run: yarn build
-
-      - name: Restore Pods cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-        with:
-          path: |
-            apps/TesterIntegrated/swift/Pods
-          key: ${{ runner.os }}-tester-ios-pods-${{ hashFiles('apps/TesterIntegrated/swift/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-tester-ios-pods-
-
-      - name: Install pods
-        run: |
-          cd apps/TesterIntegrated/swift
-          pod install
-
-      - name: Build integrated iOS tester app
-        run: |
-          yarn run build:tester-integrated:ios
+          variant: expo${{ matrix.version }}
+          rn-project-path: apps/ExpoApp${{ matrix.version }}

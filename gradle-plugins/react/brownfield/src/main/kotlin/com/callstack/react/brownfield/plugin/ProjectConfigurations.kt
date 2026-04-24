@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.plugin
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.shared.Logging
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
@@ -55,7 +56,7 @@ class ProjectConfigurations(private val project: Project) {
             createConfiguration(getConfigName(flavor.name))
 
             androidExtension.buildTypes.all { buildType ->
-                val variantName = "${flavor.name}${buildType.name.replaceFirstChar(Char::titlecase)}"
+                val variantName = "${flavor.name}${buildType.name.capitalized()}"
                 createConfiguration(getConfigName(variantName))
             }
         }
@@ -72,25 +73,29 @@ class ProjectConfigurations(private val project: Project) {
         configuration.isVisible = false
         configuration.isTransitive = false
 
-            val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
-            androidComponents.onVariants { variant ->
+        val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+        androidComponents.onVariants { variant ->
 
-                val runtimeAttributes = variant.runtimeConfiguration.attributes
-                runtimeAttributes.keySet().forEach { key ->
-                    copyAttribute(
-                        key,
-                        runtimeAttributes,
-                        configuration.attributes
-                    )
-                }
+            val runtimeAttributes = variant.runtimeConfiguration.attributes
+            runtimeAttributes.keySet().forEach { key ->
+                copyAttribute(
+                    key,
+                    runtimeAttributes,
+                    configuration.attributes,
+                )
             }
+        }
 
         project.gradle.addListener(CustomDependencyResolver(project, configuration))
         configurations.add(configuration)
         Logging.log("created configuration $configName ✅")
     }
 
-    private fun <T> copyAttribute(key: Attribute<T>, from: AttributeContainer, into: AttributeContainer) {
+    private fun <T> copyAttribute(
+        key: Attribute<T>,
+        from: AttributeContainer,
+        into: AttributeContainer,
+    ) {
         from.getAttribute(key)?.let {
             into.attribute(key, it)
         }

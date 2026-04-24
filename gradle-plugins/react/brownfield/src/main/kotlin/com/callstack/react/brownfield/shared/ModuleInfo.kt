@@ -1,7 +1,5 @@
 package com.callstack.react.brownfield.shared
 
-import org.gradle.api.Task
-import java.io.File
 import kotlinx.serialization.Serializable
 
 interface ModuleInfo {
@@ -27,4 +25,3 @@ data class UnresolvedArtifactInfo(
     override val dependencies: Set<String>?,
     override val bundleTaskName: String?,
 ) : ModuleInfo
-

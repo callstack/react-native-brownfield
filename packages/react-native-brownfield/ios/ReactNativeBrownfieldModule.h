@@ -2,7 +2,11 @@
 
 #import <ReactNativeBrownfield/ReactNativeBrownfield.h>
 
-@interface ReactNativeBrownfieldModule : NSObject <NativeReactNativeBrownfieldModuleSpec>
+@interface ReactNativeBrownfieldModule : NativeReactNativeBrownfieldModuleSpecBase <NativeReactNativeBrownfieldModuleSpec>
+
+// Static helper for native code to emit events
++ (void)emitMessageFromNative:(NSString *)message;
+
 @end
 
 #endif

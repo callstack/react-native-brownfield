@@ -42,8 +42,9 @@ class AndroidArchiveLibrary(
         val regex = Regex("""namespace\s*=?\s*["']([^"']+)["']""")
         val match = regex.find(text)
 
-        val namespace = match?.groupValues?.get(1)
-            ?: error("No namespace found in ${buildFile.path}")
+        val namespace =
+            match?.groupValues?.get(1)
+                ?: error("No namespace found in ${buildFile.path}")
 
         return namespace
     }

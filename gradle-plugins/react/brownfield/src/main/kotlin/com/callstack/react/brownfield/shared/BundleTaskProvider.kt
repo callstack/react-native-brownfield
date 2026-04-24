@@ -45,7 +45,8 @@ class BundleTaskProvider(private val variantTaskProvider: VariantTaskProvider) {
                             false
                         } != null
                     } != null
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                }
             }
 
             bundleTaskProvider != null
@@ -53,5 +54,4 @@ class BundleTaskProvider(private val variantTaskProvider: VariantTaskProvider) {
 
         return bundleTaskProvider
     }
-
 }

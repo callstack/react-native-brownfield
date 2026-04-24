@@ -5,6 +5,7 @@ import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
@@ -56,18 +57,16 @@ object RNSourceSets {
 
         // 2. Use the onVariants block to configure each variant
         componentsExtension.onVariants { variant ->
-            // The variant name is directly available
-            val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
-
             // 3. Lazily configure the 'main' source set using .named()
             androidExtension.sourceSets.named("main") { sourceSet ->
                 // Paths are collected and added, similar to your improved version
-                val bundlePathSegments = listOf(
-                    // outputs for RN <= 0.81
-                    "createBundle${capitalizedVariantName}JsAndAssets",
-                    // outputs for RN >= 0.82
-                    "react/${variant.name}",
-                )
+                val bundlePathSegments =
+                    listOf(
+                        // outputs for RN <= 0.81
+                        "createBundle${variant.name.capitalized()}JsAndAssets",
+                        // outputs for RN >= 0.82
+                        "react/${variant.name}",
+                    )
 
                 // Add the variant-specific generated asset and resource directories
                 sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
@@ -87,7 +86,8 @@ object RNSourceSets {
 
     private fun getLibraryNameSpace(): String {
         val nameSpace = androidExtension.namespace
-        return nameSpace ?: throw NameSpaceNotFound("namespace must be defined in your android library build.gradle")
+        return nameSpace
+            ?: throw NameSpaceNotFound("namespace must be defined in your android library build.gradle")
     }
 
     private fun patchRNEntryPoint(
@@ -103,7 +103,11 @@ object RNSourceSets {
         val rnEntryPointTask = appProject.tasks.findByName(rnEntryPointTaskName) ?: return
 
         task.dependsOn(rnEntryPointTask)
-        val sourceFile = File(moduleBuildDir.toString(), "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java")
+        val sourceFile =
+            File(
+                moduleBuildDir.toString(),
+                "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java",
+            )
         task.doLast {
             if (sourceFile.exists()) {
                 var content = sourceFile.readText()

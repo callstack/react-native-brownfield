@@ -38,7 +38,7 @@ object RClassTransformer : BaseProject() {
                 params.namespace.set(variant.namespace)
                 params.libraryNamespaces.set(
                     variantPackagesProperty.getting(variant.name)
-                        .map { list -> list.toList()},
+                        .map { list -> list.toList() },
                 )
             }
 

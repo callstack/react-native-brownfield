@@ -24,7 +24,7 @@ signing.secretKeyRingFile=<path-to-gpg-file>
 Once the signing key is set up correctly, run the following command:
 
 ```sh
-yarn brownfield:plugin:publish:local
+yarn brownfield:plugin:publish:local:signed
 ```
 
 ### 3. Output

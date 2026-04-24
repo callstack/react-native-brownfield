@@ -1,1 +1,17 @@
-["javascript", "kotlin", "java", "swift", "objective-c"]
+[
+  {
+    "type": "dir",
+    "name": "react-native-brownfield",
+    "label": "iOS & Android integration"
+  },
+  {
+    "type": "dir",
+    "name": "brownfield-navigation",
+    "label": "Navigation"
+  },
+  {
+    "type": "dir",
+    "name": "brownie",
+    "label": "State Management"
+  }
+]

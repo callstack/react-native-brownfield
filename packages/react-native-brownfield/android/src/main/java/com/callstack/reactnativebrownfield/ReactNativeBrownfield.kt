@@ -17,10 +17,15 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 fun interface OnJSBundleLoaded {
     operator fun invoke(initialized: Boolean)
+}
+
+fun interface OnMessageListener {
+    fun onMessage(message: String)
 }
 
 /**
@@ -31,9 +36,12 @@ fun interface OnJSBundleLoaded {
 private const val RN_THRESHOLD_VERSION = "0.80.0"
 
 class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
+    private val messageListeners = CopyOnWriteArrayList<OnMessageListener>()
+
     companion object {
         private lateinit var instance: ReactNativeBrownfield
         private val initialized = AtomicBoolean()
+        private const val LOG_TAG = "ReactNativeBrownfield"
 
         @JvmStatic
         val shared: ReactNativeBrownfield get() = instance
@@ -77,7 +85,9 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                     packageList = (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
                         .filterIsInstance<ReactPackage>(),
                     jsMainModulePath = options["mainModuleName"] as? String ?: "index",
-                    jsBundleAssetPath = options["bundleAssetPath"] as? String ?: "index.android.bundle",
+                    jsBundleAssetPath = options["bundleAssetPath"] as? String
+                        ?: "index.android.bundle",
+                    jsBundleFilePath = options["bundleFilePath"] as? String,
                     useDevSupport = options["useDeveloperSupport"] as? Boolean
                         ?: ReactBuildConfig.DEBUG,
                     jsRuntimeFactory = null
@@ -111,6 +121,42 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
     }
 
+    /**
+     * Send a serialized JSON message to the React Native JS application. This resembles the web `window.postMessage` API.
+     * @note This method is available only on the New Architecture - on Old Architecture, it will be a no-op.
+     * @param message - The serialized JSON message to send to the React Native JS application.
+     * @example
+     * val json = JSONObject().put("text", text).toString()
+     * ReactNativeBrownfield.shared.postMessage(json)
+     */
+    fun postMessage(message: String) {
+        ReactNativeBrownfieldModule.emitMessageFromNative(message)
+    }
+
+    /**
+     * Register a listener for messages sent from the React Native JS application.
+     * @note This method is available only on the New Architecture - on Old Architecture, it will be a no-op.
+     * @param listener - The listener to register.
+     */
+    fun addMessageListener(listener: OnMessageListener) {
+        messageListeners.add(listener)
+    }
+
+    /**
+     * Remove a previously registered message listener.
+     * @note This method is available only on the New Architecture - on Old Architecture, it will be a no-op.
+     * @param listener - The listener to remove.
+     */
+    fun removeMessageListener(listener: OnMessageListener) {
+        messageListeners.remove(listener)
+    }
+
+    internal fun dispatchMessage(message: String) {
+        for (listener in messageListeners) {
+            listener.onMessage(message)
+        }
+    }
+
     fun createView(
         activity: FragmentActivity?,
         moduleName: String,
@@ -121,7 +167,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         val resolvedDelegate =
             reactDelegate ?: ReactDelegateWrapper(activity, reactHost, moduleName, launchOptions)
 
-        val mBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        val backPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // invoked for JS stack back navigation
                 resolvedDelegate.onBackPressed()
@@ -129,11 +175,12 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
 
         // Register back press callback
-        activity?.onBackPressedDispatcher?.addCallback(mBackPressedCallback)
+        activity?.onBackPressedDispatcher?.addCallback(backPressedCallback)
         // invoked on the last RN screen exit
         resolvedDelegate.setHardwareBackHandler {
-            mBackPressedCallback.isEnabled = false
+            backPressedCallback.isEnabled = false
             activity?.onBackPressedDispatcher?.onBackPressed()
+            backPressedCallback.isEnabled = true
         }
 
         /**
