@@ -1,9 +1,9 @@
 package com.callstack.react.brownfield.plugin
 
-import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.LoggerWrapper
 import com.android.build.gradle.internal.coverage.JacocoReportTask.JacocoReportWorkerAction.Companion.logger
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.ManifestProvider
 import com.android.manifmerger.MergingReport
@@ -92,6 +92,8 @@ constructor(
         // process manifest & merger task
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
             val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+
+            preBuildTaskByVariant(capitalizedVariantName)
 
             project.tasks.register("explode${capitalizedVariantName}Aar", ExplodeAarTask::class.java) { task ->
                 task.inputArtifactListFile.set(processArtifactsTask.get().artifactOutput)
@@ -193,6 +195,19 @@ constructor(
             /** ===== processDataBinding ===== */
             val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
             variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant.name)
+        }
+    }
+
+    private fun preBuildTaskByVariant(capitalizedVariantName: String) {
+        val preBuildTaskPath = "pre${capitalizedVariantName}Build"
+        val preBuildTask = project.tasks.named(preBuildTaskPath)
+
+        if (!preBuildTask.isPresent) {
+            throw TaskNotFound("Can not find $preBuildTaskPath task")
+        }
+
+        if (capitalizedVariantName.contains("Release")) {
+            preBuildTask.dependsOn(":app:createBundle${capitalizedVariantName}JsAndAssets")
         }
     }
 

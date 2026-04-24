@@ -2,7 +2,7 @@
 
 set -e
 
-cd ./react
+cd ./gradle-plugins/react
 ./gradlew clean
 ./gradlew build
 ./gradlew :brownfield:publishMavenLocalPublicationToMavenLocalRepository

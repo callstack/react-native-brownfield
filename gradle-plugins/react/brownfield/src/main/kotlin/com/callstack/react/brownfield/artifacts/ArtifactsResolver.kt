@@ -14,7 +14,6 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_NAME
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_SUFFIX
-import com.callstack.react.brownfield.processors.VariantProcessor
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.BundleTaskProvider
@@ -110,12 +109,6 @@ class ArtifactsResolver(
                     val res = handleUnResolvedArtifacts(configuration, variant)
                     artifacts.addAll(res)
                 }
-            }
-
-            if (artifacts.isNotEmpty()) {
-                val processor = VariantProcessor()
-                processor.project = baseProject.project
-                processor.processVariant(variant.name)
             }
         }
 
