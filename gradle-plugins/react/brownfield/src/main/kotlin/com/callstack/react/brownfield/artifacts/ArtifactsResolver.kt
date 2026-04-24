@@ -21,14 +21,12 @@ import com.callstack.react.brownfield.shared.GradleProps
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
-import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import org.gradle.internal.component.local.model.PublishArtifactLocalArtifactMetadata
 import kotlin.collections.mutableListOf
-
 
 class ArtifactsResolver(
     private val configurations: MutableCollection<Configuration>,
@@ -128,28 +126,6 @@ class ArtifactsResolver(
         variant: LibraryVariant,
     ): List<UnresolvedArtifactInfo> {
         val unMatchedArtifacts = mutableListOf<UnresolvedArtifactInfo>()
-        val firstLevelIds = setOf<String>()
-
-        val resolutionResult = configuration.incoming.resolutionResult
-        resolutionResult.root.dependencies.forEach {
-            if (it is ResolvedDependencyResult) {
-                when (val id = it.selected.id) {
-                    is ProjectComponentIdentifier -> {
-                        val dependencyProject = baseProject.project.project(id.projectPath)
-                        if (id.displayName !in firstLevelIds) {
-                            unMatchedArtifacts.add(UnresolvedArtifactInfo(
-                                dependencyProject.group.toString(),
-                                dependencyProject.name,
-                                dependencyProject.version.toString(),
-                                baseProject.project.file(id.projectName).absolutePath,
-                                mutableSetOf(),
-                                null,
-                            ))
-                        }
-                    }
-                }
-            }
-        }
 
         val variantTaskProvider = VariantTaskProvider()
         variantTaskProvider.project = baseProject.project
@@ -158,41 +134,45 @@ class ArtifactsResolver(
 
         val bundleTaskProvider = BundleTaskProvider(variantTaskProvider)
 
-        val unMatchedArtifacts1 = mutableListOf<UnresolvedArtifactInfo>()
-        unMatchedArtifacts.forEach { artifact ->
-            val artifactProject = getArtifactProject(artifact)
-            val bundleProvider = artifactProject?.let { bundleTaskProvider.getBundleTask(it, variant) }
+        val resolutionResult = configuration.incoming.resolutionResult
+        resolutionResult.root.dependencies.forEach {
+            // We only care about dependencies Gradle has resolved to a concrete component.
+            if (it is ResolvedDependencyResult) {
+                when (val id = it.selected.id) {
+                    // Local project dependencies are the only ones we can map back to a project and bundle task.
+                    is ProjectComponentIdentifier -> {
+                        val dependencyProject = baseProject.project.project(id.projectPath)
+                        val bundleProvider = bundleTaskProvider.getBundleTask(dependencyProject, variant)
 
-            val resolvedArtifact =
-                flavorArtifact.createFlavorArtifact(
-                    fileResolver,
-                    taskDependencyFactory,
-                    bundleProvider,
-                    variant.name
-                )
+                        val resolvedArtifact =
+                            flavorArtifact.createFlavorArtifact(
+                                fileResolver,
+                                taskDependencyFactory,
+                                bundleProvider,
+                                variant.name,
+                            )
 
-            when (val artifactResult = resolvedArtifact.id) {
-                is PublishArtifactLocalArtifactMetadata -> {
-                    val dependencies = artifactResult.buildDependencies.getDependencies(null)
-                    unMatchedArtifacts1.add(UnresolvedArtifactInfo(
-                        artifact.moduleGroup,
-                        artifact.moduleName,
-                        artifact.moduleVersion,
-                        resolvedArtifact.file.absolutePath,
-                        dependencies.map { it.path }.toSet(),
-                        bundleProvider?.name,
-                    ))
+                        when (val artifactResult = resolvedArtifact.id) {
+                            // Only local publish artifacts expose build dependencies that we can serialize here.
+                            is PublishArtifactLocalArtifactMetadata -> {
+                                val dependencies = artifactResult.buildDependencies.getDependencies(null)
+                                unMatchedArtifacts.add(
+                                    UnresolvedArtifactInfo(
+                                        dependencyProject.group.toString(),
+                                        dependencyProject.name,
+                                        dependencyProject.version.toString(),
+                                        resolvedArtifact.file.absolutePath,
+                                        dependencies.map { task -> task.path }.toSet(),
+                                        bundleProvider?.name,
+                                    ),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        return unMatchedArtifacts1
-    }
-
-
-    private fun getArtifactProject(unResolvedArtifact: UnresolvedArtifactInfo): Project? {
-        return baseProject.project.rootProject.allprojects.find { p ->
-            unResolvedArtifact.moduleName == p.name && unResolvedArtifact.moduleGroup == p.group.toString()
-        }
+        return unMatchedArtifacts
     }
 }
