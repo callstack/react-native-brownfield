@@ -132,6 +132,13 @@ constructor(
             }
 
             /**
+             * early return if aarLibraries is empty, no need to register/configure further tasks
+             */
+            if (aarLibraries.isEmpty()) {
+                return@all
+            }
+
+            /**
              * Flat IDs to be put into the variant property, required for RClass Transformer
              */
             val packageIDs = aarLibraries.map { it.getPackageName() }
