@@ -29,6 +29,7 @@ object RClassTransformer : BaseProject() {
     fun registerASMTransformation() {
         val components = project.extensions.getByType(AndroidComponentsExtension::class.java)
         val variantPackagesProperty = VariantPackagesProperty.getVariantPackagesProperty()
+
         components.onVariants(components.selector().all()) { variant ->
             variant.instrumentation.transformClassesWith(
                 RClassAsmTransformerFactory::class.java,
@@ -37,9 +38,10 @@ object RClassTransformer : BaseProject() {
                 params.namespace.set(variant.namespace)
                 params.libraryNamespaces.set(
                     variantPackagesProperty.getting(variant.name)
-                        .map { list -> list.map { it.getPackageName() }.toList() },
+                        .map { list -> list.toList() },
                 )
             }
+
             variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
         }
     }

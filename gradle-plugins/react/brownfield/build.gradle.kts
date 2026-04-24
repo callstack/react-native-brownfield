@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.detekt)
     `maven-publish`
     signing
+    kotlin("plugin.serialization") version "1.9.24"
 }
 
 ktlint {
@@ -69,18 +70,6 @@ publishing {
                         distribution.set("repo")
                     }
                 }
-                developers {
-                    developer {
-                        id.set("callstack")
-                        name.set("Callstack Team")
-                        email.set("it-admin@callstack.com")
-                    }
-                }
-                scm {
-                    connection.set(property("SCM_CONNECTION").toString())
-                    developerConnection.set(property("SCM_DEV_CONNECTION").toString())
-                    url.set(property("GITHUB_URL").toString())
-                }
             }
         }
     }
@@ -105,6 +94,7 @@ dependencies {
     implementation(libs.agp)
     implementation(libs.common)
     implementation(libs.asm.commons)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation(libs.versioncompare)
 }
 

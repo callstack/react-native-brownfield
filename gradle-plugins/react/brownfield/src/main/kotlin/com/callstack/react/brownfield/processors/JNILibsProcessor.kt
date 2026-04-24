@@ -1,24 +1,12 @@
-@file:Suppress("DEPRECATION")
-
-/**
- * Suppressing because of LibraryVariant.
- * We can't use the new `com.android.build.gradle.api.LibraryVariant`
- * as of now.
- *
- * We may want to re-visit this in future.
- */
-
 package com.callstack.react.brownfield.processors
 
 import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
-import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
@@ -26,10 +14,9 @@ import java.io.File
 class JNILibsProcessor : BaseProject() {
     fun processJniLibs(
         aarLibraries: Collection<AndroidArchiveLibrary>,
-        explodeTasks: MutableList<Task>,
-        variant: LibraryVariant,
+        variantName: String,
     ) {
-        val capitalizedVariantName = variant.name.capitalized()
+        val capitalizedVariantName = variantName.capitalized()
         val taskName = "merge${capitalizedVariantName}JniLibFolders"
         val mergeJniLibsTask = project.tasks.named(taskName)
 
@@ -38,10 +25,9 @@ class JNILibsProcessor : BaseProject() {
         }
 
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
-        val copyTask = copySoLibsTask(variant)
+        val copyTask = copySoLibsTask(variantName)
 
         mergeJniLibsTask.configure {
-            it.dependsOn(explodeTasks)
             it.dependsOn(copyTask)
 
             it.doFirst {
@@ -54,11 +40,11 @@ class JNILibsProcessor : BaseProject() {
                     val jniDir = archiveLibrary.getJniDir()
                     processNestedLibs(jniDir.listFiles(), existingJNILibs)
                     if (projectExt.experimentalUseStrippedSoFiles) {
-                        copyStrippedSoLibs(variant, existingJNILibs)
+                        copyStrippedSoLibs(variantName, existingJNILibs)
                     } else {
                         if (jniDir.exists()) {
                             val filteredSourceSets =
-                                androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variant.name }
+                                androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variantName }
                             filteredSourceSets.forEach { sourceSet ->
                                 sourceSet.jniLibs.srcDir(
                                     jniDir,
@@ -71,12 +57,11 @@ class JNILibsProcessor : BaseProject() {
         }
     }
 
-    private fun getStrippedLibsPath(variant: LibraryVariant): Pair<File, File> {
+    private fun getStrippedLibsPath(variantName: String): Pair<File, File> {
         val projectExt = project.extensions.getByType(Extension::class.java)
         val appProject = project.rootProject.project(projectExt.appProjectName)
         val appBuildDir = appProject.layout.buildDirectory.get()
 
-        val variantName = variant.name
         val capitalizedVariant = variantName.capitalized()
 
         val fromDir =
@@ -89,15 +74,15 @@ class JNILibsProcessor : BaseProject() {
         return Pair(fromDir, intoDir)
     }
 
-    private fun copySoLibsTask(variant: LibraryVariant): TaskProvider<Copy> {
-        val capitalizedVariant = variant.name.capitalized()
+    private fun copySoLibsTask(variantName: String): TaskProvider<Copy> {
+        val capitalizedVariant = variantName.capitalized()
         val projectExt = project.extensions.getByType(Extension::class.java)
         val appProject = project.rootProject.project(projectExt.appProjectName)
 
         val stripTask = ":${appProject.name}:strip${capitalizedVariant}DebugSymbols"
         val codegenTask = ":${project.name}:generateCodegenSchemaFromJavaScript"
 
-        val (fromDir, intoDir) = getStrippedLibsPath(variant)
+        val (fromDir, intoDir) = getStrippedLibsPath(variantName)
 
         return project.tasks.register("copy${capitalizedVariant}LibSources", Copy::class.java) {
             it.dependsOn(stripTask, codegenTask)
@@ -110,10 +95,10 @@ class JNILibsProcessor : BaseProject() {
     }
 
     private fun copyStrippedSoLibs(
-        variant: LibraryVariant,
+        variantName: String,
         existingJNILibs: MutableMap<String, MutableList<String>>,
     ) {
-        val (fromDir, intoDir) = getStrippedLibsPath(variant)
+        val (fromDir, intoDir) = getStrippedLibsPath(variantName)
 
         existingJNILibs.forEach { (arch, libNames) ->
             copyLibsForArchitecture(fromDir, intoDir, arch, libNames)

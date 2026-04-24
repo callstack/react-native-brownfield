@@ -14,17 +14,19 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_NAME
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_SUFFIX
-import com.callstack.react.brownfield.processors.VariantHelper
-import com.callstack.react.brownfield.processors.VariantProcessor
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
+import com.callstack.react.brownfield.shared.BundleTaskProvider
 import com.callstack.react.brownfield.shared.GradleProps
+import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
-import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
+import org.gradle.internal.component.local.model.PublishArtifactLocalArtifactMetadata
+import kotlin.collections.mutableListOf
 
 class ArtifactsResolver(
     private val configurations: MutableCollection<Configuration>,
@@ -33,23 +35,12 @@ class ArtifactsResolver(
     private val hasExpo: Boolean,
 ) :
     GradleProps() {
-    companion object {
-        const val ARTIFACT_TYPE_AAR = "aar"
-        const val ARTIFACT_TYPE_JAR = "jar"
-    }
-
-    fun processArtifacts() {
+    fun processDefaultDependencies() {
         embedDefaultDependencies("implementation")
-        setTransitiveToConfigurations()
-        generateArtifacts()
     }
 
-    private fun setTransitiveToConfigurations() {
-        configurations.forEach {
-            if (baseProject.project.extensions.getByType(Extension::class.java).transitive) {
-                it.isTransitive = true
-            }
-        }
+    fun processArtifacts(): MutableList<UnresolvedArtifactInfo> {
+        return generateArtifacts()
     }
 
     private fun embedExpoDependencies() {
@@ -110,30 +101,20 @@ class ArtifactsResolver(
         }
     }
 
-    private fun generateArtifacts() {
+    private fun generateArtifacts(): MutableList<UnresolvedArtifactInfo> {
+        // store the artifacts which can be variant aware including flavors
+        val artifacts = mutableSetOf<UnresolvedArtifactInfo>()
         baseProject.project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val artifacts: MutableCollection<ResolvedArtifact> = ArrayList()
 
             configurations.forEach { configuration ->
                 if (isEmbedConfig(configuration, variant)) {
-                    val resolvedArtifacts = resolveArtifacts(configuration)
-                    artifacts.addAll(resolvedArtifacts)
-                    artifacts.addAll(
-                        handleUnResolvedArtifacts(
-                            configuration,
-                            variant,
-                            resolvedArtifacts,
-                        ),
-                    )
+                    val res = handleUnResolvedArtifacts(configuration, variant)
+                    artifacts.addAll(res)
                 }
             }
-
-            if (artifacts.isNotEmpty()) {
-                val processor = VariantProcessor(variant)
-                processor.project = baseProject.project
-                processor.processVariant(artifacts)
-            }
         }
+
+        return artifacts.toMutableList()
     }
 
     private fun isEmbedConfig(
@@ -145,50 +126,58 @@ class ArtifactsResolver(
             configuration.name == variant.name + CONFIG_SUFFIX
     }
 
-    private fun resolveArtifacts(configuration: Configuration): Collection<ResolvedArtifact> {
-        val artifacts = ArrayList<ResolvedArtifact>()
-        configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
-            if (artifact.type != ARTIFACT_TYPE_AAR && artifact.type != ARTIFACT_TYPE_JAR) {
-                throw ProjectConfigurationException(
-                    "Unsupported dependency. Please provide either Aar or Jar dependency",
-                    listOf(),
-                )
-            }
-            artifacts.add(artifact)
-        }
-        return artifacts
-    }
-
     private fun handleUnResolvedArtifacts(
         configuration: Configuration,
         variant: LibraryVariant,
-        artifacts: Collection<ResolvedArtifact>,
-    ): Collection<ResolvedArtifact> {
-        val artifactList = ArrayList<ResolvedArtifact>()
-        val unMatchedArtifacts =
-            configuration.resolvedConfiguration.firstLevelModuleDependencies.filter {
-                !artifacts.any { artifact ->
-                    it.moduleName == artifact.moduleVersion.id.name
-                }
-            }
+    ): List<UnresolvedArtifactInfo> {
+        val unMatchedArtifacts = mutableListOf<UnresolvedArtifactInfo>()
 
-        val variantHelper = VariantHelper(variant)
-        variantHelper.project = baseProject.project
-        val variantTaskProvider = VariantTaskProvider(variantHelper)
+        val variantTaskProvider = VariantTaskProvider()
         variantTaskProvider.project = baseProject.project
-        val flavorArtifact = FlavorArtifact(variant, variantTaskProvider)
+        val flavorArtifact = FlavorArtifact(configuration)
         flavorArtifact.project = baseProject.project
 
-        unMatchedArtifacts.forEach { dependency ->
-            val resolvedArtifact =
-                flavorArtifact.createFlavorArtifact(
-                    dependency,
-                    calculatedValueContainerFactory,
-                    fileResolver,
-                    taskDependencyFactory,
-                )
-            artifactList.add(resolvedArtifact)
+        val bundleTaskProvider = BundleTaskProvider(variantTaskProvider)
+
+        val resolutionResult = configuration.incoming.resolutionResult
+        resolutionResult.root.dependencies.forEach {
+            // We only care about dependencies Gradle has resolved to a concrete component.
+            if (it is ResolvedDependencyResult) {
+                when (val id = it.selected.id) {
+                    // Local project dependencies are the only ones we can map back to a project and bundle task.
+                    is ProjectComponentIdentifier -> {
+                        val dependencyProject = baseProject.project.project(id.projectPath)
+                        val bundleProvider = bundleTaskProvider.getBundleTask(dependencyProject, variant)
+
+                        val resolvedArtifact =
+                            flavorArtifact.createFlavorArtifact(
+                                fileResolver,
+                                taskDependencyFactory,
+                                bundleProvider,
+                                variant.name,
+                            )
+
+                        when (val artifactResult = resolvedArtifact.id) {
+                            // Only local publish artifacts expose build dependencies that we can serialize here.
+                            is PublishArtifactLocalArtifactMetadata -> {
+                                val dependencies = artifactResult.buildDependencies.getDependencies(null)
+                                unMatchedArtifacts.add(
+                                    UnresolvedArtifactInfo(
+                                        dependencyProject.group.toString(),
+                                        dependencyProject.name,
+                                        dependencyProject.version.toString(),
+                                        resolvedArtifact.file.absolutePath,
+                                        dependencies.map { task -> task.path }.toSet(),
+                                        bundleProvider?.name,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
-        return artifactList
+
+        return unMatchedArtifacts
     }
 }
