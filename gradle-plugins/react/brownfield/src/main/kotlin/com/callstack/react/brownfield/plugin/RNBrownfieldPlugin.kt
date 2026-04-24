@@ -31,6 +31,7 @@ import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.tasks.TaskDependencyFactory
+import org.gradle.api.tasks.TaskProvider
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
@@ -97,9 +98,7 @@ class RNBrownfieldPlugin
             project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
                 val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
-                preBuildTaskByVariant(capitalizedVariantName)
-
-                project.tasks.register(
+                val explodeTask = project.tasks.register(
                     "explode${capitalizedVariantName}Aar",
                     ExplodeAarTask::class.java,
                 ) { task ->
@@ -124,6 +123,8 @@ class RNBrownfieldPlugin
                         }
                     }
                 }
+
+                preBuildTaskByVariant(capitalizedVariantName, explodeTask)
 
                 val artifacts = readArtifacts(processArtifactsTask.get().artifactOutput.get().asFile)
                 val filteredArtifacts =
@@ -231,7 +232,7 @@ class RNBrownfieldPlugin
             const val EXPO_PROJECT_LOCATOR = ":expo"
         }
 
-        private fun preBuildTaskByVariant(capitalizedVariantName: String) {
+        private fun preBuildTaskByVariant(capitalizedVariantName: String, explodeAarTask: TaskProvider<ExplodeAarTask>) {
             val preBuildTaskPath = "pre${capitalizedVariantName}Build"
             val preBuildTask = project.tasks.named(preBuildTaskPath)
 
@@ -239,8 +240,11 @@ class RNBrownfieldPlugin
                 throw TaskNotFound("Can not find $preBuildTaskPath task")
             }
 
+            preBuildTask.dependsOn(explodeAarTask)
             if (capitalizedVariantName.contains("Release")) {
-                preBuildTask.dependsOn(":app:createBundle${capitalizedVariantName}JsAndAssets")
+                val projectExt = project.extensions.getByType(Extension::class.java)
+                val appProject = project.rootProject.project(projectExt.appProjectName)
+                preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
             }
         }
 
