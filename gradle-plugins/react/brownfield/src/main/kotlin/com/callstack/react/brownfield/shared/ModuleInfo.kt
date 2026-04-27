@@ -7,7 +7,7 @@ interface ModuleInfo {
     val moduleName: String
     val moduleVersion: String
 
-    val file: String
+    val file: String?
 
     val type: String
         get() = "aar"
@@ -21,7 +21,7 @@ data class UnresolvedArtifactInfo(
     override val moduleGroup: String,
     override val moduleName: String,
     override val moduleVersion: String,
-    override val file: String,
+    override val file: String?,
     override val dependencies: Set<String>?,
     override val bundleTaskName: String?,
 ) : ModuleInfo

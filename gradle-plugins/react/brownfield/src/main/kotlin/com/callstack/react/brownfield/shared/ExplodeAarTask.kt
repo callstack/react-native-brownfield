@@ -4,19 +4,15 @@ import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 abstract class ExplodeAarTask : DefaultTask() {
-    @get:InputFile
-    abstract val inputArtifactListFile: RegularFileProperty
-
-    @get:InputFile
-    abstract val inputTaskList: RegularFileProperty
+    @get:Internal
+    abstract val inputArtifacts: ListProperty<UnresolvedArtifactInfo>
 
     @get:Input
     abstract val variantName: Property<String>
@@ -26,8 +22,7 @@ abstract class ExplodeAarTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        val file = inputArtifactListFile.get().asFile
-        val artifacts = readArtifacts(file)
+        val artifacts = inputArtifacts.get()
         val resolvedVariantName = variantName.get()
 
         val variantHelper = VariantHelper()
@@ -67,13 +62,5 @@ abstract class ExplodeAarTask : DefaultTask() {
         // classes-merge
         val mergeClassesOutputDir = DirectoryManager.getMergeClassDirectory(resolvedVariantName)
         variantHelper.classesMergeTaskDoLast(mergeClassesOutputDir, aarLibraries, mutableListOf(), resolvedVariantName, minifyEnabled.get())
-    }
-
-    private fun readArtifacts(file: File): List<UnresolvedArtifactInfo> {
-        if (!file.exists()) return emptyList()
-
-        return file.readLines()
-            .filter { it.isNotBlank() }
-            .map { JsonInstance.json.decodeFromString<UnresolvedArtifactInfo>(it) }
     }
 }

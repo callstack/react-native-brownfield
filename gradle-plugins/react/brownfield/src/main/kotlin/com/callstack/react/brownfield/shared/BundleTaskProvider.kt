@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.callstack.react.brownfield.shared
 
 import com.android.build.gradle.LibraryExtension
@@ -12,46 +14,33 @@ class BundleTaskProvider(private val variantTaskProvider: VariantTaskProvider) {
         project: Project,
         variant: LibraryVariant,
     ): TaskProvider<Task>? {
-        var bundleTaskProvider: TaskProvider<Task>? = null
         val androidExtension = project.extensions.getByType(LibraryExtension::class.java)
 
-        androidExtension.libraryVariants.find {
-            if (it.name == variant.name || it.name == variant.buildType.name) {
-                bundleTaskProvider = variantTaskProvider.bundleTaskProvider(project, it.name)
-            }
+        // Find the first variant in the library that matches our criteria
+        val matchedVariant =
+            androidExtension.libraryVariants.find { libraryVariant ->
+                // 1. Try Simple Match
+                if (libraryVariant.name == variant.name || libraryVariant.name == variant.buildType.name) {
+                    return@find true
+                }
 
-            if (bundleTaskProvider == null) {
-                val flavor = if (variant.productFlavors.isEmpty()) variant.mergedFlavor else variant.productFlavors.first()
-                try {
-                    val missingDimensionStrategies = androidExtension.productFlavors.getByName(flavor.name).missingDimensionStrategies
+                // 2. Try Dimension Strategy Match
+                val flavor = variant.productFlavors.firstOrNull() ?: variant.mergedFlavor
+                val strategies =
+                    runCatching {
+                        androidExtension.productFlavors.getByName(flavor.name).missingDimensionStrategies
+                    }.getOrNull() ?: return@find false
 
-                    missingDimensionStrategies.entries.find { entry ->
-                        val toDimension = entry.key
-                        val requestedValues = listOf(entry.value.requested)
-                        val toFlavors = requestedValues + entry.value.fallbacks
-                        val subFlavor =
-                            if (it.productFlavors.isEmpty()) {
-                                it.mergedFlavor
-                            } else {
-                                it.productFlavors.first()
-                            }
-                        toFlavors.firstOrNull { toFlavor ->
-                            val isDimensionEqual = toDimension == subFlavor.dimension
-                            val isFlavorEqual = toFlavor == subFlavor.name
-                            val isBuildTypeEqual = variant.buildType.name == it.buildType.name
-                            if (isDimensionEqual && isFlavorEqual && isBuildTypeEqual) {
-                                bundleTaskProvider = variantTaskProvider.bundleTaskProvider(project, it.name)
-                            }
-                            false
-                        } != null
-                    } != null
-                } catch (_: Exception) {
+                strategies.any { (dimension, strategy) ->
+                    val fallbacks = listOf(strategy.requested) + strategy.fallbacks
+                    val libFlavor = libraryVariant.productFlavors.firstOrNull() ?: libraryVariant.mergedFlavor
+
+                    dimension == libFlavor.dimension &&
+                        fallbacks.contains(libFlavor.name) &&
+                        variant.buildType.name == libraryVariant.buildType.name
                 }
             }
 
-            bundleTaskProvider != null
-        }
-
-        return bundleTaskProvider
+        return matchedVariant?.let { variantTaskProvider.bundleTaskProvider(project, it.name) }
     }
 }

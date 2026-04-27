@@ -1,46 +1,22 @@
-@file:Suppress("DEPRECATION")
-
-/**
- * Suppressing because of LibraryVariant.
- * We can't use the new `com.android.build.gradle.api.LibraryVariant`
- * as of now.
- *
- * We may want to re-visit this in future.
- */
-
 package com.callstack.react.brownfield.artifacts
 
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_NAME
-import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_SUFFIX
-import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
-import com.callstack.react.brownfield.shared.BundleTaskProvider
 import com.callstack.react.brownfield.shared.GradleProps
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
-import org.gradle.internal.component.local.model.PublishArtifactLocalArtifactMetadata
 import kotlin.collections.mutableListOf
 
 class ArtifactsResolver(
-    private val configurations: MutableCollection<Configuration>,
     private val baseProject: BaseProject,
     private val extension: Extension,
     private val hasExpo: Boolean,
 ) :
     GradleProps() {
-    fun processDefaultDependencies() {
-        embedDefaultDependencies("implementation")
-    }
-
-    fun processArtifacts(): MutableList<UnresolvedArtifactInfo> {
-        return generateArtifacts()
+    fun processDefaultDependencies(): List<UnresolvedArtifactInfo> {
+        return embedDefaultDependencies("implementation")
     }
 
     private fun embedExpoDependencies() {
@@ -82,102 +58,40 @@ class ArtifactsResolver(
         }
     }
 
-    private fun embedDefaultDependencies(configName: String) {
+    private fun embedDefaultDependencies(configName: String): List<UnresolvedArtifactInfo> {
         if (this.hasExpo) {
             embedExpoDependencies()
         }
 
-        val config = baseProject.project.configurations.findByName(configName)
+        val project = baseProject.project
+        val projectExt = project.extensions.getByType(Extension::class.java)
+        val appProject = project.rootProject.project(projectExt.appProjectName)
+
+        val config = project.rootProject.project(appProject.path).configurations.findByName(configName)
         val defaultDependencies = config?.dependencies?.filterIsInstance<DefaultProjectDependency>()
+        val unresolvedArtifactInfo = mutableListOf<UnresolvedArtifactInfo>()
         defaultDependencies?.forEach { dependency ->
             if (extension.resolveLocalDependencies) {
                 val projectDependency =
-                    baseProject.project.dependencies.project(mapOf("path" to ":${dependency.name}"))
-                baseProject.project.dependencies.add(
+                    project.dependencies.project(mapOf("path" to ":${dependency.name}"))
+                project.dependencies.add(
                     CONFIG_NAME,
                     projectDependency,
                 )
-            }
-        }
-    }
 
-    private fun generateArtifacts(): MutableList<UnresolvedArtifactInfo> {
-        // store the artifacts which can be variant aware including flavors
-        val artifacts = mutableSetOf<UnresolvedArtifactInfo>()
-        baseProject.project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-
-            configurations.forEach { configuration ->
-                if (isEmbedConfig(configuration, variant)) {
-                    val res = handleUnResolvedArtifacts(configuration, variant)
-                    artifacts.addAll(res)
-                }
+                unresolvedArtifactInfo.add(
+                    UnresolvedArtifactInfo(
+                        projectDependency.group.toString(),
+                        projectDependency.name,
+                        projectDependency.version.toString(),
+                        null,
+                        null,
+                        null,
+                    ),
+                )
             }
         }
 
-        return artifacts.toMutableList()
-    }
-
-    private fun isEmbedConfig(
-        configuration: Configuration,
-        variant: LibraryVariant,
-    ): Boolean {
-        return configuration.name == CONFIG_NAME || configuration.name == variant.buildType.name + CONFIG_SUFFIX ||
-            configuration.name == variant.flavorName + CONFIG_SUFFIX ||
-            configuration.name == variant.name + CONFIG_SUFFIX
-    }
-
-    private fun handleUnResolvedArtifacts(
-        configuration: Configuration,
-        variant: LibraryVariant,
-    ): List<UnresolvedArtifactInfo> {
-        val unMatchedArtifacts = mutableListOf<UnresolvedArtifactInfo>()
-
-        val variantTaskProvider = VariantTaskProvider()
-        variantTaskProvider.project = baseProject.project
-        val flavorArtifact = FlavorArtifact(configuration)
-        flavorArtifact.project = baseProject.project
-
-        val bundleTaskProvider = BundleTaskProvider(variantTaskProvider)
-
-        val resolutionResult = configuration.incoming.resolutionResult
-        resolutionResult.root.dependencies.forEach {
-            // We only care about dependencies Gradle has resolved to a concrete component.
-            if (it is ResolvedDependencyResult) {
-                when (val id = it.selected.id) {
-                    // Local project dependencies are the only ones we can map back to a project and bundle task.
-                    is ProjectComponentIdentifier -> {
-                        val dependencyProject = baseProject.project.project(id.projectPath)
-                        val bundleProvider = bundleTaskProvider.getBundleTask(dependencyProject, variant)
-
-                        val resolvedArtifact =
-                            flavorArtifact.createFlavorArtifact(
-                                fileResolver,
-                                taskDependencyFactory,
-                                bundleProvider,
-                                variant.name,
-                            )
-
-                        when (val artifactResult = resolvedArtifact.id) {
-                            // Only local publish artifacts expose build dependencies that we can serialize here.
-                            is PublishArtifactLocalArtifactMetadata -> {
-                                val dependencies = artifactResult.buildDependencies.getDependencies(null)
-                                unMatchedArtifacts.add(
-                                    UnresolvedArtifactInfo(
-                                        dependencyProject.group.toString(),
-                                        dependencyProject.name,
-                                        dependencyProject.version.toString(),
-                                        resolvedArtifact.file.absolutePath,
-                                        dependencies.map { task -> task.path }.toSet(),
-                                        bundleProvider?.name,
-                                    ),
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return unMatchedArtifacts
+        return unresolvedArtifactInfo
     }
 }

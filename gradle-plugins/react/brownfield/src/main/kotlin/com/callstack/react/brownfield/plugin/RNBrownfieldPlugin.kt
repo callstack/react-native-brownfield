@@ -16,11 +16,10 @@ import com.callstack.react.brownfield.processors.ProguardProcessor
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
+import com.callstack.react.brownfield.shared.BundleTaskProvider
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.ExplodeAarTask
-import com.callstack.react.brownfield.shared.JsonInstance
 import com.callstack.react.brownfield.shared.Logging
-import com.callstack.react.brownfield.shared.ProcessArtifactsTask
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
@@ -29,9 +28,11 @@ import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
+import org.gradle.api.Task
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.tasks.TaskDependencyFactory
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Zip
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
@@ -72,18 +73,11 @@ class RNBrownfieldPlugin
             baseProject.project = project
             DirectoryManager.project = project
             artifactsResolver =
-                ArtifactsResolver(projectConfigurations.getConfigurations(), baseProject, extension, this.isExpoProject)
+                ArtifactsResolver(baseProject, extension, this.isExpoProject)
             artifactsResolver.taskDependencyFactory = taskDependencyFactory
             artifactsResolver.fileResolver = fileResolver
 
-            artifactsResolver.processDefaultDependencies()
-
-            val processArtifactsTask =
-                project.tasks.register("processArtifacts", ProcessArtifactsTask::class.java) {
-                    it.artifactsResolver.set(artifactsResolver)
-                    it.outputFile.set(project.layout.buildDirectory.file("artifacts.txt"))
-                    it.artifactOutput.set(project.layout.buildDirectory.file("artifacts-list.jsonl"))
-                }
+            val newArtifacts = artifactsResolver.processDefaultDependencies()
 
             val jniLibsProcessor = JNILibsProcessor()
             jniLibsProcessor.project = project
@@ -94,43 +88,49 @@ class RNBrownfieldPlugin
             val variantTaskProvider = VariantTaskProvider()
             variantTaskProvider.project = project
 
+            val bundleProvider = BundleTaskProvider(variantTaskProvider)
+
             // process manifest & merger task
             project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
                 val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
 
-                val explodeTask = project.tasks.register(
-                    "explode${capitalizedVariantName}Aar",
-                    ExplodeAarTask::class.java,
-                ) { task ->
-                    task.inputArtifactListFile.set(processArtifactsTask.get().artifactOutput)
-                    task.inputTaskList.set(processArtifactsTask.get().outputFile)
+                val explodeTask =
+                    project.tasks.register(
+                        "explode${capitalizedVariantName}Aar",
+                        ExplodeAarTask::class.java,
+                    ) { task ->
+                        task.variantName.set(variant.name)
+                        task.minifyEnabled.set(variant.buildType.isMinifyEnabled)
 
-                    task.variantName.set(variant.name)
-                    task.minifyEnabled.set(variant.buildType.isMinifyEnabled)
+                        val finalArtifacts = mutableListOf<UnresolvedArtifactInfo>()
+                        newArtifacts.forEach { newArt ->
+                            val defaultTaskName = "bundle${capitalizedVariantName}Aar"
+                            val dependencyProject = project.project(":${newArt.moduleName}")
+                            val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
+                            val taskName = bundleTaskProvider?.name ?: defaultTaskName
 
-                    val file = task.inputTaskList.get().asFile
-                    if (file.exists()) {
-                        file.readLines().forEach { line ->
-                            val lineSplits = line.split(",")
+                            dependencyProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
 
-                            val projectPath = lineSplits[0]
-                            val taskName = lineSplits[1]
-                            val artifactProject = project.rootProject.project(projectPath)
-
-                            if (taskName.contains(capitalizedVariantName)) {
-                                artifactProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
-                            }
+                            val artifactFile = createArtifactFile(bundleTaskProvider?.get() as Task)
+                            finalArtifacts.add(
+                                UnresolvedArtifactInfo(
+                                    newArt.moduleGroup,
+                                    newArt.moduleName,
+                                    newArt.moduleVersion,
+                                    artifactFile.absolutePath,
+                                    setOf(":${newArt.moduleName}:$taskName"),
+                                    taskName,
+                                ),
+                            )
                         }
+
+                        task.inputArtifacts.set(finalArtifacts)
                     }
-                }
 
                 preBuildTaskByVariant(capitalizedVariantName, explodeTask)
 
-                val artifacts = readArtifacts(processArtifactsTask.get().artifactOutput.get().asFile)
-                val filteredArtifacts =
-                    artifacts.filter { it.bundleTaskName?.contains(capitalizedVariantName) == true }
                 val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
-                filteredArtifacts.forEach { art ->
+                newArtifacts.forEach { art ->
                     val archiveLibrary =
                         AndroidArchiveLibrary(
                             this.project,
@@ -232,7 +232,10 @@ class RNBrownfieldPlugin
             const val EXPO_PROJECT_LOCATOR = ":expo"
         }
 
-        private fun preBuildTaskByVariant(capitalizedVariantName: String, explodeAarTask: TaskProvider<ExplodeAarTask>) {
+        private fun preBuildTaskByVariant(
+            capitalizedVariantName: String,
+            explodeAarTask: TaskProvider<ExplodeAarTask>,
+        ) {
             val preBuildTaskPath = "pre${capitalizedVariantName}Build"
             val preBuildTask = project.tasks.named(preBuildTaskPath)
 
@@ -246,14 +249,6 @@ class RNBrownfieldPlugin
                 val appProject = project.rootProject.project(projectExt.appProjectName)
                 preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
             }
-        }
-
-        private fun readArtifacts(file: File): List<UnresolvedArtifactInfo> {
-            if (!file.exists()) return emptyList()
-
-            return file.readLines()
-                .filter { it.isNotBlank() }
-                .map { JsonInstance.json.decodeFromString<UnresolvedArtifactInfo>(it) }
         }
 
         private fun manifestMerger(
@@ -304,5 +299,10 @@ class RNBrownfieldPlugin
                     Throwable("Apply $PROJECT_ID"),
                 )
             }
+        }
+
+        private fun createArtifactFile(bundle: Task): File {
+            val packageLibraryProvider = bundle as Zip
+            return File(packageLibraryProvider.destinationDirectory.get().asFile, packageLibraryProvider.archiveFileName.get())
         }
     }
