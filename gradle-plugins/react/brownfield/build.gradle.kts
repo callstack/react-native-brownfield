@@ -94,7 +94,6 @@ dependencies {
     implementation(libs.agp)
     implementation(libs.common)
     implementation(libs.asm.commons)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation(libs.versioncompare)
 }
 

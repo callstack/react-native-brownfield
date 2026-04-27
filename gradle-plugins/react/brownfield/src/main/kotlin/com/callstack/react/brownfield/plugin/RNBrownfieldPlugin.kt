@@ -77,6 +77,12 @@ class RNBrownfieldPlugin
             artifactsResolver.taskDependencyFactory = taskDependencyFactory
             artifactsResolver.fileResolver = fileResolver
 
+            // Must run before processDefaultDependencies: ArtifactsResolver reads :expo's api configuration,
+            // which is only populated after the expo project is evaluated.
+            if (this.isExpoProject) {
+                project.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
+            }
+
             val newArtifacts = artifactsResolver.processDefaultDependencies()
 
             val jniLibsProcessor = JNILibsProcessor()
@@ -138,13 +144,6 @@ class RNBrownfieldPlugin
                             variant.name,
                         )
                     aarLibraries.add(archiveLibrary)
-                }
-
-                /**
-                 * early return if aarLibraries is empty, no need to register/configure further tasks
-                 */
-                if (aarLibraries.isEmpty()) {
-                    return@all
                 }
 
                 /**
@@ -212,18 +211,13 @@ class RNBrownfieldPlugin
                 /** ===== processDataBinding ===== */
                 val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
                 variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant.name)
+            }
 
+            project.afterEvaluate {
                 if (this.isExpoProject) {
-                    Logging.log("Expo project detected.")
-                    project.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
-                }
-
-                project.afterEvaluate {
-                    if (this.isExpoProject) {
-                        ExpoPublishingHelper(
-                            brownfieldAppProject = project,
-                        ).afterEvaluate()
-                    }
+                    ExpoPublishingHelper(
+                        brownfieldAppProject = project,
+                    ).afterEvaluate()
                 }
             }
         }

@@ -37,8 +37,7 @@ abstract class ExplodeAarTask : DefaultTask() {
         )
 
         val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
-        val filteredArtifacts = artifacts.filter { it.bundleTaskName?.lowercase()?.contains(resolvedVariantName) == true }
-        filteredArtifacts.forEach { art ->
+        artifacts.forEach { art ->
             val archiveLibrary =
                 AndroidArchiveLibrary(
                     this.project,

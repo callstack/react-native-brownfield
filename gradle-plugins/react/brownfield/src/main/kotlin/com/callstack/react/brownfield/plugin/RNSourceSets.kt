@@ -58,7 +58,7 @@ object RNSourceSets {
         // 2. Use the onVariants block to configure each variant
         componentsExtension.onVariants { variant ->
             // 3. Lazily configure the 'main' source set using .named()
-            androidExtension.sourceSets.named("main") { sourceSet ->
+            androidExtension.sourceSets.named(variant.name) { sourceSet ->
                 // Paths are collected and added, similar to your improved version
                 val bundlePathSegments =
                     listOf(
