@@ -110,24 +110,39 @@ class RNBrownfieldPlugin
 
                         val finalArtifacts = mutableListOf<UnresolvedArtifactInfo>()
                         newArtifacts.forEach { newArt ->
-                            val defaultTaskName = "bundle${capitalizedVariantName}Aar"
-                            val dependencyProject = project.project(":${newArt.moduleName}")
-                            val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
-                            val taskName = bundleTaskProvider?.name ?: defaultTaskName
+                            if (newArt.isExpoPublishDependency == true) {
+                                finalArtifacts.add(
+                                    UnresolvedArtifactInfo(
+                                        newArt.moduleGroup,
+                                        newArt.moduleName,
+                                        newArt.moduleVersion,
+                                        newArt.file,
+                                        null,
+                                        null,
+                                        isExpoPublishDependency = newArt.isExpoPublishDependency,
+                                    ),
+                                )
+                            } else {
+                                val defaultTaskName = "bundle${capitalizedVariantName}Aar"
+                                val dependencyProject = project.project(":${newArt.moduleName}")
+                                val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
+                                val taskName = bundleTaskProvider?.name ?: defaultTaskName
 
-                            dependencyProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
+                                dependencyProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
 
-                            val artifactFile = createArtifactFile(bundleTaskProvider?.get() as Task)
-                            finalArtifacts.add(
-                                UnresolvedArtifactInfo(
-                                    newArt.moduleGroup,
-                                    newArt.moduleName,
-                                    newArt.moduleVersion,
-                                    artifactFile.absolutePath,
-                                    setOf(":${newArt.moduleName}:$taskName"),
-                                    taskName,
-                                ),
-                            )
+                                val artifactFile = createArtifactFile(bundleTaskProvider?.get() as Task)
+                                finalArtifacts.add(
+                                    UnresolvedArtifactInfo(
+                                        newArt.moduleGroup,
+                                        newArt.moduleName,
+                                        newArt.moduleVersion,
+                                        artifactFile.absolutePath,
+                                        setOf(":${newArt.moduleName}:$taskName"),
+                                        taskName,
+                                        isExpoPublishDependency = newArt.isExpoPublishDependency,
+                                    ),
+                                )
+                            }
                         }
 
                         task.inputArtifacts.set(finalArtifacts)
@@ -211,9 +226,7 @@ class RNBrownfieldPlugin
                 /** ===== processDataBinding ===== */
                 val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
                 variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant.name)
-            }
 
-            project.afterEvaluate {
                 if (this.isExpoProject) {
                     ExpoPublishingHelper(
                         brownfieldAppProject = project,

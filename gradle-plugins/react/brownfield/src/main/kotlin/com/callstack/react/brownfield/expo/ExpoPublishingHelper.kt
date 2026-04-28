@@ -405,7 +405,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
      * Discovers Expo projects in the current brownfield app project that are marked for publication.
      * @return List of ExpoGradleProjectProjection representing the discoverable Expo projects.
      */
-    protected fun getDiscoverableExpoProjects(): List<ExpoGradleProjectProjection> {
+    fun getDiscoverableExpoProjects(): List<ExpoGradleProjectProjection> {
         val expoExtension =
             brownfieldAppProject.rootProject.gradle.extensions.findByType(Class.forName("expo.modules.plugin.ExpoGradleExtension"))
                 ?: error("Expo Gradle extension not found. This should never happen in an Expo project.")
