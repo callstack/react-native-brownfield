@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.processors
 
-import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.capitalized
@@ -10,7 +9,7 @@ import org.gradle.api.UnknownTaskException
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-class VariantTaskProvider : BaseProject() {
+class VariantTaskProvider(val project: Project) {
     fun bundleTaskProvider(
         project: Project,
         variantName: String,

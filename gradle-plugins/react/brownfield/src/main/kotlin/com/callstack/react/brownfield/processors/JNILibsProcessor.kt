@@ -2,16 +2,16 @@ package com.callstack.react.brownfield.processors
 
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.TaskNotFound
-import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
+import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-class JNILibsProcessor : BaseProject() {
+class JNILibsProcessor(val project: Project) {
     fun processJniLibs(
         aarLibraries: Collection<AndroidArchiveLibrary>,
         variantName: String,

@@ -1,14 +1,14 @@
 package com.callstack.react.brownfield.processors
 
 import com.callstack.react.brownfield.exceptions.TaskNotFound
-import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.Utils
+import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-class ProguardProcessor : BaseProject() {
+class ProguardProcessor(val project: Project) {
     fun processConsumerFiles(
         proguardRules: List<File>,
         capitalizedVariantName: String,

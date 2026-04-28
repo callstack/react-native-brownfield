@@ -1,9 +1,0 @@
-package com.callstack.react.brownfield.shared
-
-import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.internal.tasks.TaskDependencyFactory
-
-open class GradleProps {
-    lateinit var taskDependencyFactory: TaskDependencyFactory
-    lateinit var fileResolver: FileResolver
-}
