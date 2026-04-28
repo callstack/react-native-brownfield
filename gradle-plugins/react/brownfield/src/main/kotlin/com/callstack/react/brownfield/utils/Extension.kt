@@ -6,23 +6,6 @@ open class Extension {
     }
 
     /**
-     * Whether to resolve transitive dependencies.
-     * If false, only embed dependency
-     * If true, embed remote library's dependencies and local jar module
-     *
-     * Default value is false
-     */
-    var transitive = false
-
-    /**
-     * Should the plugin embed the local project dependencies.
-     * For eg, local modules
-     *
-     * Default value is true
-     */
-    var resolveLocalDependencies = true
-
-    /**
      * Name of the module using `com.android.application`
      * For eg, app
      *

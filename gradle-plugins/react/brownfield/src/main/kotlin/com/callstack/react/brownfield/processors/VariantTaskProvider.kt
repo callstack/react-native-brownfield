@@ -1,7 +1,11 @@
 package com.callstack.react.brownfield.processors
 
+import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.callstack.react.brownfield.exceptions.TaskNotFound
+import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
+import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -61,4 +65,23 @@ class VariantTaskProvider(val project: Project) {
     ) = "${DirectoryManager.getReBundleDirectory(
         variantName,
     ).path}/$folderName"
+
+    fun preBuildTaskByVariant(
+        capitalizedVariantName: String,
+        explodeAarTask: TaskProvider<ExplodeAarTask>,
+    ) {
+        val preBuildTaskPath = "pre${capitalizedVariantName}Build"
+        val preBuildTask = project.tasks.named(preBuildTaskPath)
+
+        if (!preBuildTask.isPresent) {
+            throw TaskNotFound("Can not find $preBuildTaskPath task")
+        }
+
+        preBuildTask.dependsOn(explodeAarTask)
+        if (capitalizedVariantName.contains("Release")) {
+            val projectExt = project.extensions.getByType(Extension::class.java)
+            val appProject = project.rootProject.project(projectExt.appProjectName)
+            preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
+        }
+    }
 }
