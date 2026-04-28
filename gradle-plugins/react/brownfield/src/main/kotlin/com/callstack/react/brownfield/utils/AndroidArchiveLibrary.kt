@@ -29,6 +29,10 @@ class AndroidArchiveLibrary(
     }
 
     private fun getNameSpaceFromBuildGradle(): String {
+        if (artifact.isExpoPublishDependency == true) {
+            return artifact.moduleGroup
+        }
+
         val subProj = project.rootProject.project(":${artifact.moduleName}")
         val buildFile = subProj.buildFile // points to build.gradle or build.gradle.kts
 

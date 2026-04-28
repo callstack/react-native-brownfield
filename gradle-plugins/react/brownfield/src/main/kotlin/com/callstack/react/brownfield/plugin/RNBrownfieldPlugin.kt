@@ -11,6 +11,7 @@ import com.android.utils.ILogger
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.expo.ExpoPublishingHelper
+import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.processors.JNILibsProcessor
 import com.callstack.react.brownfield.processors.ProguardProcessor
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
@@ -83,7 +84,13 @@ class RNBrownfieldPlugin
                 project.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
             }
 
-            val newArtifacts = artifactsResolver.processDefaultDependencies()
+            var expoProjects = listOf<ExpoGradleProjectProjection>()
+            if (this.isExpoProject) {
+                expoProjects = ExpoPublishingHelper(
+                    brownfieldAppProject = project,
+                ).configure()
+            }
+            val newArtifacts = artifactsResolver.processDefaultDependencies(expoProjects)
 
             val jniLibsProcessor = JNILibsProcessor()
             jniLibsProcessor.project = project
@@ -226,12 +233,6 @@ class RNBrownfieldPlugin
                 /** ===== processDataBinding ===== */
                 val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
                 variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variant.name)
-
-                if (this.isExpoProject) {
-                    ExpoPublishingHelper(
-                        brownfieldAppProject = project,
-                    ).afterEvaluate()
-                }
             }
         }
 

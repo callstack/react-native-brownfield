@@ -18,11 +18,11 @@ class ArtifactsResolver(
     private val hasExpo: Boolean,
 ) :
     GradleProps() {
-    fun processDefaultDependencies(): List<UnresolvedArtifactInfo> {
-        return embedDefaultDependencies("implementation")
+    fun processDefaultDependencies(expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
+        return embedDefaultDependencies("implementation", expoProjects)
     }
 
-    private fun embedExpoDependencies(): List<UnresolvedArtifactInfo> {
+    private fun embedExpoDependencies(expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
         /**
          * expo project does not exist in example-android-library so doing an
          * early exit.
@@ -44,13 +44,7 @@ class ArtifactsResolver(
         val expoConfig = expoProject.configurations.findByName("api")
         val unresolvedArtifactInfo = mutableListOf<UnresolvedArtifactInfo>()
 
-        val expoPublishingHelper =
-            ExpoPublishingHelper(
-                brownfieldAppProject = baseProject.project,
-            )
-
         val expoPublishedProjects = mutableMapOf<String, ExpoGradleProjectProjection>()
-        val expoProjects = expoPublishingHelper.getDiscoverableExpoProjects()
         expoProjects.filter { it.usePublication }.forEach {
             val artifactId = it.publication?.artifactId
             if (artifactId != null) {
@@ -119,10 +113,10 @@ class ArtifactsResolver(
         return unresolvedArtifactInfo
     }
 
-    private fun embedDefaultDependencies(configName: String): List<UnresolvedArtifactInfo> {
+    private fun embedDefaultDependencies(configName: String, expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
         var unresolvedArtifactInfo = mutableListOf<UnresolvedArtifactInfo>()
         if (this.hasExpo) {
-            unresolvedArtifactInfo = embedExpoDependencies().toMutableList()
+            unresolvedArtifactInfo = embedExpoDependencies(expoProjects).toMutableList()
         }
 
         val project = baseProject.project

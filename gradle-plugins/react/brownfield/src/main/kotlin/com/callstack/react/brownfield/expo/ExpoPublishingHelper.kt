@@ -30,7 +30,7 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
 }
 
 open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
-    fun afterEvaluate() {
+    fun configure(): List<ExpoGradleProjectProjection> {
         val discoverableExpoProjects = getDiscoverableExpoProjects()
 
         Logging.log(
@@ -58,6 +58,8 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
         reconfigurePOM(expoTransitiveDependencies)
         reconfigureGradleModuleJSON(expoTransitiveDependencies)
+
+        return discoverableExpoProjects
     }
 
     protected fun shouldExcludeDependency(
