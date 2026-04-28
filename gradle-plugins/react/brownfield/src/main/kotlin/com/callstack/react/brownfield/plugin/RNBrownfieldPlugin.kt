@@ -86,11 +86,12 @@ class RNBrownfieldPlugin
 
             var expoProjects = listOf<ExpoGradleProjectProjection>()
             if (this.isExpoProject) {
-                expoProjects = ExpoPublishingHelper(
-                    brownfieldAppProject = project,
-                ).configure()
+                expoProjects =
+                    ExpoPublishingHelper(
+                        brownfieldAppProject = project,
+                    ).configure()
             }
-            val newArtifacts = artifactsResolver.processDefaultDependencies(expoProjects)
+            val artifacts = artifactsResolver.processDefaultDependencies(expoProjects)
 
             val jniLibsProcessor = JNILibsProcessor()
             jniLibsProcessor.project = project
@@ -116,22 +117,20 @@ class RNBrownfieldPlugin
                         task.minifyEnabled.set(variant.buildType.isMinifyEnabled)
 
                         val finalArtifacts = mutableListOf<UnresolvedArtifactInfo>()
-                        newArtifacts.forEach { newArt ->
-                            if (newArt.isExpoPublishDependency == true) {
+                        artifacts.forEach { art ->
+                            if (art.isExpoPublishDependency == true) {
                                 finalArtifacts.add(
                                     UnresolvedArtifactInfo(
-                                        newArt.moduleGroup,
-                                        newArt.moduleName,
-                                        newArt.moduleVersion,
-                                        newArt.file,
-                                        null,
-                                        null,
-                                        isExpoPublishDependency = newArt.isExpoPublishDependency,
+                                        art.moduleGroup,
+                                        art.moduleName,
+                                        art.moduleVersion,
+                                        art.file,
+                                        isExpoPublishDependency = art.isExpoPublishDependency,
                                     ),
                                 )
                             } else {
                                 val defaultTaskName = "bundle${capitalizedVariantName}Aar"
-                                val dependencyProject = project.project(":${newArt.moduleName}")
+                                val dependencyProject = project.project(":${art.moduleName}")
                                 val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
                                 val taskName = bundleTaskProvider?.name ?: defaultTaskName
 
@@ -140,13 +139,11 @@ class RNBrownfieldPlugin
                                 val artifactFile = createArtifactFile(bundleTaskProvider?.get() as Task)
                                 finalArtifacts.add(
                                     UnresolvedArtifactInfo(
-                                        newArt.moduleGroup,
-                                        newArt.moduleName,
-                                        newArt.moduleVersion,
+                                        art.moduleGroup,
+                                        art.moduleName,
+                                        art.moduleVersion,
                                         artifactFile.absolutePath,
-                                        setOf(":${newArt.moduleName}:$taskName"),
-                                        taskName,
-                                        isExpoPublishDependency = newArt.isExpoPublishDependency,
+                                        isExpoPublishDependency = art.isExpoPublishDependency,
                                     ),
                                 )
                             }
@@ -158,7 +155,7 @@ class RNBrownfieldPlugin
                 preBuildTaskByVariant(capitalizedVariantName, explodeTask)
 
                 val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
-                newArtifacts.forEach { art ->
+                artifacts.forEach { art ->
                     val archiveLibrary =
                         AndroidArchiveLibrary(
                             this.project,

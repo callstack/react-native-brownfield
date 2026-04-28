@@ -10,8 +10,6 @@ interface ModuleInfo {
     val type: String
         get() = "aar"
 
-    val dependencies: Set<String>?
-    val bundleTaskName: String?
     val isExpoPublishDependency: Boolean?
 }
 
@@ -20,7 +18,5 @@ data class UnresolvedArtifactInfo(
     override val moduleName: String,
     override val moduleVersion: String,
     override val file: String?,
-    override val dependencies: Set<String>?,
-    override val bundleTaskName: String?,
     override val isExpoPublishDependency: Boolean?,
 ) : ModuleInfo

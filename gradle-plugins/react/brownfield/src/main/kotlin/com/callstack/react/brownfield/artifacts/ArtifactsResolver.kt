@@ -1,8 +1,7 @@
 package com.callstack.react.brownfield.artifacts
 
-import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
-import com.callstack.react.brownfield.plugin.ProjectConfigurations.Companion.CONFIG_NAME
+import com.callstack.react.brownfield.expo.utils.LocalMavenUtils
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.GradleProps
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
@@ -18,8 +17,12 @@ class ArtifactsResolver(
     private val hasExpo: Boolean,
 ) :
     GradleProps() {
+    companion object {
+        const val CONFIG_NAME = "implementation"
+    }
+
     fun processDefaultDependencies(expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
-        return embedDefaultDependencies("implementation", expoProjects)
+        return embedDefaultDependencies(expoProjects)
     }
 
     private fun embedExpoDependencies(expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
@@ -31,6 +34,8 @@ class ArtifactsResolver(
             return listOf()
         }
 
+        val project = baseProject.project
+
         /**
          * The expo third party dependencies are linked to `expo` project.
          * They are linked via `api` configuration and in two ways. In the
@@ -40,7 +45,7 @@ class ArtifactsResolver(
          * We get those dependencies of `expo` project and add those to the consumer
          * library project.
          */
-        val expoProject = baseProject.project.rootProject.project("expo")
+        val expoProject = project.rootProject.project("expo")
         val expoConfig = expoProject.configurations.findByName("api")
         val unresolvedArtifactInfo = mutableListOf<UnresolvedArtifactInfo>()
 
@@ -57,7 +62,7 @@ class ArtifactsResolver(
                 if (it is DefaultProjectDependency) {
                     val projectDependency =
                         expoProject.dependencies.project(mapOf("path" to ":${it.name}"))
-                    baseProject.project.dependencies.add(
+                    project.dependencies.add(
                         CONFIG_NAME,
                         projectDependency,
                     )
@@ -68,41 +73,33 @@ class ArtifactsResolver(
                             projectDependency.name,
                             projectDependency.version.toString(),
                             null,
-                            null,
-                            null,
                             isExpoPublishDependency = false,
                         ),
                     )
                 } else {
-                    baseProject.project.dependencies.add(
+                    project.dependencies.add(
                         CONFIG_NAME,
                         it,
                     )
 
                     val projectDependency = expoPublishedProjects[it.name]
-                    val projectDir = File(projectDependency?.sourceDir)
-                    val expoPkgLocalMavenRepo = projectDir.parentFile.resolve("local-maven-repo")
-                    val publication = projectDependency?.publication
-                    val artifactFile =
-                        expoPkgLocalMavenRepo
-                            .resolve(
-                                "${
-                                    publication?.groupId?.replace(
-                                        '.',
-                                        '/',
-                                    )
-                                }/${publication?.artifactId}/${publication?.version}/" +
-                                    "${publication?.artifactId}-${publication?.version}.aar",
-                            )
+                    val sourceDir = projectDependency?.sourceDir ?: return@forEach
+
+                    val projectName = projectDependency.name
+                    val projectDir = File(sourceDir)
+                    val expoLocalMavenRepo = projectDir.parentFile.resolve("local-maven-repo")
+                    val publication =
+                        LocalMavenUtils.getPublishingInfo(projectDependency, project)
+                            ?: error(LocalMavenUtils.publishingNotFound(projectName))
+
+                    val artifactFile = LocalMavenUtils.getAarFile(expoLocalMavenRepo, publication)
 
                     unresolvedArtifactInfo.add(
                         UnresolvedArtifactInfo(
-                            it.name.toString(),
-                            projectDependency?.name ?: it.name,
+                            it.group.toString(),
+                            projectName,
                             it.version.toString(),
                             artifactFile.absolutePath,
-                            null,
-                            null,
                             isExpoPublishDependency = true,
                         ),
                     )
@@ -113,7 +110,7 @@ class ArtifactsResolver(
         return unresolvedArtifactInfo
     }
 
-    private fun embedDefaultDependencies(configName: String, expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
+    private fun embedDefaultDependencies(expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
         var unresolvedArtifactInfo = mutableListOf<UnresolvedArtifactInfo>()
         if (this.hasExpo) {
             unresolvedArtifactInfo = embedExpoDependencies(expoProjects).toMutableList()
@@ -123,7 +120,7 @@ class ArtifactsResolver(
         val projectExt = project.extensions.getByType(Extension::class.java)
         val appProject = project.rootProject.project(projectExt.appProjectName)
 
-        val config = project.rootProject.project(appProject.path).configurations.findByName(configName)
+        val config = project.rootProject.project(appProject.path).configurations.findByName(CONFIG_NAME)
         val defaultDependencies = config?.dependencies?.filterIsInstance<DefaultProjectDependency>()
         defaultDependencies?.forEach { dependency ->
             if (extension.resolveLocalDependencies) {
@@ -139,8 +136,6 @@ class ArtifactsResolver(
                         projectDependency.group.toString(),
                         projectDependency.name,
                         projectDependency.version.toString(),
-                        null,
-                        null,
                         null,
                         isExpoPublishDependency = false,
                     ),
