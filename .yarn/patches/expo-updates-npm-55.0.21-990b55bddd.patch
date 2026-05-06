@@ -1,3 +1,17 @@
+diff --git a/android/build.gradle b/android/build.gradle
+index 96acaf0f66e2e62252fb56b65db17f261e684773..0599b2a81494d2e5aa37cd1815a4d4506d99e2ae 100644
+--- a/android/build.gradle
++++ b/android/build.gradle
+@@ -115,9 +115,6 @@ android {
+     unitTests.includeAndroidResources = true
+ 
+     packagingOptions {
+-      pickFirst "**/libfbjni.so"
+-      pickFirst "**/libc++_shared.so"
+-
+       resources.excludes.add("META-INF/LICENSE.md")
+       resources.excludes.add("META-INF/LICENSE-notice.md")
+     }
 diff --git a/android/src/main/java/expo/modules/updates/UpdatesController.kt b/android/src/main/java/expo/modules/updates/UpdatesController.kt
 index 9abf5b3bb92cda5bc4ab7501c35abe2bffeed59c..4ce541561208d8cd1ccaaf46f49211a5818a4015 100644
 --- a/android/src/main/java/expo/modules/updates/UpdatesController.kt
@@ -109,7 +123,7 @@ index 4cbb7670f0a1853f9ecc9a5e41d033884df793fb..6a74db0df9083635588534e88fb154cd
      }
  
 diff --git a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
-index 7392ca808be584f994a26f5b7294cd2d29f1fc8d..23252f652bcfbab569541d5ed2d371b7843e2e09 100644
+index 7392ca808be584f994a26f5b7294cd2d29f1fc8d..39dccdd3c2ee165653a94f8404f8a7489d51e4d2 100644
 --- a/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
 +++ b/android/src/main/java/expo/modules/updates/procedures/RestartReactAppExtensions.kt
 @@ -2,19 +2,29 @@ package expo.modules.updates.procedures
@@ -154,29 +168,3 @@ index 7392ca808be584f994a26f5b7294cd2d29f1fc8d..23252f652bcfbab569541d5ed2d371b7
    }
 -  reactHost.reload(reason)
  }
-\ No newline at end of file
-diff --git a/android/build.gradle b/android/build.gradle
-index c0f4ed40a0ad93db7cd77adf8f95f6641f4207ee..f52a0de0e844fd0e7ca514db358b42f6997d98bb 100644
---- a/android/build.gradle
-+++ b/android/build.gradle
-@@ -114,20 +114,17 @@ android {
-   testOptions {
-     unitTests.includeAndroidResources = true
- 
-     packagingOptions {
--      pickFirst "**/libfbjni.so"
--      pickFirst "**/libc++_shared.so"
--
-       resources.excludes.add("META-INF/LICENSE.md")
-       resources.excludes.add("META-INF/LICENSE-notice.md")
-     }
-   }
-   packagingOptions {
-     excludes += [
-       "**/libc++_shared.so",
-       "**/libfbjni.so",
-     ]
-   }
-   sourceSets {
-     main.assets.srcDirs += files("$projectDir/src/main/certificates".toString())
-     androidTest.assets.srcDirs += files("$projectDir/src/androidTest/schemas".toString())
