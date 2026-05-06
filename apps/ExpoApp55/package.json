@@ -13,7 +13,7 @@
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release",
-    "eas:stg": "eas update --channel production --message 'testing 1st stg channel update' --platform android --environment staging"
+    "eas:stg": "EXPO_TOKEN=$EAS_TOKEN eas update --channel production --message 'testing 1st stg channel update' --platform ios --environment staging"
   },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
@@ -35,7 +35,7 @@
     "expo-status-bar": "~55.0.4",
     "expo-symbols": "~55.0.5",
     "expo-system-ui": "~55.0.9",
-    "expo-updates": "patch:expo-updates@npm%3A55.0.20#~/.yarn/patches/expo-updates-npm-55.0.20-be281bcd39.patch",
+    "expo-updates": "55.0.21",
     "expo-web-browser": "~55.0.8",
     "react": "19.2.0",
     "react-dom": "19.2.0",
