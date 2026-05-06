@@ -82,3 +82,4 @@ secring.gpg
 
 # Typescript
 **/*.tsbuildinfo
+packages/react-native-brownfield/ios/.build/

@@ -85,6 +85,16 @@ final class ExpoHostRuntime {
       delegate.bundle = bundle
     }
   }
+
+  /**
+   * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
+   * Default value: false
+   */
+  public var preferBundledBundleInDebug: Bool = false {
+    didSet {
+      delegate.preferBundledBundleInDebug = preferBundledBundleInDebug
+    }
+  }
   /**
    * Dynamic bundle URL provider called on every bundle load.
    * When set, this overrides the default bundleURL() behavior in the delegate.
@@ -157,6 +167,7 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
   var entryFile = ".expo/.virtual-metro-entry"
   var bundlePath = "main.jsbundle"
   var bundle = Bundle.main
+  var preferBundledBundleInDebug = false
   var bundleURLOverride: (() -> URL?)? = nil
 
   override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -165,21 +176,28 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
   }
 
   override func bundleURL() -> URL? {
-    if let bundleURLProvider = bundleURLOverride { return bundleURLProvider() }
-#if DEBUG
-    return RCTBundleURLProvider.sharedSettings().jsBundleURL(
-      forBundleRoot: entryFile)
-#else
     do {
-      let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
-        from: bundlePath
+      #if DEBUG
+      let isDebug = true
+      #else
+      let isDebug = false
+      #endif
+
+      return try BrownfieldBundleURLResolver.resolve(
+        isDebug: isDebug,
+        preferBundledBundleInDebug: preferBundledBundleInDebug,
+        bundlePath: bundlePath,
+        bundle: bundle,
+        bundleURLOverride: bundleURLOverride,
+        metroURL: {
+          RCTBundleURLProvider.sharedSettings().jsBundleURL(
+            forBundleRoot: entryFile)
+        }
       )
-      return bundle.url(forResource: resourceName, withExtension: fileExtension)
     } catch {
       assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")
       return nil
     }
-#endif
   }
 }
 #endif

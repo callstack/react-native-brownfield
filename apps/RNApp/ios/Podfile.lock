@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BrownfieldNavigation (3.6.0):
+  - BrownfieldNavigation (3.6.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -28,7 +28,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - Brownie (3.6.0):
+  - Brownie (3.6.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2461,7 +2461,7 @@ PODS:
     - SocketRocket
   - ReactAppDependencyProvider (0.85.0):
     - ReactCodegen
-  - ReactBrownfield (3.6.0):
+  - ReactBrownfield (3.6.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2898,14 +2898,14 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  BrownfieldNavigation: 0a4abcd0295639640d0222ac5c47ab63d94983c8
-  Brownie: c75e781646955724c3b385e1a53704cc06491bf0
+  BrownfieldNavigation: 814180cb04b5cef3ecc4da5f7c91e83f8b5e4d24
+  Brownie: cd20e6cc71ab50983941cdb371c22a8f55d3e232
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: dfb9ab6ee2eac316f7869edf6ec27b9e872329f0
   fmt: 530618a01105dae0fa3a2f27c81ae11fa8f67eac
   glog: e56ede4028c4b7418e6b1195a36b1656bb35e225
-  hermes-engine: 133acc7688f66a6db232bff7de874c7129b01e1e
+  hermes-engine: 4d7529a5cdee0d79a872e3f164da84c1ec01f559
   RCT-Folly: 36c4f904fb6cd0219dcb76b94e9502d2a72fab0b
   RCTDeprecation: df7412cdad525035c3adeb14c1dc35b344e98187
   RCTRequired: 28a4bf1ef190650fcd6973d8a6a8f8beb30ef807
@@ -2974,7 +2974,7 @@ SPEC CHECKSUMS:
   React-utils: f2dc3878565c3cc54bdf7f65a106efaf93f189a6
   React-webperformancenativemodule: 214e42892a044b865f73ad4f88cac6979c27aa76
   ReactAppDependencyProvider: 5787b37b8e2e51dfeab697ec031cc7c4080dcea2
-  ReactBrownfield: 9e36bd174c53254c7a283a6305a4b26589e75f97
+  ReactBrownfield: 4ff15e707d420a617cb8ad1a225f03a88f0baf3f
   ReactCodegen: 6ddd8f44847646a047320a22f5ddb10b27a515c9
   ReactCommon: 6a42764f1136fb9ac210e05e88a0733a00ee23d3
   RNScreens: e902eba58a27d3ad399a495d578e8aba3ea0f490

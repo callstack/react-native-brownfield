@@ -50,6 +50,25 @@ jobs:
         run: |
           yarn workspace @callstack/react-native-brownfield brownfield --version
 
+  ios-native-tests:
+    name: iOS native tests
+    runs-on: macos-26
+    needs: build-lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Run Swift bundle resolver tests
+        run: |
+          cd packages/react-native-brownfield/ios
+          mkdir -p "$RUNNER_TEMP/swift-home" "$RUNNER_TEMP/swift-cache/clang" "$RUNNER_TEMP/swift-cache/swiftpm"
+          HOME="$RUNNER_TEMP/swift-home" \
+          CLANG_MODULE_CACHE_PATH="$RUNNER_TEMP/swift-cache/clang" \
+          swift test --scratch-path "$RUNNER_TEMP/swift-cache/swiftpm"
+
   android-androidapp-expo:
     name: Android road test (RNApp & AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest

@@ -56,6 +56,20 @@ internal import Expo
   }
 
   /**
+   * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
+   * Default value: false
+   */
+  @objc public var preferBundledBundleInDebug: Bool = false {
+    didSet {
+      #if canImport(Expo)
+      ExpoHostRuntime.shared.preferBundledBundleInDebug = preferBundledBundleInDebug
+      #else
+      ReactNativeHostRuntime.shared.preferBundledBundleInDebug = preferBundledBundleInDebug
+      #endif
+    }
+  }
+
+  /**
    * Dynamic bundle URL provider called on every bundle load.
    * When set, this overrides the default bundleURL() behavior in the delegate.
    * Returns a URL to load a custom bundle, or nil to use default behavior.
