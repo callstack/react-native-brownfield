@@ -34,7 +34,6 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         private lateinit var instance: ReactNativeBrownfield
         private val initialized = AtomicBoolean()
         private val nativeLibsLoaded = AtomicBoolean()
-        private const val LOG_TAG = "ReactNativeBrownfield"
 
         @JvmStatic
         val shared: ReactNativeBrownfield get() = instance
@@ -50,6 +49,12 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             load()
         }
 
+        @Deprecated(
+            message = "Unsafe when reactHost construction triggers SoLoader (e.g. ExpoReactHostFactory): " +
+                "the parameter is evaluated by the caller before loadNativeLibs() runs. " +
+                "Use initialize(application, onJSBundleLoaded) { reactHostFactory } instead.",
+            replaceWith = ReplaceWith("initialize(application, onJSBundleLoaded) { reactHost }")
+        )
         @JvmStatic
         @JvmOverloads
         fun initialize(
@@ -59,14 +64,22 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         ) {
             if (!initialized.getAndSet(true)) {
                 loadNativeLibs(application)
-                instance = ReactNativeBrownfield(reactHost)
-
-                preloadReactNative {
-                    onJSBundleLoaded?.invoke(true)
-                }
+                installAndPreload(reactHost, onJSBundleLoaded)
             }
         }
 
+        @JvmStatic
+        fun initialize(
+            application: Application,
+            onJSBundleLoaded: OnJSBundleLoaded? = null,
+            reactHostFactory: () -> ReactHost
+        ) {
+            if (!initialized.getAndSet(true)) {
+                loadNativeLibs(application)
+                installAndPreload(reactHostFactory(), onJSBundleLoaded)
+            }
+        }
+        
         @JvmStatic
         @JvmOverloads
         fun initialize(
@@ -74,10 +87,9 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             options: HashMap<String, Any>,
             onJSBundleLoaded: OnJSBundleLoaded? = null
         ) {
-            loadNativeLibs(application)
-
-            val reactHost: ReactHost by lazy {
-                getDefaultReactHost(
+            if (!initialized.getAndSet(true)) {
+                loadNativeLibs(application)
+                val reactHost = getDefaultReactHost(
                     context = application,
                     packageList = (options["packages"] as? List<*> ?: emptyList<ReactPackage>())
                         .filterIsInstance<ReactPackage>(),
@@ -89,9 +101,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                         ?: ReactBuildConfig.DEBUG,
                     jsRuntimeFactory = null
                 )
+                installAndPreload(reactHost, onJSBundleLoaded)
             }
-
-            initialize(application, reactHost, onJSBundleLoaded)
         }
 
         @JvmStatic
@@ -115,6 +126,13 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                 }
             })
             shared.reactHost.start()
+        }
+
+        private fun installAndPreload(reactHost: ReactHost, onJSBundleLoaded: OnJSBundleLoaded?) {
+            instance = ReactNativeBrownfield(reactHost)
+            preloadReactNative {
+                onJSBundleLoaded?.invoke(true)
+            }
         }
     }
 

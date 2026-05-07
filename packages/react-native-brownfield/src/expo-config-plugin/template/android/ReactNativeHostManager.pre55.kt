@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import com.callstack.reactnativebrownfield.OnJSBundleLoaded
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.PackageList
-import com.facebook.react.ReactHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
@@ -34,15 +33,12 @@ object ReactNativeHostManager {
                 override fun getBundleAssetName(): String = "index.android.bundle"
             })
 
-
-        val reactHost: ReactHost by lazy {
+        ReactNativeBrownfield.initialize(application, onJSBundleLoaded) {
             ExpoReactHostFactory.createFromReactNativeHost(
                 context = application.applicationContext,
                 reactNativeHost = reactNativeHost
             )
         }
-
-        ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)
     }
 
     fun onConfigurationChanged(application: Application, newConfig: Configuration) {
