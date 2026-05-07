@@ -41,17 +41,41 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
     companion object {
         private lateinit var instance: ReactNativeBrownfield
         private val initialized = AtomicBoolean()
+        private val nativeLibsLoaded = AtomicBoolean()
         private const val LOG_TAG = "ReactNativeBrownfield"
 
         @JvmStatic
         val shared: ReactNativeBrownfield get() = instance
 
         private fun loadNativeLibs(application: Application) {
+            if (!nativeLibsLoaded.getAndSet(true)) {
+                loadNativeLibsInternal(application)
+            }
+        }
+
+        private fun loadNativeLibsInternal(application: Application) {
             val rnVersion = BuildConfig.RN_VERSION
 
             if (VersionUtils.isVersionLessThan(rnVersion, RN_THRESHOLD_VERSION)) {
                 SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
                 load()
+            } else {
+                try {
+                    val reactNativeApplicationEntryPointClazz =
+                        Class.forName("com.facebook.react.ReactNativeApplicationEntryPoint")
+                    val loadReactNativeMethod = reactNativeApplicationEntryPointClazz.getMethod(
+                        "loadReactNative",
+                        android.content.Context::class.java
+                    )
+                    loadReactNativeMethod.invoke(null, application.applicationContext)
+                } catch (e: ClassNotFoundException) {
+                    throw RuntimeException(
+                        "ReactNativeApplicationEntryPoint not found. Ensure the brownfield AAR " +
+                        "consumer-rules.pro is applied and ReactNativeApplicationEntryPoint is " +
+                        "not stripped by R8."
+                        e
+                    )
+                }
             }
         }
 
@@ -79,6 +103,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             options: HashMap<String, Any>,
             onJSBundleLoaded: OnJSBundleLoaded? = null
         ) {
+            loadNativeLibs(application)
+
             val reactHost: ReactHost by lazy {
                 getDefaultReactHost(
                     context = application,
