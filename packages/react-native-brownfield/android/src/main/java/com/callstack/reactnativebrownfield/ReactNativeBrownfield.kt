@@ -72,7 +72,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                     throw RuntimeException(
                         "ReactNativeApplicationEntryPoint not found. Ensure the brownfield AAR " +
                         "consumer-rules.pro is applied and ReactNativeApplicationEntryPoint is " +
-                        "not stripped by R8."
+                        "not stripped by R8.",
                         e
                     )
                 }
