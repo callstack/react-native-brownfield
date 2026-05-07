@@ -26,6 +26,7 @@ import {
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
@@ -96,6 +97,40 @@ export const packageIosCommand = curryOptions(
       platformConfig
     );
 
+    const productsPath = path.join(options.buildFolder, 'Build', 'Products');
+    const frameworkName = options.scheme;
+
+    if (frameworkName) {
+      copyDebugBundleToSimulatorSlice({
+        productsPath,
+        configuration,
+        frameworkName,
+      });
+
+      if (configuration.includes('Debug')) {
+        await mergeFrameworks({
+          sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              `${frameworkName}.framework`
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              `${frameworkName}.framework`
+            ),
+          ],
+          outputPath: path.join(packageDir, `${frameworkName}.xcframework`),
+        });
+      }
+    } else if (configuration.includes('Debug')) {
+      logger.warn(
+        'Skipping Debug simulator JS bundle copy: scheme is required to locate the framework output'
+      );
+    }
+
     const reactBrownfieldXcframeworkPath = path.join(
       packageDir,
       'ReactBrownfield.xcframework'
@@ -108,7 +143,6 @@ export const packageIosCommand = curryOptions(
     }
 
     if (hasBrownie) {
-      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
 
       await mergeFrameworks({
@@ -141,7 +175,6 @@ export const packageIosCommand = curryOptions(
     }
 
     if (hasNavigation) {
-      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const brownfieldNavigationOutputPath = path.join(packageDir, 'BrownfieldNavigation.xcframework');
   
       await mergeFrameworks({
