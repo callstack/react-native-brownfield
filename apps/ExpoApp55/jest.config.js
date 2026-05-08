@@ -12,8 +12,8 @@ module.exports = {
     ),
     // Match before `@/` so `@/global.css` is stubbed (Expo web styling).
     '^.+\\.css$': '<rootDir>/jest/cssMock.js',
-    '^@/(.*)$': '<rootDir>/src/$1',
     '^@/assets/(.*)$': '<rootDir>/assets/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^@callstack/react-native-brownfield$': path.join(
       __dirname,
       '../../packages/react-native-brownfield/src/index.ts'
