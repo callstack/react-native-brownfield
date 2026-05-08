@@ -12,7 +12,7 @@
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
     "dev": "yarn workspaces foreach -Api run dev",
-    "ci:version": "changeset version && yarn install --no-immutable",
+    "ci:version": "changeset version && yarn install --no-immutable && node --experimental-strip-types --no-warnings ./scripts/consolidate-changelog.ts",
     "ci:publish": "yarn workspaces foreach --no-private -At npm publish && changeset tag",
     "brownfield:plugin:publish:local": "bash ./gradle-plugins/publish-to-maven-local.sh --skip-signing",
     "brownfield:plugin:publish:local:signed": "bash ./gradle-plugins/publish-to-maven-local.sh",
