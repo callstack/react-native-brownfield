@@ -9,7 +9,7 @@ import type {
 } from '../types';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
-import { getExpoInfo } from '../expoUtils';
+import { getExpoInfo, hasExpoUpdatesInstalled } from '../expoUtils';
 import {
   type AndroidManifestMetaDataEntry,
   type AndroidStringResourceEntry,
@@ -21,17 +21,6 @@ import {
   readExpoUpdatesStringResources,
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
-
-function isExpoUpdatesInstalled(projectRoot: string): boolean {
-  try {
-    require.resolve('expo-updates/package.json', {
-      paths: [projectRoot],
-    });
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Creates the Android library module directory structure and files
@@ -70,8 +59,7 @@ export function createAndroidModule({
 }): void {
   const { android } = config;
   const moduleDir = path.join(androidDir, android.moduleName);
-  const hasExpoUpdates =
-    projectRoot !== undefined && isExpoUpdatesInstalled(projectRoot);
+  const hasExpoUpdates = hasExpoUpdatesInstalled(projectRoot);
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 

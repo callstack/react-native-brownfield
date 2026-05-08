@@ -93,10 +93,25 @@ internal import EXUpdates
   }
 }
 
+#if canImport(EXUpdates)
 private final class ReactNativeExpoUpdatesDelegate: NSObject, AppControllerDelegate {
-  var onDidStart: (() -> Void)?
+  private var didStartSuccessfully = false
+  var onDidStart: (() -> Void)? {
+    didSet {
+      if didStartSuccessfully {
+        onDidStart?()
+      }
+    }
+  }
 
   func appController(_ appController: any EXUpdates.AppControllerInterface, didStartWithSuccess success: Bool) {
-      onDidStart?()
+    guard success else {
+      NSLog("%@", "Expo Updates failed to start React Native.")
+      return
+    }
+
+    didStartSuccessfully = true
+    onDidStart?()
   }
 }
+#endif

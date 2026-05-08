@@ -195,10 +195,7 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
       project.hash.project.objects.PBXNativeTarget[frameworkTargetUuid]
     ).toEqual({
       buildPhases: [
-        createCommentedReference(
-          resourcesBuildPhaseUuid,
-          'Resources test comment'
-        ),
+        createCommentedReference(resourcesBuildPhaseUuid, 'Resources'),
       ],
     });
     expect(project.hash.project.objects.PBXResourcesBuildPhase).toEqual({
@@ -208,7 +205,7 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
           'Expo.plist in Resources'
         ),
       ]),
-      [`${resourcesBuildPhaseUuid}_comment`]: 'Resources test comment',
+      [`${resourcesBuildPhaseUuid}_comment`]: 'Resources',
     });
     expect(project.pbxBuildFileSection()).toEqual({
       [expoPlistBuildFileUuid]: {
@@ -216,6 +213,50 @@ describe('ensureFrameworkHasExpoPlistResource', () => {
         fileRef: expoPlistFileRefUuid,
       },
       [`${expoPlistBuildFileUuid}_comment`]: 'Expo.plist in Resources',
+    });
+  });
+
+  it('creates and persists a resources phase when the PBXResourcesBuildPhase section is missing', () => {
+    const frameworkTargetUuid = 'FRAMEWORK_TARGET';
+    const resourcesBuildPhaseUuid = 'CREATED_RESOURCES_BUILD_PHASE';
+    const expoPlistBuildFileUuid = 'CREATED_EXPO_PLIST_BUILD_FILE';
+    const expoPlistFileRefUuid = 'EXISTING_EXPO_PLIST_FILE_REF';
+    const project = createMockXcodeProject({
+      fileReferences: {
+        [expoPlistFileRefUuid]: {
+          path: 'App/Supporting/Expo.plist',
+        },
+        [`${expoPlistFileRefUuid}_comment`]: 'Expo.plist',
+      },
+      groups: {
+        SUPPORTING_GROUP: {
+          name: 'Supporting',
+          children: [
+            createCommentedReference(expoPlistFileRefUuid, 'Expo.plist'),
+          ],
+        },
+        SUPPORTING_GROUP_comment: 'Supporting',
+      },
+      nativeTargets: {
+        [frameworkTargetUuid]: {
+          buildPhases: [],
+        },
+      },
+      uuids: [resourcesBuildPhaseUuid, expoPlistBuildFileUuid],
+    });
+
+    delete project.hash.project.objects.PBXResourcesBuildPhase;
+
+    ensureFrameworkHasExpoPlistResource(project, frameworkTargetUuid);
+
+    expect(project.hash.project.objects.PBXResourcesBuildPhase).toEqual({
+      [resourcesBuildPhaseUuid]: createResourcesBuildPhase([
+        createCommentedReference(
+          expoPlistBuildFileUuid,
+          'Expo.plist in Resources'
+        ),
+      ]),
+      [`${resourcesBuildPhaseUuid}_comment`]: 'Resources',
     });
   });
 
@@ -360,7 +401,7 @@ type MockXcodeProject = {
       objects: {
         PBXGroup: Record<string, any>;
         PBXNativeTarget: Record<string, any>;
-        PBXResourcesBuildPhase: Record<string, any>;
+        PBXResourcesBuildPhase?: Record<string, any>;
       };
     };
   };
@@ -381,7 +422,7 @@ function createMockXcodeProject({
   fileReferences?: Record<string, any>;
   groups: Record<string, any>;
   nativeTargets: Record<string, any>;
-  resourcesBuildPhases: Record<string, any>;
+  resourcesBuildPhases?: Record<string, any>;
   uuids?: string[];
 }): MockXcodeProject {
   return {
@@ -422,6 +463,8 @@ function createCommentedReference(value: string, comment: string) {
   return { value, comment };
 }
 
-function getNonCommentEntries(section: Record<string, unknown>) {
-  return Object.entries(section).filter(([key]) => !key.endsWith('_comment'));
+function getNonCommentEntries(section?: Record<string, unknown>) {
+  return Object.entries(section ?? {}).filter(
+    ([key]) => !key.endsWith('_comment')
+  );
 }

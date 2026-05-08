@@ -19,7 +19,7 @@ type PbxGroupLike = {
 
 const EXPO_PLIST_FILE_NAME = 'Expo.plist';
 const EXPO_PLIST_PRIMARY_RELATIVE_PATH = 'Supporting/Expo.plist';
-const RESOURCES_BUILD_PHASE_COMMENT = 'Resources test comment';
+const RESOURCES_BUILD_PHASE_COMMENT = 'Resources';
 const EXPO_PLIST_RESOURCE_COMMENT = 'Expo.plist in Resources';
 
 function normalizePbxString(value: unknown): string {

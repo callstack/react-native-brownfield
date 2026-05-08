@@ -108,7 +108,7 @@ private fun MainScreen(modifier: Modifier = Modifier) {
             name = ReactNativeConstants.APP_NAME,
         )
 
-//        PostMessageCard()
+       PostMessageCard()
 
         Spacer(modifier = Modifier.height(1.dp))
 

@@ -272,7 +272,10 @@ function getOrCreateResourcesBuildPhaseForTarget(
 ): PbxResourcesBuildPhase {
   const rawProjectObjects = getRawProjectObjects(project);
   const resourceBuildPhases = (rawProjectObjects.PBXResourcesBuildPhase ??
-    {}) as Record<string, PbxResourcesBuildPhase | string>;
+    (rawProjectObjects.PBXResourcesBuildPhase = {})) as Record<
+    string,
+    PbxResourcesBuildPhase | string
+  >;
 
   const resourcesBuildPhaseUuid = (frameworkTarget.buildPhases ?? [])
     .map((phase) => getReferencedUuid(phase))
