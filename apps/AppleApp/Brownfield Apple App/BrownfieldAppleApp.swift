@@ -75,6 +75,7 @@ struct BrownfieldAppleApp: App {
 
     init() {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+        ReactNativeBrownfield.shared.preferBundledBundleInDebug = true
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
         }

@@ -18,6 +18,8 @@ let package = Package(
       name: "BrownfieldBundleSupport",
       path: ".",
       exclude: [
+        "BrownfieldDevLoadingViewBridge.h",
+        "BrownfieldDevLoadingViewBridge.m",
         "ExpoHostRuntime.swift",
         "JSBundleLoadObserver.swift",
         "Notification+Brownfield.swift",

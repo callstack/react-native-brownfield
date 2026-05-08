@@ -14,6 +14,16 @@ final class ExpoHostRuntime {
   private var reactNativeFactory: RCTReactNativeFactory?
   private var expoDelegate: ExpoAppDelegate?
 
+  private func configureDevLoadingView(with bundleURL: URL? = nil) {
+    #if DEBUG
+    let resolvedBundleURL = bundleURL ?? delegate.bundleURL()
+    let shouldDisableDevLoadingView =
+      preferBundledBundleInDebug && (resolvedBundleURL?.isFileURL ?? false)
+
+    BrownfieldDevLoadingViewBridge.setEnabled(!shouldDisableDevLoadingView)
+    #endif
+  }
+
   /**
    * Starts React Native with default parameters.
    */
@@ -27,6 +37,8 @@ final class ExpoHostRuntime {
    */
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
     guard reactNativeFactory == nil else { return }
+
+    configureDevLoadingView()
 
     let appDelegate = ExpoAppDelegate()
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -142,6 +154,7 @@ final class ExpoHostRuntime {
     launchOptions: [AnyHashable: Any]?
   ) -> UIView? {
     let bundleURL = delegate.bundleURL()
+    configureDevLoadingView(with: bundleURL)
 
     // below: https://github.com/expo/expo/commit/2013760c46cde1404872d181a691da72fbf207a4
     // has moved the recreateRootView method to ExpoReactNativeFactory

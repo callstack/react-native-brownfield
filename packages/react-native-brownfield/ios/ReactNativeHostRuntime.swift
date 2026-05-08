@@ -45,6 +45,15 @@ final class ReactNativeHostRuntime {
   private let jsBundleLoadObserver = JSBundleLoadObserver()
   private var delegate = ReactNativeBrownfieldDelegate()
 
+  private func configureDevLoadingView() {
+    #if DEBUG
+    let shouldDisableDevLoadingView =
+      preferBundledBundleInDebug && (delegate.bundleURL()?.isFileURL ?? false)
+
+    BrownfieldDevLoadingViewBridge.setEnabled(!shouldDisableDevLoadingView)
+    #endif
+  }
+
   /**
    * Path to JavaScript root.
    * Default value: "index"
@@ -127,7 +136,9 @@ final class ReactNativeHostRuntime {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    reactNativeFactory?.rootViewFactory.view(
+    configureDevLoadingView()
+
+    return reactNativeFactory?.rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions
@@ -167,6 +178,8 @@ final class ReactNativeHostRuntime {
    */
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
     guard reactNativeFactory == nil else { return }
+
+    configureDevLoadingView()
 
     delegate.dependencyProvider = RCTAppDependencyProvider()
     reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
