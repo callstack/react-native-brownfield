@@ -37,6 +37,7 @@ class GradleILogger(
         logger.debug(formatMessage(msgFormat, args))
     }
 
+    @Suppress("SpreadOperator") // Required for Java vararg interop with String.format.
     private fun formatMessage(
         msgFormat: String?,
         args: Array<out Any?>,
