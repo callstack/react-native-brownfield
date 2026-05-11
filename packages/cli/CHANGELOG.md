@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 3.6.1
+
+### Patch Changes
+
+- [#305](https://github.com/callstack/react-native-brownfield/pull/305) [`eab53d9`](https://github.com/callstack/react-native-brownfield/commit/eab53d9f7b93f38e13185020fcf8a7af23df0d05) Thanks [@hurali97](https://github.com/hurali97)! - fix securiy vulnerabilities
+
 ## 3.6.0
 
 ### Patch Changes
