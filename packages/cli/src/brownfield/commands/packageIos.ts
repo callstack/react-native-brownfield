@@ -27,6 +27,7 @@ import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieC
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
+import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
@@ -98,7 +99,13 @@ export const packageIosCommand = curryOptions(
     );
 
     const productsPath = path.join(options.buildFolder, 'Build', 'Products');
-    const frameworkName = options.scheme;
+    const { frameworkName, resolution, candidates } = resolvePackagedFrameworkName(
+      {
+        explicitScheme: options.scheme,
+        productsPath,
+        configuration,
+      }
+    );
 
     if (frameworkName) {
       copyDebugBundleToSimulatorSlice({
@@ -126,9 +133,12 @@ export const packageIosCommand = curryOptions(
         });
       }
     } else if (configuration.includes('Debug')) {
-      logger.warn(
-        'Skipping Debug simulator JS bundle copy: scheme is required to locate the framework output'
-      );
+      const debugResolutionMessage =
+        resolution === 'ambiguous'
+          ? `Skipping Debug simulator JS bundle copy: found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
+          : 'Skipping Debug simulator JS bundle copy: could not resolve the packaged framework output automatically; pass --scheme explicitly';
+
+      logger.warn(debugResolutionMessage);
     }
 
     const reactBrownfieldXcframeworkPath = path.join(
