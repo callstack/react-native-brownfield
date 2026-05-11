@@ -8,7 +8,6 @@ import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Copy
 import java.io.File
 
@@ -16,9 +15,6 @@ object RNSourceSets {
     private lateinit var project: Project
     private lateinit var extension: Extension
     private lateinit var androidExtension: LibraryExtension
-    private lateinit var appProject: Project
-    private lateinit var appBuildDir: Directory
-    private lateinit var moduleBuildDir: Directory
 
     fun configure(
         project: Project,
@@ -37,13 +33,16 @@ object RNSourceSets {
         this.extension = extension
 
         androidExtension = this.project.extensions.getByType(LibraryExtension::class.java)
-        appProject = this.project.rootProject.project(RNSourceSets.extension.appProjectName)
-        appBuildDir = appProject.layout.buildDirectory.get()
-        moduleBuildDir = this.project.layout.buildDirectory.get()
 
         configureSourceSets()
         configureTasks()
     }
+
+    private fun getAppProject(): Project = project.rootProject.project(extension.appProjectName)
+
+    private fun getAppBuildDir() = getAppProject().layout.buildDirectory.get()
+
+    private fun getModuleBuildDir() = project.layout.buildDirectory.get()
 
     private fun configureSourceSets() {
         // 1. Get the 'androidComponents' extension for the new Variant API
@@ -52,7 +51,7 @@ object RNSourceSets {
         // Move the non-variant-specific configuration out of the loop
         androidExtension.sourceSets.named("main") { sourceSet ->
             // This path is not variant-specific, so it's added once here.
-            sourceSet.java.srcDir("$moduleBuildDir/generated/autolinking/src/main/java")
+            sourceSet.java.srcDir("${getModuleBuildDir()}/generated/autolinking/src/main/java")
         }
 
         // 2. Use the onVariants block to configure each variant
@@ -69,6 +68,7 @@ object RNSourceSets {
                     )
 
                 // Add the variant-specific generated asset and resource directories
+                val appBuildDir = getAppBuildDir()
                 sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
                 sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
             }
@@ -100,12 +100,12 @@ object RNSourceSets {
          * If `generateReactNativeEntryPoint` task does not exist, we early return. It means
          * the consumer library is running on RN version < 0.80
          */
-        val rnEntryPointTask = appProject.tasks.findByName(rnEntryPointTaskName) ?: return
+        val rnEntryPointTask = getAppProject().tasks.findByName(rnEntryPointTaskName) ?: return
 
         task.dependsOn(rnEntryPointTask)
         val sourceFile =
             File(
-                moduleBuildDir.toString(),
+                getModuleBuildDir().toString(),
                 "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java",
             )
         task.doLast {
@@ -127,13 +127,12 @@ object RNSourceSets {
     }
 
     private fun configureTasks() {
-        val appProjectName = appProject.name
-
         project.tasks.register("copyAutolinkingSources", Copy::class.java) {
             val path = "generated/autolinking/src/main/java"
-            it.dependsOn(":$appProjectName:generateAutolinkingPackageList")
+            val appBuildDir = getAppBuildDir()
+            it.dependsOn(":${getAppProject().name}:generateAutolinkingPackageList")
             it.from("$appBuildDir/$path")
-            it.into("$moduleBuildDir/$path")
+            it.into("${getModuleBuildDir()}/$path")
 
             patchRNEntryPoint(it, path)
         }
