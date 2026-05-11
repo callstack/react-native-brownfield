@@ -171,10 +171,10 @@ function consolidate(): void {
 
   if (fs.existsSync(ROOT_CHANGELOG)) {
     const content = fs.readFileSync(ROOT_CHANGELOG, 'utf-8');
-    const firstVersionIdx = content.indexOf('\n## ');
-    if (firstVersionIdx !== -1) {
-      header = content.slice(0, firstVersionIdx + 1);
-      body = content.slice(firstVersionIdx + 1);
+    const firstHeadingMatch = content.match(/^## /m);
+    if (firstHeadingMatch && firstHeadingMatch.index !== undefined) {
+      header = content.slice(0, firstHeadingMatch.index);
+      body = content.slice(firstHeadingMatch.index);
     } else {
       header = content.endsWith('\n') ? content : content + '\n';
       body = '';
