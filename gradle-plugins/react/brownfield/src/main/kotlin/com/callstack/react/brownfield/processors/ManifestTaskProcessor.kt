@@ -9,6 +9,7 @@ import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.capitalized
+import org.apache.tools.ant.BuildException
 import org.gradle.api.Project
 import java.io.BufferedWriter
 import java.io.File
@@ -57,6 +58,12 @@ object ManifestTaskProcessor {
 
         mergerInvoker.addManifestProviders(manifestProviders)
         val mergingReport: MergingReport = mergerInvoker.merge()
+
+        if (mergingReport.result.isError) {
+            logger.error(mergingReport.reportString)
+            mergingReport.log(iLogger)
+            throw BuildException(mergingReport.reportString)
+        }
 
         BufferedWriter(OutputStreamWriter(FileOutputStream(outputFile), "UTF-8")).use { writer ->
             writer.append(mergingReport.getMergedDocument(MergingReport.MergedManifestKind.MERGED))
