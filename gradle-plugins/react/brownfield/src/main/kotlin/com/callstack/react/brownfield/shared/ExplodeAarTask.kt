@@ -38,6 +38,13 @@ abstract class ExplodeAarTask : DefaultTask() {
 
         val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
         artifacts.forEach { art ->
+            val artifactFile =
+                requireNotNull(art.file) {
+                    "Missing AAR file for artifact ${art.moduleGroup}:${art.moduleName}:${art.moduleVersion} " +
+                        "while exploding variant $resolvedVariantName. Ensure the artifact is resolved " +
+                        "or the dependency is configured to produce an AAR before running this task."
+                }
+
             val archiveLibrary =
                 AndroidArchiveLibrary(
                     this.project,
@@ -53,7 +60,7 @@ abstract class ExplodeAarTask : DefaultTask() {
 
             project.copy {
                 zipFolder.deleteRecursively()
-                it.from(project.zipTree(art.file))
+                it.from(project.zipTree(artifactFile))
                 it.into(zipFolder)
             }
         }
