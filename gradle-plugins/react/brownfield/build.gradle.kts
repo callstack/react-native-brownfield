@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.detekt)
     `maven-publish`
     signing
-    kotlin("plugin.serialization") version "1.9.24"
 }
 
 ktlint {
