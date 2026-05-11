@@ -7,7 +7,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.callstack.reactnativebrownfield.utils.VersionUtils
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactPackage
@@ -28,13 +27,6 @@ fun interface OnMessageListener {
     fun onMessage(message: String)
 }
 
-/**
- * The threshold RN version based on which we decide whether to
- * load JNI libs or not. We only load JNI libs on version less
- * than this.
- */
-private const val RN_THRESHOLD_VERSION = "0.80.0"
-
 class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
     private val messageListeners = CopyOnWriteArrayList<OnMessageListener>()
 
@@ -54,29 +46,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
 
         private fun loadNativeLibsInternal(application: Application) {
-            val rnVersion = BuildConfig.RN_VERSION
-
-            if (VersionUtils.isVersionLessThan(rnVersion, RN_THRESHOLD_VERSION)) {
-                SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
-                load()
-            } else {
-                try {
-                    val reactNativeApplicationEntryPointClazz =
-                        Class.forName("com.facebook.react.ReactNativeApplicationEntryPoint")
-                    val loadReactNativeMethod = reactNativeApplicationEntryPointClazz.getMethod(
-                        "loadReactNative",
-                        android.content.Context::class.java
-                    )
-                    loadReactNativeMethod.invoke(null, application.applicationContext)
-                } catch (e: ClassNotFoundException) {
-                    throw RuntimeException(
-                        "ReactNativeApplicationEntryPoint not found. Ensure the brownfield AAR " +
-                        "consumer-rules.pro is applied and ReactNativeApplicationEntryPoint is " +
-                        "not stripped by R8.",
-                        e
-                    )
-                }
-            }
+            SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
+            load()
         }
 
         @JvmStatic
