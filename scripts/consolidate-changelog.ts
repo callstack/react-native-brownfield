@@ -95,7 +95,8 @@ function consolidate(): void {
     .readdirSync(PACKAGES_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => path.join(PACKAGES_DIR, d.name, 'CHANGELOG.md'))
-    .filter((p) => fs.existsSync(p));
+    .filter((p) => fs.existsSync(p))
+    .sort();
 
   if (changelogPaths.length === 0) {
     console.error('No package CHANGELOG files found.');
