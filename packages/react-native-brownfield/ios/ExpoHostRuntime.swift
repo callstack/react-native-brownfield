@@ -1,6 +1,5 @@
 import UIKit
 internal import React
-internal import React_RCTAppDelegate
 internal import ReactAppDependencyProvider
 
 #if canImport(Expo)

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import fs, { globSync } from 'node:fs';
+import fs from 'node:fs';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -53,8 +53,12 @@ fs.cpSync(sourcePackagePath, targetPackagePath, { recursive: true });
  * - Brownie (constant)
  * - hermesvm <- this changes depending on RN version: for RN < 0.82 it's hermes.xcframework, for RN >= 0.82 it's hermesvm.xcframework
  * - ReactBrownfield (constant)
- *
  * The trick is to rename the artifacts to match the Xcode project configuration.
+ *
+ * Brownfield versions >= 3.7.0 support RN Apple prebuilts.
+ * RN 0.83 (oldest supported by Brownfield v3) ships opt-in support (first in 0.81), which can be opted-in for via `--use-prebuilt-rn-core` flag.
+ * RN >= 0.84 ships prebuilts by default, therefore Brownfield enables them in packaging by default for RN >= 0.84.
+ *
  */
 
 // handle hermesvm.xcframework / hermes.xcframework
@@ -80,6 +84,9 @@ const validNames = [
   'hermesvm.xcframework',
   'ReactBrownfield.xcframework',
   'BrownfieldNavigation.xcframework',
+  // below: optional, emitted when RN is packaged with prebuilt iOS pods
+  'React.xcframework',
+  'ReactNativeDependencies.xcframework',
 ];
 
 for (const file of fs.readdirSync(targetPackagePath)) {

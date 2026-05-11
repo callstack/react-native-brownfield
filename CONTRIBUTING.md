@@ -32,3 +32,27 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `build:example:ios-consumer:expo55` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 55 RN app (`apps/ExpoApp55`) artifact
 - `build:example:ios-consumer:expo54` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
 - `build:example:ios-consumer:vanilla` - builds the example native iOS consumer (`apps/AppleApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
+
+## Running demo apps
+
+Each of the apps in `apps/` provides scripts for running them. You can run them either standalone, or package for brownfield.
+
+## Standalone run
+
+## Packaging for brownfield
+
+## Running a brownfield host app
+
+There are 2 brownfield host apps.
+
+> [!IMPORTANT]
+> Each of the scripts below requires you to **first** package the consumed RN application with `yarn brownfield:package:ios`, e.g. `cd apps/ExpoApp55 && yarn brownfield:package:ios`.
+
+- `apps/AndroidApp` - for Android
+  - `build:example:android-consumer:expo54` - consumes Expo 54
+  - `build:example:android-consumer:expo55` - consumes Expo 55
+  - `build:example:android-consumer:vanilla` - consumes the vanilla `RNApp`
+- `apps/AppleApp` - for Apple
+  - `build:example:ios-consumer:expo54` - consumes Expo 54
+  - `build:example:ios-consumer:expo55` - consumes Expo 55
+  - `build:example:ios-consumer:vanilla` - consumes the vanilla `RNApp`

@@ -124,6 +124,7 @@ This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative t
    - **`ReactBrownfield.xcframework`** - React Native Brownfield library
    - `Brownie.xcframework` - Brownie shared state library (only when using the Brownie package)
    - `BrownfieldNavigation.xcframework` - Brownfield navigation integration (only when using the brownfield-navigation package) for React Native navigation
+   - **`React.xcframework`** and **`ReactNativeDependencies.xcframework`** - they are emitted in supported configurations, as described in [React Native Prebuilts](#react-native-prebuilts) section
 
 ![Frameworks in Xcode Sidebar](/images/frameworks-sidebar.png)
 
@@ -215,6 +216,20 @@ struct ContentView: View {
     }
 }
 ```
+
+## React Native Prebuilts
+
+React Native can ship prebuilt iOS artifacts, which greatly speeds up the build time. Brownfield supports them since version 3.7.0 in the following scenarios:
+
+- RN 0.83 (oldest supported by Brownfield v3) ships opt-in support (first in 0.81), which can be opted-in for via `--use-prebuilt-rn-core` flag.
+- RN >= 0.84 ships prebuilts by default, therefore Brownfield enables them in packaging by default for RN >= 0.84.
+
+When using the --use-prebuilt-rn-core flag:
+
+- for RN 0.83, Brownfield will use prebuilts if that flag is set to true (default behaviour in flag absence: prebuilts **are not** used)
+- for RN >= 0.84:
+  - Brownfield will use prebuilts if that flag is not set, or is set to true (default behaviour in flag absence: prebuilts **are** used)
+  - if the flag is explicitly set to false, Brownfield will **not** use prebuilts
 
 ## Next Steps
 

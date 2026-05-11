@@ -1,7 +1,8 @@
+#if !canImport(Expo)
 import UIKit
 internal import React
 internal import React_RCTAppDelegate
-internal import ReactAppDependencyProvider
+internal import React_RCTReactNativeFactory
 
 class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"
@@ -161,3 +162,4 @@ final class ReactNativeHostRuntime {
     }
   }
 }
+#endif
