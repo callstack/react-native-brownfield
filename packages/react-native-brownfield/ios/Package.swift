@@ -42,9 +42,7 @@ let package = Package(
       name: "BrownfieldBundleSupportTests",
       dependencies: ["BrownfieldBundleSupport"],
       path: "Tests",
-      resources: [
-        .copy("Fixtures/main.jsbundle"),
-      ]
+      exclude: ["Fixtures"]
     ),
   ]
 )
