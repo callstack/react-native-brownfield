@@ -129,6 +129,13 @@ function consolidate(): void {
     process.exit(1);
   }
 
+  if (consolidated.size === 0) {
+    console.log(
+      `No substantive entries for ${targetVersion} (all filtered as "Updated dependencies"), skipping root CHANGELOG update.`
+    );
+    return;
+  }
+
   // Idempotency: skip if this version is already in the root CHANGELOG
   if (fs.existsSync(ROOT_CHANGELOG)) {
     const existing = fs.readFileSync(ROOT_CHANGELOG, 'utf-8');
