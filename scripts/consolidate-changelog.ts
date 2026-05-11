@@ -139,7 +139,9 @@ function consolidate(): void {
   // Idempotency: skip if this version is already in the root CHANGELOG
   if (fs.existsSync(ROOT_CHANGELOG)) {
     const existing = fs.readFileSync(ROOT_CHANGELOG, 'utf-8');
-    if (existing.includes(`\n## ${targetVersion}\n`)) {
+    const escapedVersion = targetVersion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const versionHeadingRe = new RegExp(`^##\\s+${escapedVersion}(\\s|$)`, 'm');
+    if (versionHeadingRe.test(existing)) {
       console.log(`Root CHANGELOG already contains ${targetVersion}, skipping.`);
       return;
     }
