@@ -9,7 +9,7 @@ const SECTION_ORDER = ['Major Changes', 'Minor Changes', 'Patch Changes'];
 
 interface ParsedVersion {
   version: string;
-  sections: Map<string, Map<string, string>>;
+  sections: Map<string, string[]>;
 }
 
 function extractEntryKey(entry: string): string {
@@ -68,7 +68,7 @@ function parseLatestVersion(content: string): ParsedVersion | null {
   const subsectionHeaders = [...sectionContent.matchAll(/^### (.+)$/gm)];
   const subsectionBodies = sectionContent.split(/^### .+$/m);
 
-  const sections = new Map<string, Map<string, string>>();
+  const sections = new Map<string, string[]>();
 
   for (let i = 0; i < subsectionHeaders.length; i++) {
     const name = subsectionHeaders[i][1].trim();
@@ -78,12 +78,7 @@ function parseLatestVersion(content: string): ParsedVersion | null {
     );
 
     if (entries.length > 0) {
-      const map = new Map<string, string>();
-      for (const entry of entries) {
-        const key = extractEntryKey(entry);
-        if (!map.has(key)) map.set(key, entry);
-      }
-      sections.set(name, map);
+      sections.set(name, entries);
     }
   }
 
@@ -122,7 +117,8 @@ function consolidate(): void {
     for (const [section, entries] of parsed.sections) {
       if (!consolidated.has(section)) consolidated.set(section, new Map());
       const target = consolidated.get(section)!;
-      for (const [key, entry] of entries) {
+      for (const entry of entries) {
+        const key = extractEntryKey(entry);
         if (!target.has(key)) target.set(key, entry);
       }
     }
