@@ -1,16 +1,16 @@
 package com.callstack.react.brownfield.processors
 
 import com.android.build.gradle.api.LibraryVariant
-import com.android.build.gradle.internal.LoggerWrapper
-import com.android.build.gradle.internal.coverage.JacocoReportTask.JacocoReportWorkerAction.Companion.logger
 import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.ManifestProvider
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
+import com.callstack.react.brownfield.shared.GradleILogger
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.capitalized
 import org.apache.tools.ant.BuildException
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
@@ -32,7 +32,7 @@ object ManifestTaskProcessor {
                 )
 
             val inputManifests = aarLibraries.map { it.getManifestFile() }
-            mergeManifests(manifestOutput, inputManifests, manifestOutput)
+            mergeManifests(manifestOutput, inputManifests, manifestOutput, project.logger)
         }
     }
 
@@ -40,8 +40,9 @@ object ManifestTaskProcessor {
         mainManifestFile: File,
         secondaryManifestFiles: List<File>,
         outputFile: File,
+        logger: Logger,
     ) {
-        val iLogger: ILogger = LoggerWrapper(logger)
+        val iLogger: ILogger = GradleILogger(logger)
         val mergerInvoker = ManifestMerger2.newMerger(mainManifestFile, iLogger, ManifestMerger2.MergeType.LIBRARY)
         val manifestProviders = mutableListOf<ManifestProvider>()
 

@@ -4,7 +4,7 @@ Repo: https://github.com/gradle/gradle-profiler
 Android docs: https://developer.android.com/build/profile-your-build
 
 ### Pre-Requisites
-- Ensure gradle-profiler is installed, (instructions)[https://github.com/gradle/gradle-profiler#installing]
+- Ensure gradle-profiler is installed, [instructions](https://github.com/gradle/gradle-profiler#installing)
 - Change your working directory to `RNApp/android/gradle-profiler`
 
 ### Steps:
