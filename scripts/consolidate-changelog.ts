@@ -73,9 +73,7 @@ function parseLatestVersion(content: string): ParsedVersion | null {
   for (let i = 0; i < subsectionHeaders.length; i++) {
     const name = subsectionHeaders[i][1].trim();
     const body = subsectionBodies[i + 1] ?? '';
-    const entries = parseEntries(body).filter(
-      (e) => !e.startsWith('- Updated dependencies')
-    );
+    const entries = parseEntries(body);
 
     if (entries.length > 0) {
       sections.set(name, entries);
