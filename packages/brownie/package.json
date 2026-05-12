@@ -37,7 +37,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "build": "bob build",
-    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\""
+    "dev": "nodemon --exitcrash false --watch src --ext js,ts,json --exec \"bob build\""
   },
   "keywords": [
     "brownie",
