@@ -1,7 +1,5 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.internal.tasks.factory.dependsOn
-import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
@@ -18,13 +16,26 @@ class VariantTaskProvider(val project: Project) {
         project: Project,
         variantName: String,
     ): TaskProvider<Task> {
-        var bundleTaskPath = "bundle${variantName.capitalized()}"
-        return try {
-            project.tasks.named(bundleTaskPath)
-        } catch (_: UnknownTaskException) {
-            bundleTaskPath += "Aar"
-            project.tasks.named(bundleTaskPath)
+        val capitalizedVariantName = variantName.capitalized()
+        val candidates = listOf(
+            "bundle${capitalizedVariantName}Aar",
+            "bundle${capitalizedVariantName}",
+            "package${capitalizedVariantName}Aar",
+            "assemble${capitalizedVariantName}",
+        )
+
+        candidates.forEach { taskName ->
+            val task = project.tasks.findByName(taskName)
+            if (task != null) {
+                return project.tasks.named(task.name)
+            }
         }
+
+        project.logger.warn(
+            "Brownfield: no bundle task found for variant '$variantName' in project '${project.path}' " +
+                "(tried ${candidates.joinToString()}). Falling back to no-op bundle hook.",
+        )
+        return fallbackNoOpBundleTask(project, capitalizedVariantName)
     }
 
     fun processDataBinding(
@@ -70,18 +81,54 @@ class VariantTaskProvider(val project: Project) {
         capitalizedVariantName: String,
         explodeAarTask: TaskProvider<ExplodeAarTask>,
     ) {
-        val preBuildTaskPath = "pre${capitalizedVariantName}Build"
-        val preBuildTask = project.tasks.named(preBuildTaskPath)
-
-        if (!preBuildTask.isPresent) {
-            throw TaskNotFound("Can not find $preBuildTaskPath task")
+        val hookTask = hookTaskByVariant(capitalizedVariantName) ?: run {
+            project.logger.warn(
+                "Could not find a hook task for variant $capitalizedVariantName " +
+                    "(tried pre/build/assemble/bundle task names). Skipping explodeAar wiring.",
+            )
+            return
         }
 
-        preBuildTask.dependsOn(explodeAarTask)
+        hookTask.configure { it.dependsOn(explodeAarTask) }
         if (capitalizedVariantName.contains("Release")) {
             val projectExt = project.extensions.getByType(Extension::class.java)
             val appProject = project.rootProject.project(projectExt.appProjectName)
-            preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
+            hookTask.configure { it.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets") }
+        }
+    }
+
+    private fun hookTaskByVariant(capitalizedVariantName: String): TaskProvider<Task>? {
+        val candidates = listOf(
+            "pre${capitalizedVariantName}Build",
+            "assemble$capitalizedVariantName",
+            "bundle${capitalizedVariantName}Aar",
+            "bundle${capitalizedVariantName}",
+        )
+
+        candidates.forEach { taskName ->
+            try {
+                return project.tasks.named(taskName)
+            } catch (_: UnknownTaskException) {
+                // Try the next candidate task name.
+            }
+        }
+
+        return null
+    }
+
+    private fun fallbackNoOpBundleTask(
+        project: Project,
+        capitalizedVariantName: String,
+    ): TaskProvider<Task> {
+        val taskName = "brownfieldNoopBundle${capitalizedVariantName}"
+        val existing = project.tasks.findByName(taskName)
+        if (existing != null) {
+            return project.tasks.named(existing.name)
+        }
+
+        return project.tasks.register(taskName) { task ->
+            task.group = "brownfield"
+            task.description = "Fallback no-op task used when no bundle task exists for $capitalizedVariantName."
         }
     }
 }

@@ -1,28 +1,47 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.LibraryVariant
+import com.android.build.api.dsl.LibraryExtension
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 
 object AssetTaskProcessor {
     fun process(
-        variant: LibraryVariant,
+        variantName: String,
         project: Project,
         aarLibraries: List<AndroidArchiveLibrary>,
     ) {
-        val assetsTask = variant.mergeAssetsProvider.get()
-
+        val capitalizedVariantName = variantName.capitalized()
+        val taskNameCandidates =
+            listOf(
+                "merge${capitalizedVariantName}Assets",
+                "merge${capitalizedVariantName}JniLibFolders",
+                "package${capitalizedVariantName}Assets",
+            )
+        val resolvedTaskName =
+            taskNameCandidates.firstOrNull { taskName ->
+                project.tasks.names.contains(taskName)
+            }
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
-        assetsTask.doFirst {
-            val filteredSourceSets =
-                androidExtension.sourceSets.filter { it.name == variant.name }
 
-            filteredSourceSets.forEach { sourceSet ->
-                val filteredAarLibs = aarLibraries.filter { it.getAssetsDir().exists() }
-                if (!filteredAarLibs.isEmpty()) {
-                    sourceSet.assets.srcDirs(filteredAarLibs.map { it.getAssetsDir() })
-                }
+        if (resolvedTaskName == null) {
+            project.logger.warn(
+                "Brownfield: no assets merge-related task found for variant '$variantName'. " +
+                    "Checked: ${taskNameCandidates.joinToString()}. Skipping assets hook.",
+            )
+            return
+        }
+
+        project.tasks.named(resolvedTaskName).configure {
+            it.doFirst {
+                androidExtension.sourceSets
+                    .matching { sourceSet -> sourceSet.name == variantName }
+                    .all { sourceSet ->
+                        val filteredAarLibs = aarLibraries.filter { lib -> lib.getAssetsDir().exists() }
+                        if (filteredAarLibs.isNotEmpty()) {
+                            sourceSet.assets.srcDirs(filteredAarLibs.map { lib -> lib.getAssetsDir() })
+                        }
+                    }
             }
         }
     }

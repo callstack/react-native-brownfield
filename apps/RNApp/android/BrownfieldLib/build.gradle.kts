@@ -16,7 +16,14 @@ publishing {
             artifactId = "brownfieldlib"
             version = "0.0.1-SNAPSHOT"
             afterEvaluate {
-                from(components.getByName("default"))
+                val component = components.findByName("release")
+                    ?: components.findByName("debug")
+                    ?: components.findByName("default")
+                if (component != null) {
+                    from(component)
+                } else {
+                    logger.warn("No publishable software component found for BrownfieldLib mavenAar publication")
+                }
             }
 
             pom {

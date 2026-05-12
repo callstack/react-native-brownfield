@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.api.LibraryVariant
 import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.ManifestProvider
 import com.android.manifmerger.MergingReport
@@ -18,22 +17,58 @@ import java.io.OutputStreamWriter
 
 object ManifestTaskProcessor {
     fun process(
-        variant: LibraryVariant,
+        variantName: String,
         project: Project,
         aarLibraries: List<AndroidArchiveLibrary>,
     ) {
-        val processManifestTask = variant.outputs.first().processManifestProvider.get()
-        val variantName = variant.name
-        processManifestTask.doLast {
-            val buildDir = project.layout.buildDirectory.get()
-            val manifestOutput =
-                project.file(
-                    "$buildDir/intermediates/merged_manifest/$variantName/process${variantName.capitalized()}Manifest/AndroidManifest.xml",
-                )
+        val capitalizedVariant = variantName.capitalized()
+        val taskNameCandidates =
+            listOf(
+                "process${capitalizedVariant}MainManifest",
+                "process${capitalizedVariant}Manifest",
+                "process${capitalizedVariant}ManifestForPackage",
+            )
+        val resolvedTaskName =
+            taskNameCandidates.firstOrNull { taskName ->
+                project.tasks.names.contains(taskName)
+            }
 
-            val inputManifests = aarLibraries.map { it.getManifestFile() }
-            mergeManifests(manifestOutput, inputManifests, manifestOutput, project.logger)
+        if (resolvedTaskName == null) {
+            project.logger.warn(
+                "Brownfield: no manifest processing task found for variant '$variantName'. " +
+                    "Checked: ${taskNameCandidates.joinToString()}. Skipping manifest merge hook.",
+            )
+            return
         }
+
+        project.tasks.named(resolvedTaskName).configure {
+            it.doLast {
+                val manifestOutput =
+                    resolveManifestOutput(project, variantName, resolvedTaskName)
+                        ?: run {
+                            project.logger.warn(
+                                "Brownfield: unable to locate merged manifest output for variant '$variantName' " +
+                                    "after task '$resolvedTaskName'. Skipping manifest merge step.",
+                            )
+                            return@doLast
+                        }
+
+                val inputManifests = aarLibraries.map { library -> library.getManifestFile() }
+                mergeManifests(manifestOutput, inputManifests, manifestOutput, project.logger)
+            }
+        }
+    }
+
+    private fun resolveManifestOutput(project: Project, variantName: String, taskName: String): File? {
+        val buildDir = project.layout.buildDirectory.get().asFile
+        val candidates =
+            listOf(
+                File(buildDir, "intermediates/merged_manifest/$variantName/$taskName/AndroidManifest.xml"),
+                File(buildDir, "intermediates/merged_manifests/$variantName/AndroidManifest.xml"),
+                File(buildDir, "intermediates/packaged_manifests/$variantName/AndroidManifest.xml"),
+            )
+
+        return candidates.firstOrNull { it.exists() }
     }
 
     private fun mergeManifests(

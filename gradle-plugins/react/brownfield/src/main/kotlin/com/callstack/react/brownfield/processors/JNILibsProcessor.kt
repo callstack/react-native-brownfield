@@ -1,7 +1,6 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.LibraryExtension
-import com.callstack.react.brownfield.exceptions.TaskNotFound
+import com.android.build.api.dsl.LibraryExtension
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
@@ -17,12 +16,25 @@ class JNILibsProcessor(val project: Project) {
         variantName: String,
     ) {
         val capitalizedVariantName = variantName.capitalized()
-        val taskName = "merge${capitalizedVariantName}JniLibFolders"
-        val mergeJniLibsTask = project.tasks.named(taskName)
-
-        if (!mergeJniLibsTask.isPresent) {
-            throw TaskNotFound("Task $taskName not found")
+        val taskCandidates =
+            listOf(
+                "merge${capitalizedVariantName}JniLibFolders",
+                "merge${capitalizedVariantName}NativeLibs",
+                "package${capitalizedVariantName}JniLibs",
+            )
+        val mergeJniLibsTaskName = taskCandidates.firstOrNull { candidate ->
+            project.tasks.findByName(candidate) != null
         }
+
+        if (mergeJniLibsTaskName == null) {
+            Logging.log(
+                "Brownfield: no JNI merge task found for variant '$variantName'. " +
+                    "Tried ${taskCandidates.joinToString(", ")}. Skipping JNI libs hook.",
+            )
+            return
+        }
+
+        val mergeJniLibsTask = project.tasks.named(mergeJniLibsTaskName)
 
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
         val copyTask = copySoLibsTask(variantName)

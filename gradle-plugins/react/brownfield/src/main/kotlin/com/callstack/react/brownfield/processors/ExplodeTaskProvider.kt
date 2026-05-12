@@ -1,6 +1,6 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.api.LibraryVariant
+import com.callstack.react.brownfield.plugin.VariantContext
 import com.callstack.react.brownfield.shared.BundleTaskProvider
 import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
@@ -13,7 +13,7 @@ import java.io.File
 
 object ExplodeTaskProvider {
     fun getTask(
-        variant: LibraryVariant,
+        variant: VariantContext,
         project: Project,
         artifacts: List<UnresolvedArtifactInfo>,
     ): TaskProvider<ExplodeAarTask> {
@@ -26,19 +26,25 @@ object ExplodeTaskProvider {
             ExplodeAarTask::class.java,
         ) { task ->
             task.variantName.set(variant.name)
-            task.minifyEnabled.set(variant.buildType.isMinifyEnabled)
+            task.minifyEnabled.set(variant.isMinifyEnabled)
 
             val finalArtifacts = mutableListOf<UnresolvedArtifactInfo>()
             artifacts.forEach { art ->
                 var artifactPath = art.file
                 if (art.isExpoPublishDependency != true) {
-                    val defaultTaskName = "bundle${capitalizedVariantName}Aar"
                     val dependencyProject = project.project(":${art.moduleName}")
-                    val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
-                    val taskName = bundleTaskProvider?.name ?: defaultTaskName
+                    val bundleTaskProvider =
+                        bundleProvider.getBundleTask(
+                            project = dependencyProject,
+                            variantName = variant.name,
+                            buildType = variant.buildType,
+                            productFlavors = variant.productFlavors,
+                        )
 
-                    dependencyProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
-                    artifactPath = createArtifactFile(bundleTaskProvider?.get() as Task).absolutePath
+                    if (bundleTaskProvider != null) {
+                        task.dependsOn(bundleTaskProvider)
+                        artifactPath = createArtifactFile(bundleTaskProvider.get() as Task).absolutePath
+                    }
                 }
 
                 finalArtifacts.add(

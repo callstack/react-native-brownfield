@@ -94,6 +94,8 @@ dependencies {
     implementation(libs.common)
     implementation(libs.asm.commons)
     implementation(libs.versioncompare)
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
 }
 
 tasks.named("detekt").configure {

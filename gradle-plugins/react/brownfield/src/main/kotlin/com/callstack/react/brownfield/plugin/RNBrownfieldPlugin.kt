@@ -1,7 +1,8 @@
 package com.callstack.react.brownfield.plugin
 
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.LibraryVariant
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.LibraryVariant
+import com.android.build.api.dsl.LibraryExtension
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
@@ -48,10 +49,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
             return
         }
 
-        /**
-         * Must run before processDefaultDependencies: ArtifactsResolver reads :expo's api configuration,
-         * which is only populated after the expo project is evaluated.
-         */
         if (this.isExpoProject) {
             project.evaluationDependsOn(EXPO_PROJECT_LOCATOR)
         }
@@ -62,19 +59,15 @@ class RNBrownfieldPlugin : Plugin<Project> {
             expoProjects = expoPublishingHelper.configure()
         }
 
-        /**
-         * curates a list of artifacts that we need to bundle with the Aar
-         */
         val artifactsResolver = ArtifactsResolver(project, isExpoProject)
         val artifacts = artifactsResolver.processDefaultDependencies(expoProjects)
-
         val variantTaskProvider = VariantTaskProvider(project)
+        val androidExtension = project.extensions.getByType(LibraryExtension::class.java)
+        val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
 
-        /**
-         * Configure Tasks
-         */
-        project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            configureTasks(variant, artifacts, variantTaskProvider)
+        androidComponents.onVariants { variant ->
+            val context = createVariantContext(variant, androidExtension)
+            configureTasks(context, artifacts, variantTaskProvider)
         }
     }
 
@@ -94,9 +87,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
         this.maybeExpoProject = project.findProject(EXPO_PROJECT_LOCATOR)
     }
 
-    /**
-     * Verifies and throws error if `com.android.library` plugin is not applied
-     */
     private fun verifyAndroidPluginApplied(project: Project) {
         if (!project.plugins.hasPlugin("com.android.library")) {
             throw ProjectConfigurationException(
@@ -104,6 +94,28 @@ class RNBrownfieldPlugin : Plugin<Project> {
                 Throwable("Apply $PROJECT_ID"),
             )
         }
+    }
+
+    private fun createVariantContext(
+        variant: LibraryVariant,
+        androidExtension: LibraryExtension,
+    ): VariantContext {
+        val buildTypeName = requireNotNull(variant.buildType) {
+            "Missing buildType for variant ${variant.name}"
+        }
+
+        val minifyEnabled =
+            androidExtension.buildTypes
+                .findByName(buildTypeName)
+                ?.isMinifyEnabled
+                ?: variant.isMinifyEnabled
+
+        return VariantContext(
+            name = variant.name,
+            buildType = buildTypeName,
+            productFlavors = variant.productFlavors,
+            isMinifyEnabled = minifyEnabled,
+        )
     }
 
     private fun getAarLibraries(
@@ -125,47 +137,32 @@ class RNBrownfieldPlugin : Plugin<Project> {
     }
 
     private fun configureTasks(
-        variant: LibraryVariant,
+        variant: VariantContext,
         artifacts: List<UnresolvedArtifactInfo>,
         variantTaskProvider: VariantTaskProvider,
     ) {
         val variantName = variant.name
         val capitalizedVariantName = variantName.replaceFirstChar(Char::titlecase)
 
-        /** =======  EXPLODE AAR  =========*/
         val explodeTask = ExplodeTaskProvider.getTask(variant, project, artifacts)
-
-        /** =======  Pre<Variant>Build  =========*/
         variantTaskProvider.preBuildTaskByVariant(capitalizedVariantName, explodeTask)
 
         val aarLibraries = getAarLibraries(artifacts, variantName)
-
-        /**
-         * Flat IDs to be put into the variant property, required for RClass Transformer
-         */
         val packageIDs = aarLibraries.map { it.getPackageName() }
         VariantPackagesProperty.getVariantPackagesProperty().put(variantName, packageIDs)
 
-        /** =======  MANIFEST MERGER  =========*/
-        ManifestTaskProcessor.process(variant, project, aarLibraries)
+        ManifestTaskProcessor.process(variantName, project, aarLibraries)
+        ResourceTaskProcessor.process(variantName, project, aarLibraries)
+        AssetTaskProcessor.process(variantName, project, aarLibraries)
 
-        /** =======  GENERATE RESOURCES =========*/
-        ResourceTaskProcessor.process(variant, project, aarLibraries)
-
-        /** =======  GENERATE ASSETS ========= */
-        AssetTaskProcessor.process(variant, project, aarLibraries)
-
-        /** ===== jniLibsProcessor ===== */
         val jniLibsProcessor = JNILibsProcessor(project)
         jniLibsProcessor.processJniLibs(aarLibraries, variantName)
 
-        /** ===== proguardProcessor ===== */
         val proguardProcessor = ProguardProcessor(project)
         val proguardRules = aarLibraries.map { it.getProguardRules() }
         proguardProcessor.processConsumerFiles(proguardRules, capitalizedVariantName)
         proguardProcessor.processGeneratedFiles(proguardRules, capitalizedVariantName)
 
-        /** ===== processDataBinding ===== */
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variantName)
         variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variantName)
     }

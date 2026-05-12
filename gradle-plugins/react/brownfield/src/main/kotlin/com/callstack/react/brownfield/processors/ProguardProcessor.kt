@@ -1,11 +1,9 @@
 package com.callstack.react.brownfield.processors
 
-import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 class ProguardProcessor(val project: Project) {
@@ -13,14 +11,23 @@ class ProguardProcessor(val project: Project) {
         proguardRules: List<File>,
         capitalizedVariantName: String,
     ) {
-        val mergeTaskName = "merge${capitalizedVariantName}ConsumerProguardFiles"
-        val mergeFileTask = project.tasks.named(mergeTaskName)
+        val task = findFirstExistingTask(
+            listOf(
+                "merge${capitalizedVariantName}ConsumerProguardFiles",
+                "merge${capitalizedVariantName}GeneratedProguardFiles",
+                "minify${capitalizedVariantName}WithR8",
+                "minify${capitalizedVariantName}WithProguard",
+            ),
+        )
 
-        if (!mergeFileTask.isPresent) {
-            throw TaskNotFound("Task $mergeTaskName not found")
+        if (task == null) {
+            Logging.log(
+                "Brownfield: no consumer proguard merge task found for variant '$capitalizedVariantName'. Skipping consumer proguard merge hook.",
+            )
+            return
         }
 
-        mergeFileTask.get().doLast {
+        task.doLast {
             val outputFile = it.outputs.files.singleFile
             doLast(proguardRules, outputFile)
         }
@@ -30,15 +37,33 @@ class ProguardProcessor(val project: Project) {
         proguardRules: List<File>,
         capitalizedVariantName: String,
     ) {
-        val mergeGenerateProguardTask: TaskProvider<*>?
-        val mergeName = "merge${capitalizedVariantName}GeneratedProguardFiles"
-        mergeGenerateProguardTask = project.tasks.named(mergeName)
+        val task = findFirstExistingTask(
+            listOf(
+                "merge${capitalizedVariantName}GeneratedProguardFiles",
+                "merge${capitalizedVariantName}ConsumerProguardFiles",
+                "minify${capitalizedVariantName}WithR8",
+                "minify${capitalizedVariantName}WithProguard",
+            ),
+        )
 
-        mergeGenerateProguardTask.get().doLast {
+        if (task == null) {
+            Logging.log(
+                "Brownfield: no generated proguard merge task found for variant '$capitalizedVariantName'. Skipping generated proguard merge hook.",
+            )
+            return
+        }
+
+        task.doLast {
             val outputFile = it.outputs.files.singleFile
             doLast(proguardRules, outputFile)
         }
     }
+
+    private fun findFirstExistingTask(candidates: List<String>) =
+        candidates
+            .asSequence()
+            .mapNotNull { taskName -> project.tasks.findByName(taskName) }
+            .firstOrNull()
 
     private fun doLast(
         files: List<File>,
