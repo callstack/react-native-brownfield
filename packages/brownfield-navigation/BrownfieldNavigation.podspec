@@ -15,7 +15,10 @@ Pod::Spec.new do |spec|
   spec.source       = { :git => "git@github.com:callstack/react-native-brownfield.git", :tag => "#{spec.version}" }
   spec.source_files  = "ios/**/*.{h,m,mm,swift}"
   spec.pod_target_xcconfig = {
+    # below: needed to build the XCFramework with `.swiftinterface` files, required by xcodebuild -create-xcframework to succeed
     'DEFINES_MODULE' => 'YES',
+    'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES',
+    'SWIFT_EMIT_MODULE_INTERFACE' => 'YES',
   }
 
   install_modules_dependencies(spec)
