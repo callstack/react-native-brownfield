@@ -11,6 +11,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
+    "test:apps": "turbo run test --filter='./apps/*'",
     "dev": "yarn workspaces foreach -Api run dev",
     "ci:version": "changeset version && yarn install --no-immutable",
     "ci:publish": "yarn workspaces foreach --no-private -At npm publish && changeset tag",

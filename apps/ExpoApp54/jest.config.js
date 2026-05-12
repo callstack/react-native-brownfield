@@ -1,14 +1,16 @@
-const path = require('node:path');
+const path = require('path');
 
 module.exports = {
-  preset: '@react-native/jest-preset',
+  preset: 'jest-expo',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^react$': require.resolve('react'),
     '^react/jsx-runtime$': require.resolve('react/jsx-runtime'),
     '^react/jsx-dev-runtime$': require.resolve('react/jsx-dev-runtime'),
-    '^@testing-library/react-native$':
-      require.resolve('@testing-library/react-native'),
+    '^@testing-library/react-native$': require.resolve(
+      '@testing-library/react-native'
+    ),
+    '^@/(.*)$': '<rootDir>/$1',
     '^@callstack/react-native-brownfield$': path.join(
       __dirname,
       '../../packages/react-native-brownfield/src/index.ts'
@@ -23,6 +25,6 @@ module.exports = {
     ),
   },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@callstack/brownfield-example-shared-tests|@react-navigation|react-native-screens|react-native-safe-area-context)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@callstack/brownfield-example-shared-tests|expo|@expo|expo-modules-core)/)',
   ],
 };

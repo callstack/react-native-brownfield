@@ -8,7 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint",
+    "lint": "expo lint --no-cache",
+    "test": "jest --config jest.config.js",
     "prebuild": "expo prebuild",
     "brownfield:prepare:android:ci": "cd .. && node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts ExpoApp54",
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
@@ -41,9 +42,15 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@callstack/brownfield-example-shared-tests": "workspace:^",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.1.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^29.7.0",
+    "jest-expo": "~54.0.16",
+    "react-test-renderer": "19.1.0",
     "typescript": "~5.9.3"
   },
   "brownie": {
