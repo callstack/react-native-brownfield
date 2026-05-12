@@ -56,3 +56,8 @@ There are 2 brownfield host apps.
   - `build:example:ios-consumer:expo54` - consumes Expo 54
   - `build:example:ios-consumer:expo55` - consumes Expo 55
   - `build:example:ios-consumer:vanilla` - consumes the vanilla `RNApp`
+
+For iOS, the scripts use the previously packaged artifacts from the respective directory `apps/{RNApp,Expo55,Expo54}` and invoke `prepareXCFrameworks.js` to copy over the XCFrameworks to the `apps/AppleApp/package` directory, from which the XCode project consumes well-known XCFramework files.
+
+> [!IMPORTANT]
+> You can build & run the `AppleApp` directly from XCode GUI, but before running it, after changing the scheme between Expo / Vanilla or making any changes & re-packaging the RN app, you need to re-run the `build:example:ios-consumer:...` script once again for the built artifacts to be available in the `apps/AppleApp/package` directory. Otherwise, you will still be building with the old artifacts.
