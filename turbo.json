@@ -2,11 +2,11 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "lint": {
-      "dependsOn": ["build:brownfield", "^build:brownfield"],
+      "dependsOn": ["^build:brownfield"],
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/eslint.config.*"]
     },
     "typecheck": {
-      "dependsOn": ["build:brownfield", "^build:brownfield"],
+      "dependsOn": ["^build:brownfield"],
       "inputs": ["**/*.ts", "**/*.tsx"]
     },
     "test": {},
