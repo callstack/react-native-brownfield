@@ -7,7 +7,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.callstack.reactnativebrownfield.utils.VersionUtils
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactPackage
@@ -28,31 +27,27 @@ fun interface OnMessageListener {
     fun onMessage(message: String)
 }
 
-/**
- * The threshold RN version based on which we decide whether to
- * load JNI libs or not. We only load JNI libs on version less
- * than this.
- */
-private const val RN_THRESHOLD_VERSION = "0.80.0"
-
 class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
     private val messageListeners = CopyOnWriteArrayList<OnMessageListener>()
 
     companion object {
         private lateinit var instance: ReactNativeBrownfield
         private val initialized = AtomicBoolean()
+        private val nativeLibsLoaded = AtomicBoolean()
         private const val LOG_TAG = "ReactNativeBrownfield"
 
         @JvmStatic
         val shared: ReactNativeBrownfield get() = instance
 
         private fun loadNativeLibs(application: Application) {
-            val rnVersion = BuildConfig.RN_VERSION
-
-            if (VersionUtils.isVersionLessThan(rnVersion, RN_THRESHOLD_VERSION)) {
-                SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
-                load()
+            if (!nativeLibsLoaded.getAndSet(true)) {
+                loadNativeLibsInternal(application)
             }
+        }
+
+        private fun loadNativeLibsInternal(application: Application) {
+            SoLoader.init(application.applicationContext, OpenSourceMergedSoMapping)
+            load()
         }
 
         @JvmStatic
@@ -79,6 +74,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             options: HashMap<String, Any>,
             onJSBundleLoaded: OnJSBundleLoaded? = null
         ) {
+            loadNativeLibs(application)
+
             val reactHost: ReactHost by lazy {
                 getDefaultReactHost(
                     context = application,
