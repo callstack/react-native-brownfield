@@ -1,46 +1,44 @@
-import type { SuiteWorkspaceConfig, TestSuite } from 'skillgym';
+import type { SessionReport, Suite } from 'skillgym';
 import { assert } from 'skillgym';
+import {
+  assertEvidence,
+  assertNoProjectSourceReads,
+  buildPrompt,
+} from './shared.ts';
 
-export const workspace: SuiteWorkspaceConfig = {
-  mode: 'isolated',
-  templateDir: '../template/skillgym-app',
-  bootstrap: {
-    command: 'yarn',
-    args: ['install'],
-    timeoutMs: 120_000,
-  },
-};
-
-const brownfieldNavigationSuite = [
+const brownfieldNavigationSuite: Suite = [
   {
-    id: 'navigation-setup',
-    prompt:
-      'Setup brownfield navigation with navigate to profile method. DO NOT read/scan files under packages/** and apps/** OR node_modules/**.',
-    assert(report) {
-      assert.fileReads.includes(
-        report,
-        /brownfield-navigation\/references\/setup-codegen\.md$/
+    id: 'navigation-ios-wiring',
+    prompt: buildPrompt({
+      task: 'How do I use the generated brownfield navigation on the native iOS app to complete the wiring?',
+    }),
+    assert(report: SessionReport) {
+      assertEvidence(report, 'brownfield-navigation');
+      assertNoProjectSourceReads(report);
+
+      assert.soft.match(report.finalOutput, /BrownfieldNavigationDelegate/i);
+      assert.soft.match(
+        report.finalOutput,
+        /BrownfieldNavigationManager\.shared\.setDelegate/i
       );
-      assert.commands.includes(report, /npx brownfield navigation:codegen/i);
-      assert.output.includes(report, /navigateToProfile/i);
     },
   },
   {
-    id: 'navigation-native-wiring',
-    prompt:
-      'How do I use the generated brownfield navigation on the native android app to complete the wiring?',
-    assert(report) {
-      assert.fileReads.includes(
-        report,
-        /brownfield-navigation\/references\/native-integration\.md$/
-      );
-      assert.output.includes(report, /BrownfieldNavigationDelegate/i);
-      assert.output.includes(
-        report,
-        /BrownfieldNavigationManager\.setDelegate|shared\.setDelegate/i
+    id: 'navigation-android-wiring',
+    prompt: buildPrompt({
+      task: 'How do I use the generated brownfield navigation on the native android app to complete the wiring?',
+    }),
+    assert(report: SessionReport) {
+      assertEvidence(report, 'brownfield-navigation');
+      assertNoProjectSourceReads(report);
+
+      assert.soft.match(report.finalOutput, /BrownfieldNavigationDelegate/i);
+      assert.soft.match(
+        report.finalOutput,
+        /BrownfieldNavigationManager\.setDelegate/i
       );
     },
   },
-] satisfies TestSuite;
+];
 
 export default brownfieldNavigationSuite;

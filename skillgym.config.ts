@@ -5,16 +5,16 @@ const config: SkillGymConfig = {
     cwd: ".",
     outputDir: "./.skillgym-results",
     reporter: "standard",
-    schedule: "isolated-by-runner",
+    schedule: "parallel",
   },
   defaults: {
-    timeoutMs: 120_000,
+    timeoutMs: 300_000,
   },
   runners: {
     "cursor-main": {
       agent: {
         type: "cursor-agent",
-        model: "composer-2-fast",
+        model: "composer-2",
       },
     },
   },

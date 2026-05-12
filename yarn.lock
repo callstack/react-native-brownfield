@@ -1935,7 +1935,7 @@ __metadata:
     prettier: "npm:^3.8.1"
     quicktype-core: "npm:^23.2.6"
     quicktype-typescript-input: "npm:^23.2.6"
-    skillgym: "npm:^0.5.0"
+    skillgym: "npm:^0.8.0"
     turbo: "npm:^2.8.17"
     typescript: "npm:5.9.3"
   languageName: unknown
@@ -18670,9 +18670,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"skillgym@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "skillgym@npm:0.5.0"
+"skillgym@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "skillgym@npm:0.8.0"
   dependencies:
     cli-spinners: "npm:^3.4.0"
     nano-spawn: "npm:^2.1.0"
@@ -18681,7 +18681,7 @@ __metadata:
     string-width: "npm:^7.2.0"
   bin:
     skillgym: bin.js
-  checksum: 10/9f2fb1147ea4c649ccf290d47c88c3c9424395502dfc7f4d68c51712e6be1c41baf7423b698896dbdc03884dfce03e1eb30e5390c9ba2c3b53aa88937e4f7a28
+  checksum: 10/d434528ac6e7aeb8d88313cb26e891b20186894292117c88b8b2e710f1e06cbd906418f3fa0c09b24fd0c2a48edf858bca1d100d3a4f1bfd1f30cedb7af82a28
   languageName: node
   linkType: hard
 
