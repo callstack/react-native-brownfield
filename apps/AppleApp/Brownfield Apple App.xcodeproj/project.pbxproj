@@ -7,36 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		79413FEC2FB3210C00A8B941 /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79413FEA2FB3210300A8B941 /* ReactBrownfield.xcframework */; };
-		79413FED2FB3210C00A8B941 /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79413FEA2FB3210300A8B941 /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		79B1886C2FB31F7B007EE35D /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238D2F50633200CB6363 /* BrownfieldLib.xcframework */; };
-		79B1886D2FB31F7C007EE35D /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238D2F50633200CB6363 /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		79B1886F2FB31F7D007EE35D /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */; };
-		79B188702FB31F7D007EE35D /* BrownfieldNavigation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		79B188712FB31F80007EE35D /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23902F50633200CB6363 /* hermesvm.xcframework */; };
-		79B188722FB31F80007EE35D /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23902F50633200CB6363 /* hermesvm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		79B188732FB31F81007EE35D /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238E2F50633200CB6363 /* Brownie.xcframework */; };
-		79B188742FB31F81007EE35D /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238E2F50633200CB6363 /* Brownie.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		79B188752FB31F83007EE35D /* React.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09EC2FB31F2E0028CB26 /* React.xcframework */; };
-		79B188762FB31F83007EE35D /* React.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09EC2FB31F2E0028CB26 /* React.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		79B188792FB31F86007EE35D /* ReactNativeDependencies.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09ED2FB31F2E0028CB26 /* ReactNativeDependencies.xcframework */; };
-		79B1887A2FB31F86007EE35D /* ReactNativeDependencies.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09ED2FB31F2E0028CB26 /* ReactNativeDependencies.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		79688AB62FB3EA8400D728BD /* ReactNativeDependencies.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09ED2FB31F2E0028CB26 /* ReactNativeDependencies.xcframework */; };
+		79688AB72FB3EA8400D728BD /* ReactNativeDependencies.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09ED2FB31F2E0028CB26 /* ReactNativeDependencies.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		79688AB92FB3EA8400D728BD /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79413FEA2FB3210300A8B941 /* ReactBrownfield.xcframework */; };
+		79688ABA2FB3EA8400D728BD /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79413FEA2FB3210300A8B941 /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		79688ABB2FB3EA8600D728BD /* React.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09EC2FB31F2E0028CB26 /* React.xcframework */; };
+		79688ABC2FB3EA8600D728BD /* React.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 793A09EC2FB31F2E0028CB26 /* React.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		79688ABD2FB3EA8700D728BD /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23902F50633200CB6363 /* hermesvm.xcframework */; };
+		79688ABE2FB3EA8700D728BD /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B23902F50633200CB6363 /* hermesvm.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		79688ABF2FB3EA8900D728BD /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */; };
+		79688AC02FB3EA8900D728BD /* BrownfieldNavigation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238F2F50633200CB6363 /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		79688AC12FB3EA8A00D728BD /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238D2F50633200CB6363 /* BrownfieldLib.xcframework */; };
+		79688AC22FB3EA8A00D728BD /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238D2F50633200CB6363 /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		79688AC32FB3EA8B00D728BD /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238E2F50633200CB6363 /* Brownie.xcframework */; };
+		79688AC42FB3EA8B00D728BD /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 614B238E2F50633200CB6363 /* Brownie.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		79B1886E2FB31F7C007EE35D /* Embed Frameworks */ = {
+		79688AB82FB3EA8400D728BD /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				79B188742FB31F81007EE35D /* Brownie.xcframework in Embed Frameworks */,
-				79B1887A2FB31F86007EE35D /* ReactNativeDependencies.xcframework in Embed Frameworks */,
-				79B188722FB31F80007EE35D /* hermesvm.xcframework in Embed Frameworks */,
-				79B188702FB31F7D007EE35D /* BrownfieldNavigation.xcframework in Embed Frameworks */,
-				79413FED2FB3210C00A8B941 /* ReactBrownfield.xcframework in Embed Frameworks */,
-				79B1886D2FB31F7C007EE35D /* BrownfieldLib.xcframework in Embed Frameworks */,
-				79B188762FB31F83007EE35D /* React.xcframework in Embed Frameworks */,
+				79688AC42FB3EA8B00D728BD /* Brownie.xcframework in Embed Frameworks */,
+				79688AC02FB3EA8900D728BD /* BrownfieldNavigation.xcframework in Embed Frameworks */,
+				79688ABC2FB3EA8600D728BD /* React.xcframework in Embed Frameworks */,
+				79688AB72FB3EA8400D728BD /* ReactNativeDependencies.xcframework in Embed Frameworks */,
+				79688AC22FB3EA8A00D728BD /* BrownfieldLib.xcframework in Embed Frameworks */,
+				79688ABE2FB3EA8700D728BD /* hermesvm.xcframework in Embed Frameworks */,
+				79688ABA2FB3EA8400D728BD /* ReactBrownfield.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -67,13 +67,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79B188732FB31F81007EE35D /* Brownie.xcframework in Frameworks */,
-				79B1886F2FB31F7D007EE35D /* BrownfieldNavigation.xcframework in Frameworks */,
-				79B188792FB31F86007EE35D /* ReactNativeDependencies.xcframework in Frameworks */,
-				79B188712FB31F80007EE35D /* hermesvm.xcframework in Frameworks */,
-				79413FEC2FB3210C00A8B941 /* ReactBrownfield.xcframework in Frameworks */,
-				79B1886C2FB31F7B007EE35D /* BrownfieldLib.xcframework in Frameworks */,
-				79B188752FB31F83007EE35D /* React.xcframework in Frameworks */,
+				79688AC32FB3EA8B00D728BD /* Brownie.xcframework in Frameworks */,
+				79688ABF2FB3EA8900D728BD /* BrownfieldNavigation.xcframework in Frameworks */,
+				79688AB62FB3EA8400D728BD /* ReactNativeDependencies.xcframework in Frameworks */,
+				79688AB92FB3EA8400D728BD /* ReactBrownfield.xcframework in Frameworks */,
+				79688AC12FB3EA8A00D728BD /* BrownfieldLib.xcframework in Frameworks */,
+				79688ABD2FB3EA8700D728BD /* hermesvm.xcframework in Frameworks */,
+				79688ABB2FB3EA8600D728BD /* React.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,7 +121,7 @@
 				793C76A32EEBF938008A2A34 /* Sources */,
 				793C76A42EEBF938008A2A34 /* Frameworks */,
 				793C76A52EEBF938008A2A34 /* Resources */,
-				79B1886E2FB31F7C007EE35D /* Embed Frameworks */,
+				79688AB82FB3EA8400D728BD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
