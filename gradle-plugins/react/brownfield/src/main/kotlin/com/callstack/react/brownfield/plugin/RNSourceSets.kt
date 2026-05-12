@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.utils.Extension
@@ -7,7 +8,6 @@ import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Copy
 import java.io.File
 
@@ -15,9 +15,6 @@ object RNSourceSets {
     private lateinit var project: Project
     private lateinit var extension: Extension
     private lateinit var androidExtension: LibraryExtension
-    private lateinit var appProject: Project
-    private lateinit var appBuildDir: Directory
-    private lateinit var moduleBuildDir: Directory
 
     fun configure(
         project: Project,
@@ -35,41 +32,54 @@ object RNSourceSets {
         this.project = project
         this.extension = extension
 
-        androidExtension = RNSourceSets.project.extensions.getByName("android") as LibraryExtension
-        appProject = RNSourceSets.project.rootProject.project(RNSourceSets.extension.appProjectName)
-        appBuildDir = appProject.layout.buildDirectory.get()
-        moduleBuildDir = RNSourceSets.project.layout.buildDirectory.get()
+        androidExtension = this.project.extensions.getByType(LibraryExtension::class.java)
 
         configureSourceSets()
         configureTasks()
     }
 
+    private fun getAppProject(): Project = project.rootProject.project(extension.appProjectName)
+
+    private fun getAppBuildDir() = getAppProject().layout.buildDirectory.get()
+
+    private fun getModuleBuildDir() = project.layout.buildDirectory.get()
+
     private fun configureSourceSets() {
-        project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val capitalizedVariantName = variant.name.capitalized()
+        // 1. Get the 'androidComponents' extension for the new Variant API
+        val componentsExtension = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
 
-            androidExtension.sourceSets.getByName("main") { sourceSet ->
-                sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
-            }
+        // Move the non-variant-specific configuration out of the loop
+        androidExtension.sourceSets.named("main") { sourceSet ->
+            // This path is not variant-specific, so it's added once here.
+            sourceSet.java.srcDir("${getModuleBuildDir()}/generated/autolinking/src/main/java")
+        }
 
-            androidExtension.sourceSets.getByName(variant.name) { sourceSet ->
-                for (bundlePathSegment in listOf(
-                    // outputs for RN <= 0.81
-                    "createBundle${capitalizedVariantName}JsAndAssets",
-                    // outputs for RN >= 0.82
-                    "react/${variant.name}",
-                )) {
-                    sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
-                    sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
-                }
+        // 2. Use the onVariants block to configure each variant
+        componentsExtension.onVariants { variant ->
+            // 3. Lazily configure the 'main' source set using .named()
+            androidExtension.sourceSets.named(variant.name) { sourceSet ->
+                // Paths are collected and added, similar to your improved version
+                val bundlePathSegments =
+                    listOf(
+                        // outputs for RN <= 0.81
+                        "createBundle${variant.name.capitalized()}JsAndAssets",
+                        // outputs for RN >= 0.82
+                        "react/${variant.name}",
+                    )
+
+                // Add the variant-specific generated asset and resource directories
+                val appBuildDir = getAppBuildDir()
+                sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
+                sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
             }
         }
 
-        androidExtension.sourceSets.getByName("release") {
+        // These remain the same, but using .named() is the modern, lazy approach
+        androidExtension.sourceSets.named("release") {
             it.jniLibs.srcDirs("libsRelease")
         }
 
-        androidExtension.sourceSets.getByName("debug") {
+        androidExtension.sourceSets.named("debug") {
             it.jniLibs.srcDirs("libsDebug")
         }
     }
@@ -90,12 +100,12 @@ object RNSourceSets {
          * If `generateReactNativeEntryPoint` task does not exist, we early return. It means
          * the consumer library is running on RN version < 0.80
          */
-        val rnEntryPointTask = appProject.tasks.findByName(rnEntryPointTaskName) ?: return
+        val rnEntryPointTask = getAppProject().tasks.findByName(rnEntryPointTaskName) ?: return
 
         task.dependsOn(rnEntryPointTask)
         val sourceFile =
             File(
-                moduleBuildDir.toString(),
+                getModuleBuildDir().toString(),
                 "$path/com/facebook/react/ReactNativeApplicationEntryPoint.java",
             )
         task.doLast {
@@ -117,13 +127,12 @@ object RNSourceSets {
     }
 
     private fun configureTasks() {
-        val appProjectName = appProject.name
-
         project.tasks.register("copyAutolinkingSources", Copy::class.java) {
             val path = "generated/autolinking/src/main/java"
-            it.dependsOn(":$appProjectName:generateAutolinkingPackageList")
+            val appBuildDir = getAppBuildDir()
+            it.dependsOn(":${getAppProject().name}:generateAutolinkingPackageList")
             it.from("$appBuildDir/$path")
-            it.into("$moduleBuildDir/$path")
+            it.into("${getModuleBuildDir()}/$path")
 
             patchRNEntryPoint(it, path)
         }

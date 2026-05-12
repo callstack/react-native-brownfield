@@ -1,0 +1,11 @@
+scenario,on_clean_build
+version,Gradle 9.3.1
+tasks,:brownfield:assembleRelease
+value,total execution time
+warm-up build #1,162130.94
+warm-up build #2,94060.00
+measured build #1,104519.90
+measured build #2,104545.84
+measured build #3,90355.22
+measured build #4,90874.80
+measured build #5,104207.60
