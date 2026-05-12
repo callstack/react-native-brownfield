@@ -1,0 +1,22 @@
+package com.callstack.react.brownfield.shared
+
+interface ModuleInfo {
+    val moduleGroup: String
+    val moduleName: String
+    val moduleVersion: String
+
+    val file: String?
+
+    val type: String
+        get() = "aar"
+
+    val isExpoPublishDependency: Boolean?
+}
+
+data class UnresolvedArtifactInfo(
+    override val moduleGroup: String,
+    override val moduleName: String,
+    override val moduleVersion: String,
+    override val file: String?,
+    override val isExpoPublishDependency: Boolean?,
+) : ModuleInfo
