@@ -11,6 +11,7 @@ import {
   copyBundleReactNativePhase,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
+import { injectFmtFixIntoPodfile } from './withFmtFix';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
 import { Logger } from '../logging';
@@ -77,11 +78,13 @@ export const withBrownfieldIos: ConfigPlugin<
   config = withPodfile(config, (podfileConfig) => {
     const { frameworkName } = props.ios;
 
-    podfileConfig.modResults.contents = modifyPodfile(
+    const modifiedPodfile = modifyPodfile(
       podfileConfig.modResults.contents,
       frameworkName,
       expoMajor
     );
+    podfileConfig.modResults.contents =
+      injectFmtFixIntoPodfile(modifiedPodfile);
 
     return podfileConfig;
   });
