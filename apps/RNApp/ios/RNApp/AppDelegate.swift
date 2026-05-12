@@ -2,6 +2,7 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import BrownfieldLib
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -22,6 +23,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     reactNativeFactory = factory
 
     window = UIWindow(frame: UIScreen.main.bounds)
+
+    let brownfieldInitialState = BrownfieldStore(
+      counter: 0,
+      user: User(name: "Username")
+    )
+    BrownfieldStore.register(brownfieldInitialState)
 
     factory.startReactNative(
       withModuleName: "RNApp",
