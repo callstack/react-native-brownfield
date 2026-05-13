@@ -215,6 +215,10 @@ function getFrameworkBuildSettings(
     PRODUCT_BUNDLE_IDENTIFIER: `"${bundleIdentifier}"`,
     IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget,
 
+    // Ensure the BrownfieldLib (or equivalent name) is installed at the correct path
+    DYLIB_INSTALL_NAME_BASE: '"@rpath"',
+    LD_DYLIB_INSTALL_NAME: '"@rpath/$(EXECUTABLE_PATH)"',
+
     // Swift settings - use modern Swift version (5.0+) to avoid legacy Swift 3.x migration prompts
     SWIFT_VERSION: '5.0',
     TARGETED_DEVICE_FAMILY: `"1,2"`,
