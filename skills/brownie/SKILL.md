@@ -49,3 +49,13 @@ Initial install, prerequisites, setup sequence, first integration pass | [`getti
 `useStore` selectors, update patterns, low-level APIs (`subscribe`, `getSnapshot`, `setState`) | [`typescript-usage.md`](references/typescript-usage.md)
 Android registration lifecycle, serializer options, package settings, build and publish flow | [`android-usage.md`](references/android-usage.md)
 Swift store registration and UI usage, plus XCFramework packaging and embedding | [`swift-and-xcframework.md`](references/swift-and-xcframework.md)
+
+## Retrieval and Response Rules
+
+- Single-reference-first: choose exactly one primary reference from the table above that best matches the request before opening any other file.
+- Stop-after-sufficiency: once the required command/API is found for the request, stop reading additional references.
+- Cross-reference only when blocked: open a second reference only if the first one does not contain the needed command/API.
+- Testing-context response budget:
+  - Return compact actionable steps only.
+  - Use at most one code snippet.
+  - Do not restate overview/scope/background sections.

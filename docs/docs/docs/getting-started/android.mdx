@@ -185,13 +185,16 @@ import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 
 object ReactNativeHostManager {
     fun initialize(application: Application, onJSBundleLoaded: OnJSBundleLoaded? = null) {
-        loadReactNative(application) // **Only required for RN >= 0.80.0**
-
         val packageList = PackageList(application).packages
         ReactNativeBrownfield.initialize(application, packageList, onJSBundleLoaded)
     }
 }
 ```
+
+:::warning Important
+The `ReactNativeBrownfield::initialize(Application, ReactHost, OnJSBundleLoaded? = null)` function variant is deprecated and shouldn't be used any more. It will be removed in a future release.
+This version is unsafe because passing a pre-constructed `ReactHost` can trigger `SoLoader` (e.g., via `ExpoReactHostFactory`) before native libraries are fully loaded, leading to potential runtime crashes.
+:::
 
 ## 5. Add Build Config Fields
 
