@@ -1,5 +1,14 @@
 # @callstack/brownfield-navigation
 
+## 3.7.0
+
+### Patch Changes
+
+- [#322](https://github.com/callstack/react-native-brownfield/pull/322) [`cbc99cf`](https://github.com/callstack/react-native-brownfield/commit/cbc99cf2bbbb8ba351a2bde3c839dd1b5dcf302b) Thanks [@marcinszalski-callstack](https://github.com/marcinszalski-callstack)! - fix: make sure android libs are loaded for expo apps
+
+- Updated dependencies [[`c153378`](https://github.com/callstack/react-native-brownfield/commit/c1533783c0a93372b3c12f08c1428766c0405226)]:
+  - @callstack/brownfield-cli@3.7.0
+
 ## 3.6.1
 
 ### Patch Changes
