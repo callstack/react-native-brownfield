@@ -2,7 +2,7 @@
 import UIKit
 internal import React
 internal import React_RCTAppDelegate
-internal import React_RCTReactNativeFactory
+internal import ReactAppDependencyProvider
 
 class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"

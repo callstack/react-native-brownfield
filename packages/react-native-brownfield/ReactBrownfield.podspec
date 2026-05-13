@@ -25,10 +25,10 @@ Pod::Spec.new do |spec|
 
   if ENV['RCT_USE_PREBUILT_RNCORE'] == '1'
     spec.dependency 'React-Core-prebuilt'
-  else
-    spec.dependency 'ReactAppDependencyProvider'
-    spec.dependency "React-RCTAppDelegate"
   end
+
+  spec.dependency 'ReactAppDependencyProvider'
+  spec.dependency 'React-RCTAppDelegate'
 
   if ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] == '1'
     spec.dependency 'Expo'
