@@ -18,7 +18,7 @@ repositories {
 }
 
 android {
-    namespace = "com.rockappreact"
+    namespace = "com.callstack.rnbrownfield.demo.rockapp"
     compileSdk = 36
 
     defaultConfig {
@@ -39,7 +39,7 @@ android {
 publishing {
     publications {
         create<MavenPublication>("mavenAar") {
-            groupId = "com.rockappreact.rockapp.demo.rock"
+            groupId = "com.callstack.rnbrownfield.demo.rockapp"
             artifactId = "brownfieldlib"
             version = "0.0.1-SNAPSHOT"
             afterEvaluate {
