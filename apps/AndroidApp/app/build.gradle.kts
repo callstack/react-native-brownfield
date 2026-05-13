@@ -38,6 +38,9 @@ android {
         create("vanilla") {
             dimension = "app"
         }
+        create("rock") {
+            dimension = "app"
+        }
     }
 
     buildTypes {
@@ -74,6 +77,7 @@ dependencies {
     add("expo55Implementation", libs.brownfieldlib.expo55)
     add("expo54Implementation", libs.brownfieldlib.expo54)
     add("vanillaImplementation", libs.brownfieldlib.vanilla)
+    add("rockImplementation", libs.brownfieldlib.rock)
 
     implementation(libs.androidx.fragment.compose)
     testImplementation(libs.junit)
