@@ -1,4 +1,4 @@
-package com.rockappreact
+package com.callstack.rnbrownfield.demo.rockapp
 
 import android.app.Application
 import com.callstack.reactnativebrownfield.OnJSBundleLoaded
