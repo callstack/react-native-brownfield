@@ -1,4 +1,4 @@
-package com.rockapp
+package com.callstack.rnbrownfield.demo.rockapp
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
