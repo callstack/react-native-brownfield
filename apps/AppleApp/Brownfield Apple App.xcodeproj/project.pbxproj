@@ -7,13 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		79B1D9A02FB4A61400A5F42B /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; };
-		79B1D9A12FB4A61400A5F42B /* ReactNativeDependencies.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; };
-		79B1D9A22FB4A61400A5F42B /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; };
-		79B1D9A32FB4A61400A5F42B /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; };
-		79B1D9A42FB4A61400A5F42B /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; };
-		79B1D9A52FB4A61400A5F42B /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; };
-		79B1D9A62FB4A61400A5F42B /* React.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; };
+		795327712FB4A902008398F3 /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; };
+		795327722FB4A902008398F3 /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		795327732FB4A904008398F3 /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; };
+		795327742FB4A904008398F3 /* BrownfieldNavigation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		795327752FB4A905008398F3 /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; };
+		795327762FB4A905008398F3 /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		795327772FB4A906008398F3 /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; };
+		795327782FB4A906008398F3 /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		795327792FB4A908008398F3 /* React.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; };
+		7953277A2FB4A908008398F3 /* React.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7953277B2FB4A909008398F3 /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; };
+		7953277C2FB4A909008398F3 /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7953277D2FB4A90A008398F3 /* ReactNativeDependencies.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; };
+		7953277E2FB4A90A008398F3 /* ReactNativeDependencies.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,6 +30,13 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				795327762FB4A905008398F3 /* Brownie.xcframework in Embed Frameworks */,
+				7953277C2FB4A909008398F3 /* ReactBrownfield.xcframework in Embed Frameworks */,
+				7953277E2FB4A90A008398F3 /* ReactNativeDependencies.xcframework in Embed Frameworks */,
+				795327742FB4A904008398F3 /* BrownfieldNavigation.xcframework in Embed Frameworks */,
+				795327782FB4A906008398F3 /* hermesvm.xcframework in Embed Frameworks */,
+				795327722FB4A902008398F3 /* BrownfieldLib.xcframework in Embed Frameworks */,
+				7953277A2FB4A908008398F3 /* React.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -53,13 +67,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79B1D9A02FB4A61400A5F42B /* ReactBrownfield.xcframework in Frameworks */,
-				79B1D9A12FB4A61400A5F42B /* ReactNativeDependencies.xcframework in Frameworks */,
-				79B1D9A22FB4A61400A5F42B /* BrownfieldNavigation.xcframework in Frameworks */,
-				79B1D9A32FB4A61400A5F42B /* BrownfieldLib.xcframework in Frameworks */,
-				79B1D9A42FB4A61400A5F42B /* Brownie.xcframework in Frameworks */,
-				79B1D9A52FB4A61400A5F42B /* hermesvm.xcframework in Frameworks */,
-				79B1D9A62FB4A61400A5F42B /* React.xcframework in Frameworks */,
+				795327752FB4A905008398F3 /* Brownie.xcframework in Frameworks */,
+				795327732FB4A904008398F3 /* BrownfieldNavigation.xcframework in Frameworks */,
+				7953277D2FB4A90A008398F3 /* ReactNativeDependencies.xcframework in Frameworks */,
+				795327772FB4A906008398F3 /* hermesvm.xcframework in Frameworks */,
+				7953277B2FB4A909008398F3 /* ReactBrownfield.xcframework in Frameworks */,
+				795327712FB4A902008398F3 /* BrownfieldLib.xcframework in Frameworks */,
+				795327792FB4A908008398F3 /* React.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
