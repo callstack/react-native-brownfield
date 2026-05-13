@@ -8,6 +8,7 @@
     "build:example:android-consumer:expo58": "./gradlew assembleExpo58Release",
     "build:example:android-consumer:expopreview": "./gradlew assembleExpopreviewRelease",
     "build:example:android-consumer:vanilla": "./gradlew assembleVanillaRelease",
+    "build:example:android-consumer:rock": "./gradlew assembleRockRelease",
     "e2e:build:android": "detox build --configuration android.emu.release",
     "e2e:test:android": "detox test --configuration android.emu.release",
     "e2e:build:android:expo58": "detox build --config-path ./.detoxrc.expo58.cjs --configuration android.emu.release.expo58",
