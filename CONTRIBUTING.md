@@ -19,6 +19,7 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `lint` - runs linting on all JS/TS source files in the monorepo _[Turbo]_
 - `gradle-plugin:lint` - runs linting on the Brownfield Gradle plugin source code
 - `typecheck` - runs TypeScript type checking on all TS source files in the monorepo _[Turbo]_
+- `test:apps` - runs Jest for the React Native example apps under `apps/` (Expo 54, Expo 55, plain RN) _[Turbo]_
 - `build` - runs all `build*` tasks in the Turbo repo - see below for more details _[Turbo]_
 - `dev` - runs all `dev` tasks in all workspaces
 - `brownfield:plugin:publish:local` - publishes the Brownfield Gradle plugin to your local Maven repository for testing purposes
@@ -27,8 +28,30 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `build:example:android-rn` - builds the example React Native app for Android (`apps/RNApp/android`)
 - `build:example:ios-rn` - builds the example React Native app for iOS (`apps/RNApp/ios`)
 - `build:example:android-consumer:expo55` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 55 RN app (`apps/ExpoApp55`) artifact
-- - `build:example:android-consumer:expo54` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
-- - `build:example:android-consumer:vanilla` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
+- `build:example:android-consumer:expo54` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
+- `build:example:android-consumer:vanilla` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
 - `build:example:ios-consumer:expo55` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 55 RN app (`apps/ExpoApp55`) artifact
 - `build:example:ios-consumer:expo54` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
 - `build:example:ios-consumer:vanilla` - builds the example native iOS consumer (`apps/AppleApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
+
+## Example app tests
+
+The React Native example apps share Jest utilities and test suites from `apps/brownfield-example-shared-tests`. Tests exercise integration with `@callstack/react-native-brownfield`, `@callstack/brownfield-navigation`, and `@callstack/brownie` as used in each demo.
+
+From the repository root:
+
+| Command | Description |
+| --- | --- |
+| `yarn test:apps` | Runs `test` in all workspaces under `apps/` that define it (via Turbo). |
+
+Per example app (run from the repo root):
+
+| Command | App |
+| --- | --- |
+| `yarn workspace @callstack/brownfield-example-rn-app test` | Plain React Native (`apps/RNApp`) |
+| `yarn workspace @callstack/brownfield-example-expo-app-54 test` | Expo SDK 54 (`apps/ExpoApp54`) |
+| `yarn workspace @callstack/brownfield-example-expo-app-55 test` | Expo SDK 55 (`apps/ExpoApp55`) |
+
+Package-level scripts (`yarn test` inside `apps/RNApp`, `apps/ExpoApp54`, or `apps/ExpoApp55`) invoke Jest with each app’s `jest.config.js`.
+
+The native-only sample apps (`apps/AppleApp`, `apps/AndroidApp`) use their platform test runners (Xcode / Gradle), not Jest.
