@@ -47,9 +47,11 @@ open class Extension {
     var useStrippedSoFiles = true
 
     @Deprecated(
-        message = "This property is deprecated and will be removed in a future release. The successor is useStrippedSoFiles, which is by default true.",
+        message =
+            "This property is deprecated and will be removed in a future release." +
+                "The successor is useStrippedSoFiles, which is by default true.",
         replaceWith = ReplaceWith("useStrippedSoFiles"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     var experimentalUseStrippedSoFiles
         get() = useStrippedSoFiles
