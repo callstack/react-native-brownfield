@@ -1,8 +1,8 @@
+#if canImport(Expo)
 import UIKit
 internal import React
 internal import ReactAppDependencyProvider
 
-#if canImport(Expo)
 internal import Expo
 
 final class ExpoHostRuntime {
