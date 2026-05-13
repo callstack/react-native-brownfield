@@ -8,9 +8,9 @@
     "test": "jest",
     "ios": "rock run:ios",
     "android": "rock run:android",
-    "package:ios": "rock package:ios --scheme RockAppReact --configuration Release",
-    "package:aar": "rock package:aar --variant Release --module-name rockappreact",
-    "publish-local:aar": "npm run package:aar && rock publish-local:aar --module-name rockappreact"
+    "package:ios": "rock package:ios --scheme BrownfieldLib --configuration Release",
+    "package:aar": "rock package:aar --variant Release --module-name brownfieldlib",
+    "publish-local:aar": "npm run package:aar && rock publish-local:aar --module-name brownfieldlib"
   },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
@@ -46,5 +46,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "brownie": {
+    "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/rockapp/Generated/",
+    "kotlinPackageName": "com.callstack.rnbrownfield.demo.rockapp"
   }
 }
