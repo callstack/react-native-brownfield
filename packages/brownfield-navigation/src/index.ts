@@ -1,8 +1,11 @@
 import NativeBrownfieldNavigation from './NativeBrownfieldNavigation';
 
 const BrownfieldNavigation = {
-  temporary: () => {
-    NativeBrownfieldNavigation.temporary();
+  navigateToSettings: () => {
+    NativeBrownfieldNavigation.navigateToSettings();
+  },
+  navigateToReferrals: (userId: string) => {
+    NativeBrownfieldNavigation.navigateToReferrals(userId);
   },
 };
 
