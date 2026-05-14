@@ -5,6 +5,9 @@ internal import ReactAppDependencyProvider
 
 #if canImport(Expo)
 internal import Expo
+#if canImport(EXUpdates)
+internal import EXUpdates
+#endif
 
 final class ExpoHostRuntime {
   static let shared = ExpoHostRuntime()
@@ -38,7 +41,7 @@ final class ExpoHostRuntime {
     appDelegate.bindReactNativeFactory(reactNativeFactory)
     #endif
     expoDelegate = appDelegate
-
+      
     if let onBundleLoaded {
       jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
     }
@@ -101,10 +104,12 @@ final class ExpoHostRuntime {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
-    return expoDelegate?.application(
-      application,
-      didFinishLaunchingWithOptions: launchOptions
-    ) != nil
+#if canImport(EXUpdates)
+    if !AppController.isInitialized() {
+      AppController.initializeWithoutStarting()
+    }
+#endif
+    return ExpoAppDelegateSubscriberManager.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   // Linking API; base implementation courtesy of Expo, licensed under the MIT License - changes were made to call the method on expo delegate - https://github.com/expo/expo/blob/main/apps/bare-expo/ios/AppDelegate.swift
@@ -124,6 +129,13 @@ final class ExpoHostRuntime {
   ) -> Bool {
     let result = RCTLinkingManager.application(application, continue: userActivity, restorationHandler: restorationHandler)
     return (expoDelegate?.application(application, continue: userActivity, restorationHandler: restorationHandler) ?? false) || result
+  }
+    
+  func application(
+    _ application: UIApplication,
+    willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    return ExpoAppDelegateSubscriberManager.application(application, willFinishLaunchingWithOptions: launchOptions)
   }
 
   func view(
@@ -170,6 +182,12 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
     return RCTBundleURLProvider.sharedSettings().jsBundleURL(
       forBundleRoot: entryFile)
 #else
+    #if canImport(EXUpdates)
+    if AppController.isInitialized(),
+       let launchAssetURL = AppController.sharedInstance.launchAssetUrl() {
+      return launchAssetURL
+    }
+    #endif
     do {
       let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
         from: bundlePath

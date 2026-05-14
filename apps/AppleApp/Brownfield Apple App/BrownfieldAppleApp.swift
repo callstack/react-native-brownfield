@@ -18,6 +18,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             didFinishLaunchingWithOptions: launchOptions
         )
     }
+    
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        return ReactNativeBrownfield.shared.application(application, willFinishLaunchingWithOptions: launchOptions)
+    }
 }
 
 public class RNNavigationDelegate: BrownfieldNavigationDelegate {
@@ -87,7 +91,7 @@ struct BrownfieldAppleApp: App {
             ReactNativeBrownfield.shared.ensureExpoModulesProvider()
         #endif
 
-        BrownfieldStore.register(initialState)
+       BrownfieldStore.register(initialState)
     }
 
     var body: some Scene {
