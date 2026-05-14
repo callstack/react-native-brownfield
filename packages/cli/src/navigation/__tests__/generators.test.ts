@@ -21,6 +21,21 @@ const methods: MethodSignature[] = [
   },
 ];
 
+const modelMethods: MethodSignature[] = [
+  {
+    name: 'openSettings',
+    params: [{ name: 'payload', type: 'DummyType', optional: false }],
+    returnType: 'void',
+    isAsync: false,
+  },
+  {
+    name: 'openSettingsOptional',
+    params: [{ name: 'payload', type: 'DummyType', optional: true }],
+    returnType: 'void',
+    isAsync: false,
+  },
+];
+
 describe('navigation code generators', () => {
   it('generates TurboModule spec and index files', () => {
     const turboModuleSpec = generateTurboModuleSpec(methods);
@@ -64,6 +79,43 @@ describe('navigation code generators', () => {
     expect(kotlinModule).toContain(
       'BrownfieldNavigationManager.getDelegate().openScreen(route, params)'
     );
+  });
+
+  it('maps known model types for Swift delegate signatures', () => {
+    const swiftDelegate = generateSwiftDelegate(modelMethods, {
+      modelTypeNames: ['DummyType'],
+    });
+
+    expect(swiftDelegate).toContain('@objc func openSettings(_ payload: DummyType)');
+    expect(swiftDelegate).toContain(
+      '@objc func openSettingsOptional(_ payload: DummyType?)'
+    );
+  });
+
+  it('maps known model types for Kotlin delegate/module signatures', () => {
+    const kotlinPackageName = 'com.callstack.nativebrownfieldnavigation';
+    const options = { modelTypeNames: ['DummyType'] };
+    const kotlinDelegate = generateKotlinDelegate(
+      modelMethods,
+      kotlinPackageName,
+      options
+    );
+    const kotlinModule = generateKotlinModule(
+      modelMethods,
+      kotlinPackageName,
+      options
+    );
+
+    expect(kotlinDelegate).toContain('fun openSettings(payload: DummyType)');
+    expect(kotlinDelegate).toContain('fun openSettingsOptional(payload: DummyType?)');
+    expect(kotlinModule).toContain(
+      'override fun openSettings(payload: DummyType)'
+    );
+    expect(kotlinModule).toContain(
+      'override fun openSettingsOptional(payload: DummyType?)'
+    );
+    expect(kotlinModule).not.toContain('payload: Any');
+    expect(kotlinModule).not.toContain('payload: Any?');
   });
 });
 

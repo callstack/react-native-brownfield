@@ -241,10 +241,16 @@ export async function runNavigationCodegen({
     indexTs,
     indexJs: transpileWithConsumerBabel(indexTs, projectRoot, packageRoot),
     indexDts: generateIndexDts(methods),
-    swiftDelegate: generateSwiftDelegate(methods),
+    swiftDelegate: generateSwiftDelegate(methods, {
+      modelTypeNames: models.modelTypeNames,
+    }),
     objcImplementation: generateObjCImplementation(methods),
-    kotlinDelegate: generateKotlinDelegate(methods, androidJavaPackageName),
-    kotlinModule: generateKotlinModule(methods, androidJavaPackageName),
+    kotlinDelegate: generateKotlinDelegate(methods, androidJavaPackageName, {
+      modelTypeNames: models.modelTypeNames,
+    }),
+    kotlinModule: generateKotlinModule(methods, androidJavaPackageName, {
+      modelTypeNames: models.modelTypeNames,
+    }),
   };
 
   if (models.modelTypeNames.length > 0) {

@@ -32,10 +32,18 @@ function mapTsTypeToObjC(tsType: string, nullable: boolean = false): string {
   return nullable ? 'id _Nullable' : 'id';
 }
 
-function mapTsTypeToSwift(tsType: string, optional: boolean = false): string {
+interface SwiftTypeMappingOptions {
+  modelTypeNames?: string[];
+}
+
+function mapTsTypeToSwift(
+  tsType: string,
+  optional: boolean = false,
+  options: SwiftTypeMappingOptions = {}
+): string {
   if (tsType.startsWith('Promise<')) {
     const inner = tsType.slice(8, -1);
-    return mapTsTypeToSwift(inner, optional);
+    return mapTsTypeToSwift(inner, optional, options);
   }
 
   const mapped = TS_TO_SWIFT_TYPE[tsType];
@@ -43,15 +51,22 @@ function mapTsTypeToSwift(tsType: string, optional: boolean = false): string {
     return optional ? `${mapped}?` : mapped;
   }
 
+  if (options.modelTypeNames?.includes(tsType)) {
+    return optional ? `${tsType}?` : tsType;
+  }
+
   return optional ? 'Any?' : 'Any';
 }
 
-export function generateSwiftDelegate(methods: MethodSignature[]): string {
+export function generateSwiftDelegate(
+  methods: MethodSignature[],
+  options: SwiftTypeMappingOptions = {}
+): string {
   const protocolMethods = methods
     .map((method) => {
       const params = method.params
         .map((param, index) => {
-          const swiftType = mapTsTypeToSwift(param.type, param.optional);
+          const swiftType = mapTsTypeToSwift(param.type, param.optional, options);
           const label = index === 0 ? '_' : param.name;
           return `${label} ${param.name}: ${swiftType}`;
         })
@@ -60,7 +75,7 @@ export function generateSwiftDelegate(methods: MethodSignature[]): string {
       const returnType =
         method.returnType === 'void'
           ? ''
-          : ` -> ${mapTsTypeToSwift(method.returnType, false)}`;
+          : ` -> ${mapTsTypeToSwift(method.returnType, false, options)}`;
 
       return `    @objc func ${method.name}(${params})${returnType}`;
     })
