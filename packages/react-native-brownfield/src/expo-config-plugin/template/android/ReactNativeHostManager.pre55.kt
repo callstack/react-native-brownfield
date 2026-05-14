@@ -34,12 +34,15 @@ object ReactNativeHostManager {
                 override fun getBundleAssetName(): String = "index.android.bundle"
             })
 
-            {{EXPO_UPDATES_REACT_HOST_BLOCK}}
+
         ReactNativeBrownfield.initialize(application, onJSBundleLoaded) {
-            ExpoReactHostFactory.createFromReactNativeHost(
+            val reactHost = ExpoReactHostFactory.createFromReactNativeHost(
                 context = application.applicationContext,
                 reactNativeHost = reactNativeHost
             )
+    
+            {{EXPO_UPDATES_REACT_HOST_BLOCK}}
+            reactHost
         }
     }
 

@@ -15,7 +15,7 @@
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release",
-    "eas:stg": "eas update --channel production --message 'testing 1st stg channel update' --platform ios"
+    "eas:stg": "EXPO_TOKEN=$EAS_TOKEN eas update --channel production --message 'testing 1st stg channel update' --platform android"
   },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
