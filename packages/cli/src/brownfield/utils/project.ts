@@ -56,6 +56,15 @@ export function isExpoProject(projectRoot: string): boolean {
   return hasExpoConfig && dependsOnExpo;
 }
 
+export function getExpoSdkMajor(projectRoot: string): number | null {
+  const rawExpoVersion = getExpoConfigIfIsExpo(projectRoot)?.exp.sdkVersion;
+  if (!rawExpoVersion) {
+    return null;
+  }
+  const expoSdkMajor = parseInt(rawExpoVersion.split('.')[0], 10);
+  return Number.isFinite(expoSdkMajor) ? expoSdkMajor : null;
+}
+
 /**
  * Fills the RNC CLI project config from the Expo config by mutating the passed in `options.projectConfig` object in place
  */

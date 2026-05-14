@@ -19,6 +19,7 @@ import { Command, Option } from 'commander';
 
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
+import { assertUsePrebuiltRnCoreSupported } from '../utils/usePrebuiltRnCore.js';
 import {
   actionRunner,
   curryOptions,
@@ -74,12 +75,16 @@ export const packageIosCommand = curryOptions(
   .addOption(
     new Option('--use-prebuilt-rn-core [bool]', USE_PREBUILT_RN_CORE_HELP)
       .preset(true)
-      .default(true)
       .argParser(parseUsePrebuiltRnCoreArgument)
   )
   .action(
     actionRunner(async (options: PackageIosCliFlags) => {
       const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
+
+      if (options.usePrebuiltRnCore === true) {
+        assertUsePrebuiltRnCoreSupported({ projectRoot });
+      }
+
       await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
 
       if (!userConfig.project.ios) {
