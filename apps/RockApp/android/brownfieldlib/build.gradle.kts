@@ -69,7 +69,7 @@ publishing {
 }
 
 dependencies {
-    api("com.facebook.react:react-android:0.83.0")
+    api("com.facebook.react:react-android:0.85.0")
     api("com.facebook.hermes:hermes-android:0.14.0")
 }
 
