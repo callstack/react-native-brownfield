@@ -1,5 +1,16 @@
 # @callstack/brownie
 
+## 3.8.0
+
+### Minor Changes
+
+- [#295](https://github.com/callstack/react-native-brownfield/pull/295) [`d93dcd9`](https://github.com/callstack/react-native-brownfield/commit/d93dcd96e3b90517d718cd42b2cc773fb9795eac) Thanks [@hurali97](https://github.com/hurali97)! - add expo updates support
+
+### Patch Changes
+
+- Updated dependencies [[`d93dcd9`](https://github.com/callstack/react-native-brownfield/commit/d93dcd96e3b90517d718cd42b2cc773fb9795eac)]:
+  - @callstack/brownfield-cli@3.8.0
+
 ## 3.7.0
 
 ### Minor Changes

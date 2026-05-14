@@ -1,1 +1,9 @@
-["guidelines", "troubleshooting"]
+[
+  "guidelines",
+  "troubleshooting",
+  {
+    "type": "dir",
+    "name": "expo-updates",
+    "label": "Expo Updates"
+  }
+]

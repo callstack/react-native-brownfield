@@ -11,10 +11,11 @@ import {
   copyBundleReactNativePhase,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
+import { ensureFrameworkHasExpoPlistResource } from './utils/expo-updates';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
 import { Logger } from '../logging';
-import { getExpoInfo } from '../expoUtils';
+import { getExpoInfo, hasExpoUpdatesInstalled } from '../expoUtils';
 
 /**
  * iOS Config Plugin for integration with @callstack/react-native-brownfield.
@@ -34,12 +35,23 @@ export const withBrownfieldIos: ConfigPlugin<
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
+    const hasExpoUpdates = hasExpoUpdatesInstalled(modRequest.projectRoot);
 
     const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
       props.ios
     );
+
+    // Ensure Expo.plist is present in the framework resources phase when
+    // expo-updates is installed, including for pre-existing framework targets.
+    if (hasExpoUpdates) {
+      ensureFrameworkHasExpoPlistResource(project, frameworkTargetUUID);
+    } else {
+      Logger.logDebug(
+        'Skipping Expo.plist framework resource wiring because expo-updates is not installed'
+      );
+    }
 
     if (targetAlreadyExists) {
       Logger.logDebug(

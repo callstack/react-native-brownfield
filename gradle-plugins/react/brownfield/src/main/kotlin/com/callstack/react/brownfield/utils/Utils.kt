@@ -1,5 +1,7 @@
 package com.callstack.react.brownfield.utils
 
+import com.callstack.react.brownfield.plugin.RNBrownfieldPlugin.Companion.EXPO_PROJECT_LOCATOR
+import org.gradle.api.Project
 import java.io.File
 
 object Utils {
@@ -39,5 +41,9 @@ object Utils {
 
     fun isExampleLibrary(projectName: String): Boolean {
         return projectName == "example-android-library"
+    }
+
+    fun isExpoProject(project: Project): Boolean {
+        return project.findProject(EXPO_PROJECT_LOCATOR) != null
     }
 }
