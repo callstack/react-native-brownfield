@@ -7,6 +7,10 @@ object BrownfieldNavigationManager {
     this.navigationDelegate = navigationDelegate
   }
 
+  fun clearDelegate() {
+    navigationDelegate = null
+  }
+
   fun getDelegate(): BrownfieldNavigationDelegate {
     return navigationDelegate
       ?: throw IllegalStateException("BrownfieldNavigation delegate is not set.")
