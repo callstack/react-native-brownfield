@@ -54,7 +54,7 @@ jobs:
           yarn workspace @callstack/react-native-brownfield brownfield --version
 
   android-androidapp-expo:
-    name: Android road test (RNApp & AndroidApp - Expo ${{ matrix.version }})
+    name: Android road test (AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest
     needs: build-lint
     strategy:
@@ -75,7 +75,7 @@ jobs:
           rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp${{ matrix.version }}/brownfieldlib
 
   android-androidapp-vanilla:
-    name: Android road test (RNApp & AndroidApp - Vanilla)
+    name: Android road test (AndroidApp - Vanilla)
     runs-on: ubuntu-latest
     needs: build-lint
 
@@ -91,7 +91,7 @@ jobs:
           rn-project-maven-path: com/rnapp/brownfieldlib
 
   ios-appleapp-vanilla:
-    name: iOS road test (RNApp & AppleApp - Vanilla)
+    name: iOS road test (AppleApp - Vanilla)
     runs-on: macos-26
     needs: build-lint
 
@@ -106,7 +106,7 @@ jobs:
           rn-project-path: apps/RNApp
 
   ios-appleapp-expo:
-    name: iOS road test (RNApp & AppleApp - Expo ${{ matrix.version }})
+    name: iOS road test (AppleApp - Expo ${{ matrix.version }})
     runs-on: macos-26
     needs: build-lint
     strategy:
