@@ -7,7 +7,6 @@ import BrownfieldNavigation
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     var window: UIWindow?
-    private let navigationDelegate = RNNavigationDelegate()
 
     func application(
         _ application: UIApplication,
@@ -22,18 +21,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         return ReactNativeBrownfield.shared.application(application, willFinishLaunchingWithOptions: launchOptions)
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Reclaim delegate ownership before RN can issue navigation requests.
-        BrownfieldNavigationManager.shared.setDelegate(
-            navigationDelegate: navigationDelegate
-        )
-    }
-
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Release the delegate so another native host can register cleanly.
-        BrownfieldNavigationManager.shared.clearDelegate()
     }
 }
 
@@ -105,7 +92,44 @@ struct BrownfieldAppleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootContentView(appDelegate: appDelegate)
+        }
+    }
+}
+
+private struct RootContentView: View {
+    @Environment(\.scenePhase) private var scenePhase
+
+    let appDelegate: AppDelegate
+
+    var body: some View {
+        ContentView()
+            .onAppear {
+                syncNavigationDelegate(for: scenePhase)
+            }
+            .onChange(of: scenePhase) { newPhase in
+                syncNavigationDelegate(for: newPhase)
+            }
+    }
+
+    private func registerNavigationDelegate() {
+        BrownfieldNavigationManager.shared.setDelegate(
+            navigationDelegate: RNNavigationDelegate()
+        )
+    }
+    
+    private func clearNavigationDelegate() {
+        BrownfieldNavigationManager.shared.clearDelegate()
+    }
+
+    private func syncNavigationDelegate(for phase: ScenePhase) {
+        switch phase {
+        case .active:
+            registerNavigationDelegate()
+        case .inactive, .background:
+            clearNavigationDelegate()
+        @unknown default:
+            clearNavigationDelegate()
         }
     }
 }
