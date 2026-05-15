@@ -30,9 +30,10 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `build:example:android-consumer:expo55` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 55 RN app (`apps/ExpoApp55`) artifact
 - `build:example:android-consumer:expo54` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
 - `build:example:android-consumer:vanilla` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
-- `build:example:ios-consumer:expo55` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 55 RN app (`apps/ExpoApp55`) artifact
-- `build:example:ios-consumer:expo54` - builds the example native iOS consumer app (`apps/AppleApp`) consuming the Expo 54 RN app (`apps/ExpoApp54`) artifact
-- `build:example:ios-consumer:vanilla` - builds the example native iOS consumer (`apps/AppleApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
+- `build:example:ios-consumer:expo` - alias for `build:example:ios-consumer:expo55`
+- `build:example:ios-consumer:expo55` - builds the `Brownfield Apple App (ExpoApp55)` target via scheme **Brownfield Apple App Expo 55** (`Release`)
+- `build:example:ios-consumer:expo54` - builds the `Brownfield Apple App (ExpoApp54)` target via scheme **Brownfield Apple App Expo 54** (`Release`)
+- `build:example:ios-consumer:vanilla` - builds the `Brownfield Apple App (RNApp)` target via scheme **Brownfield Apple App Vanilla** (`Release Vanilla`)
 
 ## Running demo apps
 
@@ -57,15 +58,21 @@ There are 2 brownfield host apps.
   - `build:example:android-consumer:expo54` - consumes Expo 54
   - `build:example:android-consumer:expo55` - consumes Expo 55
   - `build:example:android-consumer:vanilla` - consumes the vanilla `RNApp`
-- `apps/AppleApp` - for Apple
-  - `build:example:ios-consumer:expo54` - consumes Expo 54
-  - `build:example:ios-consumer:expo55` - consumes Expo 55
-  - `build:example:ios-consumer:vanilla` - consumes the vanilla `RNApp`
+- `apps/AppleApp` - for Apple (three Xcode targets, each with its own shared scheme)
+  - `build:example:ios-consumer:expo54` — target `Brownfield Apple App (ExpoApp54)`, scheme **Brownfield Apple App Expo 54**
+  - `build:example:ios-consumer:expo55` (or `expo`) — target `Brownfield Apple App (ExpoApp55)`, scheme **Brownfield Apple App Expo 55**
+  - `build:example:ios-consumer:vanilla` — target `Brownfield Apple App (RNApp)`, scheme **Brownfield Apple App Vanilla**
 
-For iOS, the scripts use the previously packaged artifacts from the respective directory `apps/{RNApp,Expo55,Expo54}` and invoke `prepareXCFrameworks.js` to copy over the XCFrameworks to the `apps/AppleApp/package` directory, from which the XCode project consumes well-known XCFramework files.
+For iOS, each script uses the previously packaged artifacts from the respective directory (`apps/RNApp`, `apps/ExpoApp54`, or `apps/ExpoApp55`), invokes `prepareXCFrameworks.js` to copy XCFrameworks into `apps/AppleApp/package`, then runs `xcodebuild` against the matching scheme. The Xcode project reads fixed paths under `package/` (for example `package/BrownfieldLib.xcframework`).
+
+| Yarn script | RN app | Xcode target | Scheme | Configuration |
+| --- | --- | --- | --- | --- |
+| `build:example:ios-consumer:vanilla` | `RNApp` | `Brownfield Apple App (RNApp)` | Brownfield Apple App Vanilla | `Release Vanilla` |
+| `build:example:ios-consumer:expo54` | `ExpoApp54` | `Brownfield Apple App (ExpoApp54)` | Brownfield Apple App Expo 54 | `Release` |
+| `build:example:ios-consumer:expo55` | `ExpoApp55` | `Brownfield Apple App (ExpoApp55)` | Brownfield Apple App Expo 55 | `Release` |
 
 > [!IMPORTANT]
-> You can build & run the `AppleApp` directly from XCode GUI, but before running it, after changing the scheme between Expo / Vanilla or making any changes & re-packaging the RN app, you need to re-run the `build:example:ios-consumer:...` script once again for the built artifacts to be available in the `apps/AppleApp/package` directory. Otherwise, you will still be building with the old artifacts.
+> You can build and run `AppleApp` from the Xcode GUI by selecting the scheme for the variant you want. Before running, after switching schemes or re-packaging an RN app, run the matching `build:example:ios-consumer:...` script so fresh artifacts are present in `apps/AppleApp/package`. Otherwise Xcode will still link against the previous XCFrameworks.
 
 ## Tests
 
