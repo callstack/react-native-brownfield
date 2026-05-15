@@ -1,8 +1,14 @@
+type UserType = {
+  id: string;
+  name: string;
+  email: string;
+};
+
 export interface BrownfieldNavigationSpec {
   /**
    * Navigate to the native settings screen
    */
-  navigateToSettings(): void;
+  navigateToSettings(user: UserType): void;
 
   /**
    * Navigate to the native referrals screen

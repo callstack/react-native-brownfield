@@ -22,7 +22,7 @@ vi.mock('../generators/ts', async (importOriginal) => {
 });
 
 vi.mock('../generators/models', () => ({
-  generateNavigationModels: vi.fn(async () => ({ modelTypeNames: [] })),
+  generateNavigationModels: vi.fn(async () => ({ modelTypeNames: ['UserType'] })),
 }));
 
 import { runNavigationCodegen } from '../runner.js';
@@ -78,8 +78,13 @@ describe('runNavigationCodegen integration', () => {
     fs.writeFileSync(
       path.join(projectRoot, 'brownfield.navigation.ts'),
       `
+      export type UserType = {
+        id: string;
+      };
+
       export interface BrownfieldNavigationSpec {
         openScreen(route: string, params?: Object): void;
+        navigateToSettings(user: UserType): void;
         fetchToken(userId: string): Promise<string>;
       }
       `
@@ -116,7 +121,16 @@ describe('runNavigationCodegen integration', () => {
     expect(fs.existsSync(kotlinModulePath)).toBe(true);
 
     expect(fs.readFileSync(turboModuleSpecPath, 'utf8')).toContain('openScreen');
+    expect(fs.readFileSync(turboModuleSpecPath, 'utf8')).toContain(
+      'export type UserType = {\n        id: string;\n      };'
+    );
+    expect(fs.readFileSync(turboModuleSpecPath, 'utf8')).toContain(
+      'navigateToSettings(user: Object): void;'
+    );
     expect(fs.readFileSync(indexTsPath, 'utf8')).toContain('fetchToken');
+    expect(fs.readFileSync(indexTsPath, 'utf8')).toContain(
+      "import type { UserType } from './NativeBrownfieldNavigation';"
+    );
     expect(fs.readFileSync(swiftDelegatePath, 'utf8')).toContain(
       '@objc public protocol BrownfieldNavigationDelegate'
     );

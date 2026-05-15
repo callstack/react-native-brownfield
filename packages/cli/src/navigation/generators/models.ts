@@ -8,12 +8,13 @@ import {
 } from 'quicktype-core';
 import { schemaForTypeScriptSources } from 'quicktype-typescript-input';
 
-import type { MethodSignature } from '../types.js';
+import type { MethodSignature, ModelDefinition } from '../types.js';
 
 export interface NavigationModelsOptions {
   specPath: string;
   methods: MethodSignature[];
   kotlinPackageName: string;
+  modelDefinitions?: ModelDefinition[];
 }
 
 export interface GeneratedNavigationModels {
@@ -102,6 +103,8 @@ async function generateModelsForLanguage({
           'access-level': 'public',
           'mutable-properties': 'true',
           initializers: 'false',
+          'struct-or-class': 'class',
+          'objective-c-support': 'true',
           'swift-5-support': 'true',
         }
       : {
@@ -122,6 +125,7 @@ export async function generateNavigationModels({
   specPath,
   methods,
   kotlinPackageName,
+  modelDefinitions = [],
 }: NavigationModelsOptions): Promise<GeneratedNavigationModels> {
   const absoluteSpecPath = path.resolve(process.cwd(), specPath);
 
@@ -162,9 +166,151 @@ export async function generateNavigationModels({
     }),
   ]);
 
+  const swiftModelConversions = generateSwiftModelConversionExtensions(
+    modelDefinitions,
+    modelTypeNames
+  );
+  const kotlinModelConversions = generateKotlinModelConversionExtensions(
+    modelDefinitions,
+    modelTypeNames
+  );
+
   return {
-    swiftModels,
-    kotlinModels,
+    swiftModels: swiftModelConversions
+      ? `${swiftModels}\n\n${swiftModelConversions}`
+      : swiftModels,
+    kotlinModels: kotlinModelConversions
+      ? `${ensureKotlinReadableMapImport(kotlinModels)}\n\n${kotlinModelConversions}`
+      : kotlinModels,
     modelTypeNames,
   };
+}
+
+function ensureKotlinReadableMapImport(kotlinModels: string): string {
+  const importLine = 'import com.facebook.react.bridge.ReadableMap';
+  if (kotlinModels.includes(importLine)) {
+    return kotlinModels;
+  }
+
+  const packageMatch = kotlinModels.match(/^package[^\n]*\n/);
+  if (!packageMatch) {
+    return `${importLine}\n${kotlinModels}`;
+  }
+
+  const packageLine = packageMatch[0];
+  const rest = kotlinModels.slice(packageLine.length);
+  return `${packageLine}\n${importLine}\n${rest}`;
+}
+
+function generateSwiftModelConversionExtensions(
+  modelDefinitions: ModelDefinition[],
+  modelTypeNames: string[]
+): string {
+  const modelDefinitionsByName = new Map(
+    modelDefinitions.map((definition) => [definition.name, definition])
+  );
+
+  return modelTypeNames
+    .map((modelName) => {
+      const definition = modelDefinitionsByName.get(modelName);
+      if (!definition) {
+        return '';
+      }
+
+      const sortedFields = [...definition.fields].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      if (sortedFields.length === 0) {
+        return '';
+      }
+
+      const args = sortedFields
+        .map(
+          (field) =>
+            `${field.name}: ${mapDictionaryValueToSwiftExpression(
+              field.name,
+              field.type
+            )}`
+        )
+        .join(', ');
+
+      return `@objc public extension ${modelName} {
+    static func fromDictionary(_ value: NSDictionary) -> ${modelName} {
+        return ${modelName}(${args})
+    }
+}`;
+    })
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+function mapDictionaryValueToSwiftExpression(
+  fieldName: string,
+  fieldType: string
+): string {
+  const valueAccess = `value["${fieldName}"]`;
+  if (fieldType === 'string') {
+    return `${valueAccess} as! String`;
+  }
+  if (fieldType === 'number') {
+    return `(${valueAccess} as! NSNumber).doubleValue`;
+  }
+  if (fieldType === 'boolean') {
+    return `(${valueAccess} as! NSNumber).boolValue`;
+  }
+  return `${fieldType}.fromDictionary(${valueAccess} as! NSDictionary)`;
+}
+
+function generateKotlinModelConversionExtensions(
+  modelDefinitions: ModelDefinition[],
+  modelTypeNames: string[]
+): string {
+  const modelDefinitionsByName = new Map(
+    modelDefinitions.map((definition) => [definition.name, definition])
+  );
+
+  return modelTypeNames
+    .map((modelName) => {
+      const definition = modelDefinitionsByName.get(modelName);
+      if (!definition) {
+        return '';
+      }
+
+      const sortedFields = [...definition.fields].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      if (sortedFields.length === 0) {
+        return '';
+      }
+
+      const args = sortedFields
+        .map(
+          (field) =>
+            `${field.name} = ${mapReadableMapFieldExpression('value', field.name, field.type)}`
+        )
+        .join(', ');
+
+      return `fun to${modelName}(value: ReadableMap): ${modelName} {
+    return ${modelName}(${args})
+}`;
+    })
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+function mapReadableMapFieldExpression(
+  mapName: string,
+  fieldName: string,
+  fieldType: string
+): string {
+  if (fieldType === 'string') {
+    return `${mapName}.getString("${fieldName}")!!`;
+  }
+  if (fieldType === 'number') {
+    return `${mapName}.getDouble("${fieldName}")`;
+  }
+  if (fieldType === 'boolean') {
+    return `${mapName}.getBoolean("${fieldName}")`;
+  }
+  return `to${fieldType}(${mapName}.getMap("${fieldName}")!!)`;
 }

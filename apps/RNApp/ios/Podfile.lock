@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BrownfieldNavigation (3.6.0):
+  - BrownfieldNavigation (3.7.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -28,7 +28,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - Brownie (3.6.0):
+  - Brownie (3.7.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2461,7 +2461,7 @@ PODS:
     - SocketRocket
   - ReactAppDependencyProvider (0.85.0):
     - ReactCodegen
-  - ReactBrownfield (3.6.0):
+  - ReactBrownfield (3.7.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2898,8 +2898,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  BrownfieldNavigation: 0a4abcd0295639640d0222ac5c47ab63d94983c8
-  Brownie: c75e781646955724c3b385e1a53704cc06491bf0
+  BrownfieldNavigation: 2a110b2734c33e3a695e28117ff4515c9bb0a035
+  Brownie: b30acefef59a97b9d84353b4e010af58f09dc900
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: dfb9ab6ee2eac316f7869edf6ec27b9e872329f0
@@ -2974,7 +2974,7 @@ SPEC CHECKSUMS:
   React-utils: f2dc3878565c3cc54bdf7f65a106efaf93f189a6
   React-webperformancenativemodule: 214e42892a044b865f73ad4f88cac6979c27aa76
   ReactAppDependencyProvider: 5787b37b8e2e51dfeab697ec031cc7c4080dcea2
-  ReactBrownfield: 9e36bd174c53254c7a283a6305a4b26589e75f97
+  ReactBrownfield: 0420c061dccf3a41c495fd2fecc22a6faed5d7fd
   ReactCodegen: 6ddd8f44847646a047320a22f5ddb10b27a515c9
   ReactCommon: 6a42764f1136fb9ac210e05e88a0733a00ee23d3
   RNScreens: e902eba58a27d3ad399a495d578e8aba3ea0f490

@@ -25,7 +25,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 public class RNNavigationDelegate: BrownfieldNavigationDelegate {
-    public func navigateToSettings() {
+    public func navigateToSettings(_ user: BrownfieldNavigation.UserType) {
         present(SettingsScreen())
     }
 

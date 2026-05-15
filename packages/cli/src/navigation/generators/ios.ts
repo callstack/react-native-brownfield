@@ -16,9 +16,21 @@ const TS_TO_SWIFT_TYPE: Record<string, string> = {
   Object: '[String: Any]',
 };
 
-function mapTsTypeToObjC(tsType: string, nullable: boolean = false): string {
+interface ObjCTypeMappingOptions {
+  modelTypeNames?: string[];
+}
+
+function mapTsTypeToObjC(
+  tsType: string,
+  nullable: boolean = false,
+  options: ObjCTypeMappingOptions = {}
+): string {
   if (tsType.startsWith('Promise<')) {
     return 'void';
+  }
+
+  if (options.modelTypeNames?.includes(tsType)) {
+    return nullable ? 'NSDictionary * _Nullable' : 'NSDictionary *';
   }
 
   const mapped = TS_TO_OBJC_TYPE[tsType];
@@ -35,6 +47,8 @@ function mapTsTypeToObjC(tsType: string, nullable: boolean = false): string {
 interface SwiftTypeMappingOptions {
   modelTypeNames?: string[];
 }
+
+interface ObjCGenerationOptions extends ObjCTypeMappingOptions {}
 
 function mapTsTypeToSwift(
   tsType: string,
@@ -89,10 +103,15 @@ ${protocolMethods}
 `;
 }
 
-export function generateObjCImplementation(methods: MethodSignature[]): string {
+export function generateObjCImplementation(
+  methods: MethodSignature[],
+  options: ObjCGenerationOptions = {}
+): string {
   const methodImplementations = methods
     .map((method) =>
-      method.isAsync ? generateAsyncObjCMethod(method) : generateSyncObjCMethod(method)
+      method.isAsync
+        ? generateAsyncObjCMethod(method, options)
+        : generateSyncObjCMethod(method, options)
     )
     .join('\n\n');
 
@@ -123,38 +142,61 @@ ${methodImplementations}
 `;
 }
 
-function generateSyncObjCMethod(method: MethodSignature): string {
+function generateSyncObjCMethod(
+  method: MethodSignature,
+  options: ObjCGenerationOptions
+): string {
   const { name, params, returnType } = method;
 
-  let signature = `- (${mapTsTypeToObjC(returnType)})${name}`;
+  let signature = `- (${mapTsTypeToObjC(returnType, false, options)})${name}`;
   if (params.length > 0) {
     signature += params
       .map((param, index) => {
         const prefix = index === 0 ? ':' : ` ${param.name}:`;
-        return `${prefix}(${mapTsTypeToObjC(param.type, param.optional)})${param.name}`;
+        return `${prefix}(${mapTsTypeToObjC(param.type, param.optional, options)})${param.name}`;
       })
       .join('');
   }
 
+  const preparedParams: string[] = [];
+  const delegateArgs: string[] = [];
+  for (const param of params) {
+    if (options.modelTypeNames?.includes(param.type)) {
+      const convertedParamName = `${param.name}Model`;
+      preparedParams.push(
+        `${param.type} *${convertedParamName} = ${param.name} == nil ? nil : [${param.type} fromDictionary:${param.name}];`
+      );
+      delegateArgs.push(convertedParamName);
+    } else {
+      delegateArgs.push(param.name);
+    }
+  }
+
   let delegateCall = `[[[BrownfieldNavigationManager shared] getDelegate] ${name}`;
-  if (params.length > 0) {
-    delegateCall += params
-      .map((param, index) => {
+  if (delegateArgs.length > 0) {
+    delegateCall += delegateArgs
+      .map((argName, index) => {
+        const param = params[index];
         const label = index === 0 ? '' : param.name;
-        return `${label}:${param.name}`;
+        return `${label}:${argName}`;
       })
       .join(' ');
   }
   delegateCall += ']';
 
   const returnPrefix = returnType === 'void' ? '' : 'return ';
+  const preparedLines = preparedParams.map((line) => `    ${line}`).join('\n');
+  const bodyPrefix = preparedLines.length > 0 ? `${preparedLines}\n` : '';
 
   return `${signature} {
-    ${returnPrefix}${delegateCall};
+${bodyPrefix}    ${returnPrefix}${delegateCall};
 }`;
 }
 
-function generateAsyncObjCMethod(method: MethodSignature): string {
+function generateAsyncObjCMethod(
+  method: MethodSignature,
+  options: ObjCGenerationOptions
+): string {
   const { name, params } = method;
 
   let signature = `- (void)${name}`;
@@ -173,7 +215,7 @@ function generateAsyncObjCMethod(method: MethodSignature): string {
           ? 'RCTPromiseResolveBlock'
           : param.type === 'RCTPromiseRejectBlock'
             ? 'RCTPromiseRejectBlock'
-            : mapTsTypeToObjC(param.type, param.optional);
+            : mapTsTypeToObjC(param.type, param.optional, options);
       return `${prefix}(${type})${param.name}`;
     })
     .join(' ');
