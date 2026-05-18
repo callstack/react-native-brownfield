@@ -2,12 +2,13 @@ import { styleText } from 'node:util';
 
 import { logger } from '@rock-js/tools';
 
-import { Command, type Option } from 'commander';
+import { Command } from 'commander';
 
 import { ExampleUsage } from './shared/index.js';
 import brownfieldCommands, {
   groupName as brownfieldCommandsGroupName,
   loadConfig,
+  validateConfig,
   type BrownfieldConfig,
 } from './brownfield/index.js';
 import brownieCommands, {
@@ -45,19 +46,7 @@ program.configureHelp({
   styleSubcommandText: (str) => styleText('blue', str),
 });
 
-function getCommandOptions(command: Command): Option[] {
-  return (command as Command & { options: Option[] }).options;
-}
-
 function applyConfigValueToCommand(command: Command, key: string, value: unknown) {
-  const option = getCommandOptions(command).find(
-    (candidate) => candidate.attributeName() === key
-  );
-
-  if (!option) {
-    return;
-  }
-
   command.setOptionValueWithSource(key, value, 'config');
 }
 
@@ -109,7 +98,9 @@ function registrationHelper(
 
 const reactNativeBrownfieldConfig = loadConfig()
 
-console.log('Loaded Brownfield CLI config:', reactNativeBrownfieldConfig);
+validateConfig(reactNativeBrownfieldConfig);
+
+console.debug('Loaded Brownfield config:', reactNativeBrownfieldConfig);
 
 applyBrownfieldConfigToCommands(reactNativeBrownfieldConfig);
 

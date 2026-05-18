@@ -2,62 +2,27 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
+import Ajv from 'ajv';
+
 import type { BrownfieldConfig } from './types.js';
 import { findProjectRoot } from './utils/paths.js';
 
-const CONFIG_FILE_NAMES = [
-  'react-native-brownfield.config.js',
-  'react-native-brownfield.config.json',
-] as const;
+import BrownfieldSchema from '../../schema.json' with { type: 'json' };
+import { logger } from '@rock-js/tools';
 
+const JS_CONFIG_FILE_NAME = 'react-native-brownfield.config.js';
+const JSON_CONFIG_FILE_NAME = 'react-native-brownfield.config.json';
 const PACKAGE_JSON_CONFIG_KEY = 'react-native-brownfield';
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+const SEPARATOR = '\n● ';
 
-function validateConfig(value: unknown, source: string): BrownfieldConfig {
-  if (!isRecord(value)) {
-    throw new Error(
-      `Brownfield config in ${source} must export an object.`
-    );
+const ajv = new Ajv({ allErrors: true });
+const validateBrownfieldConfig = ajv.compile(BrownfieldSchema);
+
+export function validateConfig(config: unknown) {
+  if (!validateBrownfieldConfig(config)) {
+    logger.warn(`Brownfield configuration has some issues: ${SEPARATOR}${ajv.errorsText(validateBrownfieldConfig.errors, { separator: SEPARATOR, dataVar: 'config' })}.`);
   }
-
-  return value as BrownfieldConfig;
-}
-
-function normalizeModuleValue(
-  moduleValue: unknown,
-  source: string
-): BrownfieldConfig {
-  if (
-    isRecord(moduleValue) &&
-    'default' in moduleValue &&
-    moduleValue.default !== undefined
-  ) {
-    return validateConfig(moduleValue.default, source);
-  }
-
-  return validateConfig(moduleValue, source);
-}
-
-function loadModuleFromFile(
-  require: ReturnType<typeof createRequire>,
-  filePath: string
-) {
-  const resolvedPath = require.resolve(filePath);
-  delete require.cache[resolvedPath];
-  return require(resolvedPath);
-}
-
-function loadConfigFromFile(
-  require: ReturnType<typeof createRequire>,
-  filePath: string
-): BrownfieldConfig {
-    return normalizeModuleValue(
-      loadModuleFromFile(require, filePath),
-      path.basename(filePath)
-    );
 }
 
 /**
@@ -72,27 +37,21 @@ export function loadConfig(
 ): BrownfieldConfig {
   const require = createRequire(path.join(projectRoot, 'package.json'));
 
-  for (const fileName of CONFIG_FILE_NAMES) {
-    const filePath = path.join(projectRoot, fileName);
-    if (fs.existsSync(filePath)) {
-      return loadConfigFromFile(require, filePath);
-    }
+  const jsConfigFilePath = path.join(projectRoot, JS_CONFIG_FILE_NAME);
+  if (fs.existsSync(jsConfigFilePath)) {
+    return require(jsConfigFilePath) as BrownfieldConfig;
+  }
+
+  const jsonConfigFilePath = path.join(projectRoot, JSON_CONFIG_FILE_NAME);
+  if (fs.existsSync(jsonConfigFilePath)) {
+    return require(jsonConfigFilePath) as BrownfieldConfig;
   }
 
   const packageJsonPath = path.join(projectRoot, 'package.json');
-  if (!fs.existsSync(packageJsonPath)) {
-    return {};
-  }
-
-  const packageJson = loadModuleFromFile(require, packageJsonPath) as Record<
+  const packageJson = require(packageJsonPath) as Record<
     string,
     unknown
   >;
 
-  const packageJsonConfig = packageJson[PACKAGE_JSON_CONFIG_KEY];
-  if (packageJsonConfig === undefined) {
-    return {};
-  }
-
-  return validateConfig(packageJsonConfig, 'package.json');
+  return packageJson[PACKAGE_JSON_CONFIG_KEY] || {};
 }

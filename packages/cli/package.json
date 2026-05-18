@@ -72,6 +72,7 @@
     "@react-native-community/cli-config-android": "*"
   },
   "dependencies": {
+    "ajv": "^6.14.0",
     "@expo/config": "^12.0.13",
     "@react-native-community/cli-config": "^20.0.0",
     "@react-native-community/cli-config-android": "^20.0.0",

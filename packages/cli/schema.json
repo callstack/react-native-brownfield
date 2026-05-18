@@ -1,0 +1,70 @@
+{
+  "$ref": "#/definitions/BrownfieldConfig",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "BrownfieldConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "archive": {
+          "type": "boolean"
+        },
+        "buildFolder": {
+          "type": "string"
+        },
+        "configuration": {
+          "type": "string"
+        },
+        "destination": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exportExtraParams": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exportOptionsPlist": {
+          "type": "string"
+        },
+        "extraParams": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "installPods": {
+          "type": "boolean"
+        },
+        "local": {
+          "type": "boolean"
+        },
+        "moduleName": {
+          "type": "string"
+        },
+        "newArch": {
+          "type": "boolean"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "variant": {
+          "type": "string"
+        },
+        "verbose": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
+
