@@ -7,6 +7,17 @@ import BrownfieldNavigation
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     var window: UIWindow?
+    private let navigationDelegate = RNNavigationDelegate()
+
+    func registerNavigationDelegate() {
+        BrownfieldNavigationManager.shared.setDelegate(
+            navigationDelegate: navigationDelegate
+        )
+    }
+
+    func clearNavigationDelegate() {
+        BrownfieldNavigationManager.shared.clearDelegate()
+    }
 
     func application(
         _ application: UIApplication,
@@ -112,24 +123,14 @@ private struct RootContentView: View {
             }
     }
 
-    private func registerNavigationDelegate() {
-        BrownfieldNavigationManager.shared.setDelegate(
-            navigationDelegate: RNNavigationDelegate()
-        )
-    }
-    
-    private func clearNavigationDelegate() {
-        BrownfieldNavigationManager.shared.clearDelegate()
-    }
-
     private func syncNavigationDelegate(for phase: ScenePhase) {
         switch phase {
         case .active:
-            registerNavigationDelegate()
+            appDelegate.registerNavigationDelegate()
         case .inactive, .background:
-            clearNavigationDelegate()
+            appDelegate.clearNavigationDelegate()
         @unknown default:
-            clearNavigationDelegate()
+            appDelegate.clearNavigationDelegate()
         }
     }
 }
