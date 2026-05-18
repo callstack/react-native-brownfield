@@ -10,5 +10,5 @@ import {
 
 const theme = getRandomTheme();
 
-runHomeScreenSuite('RNApp', HomeScreen);
-runCounterSuite('RNApp', Counter, { colors: theme });
+runHomeScreenSuite('RockApp', HomeScreen);
+runCounterSuite('RockApp', Counter, { colors: theme });

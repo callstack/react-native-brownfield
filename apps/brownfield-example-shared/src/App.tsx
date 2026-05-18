@@ -1,12 +1,10 @@
-import '../BrownfieldStore.brownie';
-
 import { NavigationContainer } from '@react-navigation/native';
 
 import { HomeScreen } from './HomeScreen';
 import { NativeOsVersionLabelContext } from './nativeHostContext';
 import { Stack } from './navigation/RootStack';
 
-type AppProps = {
+export type AppProps = {
   nativeOsVersionLabel?: string;
 };
 

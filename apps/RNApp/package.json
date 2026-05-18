@@ -17,6 +17,7 @@
     "codegen:navigation": "brownfield navigation:codegen brownfield.navigation.ts"
   },
   "dependencies": {
+    "@callstack/brownfield-example-shared": "workspace:^",
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",

@@ -9,12 +9,14 @@ import {
   View,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import ReactNativeBrownfield, {
+  type MessageEvent,
+} from '@callstack/react-native-brownfield';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
 import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
-import Counter from './components/counter';
+import Counter from './components/Counter';
 import { useNativeOsVersionLabel } from './nativeHostContext';
 
 interface Message {
