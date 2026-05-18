@@ -24,7 +24,7 @@ struct ContentView: View {
                 MessagesView()
 
                 ReactNativeView(
-                    moduleName: "RNApp",
+                    moduleName: "main",
                     initialProperties: [
                         "nativeOsVersionLabel":
                             "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
