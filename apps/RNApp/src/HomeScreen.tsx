@@ -189,6 +189,11 @@ export function HomeScreen({
             id: '123',
             name: 'John Doe',
             email: 'john.doe@example.com',
+            flags: ['admin', 'user'],
+            ids: ['123', '456'],
+            avatar: {
+              url: 'https://example.com/avatar.png',
+            },
           })
         }
         color={colors.secondary}

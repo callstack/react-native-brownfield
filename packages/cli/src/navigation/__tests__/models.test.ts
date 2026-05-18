@@ -95,7 +95,15 @@ describe('generateNavigationModels', () => {
           fields: [
             { name: 'id', type: 'string', optional: false },
             { name: 'name', type: 'string', optional: false },
+            { name: 'nickname', type: 'string', optional: true },
+            { name: 'avatar', type: 'Avatar', optional: true },
+            { name: 'flags', type: 'string[]', optional: false },
+            { name: 'ids', type: 'string[] | null', optional: false },
           ],
+        },
+        {
+          name: 'Avatar',
+          fields: [{ name: 'url', type: 'string', optional: false }],
         },
       ],
     });
@@ -110,12 +118,32 @@ describe('generateNavigationModels', () => {
     expect(models.swiftModels).toContain(
       'static func fromDictionary(_ value: NSDictionary) -> UserProfile'
     );
+    expect(models.swiftModels).toContain('value["nickname"] as? String');
+    expect(models.swiftModels).toContain(
+      '(value["avatar"] as? NSDictionary).map(Avatar.fromDictionary)'
+    );
+    expect(models.swiftModels).toContain('@objc public extension Avatar');
+    expect(models.swiftModels).toContain('flags: value["flags"] as! [String]');
+    expect(models.swiftModels).toContain('ids: value["ids"] as? [String]');
     expect(models.kotlinModels).toContain('data class UserProfile');
     expect(models.kotlinModels).toContain(
       'import com.facebook.react.bridge.ReadableMap'
     );
     expect(models.kotlinModels).toContain(
       'fun toUserProfile(value: ReadableMap): UserProfile'
+    );
+    expect(models.kotlinModels).toContain('value.getString("nickname")');
+    expect(models.kotlinModels).toContain(
+      'value.getMap("avatar")?.let { toAvatar(it) }'
+    );
+    expect(models.kotlinModels).toContain(
+      'fun toAvatar(value: ReadableMap): Avatar'
+    );
+    expect(models.kotlinModels).toContain(
+      'flags = readStringArray(value, "flags", true)!!'
+    );
+    expect(models.kotlinModels).toContain(
+      'ids = readStringArray(value, "ids", false)'
     );
     expect(addSourceMock).toHaveBeenCalled();
     expect(quicktypeMock).toHaveBeenCalledTimes(2);
