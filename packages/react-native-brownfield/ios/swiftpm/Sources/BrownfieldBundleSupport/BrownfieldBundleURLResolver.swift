@@ -1,6 +1,8 @@
 import Foundation
 
-enum BrownfieldBundleURLResolver {
+final class BrownfieldBundleURLResolver {
+  private init() {}
+
   static func resolve(
     isDebug: Bool,
     preferEmbeddedBundleInDebug: Bool,
