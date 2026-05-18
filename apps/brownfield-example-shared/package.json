@@ -1,0 +1,40 @@
+{
+  "name": "@callstack/brownfield-example-shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "node -e \"process.exit(0)\""
+  },
+  "peerDependencies": {
+    "@callstack/brownfield-navigation": "*",
+    "@callstack/brownie": "*",
+    "@callstack/react-native-brownfield": "*",
+    "@react-navigation/native": ">=7",
+    "@react-navigation/native-stack": ">=7",
+    "react": ">=18",
+    "react-native": ">=0.73",
+    "react-native-safe-area-context": ">=4",
+    "react-native-screens": ">=4"
+  },
+  "devDependencies": {
+    "@callstack/brownfield-navigation": "workspace:^",
+    "@callstack/brownie": "workspace:^",
+    "@callstack/react-native-brownfield": "workspace:^",
+    "@react-navigation/native": "^7.1.33",
+    "@react-navigation/native-stack": "^7.14.5",
+    "@types/react": "^19.1.1",
+    "eslint": "^9.39.3",
+    "react": "19.2.3",
+    "react-native": "0.85.0",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-screens": "^4.23.0",
+    "typescript": "5.9.3"
+  }
+}

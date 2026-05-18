@@ -1,3 +1,9 @@
+import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
+import BrownfieldNavigation from '@callstack/brownfield-navigation';
+import ReactNativeBrownfield, {
+  type MessageEvent,
+} from '@callstack/react-native-brownfield';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -8,15 +14,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import ReactNativeBrownfield from '@callstack/react-native-brownfield';
-import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
-import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
-import { getRandomTheme } from './utils';
-import type { RootStackParamList } from './navigation/RootStack';
-import Counter from './components/counter';
+import Counter from './components/Counter';
 import { useNativeOsVersionLabel } from './nativeHostContext';
+import type { RootStackParamList } from './navigation/RootStack';
+import { getRandomTheme } from './utils';
 
 interface Message {
   id: string;
