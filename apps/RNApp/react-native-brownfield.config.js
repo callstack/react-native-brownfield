@@ -1,6 +1,7 @@
 /**
- * @typedef {import('@callstack/').BrownfieldConfig} BrownfieldConfig
+ * @type {import('@callstack/react-native-brownfield').BrownfieldConfig}
  */
 module.exports = {
-  moduleName: 'SSS',
+  moduleName: ':BrownfieldLib',
+  scheme: 'BrownfieldLib',
 };
