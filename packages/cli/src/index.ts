@@ -9,7 +9,6 @@ import brownfieldCommands, {
   groupName as brownfieldCommandsGroupName,
   loadConfig,
   validateConfig,
-  type BrownfieldConfig,
 } from './brownfield/index.js';
 import brownieCommands, {
   groupName as brownieCommandsGroupName,
@@ -46,23 +45,15 @@ program.configureHelp({
   styleSubcommandText: (str) => styleText('blue', str),
 });
 
-function applyConfigValueToCommand(command: Command, key: string, value: unknown) {
-  command.setOptionValueWithSource(key, value, 'config');
-}
+function applyBrownfieldCLIConfig() {
+  const reactNativeBrownfieldConfig = loadConfig()
 
-function applyBrownfieldConfigToCommands(config: BrownfieldConfig) {
-  for (const [key, value] of Object.entries(config)) {
-    if (value === undefined) {
-      continue;
-    }
+  logger.debug('Loaded Brownfield CLI config:', reactNativeBrownfieldConfig);
 
-    applyConfigValueToCommand(program, key, value);
+  validateConfig(reactNativeBrownfieldConfig);
 
-    for (const command of Object.values(brownfieldCommands)) {
-      if (command instanceof Command) {
-        applyConfigValueToCommand(command, key, value);
-      }
-    }
+  for (const [key, value] of Object.entries(reactNativeBrownfieldConfig)) {
+    program.setOptionValueWithSource(key, value, 'config');
   }
 }
 
@@ -96,14 +87,6 @@ function registrationHelper(
   }
 }
 
-const reactNativeBrownfieldConfig = loadConfig()
-
-validateConfig(reactNativeBrownfieldConfig);
-
-console.debug('Loaded Brownfield config:', reactNativeBrownfieldConfig);
-
-applyBrownfieldConfigToCommands(reactNativeBrownfieldConfig);
-
 registrationHelper(brownfieldCommands, brownfieldCommandsGroupName);
 registrationHelper(brownieCommands, brownieCommandsGroupName);
 registrationHelper(navigationCommands, navigationCommandsGroupName);
@@ -112,6 +95,8 @@ program.commandsGroup('Utility commands').helpCommand('help [command]');
 
 export function runCLI(argv: string[]): void {
   program.parse(argv);
+
+  applyBrownfieldCLIConfig()
 
   if (!argv.slice(2).length) {
     program.outputHelp();
