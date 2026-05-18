@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { getFrameworkBuildSettings } from '../xcodeHelpers';
+import {
+  getFrameworkBuildSettings,
+  rewriteBundleReactNativePhaseScriptForFrameworkTarget,
+} from '../xcodeHelpers';
 import type { ResolvedBrownfieldPluginIosConfig } from '../../types';
 
 const baseOptions: ResolvedBrownfieldPluginIosConfig = {
@@ -39,5 +42,42 @@ describe('getFrameworkBuildSettings', () => {
     expect(settings.INSTALL_PATH).toBe('"$(LOCAL_LIBRARY_DIR)/Frameworks"');
     expect(settings.SWIFT_VERSION).toBe('5.10');
     expect(settings.MARKETING_VERSION).toBe('9.9.9');
+  });
+});
+
+describe('rewriteBundleReactNativePhaseScriptForFrameworkTarget', () => {
+  it('replaces Expo debug skip-bundling logic with a force-bundling override', () => {
+    const script = `if [[ "$CONFIGURATION" = *Debug* ]]; then
+  export SKIP_BUNDLING=1
+fi
+
+if [[ -z "$BUNDLE_COMMAND" ]]; then
+  export BUNDLE_COMMAND="export:embed"
+fi
+
+\`"$NODE_BINARY" --print "require.resolve('react-native/package.json')"\`/scripts/react-native-xcode.sh
+`;
+
+    const rewritten =
+      rewriteBundleReactNativePhaseScriptForFrameworkTarget(script);
+
+    expect(rewritten).toContain('unset SKIP_BUNDLING');
+    expect(rewritten).toContain('export FORCE_BUNDLING=1');
+    expect(rewritten).not.toContain('export SKIP_BUNDLING=1');
+    expect(rewritten).toContain('export BUNDLE_COMMAND="export:embed"');
+    expect(rewritten).toContain('react-native-xcode.sh');
+  });
+
+  it('prepends the debug override when the source script has no Expo skip block', () => {
+    const script = `export ENTRY_FILE="index.js"
+\`"$NODE_BINARY" --print "require.resolve('react-native/package.json')"\`/scripts/react-native-xcode.sh
+`;
+
+    const rewritten =
+      rewriteBundleReactNativePhaseScriptForFrameworkTarget(script);
+
+    expect(rewritten).toMatch(
+      /^# Brownfield framework packaging must embed JS in Debug builds\.\nif \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\n {2}unset SKIP_BUNDLING\n {2}export FORCE_BUNDLING=1\nfi\n\nexport ENTRY_FILE="index\.js"/
+    );
   });
 });

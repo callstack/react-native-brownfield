@@ -44,8 +44,17 @@ export const withBrownfieldIos: ConfigPlugin<
 
     if (targetAlreadyExists) {
       Logger.logDebug(
-        `Skipping further Xcode modifications as framework target was already present`
+        `Framework target already present, syncing Brownfield build phases`
       );
+
+      copyBundleReactNativePhase(project, frameworkTargetUUID);
+
+      if (isExpoPre55) {
+        addExpoPre55ShellPatchScriptPhase(modRequest, project, {
+          frameworkName: props.ios.frameworkName,
+          frameworkTargetUUID: frameworkTargetUUID,
+        });
+      }
 
       return xcodeConfig;
     }
