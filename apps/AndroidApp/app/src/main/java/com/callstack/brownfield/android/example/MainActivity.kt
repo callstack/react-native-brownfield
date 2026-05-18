@@ -31,6 +31,7 @@ import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
+import com.callstack.nativebrownfieldnavigation.UserType
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
-    override fun navigateToSettings() {
+    override fun navigateToSettings(user: UserType) {
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 
