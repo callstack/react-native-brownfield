@@ -6,20 +6,29 @@
 - Route each generated method to intended native destination
 - Map params directly (for example through `Intent` extras)
 
-## Register delegate at startup
+## Register delegate with lifecycle ownership
 
 - Call:
   - `BrownfieldNavigationManager.setDelegate(...)`
-- Register in startup flow (for example `onCreate`)
+- `BrownfieldNavigationManager.clearDelegate()` is part of the public API and should be called when this host stops owning navigation
+- Register in the lifecycle phase where this host becomes active (for example `onResume`)
+- Clear in the matching release phase (for example `onPause`)
 - Ensure registration happens before RN calls
+- Do not keep a backgrounded or inactive `Activity` registered for the full app lifetime unless it is truly the only Brownfield navigation owner
+- `BrownfieldNavigationManager.getDelegate()` still throws if no delegate is registered
 
 ## Minimal pattern
 
 ```kotlin
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+  override fun onResume() {
+    super.onResume()
     BrownfieldNavigationManager.setDelegate(this)
+  }
+
+  override fun onPause() {
+    BrownfieldNavigationManager.clearDelegate()
+    super.onPause()
   }
 
   override fun openNativeProfile(userId: String) {
