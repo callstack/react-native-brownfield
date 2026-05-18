@@ -1,11 +1,9 @@
-import '../BrownfieldStore.brownie';
-
-import { NavigationContainer } from '@react-navigation/native';
-import { useEffect } from 'react';
 import {
   syncBrownfieldE2EModeFromRootProps,
   type BrownfieldRootProps,
 } from '@callstack/brownfield-example-shared-tests/runtime';
+import { NavigationContainer } from '@react-navigation/native';
+import { useEffect } from 'react';
 
 import { HomeScreen } from './HomeScreen';
 import { NativeOsVersionLabelContext } from './nativeHostContext';

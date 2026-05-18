@@ -2,9 +2,11 @@ import {
   runCounterSuite,
   runHomeScreenSuite,
 } from '@callstack/brownfield-example-shared-tests';
-import { HomeScreen } from '../src/HomeScreen';
-import Counter from '../src/components/counter';
-import { getRandomTheme } from '../src/utils';
+import {
+  Counter,
+  getRandomTheme,
+  HomeScreen,
+} from '@callstack/brownfield-example-shared';
 
 const theme = getRandomTheme();
 
