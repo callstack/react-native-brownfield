@@ -2,11 +2,13 @@ import { styleText } from 'node:util';
 
 import { logger } from '@rock-js/tools';
 
-import { Command } from 'commander';
+import { Command, type Option } from 'commander';
 
 import { ExampleUsage } from './shared/index.js';
 import brownfieldCommands, {
   groupName as brownfieldCommandsGroupName,
+  loadConfig,
+  type BrownfieldConfig,
 } from './brownfield/index.js';
 import brownieCommands, {
   groupName as brownieCommandsGroupName,
@@ -43,6 +45,38 @@ program.configureHelp({
   styleSubcommandText: (str) => styleText('blue', str),
 });
 
+function getCommandOptions(command: Command): Option[] {
+  return (command as Command & { options: Option[] }).options;
+}
+
+function applyConfigValueToCommand(command: Command, key: string, value: unknown) {
+  const option = getCommandOptions(command).find(
+    (candidate) => candidate.attributeName() === key
+  );
+
+  if (!option) {
+    return;
+  }
+
+  command.setOptionValueWithSource(key, value, 'config');
+}
+
+function applyBrownfieldConfigToCommands(config: BrownfieldConfig) {
+  for (const [key, value] of Object.entries(config)) {
+    if (value === undefined) {
+      continue;
+    }
+
+    applyConfigValueToCommand(program, key, value);
+
+    for (const command of Object.values(brownfieldCommands)) {
+      if (command instanceof Command) {
+        applyConfigValueToCommand(command, key, value);
+      }
+    }
+  }
+}
+
 function registrationHelper(
   commandsRegistration: Record<string, unknown | Command | ExampleUsage>,
   groupName: string
@@ -72,6 +106,12 @@ function registrationHelper(
     );
   }
 }
+
+const reactNativeBrownfieldConfig = loadConfig()
+
+console.log('Loaded Brownfield CLI config:', reactNativeBrownfieldConfig);
+
+applyBrownfieldConfigToCommands(reactNativeBrownfieldConfig);
 
 registrationHelper(brownfieldCommands, brownfieldCommandsGroupName);
 registrationHelper(brownieCommands, brownieCommandsGroupName);

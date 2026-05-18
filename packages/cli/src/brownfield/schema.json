@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://unpkg.com/@callstack/brownfield-cli/brownfield.schema.json",
+  "title": "React Native Brownfield CLI config",
+  "description": "Configuration for the Brownfield packaging commands.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference for editor tooling."
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Enable verbose logging."
+    },
+    "variant": {
+      "type": "string",
+      "description": "Android build variant, for example debug or freeRelease.",
+      "default": "debug"
+    },
+    "moduleName": {
+      "type": "string",
+      "description": "Android AAR module name."
+    },
+    "configuration": {
+      "type": "string",
+      "description": "Explicit iOS scheme configuration to use. This value is case sensitive."
+    },
+    "scheme": {
+      "type": "string",
+      "description": "Explicit iOS Xcode scheme to use."
+    },
+    "target": {
+      "type": "string",
+      "description": "Explicit iOS Xcode target to use."
+    },
+    "extraParams": {
+      "type": "array",
+      "description": "Custom parameters passed to xcodebuild.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exportExtraParams": {
+      "type": "array",
+      "description": "Custom parameters passed to xcodebuild during archive export.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exportOptionsPlist": {
+      "type": "string",
+      "description": "Export options plist file name used for archiving.",
+      "default": "ExportOptions.plist"
+    },
+    "buildFolder": {
+      "type": "string",
+      "description": "Location for iOS build artifacts."
+    },
+    "destination": {
+      "type": "array",
+      "description": "iOS build destinations, such as simulator, device, or custom xcodebuild destination strings.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "archive": {
+      "type": "boolean",
+      "description": "Create an Xcode archive for the iOS build."
+    },
+    "installPods": {
+      "type": "boolean",
+      "description": "Whether CocoaPods should be installed automatically. Set to false to match --no-install-pods."
+    },
+    "newArch": {
+      "type": "boolean",
+      "description": "Whether to use the new React Native architecture. Set to false to match --no-new-arch."
+    },
+    "local": {
+      "type": "boolean",
+      "description": "Force a local iOS build with xcodebuild."
+    }
+  }
+}
