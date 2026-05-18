@@ -26,6 +26,8 @@ import {
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
+import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
@@ -96,6 +98,49 @@ export const packageIosCommand = curryOptions(
       platformConfig
     );
 
+    const productsPath = path.join(options.buildFolder, 'Build', 'Products');
+    const { frameworkName, resolution, candidates } = resolvePackagedFrameworkName(
+      {
+        explicitScheme: options.scheme,
+        productsPath,
+        configuration,
+      }
+    );
+
+    if (frameworkName) {
+      copyDebugBundleToSimulatorSlice({
+        productsPath,
+        configuration,
+        frameworkName,
+      });
+
+      if (configuration.includes('Debug')) {
+        await mergeFrameworks({
+          sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              `${frameworkName}.framework`
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              `${frameworkName}.framework`
+            ),
+          ],
+          outputPath: path.join(packageDir, `${frameworkName}.xcframework`),
+        });
+      }
+    } else if (configuration.includes('Debug')) {
+      const debugResolutionMessage =
+        resolution === 'ambiguous'
+          ? `Skipping Debug simulator JS bundle copy: found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
+          : 'Skipping Debug simulator JS bundle copy: could not resolve the packaged framework output automatically; pass --scheme explicitly';
+
+      logger.warn(debugResolutionMessage);
+    }
+
     const reactBrownfieldXcframeworkPath = path.join(
       packageDir,
       'ReactBrownfield.xcframework'
@@ -108,7 +153,6 @@ export const packageIosCommand = curryOptions(
     }
 
     if (hasBrownie) {
-      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
 
       await mergeFrameworks({
@@ -141,7 +185,6 @@ export const packageIosCommand = curryOptions(
     }
 
     if (hasNavigation) {
-      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const brownfieldNavigationOutputPath = path.join(packageDir, 'BrownfieldNavigation.xcframework');
   
       await mergeFrameworks({

@@ -401,7 +401,7 @@ export function ensureTargetHasFileReferenceInResourcesBuildPhase(
  * @param options The user configuration
  * @returns Build settings object
  */
-function getFrameworkBuildSettings(
+export function getFrameworkBuildSettings(
   {
     configuration,
   }: {
@@ -424,6 +424,8 @@ function getFrameworkBuildSettings(
     USER_SCRIPT_SANDBOXING: 'NO',
     SKIP_INSTALL: 'NO',
     ENABLE_MODULE_VERIFIER: 'NO',
+    DYLIB_INSTALL_NAME_BASE: '"@rpath"',
+    INSTALL_PATH: '"$(LOCAL_LIBRARY_DIR)/Frameworks"',
 
     // basic settings
     PRODUCT_BUNDLE_IDENTIFIER: `"${bundleIdentifier}"`,
@@ -440,6 +442,62 @@ function getFrameworkBuildSettings(
     // custom build settings
     ...customBuildSettings,
   };
+}
+
+export function rewriteBundleReactNativePhaseScriptForFrameworkTarget(
+  shellScript: string
+): string {
+  const debugBundlingOverride = `# Brownfield framework packaging must embed JS in Debug builds.
+if [[ "$CONFIGURATION" = *Debug* ]]; then
+  unset SKIP_BUNDLING
+  export FORCE_BUNDLING=1
+fi
+`;
+  const debugSkipBundlingBlock =
+    /if \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\s+export SKIP_BUNDLING=1\s+fi\s*/m;
+
+  if (debugSkipBundlingBlock.test(shellScript)) {
+    return shellScript.replace(
+      debugSkipBundlingBlock,
+      `${debugBundlingOverride}\n`
+    );
+  }
+
+  if (shellScript.includes('export FORCE_BUNDLING=1')) {
+    return shellScript;
+  }
+
+  return `${debugBundlingOverride}\n${shellScript}`;
+}
+
+function decodePbxString(value: string | undefined): string {
+  if (!value) {
+    return '';
+  }
+
+  if (value.startsWith('"') && value.endsWith('"')) {
+    try {
+      return JSON.parse(value) as string;
+    } catch {
+      return value.slice(1, -1).replace(/\\"/g, '"');
+    }
+  }
+
+  return value;
+}
+
+function encodePbxString(value: string): string {
+  return JSON.stringify(value);
+}
+
+function hasBuildPhaseComment(
+  phase: { comment?: string },
+  expectedComment: string
+): boolean {
+  return (
+    phase.comment === expectedComment ||
+    phase.comment === `"${expectedComment}"`
+  );
 }
 
 /**
@@ -465,40 +523,85 @@ export function copyBundleReactNativePhase(
 
   // find the phase by name
   let existingPhaseUuid: string | null = null;
+  let existingPhase: Record<string, any> | null = null;
   for (const key of Object.keys(shellScriptPhases)) {
     if (key.endsWith('_comment')) continue;
     const phase = shellScriptPhases[key];
     if (phase.name === `"${buildPhaseName}"` || phase.name === buildPhaseName) {
       existingPhaseUuid = key;
+      existingPhase = phase;
       break;
     }
   }
 
-  if (!existingPhaseUuid) {
+  if (!existingPhaseUuid || !existingPhase) {
     throw new SourceModificationError(
       `Could not find "${buildPhaseName}" build phase, skipping`
     );
   }
 
-  // add the phase reference to the framework target's buildPhases array
   const nativeTargets = project.hash.project.objects.PBXNativeTarget;
   if (nativeTargets && nativeTargets[targetUuid]) {
     const target = nativeTargets[targetUuid];
     if (target.buildPhases) {
-      // check if phase is already added
-      if (
-        !target.buildPhases.some(
-          (phase: { value: string }) => phase.value === existingPhaseUuid
-        )
-      ) {
-        target.buildPhases.push(
-          createPbxCommentedReference(existingPhaseUuid, buildPhaseName)
+      const targetPhaseIndex = target.buildPhases.findIndex(
+        (phase: { comment?: string }) =>
+          hasBuildPhaseComment(phase, buildPhaseName)
+      );
+      const frameworkShellPath =
+        decodePbxString(existingPhase.shellPath) || '/bin/sh';
+      const frameworkShellScript =
+        rewriteBundleReactNativePhaseScriptForFrameworkTarget(
+          decodePbxString(existingPhase.shellScript)
         );
 
-        Logger.logDebug(
-          `Added "${buildPhaseName}" build phase to framework target ${target.name}`
-        );
+      if (targetPhaseIndex !== -1) {
+        const currentPhaseUuid = target.buildPhases[targetPhaseIndex].value;
+        const currentPhase = shellScriptPhases[currentPhaseUuid];
+
+        if (currentPhase && currentPhaseUuid !== existingPhaseUuid) {
+          currentPhase.inputPaths = existingPhase.inputPaths ?? [];
+          currentPhase.outputPaths = existingPhase.outputPaths ?? [];
+          currentPhase.shellPath = encodePbxString(frameworkShellPath);
+          currentPhase.shellScript = encodePbxString(frameworkShellScript);
+
+          if (existingPhase.showEnvVarsInLog !== undefined) {
+            currentPhase.showEnvVarsInLog = existingPhase.showEnvVarsInLog;
+          }
+
+          Logger.logDebug(
+            `Updated framework-specific "${buildPhaseName}" build phase on target ${target.name}`
+          );
+          return;
+        }
+
+        if (currentPhaseUuid === existingPhaseUuid) {
+          target.buildPhases.splice(targetPhaseIndex, 1);
+        } else {
+          return;
+        }
       }
+
+      const addedPhase = project.addBuildPhase(
+        [],
+        'PBXShellScriptBuildPhase',
+        buildPhaseName,
+        targetUuid,
+        {
+          inputPaths: existingPhase.inputPaths ?? [],
+          outputPaths: existingPhase.outputPaths ?? [],
+          shellPath: frameworkShellPath,
+          shellScript: frameworkShellScript,
+        }
+      );
+
+      if (existingPhase.showEnvVarsInLog !== undefined) {
+        addedPhase.buildPhase.showEnvVarsInLog = existingPhase.showEnvVarsInLog;
+      }
+
+      Logger.logDebug(
+        `Added framework-specific "${buildPhaseName}" build phase to target ${target.name}`
+      );
     }
   }
 }
@@ -580,6 +683,16 @@ export function addExpoPre55ShellPatchScriptPhase(
     throw new SourceModificationError(
       `Could not determine the iOS app target name from the Xcode project.`
     );
+  }
+
+  const existingBuildPhases =
+    project.pbxNativeTargetSection()[frameworkTargetUUID]?.buildPhases ?? [];
+  if (
+    existingBuildPhases.some((phase: { comment?: string }) =>
+      hasBuildPhaseComment(phase, 'Patch ExpoModulesProvider')
+    )
+  ) {
+    return;
   }
 
   project.addBuildPhase(

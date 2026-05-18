@@ -171,6 +171,16 @@ When running in **Debug**, React Native Brownfield expects a JS dev server runni
 npx react-native start
 ```
 
+## Embedded bundle in Development
+
+If you want to run a **Debug-built** framework without Metro, enable the bundled bundle explicitly before calling `startReactNative`:
+
+```swift
+ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+ReactNativeBrownfield.shared.preferEmbeddedBundleInDebug = true
+ReactNativeBrownfield.shared.startReactNative()
+```
+
 ### Release Configuration
 
 In **Release**, the JS bundle is loaded directly from the XCFramework - no dev server needed.

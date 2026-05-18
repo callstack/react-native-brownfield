@@ -17,6 +17,16 @@ final class ExpoHostRuntime {
   private var reactNativeFactory: RCTReactNativeFactory?
   private var expoDelegate: ExpoAppDelegate?
 
+  private func configureDevLoadingView(with bundleURL: URL? = nil) {
+    #if DEBUG
+    let resolvedBundleURL = bundleURL ?? delegate.bundleURL()
+    let shouldDisableDevLoadingView =
+      preferEmbeddedBundleInDebug && (resolvedBundleURL?.isFileURL ?? false)
+
+    BrownfieldDevLoadingViewBridge.setEnabled(!shouldDisableDevLoadingView)
+    #endif
+  }
+
   /**
    * Starts React Native with default parameters.
    */
@@ -30,6 +40,8 @@ final class ExpoHostRuntime {
    */
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
     guard reactNativeFactory == nil else { return }
+
+    configureDevLoadingView()
 
     let appDelegate = ExpoAppDelegate()
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -88,6 +100,16 @@ final class ExpoHostRuntime {
       delegate.bundle = bundle
     }
   }
+
+  /**
+   * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
+   * Default value: false
+   */
+  public var preferEmbeddedBundleInDebug: Bool = false {
+    didSet {
+      delegate.preferEmbeddedBundleInDebug = preferEmbeddedBundleInDebug
+    }
+  }
   /**
    * Dynamic bundle URL provider called on every bundle load.
    * When set, this overrides the default bundleURL() behavior in the delegate.
@@ -144,6 +166,7 @@ final class ExpoHostRuntime {
     launchOptions: [AnyHashable: Any]?
   ) -> UIView? {
     let bundleURL = delegate.bundleURL()
+    configureDevLoadingView(with: bundleURL)
 
     // below: https://github.com/expo/expo/commit/2013760c46cde1404872d181a691da72fbf207a4
     // has moved the recreateRootView method to ExpoReactNativeFactory
@@ -169,6 +192,7 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
   var entryFile = ".expo/.virtual-metro-entry"
   var bundlePath = "main.jsbundle"
   var bundle = Bundle.main
+  var preferEmbeddedBundleInDebug = false
   var bundleURLOverride: (() -> URL?)? = nil
 
   override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -177,27 +201,40 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
   }
 
   override func bundleURL() -> URL? {
-    if let bundleURLProvider = bundleURLOverride { return bundleURLProvider() }
-#if DEBUG
-    return RCTBundleURLProvider.sharedSettings().jsBundleURL(
-      forBundleRoot: entryFile)
-#else
-    #if canImport(EXUpdates)
-    if AppController.isInitialized(),
-       let launchAssetURL = AppController.sharedInstance.launchAssetUrl() {
-      return launchAssetURL
-    }
-    #endif
     do {
-      let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
-        from: bundlePath
+      #if DEBUG
+      let isDebug = true
+      #else
+      let isDebug = false
+      #endif
+
+      if let overriddenURL = bundleURLOverride?() {
+        return overriddenURL
+      }
+
+      #if canImport(EXUpdates)
+      if !isDebug,
+         AppController.isInitialized(),
+         let launchAssetURL = AppController.sharedInstance.launchAssetUrl() {
+        return launchAssetURL
+      }
+      #endif
+
+      return try BrownfieldBundleURLResolver.resolve(
+        isDebug: isDebug,
+        preferEmbeddedBundleInDebug: preferEmbeddedBundleInDebug,
+        bundlePath: bundlePath,
+        bundle: bundle,
+        bundleURLOverride: nil,
+        metroURL: {
+          RCTBundleURLProvider.sharedSettings().jsBundleURL(
+            forBundleRoot: entryFile)
+        }
       )
-      return bundle.url(forResource: resourceName, withExtension: fileExtension)
     } catch {
       assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")
       return nil
     }
-#endif
   }
 }
 #endif

@@ -124,6 +124,8 @@ struct IosApp: App {
 
     init() {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+        // Optional: use the packaged bundle even when the consumed framework is built in Debug.
+        // ReactNativeBrownfield.shared.preferEmbeddedBundleInDebug = true
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
         }
