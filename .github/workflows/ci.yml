@@ -11,9 +11,46 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  filter:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.filter.outputs.packages }}
+      rnapp: ${{ steps.filter.outputs.rnapp }}
+      expo54: ${{ steps.filter.outputs.expo54 }}
+      expo55: ${{ steps.filter.outputs.expo55 }}
+      androidapp: ${{ steps.filter.outputs.androidapp }}
+      appleapp: ${{ steps.filter.outputs.appleapp }}
+      ci: ${{ steps.filter.outputs.ci }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Filter paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            packages:
+              - 'packages/**'
+            rnapp:
+              - 'apps/RNApp/**'
+            expo54:
+              - 'apps/ExpoApp54/**'
+            expo55:
+              - 'apps/ExpoApp55/**'
+            androidapp:
+              - 'apps/AndroidApp/**'
+            appleapp:
+              - 'apps/AppleApp/**'
+            ci:
+              - '.github/**'
+
   check-changeset:
     name: Check changeset
     runs-on: ubuntu-latest
+    needs: filter
+    if: needs.filter.outputs.packages == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
@@ -30,6 +67,8 @@ jobs:
   build-lint:
     name: Build, lint, typecheck & Jest
     runs-on: ubuntu-latest
+    needs: filter
+    if: needs.filter.outputs.packages == 'true' || needs.filter.outputs.ci == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
@@ -56,7 +95,17 @@ jobs:
   android-androidapp-expo:
     name: Android road test (RNApp & AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest
-    needs: build-lint
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo54 == 'true' ||
+        needs.filter.outputs.expo55 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
     strategy:
       matrix:
         include:
@@ -77,7 +126,16 @@ jobs:
   android-androidapp-vanilla:
     name: Android road test (RNApp & AndroidApp - Vanilla)
     runs-on: ubuntu-latest
-    needs: build-lint
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.rnapp == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
 
     steps:
       - name: Checkout
@@ -93,7 +151,16 @@ jobs:
   ios-appleapp-vanilla:
     name: iOS road test (RNApp & AppleApp - Vanilla)
     runs-on: macos-26
-    needs: build-lint
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.rnapp == 'true' ||
+        needs.filter.outputs.appleapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
 
     steps:
       - name: Checkout
@@ -108,7 +175,17 @@ jobs:
   ios-appleapp-expo:
     name: iOS road test (RNApp & AppleApp - Expo ${{ matrix.version }})
     runs-on: macos-26
-    needs: build-lint
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo54 == 'true' ||
+        needs.filter.outputs.expo55 == 'true' ||
+        needs.filter.outputs.appleapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
     strategy:
       matrix:
         include:
