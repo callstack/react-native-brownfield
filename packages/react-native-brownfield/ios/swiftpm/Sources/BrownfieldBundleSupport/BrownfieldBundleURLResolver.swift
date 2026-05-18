@@ -3,7 +3,7 @@ import Foundation
 enum BrownfieldBundleURLResolver {
   static func resolve(
     isDebug: Bool,
-    preferBundledBundleInDebug: Bool,
+    preferEmbeddedBundleInDebug: Bool,
     bundlePath: String,
     bundle: Bundle,
     bundleURLOverride: (() -> URL?)?,
@@ -13,7 +13,7 @@ enum BrownfieldBundleURLResolver {
       return overriddenURL
     }
 
-    if isDebug && !preferBundledBundleInDebug {
+    if isDebug && !preferEmbeddedBundleInDebug {
       return metroURL()
     }
 

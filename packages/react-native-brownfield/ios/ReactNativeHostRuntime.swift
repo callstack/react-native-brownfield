@@ -7,7 +7,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"
   var bundlePath = "main.jsbundle"
   var bundle = Bundle.main
-  var preferBundledBundleInDebug = false
+  var preferEmbeddedBundleInDebug = false
   var bundleURLOverride: (() -> URL?)? = nil
   // MARK: - RCTReactNativeFactoryDelegate Methods
 
@@ -25,7 +25,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
 
       return try BrownfieldBundleURLResolver.resolve(
         isDebug: isDebug,
-        preferBundledBundleInDebug: preferBundledBundleInDebug,
+        preferEmbeddedBundleInDebug: preferEmbeddedBundleInDebug,
         bundlePath: bundlePath,
         bundle: bundle,
         bundleURLOverride: bundleURLOverride,
@@ -48,7 +48,7 @@ final class ReactNativeHostRuntime {
   private func configureDevLoadingView() {
     #if DEBUG
     let shouldDisableDevLoadingView =
-      preferBundledBundleInDebug && (delegate.bundleURL()?.isFileURL ?? false)
+      preferEmbeddedBundleInDebug && (delegate.bundleURL()?.isFileURL ?? false)
 
     BrownfieldDevLoadingViewBridge.setEnabled(!shouldDisableDevLoadingView)
     #endif
@@ -88,9 +88,9 @@ final class ReactNativeHostRuntime {
    * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
    * Default value: false
    */
-  public var preferBundledBundleInDebug: Bool = false {
+  public var preferEmbeddedBundleInDebug: Bool = false {
     didSet {
-      delegate.preferBundledBundleInDebug = preferBundledBundleInDebug
+      delegate.preferEmbeddedBundleInDebug = preferEmbeddedBundleInDebug
     }
   }
 

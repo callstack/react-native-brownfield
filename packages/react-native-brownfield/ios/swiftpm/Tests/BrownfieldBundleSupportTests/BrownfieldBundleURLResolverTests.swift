@@ -8,7 +8,7 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
 
     let resolvedURL = try BrownfieldBundleURLResolver.resolve(
       isDebug: true,
-      preferBundledBundleInDebug: true,
+      preferEmbeddedBundleInDebug: true,
       bundlePath: "main.jsbundle",
       bundle: bundle,
       bundleURLOverride: nil,
@@ -26,7 +26,7 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
 
     let resolvedURL = try BrownfieldBundleURLResolver.resolve(
       isDebug: true,
-      preferBundledBundleInDebug: false,
+      preferEmbeddedBundleInDebug: false,
       bundlePath: "main.jsbundle",
       bundle: bundle,
       bundleURLOverride: nil,
@@ -42,7 +42,7 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
 
     let resolvedURL = try BrownfieldBundleURLResolver.resolve(
       isDebug: false,
-      preferBundledBundleInDebug: false,
+      preferEmbeddedBundleInDebug: false,
       bundlePath: "main.jsbundle",
       bundle: bundle,
       bundleURLOverride: nil,
@@ -61,7 +61,7 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
 
     let resolvedURL = try BrownfieldBundleURLResolver.resolve(
       isDebug: true,
-      preferBundledBundleInDebug: false,
+      preferEmbeddedBundleInDebug: false,
       bundlePath: "main.jsbundle",
       bundle: bundle,
       bundleURLOverride: { overrideURL },
@@ -77,7 +77,7 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
 
     let resolvedURL = try BrownfieldBundleURLResolver.resolve(
       isDebug: true,
-      preferBundledBundleInDebug: true,
+      preferEmbeddedBundleInDebug: true,
       bundlePath: "main.jsbundle",
       bundle: bundle,
       bundleURLOverride: { nil },
@@ -93,7 +93,7 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
     XCTAssertThrowsError(
       try BrownfieldBundleURLResolver.resolve(
         isDebug: false,
-        preferBundledBundleInDebug: false,
+        preferEmbeddedBundleInDebug: false,
         bundlePath: "mainjsbundle",
         bundle: Bundle(for: Self.self),
         bundleURLOverride: nil,

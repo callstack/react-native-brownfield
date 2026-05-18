@@ -15,7 +15,7 @@ Pod::Spec.new do |spec|
   spec.module_name = "ReactBrownfield"
   spec.source       = { :git => "git@github.com:callstack/react-native-brownfield.git", :tag => "#{spec.version}" }
   spec.source_files  = "ios/**/*.{h,m,mm,swift}"
-  spec.exclude_files = "ios/Package.swift", "ios/Tests/**/*"
+  spec.exclude_files = "ios/swiftpm/Package.swift", "ios/swiftpm/Tests/**/*"
   spec.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'OTHER_SWIFT_FLAGS' => "-enable-experimental-feature AccessLevelOnImport"

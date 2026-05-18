@@ -63,7 +63,7 @@ jobs:
 
       - name: Run Swift bundle resolver tests
         run: |
-          cd packages/react-native-brownfield/ios
+          cd packages/react-native-brownfield/ios/swiftpm
           mkdir -p "$RUNNER_TEMP/swift-home" "$RUNNER_TEMP/swift-cache/clang" "$RUNNER_TEMP/swift-cache/swiftpm"
           HOME="$RUNNER_TEMP/swift-home" \
           CLANG_MODULE_CACHE_PATH="$RUNNER_TEMP/swift-cache/clang" \

@@ -18,7 +18,7 @@ final class ExpoHostRuntime {
     #if DEBUG
     let resolvedBundleURL = bundleURL ?? delegate.bundleURL()
     let shouldDisableDevLoadingView =
-      preferBundledBundleInDebug && (resolvedBundleURL?.isFileURL ?? false)
+      preferEmbeddedBundleInDebug && (resolvedBundleURL?.isFileURL ?? false)
 
     BrownfieldDevLoadingViewBridge.setEnabled(!shouldDisableDevLoadingView)
     #endif
@@ -102,9 +102,9 @@ final class ExpoHostRuntime {
    * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
    * Default value: false
    */
-  public var preferBundledBundleInDebug: Bool = false {
+  public var preferEmbeddedBundleInDebug: Bool = false {
     didSet {
-      delegate.preferBundledBundleInDebug = preferBundledBundleInDebug
+      delegate.preferEmbeddedBundleInDebug = preferEmbeddedBundleInDebug
     }
   }
   /**
@@ -180,7 +180,7 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
   var entryFile = ".expo/.virtual-metro-entry"
   var bundlePath = "main.jsbundle"
   var bundle = Bundle.main
-  var preferBundledBundleInDebug = false
+  var preferEmbeddedBundleInDebug = false
   var bundleURLOverride: (() -> URL?)? = nil
 
   override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -198,7 +198,7 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
 
       return try BrownfieldBundleURLResolver.resolve(
         isDebug: isDebug,
-        preferBundledBundleInDebug: preferBundledBundleInDebug,
+        preferEmbeddedBundleInDebug: preferEmbeddedBundleInDebug,
         bundlePath: bundlePath,
         bundle: bundle,
         bundleURLOverride: bundleURLOverride,

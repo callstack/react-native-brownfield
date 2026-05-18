@@ -59,12 +59,12 @@ internal import Expo
    * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
    * Default value: false
    */
-  @objc public var preferBundledBundleInDebug: Bool = false {
+  @objc public var preferEmbeddedBundleInDebug: Bool = false {
     didSet {
       #if canImport(Expo)
-      ExpoHostRuntime.shared.preferBundledBundleInDebug = preferBundledBundleInDebug
+      ExpoHostRuntime.shared.preferEmbeddedBundleInDebug = preferEmbeddedBundleInDebug
       #else
-      ReactNativeHostRuntime.shared.preferBundledBundleInDebug = preferBundledBundleInDebug
+      ReactNativeHostRuntime.shared.preferEmbeddedBundleInDebug = preferEmbeddedBundleInDebug
       #endif
     }
   }

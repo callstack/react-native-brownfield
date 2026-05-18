@@ -8,12 +8,8 @@
 
 @implementation NativeBrownfieldNavigation
 
-- (void)navigateToSettings {
-    [[[BrownfieldNavigationManager shared] getDelegate] navigateToSettings];
-}
-
-- (void)navigateToReferrals:(NSString *)userId {
-    [[[BrownfieldNavigationManager shared] getDelegate] navigateToReferrals:userId];
+- (void)temporary {
+    NSLog(@"temporary");
 }
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
