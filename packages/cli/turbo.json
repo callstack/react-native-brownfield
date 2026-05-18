@@ -5,6 +5,9 @@
     "build": {
       "inputs": ["src/**/*"],
       "outputs": ["dist/**"]
+    },
+    "build:brownfield": {
+      "outputs": ["dist/**"]
     }
   }
 }

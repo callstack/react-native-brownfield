@@ -28,7 +28,7 @@ jobs:
         run: yarn changeset status --since=origin/${{ github.base_ref }}
 
   build-lint:
-    name: Build & static code analysis
+    name: Build, lint, typecheck & Jest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,6 +45,9 @@ jobs:
 
       - name: Typecheck files
         run: yarn typecheck
+
+      - name: Run app tests (Jest)
+        run: yarn test:apps
 
       - name: Test Brownfield CLI (version)
         run: |

@@ -64,7 +64,7 @@ buck-out/
 **/Pods
 
 # Yarn
-.yarn/*
+**/.yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
@@ -84,3 +84,8 @@ secring.gpg
 **/*.tsbuildinfo
 packages/react-native-brownfield/ios/.build/
 packages/react-native-brownfield/ios/swiftpm/.build/
+
+# skillgym
+.skillgym-results/
+
+.cursor

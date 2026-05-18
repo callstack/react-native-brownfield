@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownie",
-  "version": "3.6.1",
+  "version": "3.8.0",
   "license": "MIT",
   "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "bin": {
@@ -36,6 +36,7 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "build:brownfield": "yarn run build",
     "build": "bob build",
     "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\""
   },
@@ -83,15 +84,15 @@
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/runtime": "^7.25.0",
-    "@react-native/babel-preset": "0.82.1",
-    "@react-native/eslint-config": "0.82.1",
+    "@react-native/babel-preset": "0.83.2",
+    "@react-native/eslint-config": "0.83.2",
     "@types/node": "^25.5.0",
     "@types/react": "^19.1.1",
     "eslint": "^9.39.3",
     "globals": "^17.3.0",
     "import": "^0.0.6",
     "nodemon": "^3.1.14",
-    "react-native": "0.82.1",
+    "react-native": "0.83.2",
     "react-native-builder-bob": "^0.41.0",
     "typescript": "5.9.3"
   },

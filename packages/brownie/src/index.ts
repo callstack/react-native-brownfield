@@ -36,6 +36,8 @@ function getOrCreateStore(key: string): StoreCache {
           `Make sure to register it on the native side before accessing it from JS.\n\n` +
           `Swift example:\n` +
           `  ${key}.register(${key}(...))\n\n` +
+          `Kotlin example:\n` +
+          `  registerStoreIfNeeded(storeName = ${key}.NAME){ ${key}(...) }\n\n` +
           `This should be called before React Native starts.`
       );
     }

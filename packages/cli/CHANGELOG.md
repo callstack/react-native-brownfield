@@ -1,5 +1,17 @@
 # @callstack/brownfield-cli
 
+## 3.8.0
+
+### Minor Changes
+
+- [#295](https://github.com/callstack/react-native-brownfield/pull/295) [`d93dcd9`](https://github.com/callstack/react-native-brownfield/commit/d93dcd96e3b90517d718cd42b2cc773fb9795eac) Thanks [@hurali97](https://github.com/hurali97)! - add expo updates support
+
+## 3.7.0
+
+### Minor Changes
+
+- [#313](https://github.com/callstack/react-native-brownfield/pull/313) [`c153378`](https://github.com/callstack/react-native-brownfield/commit/c1533783c0a93372b3c12f08c1428766c0405226) Thanks [@alpharius-ck](https://github.com/alpharius-ck)! - Jest unit tests
+
 ## 3.6.1
 
 ### Patch Changes
