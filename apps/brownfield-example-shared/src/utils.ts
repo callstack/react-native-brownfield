@@ -1,5 +1,11 @@
+export type Theme = {
+  primary: string;
+  secondary: string;
+};
+
 export const getRandomValue = () => Math.round(Math.random() * 255);
-export const getRandomTheme = () => {
+
+export const getRandomTheme = (): Theme => {
   const primary = [getRandomValue(), getRandomValue(), getRandomValue()];
   const secondary = [
     255 - (primary?.[0] || 0),

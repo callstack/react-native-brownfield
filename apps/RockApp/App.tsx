@@ -1,5 +1,5 @@
-import WelcomeScreen from '@rock-js/welcome-screen';
+import './BrownfieldStore.brownie';
 
-export default function App() {
-  return <WelcomeScreen />;
-}
+import { App } from '@callstack/brownfield-example-shared';
+
+export default App;

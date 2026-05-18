@@ -1,4 +1,6 @@
+const path = require('node:path');
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { withMetroConfig } = require('react-native-monorepo-config');
 
 /**
  * Metro configuration
@@ -8,4 +10,10 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  */
 const config = {};
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+module.exports = withMetroConfig(
+  mergeConfig(getDefaultConfig(__dirname), config),
+  {
+    root: path.resolve(__dirname, '../..'),
+    dirname: __dirname,
+  },
+);

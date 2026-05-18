@@ -12,15 +12,23 @@
     "prepackage:aar": "brownfield codegen && brownfield navigation:codegen brownfield.navigation.ts",
     "package:aar": "rock package:aar --variant Release --module-name brownfieldlib",
     "publish-local:aar": "npm run package:aar && rock publish-local:aar --module-name brownfieldlib",
+    "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
+    "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
+    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release",
     "codegen": "brownfield codegen",
     "codegen:navigation": "brownfield navigation:codegen brownfield.navigation.ts"
   },
   "dependencies": {
+    "@callstack/brownfield-example-shared": "workspace:^",
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
+    "@react-navigation/native": "^7.1.33",
+    "@react-navigation/native-stack": "^7.14.5",
     "react": "19.2.3",
-    "react-native": "0.85.0"
+    "react-native": "0.85.0",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-screens": "^4.23.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -40,7 +48,6 @@
     "@rock-js/plugin-brownfield-android": "^0.13.3",
     "@rock-js/plugin-brownfield-ios": "^0.13.3",
     "@rock-js/plugin-metro": "^0.13.3",
-    "@rock-js/welcome-screen": "^0.13.3",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.2.0",

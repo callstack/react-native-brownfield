@@ -1,8 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import type { Theme } from '../utils';
+
 export type RootStackParamList = {
   Home: {
-    theme: { primary: string; secondary: string };
+    theme: Theme;
     brownfieldPresentationID?: string;
   };
 };
