@@ -12,7 +12,7 @@ public class BrownfieldNavigationManager: NSObject {
     self.navigationDelegate = navigationDelegate
   }
 
-  @objc public func clearDelegate() {
+  public func clearDelegate() {
     navigationDelegate = nil
   }
   
