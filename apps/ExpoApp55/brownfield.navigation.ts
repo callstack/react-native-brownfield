@@ -1,7 +1,14 @@
 type UserType = {
   id: string;
   name: string;
-  email: string;
+  email?: string;
+  flags: string[];
+  ids: string[] | null;
+  avatar?: AvatarType;
+};
+
+type AvatarType = {
+  url: string;
 };
 
 export interface BrownfieldNavigationSpec {
