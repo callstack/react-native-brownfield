@@ -2,6 +2,17 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 3.8.1
+
+### Patch Changes
+
+- [#336](https://github.com/callstack/react-native-brownfield/pull/336) [`35b6f0a`](https://github.com/callstack/react-native-brownfield/commit/35b6f0aebd51a86165fe8af1890ccc3bd5189aaa) Thanks [@hurali97](https://github.com/hurali97)! - fix: allow unregistering the navigation delegate
+
+- Updated dependencies [[`e78084d`](https://github.com/callstack/react-native-brownfield/commit/e78084d227a49d39d726b8c778bd56045634678d)]:
+  - @callstack/brownfield-cli@3.8.1
+
+- [#335](https://github.com/callstack/react-native-brownfield/pull/335) [`e78084d`](https://github.com/callstack/react-native-brownfield/commit/e78084d227a49d39d726b8c778bd56045634678d) Thanks [@hurali97](https://github.com/hurali97)! - fix: Object params correctly reflect the generated native code instead of Any
+
 ## 3.8.0
 
 ### Minor Changes

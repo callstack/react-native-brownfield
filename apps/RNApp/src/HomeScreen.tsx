@@ -184,7 +184,18 @@ export function HomeScreen({
       </View>
 
       <Button
-        onPress={() => BrownfieldNavigation.navigateToSettings()}
+        onPress={() =>
+          BrownfieldNavigation.navigateToSettings({
+            id: '123',
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            flags: ['admin', 'user'],
+            ids: ['123', '456'],
+            avatar: {
+              url: 'https://example.com/avatar.png',
+            },
+          })
+        }
         color={colors.secondary}
         title="Open native settings"
       />
