@@ -8,8 +8,9 @@
 
 @implementation NativeBrownfieldNavigation
 
-- (void)navigateToSettings {
-    [[[BrownfieldNavigationManager shared] getDelegate] navigateToSettings];
+- (void)navigateToSettings:(NSDictionary *)user {
+    UserType *userModel = user == nil ? nil : [UserType fromDictionary:user];
+    [[[BrownfieldNavigationManager shared] getDelegate] navigateToSettings:userModel];
 }
 
 - (void)navigateToReferrals:(NSString *)userId {
