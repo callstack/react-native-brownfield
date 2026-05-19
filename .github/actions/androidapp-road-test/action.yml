@@ -3,7 +3,7 @@ description: Package the given RN app as AAR, publish to Maven Local, and build 
 
 inputs:
   flavor:
-    description: 'AndroidApp flavor to build (expo<version> or vanilla)'
+    description: 'AndroidApp flavor to build (expo<version>, vanilla or rock)'
     required: true
 
   rn-project-path:
