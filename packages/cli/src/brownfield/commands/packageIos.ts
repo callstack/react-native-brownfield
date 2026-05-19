@@ -19,7 +19,7 @@ import { Command, Option } from 'commander';
 
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
-import { assertUsePrebuiltRnCoreSupported } from '../utils/usePrebuiltRnCore.js';
+import { supportsPrebuiltRNCore } from '../utils/supportsPrebuiltRNCore.js';
 import {
   actionRunner,
   curryOptions,
@@ -81,8 +81,18 @@ export const packageIosCommand = curryOptions(
     actionRunner(async (options: PackageIosCliFlags) => {
       const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
 
-      if (options.usePrebuiltRnCore === true) {
-        assertUsePrebuiltRnCoreSupported({ projectRoot });
+      const {
+        supported: isPrebuiltRNCoreSupported,
+        reason: maybePrebuiltRNCoreUnsupportedReason,
+      } = supportsPrebuiltRNCore({ projectRoot });
+
+      // default value is based on project so is dynamically assigned at runtime
+      options.usePrebuiltRnCore ??= isPrebuiltRNCoreSupported;
+
+      if (options.usePrebuiltRnCore && !isPrebuiltRNCoreSupported) {
+        // user opted-in but prebuilt RN core is not supported
+        // note: the default-assignment above - if effective - always satisfies this condition
+        throw new RockError(maybePrebuiltRNCoreUnsupportedReason);
       }
 
       await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
