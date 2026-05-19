@@ -42,10 +42,21 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         ReactNativeHostManager.onConfigurationChanged(application, newConfig)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Own Brownfield navigation only while this activity is foregrounded.
+        BrownfieldNavigationManager.setDelegate(this)
+    }
+
+    override fun onPause() {
+        // Release ownership before another host can become the active delegate.
+        BrownfieldNavigationManager.clearDelegate()
+        super.onPause()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
         enableEdgeToEdge()
-        BrownfieldNavigationManager.setDelegate(this)
 
         if (savedInstanceState == null) {
             ReactNativeHostManager.initialize(application) {

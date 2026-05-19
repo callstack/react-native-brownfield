@@ -7,6 +7,17 @@ import BrownfieldNavigation
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     var window: UIWindow?
+    private let navigationDelegate = RNNavigationDelegate()
+
+    func registerNavigationDelegate() {
+        BrownfieldNavigationManager.shared.setDelegate(
+            navigationDelegate: navigationDelegate
+        )
+    }
+
+    func clearNavigationDelegate() {
+        BrownfieldNavigationManager.shared.clearDelegate()
+    }
 
     func application(
         _ application: UIApplication,
@@ -83,10 +94,6 @@ struct BrownfieldAppleApp: App {
             print("React Native has been loaded")
         }
 
-        BrownfieldNavigationManager.shared.setDelegate(
-            navigationDelegate: RNNavigationDelegate()
-        )
-
         #if USE_EXPO_HOST
             ReactNativeBrownfield.shared.ensureExpoModulesProvider()
         #endif
@@ -96,7 +103,34 @@ struct BrownfieldAppleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootContentView(appDelegate: appDelegate)
+        }
+    }
+}
+
+private struct RootContentView: View {
+    @Environment(\.scenePhase) private var scenePhase
+
+    let appDelegate: AppDelegate
+
+    var body: some View {
+        ContentView()
+            .onAppear {
+                syncNavigationDelegate(for: scenePhase)
+            }
+            .onChange(of: scenePhase) { newPhase in
+                syncNavigationDelegate(for: newPhase)
+            }
+    }
+
+    private func syncNavigationDelegate(for phase: ScenePhase) {
+        switch phase {
+        case .active:
+            appDelegate.registerNavigationDelegate()
+        case .inactive, .background:
+            appDelegate.clearNavigationDelegate()
+        @unknown default:
+            appDelegate.clearNavigationDelegate()
         }
     }
 }

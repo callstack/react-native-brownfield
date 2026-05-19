@@ -1,6 +1,10 @@
 # Native Integration
 
-After codegen, implement the generated delegate interface in your host app and register it before JavaScript uses the module.
+After codegen, implement the generated delegate interface in your host app and register it before JavaScript uses the module. Clear that delegate when the host stops owning Brownfield navigation so another native owner can safely register.
+
+On both platforms, the native manager API is intentionally explicit: use `setDelegate(...)` to claim ownership, `clearDelegate()` to release it, and rely on `getDelegate()` failing fast if no active host has registered yet.
+
+Do not treat the delegate as an app-lifetime singleton unless your app truly has only one native owner for Brownfield navigation. The intended contract is ownership-based: register when a host becomes responsible for Brownfield navigation, then clear when that responsibility moves elsewhere or the host becomes inactive.
 
 ## Pre-Requisite:
 
@@ -31,20 +35,25 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
 }
 ```
 
-### 2) Register the delegate during startup
+### 2) Register and clear the delegate with host lifecycle
 
-Register before any React Native screen can call `BrownfieldNavigation.*`:
+Register before any React Native screen can call `BrownfieldNavigation.*`, and clear the delegate when this host is no longer the active navigation owner:
 
 ```kotlin
-import android.os.Bundle
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 
-override fun onCreate(savedInstanceState: Bundle?) {
-  super.onCreate(savedInstanceState)
+override fun onResume() {
+  super.onResume()
   BrownfieldNavigationManager.setDelegate(this)
-  // Initialize React Native host
+}
+
+override fun onPause() {
+  BrownfieldNavigationManager.clearDelegate()
+  super.onPause()
 }
 ```
+
+`BrownfieldNavigationManager.getDelegate()` still fails fast when no delegate is registered, so missing registration remains a host lifecycle bug rather than a silent no-op.
 
 ## iOS
 
@@ -74,30 +83,83 @@ public final class RNNavigationDelegate: BrownfieldNavigationDelegate {
 }
 ```
 
-### 2) Register the delegate at app startup
+### 2) Register and clear the delegate with host lifecycle
+
+If your app can hand Brownfield navigation between multiple native owners, register in the object that currently owns navigation and clear it during the matching teardown phase.
+
+In SwiftUI apps, prefer scene-driven lifecycle hooks such as `scenePhase`. In UIKit scene-based apps, use the matching `UISceneDelegate` callbacks. `UIApplicationDelegate` launch setup is still useful, but it is not always the right place to track foreground navigation ownership.
 
 ```swift
 import BrownfieldNavigation
+import SwiftUI
+
+final class AppDelegate: NSObject, UIApplicationDelegate {
+  private let navigationDelegate = RNNavigationDelegate()
+
+  func registerNavigationDelegate() {
+    BrownfieldNavigationManager.shared.setDelegate(
+      navigationDelegate: navigationDelegate
+    )
+  }
+
+  func clearNavigationDelegate() {
+    BrownfieldNavigationManager.shared.clearDelegate()
+  }
+}
 
 @main
 struct BrownfieldAppleApp: App {
-  init() {
-    BrownfieldNavigationManager.shared.setDelegate(
-      navigationDelegate: RNNavigationDelegate()
-    )
+  @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+  var body: some Scene {
+    WindowGroup {
+      RootContentView(appDelegate: appDelegate)
+    }
+  }
+}
+
+private struct RootContentView: View {
+  @Environment(\.scenePhase) private var scenePhase
+
+  let appDelegate: AppDelegate
+
+  var body: some View {
+    ContentView()
+      .onAppear {
+        syncNavigationDelegate(for: scenePhase)
+      }
+      .onChange(of: scenePhase) { newPhase in
+        syncNavigationDelegate(for: newPhase)
+      }
+  }
+
+  private func syncNavigationDelegate(for phase: ScenePhase) {
+    switch phase {
+    case .active:
+      appDelegate.registerNavigationDelegate()
+    case .inactive, .background:
+      appDelegate.clearNavigationDelegate()
+    @unknown default:
+      appDelegate.clearNavigationDelegate()
+    }
   }
 }
 ```
 
+`BrownfieldNavigationManager.shared.getDelegate()` still fails fast when no delegate is registered, so lifecycle ownership bugs surface immediately during native integration.
+
 ## Lifecycle Requirements
 
 - Register delegate before rendering JS that might call the module.
+- Clear delegate when that host stops owning Brownfield navigation; do not keep stale delegates registered for the full app lifetime by default.
 - Keep navigation on main/UI thread.
-- Re-register delegate if your host object is recreated.
-- Treat missing delegate as a startup bug: runtime calls require a registered delegate.
+- Re-register delegate if your host object is recreated or regains focus.
+- Treat missing delegate as a lifecycle bug: runtime calls require a registered delegate.
 
 ## Troubleshooting
 
 - **Method added in TS but not visible natively**: rerun codegen and rebuild.
 - **Calls crash on app launch**: verify delegate registration happens before RN route rendering.
+- **Calls crash after switching hosts**: confirm the previous host clears the delegate and the active host re-registers it before RN can navigate.
+- **SwiftUI app never re-registers the delegate**: move ownership to `scenePhase` or `UISceneDelegate` instead of relying on `UIApplicationDelegate` active/resign callbacks.
 - **Wrong screen opens**: check native delegate method wiring and params mapping.
