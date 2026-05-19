@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 3.8.1
+
+### Patch Changes
+
+- [#335](https://github.com/callstack/react-native-brownfield/pull/335) [`e78084d`](https://github.com/callstack/react-native-brownfield/commit/e78084d227a49d39d726b8c778bd56045634678d) Thanks [@hurali97](https://github.com/hurali97)! - fix: Object params correctly reflect the generated native code instead of Any
+
 ## 3.8.0
 
 ### Minor Changes
