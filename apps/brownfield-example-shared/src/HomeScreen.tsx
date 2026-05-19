@@ -11,7 +11,6 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -221,12 +220,9 @@ export function HomeScreen({
           testID={brownfieldE2ETestIds.sendMessageToNative}
           style={[styles.sendButton, { backgroundColor: colors.secondary }]}
           onPress={sendMessage}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.sendButtonText, { color: colors.primary }]}>
-            Send message to Native
-          </Text>
-        </TouchableOpacity>
+          color={colors.secondary}
+          title="Send message to Native"
+        />
 
         <FlatList
           data={messages}
@@ -271,9 +267,12 @@ export function HomeScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+  },
+  contentContainer: {
+    flexGrow: 1,
     padding: 20,
     paddingTop: 48,
+    alignContent: 'center',
   },
   text: {
     fontSize: 26,
@@ -291,17 +290,6 @@ const styles = StyleSheet.create({
     flexBasis: 'auto',
     width: '100%',
     marginTop: 12,
-  },
-  sendButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  sendButtonText: {
-    fontWeight: '700',
-    fontSize: 15,
   },
   messageList: {
     flex: 1,
@@ -344,6 +332,11 @@ const styles = StyleSheet.create({
   navButtons: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 8,
+    justifyContent: 'center',
+  },
+  settingsButtons: {
+    gap: 8,
     marginTop: 8,
   },
 });
