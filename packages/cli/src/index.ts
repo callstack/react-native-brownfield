@@ -7,8 +7,6 @@ import { Command } from 'commander';
 import { ExampleUsage } from './shared/index.js';
 import brownfieldCommands, {
   groupName as brownfieldCommandsGroupName,
-  loadConfig,
-  validateConfig,
 } from './brownfield/index.js';
 import brownieCommands, {
   groupName as brownieCommandsGroupName,
@@ -16,6 +14,7 @@ import brownieCommands, {
 import navigationCommands, {
   groupName as navigationCommandsGroupName,
 } from './navigation/index.js';
+import { loadAndApplyBrownfieldCLIConfig } from './config.js';
 
 const program = new Command();
 
@@ -44,18 +43,6 @@ program.configureHelp({
   styleArgumentText: (str) => styleText('yellow', str),
   styleSubcommandText: (str) => styleText('blue', str),
 });
-
-function applyBrownfieldCLIConfig() {
-  const reactNativeBrownfieldConfig = loadConfig()
-
-  logger.debug('Loaded Brownfield CLI config:', reactNativeBrownfieldConfig);
-
-  validateConfig(reactNativeBrownfieldConfig);
-
-  for (const [key, value] of Object.entries(reactNativeBrownfieldConfig)) {
-    program.setOptionValueWithSource(key, value, 'config');
-  }
-}
 
 function registrationHelper(
   commandsRegistration: Record<string, unknown | Command | ExampleUsage>,
@@ -96,7 +83,7 @@ program.commandsGroup('Utility commands').helpCommand('help [command]');
 export function runCLI(argv: string[]): void {
   program.parse(argv);
 
-  applyBrownfieldCLIConfig()
+  loadAndApplyBrownfieldCLIConfig(program);
 
   if (!argv.slice(2).length) {
     program.outputHelp();

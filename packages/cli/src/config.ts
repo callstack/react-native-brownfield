@@ -5,10 +5,11 @@ import path from 'node:path';
 import Ajv from 'ajv';
 
 import type { BrownfieldConfig } from './types.js';
-import { findProjectRoot } from './utils/paths.js';
+import { findProjectRoot } from './brownfield/utils/paths.js';
 
-import BrownfieldSchema from '../../schema.json' with { type: 'json' };
+import BrownfieldSchema from '../schema.json' with { type: 'json' };
 import { logger } from '@rock-js/tools';
+import { Command } from 'commander';
 
 const JS_CONFIG_FILE_NAME = 'react-native-brownfield.config.js';
 const JSON_CONFIG_FILE_NAME = 'react-native-brownfield.config.json';
@@ -19,20 +20,13 @@ const SEPARATOR = '\n● ';
 const ajv = new Ajv({ allErrors: true });
 const validateBrownfieldConfig = ajv.compile(BrownfieldSchema);
 
-export function validateConfig(config: unknown) {
+function validateConfig(config: unknown) {
   if (!validateBrownfieldConfig(config)) {
     logger.warn(`Brownfield configuration has some issues: ${SEPARATOR}${ajv.errorsText(validateBrownfieldConfig.errors, { separator: SEPARATOR, dataVar: 'config' })}.`);
   }
 }
 
-/**
- * Loads Brownfield CLI config from project root.
- * Search order:
- * 1. react-native-brownfield.config.js
- * 2. react-native-brownfield.config.json
- * 3. package.json#react-native-brownfield
- */
-export function loadConfig(
+function loadBrownfieldConfig(
   projectRoot: string = findProjectRoot()
 ): BrownfieldConfig {
   const require = createRequire(path.join(projectRoot, 'package.json'));
@@ -54,4 +48,17 @@ export function loadConfig(
   >;
 
   return packageJson[PACKAGE_JSON_CONFIG_KEY] || {};
+}
+
+
+export function loadAndApplyBrownfieldCLIConfig(program: Command) {
+  const reactNativeBrownfieldConfig = loadBrownfieldConfig()
+
+  logger.debug('Loaded Brownfield CLI config:', reactNativeBrownfieldConfig);
+
+  validateConfig(reactNativeBrownfieldConfig);
+
+  for (const [key, value] of Object.entries(reactNativeBrownfieldConfig)) {
+    program.setOptionValueWithSource(key, value, 'config');
+  }
 }

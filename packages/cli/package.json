@@ -37,6 +37,11 @@
       "types": "./dist/navigation/index.d.ts",
       "default": "./dist/navigation/index.js"
     },
+    "./types": {
+      "source": "./src/types.ts",
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -72,7 +77,6 @@
     "@react-native-community/cli-config-android": "*"
   },
   "dependencies": {
-    "ajv": "^6.14.0",
     "@expo/config": "^12.0.13",
     "@react-native-community/cli-config": "^20.0.0",
     "@react-native-community/cli-config-android": "^20.0.0",
@@ -81,6 +85,7 @@
     "@rock-js/plugin-brownfield-android": "^0.12.12",
     "@rock-js/plugin-brownfield-ios": "^0.12.12",
     "@rock-js/tools": "^0.12.12",
+    "ajv": "^6.14.0",
     "commander": "^14.0.3",
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",
