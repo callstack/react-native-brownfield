@@ -664,6 +664,10 @@ function resolveAppTargetName(
   return null;
 }
 
+/**
+ * Adds the "Patch ExpoModulesProvider" shell script phase to the framework target.
+ * Safe to call on every prebuild: skips creation when the phase is already present.
+ */
 export function addExpoPre55ShellPatchScriptPhase(
   modRequest: ModProps<XcodeProject>,
   project: XcodeProject,
