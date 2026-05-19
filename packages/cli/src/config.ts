@@ -20,13 +20,13 @@ const SEPARATOR = '\n● ';
 const ajv = new Ajv({ allErrors: true });
 const validateBrownfieldConfig = ajv.compile(BrownfieldSchema);
 
-function validateConfig(config: unknown) {
+export function validateBrownfieldCLIConfig(config: unknown): void {
   if (!validateBrownfieldConfig(config)) {
     logger.warn(`Brownfield configuration has some issues: ${SEPARATOR}${ajv.errorsText(validateBrownfieldConfig.errors, { separator: SEPARATOR, dataVar: 'config' })}.`);
   }
 }
 
-function loadBrownfieldConfig(
+export function loadBrownfieldConfig(
   projectRoot: string = findProjectRoot()
 ): BrownfieldConfig {
   const require = createRequire(path.join(projectRoot, 'package.json'));
@@ -50,15 +50,23 @@ function loadBrownfieldConfig(
   return packageJson[PACKAGE_JSON_CONFIG_KEY] || {};
 }
 
+export function applyBrownfieldCLIConfig(
+  program: Command,
+  config: BrownfieldConfig
+): void {
+  for (const [key, value] of Object.entries(config)) {
+    program.setOptionValueWithSource(key, value, 'config');
+  }
+}
 
-export function loadAndApplyBrownfieldCLIConfig(program: Command) {
-  const reactNativeBrownfieldConfig = loadBrownfieldConfig()
+export function loadAndApplyBrownfieldCLIConfig(
+  program: Command,
+  projectRoot?: string
+): void {
+  const reactNativeBrownfieldConfig = loadBrownfieldConfig(projectRoot);
 
   logger.debug('Loaded Brownfield CLI config:', reactNativeBrownfieldConfig);
 
-  validateConfig(reactNativeBrownfieldConfig);
-
-  for (const [key, value] of Object.entries(reactNativeBrownfieldConfig)) {
-    program.setOptionValueWithSource(key, value, 'config');
-  }
+  validateBrownfieldCLIConfig(reactNativeBrownfieldConfig);
+  applyBrownfieldCLIConfig(program, reactNativeBrownfieldConfig);
 }
