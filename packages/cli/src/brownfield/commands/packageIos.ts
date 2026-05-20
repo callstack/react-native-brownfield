@@ -8,16 +8,18 @@ import {
 } from '@rock-js/platform-apple-helpers';
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
 import {
+  RockError,
   colorLink,
   getReactNativeVersion,
   logger,
   relativeToCwd,
 } from '@rock-js/tools';
 
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
+import { supportsPrebuiltRNCore } from '../utils/supportsPrebuiltRNCore.js';
 import {
   actionRunner,
   curryOptions,
@@ -26,6 +28,36 @@ import {
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+
+/** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
+const USE_PREBUILT_RN_CORE_HELP =
+  'Whether the Xcode build for packaging should use React Native Apple prebuilt binaries (via CocoaPods). ' +
+  'If you omit this flag, Brownfield follows version-aware defaults: for React Native 0.84 and newer, prebuilts are enabled by default; for RN 0.83, they are disabled unless you opt in. ' +
+  'Pass true or false to force either behavior. Use the flag without a value as shorthand for true (same as `--use-prebuilt-rn-core true`). ' +
+  'See the Brownfield iOS guide for details: https://oss.callstack.com/react-native-brownfield/docs/getting-started/ios#react-native-prebuilts';
+
+export function parseUsePrebuiltRnCoreArgument(
+  value: string | boolean
+): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'true' || normalized === '1') {
+    return true;
+  }
+  if (normalized === 'false' || normalized === '0') {
+    return false;
+  }
+  throw new RockError(
+    `Invalid value for --use-prebuilt-rn-core: expected true or false, received "${value}"`
+  );
+}
+
+type PackageIosCliFlags = AppleBuildFlags & {
+  /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
+  usePrebuiltRnCore?: boolean;
+};
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
@@ -39,139 +71,172 @@ export const packageIosCommand = curryOptions(
         }
       : option
   )
-).action(
-  actionRunner(async (options: AppleBuildFlags) => {
-    const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
-    await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
+)
+  .addOption(
+    new Option('--use-prebuilt-rn-core [bool]', USE_PREBUILT_RN_CORE_HELP)
+      .preset(true)
+      .argParser(parseUsePrebuiltRnCoreArgument)
+  )
+  .action(
+    actionRunner(async (options: PackageIosCliFlags) => {
+      const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
 
-    if (!userConfig.project.ios) {
-      throw new Error('iOS project not found.');
-    }
+      const {
+        supported: isPrebuiltRNCoreSupported,
+        reason: maybePrebuiltRNCoreUnsupportedReason,
+      } = supportsPrebuiltRNCore({ projectRoot });
 
-    if (!userConfig.project.ios.xcodeProject) {
-      throw new Error('iOS Xcode project not found in the configuration.');
-    }
+      // default value is based on project so is dynamically assigned at runtime
+      options.usePrebuiltRnCore ??= isPrebuiltRNCoreSupported;
 
-    let dotBrownfieldDir = path.join(
-      // for Expo projects, platformConfig?.sourceDir == "", but for non-Expo projects, it's "ios"
-      ...(userConfig.project.ios.sourceDir.trim().length > 0
-        ? [userConfig.project.ios.sourceDir]
-        : [projectRoot, 'ios']),
-      '.brownfield'
-    );
+      if (options.usePrebuiltRnCore && !isPrebuiltRNCoreSupported) {
+        // user opted-in but prebuilt RN core is not supported
+        // note: the default-assignment above - if effective - always satisfies this condition
+        throw new RockError(maybePrebuiltRNCoreUnsupportedReason);
+      }
 
-    // non-Expo projects have a relative sourceDir path, so we need to make it absolute
-    if (!path.isAbsolute(dotBrownfieldDir)) {
-      dotBrownfieldDir = path.join(projectRoot, dotBrownfieldDir);
-    }
+      await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
 
-    options.buildFolder ??= path.join(dotBrownfieldDir, 'build');
+      if (!userConfig.project.ios) {
+        throw new Error('iOS project not found.');
+      }
 
-    // The new_architecture.rb script scans Info.plist and fails on binary plist files,
-    // which is the case for our XCFrameworks.
-    // We're reusing the "build" directory which is excluded from the scan.
-    // Reference: https://github.com/facebook/react-native/blob/490c5e8dcc6cdb19c334cc39e93a39a48ba71e96/packages/react-native/scripts/cocoapods/new_architecture.rb#L171
-    const packageDir = path.join(dotBrownfieldDir, 'package', 'build');
-    const configuration = options.configuration ?? 'Debug';
+      if (!userConfig.project.ios.xcodeProject) {
+        throw new Error('iOS Xcode project not found in the configuration.');
+      }
 
-    const { hasBrownie } = await runBrownieCodegenIfApplicable(
-      projectRoot,
-      'swift'
-    );
-    const { hasNavigation } = await runNavigationCodegenIfApplicable(projectRoot);
+      let dotBrownfieldDir = path.join(
+        // for Expo projects, platformConfig?.sourceDir == "", but for non-Expo projects, it's "ios"
+        ...(userConfig.project.ios.sourceDir.trim().length > 0
+          ? [userConfig.project.ios.sourceDir]
+          : [projectRoot, 'ios']),
+        '.brownfield'
+      );
 
-    await packageIosAction(
-      options,
-      {
+      // non-Expo projects have a relative sourceDir path, so we need to make it absolute
+      if (!path.isAbsolute(dotBrownfieldDir)) {
+        dotBrownfieldDir = path.join(projectRoot, dotBrownfieldDir);
+      }
+
+      options.buildFolder ??= path.join(dotBrownfieldDir, 'build');
+      options.verbose ??= logger.isVerbose();
+
+      // The new_architecture.rb script scans Info.plist and fails on binary plist files,
+      // which is the case for our XCFrameworks.
+      // We're reusing the "build" directory which is excluded from the scan.
+      // Reference: https://github.com/facebook/react-native/blob/490c5e8dcc6cdb19c334cc39e93a39a48ba71e96/packages/react-native/scripts/cocoapods/new_architecture.rb#L171
+      const packageDir = path.join(dotBrownfieldDir, 'package', 'build');
+      const configuration = options.configuration ?? 'Debug';
+
+      const { hasBrownie } = await runBrownieCodegenIfApplicable(
         projectRoot,
-        reactNativePath: userConfig.reactNativePath,
-        // below: the userConfig.reactNativeVersion may be a non-semver-format string,
-        // e.g. '0.82' (note the missing patch component),
-        // therefore we resolve it manually from RN's package.json using Rock's utils
-        reactNativeVersion: getReactNativeVersion(projectRoot),
-        usePrebuiltRNCore: false, // for brownfield, it is required to build RN from source
-        packageDir, // the output directory for artifacts
-        skipCache: true, // cache is dependent on existence of Rock config file
-      },
-      platformConfig
-    );
-
-    const reactBrownfieldXcframeworkPath = path.join(
-      packageDir,
-      'ReactBrownfield.xcframework'
-    );
-    if (fs.existsSync(reactBrownfieldXcframeworkPath)) {
-      // Strip the binary from ReactBrownfield.xcframework to make it interface-only.
-      // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
-      // (which contains ReactBrownfield symbols) and ReactBrownfield.xcframework.
-      stripFrameworkBinary(reactBrownfieldXcframeworkPath);
-    }
-
-    if (hasBrownie) {
-      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
-      const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
-
-      await mergeFrameworks({
-        sourceDir: userConfig.project.ios.sourceDir,
-        frameworkPaths: [
-          path.join(
-            productsPath,
-            `${configuration}-iphoneos`,
-            'Brownie',
-            'Brownie.framework'
-          ),
-          path.join(
-            productsPath,
-            `${configuration}-iphonesimulator`,
-            'Brownie',
-            'Brownie.framework'
-          ),
-        ],
-        outputPath: brownieOutputPath,
-      });
-
-      // Strip the binary from Brownie.xcframework to make it interface-only.
-      // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
-      // (which contains Brownie symbols) and Brownie.xcframework.
-      stripFrameworkBinary(brownieOutputPath);
-
-      logger.success(
-        `Brownie.xcframework created at ${colorLink(relativeToCwd(brownieOutputPath))}`
+        'swift'
       );
-    }
+      const { hasNavigation } =
+        await runNavigationCodegenIfApplicable(projectRoot);
 
-    if (hasNavigation) {
-      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
-      const brownfieldNavigationOutputPath = path.join(packageDir, 'BrownfieldNavigation.xcframework');
-  
-      await mergeFrameworks({
-        sourceDir: userConfig.project.ios.sourceDir,
-        frameworkPaths: [
-          path.join(
-            productsPath,
-            `${configuration}-iphoneos`,
-            'BrownfieldNavigation',
-            'BrownfieldNavigation.framework'
-          ),
-          path.join(
-            productsPath,
-            `${configuration}-iphonesimulator`,
-            'BrownfieldNavigation',
-            'BrownfieldNavigation.framework'
-          ),
-        ],
-        outputPath: brownfieldNavigationOutputPath,
-      });
-  
-  
-      stripFrameworkBinary(brownfieldNavigationOutputPath);
-  
-      logger.success(
-        `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
+      await packageIosAction(
+        options,
+        {
+          projectRoot,
+          reactNativePath: userConfig.reactNativePath,
+          // below: the userConfig.reactNativeVersion may be a non-semver-format string,
+          // e.g. '0.82' (note the missing patch component),
+          // therefore we resolve it manually from RN's package.json using Rock's utils
+          reactNativeVersion: getReactNativeVersion(projectRoot),
+          packageDir, // the output directory for artifacts
+          skipCache: true, // cache is dependent on existence of Rock config file
+          usePrebuiltRNCore: options.usePrebuiltRnCore,
+        },
+        platformConfig
       );
-    }
-  })
-);
+
+      const reactBrownfieldXcframeworkPath = path.join(
+        packageDir,
+        'ReactBrownfield.xcframework'
+      );
+      if (fs.existsSync(reactBrownfieldXcframeworkPath)) {
+        // Strip the binary from ReactBrownfield.xcframework to make it interface-only.
+        // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
+        // (which contains ReactBrownfield symbols) and ReactBrownfield.xcframework.
+        stripFrameworkBinary(reactBrownfieldXcframeworkPath);
+      }
+
+      if (hasBrownie) {
+        const productsPath = path.join(
+          options.buildFolder,
+          'Build',
+          'Products'
+        );
+        const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
+
+        await mergeFrameworks({
+          sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              'Brownie',
+              'Brownie.framework'
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              'Brownie',
+              'Brownie.framework'
+            ),
+          ],
+          outputPath: brownieOutputPath,
+        });
+
+        // Strip the binary from Brownie.xcframework to make it interface-only.
+        // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
+        // (which contains Brownie symbols) and Brownie.xcframework.
+        stripFrameworkBinary(brownieOutputPath);
+
+        logger.success(
+          `Brownie.xcframework created at ${colorLink(relativeToCwd(brownieOutputPath))}`
+        );
+      }
+
+      if (hasNavigation) {
+        const productsPath = path.join(
+          options.buildFolder,
+          'Build',
+          'Products'
+        );
+        const brownfieldNavigationOutputPath = path.join(
+          packageDir,
+          'BrownfieldNavigation.xcframework'
+        );
+
+        await mergeFrameworks({
+          sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              'BrownfieldNavigation',
+              'BrownfieldNavigation.framework'
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              'BrownfieldNavigation',
+              'BrownfieldNavigation.framework'
+            ),
+          ],
+          outputPath: brownfieldNavigationOutputPath,
+        });
+
+        stripFrameworkBinary(brownfieldNavigationOutputPath);
+
+        logger.success(
+          `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
+        );
+      }
+    })
+  );
 
 export const packageIosExample = new ExampleUsage(
   'package:ios --scheme BrownfieldLib --configuration Release',

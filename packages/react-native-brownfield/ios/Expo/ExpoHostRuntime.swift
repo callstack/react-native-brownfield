@@ -1,9 +1,8 @@
+#if canImport(Expo)
 import UIKit
 internal import React
-internal import React_RCTAppDelegate
 internal import ReactAppDependencyProvider
 
-#if canImport(Expo)
 internal import Expo
 #if canImport(EXUpdates)
 internal import EXUpdates

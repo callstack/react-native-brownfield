@@ -120,12 +120,13 @@ This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative t
 1. Open **`ios/.brownfield/package/build`** directory (relative to your React Native project root)
 2. Drag these files into your native iOS app's Xcode project:
    - **`<framework_target_name>.xcframework`** - Your React Native framework
+   - only if [using prebuilts](#react-native-prebuilts): **`React.xcframework`** and **`ReactNativeDependencies.xcframework`** - React Native frameworks emitted in supported configurations, as described in [React Native Prebuilts](#react-native-prebuilts) section
    - **`hermesvm.xcframework`** - JavaScript runtime (or `hermes.xcframework` for RN < 0.82.0)
    - **`ReactBrownfield.xcframework`** - React Native Brownfield library
    - `Brownie.xcframework` - Brownie shared state library (only when using the Brownie package)
    - `BrownfieldNavigation.xcframework` - Brownfield navigation integration (only when using the brownfield-navigation package) for React Native navigation
 
-![Frameworks in Xcode Sidebar](/images/frameworks-sidebar.png)
+![Frameworks in Xcode Sidebar](/images/frameworks.png)
 
 ## 7. Initialize React Native
 
@@ -215,6 +216,25 @@ struct ContentView: View {
     }
 }
 ```
+
+## React Native Prebuilts
+
+React Native can ship prebuilt iOS artifacts, which greatly speeds up the build time. Brownfield supports them since version 3.7.0 in the following scenarios:
+
+1. In "Vanilla" React Native projects:
+   - RN 0.83 (oldest supported by Brownfield v3) ships opt-in support (first in 0.81), which can be opted-in for via `--use-prebuilt-rn-core` flag.
+   - RN >= 0.84 ships prebuilts by default, therefore Brownfield enables them in packaging by default for RN >= 0.84.
+2. In Expo projects:
+   - with Expo 55+, enabled by default
+   - unsupported in Expo < 55 due to lack of support for packaging brownfield with prebuilts in Expo internals (attempting to results in native build issues)
+
+When using the `--use-prebuilt-rn-core` flag:
+
+- for RN 0.83, Brownfield will use prebuilts if that flag is set to true (default behaviour in flag absence: prebuilts **are not** used)
+- for RN >= 0.84:
+  - Brownfield will use prebuilts if that flag is not set, or is set to true (default behaviour in flag absence: prebuilts **are** used)
+  - if the flag is explicitly set to false, Brownfield will **not** use prebuilts
+- will fail for RN < 0.81, or Expo < 55 due to Brownfield CLI checks (those scenarios will not work with prebuilts)
 
 ## Next Steps
 

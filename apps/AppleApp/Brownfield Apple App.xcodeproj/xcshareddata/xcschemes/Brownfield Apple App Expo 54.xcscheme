@@ -6,22 +6,6 @@
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
-      <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "793C76A62EEBF938008A2A34"
-               BuildableName = "Brownfield Apple App.app"
-               BlueprintName = "Brownfield Apple App"
-               ReferencedContainer = "container:Brownfield Apple App.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -44,9 +28,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "793C76A62EEBF938008A2A34"
-            BuildableName = "Brownfield Apple App.app"
-            BlueprintName = "Brownfield Apple App"
+            BlueprintIdentifier = "79B8BE682FB7270E00B94C6F"
+            BuildableName = "Brownfield Apple App (ExpoApp54).app"
+            BlueprintName = "Brownfield Apple App (ExpoApp54)"
             ReferencedContainer = "container:Brownfield Apple App.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -57,16 +41,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "793C76A62EEBF938008A2A34"
-            BuildableName = "Brownfield Apple App.app"
-            BlueprintName = "Brownfield Apple App"
-            ReferencedContainer = "container:Brownfield Apple App.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

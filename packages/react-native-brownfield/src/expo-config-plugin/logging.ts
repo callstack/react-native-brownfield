@@ -19,6 +19,10 @@ export class Logger {
     console.debug(`${LOG_TAG} ${message}`, ...args);
   }
 
+  static getIsDebug() {
+    return this.debug;
+  }
+
   static logWarning(message: string, ...args: any[]) {
     console.warn(`${LOG_TAG} ${message}`, ...args);
   }
