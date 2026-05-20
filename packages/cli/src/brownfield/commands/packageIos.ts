@@ -81,18 +81,30 @@ export const packageIosCommand = curryOptions(
     actionRunner(async (options: PackageIosCliFlags) => {
       const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
 
-      const {
-        supported: isPrebuiltRNCoreSupported,
-        reason: maybePrebuiltRNCoreUnsupportedReason,
-      } = supportsPrebuiltRNCore({ projectRoot });
+      const prebuiltRNCoreSupport = supportsPrebuiltRNCore({ projectRoot });
 
-      // default value is based on project so is dynamically assigned at runtime
-      options.usePrebuiltRnCore ??= isPrebuiltRNCoreSupported;
+      // version-aware default when the flag is omitted (see ios.mdx "React Native Prebuilts")
+      options.usePrebuiltRnCore ??= prebuiltRNCoreSupport.supported
+        ? prebuiltRNCoreSupport.enabledByDefault
+        : false;
 
-      if (options.usePrebuiltRnCore && !isPrebuiltRNCoreSupported) {
-        // user opted-in but prebuilt RN core is not supported
-        // note: the default-assignment above - if effective - always satisfies this condition
-        throw new RockError(maybePrebuiltRNCoreUnsupportedReason);
+      if (prebuiltRNCoreSupport) {
+        logger.info(
+          `${options.usePrebuiltRnCore ? 'Using' : 'Not using'} prebuilt RN core`
+        );
+
+        if (
+          !prebuiltRNCoreSupport.enabledByDefault &&
+          !options.usePrebuiltRnCore
+        ) {
+          logger.info(
+            'Your environment supports prebuilt RN Core as an opt-in feature, but it is disabled by default. Pass --use-prebuilt-rn-core to enable it.'
+          );
+        }
+      }
+
+      if (options.usePrebuiltRnCore && !prebuiltRNCoreSupport.supported) {
+        throw new RockError(prebuiltRNCoreSupport.reason);
       }
 
       await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });

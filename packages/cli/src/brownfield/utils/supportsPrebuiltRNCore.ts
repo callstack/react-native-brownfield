@@ -2,12 +2,16 @@ import { getReactNativeVersion, versionCompare } from '@rock-js/tools';
 
 import { getExpoSdkMajor, isExpoProject } from './project.js';
 
-export const MIN_REACT_NATIVE_VERSION_FOR_USE_PREBUILT_RN_CORE = '0.81.0';
-export const MIN_EXPO_SDK_MAJOR_FOR_USE_PREBUILT_RN_CORE = 55;
+/** Minimum RN version that can opt in to prebuilts via `--use-prebuilt-rn-core`. */
+export const MIN_REACT_NATIVE_VERSION_FOR_OPT_IN_PREBUILT_RN_CORE = '0.81.0';
+/** Minimum RN version where Brownfield enables prebuilts by default (vanilla projects). */
+export const MIN_REACT_NATIVE_VERSION_FOR_PREBUILT_RN_CORE_BY_DEFAULT =
+  '0.84.0';
+export const MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_RN_CORE_BY_DEFAULT = 55;
 
 export type PrebuiltRNCoreSupportResult =
-  | { supported: true; reason?: never }
-  | { supported: false; reason: string };
+  | { supported: true; enabledByDefault: boolean; reason?: never }
+  | { supported: false; enabledByDefault?: never; reason: string };
 
 export function supportsPrebuiltRNCore({
   projectRoot,
@@ -27,12 +31,12 @@ export function supportsPrebuiltRNCore({
   if (
     versionCompare(
       reactNativeVersion,
-      MIN_REACT_NATIVE_VERSION_FOR_USE_PREBUILT_RN_CORE
+      MIN_REACT_NATIVE_VERSION_FOR_OPT_IN_PREBUILT_RN_CORE
     ) < 0
   ) {
     return {
       supported: false,
-      reason: `--use-prebuilt-rn-core requires React Native ${MIN_REACT_NATIVE_VERSION_FOR_USE_PREBUILT_RN_CORE} or newer (found ${reactNativeVersion}).`,
+      reason: `--use-prebuilt-rn-core requires React Native ${MIN_REACT_NATIVE_VERSION_FOR_OPT_IN_PREBUILT_RN_CORE} or newer (found ${reactNativeVersion}).`,
     };
   }
 
@@ -41,15 +45,23 @@ export function supportsPrebuiltRNCore({
 
     if (
       expoSdkMajor === null ||
-      expoSdkMajor < MIN_EXPO_SDK_MAJOR_FOR_USE_PREBUILT_RN_CORE
+      expoSdkMajor < MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_RN_CORE_BY_DEFAULT
     ) {
       const sdkLabel = expoSdkMajor === null ? 'unknown' : String(expoSdkMajor);
       return {
         supported: false,
-        reason: `--use-prebuilt-rn-core requires Expo SDK ${MIN_EXPO_SDK_MAJOR_FOR_USE_PREBUILT_RN_CORE} or newer (found SDK ${sdkLabel}).`,
+        reason: `--use-prebuilt-rn-core is unsupported in Expo SDK ${sdkLabel}: packaging brownfield with prebuilts requires Expo SDK ${MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_RN_CORE_BY_DEFAULT} or newer.`,
       };
     }
+
+    return { supported: true, enabledByDefault: true };
   }
 
-  return { supported: true };
+  const enabledByDefault =
+    versionCompare(
+      reactNativeVersion,
+      MIN_REACT_NATIVE_VERSION_FOR_PREBUILT_RN_CORE_BY_DEFAULT
+    ) >= 0;
+
+  return { supported: true, enabledByDefault };
 }
