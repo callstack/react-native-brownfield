@@ -8,6 +8,8 @@
 
   Add `--use-prebuilt-rn-core` to `brownfield package:ios` so callers can opt into or out of React Native Apple prebuilt binaries; omitting the flag defers to version-aware defaults handled by Rock. The CLI rejects `--use-prebuilt-rn-core` when React Native is older than 0.81 or when the project is Expo SDK older than 55.
 
+  Fix brownfield framework dylib install names to use @rpath instead of hardcoded paths.
+
 ## 3.9.0
 
 ### Minor Changes
