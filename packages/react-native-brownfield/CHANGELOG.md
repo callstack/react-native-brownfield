@@ -1,5 +1,14 @@
 # @callstack/react-native-brownfield
 
+## 3.10.0
+
+### Patch Changes
+
+- [#323](https://github.com/callstack/react-native-brownfield/pull/323) [`3456d3a`](https://github.com/callstack/react-native-brownfield/commit/3456d3aded18002475def4b79889979e76e1db5e) Thanks [@artus9033](https://github.com/artus9033)! - Force `BUILD_LIBRARY_FOR_DISTRIBUTION` / `SWIFT_EMIT_MODULE_INTERFACE` on the CocoaPods ReactBrownfield, Brownie and BrownfieldNavigation targets so Release builds emit `.swiftinterface` files and `xcodebuild -create-xcframework` (brownfield `package:ios`) can merge slices.
+
+- Updated dependencies [[`3456d3a`](https://github.com/callstack/react-native-brownfield/commit/3456d3aded18002475def4b79889979e76e1db5e)]:
+  - @callstack/brownfield-cli@3.10.0
+
 ## 3.9.0
 
 ### Minor Changes
