@@ -124,8 +124,6 @@ struct IosApp: App {
 
     init() {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
-        // Optional: use the packaged bundle even when the consumed framework is built in Debug.
-        // ReactNativeBrownfield.shared.preferEmbeddedBundleInDebug = true
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
         }
@@ -138,6 +136,14 @@ struct IosApp: App {
         }
     }
 }
+```
+
+If you package the framework in **Debug** and want to run it without Metro, enable the embedded bundle explicitly before calling `startReactNative`:
+
+```swift
+ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+ReactNativeBrownfield.shared.preferEmbeddedBundleInDebug = true
+ReactNativeBrownfield.shared.startReactNative()
 ```
 
 2. Propagate the didFinishLaunchingWithOptions

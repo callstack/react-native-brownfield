@@ -115,6 +115,7 @@ export const packageIosCommand = curryOptions(
       });
 
       if (configuration.includes('Debug')) {
+        // Re-merge only Debug frameworks so the simulator slice includes main.jsbundle.
         await mergeFrameworks({
           sourceDir: userConfig.project.ios.sourceDir,
           frameworkPaths: [

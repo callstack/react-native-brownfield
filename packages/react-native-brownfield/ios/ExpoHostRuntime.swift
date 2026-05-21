@@ -44,8 +44,6 @@ import UIKit
         public func startReactNative(onBundleLoaded: (() -> Void)?) {
             guard reactNativeFactory == nil else { return }
 
-            configureDevLoadingView()
-
             let appDelegate = ExpoAppDelegate()
             delegate.dependencyProvider = RCTAppDependencyProvider()
             reactNativeFactory = ExpoReactNativeFactory(delegate: delegate)
@@ -253,12 +251,14 @@ import UIKit
                     }
                 #endif
 
+                // The override is resolved here so it wins over the Expo Updates launch asset
+                // and the closure is not evaluated a second time inside the shared resolver.
                 return try BrownfieldBundleURLResolver.resolve(
                     isDebug: isDebug,
                     preferEmbeddedBundleInDebug: preferEmbeddedBundleInDebug,
                     bundlePath: bundlePath,
                     bundle: bundle,
-                    bundleURLOverride: bundleURLOverride,
+                    bundleURLOverride: nil,
                     metroURL: {
                         RCTBundleURLProvider.sharedSettings().jsBundleURL(
                             forBundleRoot: entryFile

@@ -189,8 +189,6 @@ final class ReactNativeHostRuntime {
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
     guard reactNativeFactory == nil else { return }
 
-    configureDevLoadingView()
-
     delegate.dependencyProvider = RCTAppDependencyProvider()
     reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
 
