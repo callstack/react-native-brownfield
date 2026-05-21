@@ -65,6 +65,9 @@ final class ExpoHostRuntime {
       return
     }
 
+    if let rootViewFactory = reactNativeFactory?.rootViewFactory {
+        (rootViewFactory as AnyObject).setValue(nil, forKey: "reactHost")
+    }
     reactNativeFactory = nil
     expoDelegate = nil
   }
