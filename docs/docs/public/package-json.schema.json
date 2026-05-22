@@ -5,7 +5,7 @@
   "type": "object",
   "properties": {
     "react-native-brownfield": {
-      "$ref": "./schema.json"
+      "$ref": "https://oss.callstack.com/react-native-brownfield/schema.json"
     }
   }
 }

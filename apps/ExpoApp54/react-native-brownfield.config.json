@@ -1,5 +1,5 @@
 {
-  "$schema": "../../packages/cli/schema.json",
+  "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
   "moduleName": "brownfieldlib",
   "scheme": "BrownfieldLib",
   "verbose": true
