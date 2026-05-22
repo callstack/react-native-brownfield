@@ -424,7 +424,6 @@ export function getFrameworkBuildSettings(
     USER_SCRIPT_SANDBOXING: 'NO',
     SKIP_INSTALL: 'NO',
     ENABLE_MODULE_VERIFIER: 'NO',
-    DYLIB_INSTALL_NAME_BASE: '"@rpath"',
     INSTALL_PATH: '"$(LOCAL_LIBRARY_DIR)/Frameworks"',
 
     // basic settings
