@@ -82,6 +82,8 @@ secring.gpg
 
 # Typescript
 **/*.tsbuildinfo
+packages/react-native-brownfield/ios/.build/
+packages/react-native-brownfield/ios/swiftpm/.build/
 
 # skillgym
 .skillgym-results/

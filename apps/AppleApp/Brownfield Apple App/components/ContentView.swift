@@ -19,12 +19,12 @@ struct ContentView: View {
         NavigationView {
 
             VStack(spacing: 16) {
-                GreetingCard(name: "iOS Expo")
+                GreetingCard(name: "iOS Vanilla")
 
                 MessagesView()
 
                 ReactNativeView(
-                    moduleName: "main",
+                    moduleName: "RNApp",
                     initialProperties: [
                         "nativeOsVersionLabel":
                             "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
