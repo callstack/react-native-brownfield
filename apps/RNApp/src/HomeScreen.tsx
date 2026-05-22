@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import { brownfieldE2eTestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
 import { getRandomTheme } from './utils';
@@ -61,7 +62,14 @@ function MessageBubble({ item, color }: { item: Message; color: string }) {
       <Text style={[styles.bubbleLabel, { color }]}>
         {isFromNative ? 'From Native' : 'From RN'}
       </Text>
-      <Text style={styles.bubbleText}>{item.text}</Text>
+      <Text
+        testID={
+          isFromNative ? undefined : brownfieldE2eTestIds.rnPostMessageText
+        }
+        style={styles.bubbleText}
+      >
+        {item.text}
+      </Text>
     </Animated.View>
   );
 }
@@ -119,8 +127,15 @@ export function HomeScreen({
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.primary }]}>
-      <Text style={[styles.text, { color: colors.secondary }]}>
+    <View
+      testID={brownfieldE2eTestIds.rnAppHome}
+      style={[styles.container, { backgroundColor: colors.primary }]}
+    >
+      <Text
+        testID={brownfieldE2eTestIds.rnAppHomeTitle}
+        accessibilityLabel="React Native Screen"
+        style={[styles.text, { color: colors.secondary }]}
+      >
         React Native Screen
       </Text>
 
@@ -137,6 +152,7 @@ export function HomeScreen({
 
       <View style={styles.messageSection}>
         <TouchableOpacity
+          testID={brownfieldE2eTestIds.sendMessageToNative}
           style={[styles.sendButton, { backgroundColor: colors.secondary }]}
           onPress={sendMessage}
           activeOpacity={0.8}
@@ -184,12 +200,14 @@ export function HomeScreen({
       </View>
 
       <Button
+        testID={brownfieldE2eTestIds.openNativeSettings}
         onPress={() => BrownfieldNavigation.navigateToSettings()}
         color={colors.secondary}
         title="Open native settings"
       />
 
       <Button
+        testID={brownfieldE2eTestIds.openNativeReferrals}
         onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
         color={colors.secondary}
         title="Open native referrals"

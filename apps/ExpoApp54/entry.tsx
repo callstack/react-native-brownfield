@@ -1,12 +1,18 @@
-import { ExpoRoot } from 'expo-router';
+import type { ComponentProps } from 'react';
 import { AppRegistry } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 import RNApp from './RNApp';
 
-function App() {
-  const ctx = require.context('./app');
-  return <ExpoRoot context={ctx} />;
+type RNAppRootProps = ComponentProps<typeof RNApp>;
+
+function RNAppRoot(props: RNAppRootProps) {
+  return (
+    <SafeAreaProvider>
+      <RNApp {...props} />
+    </SafeAreaProvider>
+  );
 }
 
-AppRegistry.registerComponent('RNApp', () => RNApp);
-// Keep compatibility with Expo's default app key.
-AppRegistry.registerComponent('main', () => App);
+AppRegistry.registerComponent('RNApp', () => RNAppRoot);
+AppRegistry.registerComponent('main', () => RNAppRoot);

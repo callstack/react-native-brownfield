@@ -2,6 +2,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
+import PostMessageTab from '@/app/postMessage';
 import Counter from './src/components/counter';
 
 type RNAppProps = {
@@ -11,28 +12,34 @@ type RNAppProps = {
 export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Expo React Native Brownfield</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Expo React Native Brownfield</Text>
 
-      {nativeOsVersionLabel ? (
-        <Text
-          style={styles.nativeOsVersionLabel}
-          accessibilityLabel="Native OS version"
-        >
-          {nativeOsVersionLabel}
-        </Text>
-      ) : null}
+        {nativeOsVersionLabel ? (
+          <Text
+            style={styles.nativeOsVersionLabel}
+            accessibilityLabel="Native OS version"
+          >
+            {nativeOsVersionLabel}
+          </Text>
+        ) : null}
 
-      <View style={styles.content}>
-        <Counter />
+        <View style={styles.content}>
+          <Counter />
 
-        <Button
-          title="Navigate to Settings"
-          onPress={() => BrownfieldNavigation.navigateToSettings()}
-        />
-        <Button
-          title="Navigate to Referrals"
-          onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
-        />
+          <Button
+            title="Navigate to Settings"
+            onPress={() => BrownfieldNavigation.navigateToSettings()}
+          />
+          <Button
+            title="Navigate to Referrals"
+            onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
+          />
+        </View>
+      </View>
+
+      <View style={styles.postMessageSection}>
+        <PostMessageTab />
       </View>
     </SafeAreaView>
   );
@@ -42,7 +49,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#eeeeee',
-    paddingTop: 20,
+  },
+  header: {
+    flexShrink: 0,
   },
   title: {
     fontSize: 20,
@@ -56,9 +65,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   content: {
-    flex: 1,
+    minHeight: 220,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  postMessageSection: {
+    flex: 1,
+    minHeight: 200,
+    marginTop: 8,
   },
   text: {
     fontSize: 18,

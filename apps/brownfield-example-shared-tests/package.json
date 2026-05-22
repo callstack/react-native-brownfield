@@ -9,7 +9,8 @@
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./jest/setup": "./jest/setup.js"
+    "./jest/setup": "./jest/setup.js",
+    "./e2eTestIds": "./src/e2eTestIds.ts"
   },
   "peerDependencies": {
     "@testing-library/react-native": ">=12",
