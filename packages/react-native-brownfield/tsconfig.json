@@ -1,8 +1,9 @@
 {
-  "extends": "../../tsconfig",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "./lib/typescript"
+    "outDir": "./lib/typescript",
+    "verbatimModuleSyntax": false
   },
   "include": ["package.json", "src"]
 }

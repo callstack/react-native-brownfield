@@ -1,0 +1,50 @@
+{
+  "name": "create-react-native-brownfield",
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Callstack",
+  "bin": "dist/main.js",
+  "type": "module",
+  "homepage": "https://github.com/callstack/react-native-brownfield",
+  "repository": {
+    "url": "git+https://github.com/callstack/react-native-brownfield.git"
+  },
+  "description": "Scaffold React Native Brownfield in an existing React Native CLI project",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "keywords": [
+    "react-native",
+    "brownfield",
+    "create",
+    "scaffold"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@callstack/react-native-brownfield": "workspace:^",
+    "commander": "^14.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "eslint": "^9.39.3",
+    "globals": "^17.3.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

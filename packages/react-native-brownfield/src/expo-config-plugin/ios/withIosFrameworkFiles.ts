@@ -16,12 +16,25 @@ import { renderTemplate } from '../template/engine';
  * @returns The list of framework source files
  */
 export function getFrameworkSourceFiles(
-  ios: ResolvedBrownfieldPluginConfigWithIos['ios']
+  ios: ResolvedBrownfieldPluginConfigWithIos['ios'],
+  options?: {
+    /**
+     * Whether the packaged framework is expected to use the Expo host.
+     * This influences template selection for the generated framework sources.
+     */
+    useExpoHost?: boolean;
+  }
 ): RenderedTemplateFile[] {
+  const useExpoHost = options?.useExpoHost ?? true;
+
   return [
     {
       relativePath: `${ios.frameworkName}.swift`,
-      content: renderTemplate('ios', 'FrameworkInterface.swift', {}),
+      content: renderTemplate(
+        'ios',
+        useExpoHost ? 'FrameworkInterface.swift' : 'FrameworkInterface.vanilla.swift',
+        {}
+      ),
     },
     {
       relativePath: 'Info.plist',
@@ -39,7 +52,8 @@ export function getFrameworkSourceFiles(
  */
 export function createIosFramework(
   iosDir: string,
-  config: ResolvedBrownfieldPluginConfigWithIos
+  config: ResolvedBrownfieldPluginConfigWithIos,
+  options?: Parameters<typeof getFrameworkSourceFiles>[1]
 ) {
   const { ios } = config;
   const frameworkDir = path.join(iosDir, ios.frameworkName);
@@ -61,7 +75,7 @@ export function createIosFramework(
   }
 
   // write files
-  for (const file of getFrameworkSourceFiles(ios)) {
+  for (const file of getFrameworkSourceFiles(ios, options)) {
     const filePath = path.join(frameworkDir, file.relativePath);
 
     fs.writeFileSync(filePath, file.content, 'utf8');

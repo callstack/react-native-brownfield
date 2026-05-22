@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
+export { scaffoldBrownfieldInRncCliProject } from './scaffold';
+export type { BrownfieldScaffoldOptions } from './scaffold';
 
 export interface MessageEvent {
   data: unknown;

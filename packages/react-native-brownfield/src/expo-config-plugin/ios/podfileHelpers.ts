@@ -98,7 +98,7 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
 export function modifyPodfile(
   podfile: string,
   frameworkName: string,
-  expoMajor: number
+  expoMajor?: number
 ): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
@@ -111,9 +111,14 @@ export function modifyPodfile(
   Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
 
   // insert the framework target after the main target's "do"
-  const frameworkTargetBlock = renderTemplate('ios', 'PodfileTargetBlock.rb', {
-    '{{FRAMEWORK_NAME}}': frameworkName,
-  });
+  const useExpoHost = typeof expoMajor === 'number' && expoMajor >= 0;
+  const frameworkTargetBlock = renderTemplate(
+    'ios',
+    useExpoHost ? 'PodfileTargetBlock.rb' : 'PodfileTargetBlock.vanilla.rb',
+    {
+      '{{FRAMEWORK_NAME}}': frameworkName,
+    }
+  );
 
   // find insertion point after the first target's content begins, before the end of the target block
   const mainTargetMatch = podfile.match(
@@ -139,11 +144,13 @@ export function modifyPodfile(
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
-  if (expoMajor < 55) {
-    modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
-  } else {
-    // Expo SDK >= 55
-    modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
+  if (useExpoHost) {
+    if ((expoMajor as number) < 55) {
+      modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
+    } else {
+      // Expo SDK >= 55
+      modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
+    }
   }
 
   return modifiedPodfile;

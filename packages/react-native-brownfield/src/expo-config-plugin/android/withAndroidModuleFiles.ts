@@ -19,12 +19,9 @@ export function createAndroidModule({
   androidDir,
   config,
   rnVersion,
-  isExpoPre55,
+  templateVariant,
 }: {
-  /**
-   * Whether the Expo project is pre-55
-   */
-  isExpoPre55: boolean;
+  templateVariant: 'expo-pre55' | 'expo-post55' | 'vanilla';
 
   /**
    * The root Android directory path
@@ -78,9 +75,11 @@ export function createAndroidModule({
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
       content: renderTemplate(
         'android',
-        isExpoPre55
+        templateVariant === 'expo-pre55'
           ? 'ReactNativeHostManager.pre55.kt'
-          : 'ReactNativeHostManager.post55.kt',
+          : templateVariant === 'expo-post55'
+            ? 'ReactNativeHostManager.post55.kt'
+            : 'ReactNativeHostManager.vanilla.kt',
         {
           '{{PACKAGE_NAME}}': android.packageName,
         }
@@ -148,12 +147,13 @@ export const withAndroidModuleFiles: ConfigPlugin<
       }
 
       const { isExpoPre55 } = getExpoInfo(config);
+      const templateVariant = isExpoPre55 ? 'expo-pre55' : 'expo-post55';
 
       createAndroidModule({
         androidDir,
         config: props,
         rnVersion,
-        isExpoPre55,
+        templateVariant,
       });
 
       return dangerousConfig;

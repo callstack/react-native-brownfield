@@ -38,7 +38,8 @@ export const withBrownfieldIos: ConfigPlugin<
     const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
-      props.ios
+      props.ios,
+      { useExpoHost: true }
     );
 
     if (targetAlreadyExists) {
@@ -68,7 +69,9 @@ export const withBrownfieldIos: ConfigPlugin<
       );
     }
 
-    addSourceFilesBuildPhase(project, frameworkTargetUUID, props.ios);
+    addSourceFilesBuildPhase(project, frameworkTargetUUID, props.ios, {
+      useExpoHost: true,
+    });
 
     return xcodeConfig;
   });
