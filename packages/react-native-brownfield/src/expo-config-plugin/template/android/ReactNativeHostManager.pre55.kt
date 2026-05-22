@@ -5,18 +5,15 @@ import android.content.res.Configuration
 import com.callstack.reactnativebrownfield.OnJSBundleLoaded
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.PackageList
-import com.facebook.react.ReactHost
-import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ExpoReactHostFactory
 import expo.modules.ReactNativeHostWrapper
+{{EXPO_UPDATES_IMPORTS}}
 
 object ReactNativeHostManager {
     fun initialize(application: Application, onJSBundleLoaded: OnJSBundleLoaded? = null) {
-        loadReactNative(application)
-
         ApplicationLifecycleDispatcher.onApplicationCreate(application)
 
         val reactNativeHost = ReactNativeHostWrapper(
@@ -38,14 +35,15 @@ object ReactNativeHostManager {
             })
 
 
-        val reactHost: ReactHost by lazy {
-            ExpoReactHostFactory.createFromReactNativeHost(
+        ReactNativeBrownfield.initialize(application, onJSBundleLoaded) {
+            val reactHost = ExpoReactHostFactory.createFromReactNativeHost(
                 context = application.applicationContext,
                 reactNativeHost = reactNativeHost
             )
+    
+            {{EXPO_UPDATES_REACT_HOST_BLOCK}}
+            reactHost
         }
-
-        ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)
     }
 
     fun onConfigurationChanged(application: Application, newConfig: Configuration) {

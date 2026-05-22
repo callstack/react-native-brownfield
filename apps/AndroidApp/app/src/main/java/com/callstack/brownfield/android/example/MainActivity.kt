@@ -1,5 +1,6 @@
 package com.callstack.brownfield.android.example
 
+import com.callstack.brownie.registerStoreIfNeeded
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
@@ -28,9 +29,9 @@ import androidx.fragment.compose.AndroidFragment
 import com.callstack.brownfield.android.example.components.GreetingCard
 import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
-import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
+import com.callstack.nativebrownfieldnavigation.UserType
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 
@@ -41,10 +42,21 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         ReactNativeHostManager.onConfigurationChanged(application, newConfig)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Own Brownfield navigation only while this activity is foregrounded.
+        BrownfieldNavigationManager.setDelegate(this)
+    }
+
+    override fun onPause() {
+        // Release ownership before another host can become the active delegate.
+        BrownfieldNavigationManager.clearDelegate()
+        super.onPause()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
         enableEdgeToEdge()
-        BrownfieldNavigationManager.setDelegate(this)
 
         if (savedInstanceState == null) {
             ReactNativeHostManager.initialize(application) {
@@ -81,7 +93,7 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
-    override fun navigateToSettings() {
+    override fun navigateToSettings(user: UserType) {
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 
@@ -102,11 +114,13 @@ private fun MainScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally // center top bar content
     ) {
+        Spacer(modifier = Modifier.height(3.dp))
+
         GreetingCard(
             name = ReactNativeConstants.APP_NAME,
         )
 
-        PostMessageCard()
+       PostMessageCard()
 
         Spacer(modifier = Modifier.height(1.dp))
 

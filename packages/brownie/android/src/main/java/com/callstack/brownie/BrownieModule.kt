@@ -50,7 +50,6 @@ class BrownieModule(reactContext: ReactApplicationContext) :
   override fun invalidate() {
     storeDidChangeListenerId?.let(BrownieStoreBridge::removeStoreDidChangeListener)
     storeDidChangeListenerId = null
-    StoreManager.shared.clear()
     super.invalidate()
   }
 

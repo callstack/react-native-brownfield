@@ -38,7 +38,7 @@ runs:
       run: echo "$(brew --prefix)/opt/ccache/libexec" >> $GITHUB_PATH
       shell: bash
 
-    - name: Restore RNApp & AppleApp ccache
+    - name: Restore AppleApp ccache
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: |

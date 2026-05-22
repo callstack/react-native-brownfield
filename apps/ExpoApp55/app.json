@@ -37,12 +37,29 @@
           }
         }
       ],
-      "@callstack/react-native-brownfield",
-      "expo-image"
+      ["@callstack/react-native-brownfield", { "debug": true }],
+      "expo-image",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0475b486-29c6-4903-86ed-c7be98184a5b"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0475b486-29c6-4903-86ed-c7be98184a5b",
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
     }
   }
 }

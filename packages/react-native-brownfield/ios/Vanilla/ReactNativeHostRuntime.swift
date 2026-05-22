@@ -1,3 +1,4 @@
+#if !canImport(Expo)
 import UIKit
 internal import React
 internal import React_RCTAppDelegate
@@ -129,6 +130,16 @@ final class ReactNativeHostRuntime {
     return true
   }
 
+  /**
+   * Mirrors host manager app delegate API for bare React Native.
+   */
+  public func application(
+    _ application: UIApplication,
+    willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    return true
+  }
+
   public func application(
     _ app: UIApplication,
     open url: URL,
@@ -161,3 +172,4 @@ final class ReactNativeHostRuntime {
     }
   }
 }
+#endif

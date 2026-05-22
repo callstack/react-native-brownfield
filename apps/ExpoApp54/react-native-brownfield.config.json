@@ -1,5 +1,6 @@
 {
   "$schema": "../../packages/cli/schema.json",
   "moduleName": "brownfieldlib",
-  "scheme": "BrownfieldLib"
+  "scheme": "BrownfieldLib",
+  "verbose": true
 }

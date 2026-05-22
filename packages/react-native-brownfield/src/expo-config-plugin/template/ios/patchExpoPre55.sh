@@ -11,6 +11,8 @@ if [ -f "$FILE" ]; then
   
   sed -i '' 's/^import Ex/internal import Ex/' "$FILE"
 
+  sed -i '' 's/^import EA/internal import EA/' "$FILE"
+
   # 2. Replace class visibility
   sed -i '' 's/public class ExpoModulesProvider/internal class ExpoModulesProvider/' "$FILE"
 

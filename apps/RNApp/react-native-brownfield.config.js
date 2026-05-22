@@ -4,4 +4,5 @@
 module.exports = {
   moduleName: ':BrownfieldLib',
   scheme: 'BrownfieldLib',
+  verbose: true,
 };

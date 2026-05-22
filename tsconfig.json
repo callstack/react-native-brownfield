@@ -5,6 +5,7 @@
     "allowUnusedLabels": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "lib": ["esnext"],
     "module": "esnext",
