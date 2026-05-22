@@ -47,7 +47,8 @@ export const withBrownfieldIos: ConfigPlugin<
     const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
-      iosProps
+      iosProps,
+      { useExpoHost: true }
     );
 
     // Ensure Expo.plist is present in the framework resources phase when
@@ -73,7 +74,9 @@ export const withBrownfieldIos: ConfigPlugin<
     // copy the "Bundle React Native code and images" build phase from the main target to the framework target
     copyBundleReactNativePhase(project, frameworkTargetUUID);
 
-    addSourceFilesBuildPhase(project, frameworkTargetUUID, iosProps);
+    addSourceFilesBuildPhase(project, frameworkTargetUUID, iosProps, {
+      useExpoHost: true,
+    });
 
     return xcodeConfig;
   });

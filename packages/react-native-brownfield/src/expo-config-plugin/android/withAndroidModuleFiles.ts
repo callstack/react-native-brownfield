@@ -83,11 +83,19 @@ export function createAndroidModule({
   rnVersion,
   projectRoot,
   expoMajor,
+  templateVariant = 'expo',
 }: {
   /**
    * Expo app root (used to detect optional dependencies such as expo-updates)
    */
   projectRoot?: string;
+
+  /**
+   * Source template flavor. 'vanilla' is used by the RN CLI scaffold for
+   * non-Expo projects; Expo keeps the default 'expo' variant.
+   */
+  templateVariant?: 'expo' | 'vanilla';
+
   /**
    * The root Android directory path
    */
@@ -157,9 +165,15 @@ export function createAndroidModule({
     },
     {
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
-      content: renderTemplate('android', 'ReactNativeHostManager.post55.kt', {
-        '{{PACKAGE_NAME}}': android.packageName,
-      }),
+      content: renderTemplate(
+        'android',
+        templateVariant === 'vanilla'
+          ? 'ReactNativeHostManager.vanilla.kt'
+          : 'ReactNativeHostManager.post55.kt',
+        {
+          '{{PACKAGE_NAME}}': android.packageName,
+        }
+      ),
     },
     {
       relativePath: 'consumer-rules.pro',

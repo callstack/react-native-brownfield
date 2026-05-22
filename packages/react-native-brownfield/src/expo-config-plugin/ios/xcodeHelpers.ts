@@ -20,7 +20,10 @@ import { getFrameworkSourceFiles } from './withIosFrameworkFiles';
 export function addFrameworkTarget(
   project: XcodeProject,
   modRequest: ModProps<XcodeProject>,
-  options: ResolvedBrownfieldPluginIosConfig
+  options: ResolvedBrownfieldPluginIosConfig,
+  brownfieldOptions?: {
+    useExpoHost?: boolean;
+  }
 ): {
   frameworkTargetUUID: string;
   targetAlreadyExists: boolean;
@@ -131,7 +134,7 @@ export function addFrameworkTarget(
   });
 
   // create the framework group in the project
-  const filePaths = getFrameworkSourceFiles(options).map(
+  const filePaths = getFrameworkSourceFiles(options, brownfieldOptions).map(
     (file) => file.relativePath
   );
   const groupPath = path.join(modRequest.platformProjectRoot, frameworkName);
@@ -161,9 +164,12 @@ export function addFrameworkTarget(
 export function addSourceFilesBuildPhase(
   project: XcodeProject,
   frameworkTargetUUID: string,
-  options: ResolvedBrownfieldPluginIosConfig
+  options: ResolvedBrownfieldPluginIosConfig,
+  brownfieldOptions?: {
+    useExpoHost?: boolean;
+  }
 ) {
-  const filePaths = getFrameworkSourceFiles(options).map(
+  const filePaths = getFrameworkSourceFiles(options, brownfieldOptions).map(
     (file) => file.relativePath
   );
 
