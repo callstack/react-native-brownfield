@@ -5,6 +5,8 @@ import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import PostMessageTab from './app/(tabs)/postMessage';
 import Counter from './components/counter';
 
+import { checkAndFetchUpdate } from './utils/expo-rn-updates';
+
 type RNAppProps = {
   nativeOsVersionLabel?: string;
 };
@@ -35,6 +37,7 @@ export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
             title="Navigate to Referrals"
             onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
           />
+          <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
         </View>
       </View>
 

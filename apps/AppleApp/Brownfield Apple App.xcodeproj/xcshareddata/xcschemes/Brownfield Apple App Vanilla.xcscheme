@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "793C76A62EEBF938008A2A34"
-               BuildableName = "Brownfield Apple App.app"
-               BlueprintName = "Brownfield Apple App"
+               BuildableName = "Brownfield Apple App (RNApp).app"
+               BlueprintName = "Brownfield Apple App (RNApp)"
                ReferencedContainer = "container:Brownfield Apple App.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "793C76A62EEBF938008A2A34"
-            BuildableName = "Brownfield Apple App.app"
-            BlueprintName = "Brownfield Apple App"
+            BuildableName = "Brownfield Apple App (RNApp).app"
+            BlueprintName = "Brownfield Apple App (RNApp)"
             ReferencedContainer = "container:Brownfield Apple App.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "793C76A62EEBF938008A2A34"
-            BuildableName = "Brownfield Apple App.app"
-            BlueprintName = "Brownfield Apple App"
+            BuildableName = "Brownfield Apple App (RNApp).app"
+            BlueprintName = "Brownfield Apple App (RNApp)"
             ReferencedContainer = "container:Brownfield Apple App.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

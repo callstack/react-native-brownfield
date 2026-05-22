@@ -62,6 +62,9 @@ object RNSourceSets {
                     sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
                     sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
                 }
+
+                val expoUpdatesResources =  "create${capitalizedVariantName}UpdatesResources"
+                sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$expoUpdatesResources")
             }
         }
 

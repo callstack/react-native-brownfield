@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-example-shared-tests",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "test": "node -e \"process.exit(0)\""
@@ -10,7 +10,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./jest/setup": "./jest/setup.js",
-    "./e2eTestIds": "./src/e2eTestIds.ts"
+    "./e2eTestIds": "./src/e2eTestIds.ts",
+    "./jest/expo-config": "./jest/expo-config.js"
   },
   "peerDependencies": {
     "@testing-library/react-native": ">=12",

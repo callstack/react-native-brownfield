@@ -21,7 +21,10 @@ Pod::Spec.new do |spec|
   spec.private_header_files = "cpp/**/*.h"
 
   spec.pod_target_xcconfig = {
+    # below: needed to build the XCFramework with `.swiftinterface` files, required by xcodebuild -create-xcframework to succeed
     'DEFINES_MODULE' => 'YES',
+    'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES',
+    'SWIFT_EMIT_MODULE_INTERFACE' => 'YES',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
     'HEADER_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}/boost" "${PODS_ROOT}/RCT-Folly" "${PODS_TARGET_SRCROOT}/cpp"'
   }

@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownie",
-  "version": "3.6.1",
+  "version": "3.10.0",
   "license": "MIT",
   "author": "Oskar Kwaśniewski <oskarkwasniewski@icloud.com>",
   "bin": {
@@ -38,7 +38,7 @@
     "typecheck": "tsc --noEmit",
     "build:brownfield": "yarn run build",
     "build": "bob build",
-    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\""
+    "dev": "nodemon --exitcrash false --watch src --ext js,ts,json --exec \"bob build\""
   },
   "keywords": [
     "brownie",
