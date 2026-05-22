@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-navigation",
-  "version": "3.8.0",
+  "version": "3.10.0",
   "license": "MIT",
   "author": "Hur Ali",
   "description": "Brownfield navigation helpers for React Native",
@@ -29,7 +29,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "build": "bob build",
-    "dev": "nodemon --watch src --ext js,ts,json --exec \"bob build\"",
+    "dev": "nodemon --exitcrash false --watch src --ext js,ts,json --exec \"bob build\"",
     "build:brownfield": "yarn run build",
     "prepack": "cp ../../README.md ./README.md",
     "postpack": "rm ./README.md"

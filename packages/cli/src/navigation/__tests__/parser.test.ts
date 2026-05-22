@@ -34,9 +34,9 @@ describe('parseNavigationSpec', () => {
     `);
     tempSpecFiles.push(specPath);
 
-    const methods = parseNavigationSpec(specPath);
+    const parsedSpec = parseNavigationSpec(specPath);
 
-    expect(methods).toEqual([
+    expect(parsedSpec.methods).toEqual([
       {
         name: 'openScreen',
         params: [
@@ -47,6 +47,8 @@ describe('parseNavigationSpec', () => {
         isAsync: false,
       },
     ]);
+    expect(parsedSpec.referencedTypeDeclarations).toEqual([]);
+    expect(parsedSpec.modelDefinitions).toEqual([]);
   });
 
   it('falls back to Spec interface when BrownfieldNavigationSpec is absent', () => {
@@ -57,14 +59,72 @@ describe('parseNavigationSpec', () => {
     `);
     tempSpecFiles.push(specPath);
 
-    const methods = parseNavigationSpec(specPath);
+    const parsedSpec = parseNavigationSpec(specPath);
 
-    expect(methods).toEqual([
+    expect(parsedSpec.methods).toEqual([
       {
         name: 'presentModal',
         params: [{ name: 'id', type: 'string', optional: false }],
         returnType: 'number',
         isAsync: false,
+      },
+    ]);
+    expect(parsedSpec.referencedTypeDeclarations).toEqual([]);
+    expect(parsedSpec.modelDefinitions).toEqual([]);
+  });
+
+  it('collects referenced type declarations used in method signatures', () => {
+    const specPath = createTempSpecFile(`
+      export type UserType = {
+        name: string;
+      };
+
+      export interface BrownfieldNavigationSpec {
+        navigateToSettings(user: UserType): void;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    const parsedSpec = parseNavigationSpec(specPath);
+
+    expect(parsedSpec.referencedTypeDeclarations).toEqual([
+      {
+        name: 'UserType',
+        declaration: `export type UserType = {\n        name: string;\n      };`,
+      },
+    ]);
+    expect(parsedSpec.modelDefinitions).toEqual([
+      {
+        name: 'UserType',
+        fields: [{ name: 'name', type: 'string', optional: false }],
+      },
+    ]);
+  });
+
+  it('exports referenced declarations even when source declarations are not exported', () => {
+    const specPath = createTempSpecFile(`
+      type UserType = {
+        name: string;
+      };
+
+      interface BrownfieldNavigationSpec {
+        navigateToSettings(user: UserType): void;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    const parsedSpec = parseNavigationSpec(specPath);
+
+    expect(parsedSpec.referencedTypeDeclarations).toEqual([
+      {
+        name: 'UserType',
+        declaration: `export type UserType = {\n        name: string;\n      };`,
+      },
+    ]);
+    expect(parsedSpec.modelDefinitions).toEqual([
+      {
+        name: 'UserType',
+        fields: [{ name: 'name', type: 'string', optional: false }],
       },
     ]);
   });

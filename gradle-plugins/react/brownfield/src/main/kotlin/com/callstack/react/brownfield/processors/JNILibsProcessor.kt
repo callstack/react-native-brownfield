@@ -53,7 +53,7 @@ class JNILibsProcessor : BaseProject() {
                 for (archiveLibrary in aarLibraries) {
                     val jniDir = archiveLibrary.getJniDir()
                     processNestedLibs(jniDir.listFiles(), existingJNILibs)
-                    if (projectExt.experimentalUseStrippedSoFiles) {
+                    if (projectExt.useStrippedSoFiles) {
                         copyStrippedSoLibs(variant, existingJNILibs)
                     } else {
                         if (jniDir.exists()) {

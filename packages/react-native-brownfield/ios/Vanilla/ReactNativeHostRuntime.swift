@@ -1,3 +1,4 @@
+#if !canImport(Expo)
 import UIKit
 internal import React
 internal import React_RCTAppDelegate
@@ -197,3 +198,4 @@ final class ReactNativeHostRuntime {
     }
   }
 }
+#endif

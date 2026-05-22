@@ -11,6 +11,28 @@ export interface MethodSignature {
   isAsync: boolean;
 }
 
+export interface TypeDeclaration {
+  name: string;
+  declaration: string;
+}
+
+export interface ModelFieldDefinition {
+  name: string;
+  type: string;
+  optional: boolean;
+}
+
+export interface ModelDefinition {
+  name: string;
+  fields: ModelFieldDefinition[];
+}
+
+export interface ParsedNavigationSpec {
+  methods: MethodSignature[];
+  referencedTypeDeclarations: TypeDeclaration[];
+  modelDefinitions: ModelDefinition[];
+}
+
 export interface GeneratedNavigationArtifacts {
   turboModuleSpec: string;
   indexTs: string;

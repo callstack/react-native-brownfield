@@ -1,5 +1,28 @@
 # @callstack/brownfield-navigation
 
+## 3.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`3456d3a`](https://github.com/callstack/react-native-brownfield/commit/3456d3aded18002475def4b79889979e76e1db5e)]:
+  - @callstack/brownfield-cli@3.10.0
+
+## 3.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`80e6364`](https://github.com/callstack/react-native-brownfield/commit/80e6364d405d216b3e84a6297dfe346d2f01444b)]:
+  - @callstack/brownfield-cli@3.9.0
+
+## 3.8.1
+
+### Patch Changes
+
+- [#336](https://github.com/callstack/react-native-brownfield/pull/336) [`35b6f0a`](https://github.com/callstack/react-native-brownfield/commit/35b6f0aebd51a86165fe8af1890ccc3bd5189aaa) Thanks [@hurali97](https://github.com/hurali97)! - fix: allow unregistering the navigation delegate
+
+- Updated dependencies [[`e78084d`](https://github.com/callstack/react-native-brownfield/commit/e78084d227a49d39d726b8c778bd56045634678d)]:
+  - @callstack/brownfield-cli@3.8.1
+
 ## 3.8.0
 
 ### Minor Changes

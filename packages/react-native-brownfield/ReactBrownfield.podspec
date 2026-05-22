@@ -17,13 +17,20 @@ Pod::Spec.new do |spec|
   spec.source_files  = "ios/**/*.{h,m,mm,swift}"
   spec.exclude_files = "ios/swiftpm/Package.swift", "ios/swiftpm/Tests/**/*"
   spec.pod_target_xcconfig = {
+    # below: needed to build the XCFramework with `.swiftinterface` files, required by xcodebuild -create-xcframework to succeed
     'DEFINES_MODULE' => 'YES',
+    'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES',
+    'SWIFT_EMIT_MODULE_INTERFACE' => 'YES',
     'OTHER_SWIFT_FLAGS' => "-enable-experimental-feature AccessLevelOnImport"
   }
 
+  if ENV['RCT_USE_PREBUILT_RNCORE'] == '1'
+    spec.dependency 'React-Core-prebuilt'
+  end
+
   spec.dependency 'ReactAppDependencyProvider'
-  add_dependency(spec, "React-RCTAppDelegate")
-  
+  spec.dependency 'React-RCTAppDelegate'
+
   if ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] == '1'
     spec.dependency 'Expo'
     spec.dependency 'EXUpdates'
