@@ -10,9 +10,9 @@
     "lint": "expo lint",
     "prebuild": "expo prebuild",
     "brownfield:prepare:android:ci": "cd .. && node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts ExpoApp55",
-    "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
-    "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib",
-    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release"
+    "brownfield:package:android": "brownfield package:android --variant release",
+    "brownfield:publish:android": "brownfield publish:android",
+    "brownfield:package:ios": "brownfield package:ios --configuration Release"
   },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
@@ -55,5 +55,10 @@
   "brownie": {
     "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/",
     "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp55"
+  },
+  "react-native-brownfield": {
+    "$schema": "../../packages/cli/schema.json",
+    "moduleName": "brownfieldlib",
+    "scheme": "BrownfieldLib"
   }
 }

@@ -1,0 +1,8 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["**/package.json"],
+      "url": "./packages/cli/package-json.schema.json"
+    }
+  ]
+}
