@@ -58,13 +58,20 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             throw TaskNotFound("Can not find $preBuildTaskPath task")
         }
 
-        if (capitalizedVariantName.contains("Release")) {
+        val bundledAssetsVariantName = Utils.getBundledAssetsVariantName(variant)
+        val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
+
+        if (bundledAssetsVariantName != variant.name || capitalizedVariantName.contains("Release")) {
             val projectExt = project.extensions.getByType(Extension::class.java)
             val appProject = project.rootProject.project(projectExt.appProjectName)
-            prepareTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
+            prepareTask.dependsOn(
+                "${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
+            )
 
             if (Utils.isExpoProject(project)) {
-                prepareTask.dependsOn("${appProject.path}:create${capitalizedVariantName}UpdatesResources")
+                prepareTask.dependsOn(
+                    "${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources",
+                )
             }
         }
 
