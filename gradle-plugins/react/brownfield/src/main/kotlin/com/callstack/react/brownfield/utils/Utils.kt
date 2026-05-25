@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.utils
 
-import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.plugin.RNBrownfieldPlugin.Companion.EXPO_PROJECT_LOCATOR
 import org.gradle.api.Project
 import java.io.File
@@ -48,19 +47,22 @@ object Utils {
         return project.findProject(EXPO_PROJECT_LOCATOR) != null
     }
 
-    fun getBundledAssetsVariantName(variant: LibraryVariant): String {
-        if (!variant.buildType.isDebuggable) {
-            return variant.name
+    fun getBundledAssetsVariantName(
+        variantName: String,
+        buildTypeName: String,
+        isDebuggable: Boolean,
+    ): String {
+        if (!isDebuggable) {
+            return variantName
         }
 
-        val buildTypeName = variant.buildType.name
-        if (variant.name == buildTypeName) {
+        if (variantName == buildTypeName) {
             return "release"
         }
 
         val capitalizedBuildTypeName = buildTypeName.capitalized()
-        return if (variant.name.endsWith(capitalizedBuildTypeName)) {
-            "${variant.name.removeSuffix(capitalizedBuildTypeName)}Release"
+        return if (variantName.endsWith(capitalizedBuildTypeName)) {
+            "${variantName.removeSuffix(capitalizedBuildTypeName)}Release"
         } else {
             "release"
         }

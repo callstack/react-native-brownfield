@@ -46,7 +46,12 @@ object RNSourceSets {
 
     private fun configureSourceSets() {
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val bundledAssetsVariantName = Utils.getBundledAssetsVariantName(variant)
+            val bundledAssetsVariantName =
+                Utils.getBundledAssetsVariantName(
+                    variantName = variant.name,
+                    buildTypeName = variant.buildType.name,
+                    isDebuggable = variant.buildType.isDebuggable,
+                )
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
 
             androidExtension.sourceSets.getByName("main") { sourceSet ->

@@ -58,21 +58,24 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             throw TaskNotFound("Can not find $preBuildTaskPath task")
         }
 
-        val bundledAssetsVariantName = Utils.getBundledAssetsVariantName(variant)
+        val bundledAssetsVariantName =
+            Utils.getBundledAssetsVariantName(
+                variantName = variant.name,
+                buildTypeName = variant.buildType.name,
+                isDebuggable = variant.buildType.isDebuggable,
+            )
         val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
 
-        if (bundledAssetsVariantName != variant.name || capitalizedVariantName.contains("Release")) {
-            val projectExt = project.extensions.getByType(Extension::class.java)
-            val appProject = project.rootProject.project(projectExt.appProjectName)
-            prepareTask.dependsOn(
-                "${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
-            )
+        val projectExt = project.extensions.getByType(Extension::class.java)
+        val appProject = project.rootProject.project(projectExt.appProjectName)
+        prepareTask.dependsOn(
+            "${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
+        )
 
-            if (Utils.isExpoProject(project)) {
-                prepareTask.dependsOn(
-                    "${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources",
-                )
-            }
+        if (Utils.isExpoProject(project)) {
+            prepareTask.dependsOn(
+                "${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources",
+            )
         }
 
         val bundleTask = variantTaskProvider.bundleTaskProvider(project, variant.name)
