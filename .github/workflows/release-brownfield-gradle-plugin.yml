@@ -4,17 +4,6 @@ on:
   push:
     tags:
       - 'brownfield-gradle-plugin/v*'
-  # Temporary pre-merge validation trigger for this PR. Remove after testing.
-  pull_request:
-    paths:
-      - '.github/workflows/release-brownfield-gradle-plugin.yml'
-      - 'jreleaser.yml'
-      - 'gradle-plugins/react/**'
-      - 'scripts/sync-brownfield-gradle-plugin-version.ts'
-      - 'scripts/generate-brownfield-gradle-plugin-release-notes.ts'
-      - 'scripts/__tests__/sync-brownfield-gradle-plugin-version.test.ts'
-      - 'scripts/__tests__/generate-brownfield-gradle-plugin-release-notes.test.ts'
-      - 'package.json'
   workflow_dispatch:
     inputs:
       ref:
