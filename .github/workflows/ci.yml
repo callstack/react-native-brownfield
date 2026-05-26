@@ -10,6 +10,10 @@ concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   filter:
     name: Detect changed paths
@@ -209,6 +213,9 @@ jobs:
     name: E2E iOS (RNApp)
     runs-on: macos-26
     timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: write
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -219,6 +226,9 @@ jobs:
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
     steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
       - name: Run Detox E2E (RNApp)
         uses: ./.github/actions/e2e-ios
         with:
@@ -230,6 +240,9 @@ jobs:
     name: E2E iOS (Expo ${{ matrix.version }})
     runs-on: macos-26
     timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: write
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -247,6 +260,9 @@ jobs:
           - version: '54'
           - version: '55'
     steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
       - name: Run Detox E2E (Expo ${{ matrix.version }})
         uses: ./.github/actions/e2e-ios
         with:
