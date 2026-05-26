@@ -4,7 +4,6 @@ import path from 'node:path';
 import {
   getBuildOptions,
   mergeFrameworks,
-  type BuildFlags as AppleBuildFlags,
 } from '@rock-js/platform-apple-helpers';
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
 import {
@@ -28,6 +27,7 @@ import {
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+import { PackageIosOptions } from '../../types.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -54,11 +54,6 @@ export function parseUsePrebuiltRnCoreArgument(
   );
 }
 
-type PackageIosCliFlags = AppleBuildFlags & {
-  /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
-  usePrebuiltRnCore?: boolean;
-};
-
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
   getBuildOptions({ platformName: 'ios' }).map((option) =>
@@ -78,7 +73,7 @@ export const packageIosCommand = curryOptions(
       .argParser(parseUsePrebuiltRnCoreArgument)
   )
   .action(
-    actionRunner(async (options: PackageIosCliFlags) => {
+    actionRunner(async (options: PackageIosOptions) => {
       const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
 
       const prebuiltRNCoreSupport = supportsPrebuiltRNCore({ projectRoot });

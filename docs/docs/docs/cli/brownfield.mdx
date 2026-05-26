@@ -2,6 +2,11 @@
 
 The `brownfield` CLI provides utilities for building & packaging artifacts for brownfield projects that use the `@callstack/react-native-brownfield` library.
 
+:::tip Configuration file
+You can store supported `brownfield` CLI options in a project configuration file instead of passing the same flags on every command.
+See [Configuration files](/docs/api-reference/configuration) for supported config sources and option names.
+:::
+
 ## Usage
 
 ```bash
@@ -36,7 +41,6 @@ Available arguments:
 | --no-install-pods             | Skip automatic CocoaPods installation                                                                                                                                                                                                                                                                                                                             |
 | --no-new-arch                 | Run React Native in legacy async architecture                                                                                                                                                                                                                                                                                                                     |
 | --local                       | Force local build with xcodebuild                                                                                                                                                                                                                                                                                                                                 |
-| --verbose                     | Enable verbose logging                                                                                                                                                                                                                                                                                                                                            |
 
 The build directory will be placed in the `<iOS project folder>/.brownfield/build` folder by default and the build outputs (XCFrameworks) will be created in the `<iOS project folder>/.brownfield/package/build` folder:
 

@@ -102,13 +102,13 @@ export async function runCodegen({ platform, brownie }: RunCodegenOptions) {
 
   if (legacyConfig && brownie) {
     throw new Error(
-      'Cannot use both legacy and new Brownie configuration formats simultaneously. Please migrate to the new configuration format and remove legacy configuration files.'
+      'Cannot use both legacy and new Brownie configuration formats simultaneously. Please migrate to the new configuration format and remove legacy configuration files: https://oss.callstack.com/react-native-brownfield/docs/api-reference/configuration#migrating-from-legacy-brownie-configuration'
     );
   }
 
   if (legacyConfig) {
     logger.warn(
-      'You are using legacy Brownie configuration. Please migrate to the new configuration format. See the documentation for more details.'
+      'You are using legacy Brownie configuration. Please migrate to the new configuration format. See the documentation for more details: https://oss.callstack.com/react-native-brownfield/docs/api-reference/configuration#migrating-from-legacy-brownie-configuration'
     );
   }
 

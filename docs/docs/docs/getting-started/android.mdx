@@ -281,21 +281,38 @@ tasks.named("generateMetadataFileForMavenAarPublication") {
 }
 ```
 
-## 7. Create the AAR
+## 7. Create a Brownfield Configuration
+
+Create `react-native-brownfield.config.json` in your project root:
+
+```json
+{
+  "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
+  "moduleName": "reactnativeapp",
+  "variant": "Release"
+}
+```
+
+This lets the CLI reuse your packaging settings without repeating the same flags on every command.
+See [Configuration files](/docs/api-reference/configuration) for JavaScript and `package.json` variants and the full list of supported options.
+
+## 8. Create the AAR
 
 Use the brownfield CLI to package your React Native app:
 
 ```bash
-npx brownfield package:android --variant Release --module-name reactnativeapp
+npx brownfield package:android
 ```
 
 Then publish to **local Maven**:
 
 ```bash
-npx brownfield publish:android --module-name reactnativeapp
+npx brownfield publish:android
 ```
 
-## 8. Add the AAR to Your Android App
+If you prefer to keep the settings on the command line, you can still run `npx brownfield package:android --variant Release --module-name reactnativeapp` and `npx brownfield publish:android --module-name reactnativeapp` instead.
+
+## 9. Add the AAR to Your Android App
 
 Add **`mavenLocal()`** to your app's `settings.gradle.kts`:
 
@@ -315,7 +332,7 @@ dependencies {
 }
 ```
 
-## 9. Initialize React Native
+## 10. Initialize React Native
 
 In your **`MainActivity`**:
 
@@ -333,7 +350,7 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-## 10. Show the React Native UI
+## 11. Show the React Native UI
 
 ### Using Fragment
 

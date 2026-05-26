@@ -172,7 +172,13 @@ describe('validateBrownfieldCLIConfig', () => {
     validateBrownfieldCLIConfig({
       scheme: 'AppScheme',
       destination: ['simulator'],
+      usePrebuiltRnCore: true,
       verbose: true,
+      brownie: {
+        kotlin:
+          './android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/',
+        kotlinPackageName: 'com.rnapp.brownfieldlib',
+      },
     });
 
     expect(mockLoggerWarn).not.toHaveBeenCalled();

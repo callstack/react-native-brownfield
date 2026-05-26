@@ -77,6 +77,10 @@
       "type": "boolean",
       "description": "Whether to use the new React Native architecture. Set to false to match --no-new-arch."
     },
+    "usePrebuiltRnCore": {
+      "type": "boolean",
+      "description": "Controls whether iOS packaging uses React Native Apple prebuilt binaries. Omit it to use version-aware defaults for the current React Native or Expo version."
+    },
     "scheme": {
       "type": "string",
       "description": "Explicitly set the Xcode scheme to use."

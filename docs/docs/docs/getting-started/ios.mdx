@@ -105,17 +105,34 @@ public let ReactNativeBundle = Bundle(for: InternalClassForBundle.self)
 class InternalClassForBundle {}
 ```
 
-## 5. Create the XCFramework
+## 5. Create a Brownfield Configuration
+
+Create `react-native-brownfield.config.json` in your project root:
+
+```json
+{
+  "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
+  "scheme": "<framework_target_name>",
+  "configuration": "Release"
+}
+```
+
+This lets the CLI reuse your packaging settings without repeating the same flags on every command.
+See [Configuration files](/docs/api-reference/configuration) for JavaScript and `package.json` variants and the full list of supported options.
+
+## 6. Create the XCFramework
 
 Use the brownfield CLI to package your React Native app:
 
 ```bash
-npx brownfield package:ios --scheme <framework_target_name> --configuration Release
+npx brownfield package:ios
 ```
 
 This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative to your project root).
 
-## 6. Add the Framework to Your iOS App
+If you prefer to keep the settings on the command line, you can still run `npx brownfield package:ios --scheme <framework_target_name> --configuration Release` instead.
+
+## 7. Add the Framework to Your iOS App
 
 1. Open **`ios/.brownfield/package/build`** directory (relative to your React Native project root)
 2. Drag these files into your native iOS app's Xcode project:
@@ -128,7 +145,7 @@ This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative t
 
 ![Frameworks in Xcode Sidebar](/images/frameworks.png)
 
-## 7. Initialize React Native
+## 8. Initialize React Native
 
 In your native iOS app's **`AppDelegate.swift`**:
 
@@ -162,7 +179,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 ```
 
-## 8. Run Your App
+## 9. Run Your App
 
 ### Debug Configuration
 
