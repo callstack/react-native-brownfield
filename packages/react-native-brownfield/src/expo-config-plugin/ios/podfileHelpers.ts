@@ -10,6 +10,10 @@ const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
   '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>';
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
   '# <<< react-native-brownfield Expo SDK 55+ swift defines <<<';
+const BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_START =
+  '# >>> react-native-brownfield Xcode packaging workarounds >>>';
+const BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_END =
+  '# <<< react-native-brownfield Xcode packaging workarounds <<<';
 const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
 const REACT_NATIVE_PODS_REQUIRE_REGEX =
   /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
@@ -51,6 +55,31 @@ ${BROWNFIELD_POD_HOOK_MARKER_END}
   modifiedPodfile = `${modifiedPodfile.trimEnd()}\n\n${hook}\n`;
 
   return modifiedPodfile;
+}
+
+function ensureXcodePackagingWorkaroundsInPostInstall(podfile: string): string {
+  if (podfile.includes(BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_START)) {
+    return podfile;
+  }
+
+  const hook = `
+    ${BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_START}
+    react_native_brownfield_patch_fmt_consteval(installer)
+    react_native_brownfield_skip_swift_module_interface_verification(installer)
+    ${BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_END}
+`;
+
+  const postInstallMatch = podfile.match(
+    /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
+  );
+
+  if (postInstallMatch) {
+    const [whole, start, content, end] = postInstallMatch;
+    const updated = `${start}${content.trimEnd()}\n${hook}\n${end}`;
+    return podfile.replace(whole, updated);
+  }
+
+  return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
 }
 
 function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
@@ -138,6 +167,10 @@ export function modifyPodfile(
     podfile.slice(insertIndex);
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
+
+  modifiedPodfile = ensureBrownfieldPostIntegrateRequire(modifiedPodfile);
+  modifiedPodfile =
+    ensureXcodePackagingWorkaroundsInPostInstall(modifiedPodfile);
 
   if (expoMajor < 55) {
     modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);

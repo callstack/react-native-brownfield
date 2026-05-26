@@ -17,6 +17,24 @@ public extension BrownieStoreProtocol {
   }
 }
 
+/// Registers a store in the C++ layer used by React Native JS.
+/// Use this from the app entry point (e.g. AppDelegate) before React Native starts.
+public enum BrownieBootstrap {
+  public static func registerStore(named storeName: String, state: [String: Any]) {
+    BrownieStoreBridge.registerStore(withKey: storeName)
+    BrownieStoreBridge.setState(from: state, forStore: storeName)
+  }
+
+  public static func register<State: BrownieStoreProtocol>(_ initialState: State) {
+    guard let data = try? JSONEncoder().encode(initialState),
+          let state = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    else {
+      return
+    }
+    registerStore(named: State.storeName, state: state)
+  }
+}
+
 public struct StoreKey<State: Codable>: EnvironmentKey {
   public static var defaultValue: Store<State> { fatalError("Store not provided") }
 }

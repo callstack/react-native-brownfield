@@ -34,5 +34,36 @@ target 'RNApp' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ENV['USE_CCACHE'] == '1'
     )
+
+        # >>> react-native-brownfield Expo SDK 55+ swift defines >>>
+        installer.pods_project.targets.each do |target|
+          if target.name == 'ReactBrownfield'
+            puts "[Brownfield] Adding definition of EXPO_SDK_GTE_55 to target: #{target.name}"
+
+            target.build_configurations.each do |config|
+              conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
+              conditions = conditions.to_s
+              config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_SDK_GTE_55"
+            end
+          end
+        end
+        # <<< react-native-brownfield Expo SDK 55+ swift defines <<<
+            # Patch base.h to disable consteval since the header doesn't check for pre-defined FMT_USE_CONSTEVAL.
+
+            fmt_base = File.join(installer.sandbox.root, 'fmt', 'include', 'fmt', 'base.h')
+
+            if File.exist?(fmt_base)
+            content = File.read(fmt_base)
+            unless content.include?('Xcode 26 workaround')
+              patched = content.gsub(
+                /^(#elif defined\(__cpp_consteval\)\n#  define FMT_USE_CONSTEVAL) 1/,
+                "// Xcode 26 workaround: disable consteval\n\\1 0"
+              )
+              if patched != content
+                File.chmod(0644, fmt_base)
+                File.write(fmt_base, patched)
+              end
+            end
+          end
   end
 end

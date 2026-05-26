@@ -2,7 +2,7 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
-import BrownfieldLib
+import Brownie
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,11 +24,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     window = UIWindow(frame: UIScreen.main.bounds)
 
-    let brownfieldInitialState = BrownfieldStore(
-      counter: 0,
-      user: User(name: "Username")
+    // Register in the same Brownie instance React Native uses (see BrownieBootstrap).
+    BrownieBootstrap.register(
+      BrownfieldStore(
+        counter: 0,
+        user: User(name: "Username")
+      )
     )
-    BrownfieldStore.register(brownfieldInitialState)
 
     factory.startReactNative(
       withModuleName: "RNApp",

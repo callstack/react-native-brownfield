@@ -35,10 +35,13 @@ jobs:
               - 'packages/**'
             rnapp:
               - 'apps/RNApp/**'
+              - 'apps/brownfield-example-shared-tests/**'
             expo54:
               - 'apps/ExpoApp54/**'
+              - 'apps/brownfield-example-shared-tests/**'
             expo55:
               - 'apps/ExpoApp55/**'
+              - 'apps/brownfield-example-shared-tests/**'
             androidapp:
               - 'apps/AndroidApp/**'
             appleapp:
@@ -201,3 +204,52 @@ jobs:
         with:
           variant: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
+
+  e2e-ios-rnapp:
+    name: E2E iOS (RNApp)
+    runs-on: macos-26
+    timeout-minutes: 90
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.rnapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+    steps:
+      - name: Run Detox E2E (RNApp)
+        uses: ./.github/actions/e2e-ios
+        with:
+          app-path: apps/RNApp
+          artifact-name: detox-rnapp
+          run-brownfield-codegen: 'true'
+
+  e2e-ios-expo:
+    name: E2E iOS (Expo ${{ matrix.version }})
+    runs-on: macos-26
+    timeout-minutes: 90
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo54 == 'true' ||
+        needs.filter.outputs.expo55 == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: '54'
+          - version: '55'
+    steps:
+      - name: Run Detox E2E (Expo ${{ matrix.version }})
+        uses: ./.github/actions/e2e-ios
+        with:
+          app-path: apps/ExpoApp${{ matrix.version }}
+          artifact-name: detox-expo${{ matrix.version }}
+          run-expo-prebuild: 'true'

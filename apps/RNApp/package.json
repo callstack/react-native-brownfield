@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "android": "yarn brownfield:package:android && brownfield codegen && react-native run-android",
+    "ios": "yarn brownfield:package:ios && brownfield codegen && react-native run-ios",
     "build:example:android-rn": "react-native build-android",
     "build:example:ios-rn": "react-native build-ios",
     "brownfield:package:android": "brownfield package:android --module-name :BrownfieldLib --variant release --verbose",

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios",
+    "ios": "yarn brownfield:package:ios && node ../../packages/cli/dist/main.js codegen && expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint --no-cache",
     "test": "jest --config jest.config.js",
