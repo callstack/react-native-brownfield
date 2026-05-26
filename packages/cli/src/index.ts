@@ -14,7 +14,6 @@ import brownieCommands, {
 import navigationCommands, {
   groupName as navigationCommandsGroupName,
 } from './navigation/index.js';
-import { loadAndApplyBrownfieldCLIConfig } from './config.js';
 
 const program = new Command();
 
@@ -82,8 +81,6 @@ program.commandsGroup('Utility commands').helpCommand('help [command]');
 
 export function runCLI(argv: string[]): void {
   program.parse(argv);
-
-  loadAndApplyBrownfieldCLIConfig(program);
 
   if (!argv.slice(2).length) {
     program.outputHelp();

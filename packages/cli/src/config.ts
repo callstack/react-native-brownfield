@@ -22,7 +22,9 @@ const validateBrownfieldConfig = ajv.compile(BrownfieldSchema);
 
 export function validateBrownfieldCLIConfig(config: unknown): void {
   if (!validateBrownfieldConfig(config)) {
-    logger.warn(`Brownfield configuration has some issues: ${SEPARATOR}${ajv.errorsText(validateBrownfieldConfig.errors, { separator: SEPARATOR, dataVar: 'config' })}.`);
+    logger.warn(
+      `Brownfield configuration has some issues: ${SEPARATOR}${ajv.errorsText(validateBrownfieldConfig.errors, { separator: SEPARATOR, dataVar: 'config' })}.`
+    );
   }
 }
 
@@ -32,41 +34,50 @@ export function loadBrownfieldConfig(
   const require = createRequire(path.join(projectRoot, 'package.json'));
 
   const jsConfigFilePath = path.join(projectRoot, JS_CONFIG_FILE_NAME);
+  const jsonConfigFilePath = path.join(projectRoot, JSON_CONFIG_FILE_NAME);
+  const packageJsonPath = path.join(projectRoot, 'package.json');
+  const packageJson = require(packageJsonPath) as Record<string, unknown>;
+
+  if (
+    [
+      fs.existsSync(jsConfigFilePath),
+      fs.existsSync(jsonConfigFilePath),
+      packageJson[PACKAGE_JSON_CONFIG_KEY],
+    ].filter(Boolean).length > 1
+  ) {
+    throw new Error('Project has multiple Brownfield configuration files');
+  }
+
   if (fs.existsSync(jsConfigFilePath)) {
     return require(jsConfigFilePath) as BrownfieldConfig;
   }
 
-  const jsonConfigFilePath = path.join(projectRoot, JSON_CONFIG_FILE_NAME);
   if (fs.existsSync(jsonConfigFilePath)) {
     return require(jsonConfigFilePath) as BrownfieldConfig;
   }
 
-  const packageJsonPath = path.join(projectRoot, 'package.json');
-  const packageJson = require(packageJsonPath) as Record<
-    string,
-    unknown
-  >;
-
   return packageJson[PACKAGE_JSON_CONFIG_KEY] || {};
 }
 
-export function applyBrownfieldCLIConfig(
-  program: Command,
-  config: BrownfieldConfig
-): void {
-  for (const [key, value] of Object.entries(config)) {
-    program.setOptionValueWithSource(key, value, 'config');
-  }
-}
+export function addBrownfieldConfig(...args: any[]): void {
+  // Last argument is the current command instance
+  const command = args.at(-1) as Command;
 
-export function loadAndApplyBrownfieldCLIConfig(
-  program: Command,
-  projectRoot?: string
-): void {
-  const reactNativeBrownfieldConfig = loadBrownfieldConfig(projectRoot);
-
-  logger.debug('Loaded Brownfield CLI config:', reactNativeBrownfieldConfig);
+  const reactNativeBrownfieldConfig = loadBrownfieldConfig();
 
   validateBrownfieldCLIConfig(reactNativeBrownfieldConfig);
-  applyBrownfieldCLIConfig(program, reactNativeBrownfieldConfig);
+
+  for (const [key, value] of Object.entries(reactNativeBrownfieldConfig)) {
+    const cliOptionValue = command.optsWithGlobals()[key];
+
+    if (cliOptionValue !== undefined) {
+      logger.warn(
+        'CLI option "%s" is overriding the react-native-brownfield config value.',
+        key
+      );
+      continue;
+    }
+
+    command.setOptionValue(key, value);
+  }
 }

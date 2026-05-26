@@ -17,6 +17,11 @@ export type BrownfieldConfigMetadata = Partial<{
   $schema: string;
 }>
 
+export interface BrownieConfig {
+  kotlin?: string;
+  kotlinPackageName?: string;
+}
+
 export type BrownfieldPackageAndroidOptions = BrownfieldCommonOptions & Partial<PackageAarFlags>
 export type BrownfieldPublishAndroidOptions = BrownfieldCommonOptions & Partial<PublishLocalAarFlags>
 export type BrownfieldPackageIosOptions = BrownfieldCommonOptions & Partial<AppleBuildFlags>
@@ -24,4 +29,9 @@ export type BrownfieldPackageIosOptions = BrownfieldCommonOptions & Partial<Appl
 export type BrownfieldAndroidConfig = Partial<PackageAarFlags> & Partial<PublishLocalAarFlags>
 export type BrownfieldIosConfig = Partial<AppleBuildFlags>
 
-export type BrownfieldConfig = BrownfieldConfigMetadata & BrownfieldCommonOptions & BrownfieldAndroidConfig & BrownfieldIosConfig
+export type BrownfieldConfig =
+  & BrownfieldConfigMetadata
+  & BrownfieldCommonOptions
+  & BrownfieldAndroidConfig
+  & BrownfieldIosConfig
+  & { brownie?: BrownieConfig };

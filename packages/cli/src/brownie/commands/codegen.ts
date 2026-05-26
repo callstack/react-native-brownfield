@@ -7,6 +7,7 @@ import { intro, logger, outro } from '@rock-js/tools';
 import { QuickTypeError } from 'quicktype-core';
 import { actionRunner } from '../../shared/index.js';
 import {
+  hasLegacyConfig,
   loadConfig,
   getSwiftOutputPath,
   type BrownieConfig,
@@ -84,17 +85,34 @@ async function generateForStore(
   }
 }
 
-export type RunCodegenOptions = { platform?: Platform };
+export type RunCodegenOptions = {
+  platform?: Platform;
+  brownie?: BrownieConfig;
+};
 
 /**
  * Runs the codegen command with the given arguments.
  */
-export async function runCodegen({ platform }: RunCodegenOptions) {
+export async function runCodegen({ platform, brownie }: RunCodegenOptions) {
   intro(
     `Running Brownie codegen for ${platform ? `platform ${platform}` : 'all platforms'}`
   );
 
-  const config = loadConfig();
+  const legacyConfig = hasLegacyConfig() ? loadConfig() : undefined;
+
+  if (legacyConfig && brownie) {
+    throw new Error(
+      'Cannot use both legacy and new Brownie configuration formats simultaneously. Please migrate to the new configuration format and remove legacy configuration files.'
+    );
+  }
+
+  if (legacyConfig) {
+    logger.warn(
+      'You are using legacy Brownie configuration. Please migrate to the new configuration format. See the documentation for more details.'
+    );
+  }
+
+  const config = brownie || legacyConfig || {};
 
   if (platform && !['swift', 'kotlin'].includes(platform)) {
     logger.error(`Invalid platform: ${platform}. Must be 'swift' or 'kotlin'`);

@@ -8,4 +8,5 @@ export * from './store-discovery.js';
 export const groupName = `${styleText(['bold', 'blueBright'], '@callstack/brownie')}${styleText('whiteBright', ' - Shared state management CLI for React Native Brownfield')}`;
 
 export { Commands };
+export type { BrownieConfig } from './config.js';
 export default Commands;

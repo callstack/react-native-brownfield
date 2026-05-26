@@ -4,187 +4,246 @@ import path from 'node:path';
 
 import * as rockTools from '@rock-js/tools';
 import { Command } from 'commander';
-import { afterEach, describe, expect, it, Mock, vi } from 'vitest';
-
-import {
-  applyBrownfieldCLIConfig,
-  loadAndApplyBrownfieldCLIConfig,
-  loadBrownfieldConfig,
-  validateBrownfieldCLIConfig,
-} from '../config.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@rock-js/tools', async (importOriginal) => {
   const actual = await importOriginal<typeof rockTools>();
-
   return {
     ...actual,
     logger: {
       ...actual.logger,
-      debug: vi.fn(),
       warn: vi.fn(),
+      debug: vi.fn(),
+      setVerbose: vi.fn(),
     },
   };
 });
 
-const mockLoggerWarn = rockTools.logger.warn as Mock;
+vi.mock('../brownfield/utils/paths.js', () => ({
+  findProjectRoot: vi.fn(() => process.cwd()),
+}));
 
-function createTempProject(options?: {
+import {
+  addBrownfieldConfig,
+  loadBrownfieldConfig,
+  validateBrownfieldCLIConfig,
+} from '../config.js';
+
+const mockLoggerWarn = rockTools.logger.warn as ReturnType<typeof vi.fn>;
+const originalCwd = process.cwd();
+
+function createTempProject({
+  packageJsonConfig,
+  jsConfig,
+  jsonConfig,
+}: {
   packageJsonConfig?: Record<string, unknown>;
   jsConfig?: Record<string, unknown>;
   jsonConfig?: Record<string, unknown>;
-}): string {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'brownfield-cli-config-'));
+} = {}): string {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'brownfield-config-'));
+
+  const packageJson: Record<string, unknown> = {
+    name: 'temp-project',
+    version: '1.0.0',
+  };
+
+  if (packageJsonConfig !== undefined) {
+    packageJson['react-native-brownfield'] = packageJsonConfig;
+  }
 
   fs.writeFileSync(
     path.join(tempDir, 'package.json'),
-    JSON.stringify(
-      {
-        name: 'brownfield-config-test',
-        version: '1.0.0',
-        'react-native-brownfield': options?.packageJsonConfig,
-      },
-      null,
-      2
-    )
+    JSON.stringify(packageJson, null, 2)
   );
 
-  if (options?.jsConfig) {
+  if (jsConfig !== undefined) {
     fs.writeFileSync(
       path.join(tempDir, 'react-native-brownfield.config.js'),
-      `module.exports = ${JSON.stringify(options.jsConfig, null, 2)};\n`
+      `module.exports = ${JSON.stringify(jsConfig, null, 2)};\n`
     );
   }
 
-  if (options?.jsonConfig) {
+  if (jsonConfig !== undefined) {
     fs.writeFileSync(
       path.join(tempDir, 'react-native-brownfield.config.json'),
-      JSON.stringify(options.jsonConfig, null, 2)
+      JSON.stringify(jsonConfig, null, 2)
     );
   }
 
   return tempDir;
 }
 
-function cleanupTempDir(directory: string): void {
-  fs.rmSync(directory, { recursive: true, force: true });
+function createCommand(): Command {
+  return new Command()
+    .option('--scheme <scheme>')
+    .option('--install-pods')
+    .option('--destination <destination...>')
+    .option('--target <target>')
+    .option('--extra-params <extraParams...>');
 }
 
 describe('loadBrownfieldConfig', () => {
   let tempDir: string | null = null;
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => {
-    mockLoggerWarn.mockReset();
+    process.chdir(originalCwd);
 
     if (tempDir) {
-      cleanupTempDir(tempDir);
+      fs.rmSync(tempDir, { recursive: true, force: true });
       tempDir = null;
     }
   });
 
-  it('prefers js config over json and package.json', () => {
+  it('loads config from package.json', () => {
     tempDir = createTempProject({
-      packageJsonConfig: { verbose: false, variant: 'package-json' },
-      jsonConfig: { verbose: false, variant: 'json' },
-      jsConfig: { verbose: true, variant: 'js' },
+      packageJsonConfig: {
+        scheme: 'PackageScheme',
+        destination: ['simulator'],
+      },
     });
 
     expect(loadBrownfieldConfig(tempDir)).toEqual({
-      verbose: true,
-      variant: 'js',
+      scheme: 'PackageScheme',
+      destination: ['simulator'],
     });
   });
 
-  it('prefers json config over package.json when js config is missing', () => {
+  it('loads config from a JavaScript config file', () => {
     tempDir = createTempProject({
-      packageJsonConfig: { verbose: false, variant: 'package-json' },
-      jsonConfig: { verbose: true, variant: 'json' },
+      jsConfig: {
+        scheme: 'JsScheme',
+        installPods: true,
+      },
     });
 
     expect(loadBrownfieldConfig(tempDir)).toEqual({
-      verbose: true,
-      variant: 'json',
+      scheme: 'JsScheme',
+      installPods: true,
     });
   });
 
-  it('falls back to package.json config when js and json configs are missing', () => {
+  it('loads config from a JSON config file', () => {
     tempDir = createTempProject({
-      packageJsonConfig: { verbose: true, variant: 'package-json' },
+      jsonConfig: {
+        scheme: 'JsonScheme',
+        verbose: true,
+      },
     });
 
     expect(loadBrownfieldConfig(tempDir)).toEqual({
+      scheme: 'JsonScheme',
       verbose: true,
-      variant: 'package-json',
     });
+  });
+
+  it('returns an empty config when no source exists', () => {
+    tempDir = createTempProject();
+
+    expect(loadBrownfieldConfig(tempDir)).toEqual({});
+  });
+
+  it('throws when multiple config sources are present', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: {
+        scheme: 'PackageScheme',
+      },
+      jsConfig: {
+        scheme: 'JsScheme',
+      },
+    });
+
+    expect(() => loadBrownfieldConfig(tempDir!)).toThrow(
+      'Project has multiple Brownfield configuration files'
+    );
   });
 });
 
 describe('validateBrownfieldCLIConfig', () => {
-  afterEach(() => {
-    mockLoggerWarn.mockReset();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('does not warn for valid config', () => {
+  it('does not warn for a schema-valid config', () => {
     validateBrownfieldCLIConfig({
+      scheme: 'AppScheme',
+      destination: ['simulator'],
       verbose: true,
-      variant: 'release',
     });
 
     expect(mockLoggerWarn).not.toHaveBeenCalled();
   });
 
-  it('warns for schema violations', () => {
+  it('warns for a schema-invalid config', () => {
     validateBrownfieldCLIConfig({
       unsupportedOption: true,
     });
 
-    expect(mockLoggerWarn).toHaveBeenCalledOnce();
+    expect(mockLoggerWarn).toHaveBeenCalledTimes(1);
     expect(mockLoggerWarn.mock.calls[0]?.[0]).toContain(
       'Brownfield configuration has some issues:'
-    );
-    expect(mockLoggerWarn.mock.calls[0]?.[0]).toContain(
-      'should NOT have additional properties'
     );
   });
 });
 
-describe('config application', () => {
+describe('addBrownfieldConfig', () => {
   let tempDir: string | null = null;
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => {
-    mockLoggerWarn.mockReset();
+    process.chdir(originalCwd);
 
     if (tempDir) {
-      cleanupTempDir(tempDir);
+      fs.rmSync(tempDir, { recursive: true, force: true });
       tempDir = null;
     }
   });
 
-  it('applies config values to a commander program with config as the source', () => {
-    const program = new Command();
-
-    applyBrownfieldCLIConfig(program, {
-      verbose: true,
-      variant: 'release',
+  it('applies config values to undefined CLI options', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: {
+        scheme: 'ConfigScheme',
+        installPods: true,
+        destination: ['simulator'],
+      },
     });
+    process.chdir(tempDir);
 
-    expect(program.getOptionValue('verbose')).toBe(true);
-    expect(program.getOptionValueSource('verbose')).toBe('config');
-    expect(program.getOptionValue('variant')).toBe('release');
-    expect(program.getOptionValueSource('variant')).toBe('config');
+    const command = createCommand();
+    command.setOptionValue('target', 'MyApp');
+
+    addBrownfieldConfig(command);
+
+    expect(command.optsWithGlobals()).toMatchObject({
+      scheme: 'ConfigScheme',
+      installPods: true,
+      destination: ['simulator'],
+      target: 'MyApp',
+    });
+    expect(mockLoggerWarn).not.toHaveBeenCalled();
   });
 
-  it('loads config and attaches it to the commander program', () => {
+  it('warns and preserves the CLI value when it overrides the config', () => {
     tempDir = createTempProject({
-      packageJsonConfig: { verbose: true, variant: 'release' },
+      packageJsonConfig: {
+        scheme: 'ConfigScheme',
+      },
     });
+    process.chdir(tempDir);
 
-    const program = new Command();
+    const command = createCommand();
+    command.setOptionValue('scheme', 'CliScheme');
 
-    loadAndApplyBrownfieldCLIConfig(program, tempDir);
+    addBrownfieldConfig(command);
 
-    expect(program.getOptionValue('verbose')).toBe(true);
-    expect(program.getOptionValueSource('verbose')).toBe('config');
-    expect(program.getOptionValue('variant')).toBe('release');
-    expect(program.getOptionValueSource('variant')).toBe('config');
+    expect(command.optsWithGlobals().scheme).toBe('CliScheme');
+    expect(mockLoggerWarn).toHaveBeenCalled();
   });
 });

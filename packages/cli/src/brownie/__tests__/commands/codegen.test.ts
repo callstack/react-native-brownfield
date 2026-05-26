@@ -113,6 +113,27 @@ describe('runCodegen', () => {
     expect(mockGenerateSwift).not.toHaveBeenCalled();
   });
 
+  it('throws when legacy and new brownie configs are both provided', async () => {
+    tempDir = createTempPackageJson({
+      brownie: {
+        kotlin: './LegacyGenerated',
+      },
+    });
+    mockCwd.mockReturnValue(tempDir);
+
+    await expect(
+      runCodegen({
+        brownie: {
+          kotlin: './NewGenerated',
+        },
+      })
+    ).rejects.toThrow(
+      'Cannot use both legacy and new Brownie configuration formats simultaneously.'
+    );
+
+    expect(mockDiscoverStores).not.toHaveBeenCalled();
+  });
+
   it('generates swift and kotlin by default when kotlin is configured', async () => {
     tempDir = createTempPackageJson({
       brownie: {

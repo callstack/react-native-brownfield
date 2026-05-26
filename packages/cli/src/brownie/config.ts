@@ -11,6 +11,16 @@ interface PackageJson {
   brownie?: BrownieConfig;
 }
 
+function loadPackageJson(projectRoot: string = process.cwd()): PackageJson {
+  const packageJsonPath = path.resolve(projectRoot, 'package.json');
+
+  if (!fs.existsSync(packageJsonPath)) {
+    throw new Error('package.json not found');
+  }
+
+  return JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) as PackageJson;
+}
+
 /**
  * Checks if @callstack/brownie package is installed.
  */
@@ -55,17 +65,19 @@ export function getSwiftOutputPath(
 }
 
 /**
+ * Returns whether package.json contains legacy brownie config.
+ */
+export function hasLegacyConfig(projectRoot: string = process.cwd()): boolean {
+  const packageJson = loadPackageJson(projectRoot);
+
+  return Object.prototype.hasOwnProperty.call(packageJson, 'brownie');
+}
+
+/**
  * Loads brownie config from package.json in the current working directory.
  */
 export function loadConfig(): BrownieConfig {
-  const packageJsonPath = path.resolve(process.cwd(), 'package.json');
+  const packageJson = loadPackageJson();
 
-  if (!fs.existsSync(packageJsonPath)) {
-    throw new Error('package.json not found');
-  }
-
-  const packageJson: PackageJson = JSON.parse(
-    fs.readFileSync(packageJsonPath, 'utf-8')
-  );
   return packageJson.brownie ?? {};
 }
