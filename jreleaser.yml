@@ -15,7 +15,6 @@ release:
     releaseName: Brownfield Gradle Plugin {{projectVersion}}
     owner: callstack
     name: react-native-brownfield
-    skipTag: true
     overwrite: true
     changelog:
       external: out/jreleaser/brownfield-gradle-plugin-release-notes.md

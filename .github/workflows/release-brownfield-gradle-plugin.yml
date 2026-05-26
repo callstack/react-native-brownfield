@@ -153,7 +153,7 @@ jobs:
           arguments: full-release
         env:
           JRELEASER_PROJECT_VERSION: ${{ needs.validate.outputs.version }}
-          JRELEASER_GITHUB_SKIP_TAG: ${{ needs.validate.outputs.skip_tag }}
+          JRELEASER_SKIP_TAG: ${{ needs.validate.outputs.skip_tag }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
           JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
