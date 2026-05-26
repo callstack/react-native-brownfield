@@ -46,7 +46,13 @@ object RNSourceSets {
 
     private fun configureSourceSets() {
         project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
-            val capitalizedVariantName = variant.name.capitalized()
+            val bundledAssetsVariantName =
+                Utils.getBundledAssetsVariantName(
+                    variantName = variant.name,
+                    buildTypeName = variant.buildType.name,
+                    isDebuggable = variant.buildType.isDebuggable,
+                )
+            val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
 
             androidExtension.sourceSets.getByName("main") { sourceSet ->
                 sourceSet.java.srcDirs("$moduleBuildDir/generated/autolinking/src/main/java")
@@ -55,15 +61,16 @@ object RNSourceSets {
             androidExtension.sourceSets.getByName(variant.name) { sourceSet ->
                 for (bundlePathSegment in listOf(
                     // outputs for RN <= 0.81
-                    "createBundle${capitalizedVariantName}JsAndAssets",
+                    "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
                     // outputs for RN >= 0.82
-                    "react/${variant.name}",
+                    "react/$bundledAssetsVariantName",
                 )) {
                     sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$bundlePathSegment")
                     sourceSet.res.srcDirs("$appBuildDir/generated/res/$bundlePathSegment")
                 }
 
-                val expoUpdatesResources =  "create${capitalizedVariantName}UpdatesResources"
+                val expoUpdatesResources =
+                    "create${capitalizedBundledAssetsVariantName}UpdatesResources"
                 sourceSet.assets.srcDirs("$appBuildDir/generated/assets/$expoUpdatesResources")
             }
         }

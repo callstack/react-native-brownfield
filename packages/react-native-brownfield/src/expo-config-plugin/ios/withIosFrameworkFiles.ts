@@ -21,7 +21,9 @@ export function getFrameworkSourceFiles(
   return [
     {
       relativePath: `${ios.frameworkName}.swift`,
-      content: renderTemplate('ios', 'FrameworkInterface.swift', {}),
+      content: renderTemplate('ios', 'FrameworkInterface.swift', {
+        '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
+      }),
     },
     {
       relativePath: 'Info.plist',
@@ -44,17 +46,15 @@ export function createIosFramework(
   const { ios } = config;
   const frameworkDir = path.join(iosDir, ios.frameworkName);
 
-  // check if framework directory if it exists
-  if (fs.existsSync(frameworkDir)) {
-    Logger.logDebug(`Framework directory already exists: ${frameworkDir}`);
-
-    return;
-  }
-
-  Logger.logDebug(`Creating iOS framework in: ${frameworkDir}`);
+  const frameworkDirExists = fs.existsSync(frameworkDir);
+  Logger.logDebug(
+    frameworkDirExists
+      ? `Updating iOS framework files in: ${frameworkDir}`
+      : `Creating iOS framework in: ${frameworkDir}`
+  );
 
   // create framework directory
-  if (!fs.existsSync(frameworkDir)) {
+  if (!frameworkDirExists) {
     fs.mkdirSync(frameworkDir, { recursive: true });
 
     Logger.logDebug(`Created directory: ${frameworkDir}`);
