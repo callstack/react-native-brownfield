@@ -17,6 +17,10 @@ runs:
         cache: 'yarn'
 
     - name: Install dependencies
+      env:
+        # Monorepo has detox in multiple workspaces; parallel postinstalls race on
+        # $HOME/Library/Detox/ios/framework. E2E jobs run postinstall once later.
+        DETOX_DISABLE_POSTINSTALL: '1'
       run: yarn install
       shell: bash
 

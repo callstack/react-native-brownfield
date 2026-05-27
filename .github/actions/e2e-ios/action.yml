@@ -74,6 +74,11 @@ runs:
         restore-keys: |
           ${{ runner.os }}-e2e-ios-build-${{ inputs.app-path }}-
 
+    - name: Install Detox iOS artifacts
+      run: node node_modules/detox/scripts/postinstall.js
+      working-directory: ${{ inputs.app-path }}
+      shell: bash
+
     - name: Detox build (iOS Simulator)
       run: yarn e2e:build:ios
       working-directory: ${{ inputs.app-path }}
