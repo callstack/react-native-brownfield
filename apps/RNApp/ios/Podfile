@@ -4,6 +4,7 @@ require Pod::Executable.execute_command('node', ['-p',
     "react-native/scripts/react_native_pods.rb",
     {paths: [process.argv[1]]},
   )', __dir__]).strip
+require File.join(File.dirname(`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"`), "scripts/react_native_brownfield_post_integrate")
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
@@ -48,22 +49,10 @@ target 'RNApp' do
           end
         end
         # <<< react-native-brownfield Expo SDK 55+ swift defines <<<
-            # Patch base.h to disable consteval since the header doesn't check for pre-defined FMT_USE_CONSTEVAL.
 
-            fmt_base = File.join(installer.sandbox.root, 'fmt', 'include', 'fmt', 'base.h')
-
-            if File.exist?(fmt_base)
-            content = File.read(fmt_base)
-            unless content.include?('Xcode 26 workaround')
-              patched = content.gsub(
-                /^(#elif defined\(__cpp_consteval\)\n#  define FMT_USE_CONSTEVAL) 1/,
-                "// Xcode 26 workaround: disable consteval\n\\1 0"
-              )
-              if patched != content
-                File.chmod(0644, fmt_base)
-                File.write(fmt_base, patched)
-              end
-            end
-          end
+    # >>> react-native-brownfield Xcode packaging workarounds >>>
+    react_native_brownfield_patch_fmt_consteval(installer)
+    react_native_brownfield_skip_swift_module_interface_verification(installer)
+    # <<< react-native-brownfield Xcode packaging workarounds <<<
   end
 end
