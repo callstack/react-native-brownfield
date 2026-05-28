@@ -10,6 +10,16 @@ type CreateLocalSpmPackageResult = {
   packageManifestPath: string;
 };
 
+const RESERVED_FRAMEWORK_NAMES = new Set([
+  'hermes',
+  'hermesvm',
+  'ReactBrownfield',
+  'Brownie',
+  'BrownfieldNavigation',
+  'React',
+  'ReactNativeDependencies',
+]);
+
 function requireXcframework(packageDir: string, name: string) {
   const xcframeworkPath = path.join(packageDir, `${name}.xcframework`);
 
@@ -41,23 +51,13 @@ function resolveAppFrameworkName(
     return requireXcframework(packageDir, explicitFrameworkName);
   }
 
-  const reservedFrameworkNames = new Set([
-    'hermes',
-    'hermesvm',
-    'ReactBrownfield',
-    'Brownie',
-    'BrownfieldNavigation',
-    'React',
-    'ReactNativeDependencies',
-  ]);
-
   const candidates = fs
     .readdirSync(packageDir, { withFileTypes: true })
     .filter(
       (entry) =>
         entry.isDirectory() &&
         entry.name.endsWith('.xcframework') &&
-        !reservedFrameworkNames.has(path.basename(entry.name, '.xcframework'))
+        !RESERVED_FRAMEWORK_NAMES.has(path.basename(entry.name, '.xcframework'))
     )
     .map((entry) => path.basename(entry.name, '.xcframework'))
     .sort();

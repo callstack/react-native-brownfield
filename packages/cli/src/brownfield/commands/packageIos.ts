@@ -57,6 +57,18 @@ export function parseUsePrebuiltRnCoreArgument(
   );
 }
 
+function getPackagedFrameworkResolutionFailureMessage({
+  resolution,
+  candidates,
+}: {
+  resolution: string | null | undefined;
+  candidates?: string[];
+}) {
+  return resolution === 'ambiguous'
+    ? `found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
+    : 'could not resolve the packaged framework output automatically; pass --scheme explicitly';
+}
+
 type PackageIosCliFlags = AppleBuildFlags & {
   /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
   usePrebuiltRnCore?: boolean;
@@ -209,12 +221,21 @@ export const packageIosCommand = curryOptions(
           });
         }
       } else if (configuration.includes('Debug')) {
-        const debugResolutionMessage =
-          resolution === 'ambiguous'
-            ? `Skipping Debug simulator JS bundle copy: found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
-            : 'Skipping Debug simulator JS bundle copy: could not resolve the packaged framework output automatically; pass --scheme explicitly';
+        const debugResolutionFailureMessage =
+          getPackagedFrameworkResolutionFailureMessage({
+            resolution,
+            candidates,
+          });
 
-        logger.warn(debugResolutionMessage);
+        if (options.addSpmPackage) {
+          throw new RockError(
+            `Cannot generate local SPM package: ${debugResolutionFailureMessage}`
+          );
+        }
+
+        logger.warn(
+          `Skipping Debug simulator JS bundle copy: ${debugResolutionFailureMessage}`
+        );
       }
 
       const reactBrownfieldXcframeworkPath = path.join(
