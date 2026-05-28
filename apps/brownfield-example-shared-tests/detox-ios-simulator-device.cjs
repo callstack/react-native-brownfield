@@ -5,21 +5,48 @@ const { execSync } = require('node:child_process');
 /** Used when simctl is unavailable (e.g. CI without Xcode) or lists no iPhones. */
 const FALLBACK_DEVICE_TYPE = 'iPhone 16';
 
-function listSimctlIphoneDeviceTypes() {
+function tryExec(command) {
   try {
-    const out = execSync('xcrun simctl list devicetypes available', {
+    return execSync(command, {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
+  } catch {
+    return '';
+  }
+}
+
+function listSimctlIphoneDeviceTypes() {
+  for (const command of [
+    // Newer Xcode releases may change support for the `available` suffix.
+    'xcrun simctl list devicetypes available',
+    'xcrun simctl list devicetypes',
+  ]) {
+    const out = tryExec(command);
+    if (!out) continue;
+
     const types = [];
     for (const line of out.split('\n')) {
       const m = line.match(/^\s*(iPhone [^(\n]+?)\s*\(/);
       if (m) types.push(m[1].trim());
     }
-    return types;
-  } catch {
-    return [];
+    if (types.length > 0) return types;
   }
+
+  return [];
+}
+
+function listSimctlAvailableIphoneDevices() {
+  const out = tryExec('xcrun simctl list devices available');
+  if (!out) return [];
+
+  const devices = [];
+  for (const line of out.split('\n')) {
+    // Example: "    iPhone 16 Pro (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX) (Shutdown)"
+    const m = line.match(/^\s*(iPhone [^(]+)\s+\([0-9A-F-]+\)\s+\((?:Shutdown|Booted)\)\s*$/i);
+    if (m) devices.push(m[1].trim());
+  }
+  return devices;
 }
 
 function scoreDeviceType(name) {
@@ -47,7 +74,11 @@ function getIosSimulatorDeviceType() {
     process.env.DETOX_IOS_SIMULATOR_DEVICE?.trim();
   if (fromEnv) return fromEnv;
 
-  const types = listSimctlIphoneDeviceTypes();
+  const types = [
+    ...listSimctlIphoneDeviceTypes(),
+    ...listSimctlAvailableIphoneDevices(),
+  ];
+
   let best = null;
   let bestScore = -1;
   for (const t of types) {
