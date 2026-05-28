@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { device, element, by, expect: detoxExpect } = require('detox');
+const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
 
 const ids = {
   sendMessageToNative: 'brownfield-e2e-send-message-native',
@@ -31,6 +31,14 @@ describe('Brownfield postMessage (Expo demo)', () => {
   beforeEach(async () => {
     // Full relaunch is more reliable than reloadReactNative() on newer RN/Xcode.
     await device.launchApp({ newInstance: true });
+    const sendMessageButton = element(by.id(sendMessageToNative));
+    try {
+      await waitFor(sendMessageButton).toBeVisible().withTimeout(45000);
+    } catch {
+      // Some CI runs start with an unmounted RN surface; one reload usually recovers.
+      await device.reloadReactNative();
+      await waitFor(sendMessageButton).toBeVisible().withTimeout(45000);
+    }
   });
 
   it('sends a message to native from the brownfield RN root', async () => {

@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { device, element, by, expect: detoxExpect } = require('detox');
+const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
 
 function detoxAttrsText(attrs) {
   if (!attrs || typeof attrs !== 'object') {
@@ -35,6 +35,14 @@ describe('Brownfield (RNApp)', () => {
   beforeEach(async () => {
     // Full relaunch is more reliable than reloadReactNative() on newer RN/Xcode.
     await device.launchApp({ newInstance: true });
+    const home = element(by.id(ids.rnAppHome));
+    try {
+      await waitFor(home).toBeVisible().withTimeout(45000);
+    } catch {
+      // Some CI runs start with an unmounted RN surface; one reload usually recovers.
+      await device.reloadReactNative();
+      await waitFor(home).toBeVisible().withTimeout(45000);
+    }
   });
 
   it('shows the brownfield home surface', async () => {
