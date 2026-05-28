@@ -28,12 +28,9 @@ async function assertDetoxTextMatches(nativeElement, pattern) {
 const sendMessageToNative = ids.sendMessageToNative;
 
 describe('Brownfield postMessage (Expo demo)', () => {
-  beforeAll(async () => {
-    await device.launchApp({ newInstance: true });
-  });
-
   beforeEach(async () => {
-    await device.reloadReactNative();
+    // Full relaunch is more reliable than reloadReactNative() on newer RN/Xcode.
+    await device.launchApp({ newInstance: true });
   });
 
   it('sends a message to native from the brownfield RN root', async () => {

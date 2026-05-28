@@ -32,12 +32,9 @@ const ids = {
 };
 
 describe('Brownfield (RNApp)', () => {
-  beforeAll(async () => {
-    await device.launchApp({ newInstance: true });
-  });
-
   beforeEach(async () => {
-    await device.reloadReactNative();
+    // Full relaunch is more reliable than reloadReactNative() on newer RN/Xcode.
+    await device.launchApp({ newInstance: true });
   });
 
   it('shows the brownfield home surface', async () => {
