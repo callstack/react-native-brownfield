@@ -18,7 +18,10 @@ const FMT_FIX_RUBY = `\
     end`;
 
 export function injectFmtFixIntoPodfile(podfile: string): string {
-  if (podfile.includes(FMT_FIX_MARKER)) {
+  if (
+    podfile.includes(FMT_FIX_MARKER) ||
+    podfile.includes('react_native_brownfield_patch_fmt_consteval')
+  ) {
     return podfile;
   }
 

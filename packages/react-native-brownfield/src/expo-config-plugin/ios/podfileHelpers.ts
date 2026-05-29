@@ -124,60 +124,68 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
  * @param expoMajor The major version of the Expo SDK
  * @returns The modified Podfile content
  */
-export function modifyPodfile(
+export function applyBrownfieldPodfileHooks(
   podfile: string,
-  frameworkName: string,
   expoMajor: number
 ): string {
-  // check if the framework target is already included
-  if (podfile.includes(`target '${frameworkName}'`)) {
-    Logger.logDebug(
-      `Framework target "${frameworkName}" already in Podfile, skipping modification`
-    );
-    return podfile;
-  }
-
-  Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
-
-  // insert the framework target after the main target's "do"
-  const frameworkTargetBlock = renderTemplate('ios', 'PodfileTargetBlock.rb', {
-    '{{FRAMEWORK_NAME}}': frameworkName,
-  });
-
-  // find insertion point after the first target's content begins, before the end of the target block
-  const mainTargetMatch = podfile.match(
-    /(target\s+['"][^'"]+['"]\s+do\s*\n)([\s\S]*?)(^end\s*$)/m
-  );
-
-  if (!mainTargetMatch) {
-    throw new SourceModificationError(
-      'Could not find main target in Podfile. Please manually add the framework target.'
-    );
-  }
-
-  const [, targetStart, targetContent] = mainTargetMatch;
-  const insertIndex =
-    podfile.indexOf(mainTargetMatch[0]) +
-    targetStart.length +
-    targetContent.length;
-
-  let modifiedPodfile =
-    podfile.slice(0, insertIndex) +
-    frameworkTargetBlock +
-    podfile.slice(insertIndex);
-
-  Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
-
-  modifiedPodfile = ensureBrownfieldPostIntegrateRequire(modifiedPodfile);
+  let modifiedPodfile = ensureBrownfieldPostIntegrateRequire(podfile);
   modifiedPodfile =
     ensureXcodePackagingWorkaroundsInPostInstall(modifiedPodfile);
 
   if (expoMajor < 55) {
     modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
   } else {
-    // Expo SDK >= 55
     modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
   }
 
   return modifiedPodfile;
+}
+
+export function modifyPodfile(
+  podfile: string,
+  frameworkName: string,
+  expoMajor: number
+): string {
+  let modifiedPodfile = podfile;
+
+  if (podfile.includes(`target '${frameworkName}'`)) {
+    Logger.logDebug(
+      `Framework target "${frameworkName}" already in Podfile, syncing hooks`
+    );
+  } else {
+    Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
+
+    const frameworkTargetBlock = renderTemplate(
+      'ios',
+      'PodfileTargetBlock.rb',
+      {
+        '{{FRAMEWORK_NAME}}': frameworkName,
+      }
+    );
+
+    const mainTargetMatch = podfile.match(
+      /(target\s+['"][^'"]+['"]\s+do\s*\n)([\s\S]*?)(^end\s*$)/m
+    );
+
+    if (!mainTargetMatch) {
+      throw new SourceModificationError(
+        'Could not find main target in Podfile. Please manually add the framework target.'
+      );
+    }
+
+    const [, targetStart, targetContent] = mainTargetMatch;
+    const insertIndex =
+      podfile.indexOf(mainTargetMatch[0]) +
+      targetStart.length +
+      targetContent.length;
+
+    modifiedPodfile =
+      podfile.slice(0, insertIndex) +
+      frameworkTargetBlock +
+      podfile.slice(insertIndex);
+
+    Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
+  }
+
+  return applyBrownfieldPodfileHooks(modifiedPodfile, expoMajor);
 }
