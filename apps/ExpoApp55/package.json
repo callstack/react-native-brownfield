@@ -62,12 +62,12 @@
     "typescript": "~5.9.2"
   },
   "private": true,
-  "brownie": {
-    "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/",
-    "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp55"
-  },
   "react-native-brownfield": {
     "$schema": "../../packages/cli/schema.json",
+    "brownie": {
+      "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/",
+      "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp55"
+    },
     "moduleName": "brownfieldlib",
     "scheme": "BrownfieldLib",
     "verbose": true
