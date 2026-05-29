@@ -62,6 +62,9 @@ runs:
           ${{ runner.os }}-e2e-ios-pods-${{ inputs.app-path }}-
 
     - name: Install CocoaPods
+      env:
+        # RNApp + RNScreens: prebuilt React-Core can fail Debug simulator linking.
+        RCT_USE_PREBUILT_RNCORE: ${{ inputs.app-path == 'apps/RNApp' && '0' || '' }}
       run: pod install
       working-directory: ${{ inputs.app-path }}/ios
       shell: bash

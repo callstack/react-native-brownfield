@@ -150,6 +150,33 @@ export function HomeScreen({
 
       <Counter colors={colors} />
 
+      <View style={styles.nativeNavButtons}>
+        <Button
+          testID={brownfieldE2eTestIds.openNativeSettings}
+          onPress={() =>
+            BrownfieldNavigation.navigateToSettings({
+              id: '123',
+              name: 'John Doe',
+              email: 'john.doe@example.com',
+              flags: ['admin', 'user'],
+              ids: ['123', '456'],
+              avatar: {
+                url: 'https://example.com/avatar.png',
+              },
+            })
+          }
+          color={colors.secondary}
+          title="Open native settings"
+        />
+
+        <Button
+          testID={brownfieldE2eTestIds.openNativeReferrals}
+          onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
+          color={colors.secondary}
+          title="Open native referrals"
+        />
+      </View>
+
       <View style={styles.messageSection}>
         <TouchableOpacity
           testID={brownfieldE2eTestIds.sendMessageToNative}
@@ -198,31 +225,6 @@ export function HomeScreen({
           title="Go back"
         />
       </View>
-
-      <Button
-        testID={brownfieldE2eTestIds.openNativeSettings}
-        onPress={() =>
-          BrownfieldNavigation.navigateToSettings({
-            id: '123',
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            flags: ['admin', 'user'],
-            ids: ['123', '456'],
-            avatar: {
-              url: 'https://example.com/avatar.png',
-            },
-          })
-        }
-        color={colors.secondary}
-        title="Open native settings"
-      />
-
-      <Button
-        testID={brownfieldE2eTestIds.openNativeReferrals}
-        onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
-        color={colors.secondary}
-        title="Open native referrals"
-      />
     </View>
   );
 }
@@ -247,6 +249,7 @@ const styles = StyleSheet.create({
   },
   messageSection: {
     flex: 1,
+    minHeight: 0,
     width: '100%',
     marginTop: 12,
   },
@@ -263,6 +266,7 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flex: 1,
+    minHeight: 0,
   },
   messageListContent: {
     paddingBottom: 8,
@@ -292,6 +296,12 @@ const styles = StyleSheet.create({
   bubbleText: {
     fontSize: 14,
     color: '#fff',
+  },
+  nativeNavButtons: {
+    width: '100%',
+    gap: 8,
+    marginTop: 8,
+    marginBottom: 4,
   },
   navButtons: {
     flexDirection: 'row',

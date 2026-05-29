@@ -6,6 +6,11 @@ require Pod::Executable.execute_command('node', ['-p',
   )', __dir__]).strip
 require File.join(File.dirname(`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"`), "scripts/react_native_brownfield_post_integrate")
 
+# RNApp uses react-native-screens (Fabric). Prebuilt React-Core can fail to link Debug
+# simulator builds (undefined facebook::react::* from libRNScreens). Build RN from source
+# unless RCT_USE_PREBUILT_RNCORE=1 is set explicitly before pod install.
+ENV['RCT_USE_PREBUILT_RNCORE'] = '0' unless ENV['RCT_USE_PREBUILT_RNCORE'] == '1'
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 

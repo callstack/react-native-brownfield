@@ -49,9 +49,15 @@ class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
 
   override func bundleURL() -> URL? {
 #if DEBUG
-    RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+    // Detox passes -BrownfieldPreferEmbeddedBundleInDebug; E2E builds embed main.jsbundle
+    // via FORCE_BUNDLING=1 (see apps/RNApp/.detoxrc.cjs). Local `yarn ios` keeps using Metro.
+    if ProcessInfo.processInfo.arguments.contains("-BrownfieldPreferEmbeddedBundleInDebug"),
+       let embedded = Bundle.main.url(forResource: "main", withExtension: "jsbundle") {
+      return embedded
+    }
+    return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
 #else
-    Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+    return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
   }
 }

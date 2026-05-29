@@ -2,6 +2,11 @@ const {
   getIosSimulatorDeviceType,
 } = require('../brownfield-example-shared-tests/detox-ios-simulator-device.cjs');
 
+// Debug simulator builds normally skip JS bundling and load from Metro. E2E runs without
+// a packager, so embed main.jsbundle (tests pass -BrownfieldPreferEmbeddedBundleInDebug).
+const detoxIosDebugBuild =
+  'FORCE_BUNDLING=1 xcodebuild -workspace ios/RNApp.xcworkspace -scheme RNApp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES';
+
 /** @type {Detox.DetoxConfig} */
 module.exports = {
   testRunner: {
@@ -18,8 +23,7 @@ module.exports = {
     'ios.debug': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/RNApp.app',
-      build:
-        'xcodebuild -workspace ios/RNApp.xcworkspace -scheme RNApp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build',
+      build: detoxIosDebugBuild,
     },
   },
   devices: {

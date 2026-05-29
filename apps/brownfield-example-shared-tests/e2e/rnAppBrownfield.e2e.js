@@ -34,7 +34,10 @@ const ids = {
 describe('Brownfield (RNApp)', () => {
   beforeEach(async () => {
     // Full relaunch is more reliable than reloadReactNative() on newer RN/Xcode.
-    await device.launchApp({ newInstance: true });
+    await device.launchApp({
+      newInstance: true,
+      launchArgs: { BrownfieldPreferEmbeddedBundleInDebug: 'YES' },
+    });
     const home = element(by.id(ids.rnAppHome));
     try {
       await waitFor(home).toBeVisible().withTimeout(45000);
