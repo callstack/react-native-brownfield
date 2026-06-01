@@ -45,7 +45,7 @@ You can also distribute the XCFrameworks via a local Swift Package Manager packa
 npx brownfield package:ios --scheme BrownfieldLib --configuration Release --add-spm-package
 ```
 
-This writes `Package.swift` into `ios/.brownfield/package/build/`. In Xcode, choose **File > Add Package Dependencies...**, click **Add Local...**, and select that folder.
+This writes `Package.swift` into `ios/.brownfield/package/build/`. In Xcode, open your project, go to **Package Dependencies**, click **+**, choose **Add Local...**, and select that `.brownfield/package/build` folder.
 
 ### Host App Integration
 
