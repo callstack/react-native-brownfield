@@ -35,27 +35,86 @@ export const PLUGIN_RELEVANT_PATHS = [
 ];
 
 const PLUGIN_TAG_PATTERNS = [
-  /^brownfield-gradle-plugin\/v(?<version>\d+\.\d+\.\d+)$/,
-  /^@callstack\/brownfield-gradle-plugin@v?(?<version>\d+\.\d+\.\d+)$/,
-  /^@callsack\/brownfield-gradle-plugin@v?(?<version>\d+\.\d+\.\d+)$/,
+  /^brownfield-gradle-plugin\/v(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)$/,
+  /^@callstack\/brownfield-gradle-plugin@v?(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)$/,
+  /^@callsack\/brownfield-gradle-plugin@v?(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)$/,
 ];
 
-function parseVersion(version: string): [number, number, number] {
-  const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
+interface ParsedSemVer {
+  major: number;
+  minor: number;
+  patch: number;
+  prerelease: string[];
+}
+
+function parseVersion(version: string): ParsedSemVer {
+  const match = version.match(
+    /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/
+  );
   if (!match) {
     throw new Error(`Unsupported semantic version: ${version}`);
   }
 
-  return [Number(match[1]), Number(match[2]), Number(match[3])];
+  return {
+    major: Number(match[1]),
+    minor: Number(match[2]),
+    patch: Number(match[3]),
+    prerelease: match[4] ? match[4].split('.') : [],
+  };
+}
+
+function comparePrereleaseIdentifiers(left: string, right: string): number {
+  const leftNumeric = /^\d+$/.test(left);
+  const rightNumeric = /^\d+$/.test(right);
+
+  if (leftNumeric && rightNumeric) {
+    return Number(left) - Number(right);
+  }
+
+  if (leftNumeric) return -1;
+  if (rightNumeric) return 1;
+
+  return left.localeCompare(right);
 }
 
 function compareVersions(left: string, right: string): number {
-  const [leftMajor, leftMinor, leftPatch] = parseVersion(left);
-  const [rightMajor, rightMinor, rightPatch] = parseVersion(right);
+  const leftVersion = parseVersion(left);
+  const rightVersion = parseVersion(right);
 
-  if (leftMajor !== rightMajor) return leftMajor - rightMajor;
-  if (leftMinor !== rightMinor) return leftMinor - rightMinor;
-  return leftPatch - rightPatch;
+  if (leftVersion.major !== rightVersion.major) {
+    return leftVersion.major - rightVersion.major;
+  }
+  if (leftVersion.minor !== rightVersion.minor) {
+    return leftVersion.minor - rightVersion.minor;
+  }
+  if (leftVersion.patch !== rightVersion.patch) {
+    return leftVersion.patch - rightVersion.patch;
+  }
+
+  const leftHasPrerelease = leftVersion.prerelease.length > 0;
+  const rightHasPrerelease = rightVersion.prerelease.length > 0;
+
+  if (!leftHasPrerelease && !rightHasPrerelease) return 0;
+  if (!leftHasPrerelease) return 1;
+  if (!rightHasPrerelease) return -1;
+
+  const maxLength = Math.max(
+    leftVersion.prerelease.length,
+    rightVersion.prerelease.length
+  );
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const leftIdentifier = leftVersion.prerelease[index];
+    const rightIdentifier = rightVersion.prerelease[index];
+
+    if (leftIdentifier === undefined) return -1;
+    if (rightIdentifier === undefined) return 1;
+
+    const result = comparePrereleaseIdentifiers(leftIdentifier, rightIdentifier);
+    if (result !== 0) return result;
+  }
+
+  return 0;
 }
 
 function extractPluginTagVersion(tag: string): string | null {

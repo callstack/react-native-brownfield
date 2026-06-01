@@ -21,6 +21,34 @@ test('finds the latest plugin tag older than the target version across legacy ta
   assert.equal(previousTag, '@callstack/brownfield-gradle-plugin@v1.0.0');
 });
 
+test('supports prerelease versions when finding the previous plugin tag', () => {
+  const previousTag = findPreviousPluginTag(
+    [
+      'brownfield-gradle-plugin/v2.0.0-alpha01',
+      'brownfield-gradle-plugin/v2.0.0-alpha02',
+      'brownfield-gradle-plugin/v2.0.0-beta01',
+      'brownfield-gradle-plugin/v2.0.0',
+    ],
+    '2.0.0-beta01'
+  );
+
+  assert.equal(previousTag, 'brownfield-gradle-plugin/v2.0.0-alpha02');
+});
+
+test('treats a stable release as newer than its prereleases', () => {
+  const previousTag = findPreviousPluginTag(
+    [
+      'brownfield-gradle-plugin/v1.9.9',
+      'brownfield-gradle-plugin/v2.0.0-alpha01',
+      'brownfield-gradle-plugin/v2.0.0-rc01',
+      'brownfield-gradle-plugin/v2.0.0',
+    ],
+    '2.0.0'
+  );
+
+  assert.equal(previousTag, 'brownfield-gradle-plugin/v2.0.0-rc01');
+});
+
 test('renders scoped release notes grouped by commit category', () => {
   const commits: PluginCommit[] = [
     {
