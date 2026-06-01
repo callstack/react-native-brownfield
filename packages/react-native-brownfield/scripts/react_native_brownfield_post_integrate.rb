@@ -22,6 +22,20 @@ def react_native_brownfield_patch_fmt_consteval(installer)
   end
 end
 
+def react_native_brownfield_mitigate_expo_modules_core_xcode26_swift_compiler_crash(installer)
+  # Xcode 26.x can crash in the SendNonSendable SIL pass when compiling ExpoModulesCore.
+  # https://github.com/expo/expo/issues/43199
+  installer.pods_project.targets.each do |target|
+    next unless target.name == 'ExpoModulesCore'
+
+    target.build_configurations.each do |config|
+      config.build_settings['SWIFT_VERSION'] = '5.10'
+      config.build_settings['SWIFT_STRICT_CONCURRENCY'] = 'minimal'
+      config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
+    end
+  end
+end
+
 def react_native_brownfield_skip_swift_module_interface_verification(installer)
   # BrownfieldLib inherits BUILD_LIBRARY_FOR_DISTRIBUTION via CocoaPods xcconfigs;
   # those values are not visible on target.build_settings during post_install.
@@ -42,6 +56,7 @@ end
 
 def react_native_brownfield_post_integrate(installer)
   react_native_brownfield_patch_fmt_consteval(installer)
+  react_native_brownfield_mitigate_expo_modules_core_xcode26_swift_compiler_crash(installer)
   react_native_brownfield_skip_swift_module_interface_verification(installer)
 
   projects = installer.aggregate_targets.map(&:user_project).compact.uniq

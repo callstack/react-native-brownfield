@@ -65,6 +65,7 @@ function ensureXcodePackagingWorkaroundsInPostInstall(podfile: string): string {
   const hook = `
     ${BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_START}
     react_native_brownfield_patch_fmt_consteval(installer)
+    react_native_brownfield_mitigate_expo_modules_core_xcode26_swift_compiler_crash(installer)
     react_native_brownfield_skip_swift_module_interface_verification(installer)
     ${BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_END}
 `;
