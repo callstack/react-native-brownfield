@@ -16,6 +16,7 @@ gson = "2.13.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+brownfieldlib-expo56 = { module = "com.callstack.rnbrownfield.demo.expoapp56:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expo55 = { module = "com.callstack.rnbrownfield.demo.expoapp55:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expo54 = { module = "com.callstack.rnbrownfield.demo.expoapp54:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-vanilla = { module = "com.rnapp:brownfieldlib", version.ref = "brownfieldlib" }
@@ -40,4 +41,3 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-

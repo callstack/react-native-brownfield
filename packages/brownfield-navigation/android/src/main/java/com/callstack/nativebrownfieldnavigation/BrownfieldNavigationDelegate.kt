@@ -1,3 +1,6 @@
 package com.callstack.nativebrownfieldnavigation
 
-interface BrownfieldNavigationDelegate
+interface BrownfieldNavigationDelegate {
+  fun navigateToSettings(user: UserType)
+  fun navigateToReferrals(userId: String)
+}

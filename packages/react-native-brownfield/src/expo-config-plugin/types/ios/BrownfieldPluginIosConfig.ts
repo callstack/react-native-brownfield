@@ -22,7 +22,7 @@ export interface BrownfieldPluginIosConfig {
 
   /**
    * Minimum iOS deployment target
-   * @default "15.0"
+   * @default "15.0" for Expo SDK <= 55, "16.4" for Expo SDK >= 56
    */
   deploymentTarget?: string;
 

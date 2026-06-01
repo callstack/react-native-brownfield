@@ -32,14 +32,14 @@
   "dependencies": {
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.30.0",
-    "@expo/config-plugins": "^54.0.4"
+    "@expo/config-plugins": "^56.0.8"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.4",
     "@commitlint/config-conventional": "^20.4.4",
     "@eslint/compat": "^2.0.1",
     "@eslint/eslintrc": "^3.3.3",
-    "@expo/config-types": "^54.0.10",
+    "@expo/config-types": "^56.0.5",
     "@react-native/eslint-config": "0.82.1",
     "babel-plugin-module-resolver": "5.0.2",
     "eslint": "^9.39.3",

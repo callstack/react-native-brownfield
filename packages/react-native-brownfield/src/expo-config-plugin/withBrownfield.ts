@@ -8,6 +8,7 @@ import type { ExpoConfig } from '@expo/config-types';
 
 import { withBrownfieldIos } from './ios/withBrownfieldIos';
 import { withBrownfieldAndroid } from './android/withBrownfieldAndroid';
+import { getExpoInfo } from './expoUtils';
 import type {
   BrownfieldPluginConfig,
   ResolvedBrownfieldPluginConfig,
@@ -21,14 +22,18 @@ import { Logger } from './logging';
  * @param expoConfig The Expo configuration object.
  * @returns The resolved Brownfield configuration.
  */
-function resolveConfig(
+export function resolveConfig(
   config: BrownfieldPluginConfig = {},
   expoConfig: ExpoConfig
 ): ResolvedBrownfieldPluginConfig {
   Logger.setIsDebug(config.debug ?? false);
 
+  const { expoMajor } = getExpoInfo(expoConfig);
   const androidPackage = expoConfig.android?.package;
   const androidModuleName = config.android?.moduleName ?? 'brownfieldlib';
+  const defaultIosDeploymentTarget = expoMajor >= 56 ? '16.4' : '15.0';
+  const defaultAndroidTargetSdkVersion = expoMajor >= 56 ? 36 : 35;
+  const defaultAndroidCompileSdkVersion = expoMajor >= 56 ? 36 : 35;
 
   return {
     ios: expoConfig.ios
@@ -38,7 +43,8 @@ function resolveConfig(
             config.ios?.bundleIdentifier ??
             `${expoConfig.ios.bundleIdentifier}.brownfield`,
           buildSettings: config.ios?.buildSettings ?? {},
-          deploymentTarget: config.ios?.deploymentTarget ?? '15.0',
+          deploymentTarget:
+            config.ios?.deploymentTarget ?? defaultIosDeploymentTarget,
           frameworkVersion: config.ios?.frameworkVersion ?? '1',
         }
       : null,
@@ -47,8 +53,11 @@ function resolveConfig(
           moduleName: androidModuleName,
           packageName: config.android?.packageName ?? androidPackage,
           minSdkVersion: config.android?.minSdkVersion ?? 24,
-          targetSdkVersion: config.android?.targetSdkVersion ?? 35,
-          compileSdkVersion: config.android?.compileSdkVersion ?? 35,
+          targetSdkVersion:
+            config.android?.targetSdkVersion ?? defaultAndroidTargetSdkVersion,
+          compileSdkVersion:
+            config.android?.compileSdkVersion ??
+            defaultAndroidCompileSdkVersion,
           groupId: config.android?.groupId ?? androidPackage,
           artifactId: config.android?.artifactId ?? androidModuleName,
           version: config.android?.version ?? '0.0.1-SNAPSHOT',

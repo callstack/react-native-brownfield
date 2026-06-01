@@ -22,13 +22,13 @@ export interface BrownfieldPluginAndroidConfig {
 
   /**
    * Target SDK version for the Android library
-   * @default 35
+   * @default 35 for Expo SDK <= 55, 36 for Expo SDK >= 56
    */
   targetSdkVersion?: number;
 
   /**
    * Compile SDK version for the Android library
-   * @default 35
+   * @default 35 for Expo SDK <= 55, 36 for Expo SDK >= 56
    */
   compileSdkVersion?: number;
 
