@@ -447,6 +447,43 @@ export function getFrameworkBuildSettings(
   };
 }
 
+const DETOX_EMBEDDED_BUNDLE_MARKER =
+  '# @callstack/react-native-brownfield: Detox E2E embeds JS when FORCE_BUNDLING=1';
+
+/**
+ * Patches the Expo app target bundle script so Detox/CI builds with FORCE_BUNDLING=1
+ * embed main.jsbundle instead of skipping bundling in Debug.
+ */
+export function rewriteBundleReactNativePhaseScriptForDetoxEmbeddedBundle(
+  shellScript: string
+): string {
+  if (
+    shellScript.includes(DETOX_EMBEDDED_BUNDLE_MARKER) ||
+    shellScript.includes(
+      'Brownfield framework packaging must embed JS in Debug builds'
+    )
+  ) {
+    return shellScript;
+  }
+
+  const detoxOverride = `${DETOX_EMBEDDED_BUNDLE_MARKER}
+if [[ -n "$FORCE_BUNDLING" ]]; then
+  unset SKIP_BUNDLING
+fi
+`;
+  const debugSkipBundlingBlock =
+    /if \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\s+export SKIP_BUNDLING=1\s+fi\s*/m;
+
+  if (debugSkipBundlingBlock.test(shellScript)) {
+    return shellScript.replace(
+      debugSkipBundlingBlock,
+      `$&\n${detoxOverride}\n`
+    );
+  }
+
+  return `${detoxOverride}\n${shellScript}`;
+}
+
 export function rewriteBundleReactNativePhaseScriptForFrameworkTarget(
   shellScript: string
 ): string {
@@ -540,6 +577,16 @@ export function copyBundleReactNativePhase(
   if (!existingPhaseUuid || !existingPhase) {
     throw new SourceModificationError(
       `Could not find "${buildPhaseName}" build phase, skipping`
+    );
+  }
+
+  const appShellScript = decodePbxString(existingPhase.shellScript);
+  const patchedAppShellScript =
+    rewriteBundleReactNativePhaseScriptForDetoxEmbeddedBundle(appShellScript);
+  if (patchedAppShellScript !== appShellScript) {
+    existingPhase.shellScript = encodePbxString(patchedAppShellScript);
+    Logger.logDebug(
+      `Patched app target "${buildPhaseName}" for Detox FORCE_BUNDLING / embedded bundle`
     );
   }
 

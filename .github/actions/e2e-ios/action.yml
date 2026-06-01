@@ -73,7 +73,7 @@ runs:
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: ${{ inputs.app-path }}/ios/build
-        key: ${{ runner.os }}-e2e-ios-build-${{ inputs.app-path }}-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.app-path), format('{0}/ios/*.xcodeproj/project.pbxproj', inputs.app-path)) }}
+        key: ${{ runner.os }}-e2e-ios-build-${{ inputs.app-path }}-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.app-path), format('{0}/ios/*.xcodeproj/project.pbxproj', inputs.app-path), 'packages/react-native-brownfield/src/expo-config-plugin/ios/xcodeHelpers.ts') }}
         restore-keys: |
           ${{ runner.os }}-e2e-ios-build-${{ inputs.app-path }}-
 
@@ -85,6 +85,24 @@ runs:
     - name: Detox build (iOS Simulator)
       run: yarn e2e:build:ios
       working-directory: ${{ inputs.app-path }}
+      shell: bash
+
+    - name: Verify embedded JS bundle for E2E
+      run: |
+        set -euo pipefail
+        PRODUCTS_DIR="${{ inputs.app-path }}/ios/build/Build/Products/Debug-iphonesimulator"
+        APP_PATH="$(find "$PRODUCTS_DIR" -maxdepth 1 -name '*.app' -print -quit)"
+        if [[ -z "$APP_PATH" ]]; then
+          echo "error: no .app under $PRODUCTS_DIR" >&2
+          exit 1
+        fi
+        if [[ ! -f "$APP_PATH/main.jsbundle" ]]; then
+          echo "error: $APP_PATH/main.jsbundle missing after Detox build." >&2
+          echo "Debug builds skip bundling unless FORCE_BUNDLING=1 wins over SKIP_BUNDLING." >&2
+          echo "Re-run expo prebuild so the app bundle script is patched, then rebuild." >&2
+          exit 1
+        fi
+        echo "Embedded bundle OK: $APP_PATH/main.jsbundle ($(wc -c < "$APP_PATH/main.jsbundle") bytes)"
       shell: bash
 
     - name: Detox test (iOS Simulator)
