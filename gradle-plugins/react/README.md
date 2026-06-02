@@ -84,7 +84,7 @@ react {
 ### From `node_modules` Source
 
 The Maven dependency is the recommended default because it uses the prebuilt plugin and is faster.
-Use this source-based setup only when you need to patch the Brownfield Gradle Plugin locally.
+Use this source-based setup only when you need to patch the Brownfield Gradle Plugin locally. See the [Android integration docs](../../docs/docs/docs/getting-started/android.mdx#advanced-load-the-plugin-from-node-modules) for details.
 
 Add this to the top of `android/settings.gradle.kts`:
 
