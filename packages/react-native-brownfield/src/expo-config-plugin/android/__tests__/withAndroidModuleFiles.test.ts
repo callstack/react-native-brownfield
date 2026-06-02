@@ -5,6 +5,7 @@ import * as path from 'node:path';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../../types';
 import {
   createAndroidModule,
+  resolveCompileSdkVersionExpression,
   syncAndroidModuleExpoUpdatesFromAppFiles,
 } from '../withAndroidModuleFiles';
 
@@ -158,6 +159,35 @@ describe('createAndroidModule', () => {
     );
   });
 
+  it('inherits compileSdk from the Expo app project when the user did not override it', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          compileSdkVersion: undefined,
+        },
+      }),
+      rnVersion: '0.85.3',
+      isExpoPre55: false,
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'compileSdk = rootProject.ext.compileSdkVersion'
+    );
+  });
+
+  it('keeps an explicit compileSdk override when one is provided', () => {
+    const config = createConfig({
+      android: {
+        compileSdkVersion: 38,
+      },
+    });
+
+    expect(resolveCompileSdkVersionExpression(config)).toBe('38');
+  });
+
   function createAndroidDir(): string {
     const tempDirectory = fs.mkdtempSync(
       path.join(os.tmpdir(), 'react-native-brownfield-android-module-')
@@ -170,10 +200,16 @@ describe('createAndroidModule', () => {
     return androidDir;
   }
 
-  function createConfig(): ResolvedBrownfieldPluginConfigWithAndroid {
+  function createConfig(
+    overrides: {
+      debug?: ResolvedBrownfieldPluginConfigWithAndroid['debug'];
+      ios?: ResolvedBrownfieldPluginConfigWithAndroid['ios'];
+      android?: Partial<ResolvedBrownfieldPluginConfigWithAndroid['android']>;
+    } = {}
+  ): ResolvedBrownfieldPluginConfigWithAndroid {
     return {
-      debug: false,
-      ios: null,
+      debug: overrides.debug ?? false,
+      ios: overrides.ios ?? null,
       android: {
         moduleName: 'brownfieldlib',
         packageName: 'com.example.brownfield',
@@ -183,6 +219,7 @@ describe('createAndroidModule', () => {
         groupId: 'com.example',
         artifactId: 'brownfieldlib',
         version: '1.0.0',
+        ...(overrides.android ?? {}),
       },
     };
   }
@@ -240,6 +277,13 @@ describe('createAndroidModule', () => {
         'values',
         'strings.xml'
       ),
+      'utf8'
+    );
+  }
+
+  function readLibraryBuildGradle(androidDir: string): string {
+    return fs.readFileSync(
+      path.join(androidDir, 'brownfieldlib', 'build.gradle.kts'),
       'utf8'
     );
   }

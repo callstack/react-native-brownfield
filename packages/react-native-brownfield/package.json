@@ -84,7 +84,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@expo/config-plugins": "^54.0.4 || ^55.0.0 || ^56.0.0"
+    "@expo/config-plugins": ">=54 <100"
   },
   "dependencies": {
     "@callstack/brownfield-cli": "workspace:^"

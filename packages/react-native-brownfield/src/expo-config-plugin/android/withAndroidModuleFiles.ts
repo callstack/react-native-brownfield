@@ -22,6 +22,16 @@ import {
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
 
+export function resolveCompileSdkVersionExpression(
+  config: ResolvedBrownfieldPluginConfigWithAndroid
+): string {
+  if (config.android.compileSdkVersion != null) {
+    return config.android.compileSdkVersion.toString();
+  }
+
+  return 'rootProject.ext.compileSdkVersion';
+}
+
 /**
  * Creates the Android library module directory structure and files
  */
@@ -64,6 +74,8 @@ export function createAndroidModule({
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
   const hermesArtifact = getHermesArtifact(rnVersion);
+  const compileSdkVersionExpression =
+    resolveCompileSdkVersionExpression(config);
   Logger.logDebug(
     `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
   );
@@ -75,7 +87,7 @@ export function createAndroidModule({
       content: renderTemplate('android', 'build.gradle.kts', {
         '{{PACKAGE_NAME}}': android.packageName,
         '{{MIN_SDK_VERSION}}': android.minSdkVersion.toString(),
-        '{{COMPILE_SDK_VERSION}}': android.compileSdkVersion.toString(),
+        '{{COMPILE_SDK_VERSION}}': compileSdkVersionExpression,
         '{{GROUP_ID}}': android.groupId,
         '{{ARTIFACT_ID}}': android.artifactId,
         '{{ARTIFACT_VERSION}}': android.version,

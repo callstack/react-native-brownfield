@@ -3,50 +3,63 @@ import type { ExpoConfig } from '@expo/config-types';
 import { resolveConfig } from '../withBrownfield';
 
 describe('resolveConfig', () => {
-  it('uses Expo 56 native defaults when sdkVersion is 56 and no overrides are provided', () => {
-    const config = createExpoConfig('56.0.0');
+  it('uses stable fallback floors and defers SDK-specific inheritance to platform mods', () => {
+    const config = createExpoConfig('57.0.0');
 
     expect(resolveConfig({}, config)).toEqual({
       debug: false,
       ios: {
         frameworkName: 'BrownfieldLib',
-        bundleIdentifier: 'com.example.expo56.brownfield',
+        bundleIdentifier: 'com.example.expo57.brownfield',
         buildSettings: {},
-        deploymentTarget: '16.4',
+        deploymentTarget: undefined,
         frameworkVersion: '1',
       },
       android: {
         moduleName: 'brownfieldlib',
-        packageName: 'com.example.expo56',
+        packageName: 'com.example.expo57',
         minSdkVersion: 24,
-        targetSdkVersion: 36,
-        compileSdkVersion: 36,
-        groupId: 'com.example.expo56',
+        targetSdkVersion: 35,
+        compileSdkVersion: undefined,
+        groupId: 'com.example.expo57',
         artifactId: 'brownfieldlib',
         version: '0.0.1-SNAPSHOT',
       },
     });
   });
 
-  it('keeps the Expo 55 defaults unchanged', () => {
-    const config = createExpoConfig('55.0.0');
+  it('preserves explicit native floor overrides', () => {
+    const config = createExpoConfig('57.0.0');
 
-    expect(resolveConfig({}, config)).toEqual({
+    expect(
+      resolveConfig(
+        {
+          ios: {
+            deploymentTarget: '17.0',
+          },
+          android: {
+            targetSdkVersion: 38,
+            compileSdkVersion: 38,
+          },
+        },
+        config
+      )
+    ).toEqual({
       debug: false,
       ios: {
         frameworkName: 'BrownfieldLib',
-        bundleIdentifier: 'com.example.expo55.brownfield',
+        bundleIdentifier: 'com.example.expo57.brownfield',
         buildSettings: {},
-        deploymentTarget: '15.0',
+        deploymentTarget: '17.0',
         frameworkVersion: '1',
       },
       android: {
         moduleName: 'brownfieldlib',
-        packageName: 'com.example.expo55',
+        packageName: 'com.example.expo57',
         minSdkVersion: 24,
-        targetSdkVersion: 35,
-        compileSdkVersion: 35,
-        groupId: 'com.example.expo55',
+        targetSdkVersion: 38,
+        compileSdkVersion: 38,
+        groupId: 'com.example.expo57',
         artifactId: 'brownfieldlib',
         version: '0.0.1-SNAPSHOT',
       },

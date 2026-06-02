@@ -428,7 +428,7 @@ export function getFrameworkBuildSettings(
 
     // basic settings
     PRODUCT_BUNDLE_IDENTIFIER: `"${bundleIdentifier}"`,
-    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget,
+    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget ?? '15.0',
 
     // Ensure the BrownfieldLib (or equivalent name) is installed at the correct path
     DYLIB_INSTALL_NAME_BASE: '"@rpath"',
@@ -665,6 +665,65 @@ function resolveAppTargetName(
   );
 
   return null;
+}
+
+function normalizeXcodeBuildSettingValue(
+  value: string | number | boolean | null | undefined
+): string | null {
+  if (value == null) {
+    return null;
+  }
+
+  const normalized = IOSConfig.XcodeUtils.unquote(String(value)).trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+export function getAppTargetDeploymentTarget(
+  project: Pick<XcodeProject, 'getBuildProperty'>,
+  appTargetName: string | null
+): string | null {
+  if (!appTargetName) {
+    return null;
+  }
+
+  return (
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Release',
+        appTargetName
+      )
+    ) ??
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Debug',
+        appTargetName
+      )
+    )
+  );
+}
+
+export function resolveFrameworkDeploymentTarget(
+  project: XcodeProject,
+  modRequest: ModProps<XcodeProject>,
+  {
+    fallbackDeploymentTarget,
+  }: {
+    fallbackDeploymentTarget?: string;
+  }
+): string {
+  if (fallbackDeploymentTarget != null) {
+    return fallbackDeploymentTarget;
+  }
+
+  const appTargetName = resolveAppTargetName(project, modRequest);
+  const appTargetDeploymentTarget = getAppTargetDeploymentTarget(
+    project,
+    appTargetName
+  );
+
+  return appTargetDeploymentTarget ?? '15.0';
 }
 
 /**

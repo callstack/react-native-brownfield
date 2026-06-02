@@ -28,7 +28,7 @@ export interface BrownfieldPluginAndroidConfig {
 
   /**
    * Compile SDK version for the Android library
-   * @default 35 for Expo SDK <= 55, 36 for Expo SDK >= 56
+   * @default inherited from the generated Expo app project when available
    */
   compileSdkVersion?: number;
 
@@ -54,5 +54,7 @@ export interface BrownfieldPluginAndroidConfig {
 /**
  * Android configuration with resolved defaults (all fields required)
  */
-export type ResolvedBrownfieldPluginAndroidConfig =
-  Required<BrownfieldPluginAndroidConfig>;
+export type ResolvedBrownfieldPluginAndroidConfig = Required<
+  Omit<BrownfieldPluginAndroidConfig, 'compileSdkVersion'>
+> &
+  Pick<BrownfieldPluginAndroidConfig, 'compileSdkVersion'>;
