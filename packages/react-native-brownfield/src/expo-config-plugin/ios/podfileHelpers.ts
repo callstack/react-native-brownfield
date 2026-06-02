@@ -10,6 +10,10 @@ const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
   '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>';
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
   '# <<< react-native-brownfield Expo SDK 55+ swift defines <<<';
+const BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START =
+  '# >>> react-native-brownfield Debug swift interface overrides >>>';
+const BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_END =
+  '# <<< react-native-brownfield Debug swift interface overrides <<<';
 const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
 const REACT_NATIVE_PODS_REQUIRE_REGEX =
   /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
@@ -88,6 +92,39 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
   return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
 }
 
+function ensureDebugSwiftInterfaceOverrides(podfile: string): string {
+  if (podfile.includes(BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START)) {
+    return podfile;
+  }
+
+  const hook = `
+    ${BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START}
+    installer.pods_project.targets.each do |target|
+      next unless ['ReactBrownfield', 'Brownie', 'BrownfieldNavigation'].include?(target.name)
+
+      target.build_configurations.each do |config|
+        next unless config.name.start_with?('Debug')
+
+        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+        config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
+      end
+    end
+    ${BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_END}
+`;
+
+  const postInstallMatch = podfile.match(
+    /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
+  );
+
+  if (postInstallMatch) {
+    const [whole, start, content, end] = postInstallMatch;
+    const updated = `${start}${content.trimEnd()}\n${hook}\n${end}`;
+    return podfile.replace(whole, updated);
+  }
+
+  return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
+}
+
 /**
  * Modifies the Podfile to include the Brownfield framework target
  * @param podfile The original Podfile content
@@ -145,6 +182,8 @@ export function modifyPodfile(
     // Expo SDK >= 55
     modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
   }
+
+  modifiedPodfile = ensureDebugSwiftInterfaceOverrides(modifiedPodfile);
 
   return modifiedPodfile;
 }

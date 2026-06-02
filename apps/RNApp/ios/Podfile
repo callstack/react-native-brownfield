@@ -34,5 +34,16 @@ target 'RNApp' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ENV['USE_CCACHE'] == '1'
     )
+
+    installer.pods_project.targets.each do |target|
+      next unless ['ReactBrownfield', 'Brownie', 'BrownfieldNavigation'].include?(target.name)
+
+      target.build_configurations.each do |build_configuration|
+        next unless build_configuration.name.start_with?('Debug')
+
+        build_configuration.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+        build_configuration.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
+      end
+    end
   end
 end

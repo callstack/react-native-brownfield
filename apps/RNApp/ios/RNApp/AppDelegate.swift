@@ -2,6 +2,24 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import Brownie
+import BrownfieldLib
+
+private let initialBrownfieldStore = RnAppBrownfieldStore(
+  counter: 0,
+  user: RnAppUser(name: "Username")
+)
+
+private struct RnAppUser: Codable {
+  let name: String
+}
+
+private struct RnAppBrownfieldStore: BrownieStoreProtocol {
+  static let storeName = "BrownfieldStore"
+
+  let counter: Double
+  let user: RnAppUser
+}
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -28,6 +46,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       in: window,
       launchOptions: launchOptions
     )
+
+    RnAppBrownfieldStore.register(initialBrownfieldStore)
+    // RNApp links Brownie in both the app target and BrownfieldLib, so seed both
+    // registries before JS reads the store.
+    registerInitialBrownfieldStoreInFramework()
 
     return true
   }
