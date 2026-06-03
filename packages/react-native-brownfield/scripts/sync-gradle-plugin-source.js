@@ -37,7 +37,7 @@ fs.cpSync(sourceBrownfieldPath, targetBrownfieldPath, {
     const parts = relativePath.split(path.sep);
 
     return !parts.some((part) =>
-      ['build', '.gradle', 'local.properties'].includes(part)
+      ['build', '.gradle', 'local.properties', '.kotlin', 'bin'].includes(part)
     );
   },
 });
