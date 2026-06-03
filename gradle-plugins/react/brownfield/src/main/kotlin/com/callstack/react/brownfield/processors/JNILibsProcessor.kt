@@ -17,8 +17,11 @@ import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
+import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
@@ -37,15 +40,20 @@ class JNILibsProcessor : BaseProject() {
             throw TaskNotFound("Task $taskName not found")
         }
 
+        val projectExt = project.extensions.getByType(Extension::class.java)
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
-        val copyTask = copySoLibsTask(variant)
+        val copyTask =
+            if (projectExt.useStrippedSoFiles) {
+                copySoLibsTask(variant)
+            } else {
+                null
+            }
 
         mergeJniLibsTask.configure {
             it.dependsOn(explodeTasks)
-            it.dependsOn(copyTask)
+            copyTask?.let { task -> it.dependsOn(task) }
 
             it.doFirst {
-                val projectExt = project.extensions.getByType(Extension::class.java)
                 val existingJNILibs =
                     listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
                         .associateWith { mutableListOf<String>() }
@@ -72,41 +80,85 @@ class JNILibsProcessor : BaseProject() {
         }
     }
 
-    private fun getStrippedLibsPath(variant: LibraryVariant): Pair<File, File> {
+    private fun getAppProject(): Project {
         val projectExt = project.extensions.getByType(Extension::class.java)
-        val appProject = project.rootProject.project(projectExt.appProjectName)
+        return project.rootProject.project(projectExt.appProjectName)
+    }
+
+    private fun appDependsOnLibrary(): Boolean = Utils.appDependsOnLibrary(getAppProject(), project)
+
+    private fun getCxxBuildType(variant: LibraryVariant): String =
+        if (variant.buildType.isDebuggable) {
+            "Debug"
+        } else {
+            "RelWithDebInfo"
+        }
+
+    private fun getStrippedLibsPath(variant: LibraryVariant): Pair<File, File> {
+        val appProject = getAppProject()
         val appBuildDir = appProject.layout.buildDirectory.get()
 
         val variantName = variant.name
         val capitalizedVariant = variantName.capitalized()
 
         val fromDir =
-            appBuildDir
-                .dir("intermediates/stripped_native_libs/$variantName/strip${capitalizedVariant}DebugSymbols/out/lib")
-                .asFile
+            if (appDependsOnLibrary()) {
+                getAppCxxLibsDir(appBuildDir, variant)
+            } else {
+                appBuildDir
+                    .dir(
+                        "intermediates/stripped_native_libs/$variantName/strip${capitalizedVariant}DebugSymbols/out/lib",
+                    ).asFile
+            }
 
         val intoDir = project.rootProject.file("${project.name}/libs$capitalizedVariant")
 
         return Pair(fromDir, intoDir)
     }
 
+    private fun getAppCxxLibsDir(
+        appBuildDir: Directory,
+        variant: LibraryVariant,
+    ): File = appBuildDir.dir("intermediates/cxx/${getCxxBuildType(variant)}").asFile
+
     private fun copySoLibsTask(variant: LibraryVariant): TaskProvider<Copy> {
         val capitalizedVariant = variant.name.capitalized()
         val projectExt = project.extensions.getByType(Extension::class.java)
-        val appProject = project.rootProject.project(projectExt.appProjectName)
+        val appProject = getAppProject()
+        val appDependsOnLibrary = appDependsOnLibrary()
 
-        val stripTask = ":${appProject.name}:strip${capitalizedVariant}DebugSymbols"
         val codegenTask = ":${project.name}:generateCodegenSchemaFromJavaScript"
-
         val (fromDir, intoDir) = getStrippedLibsPath(variant)
 
         return project.tasks.register("copy${capitalizedVariant}LibSources", Copy::class.java) {
-            it.dependsOn(stripTask, codegenTask)
-            it.from(fromDir)
+            if (appDependsOnLibrary) {
+                val cxxBuildType = getCxxBuildType(variant)
+                it.dependsOn(
+                    ":${appProject.name}:buildCMake$cxxBuildType",
+                    ":${appProject.name}:generateCodegenArtifactsFromSchema",
+                    codegenTask,
+                )
+                it.from(fromDir)
+                it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
+                projectExt.dynamicLibs.forEach { lib -> it.include("**/$lib") }
+                it.eachFile { details ->
+                    val pathSegments = details.relativePath.segments
+                    val arch =
+                        pathSegments.firstOrNull { segment ->
+                            segment in SUPPORTED_ABIS
+                        }
+                    if (arch != null) {
+                        details.path = "$arch/${pathSegments.last()}"
+                    }
+                }
+            } else {
+                val stripTask = ":${appProject.name}:strip${capitalizedVariant}DebugSymbols"
+                it.dependsOn(stripTask, codegenTask)
+                it.from(fromDir)
+                it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
+                projectExt.dynamicLibs.forEach { lib -> it.include("**/$lib") }
+            }
             it.into(intoDir)
-
-            it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
-            projectExt.dynamicLibs.forEach { lib -> it.include("**/$lib") }
         }
     }
 
@@ -117,7 +169,37 @@ class JNILibsProcessor : BaseProject() {
         val (fromDir, intoDir) = getStrippedLibsPath(variant)
 
         existingJNILibs.forEach { (arch, libNames) ->
-            copyLibsForArchitecture(fromDir, intoDir, arch, libNames)
+            if (appDependsOnLibrary()) {
+                copyLibsForArchitectureFromCxx(fromDir, intoDir, arch, libNames)
+            } else {
+                copyLibsForArchitecture(fromDir, intoDir, arch, libNames)
+            }
+        }
+    }
+
+    private fun copyLibsForArchitectureFromCxx(
+        cxxRoot: File,
+        intoDir: File,
+        arch: String,
+        libNames: List<String>,
+    ) {
+        if (!cxxRoot.exists()) return
+
+        val destArchDir = File(intoDir, arch).apply { mkdirs() }
+
+        libNames.forEach { libName ->
+            val sourceFile =
+                cxxRoot
+                    .walkTopDown()
+                    .firstOrNull { file ->
+                        file.isFile &&
+                            file.name == libName &&
+                            file.parentFile?.name == arch &&
+                            file.path.contains("${File.separator}obj${File.separator}")
+                    }
+            if (sourceFile != null) {
+                copyLibFile(sourceFile.parentFile!!, destArchDir, libName)
+            }
         }
     }
 
@@ -176,5 +258,9 @@ class JNILibsProcessor : BaseProject() {
         if (!file.delete()) {
             Logging.log("Failed to delete: ${file.name}")
         }
+    }
+
+    companion object {
+        private val SUPPORTED_ABIS = setOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
     }
 }
