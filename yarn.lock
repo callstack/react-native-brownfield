@@ -2300,7 +2300,7 @@ __metadata:
     typescript: "npm:5.9.3"
     vitest: "npm:^4.1.4"
   peerDependencies:
-    "@expo/config-plugins": ^54.0.4 || ^55.0.0 || ^56.0.0
+    "@expo/config-plugins": ">=54 <100"
   bin:
     brownfield: lib/commonjs/scripts/brownfield.js
   languageName: unknown
