@@ -112,7 +112,7 @@ class VariantProcessor(private val variant: LibraryVariant) : BaseProject() {
             it.dependsOn(mergeClassTask)
         }
         extractAnnotationsTask.configure {
-            it.mustRunAfter(mergeClassTask)
+            it.mustRunAfter(mergeClassTask!!)
         }
 
         if (!variant.buildType.isMinifyEnabled) {
