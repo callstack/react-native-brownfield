@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  addFrameworkTarget,
   getAppTargetDeploymentTarget,
   getFrameworkBuildSettings,
   rewriteBundleReactNativePhaseScriptForFrameworkTarget,
@@ -100,5 +101,28 @@ fi
     expect(rewritten).toMatch(
       /^# Brownfield framework packaging must embed JS in Debug builds\.\nif \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\n {2}unset SKIP_BUNDLING\n {2}export FORCE_BUNDLING=1\nfi\n\nexport ENTRY_FILE="index\.js"/
     );
+  });
+});
+
+describe('addFrameworkTarget', () => {
+  it('reuses an existing framework target discovered in the native target section', () => {
+    const project = {
+      pbxNativeTargetSection: () => ({
+        ABC123: {
+          isa: 'PBXNativeTarget',
+          name: '"BrownfieldLib"',
+          productType: 'com.apple.product-type.framework',
+        },
+        ABC123_comment: 'BrownfieldLib',
+      }),
+      pbxTargetByName: () => null,
+    } as any;
+
+    const result = addFrameworkTarget(project, {} as any, baseOptions);
+
+    expect(result).toEqual({
+      frameworkTargetUUID: 'ABC123',
+      targetAlreadyExists: true,
+    });
   });
 });

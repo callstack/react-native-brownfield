@@ -28,28 +28,17 @@ export function addFrameworkTarget(
 } {
   const { frameworkName, bundleIdentifier } = options;
 
-  // check if target already exists
-  const existingTarget = project.pbxTargetByName(frameworkName);
-  if (existingTarget) {
+  const existingFrameworkTargetUuid = findFrameworkTargetUuidByName(
+    project,
+    frameworkName
+  );
+  if (existingFrameworkTargetUuid) {
     Logger.logDebug(
       `Framework target "${frameworkName}" already exists, skipping creation`
     );
 
-    const frameworkTargetUUID = Object.entries(
-      project.pbxNativeTargetSection()
-    ).find(
-      ([_key, value]) =>
-        (value as any)?.productReference === existingTarget.productReference
-    )?.[0];
-
-    if (!frameworkTargetUUID) {
-      throw new SourceModificationError(
-        `Failed to find framework target UUID for ${frameworkName}, although it can be resolved by name`
-      );
-    }
-
     return {
-      frameworkTargetUUID,
+      frameworkTargetUUID: existingFrameworkTargetUuid,
       targetAlreadyExists: true,
     };
   }
@@ -157,6 +146,45 @@ export function addFrameworkTarget(
     frameworkTargetUUID: frameworkTarget.uuid,
     targetAlreadyExists: false,
   };
+}
+
+function findFrameworkTargetUuidByName(
+  project: XcodeProject,
+  frameworkName: string
+): string | null {
+  const nativeTargets = project.pbxNativeTargetSection() as Record<
+    string,
+    {
+      isa?: string;
+      name?: string;
+      productType?: string;
+    }
+  >;
+
+  const normalizedFrameworkName = frameworkName.trim();
+
+  for (const [uuid, target] of Object.entries(nativeTargets)) {
+    if (uuid.endsWith('_comment')) {
+      continue;
+    }
+
+    if (target?.isa !== 'PBXNativeTarget') {
+      continue;
+    }
+
+    const targetName = IOSConfig.XcodeUtils.unquote(target.name ?? '').trim();
+    if (targetName !== normalizedFrameworkName) {
+      continue;
+    }
+
+    if (target.productType !== 'com.apple.product-type.framework') {
+      continue;
+    }
+
+    return uuid;
+  }
+
+  return null;
 }
 
 export function addSourceFilesBuildPhase(
