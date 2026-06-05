@@ -13,7 +13,7 @@
     "preview": "rspress preview"
   },
   "dependencies": {
-    "@callstack/rspress-preset": "^0.6.0",
+    "@callstack/rspress-preset": "^0.6.6",
     "@rspress/core": "^2.0.9"
   },
   "devDependencies": {
