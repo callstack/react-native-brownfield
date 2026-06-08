@@ -1,35 +1,6 @@
-const assert = require('node:assert/strict');
 const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
-
-function detoxAttrsText(attrs) {
-  if (!attrs || typeof attrs !== 'object') {
-    return '';
-  }
-  const fragment = (o) =>
-    [o.text, o.value, o.label, o.hint]
-      .filter((x) => x != null && String(x).length > 0)
-      .join('');
-  if ('elements' in attrs && Array.isArray(attrs.elements)) {
-    return attrs.elements.map(fragment).join('').trim();
-  }
-  return fragment(attrs).trim();
-}
-
-async function assertDetoxTextMatches(nativeElement, pattern) {
-  const attrs = await nativeElement.getAttributes();
-  assert.match(detoxAttrsText(attrs).trim(), pattern);
-}
-
-const ids = {
-  rnAppHome: 'brownfield-e2e-rnapp-home',
-  rnAppHomeTitle: 'brownfield-e2e-rnapp-home-title',
-  sendMessageToNative: 'brownfield-e2e-send-message-native',
-  openNativeSettings: 'brownfield-e2e-open-native-settings',
-  openNativeReferrals: 'brownfield-e2e-open-native-referrals',
-  counterCount: 'brownfield-e2e-counter-count',
-  counterIncrement: 'brownfield-e2e-counter-increment',
-  rnPostMessageText: 'brownfield-e2e-rn-post-message-text',
-};
+const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2eTestIds');
+const { assertDetoxTextMatches } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 describe('Brownfield (RNApp)', () => {
   beforeEach(async () => {

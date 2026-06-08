@@ -10,7 +10,13 @@
   "exports": {
     ".": "./src/index.ts",
     "./jest/setup": "./jest/setup.js",
-    "./e2eTestIds": "./src/e2eTestIds.ts",
+    "./e2eTestIds": {
+      "types": "./src/e2eTestIds.ts",
+      "import": "./src/e2eTestIds.ts",
+      "require": "./e2e/e2eTestIds.cjs",
+      "default": "./src/e2eTestIds.ts"
+    },
+    "./e2e/detoxUtils": "./e2e/detoxUtils.cjs",
     "./jest/expo-config": "./jest/expo-config.js"
   },
   "peerDependencies": {

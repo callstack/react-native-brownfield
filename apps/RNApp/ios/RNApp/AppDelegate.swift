@@ -2,7 +2,6 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
-import Brownie
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,14 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     window = UIWindow(frame: UIScreen.main.bounds)
 
-    // Register in the same Brownie instance React Native uses (see BrownieBootstrap).
-    BrownieBootstrap.register(
-      BrownfieldStore(
-        counter: 0,
-        user: User(name: "Username")
-      )
-    )
-
     factory.startReactNative(
       withModuleName: "RNApp",
       in: window,
@@ -49,15 +40,9 @@ class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
 
   override func bundleURL() -> URL? {
 #if DEBUG
-    // Detox passes -BrownfieldPreferEmbeddedBundleInDebug; E2E builds embed main.jsbundle
-    // via FORCE_BUNDLING=1 (see apps/RNApp/.detoxrc.cjs). Local `yarn ios` keeps using Metro.
-    if ProcessInfo.processInfo.arguments.contains("-BrownfieldPreferEmbeddedBundleInDebug"),
-       let embedded = Bundle.main.url(forResource: "main", withExtension: "jsbundle") {
-      return embedded
-    }
-    return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+    RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
 #else
-    return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+    Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
   }
 }
