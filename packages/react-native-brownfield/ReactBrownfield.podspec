@@ -3,11 +3,15 @@ require 'json'
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
 expo_updates_installed = lambda do
-  install_root = Pod::Config.instance.installation_root.to_s
+  Pod::Executable.execute_command('node', [
+    '-p',
+    'require.resolve("expo-updates/package.json", { paths: [process.argv[1]] })',
+    Pod::Config.instance.installation_root.to_s,
+  ]).strip
 
-  File.exist?(
-    File.join(install_root, 'node_modules', 'expo-updates', 'package.json')
-  )
+  true
+rescue
+  false
 end
 
 Pod::Spec.new do |spec|
