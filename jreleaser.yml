@@ -1,0 +1,34 @@
+project:
+  name: brownfield-gradle-plugin
+  description: React Native Brownfield Gradle Plugin
+  longDescription: Helps you generate Fat Aar for React Native Brownfield Projects
+  authors:
+    - Callstack Team
+  license: MIT
+  inceptionYear: 2025
+  links:
+    homepage: https://github.com/callstack/react-native-brownfield
+
+release:
+  github:
+    tagName: brownfield-gradle-plugin/v{{projectVersion}}
+    releaseName: Brownfield Gradle Plugin {{projectVersion}}
+    owner: callstack
+    name: react-native-brownfield
+    overwrite: true
+    changelog:
+      external: out/jreleaser/brownfield-gradle-plugin-release-notes.md
+
+signing:
+  pgp:
+    active: ALWAYS
+    armored: true
+
+deploy:
+  maven:
+    mavenCentral:
+      sonatype:
+        active: RELEASE
+        url: https://central.sonatype.com/api/v1/publisher
+        stagingRepositories:
+          - gradle-plugins/react/brownfield/build/staging-deploy

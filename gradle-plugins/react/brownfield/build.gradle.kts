@@ -41,14 +41,11 @@ gradlePlugin {
 
 val baseVersion = property("VERSION").toString()
 val isSnapshot = project.findProperty("IS_SNAPSHOT") == "true"
+val releaseStagingRepositoryDir = layout.buildDirectory.dir("staging-deploy")
 
 version = if (isSnapshot) "$baseVersion-SNAPSHOT" else baseVersion
 
 publishing {
-    publications.withType<MavenPublication>().configureEach {
-        artifactId = property("ARTIFACT_ID").toString()
-    }
-
     publications {
         create<MavenPublication>("mavenLocal") {
             from(components["java"])
@@ -87,6 +84,10 @@ publishing {
 
     repositories {
         mavenLocal()
+        maven {
+            name = "releaseStaging"
+            url = uri(releaseStagingRepositoryDir)
+        }
     }
 }
 
