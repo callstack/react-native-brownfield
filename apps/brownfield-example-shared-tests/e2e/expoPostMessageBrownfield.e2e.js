@@ -1,5 +1,5 @@
 const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2eTestIds');
+const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const { assertDetoxTextMatches } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 describe('Brownfield postMessage (Expo demo)', () => {
