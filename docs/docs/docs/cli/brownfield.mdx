@@ -33,6 +33,7 @@ Available arguments:
 | --destination                 | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values: "simulator", "device", or xcodebuild destinations                                                                                                                                                                                 |
 | --archive                     | Create an Xcode archive (IPA) of the build, required for uploading to App Store Connect or distributing to TestFlight                                                                                                                                                                                                                                             |
 | --use-prebuilt-rn-core [bool] | Controls usage of React Native Apple prebuilt binaries for the packaging Xcode build. Omit for version-aware defaults (see [Getting Started — iOS — React Native Prebuilts](/docs/getting-started/ios#react-native-prebuilts)). Pass `true`, `false`, or use the flag without a value as shorthand for `true`. Supported only for Expo 55+ OR vanilla RN >= 0.81. |
+| --output-dir [path]           | Custom output directory for generated Brownfield Navigation files used during packaging. Use this to keep generated files app-local instead of mutating `packages/brownfield-navigation`.                                                                                                                                                                      |
 | --no-install-pods             | Skip automatic CocoaPods installation                                                                                                                                                                                                                                                                                                                             |
 | --no-new-arch                 | Run React Native in legacy async architecture                                                                                                                                                                                                                                                                                                                     |
 | --local                       | Force local build with xcodebuild                                                                                                                                                                                                                                                                                                                                 |
@@ -70,6 +71,7 @@ Available arguments:
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | --variant     | Specify your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'. (default: "debug") |
 | --module-name | AAR module name                                                                                                                              |
+| --output-dir [path] | Custom output directory for generated Brownfield Navigation files used during packaging. |
 | --verbose     | Enable verbose logging                                                                                                                       |
 
 ### Publish locally for Android
@@ -81,4 +83,18 @@ To publish the `.aar`(s) built beforehand with `npx brownfield publish:android` 
 | Argument      | Description            |
 | ------------- | ---------------------- |
 | --module-name | AAR module name        |
+| --output-dir [path] | Custom output directory for generated Brownfield Navigation files used during packaging. |
 | --verbose     | Enable verbose logging |
+
+## Maintainer workflow for app-local navigation output
+
+When packaging from a monorepo checkout, maintainers can keep `packages/brownfield-navigation` clean by generating navigation files into an app-local directory and passing the same directory to package commands.
+
+```bash
+npx brownfield navigation:codegen --output-dir .brownfield/navigation-generated
+npx brownfield package:ios --scheme BrownfieldLib --output-dir .brownfield/navigation-generated
+npx brownfield package:android --module-name :BrownfieldLib --output-dir .brownfield/navigation-generated
+npx brownfield publish:android --module-name :BrownfieldLib --output-dir .brownfield/navigation-generated
+```
+
+`--output-dir` is resolved relative to your app project root. If omitted, Brownfield keeps default behavior and writes/reads generated navigation files from `@callstack/brownfield-navigation`.

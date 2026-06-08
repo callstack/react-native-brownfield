@@ -59,7 +59,63 @@ export function parseUsePrebuiltRnCoreArgument(
 type PackageIosCliFlags = AppleBuildFlags & {
   /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
   usePrebuiltRnCore?: boolean;
+  /** Custom output directory for generated navigation files used during packaging. */
+  outputDir?: string;
 };
+
+export const BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR =
+  'BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT';
+
+export function resolveNavigationIosSourceRoot(
+  projectRoot: string,
+  outputDir?: string
+): string | undefined {
+  if (!outputDir) {
+    return undefined;
+  }
+
+  return path.join(path.resolve(projectRoot, outputDir), 'ios');
+}
+
+export async function withNavigationIosSourceRootEnv<T>({
+  projectRoot,
+  outputDir,
+  run,
+}: {
+  projectRoot: string;
+  outputDir?: string;
+  run: () => Promise<T>;
+}): Promise<T> {
+  const navigationIosSourceRoot = resolveNavigationIosSourceRoot(
+    projectRoot,
+    outputDir
+  );
+
+  if (!navigationIosSourceRoot) {
+    return run();
+  }
+
+  if (!fs.existsSync(navigationIosSourceRoot)) {
+    throw new RockError(
+      `Navigation iOS generated sources not found at ${navigationIosSourceRoot}. Verify --output-dir points to a valid navigation codegen output root.`
+    );
+  }
+
+  const previousValue = process.env[BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR];
+  process.env[BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR] =
+    navigationIosSourceRoot;
+
+  try {
+    return await run();
+  } finally {
+    if (previousValue === undefined) {
+      delete process.env[BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR];
+    } else {
+      process.env[BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR] =
+        previousValue;
+    }
+  }
+}
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
@@ -78,6 +134,10 @@ export const packageIosCommand = curryOptions(
     new Option('--use-prebuilt-rn-core [bool]', USE_PREBUILT_RN_CORE_HELP)
       .preset(true)
       .argParser(parseUsePrebuiltRnCoreArgument)
+  )
+  .option(
+    '--output-dir <path>',
+    'Custom output directory for generated navigation files used during packaging'
   )
   .action(
     actionRunner(async (options: PackageIosCliFlags) => {
@@ -147,23 +207,30 @@ export const packageIosCommand = curryOptions(
         'swift'
       );
       const { hasNavigation } =
-        await runNavigationCodegenIfApplicable(projectRoot);
+        await runNavigationCodegenIfApplicable(projectRoot, {
+          outputDir: options.outputDir,
+        });
 
-      await packageIosAction(
-        options,
-        {
-          projectRoot,
-          reactNativePath: userConfig.reactNativePath,
-          // below: the userConfig.reactNativeVersion may be a non-semver-format string,
-          // e.g. '0.82' (note the missing patch component),
-          // therefore we resolve it manually from RN's package.json using Rock's utils
-          reactNativeVersion: getReactNativeVersion(projectRoot),
-          packageDir, // the output directory for artifacts
-          skipCache: true, // cache is dependent on existence of Rock config file
-          usePrebuiltRNCore: options.usePrebuiltRnCore,
-        },
-        platformConfig
-      );
+      await withNavigationIosSourceRootEnv({
+        projectRoot,
+        outputDir: options.outputDir,
+        run: async () =>
+          packageIosAction(
+            options,
+            {
+              projectRoot,
+              reactNativePath: userConfig.reactNativePath,
+              // below: the userConfig.reactNativeVersion may be a non-semver-format string,
+              // e.g. '0.82' (note the missing patch component),
+              // therefore we resolve it manually from RN's package.json using Rock's utils
+              reactNativeVersion: getReactNativeVersion(projectRoot),
+              packageDir, // the output directory for artifacts
+              skipCache: true, // cache is dependent on existence of Rock config file
+              usePrebuiltRNCore: options.usePrebuiltRnCore,
+            },
+            platformConfig
+          ),
+      });
 
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const { frameworkName, resolution, candidates } =

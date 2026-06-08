@@ -89,3 +89,7 @@ packages/react-native-brownfield/ios/swiftpm/.build/
 .skillgym-results/
 
 .cursor
+
+# Brownfield
+**/.brownfield/
+**/.brownfield_navigation_override/

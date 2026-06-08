@@ -29,6 +29,7 @@ interface RunNavigationCodegenOptions {
   specPath?: string;
   dryRun?: boolean;
   projectRoot?: string;
+  outputDir?: string;
 }
 
 interface NavigationOutputPaths {
@@ -209,6 +210,7 @@ export async function runNavigationCodegen({
   specPath,
   dryRun = false,
   projectRoot = process.cwd(),
+  outputDir,
 }: RunNavigationCodegenOptions): Promise<void> {
   const resolvedSpecPath = resolveNavigationSpecPath(specPath, projectRoot);
   if (!fs.existsSync(resolvedSpecPath)) {
@@ -228,7 +230,9 @@ export async function runNavigationCodegen({
     `Found ${methods.length} method${methods.length === 1 ? '' : 's'}: ${methods.map((method) => method.name).join(', ')}`
   );
 
-  const packageRoot = getNavigationPackagePath(projectRoot);
+  const packageRoot = outputDir
+    ? path.resolve(projectRoot, outputDir)
+    : getNavigationPackagePath(projectRoot);
   const androidJavaPackageName = DEFAULT_ANDROID_JAVA_PACKAGE;
   const indexTs = generateIndexTs(methods, referencedTypeDeclarations);
   const models = await generateNavigationModels({

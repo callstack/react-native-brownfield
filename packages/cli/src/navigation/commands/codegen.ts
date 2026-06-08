@@ -6,21 +6,25 @@ import { runNavigationCodegen } from '../runner.js';
 
 interface RunNavigationCodegenCommandOptions {
   dryRun?: boolean;
+  outputDir?: string;
 }
 
 interface NavigationCodegenActionOptions {
   specPath?: string;
   dryRun?: boolean;
+  outputDir?: string;
 }
 
 export async function runNavigationCodegenCommand({
   specPath,
   dryRun = false,
+  outputDir,
 }: NavigationCodegenActionOptions): Promise<void> {
   intro('Running Brownfield Navigation codegen');
   await runNavigationCodegen({
     specPath,
     dryRun,
+    outputDir,
   });
   outro('Done!');
 }
@@ -34,6 +38,7 @@ export const navigationCodegenCommand = new Command('navigation:codegen')
     'Path to navigation spec file (defaults to brownfield.navigation.ts)'
   )
   .option('--dry-run', 'Print generated code without writing files')
+  .option('--output-dir <path>', 'Custom output directory for generated files')
   .action(
     actionRunner(
       async (
@@ -45,12 +50,15 @@ export const navigationCodegenCommand = new Command('navigation:codegen')
             (
               arg
             ): arg is RunNavigationCodegenCommandOptions =>
-              typeof arg === 'object' && arg !== null && 'dryRun' in arg
+              typeof arg === 'object' &&
+              arg !== null &&
+              ('dryRun' in arg || 'outputDir' in arg)
           ) ?? {};
 
         await runNavigationCodegenCommand({
           specPath,
           dryRun: Boolean(options.dryRun),
+          outputDir: options.outputDir,
         });
       }
     )

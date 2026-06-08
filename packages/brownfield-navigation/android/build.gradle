@@ -32,6 +32,35 @@ apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
 
+def navigationAndroidGeneratedSourceDirPropertyName =
+  "brownfieldNavigationAndroidGeneratedSourceDir"
+def navigationAndroidGeneratedSourceDir =
+  project.findProperty(navigationAndroidGeneratedSourceDirPropertyName)?.toString()?.trim()
+def navigationGeneratedOutputRoot
+def navigationGeneratedJsSourceDir
+
+if (navigationAndroidGeneratedSourceDir) {
+  navigationAndroidGeneratedSourceDir = file(navigationAndroidGeneratedSourceDir).absolutePath
+  if (!file(navigationAndroidGeneratedSourceDir).exists()) {
+    throw new GradleException(
+      "Configured ${navigationAndroidGeneratedSourceDirPropertyName} path does not exist: ${navigationAndroidGeneratedSourceDir}"
+    )
+  }
+
+  navigationGeneratedOutputRoot = file(navigationAndroidGeneratedSourceDir)
+    .toPath()
+    .resolve("../../../../")
+    .normalize()
+    .toFile()
+    .absolutePath
+  navigationGeneratedJsSourceDir = file(navigationGeneratedOutputRoot).toPath().resolve("src").normalize().toFile().absolutePath
+  if (!file(navigationGeneratedJsSourceDir).exists()) {
+    throw new GradleException(
+      "Configured ${navigationAndroidGeneratedSourceDirPropertyName} implies JS codegen source dir that does not exist: ${navigationGeneratedJsSourceDir}"
+    )
+  }
+}
+
 android {
   namespace "com.callstack.nativebrownfieldnavigation"
 
@@ -59,6 +88,59 @@ android {
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  sourceSets {
+    main {
+      if (navigationAndroidGeneratedSourceDir) {
+        java.srcDirs += [navigationAndroidGeneratedSourceDir]
+        if (hasProperty('kotlin')) {
+          kotlin.srcDirs += [navigationAndroidGeneratedSourceDir]
+        }
+      }
+    }
+  }
+}
+
+if (navigationAndroidGeneratedSourceDir) {
+  // Keep RN codegen schema generation in sync with overridden generated artifacts.
+  tasks.matching { task ->
+    task.name == "generateCodegenSchemaFromJavaScript"
+  }.configureEach { task ->
+    task.jsRootDir.set(file(navigationGeneratedJsSourceDir))
+    task.jsInputFiles.set(
+      fileTree(task.jsRootDir) { tree ->
+        tree.include("**/*.js")
+        tree.include("**/*.jsx")
+        tree.include("**/*.ts")
+        tree.include("**/*.tsx")
+
+        tree.exclude("node_modules/**/*")
+        tree.exclude("**/*.d.ts")
+        tree.exclude("**/build/**/*")
+      }
+    )
+  }
+
+  def generatedFileNames = [
+    "BrownfieldNavigationDelegate.kt",
+    "NativeBrownfieldNavigationModule.kt",
+    "BrownfieldNavigationModels.kt"
+  ]
+  def defaultGeneratedFilePaths = generatedFileNames.collectEntries { fileName ->
+    [(file("src/main/java/com/callstack/nativebrownfieldnavigation/${fileName}").absolutePath):
+      file("${navigationAndroidGeneratedSourceDir}/com/callstack/nativebrownfieldnavigation/${fileName}").absolutePath]
+  }
+
+  // Only exclude checked-in generated sources when the override counterpart is present.
+  // This preserves a safe fallback when override files are missing (e.g. cleaned build dir).
+  tasks.matching { task ->
+    task.name.startsWith("compile") && task.name.endsWith("Kotlin")
+  }.configureEach { task ->
+    task.exclude { details ->
+      def overrideFilePath = defaultGeneratedFilePaths[details.file.absolutePath]
+      overrideFilePath != null && file(overrideFilePath).exists()
+    }
   }
 }
 

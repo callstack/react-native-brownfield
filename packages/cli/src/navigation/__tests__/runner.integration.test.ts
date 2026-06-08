@@ -138,4 +138,75 @@ describe('runNavigationCodegen integration', () => {
       'class NativeBrownfieldNavigationModule'
     );
   });
+
+  it('writes generated artifacts to custom output directory', async () => {
+    const { projectRoot } = createTempProject();
+    tempProjectRoots.push(projectRoot);
+    mockedNavigationPackagePath = path.join(projectRoot, 'unused-package-root');
+
+    fs.writeFileSync(
+      path.join(projectRoot, 'brownfield.navigation.ts'),
+      `
+      export interface BrownfieldNavigationSpec {
+        openScreen(route: string, params?: Object): void;
+      }
+      `
+    );
+
+    const outputDir = 'tmp/generated-navigation';
+    const outputRoot = path.join(projectRoot, outputDir);
+
+    fs.mkdirSync(path.join(outputRoot, 'src'), { recursive: true });
+    fs.mkdirSync(path.join(outputRoot, 'lib', 'commonjs'), { recursive: true });
+    fs.mkdirSync(path.join(outputRoot, 'lib', 'module'), { recursive: true });
+    fs.mkdirSync(path.join(outputRoot, 'lib', 'typescript', 'commonjs', 'src'), {
+      recursive: true,
+    });
+    fs.mkdirSync(path.join(outputRoot, 'lib', 'typescript', 'module', 'src'), {
+      recursive: true,
+    });
+    fs.mkdirSync(path.join(outputRoot, 'ios'), { recursive: true });
+    fs.mkdirSync(
+      path.join(
+        outputRoot,
+        'android',
+        'src',
+        'main',
+        'java',
+        'com',
+        'callstack',
+        'nativebrownfieldnavigation'
+      ),
+      { recursive: true }
+    );
+
+    await runNavigationCodegen({ projectRoot, outputDir });
+
+    expect(
+      fs.existsSync(
+        path.join(outputRoot, 'src', 'NativeBrownfieldNavigation.ts')
+      )
+    ).toBe(true);
+    expect(fs.existsSync(path.join(outputRoot, 'src', 'index.ts'))).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(outputRoot, 'ios', 'BrownfieldNavigationDelegate.swift')
+      )
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          outputRoot,
+          'android',
+          'src',
+          'main',
+          'java',
+          'com',
+          'callstack',
+          'nativebrownfieldnavigation',
+          'NativeBrownfieldNavigationModule.kt'
+        )
+      )
+    ).toBe(true);
+  });
 });

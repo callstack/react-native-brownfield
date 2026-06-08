@@ -53,6 +53,12 @@ From your app root:
 npx brownfield navigation:codegen
 ```
 
+Optionally, write generated files to a custom app-local directory:
+
+```bash
+npx brownfield navigation:codegen --output-dir .brownfield/navigation-generated
+```
+
 ## 3) What gets generated
 
 Codegen updates `@callstack/brownfield-navigation` with your contract:
@@ -73,6 +79,19 @@ npx brownfield navigation:codegen
 ```
 
 Then recompile native apps.
+
+## 5) Maintainer workflow for packaging without dirtying package files
+
+If you maintain this repo (or any monorepo where `@callstack/brownfield-navigation` sources are checked in), use a custom output directory and pass it to packaging commands:
+
+```bash
+npx brownfield navigation:codegen --output-dir .brownfield/navigation-generated
+npx brownfield package:ios --scheme BrownfieldLib --output-dir .brownfield/navigation-generated
+npx brownfield package:android --module-name :BrownfieldLib --output-dir .brownfield/navigation-generated
+npx brownfield publish:android --module-name :BrownfieldLib --output-dir .brownfield/navigation-generated
+```
+
+Brownfield resolves `--output-dir` relative to your project root. If you omit it, Brownfield falls back to the default package-based generated paths.
 
 ## Next
 

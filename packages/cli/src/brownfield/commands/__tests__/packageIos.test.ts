@@ -1,8 +1,16 @@
 import { Command, Option } from 'commander';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import * as rockTools from '@rock-js/tools';
 import { describe, expect, test } from 'vitest';
 
-import { parseUsePrebuiltRnCoreArgument } from '../packageIos.js';
+import {
+  BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR,
+  parseUsePrebuiltRnCoreArgument,
+  resolveNavigationIosSourceRoot,
+  withNavigationIosSourceRootEnv,
+} from '../packageIos.js';
 
 /** Mirrors `--use-prebuilt-rn-core` on `packageIosCommand` (preset + parser). */
 function parsePackageIosArgv(argv: string[]) {
@@ -62,5 +70,54 @@ describe('--use-prebuilt-rn-core (Commander)', () => {
     expect(
       parsePackageIosArgv(['--use-prebuilt-rn-core', 'false']).usePrebuiltRnCore
     ).toBe(false);
+  });
+});
+
+describe('resolveNavigationIosSourceRoot', () => {
+  test('returns undefined when outputDir is absent', () => {
+    expect(resolveNavigationIosSourceRoot('/tmp/project')).toBeUndefined();
+  });
+
+  test('resolves outputDir relative to project root and appends ios', () => {
+    expect(
+      resolveNavigationIosSourceRoot('/tmp/project', '.brownfield/navigation')
+    ).toBe(path.join('/tmp/project', '.brownfield', 'navigation', 'ios'));
+  });
+});
+
+describe('withNavigationIosSourceRootEnv', () => {
+  test('sets and restores env var around execution', async () => {
+    const tempProjectRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'brownfield-ios-env-test-')
+    );
+    const outputDir = '.brownfield/navigation';
+    const iosSourceRoot = path.join(tempProjectRoot, outputDir, 'ios');
+    fs.mkdirSync(iosSourceRoot, { recursive: true });
+    delete process.env[BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR];
+
+    const seenInside = await withNavigationIosSourceRootEnv({
+      projectRoot: tempProjectRoot,
+      outputDir,
+      run: async () => process.env[BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR],
+    });
+
+    expect(seenInside).toBe(iosSourceRoot);
+    expect(
+      process.env[BROWNFIELD_NAVIGATION_IOS_SOURCE_ROOT_ENV_VAR]
+    ).toBeUndefined();
+  });
+
+  test('throws when custom output does not provide ios generated sources', async () => {
+    const tempProjectRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'brownfield-ios-env-test-')
+    );
+
+    await expect(
+      withNavigationIosSourceRootEnv({
+        projectRoot: tempProjectRoot,
+        outputDir: '.brownfield/missing-navigation-output',
+        run: async () => undefined,
+      })
+    ).rejects.toThrow(rockTools.RockError);
   });
 });
