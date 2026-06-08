@@ -24,7 +24,8 @@
     "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts",
     "ci:local:rnapp:e2e:ios": "bash ./scripts/ci-local-rnapp-ios-e2e.sh",
     "ci:local:expo54:e2e:ios": "bash ./scripts/ci-local-expo54-ios-e2e.sh",
-    "ci:local:expo55:e2e:ios": "bash ./scripts/ci-local-expo55-ios-e2e.sh"
+    "ci:local:expo55:e2e:ios": "bash ./scripts/ci-local-expo55-ios-e2e.sh",
+    "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh"
   },
   "resolutions": {
     "@types/react": "19.1.1",

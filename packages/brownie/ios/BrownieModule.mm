@@ -1,6 +1,5 @@
 #import "BrownieModule.h"
 #import <jsi/jsi.h>
-#import <ReactCommon/TurboModuleWithJSIBindings.h>
 
 #if __has_include("Brownie/Brownie-Swift.h")
 #import "Brownie/Brownie-Swift.h"
@@ -12,25 +11,8 @@
 
 using namespace facebook;
 
-namespace facebook::react {
-
-/**
- * ObjC codegen TurboModules do not inherit TurboModuleWithJSIBindings in C++.
- * Bridgeless mode only installs JSI globals via this hook when the module is first required from JS.
- */
-class BrownieTurboModule : public NativeBrownieModuleSpecJSI,
-                           public TurboModuleWithJSIBindings {
- public:
-  explicit BrownieTurboModule(const ObjCTurboModule::InitParams &params)
-      : NativeBrownieModuleSpecJSI(params) {}
-
- private:
-  void installJSIBindingsWithRuntime(jsi::Runtime &runtime) override {
-    brownie::BrownieInstaller::install(runtime);
-  }
-};
-
-} // namespace facebook::react
+@interface BrownieModule (JSIBindings) <RCTTurboModuleWithJSIBindings>
+@end
 
 @implementation BrownieModule {
   NSMutableDictionary<NSString *, NSObject *> *_notificationObservers;
@@ -60,9 +42,14 @@ RCT_EXPORT_MODULE(Brownie);
   [self emitNativeStoreDidChange:userInfo];
 }
 
+- (void)installJSIBindingsWithRuntime:(facebook::jsi::Runtime &)runtime
+                          callInvoker:(const std::shared_ptr<facebook::react::CallInvoker> &)callinvoker {
+  brownie::BrownieInstaller::install(runtime);
+}
+
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::BrownieTurboModule>(params);
+  return std::make_shared<facebook::react::NativeBrownieModuleSpecJSI>(params);
 }
 
 @end

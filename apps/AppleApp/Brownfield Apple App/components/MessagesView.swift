@@ -30,6 +30,7 @@ struct MessagesView: View {
                     draft = ""
                 }
                 .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier(E2eTestIds.appleAppPostMessageSend)
             }
         }
         .padding()

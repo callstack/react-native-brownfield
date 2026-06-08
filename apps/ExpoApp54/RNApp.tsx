@@ -2,7 +2,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
-import PostMessageTab from './app/(tabs)/postMessage';
 import Counter from './components/counter';
 
 import { checkAndFetchUpdate } from './utils/expo-rn-updates';
@@ -14,35 +13,29 @@ type RNAppProps = {
 export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Expo React Native Brownfield</Text>
+      <Text style={styles.title}>Expo React Native Brownfield</Text>
 
-        {nativeOsVersionLabel ? (
-          <Text
-            style={styles.nativeOsVersionLabel}
-            accessibilityLabel="Native OS version"
-          >
-            {nativeOsVersionLabel}
-          </Text>
-        ) : null}
+      {nativeOsVersionLabel ? (
+        <Text
+          style={styles.nativeOsVersionLabel}
+          accessibilityLabel="Native OS version"
+        >
+          {nativeOsVersionLabel}
+        </Text>
+      ) : null}
 
-        <View style={styles.content}>
-          <Counter />
+      <View style={styles.content}>
+        <Counter />
 
-          <Button
-            title="Navigate to Settings"
-            onPress={() => BrownfieldNavigation.navigateToSettings()}
-          />
-          <Button
-            title="Navigate to Referrals"
-            onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
-          />
-          <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
-        </View>
-      </View>
-
-      <View style={styles.postMessageSection}>
-        <PostMessageTab />
+        <Button
+          title="Navigate to Settings"
+          onPress={() => BrownfieldNavigation.navigateToSettings()}
+        />
+        <Button
+          title="Navigate to Referrals"
+          onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
+        />
+        <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
       </View>
     </SafeAreaView>
   );
@@ -52,9 +45,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#eeeeee',
-  },
-  header: {
-    flexShrink: 0,
+    paddingTop: 20,
   },
   title: {
     fontSize: 20,
@@ -68,14 +59,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   content: {
-    minHeight: 220,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  postMessageSection: {
-    flex: 1,
-    minHeight: 200,
-    marginTop: 8,
   },
   text: {
     fontSize: 18,

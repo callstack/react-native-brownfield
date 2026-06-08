@@ -1,8 +1,4 @@
 ---
-'@callstack/react-native-brownfield': minor
-'@callstack/brownie': minor
-'brownfield': minor
-'@callstack/brownfield-cli': minor
 ---
 
-E2E test for Brownfield apps
+Add Detox E2E coverage for AppleApp brownfield iOS workflow.

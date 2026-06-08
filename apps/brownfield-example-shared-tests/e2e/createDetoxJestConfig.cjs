@@ -3,7 +3,7 @@
 const path = require('node:path');
 
 /**
- * Shared Detox Jest config for brownfield example apps (RNApp, ExpoApp54, ExpoApp55).
+ * Shared Detox Jest config for brownfield example apps (RNApp, ExpoApp54, ExpoApp55, AppleApp).
  *
  * @param {{ e2eDir: string, testMatch: string[] }} options
  */

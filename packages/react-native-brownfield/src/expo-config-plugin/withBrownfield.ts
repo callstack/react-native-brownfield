@@ -7,9 +7,6 @@ import {
 import type { ExpoConfig } from '@expo/config-types';
 
 import { withBrownfieldIos } from './ios/withBrownfieldIos';
-import { withBrownieIosAppDelegate } from './ios/withBrownieIosAppDelegate';
-import { withDetoxEmbeddedBundleIosAppDelegate } from './ios/withDetoxEmbeddedBundleIosAppDelegate';
-import { withDetoxIosXcodeEnvUpdates } from './ios/withDetoxIosXcodeEnvUpdates';
 import { withBrownfieldAndroid } from './android/withBrownfieldAndroid';
 import type {
   BrownfieldPluginConfig,
@@ -99,9 +96,6 @@ const withBrownfield: ConfigPlugin<BrownfieldPluginConfig | void> = (
 
   if (resolvedConfig.ios) {
     plugins.push([withBrownfieldIos, resolvedConfig]);
-    plugins.push(withBrownieIosAppDelegate);
-    plugins.push(withDetoxEmbeddedBundleIosAppDelegate);
-    plugins.push(withDetoxIosXcodeEnvUpdates);
   }
 
   if (resolvedConfig.android) {

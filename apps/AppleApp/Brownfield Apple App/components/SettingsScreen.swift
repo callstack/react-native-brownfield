@@ -18,5 +18,7 @@ struct SettingsScreen: View {
             }
         }
         .navigationTitle("Settings")
+        .accessibilityIdentifier(E2eTestIds.appleAppNativeSettings)
+        .accessibilityElement()
     }
 }

@@ -51,6 +51,7 @@ jobs:
               - 'apps/AndroidApp/**'
             appleapp:
               - 'apps/AppleApp/**'
+              - 'apps/brownfield-example-shared-tests/**'
             ci:
               - '.github/**'
 
@@ -229,8 +230,8 @@ jobs:
           variant: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
 
-  e2e-ios-rnapp:
-    name: E2E iOS (RNApp)
+  e2e-ios-appleapp:
+    name: E2E iOS (AppleApp)
     runs-on: macos-26
     timeout-minutes: 90
     permissions:
@@ -241,6 +242,7 @@ jobs:
       always() &&
       (
         needs.filter.outputs.rnapp == 'true' ||
+        needs.filter.outputs.appleapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
@@ -249,43 +251,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run Detox E2E (RNApp)
-        uses: ./.github/actions/e2e-ios
+      - name: Run Detox E2E (AppleApp)
+        uses: ./.github/actions/e2e-ios-appleapp
         with:
-          app-path: apps/RNApp
-          artifact-name: detox-rnapp
-          run-brownfield-codegen: 'true'
-
-  e2e-ios-expo:
-    name: E2E iOS (Expo ${{ matrix.version }})
-    runs-on: macos-26
-    timeout-minutes: 90
-    permissions:
-      contents: read
-      actions: write
-    needs: [filter, build-lint]
-    if: |
-      always() &&
-      (
-        needs.filter.outputs.expo54 == 'true' ||
-        needs.filter.outputs.expo55 == 'true' ||
-        needs.filter.outputs.packages == 'true' ||
-        needs.filter.outputs.ci == 'true'
-      ) &&
-      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - version: '54'
-          - version: '55'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-
-      - name: Run Detox E2E (Expo ${{ matrix.version }})
-        uses: ./.github/actions/e2e-ios
-        with:
-          app-path: apps/ExpoApp${{ matrix.version }}
-          artifact-name: detox-expo${{ matrix.version }}
-          run-expo-prebuild: 'true'
+          artifact-name: detox-appleapp

@@ -10,10 +10,6 @@ const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
   '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>';
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
   '# <<< react-native-brownfield Expo SDK 55+ swift defines <<<';
-const BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_START =
-  '# >>> react-native-brownfield Xcode packaging workarounds >>>';
-const BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_END =
-  '# <<< react-native-brownfield Xcode packaging workarounds <<<';
 const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
 const REACT_NATIVE_PODS_REQUIRE_REGEX =
   /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
@@ -55,32 +51,6 @@ ${BROWNFIELD_POD_HOOK_MARKER_END}
   modifiedPodfile = `${modifiedPodfile.trimEnd()}\n\n${hook}\n`;
 
   return modifiedPodfile;
-}
-
-function ensureXcodePackagingWorkaroundsInPostInstall(podfile: string): string {
-  if (podfile.includes(BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_START)) {
-    return podfile;
-  }
-
-  const hook = `
-    ${BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_START}
-    react_native_brownfield_patch_fmt_consteval(installer)
-    react_native_brownfield_mitigate_expo_modules_core_xcode26_swift_compiler_crash(installer)
-    react_native_brownfield_skip_swift_module_interface_verification(installer)
-    ${BROWNFIELD_XCODE_PACKAGING_WORKAROUNDS_MARKER_END}
-`;
-
-  const postInstallMatch = podfile.match(
-    /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
-  );
-
-  if (postInstallMatch) {
-    const [whole, start, content, end] = postInstallMatch;
-    const updated = `${start}${content.trimEnd()}\n${hook}\n${end}`;
-    return podfile.replace(whole, updated);
-  }
-
-  return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
 }
 
 function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
@@ -125,68 +95,56 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
  * @param expoMajor The major version of the Expo SDK
  * @returns The modified Podfile content
  */
-export function applyBrownfieldPodfileHooks(
-  podfile: string,
-  expoMajor: number
-): string {
-  let modifiedPodfile = ensureBrownfieldPostIntegrateRequire(podfile);
-  modifiedPodfile =
-    ensureXcodePackagingWorkaroundsInPostInstall(modifiedPodfile);
-
-  if (expoMajor < 55) {
-    modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
-  } else {
-    modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
-  }
-
-  return modifiedPodfile;
-}
-
 export function modifyPodfile(
   podfile: string,
   frameworkName: string,
   expoMajor: number
 ): string {
-  let modifiedPodfile = podfile;
-
+  // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
     Logger.logDebug(
-      `Framework target "${frameworkName}" already in Podfile, syncing hooks`
+      `Framework target "${frameworkName}" already in Podfile, skipping modification`
     );
-  } else {
-    Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
-
-    const frameworkTargetBlock = renderTemplate(
-      'ios',
-      'PodfileTargetBlock.rb',
-      {
-        '{{FRAMEWORK_NAME}}': frameworkName,
-      }
-    );
-
-    const mainTargetMatch = podfile.match(
-      /(target\s+['"][^'"]+['"]\s+do\s*\n)([\s\S]*?)(^end\s*$)/m
-    );
-
-    if (!mainTargetMatch) {
-      throw new SourceModificationError(
-        'Could not find main target in Podfile. Please manually add the framework target.'
-      );
-    }
-
-    const [, targetStart, targetContent] = mainTargetMatch;
-    const insertIndex =
-      podfile.indexOf(mainTargetMatch[0]) +
-      targetStart.length +
-      targetContent.length;
-
-    modifiedPodfile =
-      podfile.slice(0, insertIndex) +
-      frameworkTargetBlock +
-      podfile.slice(insertIndex);
-
-    Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
+    return podfile;
   }
 
-  return applyBrownfieldPodfileHooks(modifiedPodfile, expoMajor);
+  Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
+
+  // insert the framework target after the main target's "do"
+  const frameworkTargetBlock = renderTemplate('ios', 'PodfileTargetBlock.rb', {
+    '{{FRAMEWORK_NAME}}': frameworkName,
+  });
+
+  // find insertion point after the first target's content begins, before the end of the target block
+  const mainTargetMatch = podfile.match(
+    /(target\s+['"][^'"]+['"]\s+do\s*\n)([\s\S]*?)(^end\s*$)/m
+  );
+
+  if (!mainTargetMatch) {
+    throw new SourceModificationError(
+      'Could not find main target in Podfile. Please manually add the framework target.'
+    );
+  }
+
+  const [, targetStart, targetContent] = mainTargetMatch;
+  const insertIndex =
+    podfile.indexOf(mainTargetMatch[0]) +
+    targetStart.length +
+    targetContent.length;
+
+  let modifiedPodfile =
+    podfile.slice(0, insertIndex) +
+    frameworkTargetBlock +
+    podfile.slice(insertIndex);
+
+  Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
+
+  if (expoMajor < 55) {
+    modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
+  } else {
+    // Expo SDK >= 55
+    modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
+  }
+
+  return modifiedPodfile;
 }

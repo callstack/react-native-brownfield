@@ -1806,7 +1806,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-ios-app@workspace:apps/AppleApp"
   dependencies:
+    "@callstack/brownfield-example-shared-tests": "workspace:^"
     "@rock-js/tools": "npm:^0.13.3"
+    detox: "npm:^20.27.0"
+    jest: "npm:^29.7.0"
   languageName: unknown
   linkType: soft
 

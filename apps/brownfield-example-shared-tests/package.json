@@ -15,6 +15,7 @@
     "./e2e/detoxUtils": "./e2e/detoxUtils.cjs",
     "./e2e/createDetoxJestConfig": "./e2e/createDetoxJestConfig.cjs",
     "./detox-rc-ios-sim-debug": "./detox-rc-ios-sim-debug.cjs",
+    "./detox-rc-appleapp-ios-sim-debug": "./detox-rc-appleapp-ios-sim-debug.cjs",
     "./detox-ios-simulator-device": "./detox-ios-simulator-device.cjs",
     "./jest/expo-config": "./jest/expo-config.js"
   },

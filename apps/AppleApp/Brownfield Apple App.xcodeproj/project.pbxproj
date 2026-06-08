@@ -118,6 +118,8 @@
 			membershipExceptions = (
 				Assets.xcassets,
 				BrownfieldAppleApp.swift,
+				E2eTestIds.swift,
+				E2eAccessibility.swift,
 				components/ContentView.swift,
 				components/GreetingCard.swift,
 				components/MaterialCard.swift,
@@ -133,6 +135,8 @@
 			membershipExceptions = (
 				Assets.xcassets,
 				BrownfieldAppleApp.swift,
+				E2eTestIds.swift,
+				E2eAccessibility.swift,
 				components/ContentView.swift,
 				components/GreetingCard.swift,
 				components/MaterialCard.swift,

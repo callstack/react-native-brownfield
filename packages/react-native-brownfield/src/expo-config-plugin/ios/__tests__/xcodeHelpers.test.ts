@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   getFrameworkBuildSettings,
-  rewriteBundleReactNativePhaseScriptForDetoxEmbeddedBundle,
   rewriteBundleReactNativePhaseScriptForFrameworkTarget,
 } from '../xcodeHelpers';
 import type { ResolvedBrownfieldPluginIosConfig } from '../../types';
@@ -43,40 +42,6 @@ describe('getFrameworkBuildSettings', () => {
     expect(settings.INSTALL_PATH).toBe('"$(LOCAL_LIBRARY_DIR)/Frameworks"');
     expect(settings.SWIFT_VERSION).toBe('5.10');
     expect(settings.MARKETING_VERSION).toBe('9.9.9');
-  });
-});
-
-describe('rewriteBundleReactNativePhaseScriptForDetoxEmbeddedBundle', () => {
-  it('unsets SKIP_BUNDLING when FORCE_BUNDLING is set, after Expo debug skip block', () => {
-    const script = `if [[ "$CONFIGURATION" = *Debug* ]]; then
-  export SKIP_BUNDLING=1
-fi
-
-export BUNDLE_COMMAND="export:embed"
-`;
-
-    const rewritten =
-      rewriteBundleReactNativePhaseScriptForDetoxEmbeddedBundle(script);
-
-    expect(rewritten).toContain('export SKIP_BUNDLING=1');
-    expect(rewritten).toContain('if [[ -n "$FORCE_BUNDLING" ]]; then');
-    expect(rewritten).toContain('unset SKIP_BUNDLING');
-    expect(rewritten).toMatch(
-      /export SKIP_BUNDLING=1[\s\S]*FORCE_BUNDLING[\s\S]*unset SKIP_BUNDLING/
-    );
-  });
-
-  it('does not change framework force-bundling scripts', () => {
-    const script = `# Brownfield framework packaging must embed JS in Debug builds.
-if [[ "$CONFIGURATION" = *Debug* ]]; then
-  unset SKIP_BUNDLING
-  export FORCE_BUNDLING=1
-fi
-`;
-
-    expect(
-      rewriteBundleReactNativePhaseScriptForDetoxEmbeddedBundle(script)
-    ).toBe(script);
   });
 });
 

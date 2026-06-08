@@ -17,25 +17,27 @@ let initialState = BrownfieldStore(
 struct ContentView: View {
     var body: some View {
         NavigationView {
+            ScrollView {
+                VStack(spacing: 16) {
+                    GreetingCard(name: "iOS Vanilla")
 
-            VStack(spacing: 16) {
-                GreetingCard(name: "iOS Vanilla")
+                    MessagesView()
 
-                MessagesView()
-
-                ReactNativeView(
-                    moduleName: "RNApp",
-                    initialProperties: [
-                        "nativeOsVersionLabel":
-                            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
-                    ]
-                )
-                    .navigationBarHidden(true)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .background(Color(UIColor.systemBackground))
+                    ReactNativeView(
+                        moduleName: "RNApp",
+                        initialProperties: [
+                            "nativeOsVersionLabel":
+                                "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+                        ]
+                    )
+                        .navigationBarHidden(true)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .background(Color(UIColor.systemBackground))
+                        .frame(minHeight: 520)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(16)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(16)
         }
     }
 }
