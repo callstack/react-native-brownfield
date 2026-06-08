@@ -7,7 +7,7 @@ expo_updates_installed = lambda do
     '-p',
     'require.resolve("expo-updates/package.json", { paths: [process.argv[1]] })',
     Pod::Config.instance.installation_root.to_s,
-  ]).strip
+  ])
 
   true
 rescue
