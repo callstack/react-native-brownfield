@@ -40,11 +40,26 @@ describe('createLocalSpmPackage', () => {
     expect(manifest).toContain('name: "BrownfieldLibPackage"');
     expect(manifest).toContain('library(name: "BrownfieldLib"');
     expect(manifest).toContain('binaryTarget(name: "BrownfieldLib"');
-    expect(manifest).toContain('path: "./BrownfieldLib.xcframework"');
+    expect(manifest).toContain(
+      'path: "./spm-artifacts/BrownfieldLib.xcframework"'
+    );
     expect(manifest).toContain('binaryTarget(name: "hermesvm"');
-    expect(manifest).toContain('path: "./hermesvm.xcframework"');
+    expect(manifest).toContain(
+      'path: "./spm-artifacts/hermesvm.xcframework"'
+    );
     expect(manifest).toContain('binaryTarget(name: "ReactBrownfield"');
-    expect(manifest).toContain('path: "./ReactBrownfield.xcframework"');
+    expect(manifest).toContain(
+      'path: "./spm-artifacts/ReactBrownfield.xcframework"'
+    );
+
+    expect(
+      fs.existsSync(
+        path.join(tempDir, 'spm-artifacts', 'BrownfieldLib.xcframework')
+      )
+    ).toBe(true);
+    expect(
+      fs.existsSync(path.join(tempDir, 'BrownfieldLib.xcframework'))
+    ).toBe(true);
 
     const readmePath = path.join(tempDir, 'README.md');
     expect(fs.existsSync(readmePath)).toBe(true);
@@ -71,9 +86,11 @@ describe('createLocalSpmPackage', () => {
     const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
 
     expect(manifest).toContain('binaryTarget(name: "Brownie"');
-    expect(manifest).toContain('path: "./Brownie.xcframework"');
+    expect(manifest).toContain('path: "./spm-artifacts/Brownie.xcframework"');
     expect(manifest).toContain('binaryTarget(name: "BrownfieldNavigation"');
-    expect(manifest).toContain('path: "./BrownfieldNavigation.xcframework"');
+    expect(manifest).toContain(
+      'path: "./spm-artifacts/BrownfieldNavigation.xcframework"'
+    );
   });
 
   it('includes React and ReactNativeDependencies when those XCFrameworks exist', () => {
@@ -91,12 +108,12 @@ describe('createLocalSpmPackage', () => {
     const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
 
     expect(manifest).toContain('binaryTarget(name: "React"');
-    expect(manifest).toContain('path: "./React.xcframework"');
+    expect(manifest).toContain('path: "./spm-artifacts/React.xcframework"');
     expect(manifest).toContain(
       'binaryTarget(name: "ReactNativeDependencies"'
     );
     expect(manifest).toContain(
-      'path: "./ReactNativeDependencies.xcframework"'
+      'path: "./spm-artifacts/ReactNativeDependencies.xcframework"'
     );
   });
 
@@ -113,7 +130,7 @@ describe('createLocalSpmPackage', () => {
     const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
 
     expect(manifest).toContain('binaryTarget(name: "hermes"');
-    expect(manifest).toContain('path: "./hermes.xcframework"');
+    expect(manifest).toContain('path: "./spm-artifacts/hermes.xcframework"');
   });
 
   it('throws a clear error when a required XCFramework is missing', () => {

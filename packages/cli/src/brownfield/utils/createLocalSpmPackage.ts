@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import {
+  prepareLocalSpmArtifacts,
+  SPM_ARTIFACTS_DIR_NAME,
+} from './prepareLocalSpmArtifacts.js';
+
 type CreateLocalSpmPackageOptions = {
   packageDir: string;
   frameworkName?: string;
@@ -89,7 +94,7 @@ function renderPackageSwift({
   const binaryTargets = targetNames
     .map(
       (targetName) =>
-        `    .binaryTarget(name: "${targetName}", path: "./${targetName}.xcframework")`
+        `    .binaryTarget(name: "${targetName}", path: "./${SPM_ARTIFACTS_DIR_NAME}/${targetName}.xcframework")`
     )
     .join(',\n');
 
@@ -170,6 +175,10 @@ export function createLocalSpmPackage({
 
   const packageManifestPath = path.join(packageDir, 'Package.swift');
   const readmePath = path.join(packageDir, 'README.md');
+  prepareLocalSpmArtifacts({
+    packageDir,
+    targetNames,
+  });
   const manifest = renderPackageSwift({
     packageName: `${resolvedFrameworkName}Package`,
     libraryName: resolvedFrameworkName,
