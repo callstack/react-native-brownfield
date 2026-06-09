@@ -30,6 +30,7 @@ import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNa
 import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
 import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -56,9 +57,23 @@ export function parseUsePrebuiltRnCoreArgument(
   );
 }
 
+function getPackagedFrameworkResolutionFailureMessage({
+  resolution,
+  candidates,
+}: {
+  resolution: string | null | undefined;
+  candidates?: string[];
+}) {
+  return resolution === 'ambiguous'
+    ? `found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
+    : 'could not resolve the packaged framework output automatically; pass --scheme explicitly';
+}
+
 type PackageIosCliFlags = AppleBuildFlags & {
   /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
   usePrebuiltRnCore?: boolean;
+  /** When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs. */
+  addSpmPackage?: boolean;
 };
 
 export const packageIosCommand = curryOptions(
@@ -78,6 +93,12 @@ export const packageIosCommand = curryOptions(
     new Option('--use-prebuilt-rn-core [bool]', USE_PREBUILT_RN_CORE_HELP)
       .preset(true)
       .argParser(parseUsePrebuiltRnCoreArgument)
+  )
+  .addOption(
+    new Option(
+      '--add-spm-package',
+      'Generate a local Swift Package Manager manifest next to the packaged XCFramework outputs'
+    )
   )
   .action(
     actionRunner(async (options: PackageIosCliFlags) => {
@@ -173,6 +194,15 @@ export const packageIosCommand = curryOptions(
           configuration,
         });
 
+      if (!frameworkName && options.addSpmPackage) {
+        throw new RockError(
+          `Cannot generate local SPM package: ${getPackagedFrameworkResolutionFailureMessage({
+            resolution,
+            candidates,
+          })}`
+        );
+      }
+
       if (frameworkName) {
         copyDebugBundleToSimulatorSlice({
           productsPath,
@@ -200,12 +230,12 @@ export const packageIosCommand = curryOptions(
           });
         }
       } else if (configuration.includes('Debug')) {
-        const debugResolutionMessage =
-          resolution === 'ambiguous'
-            ? `Skipping Debug simulator JS bundle copy: found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
-            : 'Skipping Debug simulator JS bundle copy: could not resolve the packaged framework output automatically; pass --scheme explicitly';
-
-        logger.warn(debugResolutionMessage);
+        logger.warn(
+          `Skipping Debug simulator JS bundle copy: ${getPackagedFrameworkResolutionFailureMessage({
+            resolution,
+            candidates,
+          })}`
+        );
       }
 
       const reactBrownfieldXcframeworkPath = path.join(
@@ -280,6 +310,23 @@ export const packageIosCommand = curryOptions(
 
         logger.success(
           `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
+        );
+      }
+
+      if (options.addSpmPackage) {
+        const { packageManifestPath } = createLocalSpmPackage({
+          packageDir,
+          frameworkName: frameworkName ?? undefined,
+        });
+
+        logger.success(
+          `Local SPM package manifest created at ${colorLink(relativeToCwd(packageManifestPath))}`
+        );
+        logger.info(
+          `Add the local package folder in Xcode: ${colorLink(relativeToCwd(packageDir))}`
+        );
+        logger.info(
+          "In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder."
         );
       }
     })

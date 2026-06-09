@@ -82,6 +82,49 @@ for (const artifact of prebuiltRnCoreArtifacts) {
  *
  */
 
+const validNames = [
+  'BrownfieldLib.xcframework',
+  'Brownie.xcframework',
+  'hermesvm.xcframework',
+  'ReactBrownfield.xcframework',
+  'BrownfieldNavigation.xcframework',
+  // below: optional, emitted when RN is packaged with prebuilt iOS pods
+  'React.xcframework',
+  'ReactNativeDependencies.xcframework',
+];
+
+if (fs.existsSync(targetPackagePath)) {
+  logger.info(`Removing ${targetPackagePath}\n`);
+  fs.rmSync(targetPackagePath, { recursive: true, force: true });
+}
+
+logger.info(
+  `Copying XCFrameworks from ${sourcePackagePath} to ${targetPackagePath}\n`
+);
+fs.mkdirSync(targetPackagePath, { recursive: true });
+
+const spmArtifactsPath = path.join(sourcePackagePath, 'spm-artifacts');
+const preferredArtifactSourcePath = fs.existsSync(spmArtifactsPath)
+  ? spmArtifactsPath
+  : sourcePackagePath;
+
+for (const file of fs.readdirSync(preferredArtifactSourcePath)) {
+  if (
+    !validNames.includes(file) &&
+    !['hermes.xcframework', 'hermesvm.xcframework'].includes(file)
+  ) {
+    continue;
+  }
+
+  fs.cpSync(
+    path.join(preferredArtifactSourcePath, file),
+    path.join(targetPackagePath, file),
+    {
+      recursive: true,
+    }
+  );
+}
+
 // handle hermesvm.xcframework / hermes.xcframework
 let hermesArtifactFound = false;
 for (const candidateDir of ['hermes.xcframework', 'hermesvm.xcframework']) {
@@ -98,18 +141,6 @@ if (!hermesArtifactFound) {
   throw new Error('Hermes artifact not found');
 }
 
-// list files
-const validNames = [
-  'BrownfieldLib.xcframework',
-  'Brownie.xcframework',
-  'hermesvm.xcframework',
-  'ReactBrownfield.xcframework',
-  'BrownfieldNavigation.xcframework',
-  // below: optional, emitted when RN is packaged with prebuilt iOS pods
-  'React.xcframework',
-  'ReactNativeDependencies.xcframework',
-];
-
 for (const file of fs.readdirSync(targetPackagePath)) {
   if (!validNames.includes(file)) {
     throw new Error(`Invalid file name: ${file}`);
@@ -117,45 +148,5 @@ for (const file of fs.readdirSync(targetPackagePath)) {
 
   logger.success(`${file} prepared`);
 }
-
-logger.info('Patching entrypoint name in ContentView.swift');
-const filePath = path.join(
-  __dirname,
-  'Brownfield Apple App',
-  'components',
-  'ContentView.swift'
-);
-const contentViewFileContents = fs.readFileSync(filePath, 'utf8');
-const moduleNameRegex = /moduleName: ".*"/g;
-
-if (!contentViewFileContents.match(moduleNameRegex)) {
-  throw new Error('moduleName not found in ContentView.swift');
-}
-
-const isVanillaApp = appName === 'RNApp';
-
-let updatedContentViewFileContents = contentViewFileContents.replace(
-  moduleNameRegex,
-  `moduleName: "${
-    isVanillaApp ? 'RNApp' : 'main' // default to main for Expo apps
-  }"`
-);
-
-logger.success(`Entrypoint name patched in ${filePath}`);
-
-logger.info('Patching GreetingCard name in ContentView.swift');
-
-// replace GreetingCard(name: "...") with GreetingCard(name: "${appName}")
-const greetingCardNameRegex = /GreetingCard\(name: ".*"/g;
-if (!updatedContentViewFileContents.match(greetingCardNameRegex)) {
-  throw new Error('GreetingCard name not found in ContentView.swift');
-}
-
-updatedContentViewFileContents = updatedContentViewFileContents.replace(
-  greetingCardNameRegex,
-  `GreetingCard(name: "iOS ${isVanillaApp ? 'Vanilla' : 'Expo'}"`
-);
-
-fs.writeFileSync(filePath, updatedContentViewFileContents);
 
 outro(`Done!`);
