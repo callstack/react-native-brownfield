@@ -8,10 +8,22 @@ const { getIosSimulatorDeviceType } = require('./detox-ios-simulator-device.cjs'
  * Unlike RN/Expo host apps, AppleApp links pre-packaged XCFrameworks and has no ios/
  * workspace. Build the matching RN app first (prepareXCFrameworks) before Detox build.
  *
- * @param {{ scheme: string, configuration: string, appBinaryName: string }} options
+ * @param {{
+ *   scheme: string,
+ *   configuration: string,
+ *   appBinaryName: string,
+ *   detoxConfiguration?: string,
+ *   jestConfigPath?: string,
+ * }} options
  * @returns {import('detox').DetoxConfig}
  */
-function createAppleAppIosSimDebugDetoxConfig({ scheme, configuration, appBinaryName }) {
+function createAppleAppIosSimDebugDetoxConfig({
+  scheme,
+  configuration,
+  appBinaryName,
+  detoxConfiguration = 'ios.sim.debug',
+  jestConfigPath = 'e2e/jest.config.cjs',
+}) {
   const detoxIosDebugBuild =
     `xcodebuild -project "Brownfield Apple App.xcodeproj"` +
     ` -scheme "${scheme}" -configuration "${configuration}" -sdk iphonesimulator` +
@@ -21,7 +33,7 @@ function createAppleAppIosSimDebugDetoxConfig({ scheme, configuration, appBinary
     testRunner: {
       $0: 'jest',
       args: {
-        config: 'e2e/jest.config.cjs',
+        config: jestConfigPath,
         _: ['e2e'],
       },
       jest: {
@@ -44,7 +56,7 @@ function createAppleAppIosSimDebugDetoxConfig({ scheme, configuration, appBinary
       },
     },
     configurations: {
-      'ios.sim.debug': {
+      [detoxConfiguration]: {
         device: 'ios.sim',
         app: 'ios.debug',
       },

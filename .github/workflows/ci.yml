@@ -201,11 +201,12 @@ jobs:
           variant: vanilla
           rn-project-path: apps/RNApp
           run-e2e: 'true'
-          e2e-artifact-name: detox-appleapp
+          e2e-artifact-name: detox-appleapp-vanilla
 
   ios-appleapp-expo:
-    name: iOS road test (AppleApp - Expo ${{ matrix.version }})
+    name: iOS road test${{ matrix.run-e2e == 'true' && ' & E2E' || '' }} (AppleApp - Expo ${{ matrix.version }})
     runs-on: macos-26
+    timeout-minutes: ${{ matrix.run-e2e == 'true' && 90 || 60 }}
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -221,15 +222,19 @@ jobs:
       matrix:
         include:
           - version: '54'
+            run-e2e: 'false'
           - version: '55'
+            run-e2e: 'true'
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run ExpoApp -> AppleApp road test (Expo ${{ matrix.version }})
+      - name: Run ExpoApp -> AppleApp road test${{ matrix.run-e2e == 'true' && ' & Detox E2E' || '' }} (Expo ${{ matrix.version }})
         uses: ./.github/actions/appleapp-road-test
         with:
           variant: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
+          run-e2e: ${{ matrix.run-e2e }}
+          e2e-artifact-name: detox-appleapp-expo${{ matrix.version }}
 

@@ -56,14 +56,39 @@ export default TurboModuleRegistry.getEnforcing<Spec>(
 `;
 }
 
+function collectTypesUsedByMethods(methods: MethodSignature[]): Set<string> {
+  const used = new Set<string>();
+
+  for (const method of methods) {
+    for (const param of method.params) {
+      used.add(param.type.replace(/Promise<(.+)>/, '$1').trim());
+    }
+    if (method.returnType !== 'void') {
+      used.add(method.returnType.replace(/Promise<(.+)>/, '$1').trim());
+    }
+  }
+
+  return used;
+}
+
 function buildTypeImportLine(
+  methods: MethodSignature[],
   referencedTypeDeclarations: TypeDeclaration[]
 ): string {
   if (referencedTypeDeclarations.length === 0) {
     return '';
   }
 
-  const names = referencedTypeDeclarations.map((entry) => entry.name).join(', ');
+  const usedTypes = collectTypesUsedByMethods(methods);
+  const names = referencedTypeDeclarations
+    .map((entry) => entry.name)
+    .filter((name) => usedTypes.has(name))
+    .join(', ');
+
+  if (names.length === 0) {
+    return '';
+  }
+
   return `import type { ${names} } from './NativeBrownfieldNavigation';\n`;
 }
 
@@ -71,7 +96,7 @@ export function generateIndexTs(
   methods: MethodSignature[],
   referencedTypeDeclarations: TypeDeclaration[] = []
 ): string {
-  const typeImportLine = buildTypeImportLine(referencedTypeDeclarations);
+  const typeImportLine = buildTypeImportLine(methods, referencedTypeDeclarations);
   const functionImplementations = methods
     .map((method) => {
       const params = method.params
@@ -155,7 +180,7 @@ export function generateIndexDts(
   methods: MethodSignature[],
   referencedTypeDeclarations: TypeDeclaration[] = []
 ): string {
-  const typeImportLine = buildTypeImportLine(referencedTypeDeclarations);
+  const typeImportLine = buildTypeImportLine(methods, referencedTypeDeclarations);
   const methodSignatures = methods
     .map((method) => {
       const params = method.params
