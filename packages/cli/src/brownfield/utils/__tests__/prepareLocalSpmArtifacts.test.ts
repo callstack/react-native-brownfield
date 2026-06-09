@@ -12,17 +12,23 @@ vi.mock('node:child_process', () => ({
 }));
 
 function createSignedMockXcframework(packageDir: string, name: string) {
+  const xcframeworkDir = path.join(packageDir, `${name}.xcframework`);
   const frameworkDir = path.join(
-    packageDir,
-    `${name}.xcframework`,
+    xcframeworkDir,
     'ios-arm64_x86_64-simulator',
     `${name}.framework`
   );
   const codeSignatureDir = path.join(frameworkDir, '_CodeSignature');
+  const xcframeworkSignatureDir = path.join(xcframeworkDir, '_CodeSignature');
 
   fs.mkdirSync(codeSignatureDir, { recursive: true });
+  fs.mkdirSync(xcframeworkSignatureDir, { recursive: true });
   fs.writeFileSync(path.join(frameworkDir, name), 'mock-binary');
   fs.writeFileSync(path.join(codeSignatureDir, 'CodeResources'), 'signature');
+  fs.writeFileSync(
+    path.join(xcframeworkSignatureDir, 'CodeResources'),
+    'xcframework-signature'
+  );
   fs.writeFileSync(path.join(frameworkDir, 'Info.plist'), '<plist/>');
 }
 
@@ -61,11 +67,31 @@ describe('prepareLocalSpmArtifacts', () => {
         path.join(copiedFrameworkDir, '_CodeSignature', 'CodeResources')
       )
     ).toBe(false);
+    expect(
+      fs.existsSync(
+        path.join(
+          spmArtifactsDir,
+          'React.xcframework',
+          '_CodeSignature',
+          'CodeResources'
+        )
+      )
+    ).toBe(false);
     expect(childProcess.execFileSync).toHaveBeenCalledWith(
       'codesign',
       ['--remove-signature', path.join(copiedFrameworkDir, 'React')],
       expect.objectContaining({ stdio: 'pipe' })
     );
+    expect(
+      fs.existsSync(
+        path.join(
+          tempDir,
+          'React.xcframework',
+          '_CodeSignature',
+          'CodeResources'
+        )
+      )
+    ).toBe(true);
     expect(
       fs.existsSync(
         path.join(

@@ -69,6 +69,8 @@ function removeExecutableSignature(executablePath: string) {
 }
 
 function normalizeCopiedXcframeworkSignature(xcframeworkPath: string) {
+  removeCodeSignatureArtifacts(xcframeworkPath);
+
   for (const sliceName of fs.readdirSync(xcframeworkPath)) {
     const slicePath = path.join(xcframeworkPath, sliceName);
     if (!fs.statSync(slicePath).isDirectory()) {
@@ -86,8 +88,6 @@ function normalizeCopiedXcframeworkSignature(xcframeworkPath: string) {
         frameworkDir,
         frameworkName
       );
-
-      removeCodeSignatureArtifacts(frameworkDir);
 
       if (executablePath) {
         removeExecutableSignature(executablePath);
