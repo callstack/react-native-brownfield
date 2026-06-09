@@ -69,6 +69,9 @@ describe('createLocalSpmPackage', () => {
     expect(readme).toContain('local Swift Package Manager package');
     expect(readme).toContain('BrownfieldLib');
     expect(readme).toContain('Package.swift');
+    expect(readme).toContain('## Troubleshooting');
+    expect(readme).toContain('missing its bundle executable');
+    expect(readme).toContain('same React Native module name');
   });
 
   it('includes Brownie and BrownfieldNavigation when those XCFrameworks exist', () => {
