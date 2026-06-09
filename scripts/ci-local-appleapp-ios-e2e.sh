@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local-only Detox E2E for apps/AppleApp (mirrors the CI e2e-ios-appleapp job).
+# Local-only Detox E2E for apps/AppleApp (mirrors the CI ios-appleapp-vanilla job E2E steps).
 #
 # Usage (from repo root):
 #   yarn ci:local:appleapp:e2e:ios

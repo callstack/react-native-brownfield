@@ -177,8 +177,9 @@ jobs:
           rn-project-maven-path: com/rnapp/brownfieldlib
 
   ios-appleapp-vanilla:
-    name: iOS road test (AppleApp - Vanilla)
+    name: iOS road test & E2E (AppleApp - Vanilla)
     runs-on: macos-26
+    timeout-minutes: 90
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -194,11 +195,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AppleApp road test (Vanilla)
+      - name: Run RNApp -> AppleApp road test & Detox E2E (Vanilla)
         uses: ./.github/actions/appleapp-road-test
         with:
           variant: vanilla
           rn-project-path: apps/RNApp
+          run-e2e: 'true'
+          e2e-artifact-name: detox-appleapp
 
   ios-appleapp-expo:
     name: iOS road test (AppleApp - Expo ${{ matrix.version }})
@@ -230,28 +233,3 @@ jobs:
           variant: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
 
-  e2e-ios-appleapp:
-    name: E2E iOS (AppleApp)
-    runs-on: macos-26
-    timeout-minutes: 90
-    permissions:
-      contents: read
-      actions: write
-    needs: [filter, build-lint]
-    if: |
-      always() &&
-      (
-        needs.filter.outputs.rnapp == 'true' ||
-        needs.filter.outputs.appleapp == 'true' ||
-        needs.filter.outputs.packages == 'true' ||
-        needs.filter.outputs.ci == 'true'
-      ) &&
-      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-
-      - name: Run Detox E2E (AppleApp)
-        uses: ./.github/actions/e2e-ios-appleapp
-        with:
-          artifact-name: detox-appleapp
