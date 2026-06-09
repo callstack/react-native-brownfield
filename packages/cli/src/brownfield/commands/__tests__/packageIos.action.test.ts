@@ -165,7 +165,7 @@ describe('package:ios action --add-spm-package', () => {
     );
   });
 
-  test('passes undefined frameworkName when package:ios could not resolve it outside Debug mode', async () => {
+  test('fails fast when Release packaging cannot resolve the framework name and SPM output was requested', async () => {
     mockResolvePackagedFrameworkName.mockReturnValue({
       frameworkName: null,
       resolution: 'not_found',
@@ -174,12 +174,12 @@ describe('package:ios action --add-spm-package', () => {
 
     await invokePackageIosAction(['--add-spm-package', '--configuration', 'Release']);
 
-    expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith({
-      packageDir: '/repo/ios/.brownfield/package/build',
-      frameworkName: undefined,
-    });
+    expect(mockCreateLocalSpmPackage).not.toHaveBeenCalled();
     expect(mockLoggerWarn).not.toHaveBeenCalled();
-    expect(processExitMock).not.toHaveBeenCalled();
+    expect(mockLoggerError).toHaveBeenCalledWith(
+      'Cannot generate local SPM package: could not resolve the packaged framework output automatically; pass --scheme explicitly'
+    );
+    expect(processExitMock).toHaveBeenCalledWith(1);
   });
 
   test('fails fast when Debug packaging cannot resolve the framework name and SPM output was requested', async () => {

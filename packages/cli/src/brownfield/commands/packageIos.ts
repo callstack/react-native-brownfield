@@ -194,6 +194,15 @@ export const packageIosCommand = curryOptions(
           configuration,
         });
 
+      if (!frameworkName && options.addSpmPackage) {
+        throw new RockError(
+          `Cannot generate local SPM package: ${getPackagedFrameworkResolutionFailureMessage({
+            resolution,
+            candidates,
+          })}`
+        );
+      }
+
       if (frameworkName) {
         copyDebugBundleToSimulatorSlice({
           productsPath,
@@ -221,20 +230,11 @@ export const packageIosCommand = curryOptions(
           });
         }
       } else if (configuration.includes('Debug')) {
-        const debugResolutionFailureMessage =
-          getPackagedFrameworkResolutionFailureMessage({
+        logger.warn(
+          `Skipping Debug simulator JS bundle copy: ${getPackagedFrameworkResolutionFailureMessage({
             resolution,
             candidates,
-          });
-
-        if (options.addSpmPackage) {
-          throw new RockError(
-            `Cannot generate local SPM package: ${debugResolutionFailureMessage}`
-          );
-        }
-
-        logger.warn(
-          `Skipping Debug simulator JS bundle copy: ${debugResolutionFailureMessage}`
+          })}`
         );
       }
 
