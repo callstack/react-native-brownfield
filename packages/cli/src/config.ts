@@ -11,9 +11,9 @@ import BrownfieldSchema from '../schema.json' with { type: 'json' };
 import { logger } from '@rock-js/tools';
 import { Command } from 'commander';
 
-const JS_CONFIG_FILE_NAME = 'react-native-brownfield.config.js';
-const JSON_CONFIG_FILE_NAME = 'react-native-brownfield.config.json';
-const PACKAGE_JSON_CONFIG_KEY = 'react-native-brownfield';
+const CONFIG_BASE_NAME = 'brownfield';
+const JS_CONFIG_FILE_NAME = `.${CONFIG_BASE_NAME}.config.js`;
+const JSON_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.json`;
 
 const SEPARATOR = '\n● ';
 
@@ -42,7 +42,7 @@ export function loadBrownfieldConfig(
     [
       fs.existsSync(jsConfigFilePath),
       fs.existsSync(jsonConfigFilePath),
-      packageJson[PACKAGE_JSON_CONFIG_KEY],
+      packageJson[CONFIG_BASE_NAME],
     ].filter(Boolean).length > 1
   ) {
     throw new Error('Project has multiple Brownfield configuration files');
@@ -56,7 +56,7 @@ export function loadBrownfieldConfig(
     return require(jsonConfigFilePath) as BrownfieldConfig;
   }
 
-  return packageJson[PACKAGE_JSON_CONFIG_KEY] || {};
+  return packageJson[CONFIG_BASE_NAME] || {};
 }
 
 export function addBrownfieldConfig(...args: any[]): void {

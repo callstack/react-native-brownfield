@@ -4,7 +4,7 @@
   "description": "Adds react-native-brownfield configuration completions to package.json.",
   "type": "object",
   "properties": {
-    "react-native-brownfield": {
+    "brownfield": {
       "$ref": "https://oss.callstack.com/react-native-brownfield/schema.json"
     }
   }

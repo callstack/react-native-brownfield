@@ -62,7 +62,7 @@
     "typescript": "~5.9.2"
   },
   "private": true,
-  "react-native-brownfield": {
+  "brownfield": {
     "$schema": "../../packages/cli/schema.json",
     "brownie": {
       "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/",

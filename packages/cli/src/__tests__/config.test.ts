@@ -49,7 +49,7 @@ function createTempProject({
   };
 
   if (packageJsonConfig !== undefined) {
-    packageJson['react-native-brownfield'] = packageJsonConfig;
+    packageJson['brownfield'] = packageJsonConfig;
   }
 
   fs.writeFileSync(
@@ -59,14 +59,14 @@ function createTempProject({
 
   if (jsConfig !== undefined) {
     fs.writeFileSync(
-      path.join(tempDir, 'react-native-brownfield.config.js'),
+      path.join(tempDir, 'brownfield.config.js'),
       `module.exports = ${JSON.stringify(jsConfig, null, 2)};\n`
     );
   }
 
   if (jsonConfig !== undefined) {
     fs.writeFileSync(
-      path.join(tempDir, 'react-native-brownfield.config.json'),
+      path.join(tempDir, 'brownfield.config.json'),
       JSON.stringify(jsonConfig, null, 2)
     );
   }
