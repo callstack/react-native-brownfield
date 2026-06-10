@@ -148,7 +148,7 @@ ${frameworks}
 
 1. In Xcode, choose **File > Add Package Dependencies...**
 2. Click **Add Local...**
-3. Select this folder, the one containing both \`Package.swift\` and the \`*.xcframework\` artifacts
+3. Select this folder, the one containing \`Package.swift\` and the \`spm-artifacts\` directory
 4. Add the \`${libraryName}\` library product to your app target
 
 ## Troubleshooting
