@@ -6,8 +6,8 @@ import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
-import com.callstack.react.brownfield.utils.capitalized
 import com.callstack.react.brownfield.utils.Utils
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
