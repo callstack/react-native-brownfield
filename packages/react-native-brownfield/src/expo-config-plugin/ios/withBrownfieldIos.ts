@@ -11,6 +11,7 @@ import {
   copyBundleReactNativePhase,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
+import { injectFmtFixIntoPodfile } from './withFmtFix';
 import { ensureFrameworkHasExpoPlistResource } from './utils/expo-updates';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
@@ -55,8 +56,17 @@ export const withBrownfieldIos: ConfigPlugin<
 
     if (targetAlreadyExists) {
       Logger.logDebug(
-        `Skipping further Xcode modifications as framework target was already present`
+        `Framework target already present, syncing Brownfield build phases`
       );
+
+      copyBundleReactNativePhase(project, frameworkTargetUUID);
+
+      if (isExpoPre55) {
+        addExpoPre55ShellPatchScriptPhase(modRequest, project, {
+          frameworkName: props.ios.frameworkName,
+          frameworkTargetUUID: frameworkTargetUUID,
+        });
+      }
 
       return xcodeConfig;
     }
@@ -89,11 +99,13 @@ export const withBrownfieldIos: ConfigPlugin<
   config = withPodfile(config, (podfileConfig) => {
     const { frameworkName } = props.ios;
 
-    podfileConfig.modResults.contents = modifyPodfile(
+    const modifiedPodfile = modifyPodfile(
       podfileConfig.modResults.contents,
       frameworkName,
       expoMajor
     );
+    podfileConfig.modResults.contents =
+      injectFmtFixIntoPodfile(modifiedPodfile);
 
     return podfileConfig;
   });

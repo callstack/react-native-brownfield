@@ -26,8 +26,11 @@ import {
 } from '../../shared/index.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
+import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
+import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 import type { PackageIosOptions } from '../../types.js';
+import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -54,6 +57,18 @@ export function parseUsePrebuiltRnCoreArgument(
   );
 }
 
+function getPackagedFrameworkResolutionFailureMessage({
+  resolution,
+  candidates,
+}: {
+  resolution: string | null | undefined;
+  candidates?: string[];
+}) {
+  return resolution === 'ambiguous'
+    ? `found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
+    : 'could not resolve the packaged framework output automatically; pass --scheme explicitly';
+}
+
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
   getBuildOptions({ platformName: 'ios' }).map((option) =>
@@ -71,6 +86,12 @@ export const packageIosCommand = curryOptions(
     new Option('--use-prebuilt-rn-core [bool]', USE_PREBUILT_RN_CORE_HELP)
       .preset(true)
       .argParser(parseUsePrebuiltRnCoreArgument)
+  )
+  .addOption(
+    new Option(
+      '--add-spm-package',
+      'Generate a local Swift Package Manager manifest next to the packaged XCFramework outputs'
+    )
   )
   .action(
     actionRunner(async (options: PackageIosOptions) => {
@@ -158,6 +179,62 @@ export const packageIosCommand = curryOptions(
         platformConfig
       );
 
+      const productsPath = path.join(options.buildFolder, 'Build', 'Products');
+      const { frameworkName, resolution, candidates } =
+        resolvePackagedFrameworkName({
+          explicitScheme: options.scheme,
+          productsPath,
+          configuration,
+        });
+
+      if (!frameworkName && options.addSpmPackage) {
+        throw new RockError(
+          `Cannot generate local SPM package: ${getPackagedFrameworkResolutionFailureMessage(
+            {
+              resolution,
+              candidates,
+            }
+          )}`
+        );
+      }
+
+      if (frameworkName) {
+        copyDebugBundleToSimulatorSlice({
+          productsPath,
+          configuration,
+          frameworkName,
+        });
+
+        if (configuration.includes('Debug')) {
+          // Re-merge only Debug frameworks so the simulator slice includes main.jsbundle.
+          await mergeFrameworks({
+            sourceDir: userConfig.project.ios.sourceDir,
+            frameworkPaths: [
+              path.join(
+                productsPath,
+                `${configuration}-iphoneos`,
+                `${frameworkName}.framework`
+              ),
+              path.join(
+                productsPath,
+                `${configuration}-iphonesimulator`,
+                `${frameworkName}.framework`
+              ),
+            ],
+            outputPath: path.join(packageDir, `${frameworkName}.xcframework`),
+          });
+        }
+      } else if (configuration.includes('Debug')) {
+        logger.warn(
+          `Skipping Debug simulator JS bundle copy: ${getPackagedFrameworkResolutionFailureMessage(
+            {
+              resolution,
+              candidates,
+            }
+          )}`
+        );
+      }
+
       const reactBrownfieldXcframeworkPath = path.join(
         packageDir,
         'ReactBrownfield.xcframework'
@@ -170,11 +247,6 @@ export const packageIosCommand = curryOptions(
       }
 
       if (hasBrownie) {
-        const productsPath = path.join(
-          options.buildFolder,
-          'Build',
-          'Products'
-        );
         const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
 
         await mergeFrameworks({
@@ -207,11 +279,6 @@ export const packageIosCommand = curryOptions(
       }
 
       if (hasNavigation) {
-        const productsPath = path.join(
-          options.buildFolder,
-          'Build',
-          'Products'
-        );
         const brownfieldNavigationOutputPath = path.join(
           packageDir,
           'BrownfieldNavigation.xcframework'
@@ -240,6 +307,23 @@ export const packageIosCommand = curryOptions(
 
         logger.success(
           `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
+        );
+      }
+
+      if (options.addSpmPackage) {
+        const { packageManifestPath } = createLocalSpmPackage({
+          packageDir,
+          frameworkName: frameworkName ?? undefined,
+        });
+
+        logger.success(
+          `Local SPM package manifest created at ${colorLink(relativeToCwd(packageManifestPath))}`
+        );
+        logger.info(
+          `Add the local package folder in Xcode: ${colorLink(relativeToCwd(packageDir))}`
+        );
+        logger.info(
+          'In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder.'
         );
       }
     })

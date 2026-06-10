@@ -32,9 +32,9 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Run Detekt
-        working-directory: gradle-plugins/react
-        run: ./gradlew :brownfield:detekt --no-daemon --stacktrace
+        working-directory: gradle-plugins/react/brownfield
+        run: ./gradlew detekt --no-daemon --stacktrace
 
       - name: Run KtLint
-        working-directory: gradle-plugins/react
-        run: ./gradlew :brownfield:ktlintCheck --no-daemon --stacktrace
+        working-directory: gradle-plugins/react/brownfield
+        run: ./gradlew ktlintCheck --no-daemon --stacktrace

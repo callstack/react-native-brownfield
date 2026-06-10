@@ -132,6 +132,14 @@ This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative t
 
 If you prefer to keep the settings on the command line, you can still run `npx brownfield package:ios --scheme <framework_target_name> --configuration Release` instead.
 
+If you also want a local Swift Package Manager wrapper around the generated XCFrameworks, add `--add-spm-package`:
+
+```bash
+npx brownfield package:ios --scheme <framework_target_name> --configuration Release --add-spm-package
+```
+
+That command writes `Package.swift` into the same `ios/.brownfield/package/build/` directory.
+
 ## 7. Add the Framework to Your iOS App
 
 1. Open **`ios/.brownfield/package/build`** directory (relative to your React Native project root)
@@ -144,6 +152,31 @@ If you prefer to keep the settings on the command line, you can still run `npx b
    - `BrownfieldNavigation.xcframework` - Brownfield navigation integration (only when using the brownfield-navigation package) for React Native navigation
 
 ![Frameworks in Xcode Sidebar](/images/frameworks.png)
+
+### Optional: Add as a Local Swift Package
+
+If you ran `package:ios` with `--add-spm-package`, you can add the generated folder as a local Swift package instead of dragging XCFrameworks manually:
+
+1. In Xcode, choose **File > Add Package Dependencies...**
+2. Click **Add Local...**
+3. Select `ios/.brownfield/package/build/`
+
+The generated package references the packaged app XCFramework, Hermes, `ReactBrownfield`, and optional frameworks such as `Brownie`, `BrownfieldNavigation`, `React`, and `ReactNativeDependencies` when they exist in that folder.
+
+After adding the local package:
+
+1. Select your host app target
+2. Open the **General** tab
+3. Under **Frameworks, Libraries, and Embedded Content**, add the package product named after your packaged framework target, for example `<framework_target_name>`
+4. Remove any old direct `*.xcframework` entries from the target if you are switching from manual drag-and-drop to the local package flow
+
+For a successful validation of a Release package:
+
+1. Build the React Native package with `--add-spm-package`
+2. Add the generated local package to the host app
+3. Add the package product to the host app target
+4. Build the host app
+5. Run the host app without Metro and confirm the packaged React Native content loads correctly
 
 ## 8. Initialize React Native
 
@@ -187,6 +220,16 @@ When running in **Debug**, React Native Brownfield expects a JS dev server runni
 
 ```bash
 npx react-native start
+```
+
+## Embedded bundle in Development
+
+If you want to run a **Debug-built** framework without Metro, enable the embedded bundle explicitly before calling `startReactNative`:
+
+```swift
+ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+ReactNativeBrownfield.shared.preferEmbeddedBundleInDebug = true
+ReactNativeBrownfield.shared.startReactNative()
 ```
 
 ### Release Configuration

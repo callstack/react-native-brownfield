@@ -39,11 +39,28 @@ object Utils {
         }
     }
 
-    fun isExampleLibrary(projectName: String): Boolean {
-        return projectName == "example-android-library"
-    }
-
     fun isExpoProject(project: Project): Boolean {
         return project.findProject(EXPO_PROJECT_LOCATOR) != null
+    }
+
+    fun getBundledAssetsVariantName(
+        variantName: String,
+        buildTypeName: String,
+        isDebuggable: Boolean,
+    ): String {
+        if (!isDebuggable) {
+            return variantName
+        }
+
+        if (variantName == buildTypeName) {
+            return "release"
+        }
+
+        val capitalizedBuildTypeName = buildTypeName.capitalized()
+        return if (variantName.endsWith(capitalizedBuildTypeName)) {
+            "${variantName.removeSuffix(capitalizedBuildTypeName)}Release"
+        } else {
+            "release"
+        }
     }
 }

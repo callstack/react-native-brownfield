@@ -20,7 +20,10 @@ export type BrownieConfig = {
 };
 
 export type PackageIosOptions = AppleBuildFlags & {
+  /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
   usePrebuiltRnCore?: boolean;
+  /** When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs. */
+  addSpmPackage?: boolean;
 };
 
 export type BrownfieldPackageAndroidOptions = BrownfieldCommonOptions &
