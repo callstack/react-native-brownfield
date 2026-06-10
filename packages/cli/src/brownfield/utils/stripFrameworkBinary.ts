@@ -85,6 +85,66 @@ function createFatStaticLib(targets: string[]): string {
   return outputLib;
 }
 
+function sdkForTarget(target: string): 'iphoneos' | 'iphonesimulator' {
+  return target.includes('simulator') ? 'iphonesimulator' : 'iphoneos';
+}
+
+function createEmptyDynamicLibrary(
+  frameworkName: string,
+  target: string,
+  outputPath: string
+): void {
+  const sdk = sdkForTarget(target);
+  const sdkPath = execSync(`xcrun --sdk ${sdk} --show-sdk-path`, {
+    encoding: 'utf8',
+  }).trim();
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'framework-strip-dylib-'));
+  const tempObj = path.join(tempDir, 'empty.o');
+
+  try {
+    execSync(
+      `echo "" | xcrun clang -x c -c - -o "${tempObj}" -target ${target}`,
+      {
+        stdio: 'pipe',
+      }
+    );
+    execSync(
+      `xcrun clang -dynamiclib "${tempObj}" -target ${target} -isysroot "${sdkPath}" -install_name "@rpath/${frameworkName}.framework/${frameworkName}" -o "${outputPath}"`,
+      {
+        stdio: 'pipe',
+      }
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+function createFatDynamicLibrary(
+  frameworkName: string,
+  targets: string[],
+  outputPath: string
+): void {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'framework-strip-fat-dylib-'));
+  const dylibPaths: string[] = [];
+
+  try {
+    for (const [index, target] of targets.entries()) {
+      const dylibPath = path.join(tempDir, `${index}.dylib`);
+      createEmptyDynamicLibrary(frameworkName, target, dylibPath);
+      dylibPaths.push(dylibPath);
+    }
+
+    execSync(
+      `xcrun lipo -create ${dylibPaths.map((dylib) => `"${dylib}"`).join(' ')} -output "${outputPath}"`,
+      {
+        stdio: 'pipe',
+      }
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 /**
  * Strips the binary from an xcframework, keeping only Swift module interfaces.
  * This creates an "interface-only" framework where consumers can import the module
@@ -114,7 +174,10 @@ export function stripFrameworkBinary(xcframeworkPath: string): void {
       sliceName,
       `${frameworkName}.framework`
     );
-    const binaryPath = path.join(frameworkDir, frameworkName);
+    const isFrameworkSlice = fs.existsSync(frameworkDir);
+    const binaryPath = isFrameworkSlice
+      ? path.join(frameworkDir, frameworkName)
+      : path.join(xcframeworkPath, sliceName, `lib${frameworkName}.a`);
 
     if (!fs.existsSync(binaryPath)) {
       logger.warn(`No binary found at ${binaryPath}, skipping`);
@@ -127,22 +190,28 @@ export function stripFrameworkBinary(xcframeworkPath: string): void {
       continue;
     }
 
-    let emptyLib: string;
-    if (config.additionalTargets) {
-      // Create fat library for multiple architectures
-      emptyLib = createFatStaticLib([
-        config.target,
-        ...config.additionalTargets,
-      ]);
-    } else {
-      // Create single-arch library
-      emptyLib = createEmptyStaticLib(config.target);
-    }
+    const targets = config.additionalTargets
+      ? [config.target, ...config.additionalTargets]
+      : [config.target];
 
-    // Replace original binary with empty stub
-    fs.copyFileSync(emptyLib, binaryPath);
-    fs.unlinkSync(emptyLib);
-    fs.rmSync(path.dirname(emptyLib), { recursive: true });
+    if (isFrameworkSlice) {
+      if (targets.length > 1) {
+        createFatDynamicLibrary(frameworkName, targets, binaryPath);
+      } else {
+        createEmptyDynamicLibrary(frameworkName, targets[0], binaryPath);
+      }
+    } else {
+      let emptyLib: string;
+      if (targets.length > 1) {
+        emptyLib = createFatStaticLib(targets);
+      } else {
+        emptyLib = createEmptyStaticLib(targets[0]);
+      }
+
+      fs.copyFileSync(emptyLib, binaryPath);
+      fs.unlinkSync(emptyLib);
+      fs.rmSync(path.dirname(emptyLib), { recursive: true });
+    }
   }
 
   logger.success(`${frameworkName}.xcframework is now interface-only`);

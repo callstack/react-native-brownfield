@@ -18,6 +18,64 @@ const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node
 const REACT_NATIVE_PODS_REQUIRE_REGEX =
   /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function replaceMarkedBlock(
+  podfile: string,
+  markerStart: string,
+  markerEnd: string,
+  block: string
+): string {
+  const existingBlockPattern = new RegExp(
+    `\\n?\\s*${escapeRegExp(markerStart)}[\\s\\S]*?${escapeRegExp(
+      markerEnd
+    )}\\n?`,
+    'm'
+  );
+
+  if (existingBlockPattern.test(podfile)) {
+    return podfile.replace(existingBlockPattern, `\n${block}\n`);
+  }
+
+  return podfile;
+}
+
+function insertIntoPostInstallBlock(podfile: string, snippet: string): string {
+  const lines = podfile.split('\n');
+  const postInstallIndex = lines.findIndex((line) =>
+    /^\s*post_install do \|installer\|/.test(line)
+  );
+
+  if (postInstallIndex === -1) {
+    return `${podfile.trimEnd()}\n\npost_install do |installer|\n${snippet}\nend\n`;
+  }
+
+  const baseIndent = lines[postInstallIndex].match(/^(\s*)/)?.[1].length ?? 0;
+  let insertionIndex = -1;
+
+  for (let index = postInstallIndex + 1; index < lines.length; index += 1) {
+    const endMatch = lines[index].match(/^(\s*)end\s*$/);
+    if (!endMatch) {
+      continue;
+    }
+
+    const endIndent = endMatch[1].length;
+    if (endIndent === baseIndent) {
+      insertionIndex = index;
+      break;
+    }
+  }
+
+  if (insertionIndex === -1) {
+    return podfile;
+  }
+
+  lines.splice(insertionIndex, 0, snippet);
+  return lines.join('\n');
+}
+
 function ensureBrownfieldPostIntegrateRequire(podfile: string): string {
   if (podfile.includes('scripts/react_native_brownfield_post_integrate')) {
     return podfile;
@@ -58,10 +116,6 @@ ${BROWNFIELD_POD_HOOK_MARKER_END}
 }
 
 function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
-  if (podfile.includes(BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START)) {
-    return podfile;
-  }
-
   const hook = `
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START}
     installer.pods_project.targets.each do |target|
@@ -77,33 +131,36 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
     end
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END}
 `;
-
-  const postInstallMatch = podfile.match(
-    /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
+  const withoutExistingBlock = replaceMarkedBlock(
+    podfile,
+    BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START,
+    BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END,
+    hook.trim()
   );
 
-  if (postInstallMatch) {
-    const [whole, start, content, end] = postInstallMatch;
-    const updated = `${start}${content.trimEnd()}\n${hook}\n${end}`;
-    return podfile.replace(whole, updated);
+  if (
+    withoutExistingBlock.includes(
+      BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START
+    )
+  ) {
+    return withoutExistingBlock;
   }
 
-  // if there is no post_install, append one
-  return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
+  return insertIntoPostInstallBlock(withoutExistingBlock, hook.trimEnd());
 }
 
 function ensureDebugSwiftInterfaceOverrides(podfile: string): string {
-  if (podfile.includes(BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START)) {
-    return podfile;
-  }
-
   const hook = `
     ${BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START}
     installer.pods_project.targets.each do |target|
       next unless ['ReactBrownfield', 'Brownie', 'BrownfieldNavigation'].include?(target.name)
 
       target.build_configurations.each do |config|
-        next unless config.name.start_with?('Debug')
+        flags = config.build_settings['OTHER_SWIFT_FLAGS'] || '$(inherited)'
+        flags = flags.to_s
+        unless flags.include?('-no-verify-emitted-module-interface')
+          config.build_settings['OTHER_SWIFT_FLAGS'] = "#{flags} -no-verify-emitted-module-interface"
+        end
 
         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
         config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
@@ -111,18 +168,20 @@ function ensureDebugSwiftInterfaceOverrides(podfile: string): string {
     end
     ${BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_END}
 `;
-
-  const postInstallMatch = podfile.match(
-    /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
+  const withoutExistingBlock = replaceMarkedBlock(
+    podfile,
+    BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START,
+    BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_END,
+    hook.trim()
   );
 
-  if (postInstallMatch) {
-    const [whole, start, content, end] = postInstallMatch;
-    const updated = `${start}${content.trimEnd()}\n${hook}\n${end}`;
-    return podfile.replace(whole, updated);
+  if (
+    withoutExistingBlock.includes(BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START)
+  ) {
+    return withoutExistingBlock;
   }
 
-  return `${podfile.trimEnd()}\n\npost_install do |installer|\n${hook}\nend\n`;
+  return insertIntoPostInstallBlock(withoutExistingBlock, hook.trimEnd());
 }
 
 /**

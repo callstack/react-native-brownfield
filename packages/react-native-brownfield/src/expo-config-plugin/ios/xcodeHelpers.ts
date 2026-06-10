@@ -33,6 +33,7 @@ export function addFrameworkTarget(
     frameworkName
   );
   if (existingFrameworkTargetUuid) {
+    dedupeFrameworkTargets(project, frameworkName, existingFrameworkTargetUuid);
     Logger.logDebug(
       `Framework target "${frameworkName}" already exists, skipping creation`
     );
@@ -140,6 +141,7 @@ export function addFrameworkTarget(
   const mainGroupKey = project.getFirstProject().firstProject.mainGroup;
   project.addToPbxGroup(frameworkGroup.uuid, mainGroupKey);
 
+  dedupeFrameworkTargets(project, frameworkName, frameworkTarget.uuid);
   Logger.logInfo(`Successfully added framework target: ${frameworkName}`);
 
   return {
@@ -152,6 +154,18 @@ function findFrameworkTargetUuidByName(
   project: XcodeProject,
   frameworkName: string
 ): string | null {
+  const [frameworkTargetUuid] = findFrameworkTargetUuidsByName(
+    project,
+    frameworkName
+  );
+
+  return frameworkTargetUuid ?? null;
+}
+
+function findFrameworkTargetUuidsByName(
+  project: XcodeProject,
+  frameworkName: string
+): string[] {
   const nativeTargets = project.pbxNativeTargetSection() as Record<
     string,
     {
@@ -162,6 +176,7 @@ function findFrameworkTargetUuidByName(
   >;
 
   const normalizedFrameworkName = frameworkName.trim();
+  const matchingUuids: string[] = [];
 
   for (const [uuid, target] of Object.entries(nativeTargets)) {
     if (uuid.endsWith('_comment')) {
@@ -177,14 +192,15 @@ function findFrameworkTargetUuidByName(
       continue;
     }
 
-    if (target.productType !== 'com.apple.product-type.framework') {
+    const productType = IOSConfig.XcodeUtils.unquote(target.productType ?? '');
+    if (productType !== 'com.apple.product-type.framework') {
       continue;
     }
 
-    return uuid;
+    matchingUuids.push(uuid);
   }
 
-  return null;
+  return matchingUuids;
 }
 
 export function addSourceFilesBuildPhase(
@@ -214,7 +230,9 @@ export type PbxReferenceLike = { value?: string; comment?: string } | string;
 
 export type PbxNativeTarget = {
   buildPhases?: PbxReferenceLike[];
+  buildConfigurationList?: string;
   name?: string;
+  productReference?: string;
 };
 
 export type PbxResourcesBuildPhase = {
@@ -272,6 +290,214 @@ function getReferencedUuid(
   }
 
   return typeof reference === 'string' ? reference : (reference.value ?? null);
+}
+
+const PBX_BUILD_PHASE_SECTIONS = [
+  'PBXCopyFilesBuildPhase',
+  'PBXFrameworksBuildPhase',
+  'PBXHeadersBuildPhase',
+  'PBXResourcesBuildPhase',
+  'PBXShellScriptBuildPhase',
+  'PBXSourcesBuildPhase',
+] as const;
+
+function removeBuildFileIfUnreferenced(
+  rawProjectObjects: Record<string, any>,
+  buildFileUuid: string
+): void {
+  for (const sectionName of PBX_BUILD_PHASE_SECTIONS) {
+    const section = rawProjectObjects[sectionName] as
+      | Record<string, { files?: PbxReferenceLike[] }>
+      | undefined;
+
+    if (!section) {
+      continue;
+    }
+
+    for (const [uuid, phase] of Object.entries(section)) {
+      if (uuid.endsWith('_comment')) {
+        continue;
+      }
+
+      const files = Array.isArray(phase?.files) ? phase.files : [];
+      if (files.some((file) => getReferencedUuid(file) === buildFileUuid)) {
+        return;
+      }
+    }
+  }
+
+  const buildFiles = rawProjectObjects.PBXBuildFile as
+    | Record<string, unknown>
+    | undefined;
+  if (!buildFiles) {
+    return;
+  }
+
+  delete buildFiles[buildFileUuid];
+  delete buildFiles[`${buildFileUuid}_comment`];
+}
+
+function removeBuildPhase(
+  rawProjectObjects: Record<string, any>,
+  buildPhaseUuid: string
+): void {
+  for (const sectionName of PBX_BUILD_PHASE_SECTIONS) {
+    const section = rawProjectObjects[sectionName] as
+      | Record<string, { files?: PbxReferenceLike[] }>
+      | undefined;
+
+    if (!section?.[buildPhaseUuid]) {
+      continue;
+    }
+
+    const phase = section[buildPhaseUuid];
+    const files = Array.isArray(phase?.files) ? phase.files : [];
+
+    delete section[buildPhaseUuid];
+    delete section[`${buildPhaseUuid}_comment`];
+
+    for (const file of files) {
+      const buildFileUuid = getReferencedUuid(file);
+      if (buildFileUuid) {
+        removeBuildFileIfUnreferenced(rawProjectObjects, buildFileUuid);
+      }
+    }
+
+    return;
+  }
+}
+
+function removeConfigurationList(
+  rawProjectObjects: Record<string, any>,
+  configurationListUuid: string
+): void {
+  const configurationLists = rawProjectObjects.XCConfigurationList as
+    | Record<string, { buildConfigurations?: PbxReferenceLike[] }>
+    | undefined;
+  const buildConfigurations = rawProjectObjects.XCBuildConfiguration as
+    | Record<string, unknown>
+    | undefined;
+
+  const configurationList = configurationLists?.[configurationListUuid];
+  const configs = Array.isArray(configurationList?.buildConfigurations)
+    ? configurationList.buildConfigurations
+    : [];
+
+  for (const config of configs) {
+    const configUuid = getReferencedUuid(config);
+    if (!configUuid || !buildConfigurations) {
+      continue;
+    }
+
+    delete buildConfigurations[configUuid];
+    delete buildConfigurations[`${configUuid}_comment`];
+  }
+
+  if (configurationLists) {
+    delete configurationLists[configurationListUuid];
+    delete configurationLists[`${configurationListUuid}_comment`];
+  }
+}
+
+function removeProductReference(
+  project: XcodeProject,
+  rawProjectObjects: Record<string, any>,
+  productReferenceUuid: string
+): void {
+  if (typeof project.getFirstProject !== 'function') {
+    return;
+  }
+
+  const fileReferences = rawProjectObjects.PBXFileReference as
+    | Record<string, unknown>
+    | undefined;
+  if (fileReferences) {
+    delete fileReferences[productReferenceUuid];
+    delete fileReferences[`${productReferenceUuid}_comment`];
+  }
+
+  const productsGroupUuid =
+    project.getFirstProject().firstProject.productRefGroup;
+  const groups = rawProjectObjects.PBXGroup as
+    | Record<string, { children?: PbxReferenceLike[] }>
+    | undefined;
+  const productsGroup = groups?.[productsGroupUuid];
+  if (!Array.isArray(productsGroup?.children)) {
+    return;
+  }
+
+  productsGroup.children = productsGroup.children.filter(
+    (child) => getReferencedUuid(child) !== productReferenceUuid
+  );
+}
+
+function dedupeFrameworkTargets(
+  project: XcodeProject,
+  frameworkName: string,
+  canonicalTargetUuid: string
+): void {
+  if (typeof project.getFirstProject !== 'function') {
+    return;
+  }
+
+  const duplicateTargetUuids = findFrameworkTargetUuidsByName(
+    project,
+    frameworkName
+  ).filter((uuid) => uuid !== canonicalTargetUuid);
+
+  if (duplicateTargetUuids.length === 0) {
+    return;
+  }
+
+  const rawProjectObjects = getRawProjectObjects(project);
+  const nativeTargets = rawProjectObjects.PBXNativeTarget as
+    | Record<string, PbxNativeTarget>
+    | undefined;
+  const firstProject = project.getFirstProject().firstProject;
+  const projectTargets = Array.isArray(firstProject.targets)
+    ? firstProject.targets
+    : [];
+
+  for (const duplicateTargetUuid of duplicateTargetUuids) {
+    const duplicateTarget = nativeTargets?.[duplicateTargetUuid];
+    if (!duplicateTarget) {
+      continue;
+    }
+
+    for (const buildPhase of duplicateTarget.buildPhases ?? []) {
+      const buildPhaseUuid = getReferencedUuid(buildPhase);
+      if (buildPhaseUuid) {
+        removeBuildPhase(rawProjectObjects, buildPhaseUuid);
+      }
+    }
+
+    if (duplicateTarget.buildConfigurationList) {
+      removeConfigurationList(
+        rawProjectObjects,
+        duplicateTarget.buildConfigurationList
+      );
+    }
+
+    if (duplicateTarget.productReference) {
+      removeProductReference(
+        project,
+        rawProjectObjects,
+        duplicateTarget.productReference
+      );
+    }
+
+    delete nativeTargets?.[duplicateTargetUuid];
+    delete nativeTargets?.[`${duplicateTargetUuid}_comment`];
+  }
+
+  firstProject.targets = projectTargets.filter(
+    (target: PbxReferenceLike) =>
+      !duplicateTargetUuids.includes(getReferencedUuid(target) ?? '')
+  );
+
+  Logger.logDebug(
+    `Removed ${duplicateTargetUuids.length} duplicate framework target(s) for "${frameworkName}"`
+  );
 }
 
 function getFrameworkTargetOrThrow(

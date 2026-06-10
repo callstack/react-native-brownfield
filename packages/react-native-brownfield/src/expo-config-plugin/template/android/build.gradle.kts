@@ -9,6 +9,24 @@ plugins {
     id("com.facebook.react")
 }
 
+fun resolveRootProjectInt(name: String): Int {
+    val extraProperties = rootProject.extensions.extraProperties
+    val value =
+        when {
+            extraProperties.has(name) -> extraProperties.get(name)
+            rootProject.findProperty(name) != null -> rootProject.findProperty(name)
+            rootProject.findProperty("android.$name") != null -> rootProject.findProperty("android.$name")
+            else -> error("Unable to resolve root project property '$name' for Brownfield Android packaging.")
+        }
+
+    return when (value) {
+        is Int -> value
+        is Number -> value.toInt()
+        is String -> value.toInt()
+        else -> value.toString().toInt()
+    }
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenAar") {
@@ -16,7 +34,7 @@ publishing {
             artifactId = "{{ARTIFACT_ID}}"
             version = "{{ARTIFACT_VERSION}}"
             afterEvaluate {
-                from(components.getByName("default"))
+                from(components.getByName("release"))
             }
         }
     }
@@ -74,10 +92,14 @@ android {
         jvmTarget = "17"
     }
 
-    publishing {
-        multipleVariants {
-            allVariants()
+    packaging {
+        jniLibs {
+            excludes += listOf("**/libc++_shared.so")
         }
+    }
+
+    publishing {
+        singleVariant("release")
     }
 }
 

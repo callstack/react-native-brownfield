@@ -111,7 +111,7 @@ describe('addFrameworkTarget', () => {
         ABC123: {
           isa: 'PBXNativeTarget',
           name: '"BrownfieldLib"',
-          productType: 'com.apple.product-type.framework',
+          productType: '"com.apple.product-type.framework"',
         },
         ABC123_comment: 'BrownfieldLib',
       }),

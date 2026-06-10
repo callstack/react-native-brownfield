@@ -174,7 +174,22 @@ describe('createAndroidModule', () => {
     });
 
     expect(readLibraryBuildGradle(androidDir)).toContain(
-      'compileSdk = rootProject.ext.compileSdkVersion'
+      'compileSdk = resolveRootProjectInt("compileSdkVersion")'
+    );
+  });
+
+  it('excludes libc++_shared from the generated library JNI packaging', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.85.3',
+      isExpoPre55: false,
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'excludes += listOf("**/libc++_shared.so")'
     );
   });
 

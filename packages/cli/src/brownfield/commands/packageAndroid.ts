@@ -12,6 +12,7 @@ import {
   curryOptions,
 } from '../../shared/index.js';
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
+import { patchAndroidWorkletsImportPaths } from '../utils/patchAndroidWorkletsImportPaths.js';
 import { getProjectInfo } from '../utils/project.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
@@ -30,6 +31,7 @@ export const packageAndroidCommand = curryOptions(
       projectRoot,
       platform: 'android',
     });
+    patchAndroidWorkletsImportPaths(projectRoot);
 
     await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
     await runNavigationCodegenIfApplicable(projectRoot);

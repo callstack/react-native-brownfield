@@ -29,7 +29,7 @@ export function resolveCompileSdkVersionExpression(
     return config.android.compileSdkVersion.toString();
   }
 
-  return 'rootProject.ext.compileSdkVersion';
+  return 'resolveRootProjectInt("compileSdkVersion")';
 }
 
 /**

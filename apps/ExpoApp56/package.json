@@ -32,7 +32,7 @@
     "expo-status-bar": "~56.0.4",
     "expo-symbols": "~56.0.5",
     "expo-system-ui": "~56.0.5",
-    "expo-updates": "~56.0.17",
+    "expo-updates": "patch:expo-updates@npm%3A56.0.17#~/.yarn/patches/expo-updates-npm-56.0.17-0d9c6d9af6.patch",
     "expo-web-browser": "~56.0.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",

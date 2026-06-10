@@ -112,6 +112,10 @@ class ArtifactsResolver(
 
     private fun generateArtifacts() {
         baseProject.project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
+            if (!shouldProcessVariant(variant)) {
+                return@all
+            }
+
             val artifacts: MutableCollection<ResolvedArtifact> = ArrayList()
 
             configurations.forEach { configuration ->
@@ -133,6 +137,37 @@ class ArtifactsResolver(
                 processor.project = baseProject.project
                 processor.processVariant(artifacts)
             }
+        }
+    }
+
+    private fun shouldProcessVariant(variant: LibraryVariant): Boolean {
+        val requestedTasks =
+            baseProject.project.gradle.startParameter.taskNames.map {
+                it.substringAfterLast(":")
+            }
+
+        if (requestedTasks.isEmpty()) {
+            return true
+        }
+
+        val capitalizedVariantName = variant.name.capitalized()
+        if (requestedTasks.any { it.contains(capitalizedVariantName, ignoreCase = true) }) {
+            return true
+        }
+
+        val isPublishToMavenLocalTask =
+            requestedTasks.any {
+                it.equals("publishToMavenLocal", ignoreCase = true) ||
+                    it.contains("publish", ignoreCase = true) && it.contains("mavenlocal", ignoreCase = true)
+            }
+        if (isPublishToMavenLocalTask) {
+            return !variant.buildType.isDebuggable
+        }
+
+        return requestedTasks.any {
+            it.equals("assemble", ignoreCase = true) ||
+                it.equals("build", ignoreCase = true) ||
+                it.equals("check", ignoreCase = true)
         }
     }
 
