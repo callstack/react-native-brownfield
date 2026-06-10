@@ -27,7 +27,7 @@ import {
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
-import { PackageIosOptions } from '../../types.js';
+import type { PackageIosOptions } from '../../types.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =

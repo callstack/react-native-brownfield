@@ -86,7 +86,7 @@
     "@rock-js/plugin-brownfield-android": "^0.13.3",
     "@rock-js/plugin-brownfield-ios": "^0.13.3",
     "@rock-js/tools": "^0.13.3",
-    "ajv": "^6.14.0",
+    "ajv": "^8.20.0",
     "commander": "^14.0.3",
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",

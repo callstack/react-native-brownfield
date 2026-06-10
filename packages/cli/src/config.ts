@@ -12,7 +12,7 @@ import { logger } from '@rock-js/tools';
 import { Command } from 'commander';
 
 const CONFIG_BASE_NAME = 'brownfield';
-const JS_CONFIG_FILE_NAME = `.${CONFIG_BASE_NAME}.config.js`;
+const JS_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.js`;
 const JSON_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.json`;
 
 const SEPARATOR = '\n● ';
@@ -62,6 +62,8 @@ export function loadBrownfieldConfig(
 export function addBrownfieldConfig(...args: any[]): void {
   // Last argument is the current command instance
   const command = args.at(-1) as Command;
+
+  if (!(command instanceof Command)) return;
 
   const reactNativeBrownfieldConfig = loadBrownfieldConfig();
 
