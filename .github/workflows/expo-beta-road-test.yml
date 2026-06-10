@@ -69,7 +69,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Apply Expo beta to ExpoApp56
-        run: node --experimental-strip-types --no-warnings ./scripts/check-expo-beta.ts --expo-version "${{ needs.prepare.outputs.latest_version }}" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
+        run: node --experimental-strip-types --no-warnings ./scripts/check-expo-beta.ts --expo-version "~55.0.23" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
 
       - name: Install Expo beta dependencies
         run: |
@@ -93,7 +93,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Apply Expo beta to ExpoApp56
-        run: node --experimental-strip-types --no-warnings ./scripts/check-expo-beta.ts --expo-version "${{ needs.prepare.outputs.latest_version }}" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
+        run: node --experimental-strip-types --no-warnings ./scripts/check-expo-beta.ts --expo-version "~55.0.23" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
 
       - name: Install Expo beta dependencies
         run: |
