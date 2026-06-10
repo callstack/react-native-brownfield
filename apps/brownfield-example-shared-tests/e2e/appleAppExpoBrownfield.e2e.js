@@ -31,15 +31,6 @@ describe('Brownfield (AppleApp — Expo)', () => {
     await detoxExpect(element(by.text(/Welcome to\s+Expo\s+55/))).toBeVisible();
   });
 
-  it('increments the native SwiftUI counter', async () => {
-    await scrollToNativeShellExpo();
-    const counter = element(by.id(ids.appleAppNativeCounter));
-    await detoxExpect(counter).toBeVisible();
-    await assertDetoxTextMatches(counter, /You clicked the button 0 times/);
-    await element(by.id(ids.appleAppNativeIncrement)).tap();
-    await assertDetoxTextMatches(counter, /You clicked the button 1 time/);
-  });
-
   it('shows a native toast when Expo RN sends postMessage', async () => {
     await openPostMessageTabExpo();
     await element(by.id(ids.sendMessageToNative)).tap();

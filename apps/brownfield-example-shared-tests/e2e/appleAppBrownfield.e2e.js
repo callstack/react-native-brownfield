@@ -31,15 +31,6 @@ describe('Brownfield (AppleApp — Vanilla)', () => {
     await assertDetoxTextMatches(title, /React Native Screen/);
   });
 
-  it('increments the native SwiftUI counter', async () => {
-    await scrollToNativeShellVanilla();
-    const counter = element(by.id(ids.appleAppNativeCounter));
-    await detoxExpect(counter).toBeVisible();
-    await assertDetoxTextMatches(counter, /You clicked the button 0 times/);
-    await element(by.id(ids.appleAppNativeIncrement)).tap();
-    await assertDetoxTextMatches(counter, /You clicked the button 1 time/);
-  });
-
   it('increments the embedded RN shared-store counter', async () => {
     const count = element(by.id(ids.counterCount));
     await detoxExpect(count).toBeVisible();

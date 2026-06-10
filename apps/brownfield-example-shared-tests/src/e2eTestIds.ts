@@ -14,8 +14,6 @@ export const brownfieldE2eTestIds = {
   rnPostMessageText: 'brownfield-e2e-rn-post-message-text',
   /** AppleApp native SwiftUI shell (keep in sync with apps/AppleApp/.../E2eTestIds.swift). */
   appleAppGreeting: 'brownfield-e2e-appleapp-greeting',
-  appleAppNativeCounter: 'brownfield-e2e-appleapp-native-counter',
-  appleAppNativeIncrement: 'brownfield-e2e-appleapp-native-increment',
   appleAppPostMessageSend: 'brownfield-e2e-appleapp-post-message-send',
   appleAppPostMessageToast: 'brownfield-e2e-appleapp-post-message-toast',
   appleAppNativeSettings: 'brownfield-e2e-appleapp-native-settings',

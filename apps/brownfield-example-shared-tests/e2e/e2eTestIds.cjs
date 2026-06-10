@@ -11,8 +11,6 @@ const brownfieldE2eTestIds = {
   counterIncrement: 'brownfield-e2e-counter-increment',
   rnPostMessageText: 'brownfield-e2e-rn-post-message-text',
   appleAppGreeting: 'brownfield-e2e-appleapp-greeting',
-  appleAppNativeCounter: 'brownfield-e2e-appleapp-native-counter',
-  appleAppNativeIncrement: 'brownfield-e2e-appleapp-native-increment',
   appleAppPostMessageSend: 'brownfield-e2e-appleapp-post-message-send',
   appleAppPostMessageToast: 'brownfield-e2e-appleapp-post-message-toast',
   appleAppNativeSettings: 'brownfield-e2e-appleapp-native-settings',

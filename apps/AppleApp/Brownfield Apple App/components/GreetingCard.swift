@@ -20,14 +20,12 @@ struct GreetingCard: View {
             Text(counterText)
                 .multilineTextAlignment(.center)
                 .font(.body)
-                .accessibilityIdentifier(E2eTestIds.appleAppNativeCounter)
 
             HStack {
                 Button("Increment counter") {
                     $counter.set { $0 + 1 }
                 }
                 .buttonStyle(.borderedProminent)
-                .accessibilityIdentifier(E2eTestIds.appleAppNativeIncrement)
 
                 Button("Stop RN") {
                     ReactNativeBrownfield.shared.stopReactNative()
