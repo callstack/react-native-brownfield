@@ -1,7 +1,8 @@
-import { type PackageAarFlags } from '@rock-js/platform-android';
-
-import { type PublishLocalAarFlags } from '@rock-js/platform-android';
-import { type BuildFlags as AppleBuildFlags } from '@rock-js/platform-apple-helpers';
+import type {
+  PublishLocalAarFlags,
+  PackageAarFlags,
+} from '@rock-js/platform-android';
+import type { BuildFlags as AppleBuildFlags } from '@rock-js/platform-apple-helpers';
 
 export type BrownfieldCommonOptions = Partial<{
   verbose: boolean;

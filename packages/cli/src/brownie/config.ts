@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { findProjectRoot } from '../brownfield/utils/paths';
 
 export interface BrownieConfig {
   kotlin?: string;
@@ -11,7 +12,7 @@ interface PackageJson {
   brownie?: BrownieConfig;
 }
 
-function loadPackageJson(projectRoot: string = process.cwd()): PackageJson {
+function loadPackageJson(projectRoot: string = findProjectRoot()): PackageJson {
   const packageJsonPath = path.resolve(projectRoot, 'package.json');
 
   if (!fs.existsSync(packageJsonPath)) {
@@ -25,7 +26,7 @@ function loadPackageJson(projectRoot: string = process.cwd()): PackageJson {
  * Checks if @callstack/brownie package is installed.
  */
 export function isBrownieInstalled(
-  projectRoot: string = process.cwd()
+  projectRoot: string = findProjectRoot()
 ): boolean {
   const require = createRequire(path.join(projectRoot, 'package.json'));
   try {
@@ -40,7 +41,7 @@ export function isBrownieInstalled(
  * Resolves the path to the @callstack/brownie package.
  */
 export function getBrowniePackagePath(
-  projectRoot: string = process.cwd()
+  projectRoot: string = findProjectRoot()
 ): string {
   const require = createRequire(path.join(projectRoot, 'package.json'));
   try {
@@ -58,7 +59,7 @@ export function getBrowniePackagePath(
  * Returns the output path for generated Swift files.
  */
 export function getSwiftOutputPath(
-  projectRoot: string = process.cwd()
+  projectRoot: string = findProjectRoot()
 ): string {
   const browniePath = getBrowniePackagePath(projectRoot);
   return path.join(browniePath, 'ios', 'Generated');
@@ -67,7 +68,9 @@ export function getSwiftOutputPath(
 /**
  * Returns whether package.json contains legacy brownie config.
  */
-export function hasLegacyConfig(projectRoot: string = process.cwd()): boolean {
+export function hasLegacyConfig(
+  projectRoot: string = findProjectRoot()
+): boolean {
   const packageJson = loadPackageJson(projectRoot);
 
   return Object.prototype.hasOwnProperty.call(packageJson, 'brownie');
