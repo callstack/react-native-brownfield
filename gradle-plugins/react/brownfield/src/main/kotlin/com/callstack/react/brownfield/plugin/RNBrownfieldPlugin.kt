@@ -86,7 +86,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
         this.extension = project.extensions.create(Extension.NAME, Extension::class.java)
         VariantPackagesProperty.setVariantPackagesProperty(project)
-        this.maybeExpoProject = project.findProject(EXPO_PROJECT_LOCATOR)
     }
 
     /**

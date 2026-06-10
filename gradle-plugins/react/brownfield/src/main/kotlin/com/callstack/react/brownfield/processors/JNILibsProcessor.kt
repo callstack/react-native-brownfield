@@ -52,7 +52,7 @@ class JNILibsProcessor(val project: Project) {
                     }
                 }
                 if (projectExt.useStrippedSoFiles) {
-                    copyStrippedSoLibs(variant, existingJNILibs)
+                    copyStrippedSoLibs(variantName, existingJNILibs)
                 }
             }
         }
