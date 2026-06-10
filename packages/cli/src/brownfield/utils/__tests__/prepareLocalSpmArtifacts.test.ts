@@ -46,7 +46,7 @@ describe('prepareLocalSpmArtifacts', () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('copies xcframeworks into spm-artifacts and removes embedded code signature data', () => {
+  it('moves xcframeworks into spm-artifacts and removes embedded code signature data', () => {
     createSignedMockXcframework(tempDir, 'React');
 
     const spmArtifactsDir = prepareLocalSpmArtifacts({
@@ -82,28 +82,7 @@ describe('prepareLocalSpmArtifacts', () => {
       ['--remove-signature', path.join(copiedFrameworkDir, 'React')],
       expect.objectContaining({ stdio: 'pipe' })
     );
-    expect(
-      fs.existsSync(
-        path.join(
-          tempDir,
-          'React.xcframework',
-          '_CodeSignature',
-          'CodeResources'
-        )
-      )
-    ).toBe(true);
-    expect(
-      fs.existsSync(
-        path.join(
-          tempDir,
-          'React.xcframework',
-          'ios-arm64_x86_64-simulator',
-          'React.framework',
-          '_CodeSignature',
-          'CodeResources'
-        )
-      )
-    ).toBe(true);
+    expect(fs.existsSync(path.join(tempDir, 'React.xcframework'))).toBe(false);
   });
 
   it('ignores remove-signature errors for unsigned binaries', () => {

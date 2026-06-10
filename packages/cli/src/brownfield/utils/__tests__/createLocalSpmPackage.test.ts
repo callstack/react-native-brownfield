@@ -59,7 +59,7 @@ describe('createLocalSpmPackage', () => {
     ).toBe(true);
     expect(
       fs.existsSync(path.join(tempDir, 'BrownfieldLib.xcframework'))
-    ).toBe(true);
+    ).toBe(false);
 
     const readmePath = path.join(tempDir, 'README.md');
     expect(fs.existsSync(readmePath)).toBe(true);

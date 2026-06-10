@@ -4,7 +4,6 @@ import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.expo.utils.LocalMavenUtils
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.utils.Extension
-import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Project
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import java.io.File
@@ -23,14 +22,6 @@ class ArtifactsResolver(
     }
 
     private fun embedExpoDependencies(expoProjects: List<ExpoGradleProjectProjection>): List<UnresolvedArtifactInfo> {
-        /**
-         * expo project does not exist in example-android-library so doing an
-         * early exit.
-         */
-        if (Utils.isExampleLibrary(project.name)) {
-            return listOf()
-        }
-
         /**
          * The expo third party dependencies are linked to `expo` project.
          * They are linked via `api` configuration and in two ways. In the
