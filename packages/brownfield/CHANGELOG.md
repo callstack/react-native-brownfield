@@ -1,5 +1,14 @@
 # brownfield
 
+## 3.11.0
+
+### Patch Changes
+
+- [#353](https://github.com/callstack/react-native-brownfield/pull/353) [`7955c62`](https://github.com/callstack/react-native-brownfield/commit/7955c62a6aca06174efee48e80ac14f78312c797) Thanks [@marcinszalski-callstack](https://github.com/marcinszalski-callstack)! - fix: call copyStrippedSoLibs once after the loop to avoid redundant SO file copying
+
+- Updated dependencies [[`3715ac7`](https://github.com/callstack/react-native-brownfield/commit/3715ac7783000756ef1c66ecfe24a85c5e43abab), [`05c557d`](https://github.com/callstack/react-native-brownfield/commit/05c557da9e2b6fca02e6e1a0b0fe71a909bab15f)]:
+  - @callstack/brownfield-cli@3.11.0
+
 ## 3.10.0
 
 ### Patch Changes
