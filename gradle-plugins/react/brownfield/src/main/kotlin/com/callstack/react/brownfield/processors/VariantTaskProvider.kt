@@ -7,6 +7,7 @@ import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
+import com.callstack.react.brownfield.utils.Utils
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
@@ -82,6 +83,12 @@ class VariantTaskProvider(val project: Project) {
             val projectExt = project.extensions.getByType(Extension::class.java)
             val appProject = project.rootProject.project(projectExt.appProjectName)
             preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
+
+            if (Utils.isExpoProject(project)) {
+                preBuildTask.dependsOn(
+                    "${appProject.path}:create${capitalizedVariantName}UpdatesResources",
+                )
+            }
         }
     }
 }

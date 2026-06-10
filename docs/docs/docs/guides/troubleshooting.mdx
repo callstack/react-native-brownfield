@@ -10,6 +10,30 @@ This is because RN 0.82.0 changed the path to which the JS bundle is written to 
 
 The brownfield Gradle plugin adds both directories to the source sets, potentially causing a conflict of artifacts. To fix this, just once clean your build directory (precisely, the `app/build/` directory) and rebuild the project. All subsequent builds should work fine.
 
+## [Android] Transitive dependencies not being auto resolved
+
+Installed third-party packages like `react-native-screens` or others may rely on transitive dependencies in their `build.gradle` file. These dependencies are not auto resolved by `brownfield-gradle-plugin`. This is an intended behavior in bare React Native apps.
+
+For Expo apps, this should work out of the box.
+
+To make it work with bare React Native Apps, you have two options:
+
+#### Option 1:
+
+Add those dependencies from `react-native-screens/build.gradle` to `<your_brownfield_module>/build.gradle`:
+
+```kts
+api("com.google.android.material:material:1.13.0")
+```
+
+#### Option 2:
+
+Add those dependencies from `react-native-screens/build.gradle` to `<your_native_app>/build.gradle`:
+
+```kts
+implementation("com.google.android.material:material:1.13.0")
+```
+
 ## [iOS] `No script URL provided` in Release configuration
 
 If you encounter this error, most likely you have missed a setup step and are missing `ReactNativeBrownfield.shared.bundle = ReactNativeBundle` before your call to `startReactNative`.

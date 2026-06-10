@@ -1,4 +1,5 @@
 import SwiftUI
+import ReactBrownfield
 import Brownie
 
 struct GreetingCard: View {
@@ -11,16 +12,24 @@ struct GreetingCard: View {
                 .font(.title3)
                 .multilineTextAlignment(.center)
 
-            Text(
-                "You clicked the button \(Int(counter)) time\(counter == 1 ? "" : "s")"
-            )
-            .multilineTextAlignment(.center)
-            .font(.body)
+           Text(
+               "You clicked the button \(Int(counter)) time\(counter == 1 ? "" : "s")"
+           )
+           .multilineTextAlignment(.center)
+           .font(.body)
 
-            Button("Increment counter") {
-                $counter.set { $0 + 1 }
-            }
-            .buttonStyle(.borderedProminent)
+            
+           HStack {
+               Button("Increment counter") {
+                   $counter.set { $0 + 1 }
+               }
+               .buttonStyle(.borderedProminent)
+                
+                Button("Stop RN") {
+                    ReactNativeBrownfield.shared.stopReactNative()
+                }
+                .buttonStyle(.borderedProminent)
+           }
         }
     }
 }

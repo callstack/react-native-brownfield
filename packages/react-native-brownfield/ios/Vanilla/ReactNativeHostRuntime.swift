@@ -1,3 +1,4 @@
+#if !canImport(Expo)
 import UIKit
 internal import React
 internal import React_RCTAppDelegate
@@ -7,6 +8,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   var entryFile = "index"
   var bundlePath = "main.jsbundle"
   var bundle = Bundle.main
+  var preferEmbeddedBundleInDebug = false
   var bundleURLOverride: (() -> URL?)? = nil
   // MARK: - RCTReactNativeFactoryDelegate Methods
 
@@ -15,23 +17,27 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
   }
 
   public override func bundleURL() -> URL? {
-    if let bundleURLProvider = bundleURLOverride {
-      return bundleURLProvider()
-    }
-
-#if DEBUG
-    return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: entryFile)
-#else
     do {
-      let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
-        from: bundlePath
+      #if DEBUG
+      let isDebug = true
+      #else
+      let isDebug = false
+      #endif
+
+      return try BrownfieldBundleURLResolver.resolve(
+        isDebug: isDebug,
+        preferEmbeddedBundleInDebug: preferEmbeddedBundleInDebug,
+        bundlePath: bundlePath,
+        bundle: bundle,
+        bundleURLOverride: bundleURLOverride,
+        metroURL: {
+          RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: entryFile)
+        }
       )
-      return bundle.url(forResource: resourceName, withExtension: fileExtension)
     } catch {
       assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")
       return nil
     }
-#endif
   }
 }
 
@@ -39,6 +45,15 @@ final class ReactNativeHostRuntime {
   public static let shared = ReactNativeHostRuntime()
   private let jsBundleLoadObserver = JSBundleLoadObserver()
   private var delegate = ReactNativeBrownfieldDelegate()
+
+  private func configureDevLoadingView() {
+    #if DEBUG
+    let shouldDisableDevLoadingView =
+      preferEmbeddedBundleInDebug && (delegate.bundleURL()?.isFileURL ?? false)
+
+    BrownfieldDevLoadingViewBridge.setEnabled(!shouldDisableDevLoadingView)
+    #endif
+  }
 
   /**
    * Path to JavaScript root.
@@ -67,6 +82,16 @@ final class ReactNativeHostRuntime {
   public var bundle: Bundle = Bundle.main {
     didSet {
       delegate.bundle = bundle
+    }
+  }
+
+  /**
+   * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
+   * Default value: false
+   */
+  public var preferEmbeddedBundleInDebug: Bool = false {
+    didSet {
+      delegate.preferEmbeddedBundleInDebug = preferEmbeddedBundleInDebug
     }
   }
 
@@ -112,7 +137,9 @@ final class ReactNativeHostRuntime {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    reactNativeFactory?.rootViewFactory.view(
+    configureDevLoadingView()
+
+    return reactNativeFactory?.rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
       launchOptions: launchOptions
@@ -125,6 +152,16 @@ final class ReactNativeHostRuntime {
   public func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    return true
+  }
+
+  /**
+   * Mirrors host manager app delegate API for bare React Native.
+   */
+  public func application(
+    _ application: UIApplication,
+    willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     return true
   }
@@ -161,3 +198,4 @@ final class ReactNativeHostRuntime {
     }
   }
 }
+#endif

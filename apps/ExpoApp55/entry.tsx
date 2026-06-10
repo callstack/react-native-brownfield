@@ -3,7 +3,7 @@ import { AppRegistry } from 'react-native';
 import RNApp from './RNApp';
 
 function App() {
-  const ctx = require.context('./app');
+  const ctx = require.context('./src/app');
   return <ExpoRoot context={ctx} />;
 }
 

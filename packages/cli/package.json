@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-cli",
-  "version": "3.6.1",
+  "version": "3.10.0",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
@@ -42,7 +42,8 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "build": "tsc -p tsconfig.json",
+    "build:brownfield": "yarn run build",
+    "build": "node -e \"const fs=require('fs'),p=require('path');const d=p.join('dist','index.d.ts');if(!fs.existsSync(d)){try{fs.unlinkSync('tsconfig.tsbuildinfo')}catch{}}\" && tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
     "test": "vitest run"
   },
@@ -75,11 +76,11 @@
     "@expo/config": "^12.0.13",
     "@react-native-community/cli-config": "^20.0.0",
     "@react-native-community/cli-config-android": "^20.0.0",
-    "@rock-js/platform-android": "^0.12.12",
-    "@rock-js/platform-apple-helpers": "^0.12.12",
-    "@rock-js/plugin-brownfield-android": "^0.12.12",
-    "@rock-js/plugin-brownfield-ios": "^0.12.12",
-    "@rock-js/tools": "^0.12.12",
+    "@rock-js/platform-android": "^0.13.3",
+    "@rock-js/platform-apple-helpers": "^0.13.3",
+    "@rock-js/plugin-brownfield-android": "^0.13.3",
+    "@rock-js/plugin-brownfield-ios": "^0.13.3",
+    "@rock-js/tools": "^0.13.3",
     "commander": "^14.0.3",
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",

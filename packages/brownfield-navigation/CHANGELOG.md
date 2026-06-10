@@ -1,5 +1,48 @@
 # @callstack/brownfield-navigation
 
+## 3.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`3456d3a`](https://github.com/callstack/react-native-brownfield/commit/3456d3aded18002475def4b79889979e76e1db5e)]:
+  - @callstack/brownfield-cli@3.10.0
+
+## 3.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`80e6364`](https://github.com/callstack/react-native-brownfield/commit/80e6364d405d216b3e84a6297dfe346d2f01444b)]:
+  - @callstack/brownfield-cli@3.9.0
+
+## 3.8.1
+
+### Patch Changes
+
+- [#336](https://github.com/callstack/react-native-brownfield/pull/336) [`35b6f0a`](https://github.com/callstack/react-native-brownfield/commit/35b6f0aebd51a86165fe8af1890ccc3bd5189aaa) Thanks [@hurali97](https://github.com/hurali97)! - fix: allow unregistering the navigation delegate
+
+- Updated dependencies [[`e78084d`](https://github.com/callstack/react-native-brownfield/commit/e78084d227a49d39d726b8c778bd56045634678d)]:
+  - @callstack/brownfield-cli@3.8.1
+
+## 3.8.0
+
+### Minor Changes
+
+- [#295](https://github.com/callstack/react-native-brownfield/pull/295) [`d93dcd9`](https://github.com/callstack/react-native-brownfield/commit/d93dcd96e3b90517d718cd42b2cc773fb9795eac) Thanks [@hurali97](https://github.com/hurali97)! - add expo updates support
+
+### Patch Changes
+
+- Updated dependencies [[`d93dcd9`](https://github.com/callstack/react-native-brownfield/commit/d93dcd96e3b90517d718cd42b2cc773fb9795eac)]:
+  - @callstack/brownfield-cli@3.8.0
+
+## 3.7.0
+
+### Patch Changes
+
+- [#322](https://github.com/callstack/react-native-brownfield/pull/322) [`cbc99cf`](https://github.com/callstack/react-native-brownfield/commit/cbc99cf2bbbb8ba351a2bde3c839dd1b5dcf302b) Thanks [@marcinszalski-callstack](https://github.com/marcinszalski-callstack)! - fix: make sure android libs are loaded for expo apps
+
+- Updated dependencies [[`c153378`](https://github.com/callstack/react-native-brownfield/commit/c1533783c0a93372b3c12f08c1428766c0405226)]:
+  - @callstack/brownfield-cli@3.7.0
+
 ## 3.6.1
 
 ### Patch Changes

@@ -7,10 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		696CB249230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB243230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m */; };
-		696CB24A230EF9EA000207AF /* ReactNativeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB244230EF9EA000207AF /* ReactNativeViewController.m */; };
-		696CB24B230EF9EA000207AF /* ReactNativeBrownfield.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB245230EF9EA000207AF /* ReactNativeBrownfield.m */; };
-		696CB24C230EF9EA000207AF /* ReactNativeBrownfieldModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 696CB246230EF9EA000207AF /* ReactNativeBrownfieldModule.m */; };
+		79FEE7742FB499C700E407DE /* BrownfieldBundlePathResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE76D2FB499C700E407DE /* BrownfieldBundlePathResolver.swift */; };
+		79FEE7752FB499C700E407DE /* ReactNativeBrownfieldModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE7722FB499C700E407DE /* ReactNativeBrownfieldModule.mm */; };
+		79FEE7762FB499C700E407DE /* Notification+Brownfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE76F2FB499C700E407DE /* Notification+Brownfield.swift */; };
+		79FEE7772FB499C700E407DE /* ReactNativeBrownfieldModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE7732FB499C700E407DE /* ReactNativeBrownfieldModule.swift */; };
+		79FEE7782FB499C700E407DE /* JSBundleLoadObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE76E2FB499C700E407DE /* JSBundleLoadObserver.swift */; };
+		79FEE7792FB499C700E407DE /* ReactNativeBrownfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE7702FB499C700E407DE /* ReactNativeBrownfield.swift */; };
+		79FEE77D2FB499E400E407DE /* ReactNativeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE77B2FB499E400E407DE /* ReactNativeView.swift */; };
+		79FEE77E2FB499E400E407DE /* ReactNativeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE77C2FB499E400E407DE /* ReactNativeViewController.swift */; };
+		79FEE7802FB499EC00E407DE /* ReactNativeHostRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE77F2FB499EC00E407DE /* ReactNativeHostRuntime.swift */; };
+		79FEE7822FB499F300E407DE /* ExpoHostRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE7812FB499F300E407DE /* ExpoHostRuntime.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,14 +33,17 @@
 
 /* Begin PBXFileReference section */
 		696CB229230EF910000207AF /* libReactNativeBrownfield.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeBrownfield.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		696CB241230EF9EA000207AF /* ReactNativeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeViewController.h; sourceTree = "<group>"; };
-		696CB242230EF9EA000207AF /* ReactNativeBrownfieldModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfieldModule.h; sourceTree = "<group>"; };
-		696CB243230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeBrownfieldNotifications.m; sourceTree = "<group>"; };
-		696CB244230EF9EA000207AF /* ReactNativeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeViewController.m; sourceTree = "<group>"; };
-		696CB245230EF9EA000207AF /* ReactNativeBrownfield.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeBrownfield.m; sourceTree = "<group>"; };
-		696CB246230EF9EA000207AF /* ReactNativeBrownfieldModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeBrownfieldModule.m; sourceTree = "<group>"; };
-		696CB247230EF9EA000207AF /* ReactNativeBrownfieldNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfieldNotifications.h; sourceTree = "<group>"; };
-		696CB248230EF9EA000207AF /* ReactNativeBrownfield.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfield.h; sourceTree = "<group>"; };
+		79FEE76D2FB499C700E407DE /* BrownfieldBundlePathResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrownfieldBundlePathResolver.swift; sourceTree = "<group>"; };
+		79FEE76E2FB499C700E407DE /* JSBundleLoadObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSBundleLoadObserver.swift; sourceTree = "<group>"; };
+		79FEE76F2FB499C700E407DE /* Notification+Brownfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+Brownfield.swift"; sourceTree = "<group>"; };
+		79FEE7702FB499C700E407DE /* ReactNativeBrownfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactNativeBrownfield.swift; sourceTree = "<group>"; };
+		79FEE7712FB499C700E407DE /* ReactNativeBrownfieldModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeBrownfieldModule.h; sourceTree = "<group>"; };
+		79FEE7722FB499C700E407DE /* ReactNativeBrownfieldModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ReactNativeBrownfieldModule.mm; sourceTree = "<group>"; };
+		79FEE7732FB499C700E407DE /* ReactNativeBrownfieldModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactNativeBrownfieldModule.swift; sourceTree = "<group>"; };
+		79FEE77B2FB499E400E407DE /* ReactNativeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactNativeView.swift; sourceTree = "<group>"; };
+		79FEE77C2FB499E400E407DE /* ReactNativeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactNativeViewController.swift; sourceTree = "<group>"; };
+		79FEE77F2FB499EC00E407DE /* ReactNativeHostRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactNativeHostRuntime.swift; sourceTree = "<group>"; };
+		79FEE7812FB499F300E407DE /* ExpoHostRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpoHostRuntime.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,15 +60,17 @@
 		696CB220230EF910000207AF = {
 			isa = PBXGroup;
 			children = (
-				696CB248230EF9EA000207AF /* ReactNativeBrownfield.h */,
-				696CB245230EF9EA000207AF /* ReactNativeBrownfield.m */,
-				696CB242230EF9EA000207AF /* ReactNativeBrownfieldModule.h */,
-				696CB246230EF9EA000207AF /* ReactNativeBrownfieldModule.m */,
-				696CB247230EF9EA000207AF /* ReactNativeBrownfieldNotifications.h */,
-				696CB243230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m */,
-				696CB241230EF9EA000207AF /* ReactNativeViewController.h */,
-				696CB244230EF9EA000207AF /* ReactNativeViewController.m */,
+				79FEE76C2FB499A800E407DE /* Views */,
+				79FEE76B2FB4998300E407DE /* Vanilla */,
+				79FEE7692FB4997100E407DE /* Expo */,
 				696CB22A230EF910000207AF /* Products */,
+				79FEE76D2FB499C700E407DE /* BrownfieldBundlePathResolver.swift */,
+				79FEE76E2FB499C700E407DE /* JSBundleLoadObserver.swift */,
+				79FEE76F2FB499C700E407DE /* Notification+Brownfield.swift */,
+				79FEE7702FB499C700E407DE /* ReactNativeBrownfield.swift */,
+				79FEE7712FB499C700E407DE /* ReactNativeBrownfieldModule.h */,
+				79FEE7722FB499C700E407DE /* ReactNativeBrownfieldModule.mm */,
+				79FEE7732FB499C700E407DE /* ReactNativeBrownfieldModule.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,6 +80,31 @@
 				696CB229230EF910000207AF /* libReactNativeBrownfield.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		79FEE7692FB4997100E407DE /* Expo */ = {
+			isa = PBXGroup;
+			children = (
+				79FEE7812FB499F300E407DE /* ExpoHostRuntime.swift */,
+			);
+			path = Expo;
+			sourceTree = "<group>";
+		};
+		79FEE76B2FB4998300E407DE /* Vanilla */ = {
+			isa = PBXGroup;
+			children = (
+				79FEE77F2FB499EC00E407DE /* ReactNativeHostRuntime.swift */,
+			);
+			path = Vanilla;
+			sourceTree = "<group>";
+		};
+		79FEE76C2FB499A800E407DE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				79FEE77B2FB499E400E407DE /* ReactNativeView.swift */,
+				79FEE77C2FB499E400E407DE /* ReactNativeViewController.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,6 +138,7 @@
 				TargetAttributes = {
 					696CB228230EF910000207AF = {
 						CreatedOnToolsVersion = 10.2.1;
+						LastSwiftMigration = 2650;
 					};
 				};
 			};
@@ -127,10 +164,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				696CB24C230EF9EA000207AF /* ReactNativeBrownfieldModule.m in Sources */,
-				696CB24B230EF9EA000207AF /* ReactNativeBrownfield.m in Sources */,
-				696CB249230EF9EA000207AF /* ReactNativeBrownfieldNotifications.m in Sources */,
-				696CB24A230EF9EA000207AF /* ReactNativeViewController.m in Sources */,
+				79FEE7802FB499EC00E407DE /* ReactNativeHostRuntime.swift in Sources */,
+				79FEE7742FB499C700E407DE /* BrownfieldBundlePathResolver.swift in Sources */,
+				79FEE7752FB499C700E407DE /* ReactNativeBrownfieldModule.mm in Sources */,
+				79FEE7762FB499C700E407DE /* Notification+Brownfield.swift in Sources */,
+				79FEE7822FB499F300E407DE /* ExpoHostRuntime.swift in Sources */,
+				79FEE7772FB499C700E407DE /* ReactNativeBrownfieldModule.swift in Sources */,
+				79FEE7782FB499C700E407DE /* JSBundleLoadObserver.swift in Sources */,
+				79FEE7792FB499C700E407DE /* ReactNativeBrownfield.swift in Sources */,
+				79FEE77D2FB499E400E407DE /* ReactNativeView.swift in Sources */,
+				79FEE77E2FB499E400E407DE /* ReactNativeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,11 +295,15 @@
 		696CB233230EF910000207AF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PJL7DA2X5F;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ReactNativeBrownfield-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -264,11 +311,14 @@
 		696CB234230EF910000207AF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PJL7DA2X5F;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ReactNativeBrownfield-Bridging-Header.h";
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

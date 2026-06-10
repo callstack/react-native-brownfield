@@ -1,21 +1,52 @@
 import path from 'node:path';
 import { createRequire } from 'node:module';
 
-import type { MethodSignature } from '../types.js';
+import type { MethodSignature, TypeDeclaration } from '../types.js';
 
-export function generateTurboModuleSpec(methods: MethodSignature[]): string {
+interface TurboSpecGenerationOptions {
+  modelTypeNames?: string[];
+}
+
+function mapTypeForTurboSpec(
+  typeText: string,
+  options: TurboSpecGenerationOptions
+): string {
+  if (typeText.startsWith('Promise<')) {
+    const inner = typeText.slice(8, -1);
+    return `Promise<${mapTypeForTurboSpec(inner, options)}>`;
+  }
+
+  if (options.modelTypeNames?.includes(typeText)) {
+    return 'Object';
+  }
+
+  return typeText;
+}
+
+export function generateTurboModuleSpec(
+  methods: MethodSignature[],
+  referencedTypeDeclarations: TypeDeclaration[] = [],
+  options: TurboSpecGenerationOptions = {}
+): string {
   const methodSignatures = methods
     .map((method) => {
       const params = method.params
-        .map((param) => `${param.name}${param.optional ? '?' : ''}: ${param.type}`)
+        .map(
+          (param) =>
+            `${param.name}${param.optional ? '?' : ''}: ${mapTypeForTurboSpec(param.type, options)}`
+        )
         .join(', ');
-      return `  ${method.name}(${params}): ${method.returnType};`;
+      return `  ${method.name}(${params}): ${mapTypeForTurboSpec(method.returnType, options)};`;
     })
     .join('\n');
+  const typeDeclarationsBlock =
+    referencedTypeDeclarations.length === 0
+      ? ''
+      : `${referencedTypeDeclarations.map((entry) => entry.declaration).join('\n\n')}\n\n`;
 
   return `import { TurboModuleRegistry, type TurboModule } from 'react-native';
 
-export interface Spec extends TurboModule {
+${typeDeclarationsBlock}export interface Spec extends TurboModule {
 ${methodSignatures}
 }
 
@@ -25,7 +56,22 @@ export default TurboModuleRegistry.getEnforcing<Spec>(
 `;
 }
 
-export function generateIndexTs(methods: MethodSignature[]): string {
+function buildTypeImportLine(
+  referencedTypeDeclarations: TypeDeclaration[]
+): string {
+  if (referencedTypeDeclarations.length === 0) {
+    return '';
+  }
+
+  const names = referencedTypeDeclarations.map((entry) => entry.name).join(', ');
+  return `import type { ${names} } from './NativeBrownfieldNavigation';\n`;
+}
+
+export function generateIndexTs(
+  methods: MethodSignature[],
+  referencedTypeDeclarations: TypeDeclaration[] = []
+): string {
+  const typeImportLine = buildTypeImportLine(referencedTypeDeclarations);
   const functionImplementations = methods
     .map((method) => {
       const params = method.params
@@ -47,6 +93,7 @@ export function generateIndexTs(methods: MethodSignature[]): string {
     .join(',\n');
 
   return `import NativeBrownfieldNavigation from './NativeBrownfieldNavigation';
+${typeImportLine}
 
 const BrownfieldNavigation = {
 ${functionImplementations},
@@ -104,7 +151,11 @@ export function transpileWithConsumerBabel(
   return transformed.code;
 }
 
-export function generateIndexDts(methods: MethodSignature[]): string {
+export function generateIndexDts(
+  methods: MethodSignature[],
+  referencedTypeDeclarations: TypeDeclaration[] = []
+): string {
+  const typeImportLine = buildTypeImportLine(referencedTypeDeclarations);
   const methodSignatures = methods
     .map((method) => {
       const params = method.params
@@ -114,7 +165,7 @@ export function generateIndexDts(methods: MethodSignature[]): string {
     })
     .join('\n');
 
-  return `declare const BrownfieldNavigation: {
+  return `${typeImportLine}declare const BrownfieldNavigation: {
 ${methodSignatures}
 };
 

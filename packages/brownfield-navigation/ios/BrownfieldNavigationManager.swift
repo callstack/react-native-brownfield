@@ -11,6 +11,10 @@ public class BrownfieldNavigationManager: NSObject {
   public func setDelegate(navigationDelegate: BrownfieldNavigationDelegate) {
     self.navigationDelegate = navigationDelegate
   }
+
+  public func clearDelegate() {
+    navigationDelegate = nil
+  }
   
   @objc public func getDelegate() -> BrownfieldNavigationDelegate {
     guard let delegate = navigationDelegate else {

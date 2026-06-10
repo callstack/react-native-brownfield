@@ -17,7 +17,7 @@ open class Extension {
      * List of dynamic libs (.so) files that you wish to bundle with
      * the aar.
      *
-     * By default only `libappmodules.so` and `libreact_codegen_*.so` are
+     * By default, only `libappmodules.so` and `libreact_codegen_*.so` are
      * bundled.
      */
     var dynamicLibs = listOf<String>()
@@ -25,7 +25,20 @@ open class Extension {
     /**
      * Whether to use stripped .so files.
      *
-     * Default value is `false`
+     * Default is `true`.
      */
-    var experimentalUseStrippedSoFiles = false
+    var useStrippedSoFiles = true
+
+    @Deprecated(
+        message =
+            "This property is deprecated and will be removed in a future release." +
+                "The successor is useStrippedSoFiles, which is by default true.",
+        replaceWith = ReplaceWith("useStrippedSoFiles"),
+        level = DeprecationLevel.WARNING,
+    )
+    var experimentalUseStrippedSoFiles
+        get() = useStrippedSoFiles
+        set(value) {
+            useStrippedSoFiles = value
+        }
 }

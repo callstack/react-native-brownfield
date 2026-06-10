@@ -14,17 +14,27 @@ let initialState = BrownfieldStore(
     user: User(name: "Username")
 )
 
+#if USE_EXPO_HOST
+private let hostAppName = "iOS Expo"
+#else
+private let hostAppName = "iOS Vanilla"
+#endif
+
+// The packaged brownfield example surface is registered under `RNApp`
+// for both the plain React Native and Expo example apps.
+private let reactNativeModuleName = "RNApp"
+
 struct ContentView: View {
     var body: some View {
         NavigationView {
 
             VStack(spacing: 16) {
-                GreetingCard(name: "iOS Expo")
+                GreetingCard(name: hostAppName)
 
                 MessagesView()
 
                 ReactNativeView(
-                    moduleName: "main",
+                    moduleName: reactNativeModuleName,
                     initialProperties: [
                         "nativeOsVersionLabel":
                             "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
@@ -33,13 +43,6 @@ struct ContentView: View {
                     .navigationBarHidden(true)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .background(Color(UIColor.systemBackground))
-                
-                Button("Stop React Native") {
-                    ReactNativeBrownfield.shared.stopReactNative()
-                }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding(.top)
-                    .foregroundColor(.red)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(16)

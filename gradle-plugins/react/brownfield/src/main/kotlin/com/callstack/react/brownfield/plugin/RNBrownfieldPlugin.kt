@@ -29,9 +29,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
     private lateinit var extension: Extension
     private lateinit var project: Project
 
-    private var maybeExpoProject: Project? = null
     private val isExpoProject: Boolean
-        get() = maybeExpoProject != null
+        get() = Utils.isExpoProject(project)
 
     override fun apply(project: Project) {
         verifyAndroidPluginApplied(project)
@@ -43,10 +42,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
         projectConfigurations.configure()
         RNSourceSets.configure(project, extension)
         RClassTransformer.registerASMTransformation()
-
-        if (Utils.isExampleLibrary(project.name)) {
-            return
-        }
 
         /**
          * Must run before processDefaultDependencies: ArtifactsResolver reads :expo's api configuration,

@@ -1,6 +1,7 @@
 import {
   withProjectBuildGradle,
   withSettingsGradle,
+  withFinalizedMod,
   type ConfigPlugin,
 } from '@expo/config-plugins';
 
@@ -8,7 +9,10 @@ import {
   modifyRootBuildGradle,
   modifySettingsGradle,
 } from './utils/gradleHelpers';
-import { withAndroidModuleFiles } from './withAndroidModuleFiles';
+import {
+  syncAndroidModuleExpoUpdatesFromAppFiles,
+  withAndroidModuleFiles,
+} from './withAndroidModuleFiles';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../types';
 
 /**
@@ -46,6 +50,19 @@ export const withBrownfieldAndroid: ConfigPlugin<
 
   // Step 3: create the Android module files using dangerous mod
   config = withAndroidModuleFiles(config, props);
+
+  // Step 4: sync module metadata after Expo writes all Android files
+  config = withFinalizedMod(config, [
+    'android',
+    async (finalizedConfig) => {
+      syncAndroidModuleExpoUpdatesFromAppFiles({
+        androidDir: finalizedConfig.modRequest.platformProjectRoot,
+        config: props,
+      });
+
+      return finalizedConfig;
+    },
+  ]);
 
   return config;
 };

@@ -218,7 +218,8 @@ export async function runNavigationCodegen({
   intro(`Running Brownfield Navigation codegen`);
 
   logger.info(`Parsing spec file: ${resolvedSpecPath}`);
-  const methods = parseNavigationSpec(resolvedSpecPath);
+  const { methods, referencedTypeDeclarations, modelDefinitions } =
+    parseNavigationSpec(resolvedSpecPath);
   if (methods.length === 0) {
     throw new Error('No methods found in spec file');
   }
@@ -229,22 +230,33 @@ export async function runNavigationCodegen({
 
   const packageRoot = getNavigationPackagePath(projectRoot);
   const androidJavaPackageName = DEFAULT_ANDROID_JAVA_PACKAGE;
-  const indexTs = generateIndexTs(methods);
+  const indexTs = generateIndexTs(methods, referencedTypeDeclarations);
   const models = await generateNavigationModels({
     specPath: resolvedSpecPath,
     methods,
     kotlinPackageName: androidJavaPackageName,
+    modelDefinitions,
   });
 
   const artifacts: GeneratedNavigationArtifacts = {
-    turboModuleSpec: generateTurboModuleSpec(methods),
+    turboModuleSpec: generateTurboModuleSpec(methods, referencedTypeDeclarations, {
+      modelTypeNames: models.modelTypeNames,
+    }),
     indexTs,
     indexJs: transpileWithConsumerBabel(indexTs, projectRoot, packageRoot),
-    indexDts: generateIndexDts(methods),
-    swiftDelegate: generateSwiftDelegate(methods),
-    objcImplementation: generateObjCImplementation(methods),
-    kotlinDelegate: generateKotlinDelegate(methods, androidJavaPackageName),
-    kotlinModule: generateKotlinModule(methods, androidJavaPackageName),
+    indexDts: generateIndexDts(methods, referencedTypeDeclarations),
+    swiftDelegate: generateSwiftDelegate(methods, {
+      modelTypeNames: models.modelTypeNames,
+    }),
+    objcImplementation: generateObjCImplementation(methods, {
+      modelTypeNames: models.modelTypeNames,
+    }),
+    kotlinDelegate: generateKotlinDelegate(methods, androidJavaPackageName, {
+      modelTypeNames: models.modelTypeNames,
+    }),
+    kotlinModule: generateKotlinModule(methods, androidJavaPackageName, {
+      modelTypeNames: models.modelTypeNames,
+    }),
   };
 
   if (models.modelTypeNames.length > 0) {

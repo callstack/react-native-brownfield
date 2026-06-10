@@ -39,9 +39,7 @@ class JNILibsProcessor(val project: Project) {
                 for (archiveLibrary in aarLibraries) {
                     val jniDir = archiveLibrary.getJniDir()
                     processNestedLibs(jniDir.listFiles(), existingJNILibs)
-                    if (projectExt.experimentalUseStrippedSoFiles) {
-                        copyStrippedSoLibs(variantName, existingJNILibs)
-                    } else {
+                    if (!projectExt.useStrippedSoFiles) {
                         if (jniDir.exists()) {
                             val filteredSourceSets =
                                 androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variantName }
@@ -52,6 +50,9 @@ class JNILibsProcessor(val project: Project) {
                             }
                         }
                     }
+                }
+                if (projectExt.useStrippedSoFiles) {
+                    copyStrippedSoLibs(variant, existingJNILibs)
                 }
             }
         }

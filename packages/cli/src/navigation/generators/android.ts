@@ -8,10 +8,19 @@ const TS_TO_KOTLIN_TYPE: Record<string, string> = {
   Object: 'ReadableMap',
 };
 
-function mapTsTypeToKotlin(tsType: string, optional: boolean = false): string {
+interface KotlinTypeMappingOptions {
+  modelTypeNames?: string[];
+}
+
+function mapTsTypeToKotlin(
+  tsType: string,
+  optional: boolean = false,
+  options: KotlinTypeMappingOptions = {},
+  layer: 'delegate' | 'module' = 'delegate'
+): string {
   if (tsType.startsWith('Promise<')) {
     const inner = tsType.slice(8, -1);
-    return mapTsTypeToKotlin(inner, optional);
+    return mapTsTypeToKotlin(inner, optional, options, layer);
   }
 
   const mapped = TS_TO_KOTLIN_TYPE[tsType];
@@ -19,25 +28,33 @@ function mapTsTypeToKotlin(tsType: string, optional: boolean = false): string {
     return optional ? `${mapped}?` : mapped;
   }
 
+  if (options.modelTypeNames?.includes(tsType)) {
+    if (layer === 'module') {
+      return optional ? 'ReadableMap?' : 'ReadableMap';
+    }
+    return optional ? `${tsType}?` : tsType;
+  }
+
   return optional ? 'Any?' : 'Any';
 }
 
 export function generateKotlinDelegate(
   methods: MethodSignature[],
-  kotlinPackageName: string
+  kotlinPackageName: string,
+  options: KotlinTypeMappingOptions = {}
 ): string {
   const methodSignatures = methods
     .map((method) => {
       const params = method.params
         .map(
           (param) =>
-            `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional)}`
+            `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional, options)}`
         )
         .join(', ');
       const returnType =
         method.returnType === 'void'
           ? ''
-          : `: ${mapTsTypeToKotlin(method.returnType, false)}`;
+          : `: ${mapTsTypeToKotlin(method.returnType, false, options, 'delegate')}`;
       return `  fun ${method.name}(${params})${returnType}`;
     })
     .join('\n');
@@ -52,20 +69,24 @@ ${methodSignatures}
 
 export function generateKotlinModule(
   methods: MethodSignature[],
-  kotlinPackageName: string
+  kotlinPackageName: string,
+  options: KotlinTypeMappingOptions = {}
 ): string {
   const hasAsyncMethod = methods.some((method) => method.isAsync);
   const hasObjectType = methods.some(
     (method) =>
       method.returnType.includes('Object') ||
-      method.params.some((param) => param.type === 'Object')
+      method.params.some(
+        (param) =>
+          param.type === 'Object' || options.modelTypeNames?.includes(param.type)
+      )
   );
 
   const methodImplementations = methods
     .map((method) =>
       method.isAsync
-        ? generateAsyncKotlinMethod(method)
-        : generateSyncKotlinMethod(method)
+        ? generateAsyncKotlinMethod(method, options)
+        : generateSyncKotlinMethod(method, options)
     )
     .join('\n\n');
 
@@ -88,32 +109,61 @@ ${methodImplementations}
 `;
 }
 
-function generateSyncKotlinMethod(method: MethodSignature): string {
+function generateSyncKotlinMethod(
+  method: MethodSignature,
+  options: KotlinTypeMappingOptions = {}
+): string {
   const params = method.params
-    .map((param) => `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional)}`)
+    .map(
+      (param) =>
+        `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional, options, 'module')}`
+    )
     .join(', ');
-  const args = method.params.map((param) => param.name).join(', ');
+  const preparedParams: string[] = [];
+  const args = method.params
+    .map((param) => {
+      if (options.modelTypeNames?.includes(param.type)) {
+        const convertedName = `${param.name}Model`;
+        preparedParams.push(
+          `    val ${convertedName} = ${param.name}${
+            param.optional
+              ? `?.let(::to${param.type})`
+              : `.let(::to${param.type})`
+          }`
+        );
+        return convertedName;
+      }
+      return param.name;
+    })
+    .join(', ');
 
   const signature = `  @ReactMethod\n  override fun ${method.name}(${params})${
     method.returnType === 'void'
       ? ''
-      : `: ${mapTsTypeToKotlin(method.returnType, false)}`
+      : `: ${mapTsTypeToKotlin(method.returnType, false, options, 'module')}`
   }`;
+  const preparedPrefix = preparedParams.length > 0 ? `${preparedParams.join('\n')}\n` : '';
 
   if (method.returnType === 'void') {
     return `${signature} {
-    BrownfieldNavigationManager.getDelegate().${method.name}(${args})
+${preparedPrefix}    BrownfieldNavigationManager.getDelegate().${method.name}(${args})
   }`;
   }
 
   return `${signature} {
-    return BrownfieldNavigationManager.getDelegate().${method.name}(${args})
+${preparedPrefix}    return BrownfieldNavigationManager.getDelegate().${method.name}(${args})
   }`;
 }
 
-function generateAsyncKotlinMethod(method: MethodSignature): string {
+function generateAsyncKotlinMethod(
+  method: MethodSignature,
+  options: KotlinTypeMappingOptions = {}
+): string {
   const paramsWithTypes = method.params
-    .map((param) => `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional)}`)
+    .map(
+      (param) =>
+        `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional, options, 'module')}`
+    )
     .join(', ');
   const params =
     paramsWithTypes.length > 0
