@@ -34,7 +34,18 @@ async function scrollToNativeShell() {
 
 async function waitForAppleAppReady() {
   // Expo home title uses non-breaking spaces; tab labels are stable readiness signals.
-  await waitForVisibleIgnoringSync(by.label('Home'), 90000, 0);
+  const homeTab = by.label('Home');
+  try {
+    await waitForVisibleIgnoringSync(homeTab, 60000, 0);
+  } catch {
+    await device.disableSynchronization();
+    try {
+      await scrollToEmbeddedRn();
+      await waitFor(element(homeTab).atIndex(0)).toBeVisible().withTimeout(30000);
+    } finally {
+      await device.enableSynchronization();
+    }
+  }
 }
 
 async function openPostMessageTab() {
