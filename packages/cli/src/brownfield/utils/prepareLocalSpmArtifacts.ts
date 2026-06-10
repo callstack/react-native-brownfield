@@ -109,7 +109,7 @@ export function prepareLocalSpmArtifacts({
     const sourcePath = path.join(packageDir, `${targetName}.xcframework`);
     const destinationPath = path.join(spmArtifactsDir, `${targetName}.xcframework`);
 
-    fs.cpSync(sourcePath, destinationPath, { recursive: true });
+    fs.renameSync(sourcePath, destinationPath);
     normalizeCopiedXcframeworkSignature(destinationPath);
   }
 
