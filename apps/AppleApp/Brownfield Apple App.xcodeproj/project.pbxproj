@@ -200,9 +200,6 @@
 				79B8BE9C2FB7273600B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp55)" target */,
 				7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp56)" target */,
 			);
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		793C76A92EEBF938008A2A34 /* Brownfield Apple App */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Brownfield Apple App";
 			sourceTree = "<group>";
 		};
