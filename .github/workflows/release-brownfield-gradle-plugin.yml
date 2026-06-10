@@ -97,9 +97,9 @@ jobs:
             --output out/jreleaser/brownfield-gradle-plugin-release-notes.md
 
       - name: Stage Maven release artifacts
-        working-directory: gradle-plugins/react
+        working-directory: gradle-plugins/react/brownfield
         run: |
-          ./gradlew :brownfield:publishMavenLocalPublicationToReleaseStagingRepository \
+          ./gradlew publishMavenLocalPublicationToReleaseStagingRepository \
             -PSkipSigning=true \
             --no-daemon \
             --stacktrace

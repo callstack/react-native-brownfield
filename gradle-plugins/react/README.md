@@ -156,7 +156,7 @@ reactBrownfield {
 ## Tooling
 
 - We are using `ktlint` and `detekt` for formatting and linting
-- You can run `./gradlew :brownfield:lint` to auto-format and detect linting issues, or use the root workspace script `yarn run gradle-plugin:lint`
+- You can run `./brownfield/gradlew -p brownfield detekt ktlintFormat` to auto-format and detect linting issues, or use the root workspace script `yarn run gradle-plugin:lint`
 - Maintainers should use [PUBLISHING.md](./PUBLISHING.md) for the release workflow, release notes generation, and Maven Central publication process
 
 ## Architecture
