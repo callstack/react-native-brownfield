@@ -12,47 +12,27 @@ struct GreetingCard: View {
 
     var body: some View {
         MaterialCard {
-            if E2eRuntime.isDetoxRun {
-                DetoxE2eLabel(
-                    text: "Hello native \(name) 👋",
-                    accessibilityId: E2eTestIds.appleAppGreeting
-                )
-                DetoxE2eLabel(
-                    text: counterText,
-                    accessibilityId: E2eTestIds.appleAppNativeCounter
-                )
-                HStack {
-                    DetoxE2eButton(
-                        title: "Increment counter",
-                        accessibilityId: E2eTestIds.appleAppNativeIncrement
-                    ) {
-                        $counter.set { $0 + 1 }
-                    }
-                    Button("Stop RN") {
-                        ReactNativeBrownfield.shared.stopReactNative()
-                    }
-                    .buttonStyle(.borderedProminent)
+            Text("Hello native \(name) 👋")
+                .font(.title3)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier(E2eTestIds.appleAppGreeting)
+
+            Text(counterText)
+                .multilineTextAlignment(.center)
+                .font(.body)
+                .accessibilityIdentifier(E2eTestIds.appleAppNativeCounter)
+
+            HStack {
+                Button("Increment counter") {
+                    $counter.set { $0 + 1 }
                 }
-            } else {
-                Text("Hello native \(name) 👋")
-                    .font(.title3)
-                    .multilineTextAlignment(.center)
+                .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier(E2eTestIds.appleAppNativeIncrement)
 
-                Text(counterText)
-                    .multilineTextAlignment(.center)
-                    .font(.body)
-
-                HStack {
-                    Button("Increment counter") {
-                        $counter.set { $0 + 1 }
-                    }
-                    .buttonStyle(.borderedProminent)
-
-                    Button("Stop RN") {
-                        ReactNativeBrownfield.shared.stopReactNative()
-                    }
-                    .buttonStyle(.borderedProminent)
+                Button("Stop RN") {
+                    ReactNativeBrownfield.shared.stopReactNative()
                 }
+                .buttonStyle(.borderedProminent)
             }
         }
     }

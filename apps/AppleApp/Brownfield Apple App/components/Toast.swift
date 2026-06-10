@@ -9,50 +9,35 @@ struct Toast: View {
 
     var body: some View {
         if isShowing {
-            Group {
-                if E2eRuntime.isDetoxRun {
-                    DetoxE2eToast(
-                        message: message,
-                        accessibilityId: E2eTestIds.appleAppPostMessageToast
-                    )
-                } else {
-                    Text(message)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(Color.black.opacity(0.8))
-                        .cornerRadius(25)
-                        .multilineTextAlignment(.center)
-                        .scaleEffect(scale)
-                        .opacity(opacity)
-                }
-            }
-            .onAppear {
-                if E2eRuntime.isDetoxRun {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        isShowing = false
+            Text(message)
+                .foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(Color.black.opacity(0.8))
+                .cornerRadius(25)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier(E2eTestIds.appleAppPostMessageToast)
+                .scaleEffect(scale)
+                .opacity(opacity)
+                .onAppear {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        scale = 1.0
+                        opacity = 1.0
                     }
-                    return
-                }
 
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                    scale = 1.0
-                    opacity = 1.0
-                }
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        scale = 0.5
-                        opacity = 0.0
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        isShowing = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            scale = 0.5
+                            opacity = 0.0
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            isShowing = false
+                        }
                     }
                 }
-            }
-            .transition(.scale.combined(with: .opacity))
-            .padding(.bottom, 50)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .transition(.scale.combined(with: .opacity))
+                .padding(.bottom, 50)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         }
     }
 }

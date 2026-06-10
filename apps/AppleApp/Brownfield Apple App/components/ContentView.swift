@@ -41,36 +41,37 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-         ZStack {
+            ZStack {
                 ScrollView {
-            VStack(spacing: 16) {
-                GreetingCard(name: hostAppName)
+                    VStack(spacing: 16) {
+                        GreetingCard(name: hostAppName)
 
                         MessagesView()
 
-                ReactNativeView(
-                    moduleName: reactNativeModuleName,
-                    initialProperties: [
-                        "nativeOsVersionLabel":
-                            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
-                    ]
-                )
-                    .navigationBarHidden(true)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .background(Color(UIColor.systemBackground))
-                     .frame(minHeight: 520)
+                        ReactNativeView(
+                            moduleName: reactNativeModuleName,
+                            initialProperties: [
+                                "nativeOsVersionLabel":
+                                    "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+                            ]
+                        )
+                        .navigationBarHidden(true)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .background(Color(UIColor.systemBackground))
+                        .frame(minHeight: 520)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+                }
+
+                if showPostMessageToast {
+                    Toast(
+                        message: postMessageToastText,
+                        isShowing: $showPostMessageToast
+                    )
+                }
             }
-            .frame(maxWidth: .infinity)
-            .padding(16)
         }
-                 if showPostMessageToast {
-                            Toast(
-                                message: postMessageToastText,
-                                isShowing: $showPostMessageToast
-                            )
-                        }
-                       }
-                       }
         .onAppear {
             messageObserver = ReactNativeBrownfield.shared.onMessage { raw in
                 postMessageToastText = brownfieldPostMessageText(from: raw)

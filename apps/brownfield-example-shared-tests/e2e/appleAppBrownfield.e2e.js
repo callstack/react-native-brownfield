@@ -1,46 +1,16 @@
-const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
+const { device, element, by, expect: detoxExpect } = require('detox');
 const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
   configureDetoxForBrownfieldIos,
   waitForVisibleIgnoringSync,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
-
-const detoxLaunchArgs = {
-  BrownfieldPreferEmbeddedBundleInDebug: 'YES',
-  DetoxE2E: 'YES',
-};
-
-async function scrollToEmbeddedRn() {
-  try {
-    await element(by.type('UIScrollView')).atIndex(0).scroll(500, 'down');
-  } catch {
-    await element(by.type('UIScrollView')).atIndex(0).scrollTo('bottom');
-  }
-}
-
-async function scrollToNativeShell() {
-  try {
-    await element(by.type('UIScrollView')).atIndex(0).scrollTo('top');
-  } catch {
-    await element(by.id(ids.rnAppHome)).swipe('down', 'fast', 0.85);
-  }
-}
-
-async function waitForAppleAppReady() {
-  const rnHome = element(by.id(ids.rnAppHome));
-  try {
-    await waitForVisibleIgnoringSync(by.id(ids.rnAppHome), 60000);
-  } catch {
-    await device.disableSynchronization();
-    try {
-      await scrollToEmbeddedRn();
-      await waitFor(rnHome).toBeVisible().withTimeout(30000);
-    } finally {
-      await device.enableSynchronization();
-    }
-  }
-}
+const {
+  detoxLaunchArgs,
+  scrollToEmbeddedRnVanilla,
+  scrollToNativeShellVanilla,
+  waitForAppleAppReadyVanilla,
+} = require('@callstack/brownfield-example-shared-tests/e2e/appleAppDetoxUtils');
 
 describe('Brownfield (AppleApp — Vanilla)', () => {
   beforeEach(async () => {
@@ -49,11 +19,11 @@ describe('Brownfield (AppleApp — Vanilla)', () => {
       launchArgs: detoxLaunchArgs,
     });
     await configureDetoxForBrownfieldIos();
-    await waitForAppleAppReady();
+    await waitForAppleAppReadyVanilla();
   });
 
   it('shows the native greeting shell and embedded RN home', async () => {
-    await scrollToNativeShell();
+    await scrollToNativeShellVanilla();
     await detoxExpect(element(by.id(ids.appleAppGreeting))).toBeVisible();
     await detoxExpect(element(by.id(ids.rnAppHome))).toBeVisible();
     const title = element(by.id(ids.rnAppHomeTitle));
@@ -62,7 +32,7 @@ describe('Brownfield (AppleApp — Vanilla)', () => {
   });
 
   it('increments the native SwiftUI counter', async () => {
-    await scrollToNativeShell();
+    await scrollToNativeShellVanilla();
     const counter = element(by.id(ids.appleAppNativeCounter));
     await detoxExpect(counter).toBeVisible();
     await assertDetoxTextMatches(counter, /You clicked the button 0 times/);

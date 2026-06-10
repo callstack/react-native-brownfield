@@ -13,97 +13,45 @@
 #
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$(dirname "${BASH_SOURCE[0]}")/ci-local-ios-e2e-common.sh"
+
+REPO_ROOT="$(ci_local_e2e_repo_root)"
 APP_PATH="${REPO_ROOT}/apps/ExpoApp55"
 IOS_PATH="${APP_PATH}/ios"
 CLI_CODEGEN="${REPO_ROOT}/packages/cli/dist/main.js"
+APP_NAME="ExpoApp55"
 
-SKIP_INSTALL=false
-SKIP_BREW=false
-TEST_ONLY=false
-REBUILD_ONLY=false
-BUILD_ONLY=false
-CLEAN_IOS=false
-
-for arg in "$@"; do
-  case "$arg" in
-    --) ;;
-    --skip-install) SKIP_INSTALL=true ;;
-    --skip-brew) SKIP_BREW=true ;;
-    --test-only) TEST_ONLY=true ;;
-    --rebuild) REBUILD_ONLY=true; SKIP_INSTALL=true; SKIP_BREW=true ;;
-    --build-only) BUILD_ONLY=true ;;
-    --clean-ios) CLEAN_IOS=true ;;
-    -h|--help)
-      sed -n '2,10p' "$0"
-      exit 0
-      ;;
-    *)
-      echo "Unknown option: $arg" >&2
-      echo "Run with --help for usage." >&2
-      exit 1
-      ;;
-  esac
-done
-
-if [[ "$(uname -s)" != "Darwin" ]]; then
-  echo "This script must run on macOS (iOS Simulator + Xcode required)." >&2
-  exit 1
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  sed -n '2,10p' "$0"
+  exit 0
 fi
 
-if ! command -v xcodebuild >/dev/null 2>&1; then
-  echo "xcodebuild not found. Install Xcode and select it with xcode-select." >&2
-  exit 1
-fi
-
-echo "==> Xcode: $(xcodebuild -version | head -1)"
-echo "==> Repo:  ${REPO_ROOT}"
-echo "==> App:   ${APP_PATH}"
+ci_local_e2e_parse_common_flags "$@"
+ci_local_e2e_require_macos
+ci_local_e2e_print_header "${REPO_ROOT}" "${APP_PATH}"
 
 cd "${REPO_ROOT}"
-
-if [[ "${SKIP_INSTALL}" == "false" && "${TEST_ONLY}" == "false" ]]; then
-  echo "==> yarn install (DETOX_DISABLE_POSTINSTALL=1, same as CI setup)"
-  DETOX_DISABLE_POSTINSTALL=1 yarn install
-
-  echo "==> yarn build (packages, same as CI setup)"
-  yarn build
-fi
-
-if [[ "${SKIP_BREW}" == "false" && "${TEST_ONLY}" == "false" ]]; then
-  if ! command -v applesimutils >/dev/null 2>&1; then
-    echo "==> Installing applesimutils (Detox iOS simulator helper)"
-    brew tap wix/brew
-    brew install applesimutils
-  else
-    echo "==> applesimutils already installed: $(command -v applesimutils)"
-  fi
-fi
+ci_local_e2e_install_deps "${REPO_ROOT}" "${SKIP_INSTALL}" "${TEST_ONLY}"
+ci_local_e2e_install_applesimutils "${SKIP_BREW}" "${TEST_ONLY}"
 
 if [[ "${CLEAN_IOS}" == "true" ]]; then
   echo "==> Clean iOS artifacts (Pods + build)"
   rm -rf "${IOS_PATH}/Pods" "${IOS_PATH}/build"
 fi
 
-should_build=false
-if [[ "${TEST_ONLY}" == "false" ]]; then
-  should_build=true
-fi
-
-if [[ "${should_build}" == "true" && "${SKIP_INSTALL}" == "false" ]]; then
+if ci_local_e2e_should_build "${TEST_ONLY}" && [[ "${SKIP_INSTALL}" == "false" ]]; then
   if [[ ! -f "${CLI_CODEGEN}" ]]; then
     echo "==> CLI not built; running yarn build"
     yarn build
   fi
 
-  echo "==> brownfield codegen + Expo iOS prebuild (ExpoApp55)"
+  echo "==> brownfield codegen + Expo iOS prebuild (${APP_NAME})"
   (cd "${APP_PATH}" && node "${CLI_CODEGEN}" codegen && yarn expo prebuild --platform ios --no-install)
 
   echo "==> pod install"
   (cd "${IOS_PATH}" && pod install)
 
-  echo "==> Detox iOS postinstall (single run, avoids monorepo race)"
-  node "${APP_PATH}/node_modules/detox/scripts/postinstall.js"
+  ci_local_e2e_run_detox_postinstall "${APP_PATH}"
 elif [[ "${REBUILD_ONLY}" == "true" ]]; then
   echo "==> --rebuild: skipping install/prebuild/pods; rebuilding Detox app only"
 fi
@@ -112,15 +60,14 @@ fi
 # bundle script. ios/.xcode.env.updates (from brownfield prebuild) must unset SKIP_BUNDLING
 # or the simulator app loads Metro and shows "not connected" when no packager runs.
 XCODE_ENV_UPDATES="${IOS_PATH}/.xcode.env.updates"
-if [[ "${should_build}" == "true" && ! -f "${XCODE_ENV_UPDATES}" ]]; then
+if ci_local_e2e_should_build "${TEST_ONLY}" && [[ ! -f "${XCODE_ENV_UPDATES}" ]]; then
   echo "==> Missing ${XCODE_ENV_UPDATES}; running brownfield codegen + expo prebuild"
   (cd "${APP_PATH}" && node "${CLI_CODEGEN}" codegen && yarn expo prebuild --platform ios --no-install)
 fi
 
-if [[ "${should_build}" == "true" ]]; then
-  echo "==> Detox build (iOS Simulator, embeds main.jsbundle for E2E)"
-  (cd "${APP_PATH}" && yarn e2e:build:ios)
-  DETOX_APP="${IOS_PATH}/build/Build/Products/Debug-iphonesimulator/ExpoApp55.app"
+if ci_local_e2e_should_build "${TEST_ONLY}"; then
+  ci_local_e2e_run_detox_build "${APP_PATH}"
+  DETOX_APP="${IOS_PATH}/build/Build/Products/Debug-iphonesimulator/${APP_NAME}.app"
   if [[ ! -f "${DETOX_APP}/main.jsbundle" ]]; then
     echo "error: ${DETOX_APP}/main.jsbundle missing after Detox build." >&2
     echo "E2E needs an embedded bundle (Metro is not started in CI or local Detox runs)." >&2
@@ -132,8 +79,7 @@ elif [[ "${TEST_ONLY}" == "true" ]]; then
 fi
 
 if [[ "${BUILD_ONLY}" == "false" ]]; then
-  echo "==> Detox test (iOS Simulator, embedded JS bundle — Metro not required)"
-  (cd "${APP_PATH}" && yarn e2e:test:ios)
+  ci_local_e2e_run_detox_test "${APP_PATH}"
 fi
 
 echo "==> Done."

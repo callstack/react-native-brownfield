@@ -81,6 +81,10 @@ runs:
       working-directory: ${{ inputs.rn-project-path }}
       shell: bash
 
+    # RN 0.84+ defaults to prebuilt RNCore during pod install. For the Detox packaging
+    # step we build RN from source so native deps (e.g. react-native-screens) link against
+    # the same headers as the Debug simulator XCFramework. Road-test builds without E2E
+    # keep the default prebuilt path for faster CI.
     - name: Install pods (RN ${{ inputs.variant }} app, E2E)
       if: inputs.variant == 'vanilla' && inputs.run-e2e == 'true'
       env:
