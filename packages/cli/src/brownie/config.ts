@@ -2,11 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { findProjectRoot } from '../brownfield/utils/paths';
-
-export interface BrownieConfig {
-  kotlin?: string;
-  kotlinPackageName?: string;
-}
+import type { BrownieConfig } from '../types.js';
 
 interface PackageJson {
   brownie?: BrownieConfig;

@@ -4,6 +4,8 @@ import type {
 } from '@rock-js/platform-android';
 import type { BuildFlags as AppleBuildFlags } from '@rock-js/platform-apple-helpers';
 
+export type Platform = 'swift' | 'kotlin';
+
 export type BrownfieldCommonOptions = Partial<{
   verbose: boolean;
 }>;

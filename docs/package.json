@@ -7,8 +7,9 @@
     "hoistingLimits": "workspaces"
   },
   "scripts": {
-    "dev": "rspress dev",
-    "build": "rspress build",
+    "copy:schema": "node ./scripts/copy-schema.mjs",
+    "dev": "yarn run copy:schema && rspress dev",
+    "build": "yarn run copy:schema && rspress build",
     "build:docs": "yarn run build",
     "preview": "rspress preview"
   },

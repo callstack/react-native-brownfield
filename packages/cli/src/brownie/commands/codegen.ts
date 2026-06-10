@@ -6,17 +6,12 @@ import { Command, Option } from 'commander';
 import { intro, logger, outro } from '@rock-js/tools';
 import { QuickTypeError } from 'quicktype-core';
 import { actionRunner } from '../../shared/index.js';
-import {
-  hasLegacyConfig,
-  loadConfig,
-  getSwiftOutputPath,
-  type BrownieConfig,
-} from '../config.js';
+import { hasLegacyConfig, loadConfig, getSwiftOutputPath } from '../config.js';
 import { generateSwift } from '../generators/swift.js';
 import { generateKotlin } from '../generators/kotlin.js';
 import { discoverStores, type DiscoveredStore } from '../store-discovery.js';
-import type { Platform } from '../types.js';
 import { NoBrownieStoresError } from '../errors/NoBrownieStoresError.js';
+import type { BrownieConfig, Platform } from '../../types.js';
 
 function getOutputPath(dir: string, name: string, ext: string): string {
   return path.join(dir, `${name}.${ext}`);

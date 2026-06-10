@@ -1,7 +1,7 @@
 import { runCodegen } from '../commands/codegen.js';
 import { isBrownieInstalled } from '../config.js';
 
-import type { Platform } from '../types.js';
+import type { Platform } from '../../types.js';
 
 export async function runBrownieCodegenIfApplicable(
   projectRoot: string,
