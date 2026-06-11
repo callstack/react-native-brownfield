@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.LibraryVariant
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
@@ -64,6 +65,14 @@ class RNBrownfieldPlugin : Plugin<Project> {
         val artifacts = artifactsResolver.processDefaultDependencies(expoProjects)
 
         val variantTaskProvider = VariantTaskProvider(project)
+
+        val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+        androidComponents.onVariants { variant ->
+            val aarLibraries = getAarLibraries(artifacts, variant.name)
+            ManifestTaskProcessor.process(variant, project, aarLibraries)
+            AssetTaskProcessor.process(variant, aarLibraries)
+            ResourceTaskProcessor.process(variant, aarLibraries)
+        }
 
         /**
          * Configure Tasks
@@ -144,15 +153,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
          */
         val packageIDs = aarLibraries.map { it.getPackageName() }
         VariantPackagesProperty.getVariantPackagesProperty().put(variantName, packageIDs)
-
-        /** =======  MANIFEST MERGER  =========*/
-        ManifestTaskProcessor.process(variant, project, aarLibraries)
-
-        /** =======  GENERATE RESOURCES =========*/
-        ResourceTaskProcessor.process(variant, project, aarLibraries)
-
-        /** =======  GENERATE ASSETS ========= */
-        AssetTaskProcessor.process(variant, project, aarLibraries)
 
         /** ===== jniLibsProcessor ===== */
         val jniLibsProcessor = JNILibsProcessor(project)
