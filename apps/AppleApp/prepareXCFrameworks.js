@@ -61,6 +61,7 @@ const validNames = [
   'BrownfieldNavigation.xcframework',
   // below: optional, emitted when RN is packaged with prebuilt iOS pods
   'React.xcframework',
+  'ReactAppDependencyProvider.xcframework',
   'ReactNativeDependencies.xcframework',
 ];
 

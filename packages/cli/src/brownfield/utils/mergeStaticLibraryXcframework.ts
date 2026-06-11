@@ -7,11 +7,22 @@ import { RockError, color, logger } from '@rock-js/tools';
 
 function createHeaderStagingDir(
   moduleOutputDir: string,
-  frameworkName: string
+  frameworkName: string,
+  headersSourceDir?: string
 ): string {
   const stagingDir = fs.mkdtempSync(
     path.join(os.tmpdir(), `${frameworkName.toLowerCase()}-headers-`)
   );
+
+  if (headersSourceDir && fs.existsSync(headersSourceDir)) {
+    for (const entry of fs.readdirSync(headersSourceDir)) {
+      fs.cpSync(path.join(headersSourceDir, entry), path.join(stagingDir, entry), {
+        recursive: true,
+        force: true,
+        dereference: true,
+      });
+    }
+  }
 
   const candidates = [
     {
@@ -78,12 +89,14 @@ export function mergeStaticLibraryXcframework({
   frameworkName,
   deviceModuleOutputDir,
   simulatorModuleOutputDir,
+  headersSourceDir,
 }: {
   sourceDir: string;
   outputPath: string;
   frameworkName: string;
   deviceModuleOutputDir: string;
   simulatorModuleOutputDir: string;
+  headersSourceDir?: string;
 }): void {
   const deviceLibraryPath = path.join(
     deviceModuleOutputDir,
@@ -106,11 +119,13 @@ export function mergeStaticLibraryXcframework({
 
   const deviceHeadersDir = createHeaderStagingDir(
     deviceModuleOutputDir,
-    frameworkName
+    frameworkName,
+    headersSourceDir
   );
   const simulatorHeadersDir = createHeaderStagingDir(
     simulatorModuleOutputDir,
-    frameworkName
+    frameworkName,
+    headersSourceDir
   );
 
   logger.info(`Merging ${color.bold(`${frameworkName}.xcframework`)}...`);

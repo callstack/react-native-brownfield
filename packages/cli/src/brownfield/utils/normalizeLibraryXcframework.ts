@@ -3,6 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 
+import { sanitizeFrameworkModuleMap } from './sanitizeFrameworkModuleMap.js';
+
 function writeFrameworkInfoPlist(
   frameworkPath: string,
   frameworkName: string
@@ -216,6 +218,7 @@ export function normalizeLibraryXcframeworkToFramework({
       swiftModuleDir,
       path.join(frameworkDir, 'Modules', `${frameworkName}.swiftmodule`)
     );
+    sanitizeFrameworkModuleMap(frameworkDir, frameworkName);
     writeFrameworkInfoPlist(frameworkDir, frameworkName);
 
     fs.rmSync(libraryPath, { force: true });

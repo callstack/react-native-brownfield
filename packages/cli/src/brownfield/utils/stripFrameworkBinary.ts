@@ -4,6 +4,8 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { logger } from '@rock-js/tools';
 
+import { sanitizeFrameworkModuleMap } from './sanitizeFrameworkModuleMap.js';
+
 interface SliceConfig {
   target: string;
   /** Additional targets for fat binaries */
@@ -202,6 +204,8 @@ export function stripFrameworkBinary(xcframeworkPath: string): void {
       } else {
         createEmptyDynamicLibrary(frameworkName, targets[0], binaryPath);
       }
+
+      sanitizeFrameworkModuleMap(frameworkDir, frameworkName);
     } else {
       let emptyLib: string;
       if (targets.length > 1) {

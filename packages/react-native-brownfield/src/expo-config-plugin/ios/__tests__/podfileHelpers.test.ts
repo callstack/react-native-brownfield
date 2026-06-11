@@ -22,10 +22,13 @@ end
       '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>'
     );
     expect(patched).toContain(
+      '# >>> react-native-brownfield React prebuilt interoperability >>>'
+    );
+    expect(patched).toContain(
       '# >>> react-native-brownfield Debug swift interface overrides >>>'
     );
     expect(patched).toMatch(
-      /react_native_post_install\([\s\S]*?# >>> react-native-brownfield Expo SDK 55\+ swift defines >>>[\s\S]*?# >>> react-native-brownfield Debug swift interface overrides >>>[\s\S]*?\n {2}end\n {2}# Brownfield framework target for packaging as XCFramework/
+      /react_native_post_install\([\s\S]*?# >>> react-native-brownfield Expo SDK 55\+ swift defines >>>[\s\S]*?# >>> react-native-brownfield React prebuilt interoperability >>>[\s\S]*?# >>> react-native-brownfield Debug swift interface overrides >>>[\s\S]*?\n {2}end\n {2}# Brownfield framework target for packaging as XCFramework/
     );
   });
 
@@ -35,6 +38,9 @@ end
     # >>> react-native-brownfield Expo SDK 55+ swift defines >>>
     old sdk 55 block
     # <<< react-native-brownfield Expo SDK 55+ swift defines <<<
+    # >>> react-native-brownfield React prebuilt interoperability >>>
+    old react prebuilt block
+    # <<< react-native-brownfield React prebuilt interoperability <<<
     # >>> react-native-brownfield Debug swift interface overrides >>>
     old swift block
     # <<< react-native-brownfield Debug swift interface overrides <<<
@@ -45,10 +51,16 @@ end
     const patched = modifyPodfile(podfile, 'BrownfieldLib', 56);
 
     expect(patched).not.toContain('old sdk 55 block');
+    expect(patched).not.toContain('old react prebuilt block');
     expect(patched).not.toContain('old swift block');
     expect(
       patched.match(
         /# >>> react-native-brownfield Expo SDK 55\+ swift defines >>>/g
+      )
+    ).toHaveLength(1);
+    expect(
+      patched.match(
+        /# >>> react-native-brownfield React prebuilt interoperability >>>/g
       )
     ).toHaveLength(1);
     expect(
@@ -58,6 +70,9 @@ end
     ).toHaveLength(1);
     expect(patched).toContain(
       "config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'"
+    );
+    expect(patched).toContain(
+      'framework module React {\n      umbrella header "React_Core/React_Core-umbrella.h"'
     );
   });
 });

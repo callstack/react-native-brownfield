@@ -235,6 +235,44 @@ export const packageIosCommand = curryOptions(
         supportFrameworkName: string,
         outputPath: string
       ) => {
+        const headersSourceDir = path.join(
+          iosConfig.sourceDir,
+          'Pods',
+          'Headers',
+          'Public',
+          supportFrameworkName
+        );
+        const copyPublicHeadersToPackagedFramework = () => {
+          if (!fs.existsSync(headersSourceDir)) {
+            return;
+          }
+
+          for (const sliceName of fs.readdirSync(outputPath)) {
+            const frameworkHeadersDir = path.join(
+              outputPath,
+              sliceName,
+              `${supportFrameworkName}.framework`,
+              'Headers'
+            );
+
+            if (!fs.existsSync(frameworkHeadersDir)) {
+              continue;
+            }
+
+            for (const entry of fs.readdirSync(headersSourceDir)) {
+              fs.cpSync(
+                path.join(headersSourceDir, entry),
+                path.join(frameworkHeadersDir, entry),
+                {
+                  recursive: true,
+                  force: true,
+                  dereference: true,
+                }
+              );
+            }
+          }
+        };
+
         const resolveSupportFrameworkPath = (
           sdk: 'iphoneos' | 'iphonesimulator'
         ) => {
@@ -274,6 +312,7 @@ export const packageIosCommand = curryOptions(
             outputPath,
             simulatorFrameworkPath,
           });
+          copyPublicHeadersToPackagedFramework();
           return;
         }
 
@@ -291,6 +330,9 @@ export const packageIosCommand = curryOptions(
             `${configuration}-iphonesimulator`,
             supportFrameworkName
           ),
+          headersSourceDir: fs.existsSync(headersSourceDir)
+            ? headersSourceDir
+            : undefined,
         });
         normalizeLibraryXcframeworkToFramework({
           xcframeworkPath: outputPath,
@@ -405,6 +447,61 @@ export const packageIosCommand = curryOptions(
 
         logger.success(
           `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
+        );
+      }
+
+      const reactAppDependencyProviderHeadersDir = path.join(
+        iosConfig.sourceDir,
+        'Pods',
+        'Headers',
+        'Public',
+        'ReactAppDependencyProvider'
+      );
+      const reactAppDependencyProviderOutputPath = path.join(
+        packageDir,
+        'ReactAppDependencyProvider.xcframework'
+      );
+      const reactAppDependencyProviderDeviceOutputDir = path.join(
+        productsPath,
+        `${configuration}-iphoneos`,
+        'ReactAppDependencyProvider'
+      );
+      const reactAppDependencyProviderSimulatorOutputDir = path.join(
+        productsPath,
+        `${configuration}-iphonesimulator`,
+        'ReactAppDependencyProvider'
+      );
+
+      if (
+        fs.existsSync(reactAppDependencyProviderHeadersDir) &&
+        fs.existsSync(
+          path.join(
+            reactAppDependencyProviderDeviceOutputDir,
+            'libReactAppDependencyProvider.a'
+          )
+        ) &&
+        fs.existsSync(
+          path.join(
+            reactAppDependencyProviderSimulatorOutputDir,
+            'libReactAppDependencyProvider.a'
+          )
+        )
+      ) {
+        mergeStaticLibraryXcframework({
+          sourceDir: iosConfig.sourceDir,
+          outputPath: reactAppDependencyProviderOutputPath,
+          frameworkName: 'ReactAppDependencyProvider',
+          deviceModuleOutputDir: reactAppDependencyProviderDeviceOutputDir,
+          simulatorModuleOutputDir: reactAppDependencyProviderSimulatorOutputDir,
+          headersSourceDir: reactAppDependencyProviderHeadersDir,
+        });
+        normalizeLibraryXcframeworkToFramework({
+          xcframeworkPath: reactAppDependencyProviderOutputPath,
+          frameworkName: 'ReactAppDependencyProvider',
+        });
+
+        logger.success(
+          `ReactAppDependencyProvider.xcframework created at ${colorLink(relativeToCwd(reactAppDependencyProviderOutputPath))}`
         );
       }
 

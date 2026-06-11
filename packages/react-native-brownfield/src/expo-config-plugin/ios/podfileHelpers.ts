@@ -14,6 +14,10 @@ const BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START =
   '# >>> react-native-brownfield Debug swift interface overrides >>>';
 const BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_END =
   '# <<< react-native-brownfield Debug swift interface overrides <<<';
+const BROWNFIELD_REACT_PREBUILT_INTEROP_MARKER_START =
+  '# >>> react-native-brownfield React prebuilt interoperability >>>';
+const BROWNFIELD_REACT_PREBUILT_INTEROP_MARKER_END =
+  '# <<< react-native-brownfield React prebuilt interoperability <<<';
 const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
 const REACT_NATIVE_PODS_REQUIRE_REGEX =
   /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
@@ -115,9 +119,14 @@ ${BROWNFIELD_POD_HOOK_MARKER_END}
   return modifiedPodfile;
 }
 
-function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
+function ensureExpoDefinesForSDK55AndAbove(
+  podfile: string,
+  expoMajor: number
+): string {
+  const defaultDeploymentTarget = expoMajor >= 56 ? '16.4' : '15.1';
   const hook = `
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START}
+    brownfield_ios_deployment_target = podfile_properties['ios.deploymentTarget'] || '${defaultDeploymentTarget}'
     installer.pods_project.targets.each do |target|
       if target.name == 'ReactBrownfield'
         puts "[Brownfield] Adding definition of EXPO_SDK_GTE_55 to target: #{target.name}"
@@ -126,6 +135,7 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
           conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
           conditions = conditions.to_s
           config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_SDK_GTE_55"
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = brownfield_ios_deployment_target
         end
       end
     end
@@ -152,10 +162,26 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
 function ensureDebugSwiftInterfaceOverrides(podfile: string): string {
   const hook = `
     ${BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START}
-    installer.pods_project.targets.each do |target|
-      next unless ['ReactBrownfield', 'Brownie', 'BrownfieldNavigation'].include?(target.name)
+    Dir.glob(File.join(installer.sandbox.root, 'Target Support Files', '**', '*.debug.xcconfig')).each do |xcconfig_path|
+      next unless File.exist?(xcconfig_path)
 
+      content = File.read(xcconfig_path)
+      updated = content.gsub(/^BUILD_LIBRARY_FOR_DISTRIBUTION = YES$/, 'BUILD_LIBRARY_FOR_DISTRIBUTION = NO')
+
+      unless updated.match?(/^SWIFT_EMIT_MODULE_INTERFACE = NO$/)
+        updated = "#{updated.rstrip}\\nSWIFT_EMIT_MODULE_INTERFACE = NO\\n"
+      end
+
+      next if updated == content
+
+      File.chmod(0644, xcconfig_path)
+      File.write(xcconfig_path, updated)
+    end
+
+    installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
+        next unless config.name == 'Debug'
+
         flags = config.build_settings['OTHER_SWIFT_FLAGS'] || '$(inherited)'
         flags = flags.to_s
         unless flags.include?('-no-verify-emitted-module-interface')
@@ -177,6 +203,71 @@ function ensureDebugSwiftInterfaceOverrides(podfile: string): string {
 
   if (
     withoutExistingBlock.includes(BROWNFIELD_DEBUG_SWIFT_INTERFACE_MARKER_START)
+  ) {
+    return withoutExistingBlock;
+  }
+
+  return insertIntoPostInstallBlock(withoutExistingBlock, hook.trimEnd());
+}
+
+function ensureReactPrebuiltInteroperability(podfile: string): string {
+  const hook = `
+    ${BROWNFIELD_REACT_PREBUILT_INTEROP_MARKER_START}
+    react_prebuilt_dir = installer.sandbox.pod_dir('React-Core-prebuilt')
+    react_vfs_path = File.join(react_prebuilt_dir, 'React-VFS.yaml')
+    react_modulemap_paths = Dir.glob(File.join(react_prebuilt_dir, 'React.xcframework', '**', 'module.modulemap'))
+    react_framework_module = <<~'MODULEMAP'
+    framework module React {
+      umbrella header "React_Core/React_Core-umbrella.h"
+      export *
+      module * { export * }
+    }
+
+    MODULEMAP
+
+    react_modulemap_paths.each do |modulemap_path|
+      next unless File.exist?(modulemap_path)
+
+      modulemap = File.read(modulemap_path)
+      next if modulemap.match?(/^\\s*framework module React\\b/)
+
+      File.chmod(0644, modulemap_path)
+      File.write(modulemap_path, "#{react_framework_module}#{modulemap}")
+    end
+
+    if File.exist?(react_vfs_path)
+      react_c_flags = "-ivfsoverlay #{react_vfs_path}"
+      react_swift_flags = "-Xcc -ivfsoverlay -Xcc #{react_vfs_path}"
+
+      installer.pods_project.targets.each do |target|
+        target.build_configurations.each do |config|
+          %w[OTHER_CFLAGS OTHER_CPLUSPLUSFLAGS].each do |key|
+            flags = (config.build_settings[key] || '$(inherited)').to_s
+            unless flags.include?(react_vfs_path)
+              config.build_settings[key] = "#{flags} #{react_c_flags}"
+            end
+          end
+
+          swift_flags = (config.build_settings['OTHER_SWIFT_FLAGS'] || '$(inherited)').to_s
+          unless swift_flags.include?(react_vfs_path)
+            config.build_settings['OTHER_SWIFT_FLAGS'] = "#{swift_flags} #{react_swift_flags}"
+          end
+        end
+      end
+    end
+    ${BROWNFIELD_REACT_PREBUILT_INTEROP_MARKER_END}
+`;
+  const withoutExistingBlock = replaceMarkedBlock(
+    podfile,
+    BROWNFIELD_REACT_PREBUILT_INTEROP_MARKER_START,
+    BROWNFIELD_REACT_PREBUILT_INTEROP_MARKER_END,
+    hook.trim()
+  );
+
+  if (
+    withoutExistingBlock.includes(
+      BROWNFIELD_REACT_PREBUILT_INTEROP_MARKER_START
+    )
   ) {
     return withoutExistingBlock;
   }
@@ -239,9 +330,13 @@ export function modifyPodfile(
     modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
   } else {
     // Expo SDK >= 55
-    modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
+    modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(
+      modifiedPodfile,
+      expoMajor
+    );
   }
 
+  modifiedPodfile = ensureReactPrebuiltInteroperability(modifiedPodfile);
   modifiedPodfile = ensureDebugSwiftInterfaceOverrides(modifiedPodfile);
 
   return modifiedPodfile;
