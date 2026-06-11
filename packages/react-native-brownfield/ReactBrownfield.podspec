@@ -2,6 +2,18 @@ require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
+expo_updates_installed = lambda do
+  Pod::Executable.execute_command('node', [
+    '-p',
+    'require.resolve("expo-updates/package.json", { paths: [process.argv[1]] })',
+    Pod::Config.instance.installation_root.to_s,
+  ])
+
+  true
+rescue
+  false
+end
+
 Pod::Spec.new do |spec|
   spec.name         = "ReactBrownfield"
   spec.version      = package['version']
@@ -33,7 +45,7 @@ Pod::Spec.new do |spec|
 
   if ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] == '1'
     spec.dependency 'Expo'
-    spec.dependency 'EXUpdates'
+    spec.dependency 'EXUpdates' if expo_updates_installed.call
   end
 
   install_modules_dependencies(spec)

@@ -1,0 +1,171 @@
+name: Release Brownfield Gradle Plugin
+
+on:
+  push:
+    tags:
+      - 'brownfield-gradle-plugin/v*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to release from'
+        required: false
+        default: 'main'
+        type: string
+      dry_run:
+        description: 'Prepare artifacts and notes without publishing'
+        required: false
+        default: true
+        type: boolean
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  validate:
+    name: Validate release inputs and stage artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+      tag_name: ${{ steps.metadata.outputs.tag_name }}
+      skip_tag: ${{ steps.metadata.outputs.skip_tag }}
+      dry_run: ${{ steps.metadata.outputs.dry_run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          restore-turbo-cache: 'false'
+
+      - name: Prepare Android environment
+        uses: ./.github/actions/prepare-android
+        with:
+          free-disk-space: 'false'
+          run-yarn-build: 'false'
+
+      - name: Derive release metadata
+        id: metadata
+        shell: bash
+        run: |
+          version=$(sed -n 's/^VERSION=//p' gradle-plugins/react/brownfield/gradle.properties)
+          if [ -z "$version" ]; then
+            echo "Could not determine Brownfield Gradle Plugin version" >&2
+            exit 1
+          fi
+
+          expected_tag="brownfield-gradle-plugin/v${version}"
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            actual_tag="${GITHUB_REF_NAME}"
+            skip_tag=true
+            dry_run=false
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            actual_tag="${expected_tag}"
+            skip_tag=false
+            dry_run="${{ inputs.dry_run }}"
+          else
+            actual_tag="${expected_tag}"
+            skip_tag=true
+            dry_run=true
+          fi
+
+          if [ "$actual_tag" != "$expected_tag" ]; then
+            echo "Tag mismatch: expected ${expected_tag}, got ${actual_tag}" >&2
+            exit 1
+          fi
+
+          {
+            echo "version=${version}"
+            echo "tag_name=${actual_tag}"
+            echo "skip_tag=${skip_tag}"
+            echo "dry_run=${dry_run}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check plugin version sync
+        run: yarn brownfield:plugin:version:check
+
+      - name: Generate release notes
+        run: |
+          mkdir -p out/jreleaser
+          yarn brownfield:plugin:release-notes \
+            --version "${{ steps.metadata.outputs.version }}" \
+            --ref HEAD \
+            --output out/jreleaser/brownfield-gradle-plugin-release-notes.md
+
+      - name: Stage Maven release artifacts
+        working-directory: gradle-plugins/react/brownfield
+        run: |
+          ./gradlew publishMavenLocalPublicationToReleaseStagingRepository \
+            -PSkipSigning=true \
+            --no-daemon \
+            --stacktrace
+
+      - name: Upload release notes artifact
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        with:
+          name: brownfield-gradle-plugin-release-notes
+          path: out/jreleaser/brownfield-gradle-plugin-release-notes.md
+
+      - name: Upload staged Maven repository artifact
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        with:
+          name: brownfield-gradle-plugin-staging-repo
+          path: gradle-plugins/react/brownfield/build/staging-deploy
+
+  publish:
+    name: Publish Brownfield Gradle Plugin
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && needs.validate.outputs.dry_run != 'true')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Download release notes artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: brownfield-gradle-plugin-release-notes
+          path: out/jreleaser
+
+      - name: Download staged Maven repository artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: brownfield-gradle-plugin-staging-repo
+          path: gradle-plugins/react/brownfield/build/staging-deploy
+
+      - name: Run JReleaser
+        uses: jreleaser/release-action@v2
+        with:
+          arguments: full-release
+        env:
+          JRELEASER_PROJECT_VERSION: ${{ needs.validate.outputs.version }}
+          JRELEASER_SKIP_TAG: ${{ needs.validate.outputs.skip_tag }}
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
+          JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
+
+      - name: Upload JReleaser output
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        with:
+          name: brownfield-gradle-plugin-jreleaser-output
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties

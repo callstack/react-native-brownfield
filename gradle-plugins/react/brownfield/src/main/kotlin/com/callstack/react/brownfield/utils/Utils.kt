@@ -39,10 +39,6 @@ object Utils {
         }
     }
 
-    fun isExampleLibrary(projectName: String): Boolean {
-        return projectName == "example-android-library"
-    }
-
     fun isExpoProject(project: Project): Boolean {
         return project.findProject(EXPO_PROJECT_LOCATOR) != null
     }

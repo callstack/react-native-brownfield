@@ -32,6 +32,7 @@ Available arguments:
 | --build-folder                | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath". By default, the '\<iOS project folder>/.brownfield/build' path will be used.                                                                                                                                                                                                         |
 | --destination                 | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values: "simulator", "device", or xcodebuild destinations                                                                                                                                                                                 |
 | --archive                     | Create an Xcode archive (IPA) of the build, required for uploading to App Store Connect or distributing to TestFlight                                                                                                                                                                                                                                             |
+| --add-spm-package             | Generate a local `Package.swift` next to the packaged XCFramework outputs so the folder can be added to Xcode as a local Swift Package                                                                                                                                                                                                                              |
 | --use-prebuilt-rn-core [bool] | Controls usage of React Native Apple prebuilt binaries for the packaging Xcode build. Omit for version-aware defaults (see [Getting Started — iOS — React Native Prebuilts](/docs/getting-started/ios#react-native-prebuilts)). Pass `true`, `false`, or use the flag without a value as shorthand for `true`. Supported only for Expo 55+ OR vanilla RN >= 0.81. |
 | --no-install-pods             | Skip automatic CocoaPods installation                                                                                                                                                                                                                                                                                                                             |
 | --no-new-arch                 | Run React Native in legacy async architecture                                                                                                                                                                                                                                                                                                                     |
@@ -45,6 +46,8 @@ The build directory will be placed in the `<iOS project folder>/.brownfield/buil
 - `package/build/ReactBrownfield.xcframework`
 - `package/build/Brownie.xcframework` (only when using the Brownie package)
 - `package/build/BrownfieldNavigation.xcframework` (only when using the Navigation package)
+- `package/build/React.xcframework` and `package/build/ReactNativeDependencies.xcframework` (when packaging with React Native prebuilts enabled)
+- `package/build/Package.swift` (only when `--add-spm-package` is used)
 
 The consumer project needs to embed the required frameworks:
 
@@ -54,6 +57,8 @@ The consumer project needs to embed the required frameworks:
 
 If you are using the Brownie package, you will also need to embed `Brownie.xcframework`.
 If you are using the brownfield-navigation package, you will also need to embed `BrownfieldNavigation.xcframework`.
+
+If you pass `--add-spm-package`, the CLI also writes `Package.swift` into the same `package/build` directory and prints the folder path in the terminal. In Xcode, use **File > Add Package Dependencies...**, click **Add Local...**, and select that `package/build` folder to consume the generated XCFrameworks as a local Swift package instead of dragging them in manually.
 
 ## Android
 

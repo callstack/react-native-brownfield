@@ -1,5 +1,13 @@
 # @callstack/brownfield-cli
 
+## 3.11.0
+
+### Minor Changes
+
+- [#358](https://github.com/callstack/react-native-brownfield/pull/358) [`3715ac7`](https://github.com/callstack/react-native-brownfield/commit/3715ac7783000756ef1c66ecfe24a85c5e43abab) Thanks [@adamTrz](https://github.com/adamTrz)! - Add `--add-spm-package` to `brownfield package:ios` so packaging can also generate a local Swift Package Manager wrapper around the produced XCFrameworks, including a generated `Package.swift`, `README.md`, and Xcode integration instructions. Fail fast when Debug packaging cannot resolve the app framework name while local SPM output is requested.
+
+- [#364](https://github.com/callstack/react-native-brownfield/pull/364) [`05c557d`](https://github.com/callstack/react-native-brownfield/commit/05c557da9e2b6fca02e6e1a0b0fe71a909bab15f) Thanks [@hurali97](https://github.com/hurali97)! - keep only one reference of xcframeworks when spm enabled
+
 ## 3.10.0
 
 ### Minor Changes

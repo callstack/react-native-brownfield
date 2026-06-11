@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { logger } from '@rock-js/tools';
 
 interface SliceConfig {
@@ -20,25 +20,31 @@ const SLICE_CONFIGS: Record<string, SliceConfig> = {
   },
 };
 
+function writeEmptySourceFile(tempDir: string): string {
+  const tempSource = path.join(tempDir, 'empty.c');
+  fs.writeFileSync(tempSource, '');
+  return tempSource;
+}
+
+function runXcrun(args: string[], options?: Parameters<typeof execFileSync>[2]) {
+  return execFileSync('xcrun', args, {
+    stdio: 'pipe',
+    ...options,
+  });
+}
+
 /**
  * Creates an empty static library for the given target.
  */
 function createEmptyStaticLib(target: string): string {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'framework-strip-'));
+  const tempSource = writeEmptySourceFile(tempDir);
   const tempObj = path.join(tempDir, 'empty.o');
   const tempLib = path.join(tempDir, 'empty.a');
 
   try {
-    execSync(
-      `echo "" | xcrun clang -x c -c - -o "${tempObj}" -target ${target}`,
-      {
-        stdio: 'pipe',
-      }
-    );
-
-    execSync(`xcrun ar rcs "${tempLib}" "${tempObj}"`, {
-      stdio: 'pipe',
-    });
+    runXcrun(['clang', '-x', 'c', '-c', tempSource, '-o', tempObj, '-target', target]);
+    runXcrun(['ar', 'rcs', tempLib, tempObj]);
   } catch (error) {
     fs.rmSync(tempDir, { recursive: true });
     throw new Error(
@@ -46,6 +52,7 @@ function createEmptyStaticLib(target: string): string {
     );
   }
 
+  fs.unlinkSync(tempSource);
   fs.unlinkSync(tempObj);
 
   return tempLib;
@@ -63,12 +70,7 @@ function createFatStaticLib(targets: string[]): string {
   const outputLib = path.join(outputDir, 'fat.a');
 
   try {
-    execSync(
-      `xcrun lipo -create ${libs.map((l) => `"${l}"`).join(' ')} -output "${outputLib}"`,
-      {
-        stdio: 'pipe',
-      }
-    );
+    runXcrun(['lipo', '-create', ...libs, '-output', outputLib]);
   } catch (error) {
     libs.forEach((lib) => fs.rmSync(path.dirname(lib), { recursive: true }));
     fs.rmSync(outputDir, { recursive: true });
@@ -95,25 +97,30 @@ function createEmptyDynamicLibrary(
   outputPath: string
 ): void {
   const sdk = sdkForTarget(target);
-  const sdkPath = execSync(`xcrun --sdk ${sdk} --show-sdk-path`, {
-    encoding: 'utf8',
-  }).trim();
+  const sdkPath = String(
+    runXcrun(['--sdk', sdk, '--show-sdk-path'], {
+      encoding: 'utf8',
+    })
+  ).trim();
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'framework-strip-dylib-'));
+  const tempSource = writeEmptySourceFile(tempDir);
   const tempObj = path.join(tempDir, 'empty.o');
 
   try {
-    execSync(
-      `echo "" | xcrun clang -x c -c - -o "${tempObj}" -target ${target}`,
-      {
-        stdio: 'pipe',
-      }
-    );
-    execSync(
-      `xcrun clang -dynamiclib "${tempObj}" -target ${target} -isysroot "${sdkPath}" -install_name "@rpath/${frameworkName}.framework/${frameworkName}" -o "${outputPath}"`,
-      {
-        stdio: 'pipe',
-      }
-    );
+    runXcrun(['clang', '-x', 'c', '-c', tempSource, '-o', tempObj, '-target', target]);
+    runXcrun([
+      'clang',
+      '-dynamiclib',
+      tempObj,
+      '-target',
+      target,
+      '-isysroot',
+      sdkPath,
+      '-install_name',
+      `@rpath/${frameworkName}.framework/${frameworkName}`,
+      '-o',
+      outputPath,
+    ]);
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
@@ -134,12 +141,7 @@ function createFatDynamicLibrary(
       dylibPaths.push(dylibPath);
     }
 
-    execSync(
-      `xcrun lipo -create ${dylibPaths.map((dylib) => `"${dylib}"`).join(' ')} -output "${outputPath}"`,
-      {
-        stdio: 'pipe',
-      }
-    );
+    runXcrun(['lipo', '-create', ...dylibPaths, '-output', outputPath]);
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }

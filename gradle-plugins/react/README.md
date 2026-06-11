@@ -8,6 +8,8 @@ This plugin helps you convert your react-native brownfield implementation into a
 
 ### From Remote
 
+Use the latest version published on Maven Central.
+
 To your top level `build.gradle` add
 
 ```diff
@@ -20,7 +22,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-+       classpath("com.callstack.react:brownfield-gradle-plugin:1.1.0")
++       classpath("com.callstack.react:brownfield-gradle-plugin:<latest-version>")
     }
 }
 ```
@@ -59,7 +61,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-+       classpath("com.callstack.react:brownfield-gradle-plugin:1.1.0-SNAPSHOT")
++       classpath("com.callstack.react:brownfield-gradle-plugin:<latest-version>-SNAPSHOT")
     }
 }
 ```
@@ -154,7 +156,8 @@ reactBrownfield {
 ## Tooling
 
 - We are using `ktlint` and `detekt` for formatting and linting
-- You can run `./gradlew :brownfield:lint` to auto-format and detect linting issues, or use the root workspace script `yarn run gradle-plugin:lint`
+- You can run `./brownfield/gradlew -p brownfield detekt ktlintFormat` to auto-format and detect linting issues, or use the root workspace script `yarn run gradle-plugin:lint`
+- Maintainers should use [PUBLISHING.md](./PUBLISHING.md) for the release workflow, release notes generation, and Maven Central publication process
 
 ## Architecture
 
