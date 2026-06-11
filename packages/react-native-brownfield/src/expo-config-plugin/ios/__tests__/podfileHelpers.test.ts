@@ -74,5 +74,11 @@ end
     expect(patched).toContain(
       'framework module React {\n      umbrella header "React_Core/React_Core-umbrella.h"'
     );
+    expect(patched).toContain(
+      "normalize_build_setting = lambda do |value, fallback = '$(inherited)'|"
+    );
+    expect(patched).toContain(
+      "Array(value).flatten.compact.map(&:to_s).reject(&:empty?).join(' ').strip"
+    );
   });
 });

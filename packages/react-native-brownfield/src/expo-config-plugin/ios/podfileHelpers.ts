@@ -238,17 +238,21 @@ function ensureReactPrebuiltInteroperability(podfile: string): string {
     if File.exist?(react_vfs_path)
       react_c_flags = "-ivfsoverlay #{react_vfs_path}"
       react_swift_flags = "-Xcc -ivfsoverlay -Xcc #{react_vfs_path}"
+      normalize_build_setting = lambda do |value, fallback = '$(inherited)'|
+        normalized = Array(value).flatten.compact.map(&:to_s).reject(&:empty?).join(' ').strip
+        normalized.empty? ? fallback : normalized
+      end
 
       installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
           %w[OTHER_CFLAGS OTHER_CPLUSPLUSFLAGS].each do |key|
-            flags = (config.build_settings[key] || '$(inherited)').to_s
+            flags = normalize_build_setting.call(config.build_settings[key])
             unless flags.include?(react_vfs_path)
               config.build_settings[key] = "#{flags} #{react_c_flags}"
             end
           end
 
-          swift_flags = (config.build_settings['OTHER_SWIFT_FLAGS'] || '$(inherited)').to_s
+          swift_flags = normalize_build_setting.call(config.build_settings['OTHER_SWIFT_FLAGS'])
           unless swift_flags.include?(react_vfs_path)
             config.build_settings['OTHER_SWIFT_FLAGS'] = "#{swift_flags} #{react_swift_flags}"
           end
