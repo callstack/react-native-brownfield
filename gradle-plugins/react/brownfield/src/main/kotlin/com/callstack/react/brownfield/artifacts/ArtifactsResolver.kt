@@ -20,6 +20,7 @@ import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.GradleProps
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
