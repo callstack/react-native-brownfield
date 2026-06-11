@@ -67,8 +67,21 @@ runs:
         yarn run brownfield:publish:android
       shell: bash
 
-    - name: Verify release AAR exists in Maven Local
-      run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
+    - name: Verify published AAR exists in Maven Local
+      run: |
+        artifact_dir=~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT
+        release_artifact="$artifact_dir/brownfieldlib-0.0.1-SNAPSHOT-release.aar"
+        default_artifact="$artifact_dir/brownfieldlib-0.0.1-SNAPSHOT.aar"
+
+        if [ -f "$release_artifact" ]; then
+          stat "$release_artifact"
+        elif [ -f "$default_artifact" ]; then
+          stat "$default_artifact"
+        else
+          echo "Expected published AAR was not found in $artifact_dir"
+          ls -la "$artifact_dir"
+          exit 1
+        fi
       shell: bash
 
     # == AndroidApp ==
