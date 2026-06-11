@@ -4,6 +4,7 @@ import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.utils.Extension
+import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -46,15 +47,25 @@ object RNSourceSets {
 
         // 2. Use the onVariants block to configure each variant
         componentsExtension.onVariants { variant ->
+            val bundledAssetsVariantName =
+                Utils.getBundledAssetsVariantName(
+                    variantName = variant.name,
+                    buildTypeName = variant.buildType,
+                    isDebuggable = variant.debuggable,
+                )
+            val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
+
             // 3. Lazily configure the 'main' source set using .named()
             androidExtension.sourceSets.named(variant.name) { sourceSet ->
                 // Paths are collected and added, similar to your improved version
                 val bundlePathSegments =
                     listOf(
                         // outputs for RN <= 0.81
-                        "createBundle${variant.name.capitalized()}JsAndAssets",
+                        "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
                         // outputs for RN >= 0.82
-                        "react/${variant.name}",
+                        "react/$bundledAssetsVariantName",
+                        // expo update resources
+                        "create${capitalizedBundledAssetsVariantName}UpdatesResources",
                     )
 
                 // Add the variant-specific generated asset and resource directories

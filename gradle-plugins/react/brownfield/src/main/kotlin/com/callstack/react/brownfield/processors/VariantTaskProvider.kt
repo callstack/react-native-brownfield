@@ -68,10 +68,12 @@ class VariantTaskProvider(val project: Project) {
     ).path}/$folderName"
 
     fun preBuildTaskByVariant(
-        capitalizedVariantName: String,
+        variantName: String,
+        buildTypeName: String,
+        isVariantDebuggable: Boolean,
         explodeAarTask: TaskProvider<ExplodeAarTask>,
     ) {
-        val preBuildTaskPath = "pre${capitalizedVariantName}Build"
+        val preBuildTaskPath = "pre${variantName.capitalized()}Build"
         val preBuildTask = project.tasks.named(preBuildTaskPath)
 
         if (!preBuildTask.isPresent) {
@@ -79,16 +81,23 @@ class VariantTaskProvider(val project: Project) {
         }
 
         preBuildTask.dependsOn(explodeAarTask)
-        if (capitalizedVariantName.contains("Release")) {
-            val projectExt = project.extensions.getByType(Extension::class.java)
-            val appProject = project.rootProject.project(projectExt.appProjectName)
-            preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedVariantName}JsAndAssets")
 
-            if (Utils.isExpoProject(project)) {
-                preBuildTask.dependsOn(
-                    "${appProject.path}:create${capitalizedVariantName}UpdatesResources",
-                )
-            }
+        val bundledAssetsVariantName =
+            Utils.getBundledAssetsVariantName(
+                variantName = variantName,
+                buildTypeName = buildTypeName,
+                isDebuggable = isVariantDebuggable,
+            )
+        val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
+
+        val projectExt = project.extensions.getByType(Extension::class.java)
+        val appProject = project.rootProject.project(projectExt.appProjectName)
+        preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets")
+
+        if (Utils.isExpoProject(project)) {
+            preBuildTask.dependsOn(
+                "${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources",
+            )
         }
     }
 }

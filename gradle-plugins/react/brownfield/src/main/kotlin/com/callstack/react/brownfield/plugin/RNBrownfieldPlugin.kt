@@ -130,7 +130,12 @@ class RNBrownfieldPlugin : Plugin<Project> {
         val explodeTask = ExplodeTaskProvider.getTask(variant, project, artifacts)
 
         /** =======  Pre<Variant>Build  =========*/
-        variantTaskProvider.preBuildTaskByVariant(capitalizedVariantName, explodeTask)
+        variantTaskProvider.preBuildTaskByVariant(
+            variantName,
+            variant.buildType.name,
+            variant.buildType.isDebuggable,
+            explodeTask,
+        )
 
         val aarLibraries = getAarLibraries(artifacts, variantName)
 

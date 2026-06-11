@@ -29,10 +29,18 @@ object Utils {
     }
 
     fun getBundledAssetsVariantName(
-        variantName: String,
-        buildTypeName: String,
+        variantName: String?,
+        buildTypeName: String?,
         isDebuggable: Boolean,
     ): String {
+        require(!variantName.isNullOrEmpty()) {
+            "getBundledAssetsVariantName: Variant name cannot be empty"
+        }
+
+        require(!buildTypeName.isNullOrEmpty()) {
+            "getBundledAssetsVariantName: Build Type cannot be empty"
+        }
+
         if (!isDebuggable) {
             return variantName
         }
