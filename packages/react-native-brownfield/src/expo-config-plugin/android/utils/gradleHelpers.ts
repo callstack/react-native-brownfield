@@ -7,7 +7,7 @@ const brownfieldPluginIncludeBuildSnippet = `def brownfieldGradlePlugin =
       commandLine(
         "node",
         "--print",
-        "(() => { const fs = require('fs'); const path = require('path'); const packageJsonPath = require.resolve('@callstack/react-native-brownfield/package.json', { paths: [require.resolve('react-native/package.json')] }); const packageDir = path.dirname(packageJsonPath); const candidates = [path.join(packageDir, 'gradle-plugin', 'react'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react')]; const match = candidates.find((candidate) => fs.existsSync(candidate)); if (!match) { throw new Error('Unable to locate the Brownfield Gradle plugin sources.'); } return match; })()"
+        "(() => { const fs = require('fs'); const path = require('path'); const packageJsonPath = require.resolve('@callstack/react-native-brownfield/package.json', { paths: [require.resolve('react-native/package.json')] }); const packageDir = path.dirname(packageJsonPath); const candidates = [path.join(packageDir, 'gradle-plugin', 'react', 'brownfield'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react', 'brownfield')]; const match = candidates.find((candidate) => fs.existsSync(candidate)); if (!match) { throw new Error('Unable to locate the Brownfield Gradle plugin sources.'); } return match; })()"
       )
     }.standardOutput.asText.get().trim()
   includeBuild(brownfieldGradlePlugin)`;

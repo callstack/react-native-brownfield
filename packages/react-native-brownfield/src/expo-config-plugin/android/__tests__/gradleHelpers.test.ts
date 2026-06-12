@@ -16,7 +16,7 @@ describe('gradleHelpers', () => {
 }`;
 
     expect(modifyRootBuildGradle(contents)).toContain(
-      'classpath("com.callstack.react:brownfield-gradle-plugin:1.1.0")'
+      'classpath("com.callstack.react:brownfield-gradle-plugin:2.0.0-alpha01")'
     );
   });
 
@@ -40,7 +40,7 @@ include ':app'
     expect(modified).toContain('mavenCentral()');
     expect(modified).toContain('gradlePluginPortal()');
     expect(modified).toContain(
-      "const candidates = [path.join(packageDir, 'gradle-plugin', 'react'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react')]"
+      "const candidates = [path.join(packageDir, 'gradle-plugin', 'react', 'brownfield'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react', 'brownfield')]"
     );
     expect(modified).toContain('includeBuild(brownfieldGradlePlugin)');
     expect(modified).toContain(`include ':brownfieldlib'`);
@@ -65,7 +65,7 @@ include ':brownfieldlib'
 
     expect(
       modified.match(
-        /const candidates = \[path\.join\(packageDir, 'gradle-plugin', 'react'\), path\.join\(packageDir, '\.\.', '\.\.', 'gradle-plugins', 'react'\)\]/g
+        /const candidates = \[path\.join\(packageDir, 'gradle-plugin', 'react', 'brownfield'\), path\.join\(packageDir, '\.\.', '\.\.', 'gradle-plugins', 'react', 'brownfield'\)\]/g
       )
     ).toHaveLength(1);
     expect(
@@ -104,7 +104,7 @@ include ':app'
     ).toBe(false);
     expect(modified.includes('{ paths: [rootDir] }')).toBe(false);
     expect(modified).toContain(
-      "const candidates = [path.join(packageDir, 'gradle-plugin', 'react'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react')]"
+      "const candidates = [path.join(packageDir, 'gradle-plugin', 'react', 'brownfield'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react', 'brownfield')]"
     );
   });
 });

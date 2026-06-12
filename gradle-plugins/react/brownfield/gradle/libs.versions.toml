@@ -1,5 +1,5 @@
 [versions]
-kotlinJvm = "2.0.21"
+kotlinJvm = "2.2.21"
 ktlint = "12.1.1"
 detekt = "1.23.7"
 agp = "8.5.2"

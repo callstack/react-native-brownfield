@@ -53,25 +53,36 @@ object RNSourceSets {
                     buildTypeName = variant.buildType,
                     isDebuggable = variant.debuggable,
                 )
+            val capitalizedVariantName = variant.name.capitalized()
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
+            val updateResourcesTaskName = "create${capitalizedVariantName}UpdatesResources"
+            val appProject = getAppProject()
 
             // 3. Lazily configure the 'main' source set using .named()
             androidExtension.sourceSets.named(variant.name) { sourceSet ->
                 // Paths are collected and added, similar to your improved version
-                val bundlePathSegments =
+                val assetPathSegments =
                     listOf(
                         // outputs for RN <= 0.81
                         "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
                         // outputs for RN >= 0.82
                         "react/$bundledAssetsVariantName",
-                        // expo update resources
-                        "create${capitalizedBundledAssetsVariantName}UpdatesResources",
                     )
+                val updateResourcesPathSegment = "create${capitalizedVariantName}UpdatesResources"
 
                 // Add the variant-specific generated asset and resource directories
                 val appBuildDir = getAppBuildDir()
-                sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
-                sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
+                sourceSet.assets.srcDirs(assetPathSegments.map { "$appBuildDir/generated/assets/$it" })
+                sourceSet.res.srcDirs(assetPathSegments.map { "$appBuildDir/generated/res/$it" })
+                if (appProject.tasks.names.contains(updateResourcesTaskName)) {
+                    val updateResourcesTask = appProject.tasks.named(updateResourcesTaskName)
+                    sourceSet.assets.srcDir(
+                        project.files("$appBuildDir/generated/assets/$updateResourcesPathSegment").builtBy(updateResourcesTask),
+                    )
+                    sourceSet.res.srcDir(
+                        project.files("$appBuildDir/generated/res/$updateResourcesPathSegment").builtBy(updateResourcesTask),
+                    )
+                }
             }
         }
 

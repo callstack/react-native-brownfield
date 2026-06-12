@@ -1,0 +1,31 @@
+diff --git a/android/CMakeLists.txt b/android/CMakeLists.txt
+index 0c2c3c92ba1d53c14a342ebcd21342ba8141a853..c2ee77d25009a220225f8f2345925f4cc99c72db 100644
+--- a/android/CMakeLists.txt
++++ b/android/CMakeLists.txt
+@@ -46,2 +46,3 @@ find_package(fbjni REQUIRED CONFIG)
+ find_package(ReactAndroid REQUIRED CONFIG)
++find_package(react-native-worklets REQUIRED CONFIG)
+ 
+@@ -77,14 +78,0 @@ set_target_properties(reanimated PROPERTIES LINKER_LANGUAGE CXX)
+-if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
+-  set(BUILD_TYPE "debug")
+-else()
+-  set(BUILD_TYPE "release")
+-endif()
+-
+-add_library(worklets SHARED IMPORTED)
+-
+-set_target_properties(
+-  worklets
+-  PROPERTIES
+-    IMPORTED_LOCATION
+-    "${REACT_NATIVE_WORKLETS_DIR}/android/build/intermediates/cmake/${BUILD_TYPE}/obj/${ANDROID_ABI}/libworklets.so"
+-)
+@@ -107,5 +94,5 @@ target_link_libraries(
+   ReactAndroid::reactnative
+   ReactAndroid::jsi
+   fbjni::fbjni
+-  android
+-  worklets)
++  android
++  react-native-worklets::worklets)
