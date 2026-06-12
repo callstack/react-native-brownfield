@@ -1,7 +1,6 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.internal.tasks.factory.dependsOn
-import com.callstack.react.brownfield.exceptions.TaskNotFound
+import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
@@ -68,36 +67,26 @@ class VariantTaskProvider(val project: Project) {
     ).path}/$folderName"
 
     fun preBuildTaskByVariant(
-        variantName: String,
-        buildTypeName: String,
-        isVariantDebuggable: Boolean,
+        variant: LibraryVariant,
         explodeAarTask: TaskProvider<ExplodeAarTask>,
     ) {
-        val preBuildTaskPath = "pre${variantName.capitalized()}Build"
-        val preBuildTask = project.tasks.named(preBuildTaskPath)
-
-        if (!preBuildTask.isPresent) {
-            throw TaskNotFound("Can not find $preBuildTaskPath task")
-        }
-
-        preBuildTask.dependsOn(explodeAarTask)
-
         val bundledAssetsVariantName =
             Utils.getBundledAssetsVariantName(
-                variantName = variantName,
-                buildTypeName = buildTypeName,
-                isDebuggable = isVariantDebuggable,
+                variantName = variant.name,
+                buildTypeName = variant.buildType,
+                isDebuggable = variant.debuggable,
             )
         val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
 
         val projectExt = project.extensions.getByType(Extension::class.java)
         val appProject = project.rootProject.project(projectExt.appProjectName)
-        preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets")
+        
+        // NOTE: With flavor dimensions, the below throws error when used with `capitalizedBundledAssetsVariantName`
+        val jsBundleTaskName = "${appProject.path}:createBundle${variant.buildType?.capitalized()}JsAndAssets"
 
+        variant.lifecycleTasks.registerPreBuild(explodeAarTask, jsBundleTaskName)
         if (Utils.isExpoProject(project)) {
-            preBuildTask.dependsOn(
-                "${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources",
-            )
+            variant.lifecycleTasks.registerPreBuild("${appProject.path}:create${variant.buildType?.capitalized()}UpdatesResources")
         }
     }
 }

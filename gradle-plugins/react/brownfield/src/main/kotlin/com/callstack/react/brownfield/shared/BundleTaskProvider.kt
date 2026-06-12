@@ -2,9 +2,10 @@
 
 package com.callstack.react.brownfield.shared
 
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.LibraryVariant
+import com.android.build.api.dsl.LibraryExtension
+import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.processors.VariantTaskProvider
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
@@ -13,34 +14,25 @@ class BundleTaskProvider(private val variantTaskProvider: VariantTaskProvider) {
     fun getBundleTask(
         project: Project,
         variant: LibraryVariant,
-    ): TaskProvider<Task>? {
-        val androidExtension = project.extensions.getByType(LibraryExtension::class.java)
+    ): TaskProvider<Task> {
+        val androidComponent = project.extensions.findByType(LibraryExtension::class.java)
+        // TODO: evaluate if default makes sense
+        var taskName = variant.name
 
-        // Find the first variant in the library that matches our criteria
-        val matchedVariant =
-            androidExtension.libraryVariants.find { libraryVariant ->
-                // 1. Try Simple Match
-                if (libraryVariant.name == variant.name || libraryVariant.name == variant.buildType.name) {
-                    return@find true
+        androidComponent?.buildTypes?.forEach {
+            if (it.name == variant.name || it.name == variant.buildType) {
+                if (androidComponent.productFlavors.isEmpty()) {
+                    taskName = it.name.capitalized()
+                    return@forEach
                 }
 
-                // 2. Try Dimension Strategy Match
-                val flavor = variant.productFlavors.firstOrNull() ?: variant.mergedFlavor
-                val strategies =
-                    runCatching {
-                        androidExtension.productFlavors.getByName(flavor.name).missingDimensionStrategies
-                    }.getOrNull() ?: return@find false
-
-                strategies.any { (dimension, strategy) ->
-                    val fallbacks = listOf(strategy.requested) + strategy.fallbacks
-                    val libFlavor = libraryVariant.productFlavors.firstOrNull() ?: libraryVariant.mergedFlavor
-
-                    dimension == libFlavor.dimension &&
-                        fallbacks.contains(libFlavor.name) &&
-                        variant.buildType.name == libraryVariant.buildType.name
+                androidComponent.productFlavors.forEach { productFlavor ->
+                    taskName = "${productFlavor.name.capitalized()}${it.name.capitalized()}"
+                    return@forEach
                 }
             }
 
-        return matchedVariant?.let { variantTaskProvider.bundleTaskProvider(project, it.name) }
+        }
+        return variantTaskProvider.bundleTaskProvider(project, taskName)
     }
 }

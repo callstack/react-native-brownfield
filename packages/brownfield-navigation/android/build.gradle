@@ -52,6 +52,18 @@ android {
     }
   }
 
+     flavorDimensions += "abc"
+    productFlavors {
+        create("dev") {
+            dimension = "abc"
+            buildConfigField("String", "API_ENV", "\"dev\"")
+        }
+        create("prod") {
+            dimension = "abc"
+            buildConfigField("String", "API_ENV", "\"prod\"")
+        }
+    }
+
   lint {
     disable "GradleCompatible"
   }

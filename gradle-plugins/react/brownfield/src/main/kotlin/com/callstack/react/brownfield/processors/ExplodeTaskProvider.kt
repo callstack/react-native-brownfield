@@ -1,6 +1,6 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.api.LibraryVariant
+import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.shared.BundleTaskProvider
 import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
@@ -26,7 +26,7 @@ object ExplodeTaskProvider {
             ExplodeAarTask::class.java,
         ) { task ->
             task.variantName.set(variant.name)
-            task.minifyEnabled.set(variant.buildType.isMinifyEnabled)
+            task.minifyEnabled.set(variant.isMinifyEnabled)
 
             val finalArtifacts = mutableListOf<UnresolvedArtifactInfo>()
             artifacts.forEach { art ->
@@ -36,7 +36,6 @@ object ExplodeTaskProvider {
                     val dependencyProject = project.project(":${art.moduleName}")
                     val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
                     val taskName = bundleTaskProvider?.name ?: defaultTaskName
-
                     dependencyProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
                     artifactPath = createArtifactFile(bundleTaskProvider?.get() as Task).absolutePath
                 }
