@@ -72,6 +72,12 @@ end
       "config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'"
     );
     expect(patched).toContain(
+      "flags = Array(config.build_settings['OTHER_SWIFT_FLAGS']).flatten.compact.map(&:to_s).reject(&:empty?).join(' ').strip"
+    );
+    expect(patched).toContain(
+      "unless flags.include?('-no-verify-emitted-module-interface')"
+    );
+    expect(patched).toContain(
       'framework module React {\n      umbrella header "React_Core/React_Core-umbrella.h"'
     );
     expect(patched).toContain(

@@ -180,13 +180,13 @@ function ensureDebugSwiftInterfaceOverrides(podfile: string): string {
 
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-        next unless config.name == 'Debug'
-
-        flags = config.build_settings['OTHER_SWIFT_FLAGS'] || '$(inherited)'
-        flags = flags.to_s
+        flags = Array(config.build_settings['OTHER_SWIFT_FLAGS']).flatten.compact.map(&:to_s).reject(&:empty?).join(' ').strip
+        flags = '$(inherited)' if flags.empty?
         unless flags.include?('-no-verify-emitted-module-interface')
           config.build_settings['OTHER_SWIFT_FLAGS'] = "#{flags} -no-verify-emitted-module-interface"
         end
+
+        next unless config.name == 'Debug'
 
         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
         config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
