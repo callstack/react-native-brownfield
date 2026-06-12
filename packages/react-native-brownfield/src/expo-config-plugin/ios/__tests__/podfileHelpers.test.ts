@@ -80,5 +80,8 @@ end
     expect(patched).toContain(
       "Array(value).flatten.compact.map(&:to_s).reject(&:empty?).join(' ').strip"
     );
+    expect(patched).toContain('search_path_keys = %w[');
+    expect(patched).toContain('HEADER_SEARCH_PATHS');
+    expect(patched).toContain('USER_HEADER_SEARCH_PATHS');
   });
 });

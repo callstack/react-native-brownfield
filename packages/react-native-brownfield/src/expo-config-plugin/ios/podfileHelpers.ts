@@ -242,9 +242,24 @@ function ensureReactPrebuiltInteroperability(podfile: string): string {
         normalized = Array(value).flatten.compact.map(&:to_s).reject(&:empty?).join(' ').strip
         normalized.empty? ? fallback : normalized
       end
+      search_path_keys = %w[
+        FRAMEWORK_SEARCH_PATHS
+        HEADER_SEARCH_PATHS
+        LIBRARY_SEARCH_PATHS
+        USER_HEADER_SEARCH_PATHS
+      ]
 
       installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
+          search_path_keys.each do |key|
+            next unless config.build_settings.key?(key)
+
+            config.build_settings[key] = normalize_build_setting.call(
+              config.build_settings[key],
+              ''
+            )
+          end
+
           %w[OTHER_CFLAGS OTHER_CPLUSPLUSFLAGS].each do |key|
             flags = normalize_build_setting.call(config.build_settings[key])
             unless flags.include?(react_vfs_path)
