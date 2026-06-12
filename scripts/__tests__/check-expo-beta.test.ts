@@ -38,6 +38,6 @@ test('fails loudly when expo dependency is missing', () => {
   };
 
   assert.throws(() => updateExpoVersion(packageJson, '56.0.0-beta.1'), {
-    message: /Could not locate dependencies\.expo/,
+    message: /Could not locate dependencies\.expo in ExpoAppBeta\/package\.json/,
   });
 });

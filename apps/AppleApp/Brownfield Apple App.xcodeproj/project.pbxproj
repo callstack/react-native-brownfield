@@ -141,7 +141,7 @@
 		79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactNativeDependencies.xcframework; path = package/ReactNativeDependencies.xcframework; sourceTree = "<group>"; };
 		79B8BE802FB7270E00B94C6F /* Brownfield Apple App (ExpoApp54).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp54).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		79B8BE9B2FB7273600B94C6F /* Brownfield Apple App (ExpoApp55).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp55).app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoApp56).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp56).app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppBeta).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoAppBeta).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -175,7 +175,7 @@
 			);
 			target = 79B8BE832FB7273600B94C6F /* Brownfield Apple App (ExpoApp55) */;
 		};
-		7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp56)" target */ = {
+		7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
@@ -188,7 +188,7 @@
 				components/SettingsScreen.swift,
 				components/Toast.swift,
 			);
-			target = 7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoApp56) */;
+			target = 7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppBeta) */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -198,7 +198,7 @@
 			exceptions = (
 				79B8BE822FB7270F00B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp54)" target */,
 				79B8BE9C2FB7273600B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp55)" target */,
-				7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp56)" target */,
+				7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */,
 			);
 			path = "Brownfield Apple App";
 			sourceTree = "<group>";
@@ -292,7 +292,7 @@
 				793C76A72EEBF938008A2A34 /* Brownfield Apple App (RNApp).app */,
 				79B8BE802FB7270E00B94C6F /* Brownfield Apple App (ExpoApp54).app */,
 				79B8BE9B2FB7273600B94C6F /* Brownfield Apple App (ExpoApp55).app */,
-				7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoApp56).app */,
+				7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppBeta).app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -369,9 +369,9 @@
 			productReference = 79B8BE9B2FB7273600B94C6F /* Brownfield Apple App (ExpoApp55).app */;
 			productType = "com.apple.product-type.application";
 		};
-		7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoApp56) */ = {
+		7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppBeta) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp56)" */;
+			buildConfigurationList = 7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoAppBeta)" */;
 			buildPhases = (
 				7A1B2C3D4E5F60718293A302 /* Sources */,
 				7A1B2C3D4E5F60718293A204 /* Frameworks */,
@@ -385,11 +385,11 @@
 			fileSystemSynchronizedGroups = (
 				793C76A92EEBF938008A2A34 /* Brownfield Apple App */,
 			);
-			name = "Brownfield Apple App (ExpoApp56)";
+			name = "Brownfield Apple App (ExpoAppBeta)";
 			packageProductDependencies = (
 			);
 			productName = "Brownfield Apple App";
-			productReference = 7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoApp56).app */;
+			productReference = 7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppBeta).app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -424,7 +424,7 @@
 					793C76A62EEBF938008A2A34 /* Brownfield Apple App (RNApp) */,
 					79B8BE682FB7270E00B94C6F /* Brownfield Apple App (ExpoApp54) */,
 					79B8BE832FB7273600B94C6F /* Brownfield Apple App (ExpoApp55) */,
-					7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoApp56) */,
+					7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppBeta) */,
 				);
 
 		};
@@ -1528,7 +1528,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release Expo";
 		};
-		7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp56)" */ = {
+		7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoAppBeta)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7A1B2C3D4E5F60718293A501 /* Debug Expo */,

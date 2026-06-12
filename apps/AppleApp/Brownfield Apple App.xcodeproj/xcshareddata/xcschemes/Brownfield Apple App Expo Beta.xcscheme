@@ -29,8 +29,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7A1B2C3D4E5F60718293A301"
-            BuildableName = "Brownfield Apple App (ExpoApp56).app"
-            BlueprintName = "Brownfield Apple App (ExpoApp56)"
+            BuildableName = "Brownfield Apple App (ExpoAppBeta).app"
+            BlueprintName = "Brownfield Apple App (ExpoAppBeta)"
             ReferencedContainer = "container:Brownfield Apple App.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
