@@ -9,7 +9,7 @@ if (!projectDirName) {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const SNAPSHOT_VERSION = '1.1.0-SNAPSHOT';
+const SNAPSHOT_VERSION = '2.0.0-alpha01-SNAPSHOT';
 const targetPath = path.resolve(
   __dirname,
   '..',

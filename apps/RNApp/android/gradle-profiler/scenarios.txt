@@ -1,0 +1,8 @@
+on_clean_build {
+    tasks = [":brownfield:assembleRelease"] // Replace with your task
+    cleanup-tasks = ["clean"]
+    # Disables caching to ensure an "absolute" clean run
+    gradle-args = ["--no-build-cache", "--no-configuration-cache"] 
+    warm-ups = 2
+    iterations = 5
+}

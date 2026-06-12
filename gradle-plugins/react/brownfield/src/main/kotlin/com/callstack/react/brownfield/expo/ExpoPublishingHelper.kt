@@ -1,10 +1,9 @@
 package com.callstack.react.brownfield.expo
 
-import com.android.build.gradle.LibraryExtension
 import com.android.utils.forEach
-import com.callstack.react.brownfield.expo.utils.BrownfieldPublishingInfo
 import com.callstack.react.brownfield.expo.utils.DependencyInfo
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
+import com.callstack.react.brownfield.expo.utils.LocalMavenUtils
 import com.callstack.react.brownfield.expo.utils.VersionMediatingDependencySet
 import com.callstack.react.brownfield.expo.utils.asExpoGradleProjectProjection
 import com.callstack.react.brownfield.shared.Constants
@@ -30,7 +29,7 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
 }
 
 open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
-    fun afterEvaluate() {
+    fun configure(): List<ExpoGradleProjectProjection> {
         val discoverableExpoProjects = getDiscoverableExpoProjects()
 
         Logging.log(
@@ -58,6 +57,8 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
         reconfigurePOM(expoTransitiveDependencies)
         reconfigureGradleModuleJSON(expoTransitiveDependencies)
+
+        return discoverableExpoProjects
     }
 
     protected fun shouldExcludeDependency(
@@ -273,11 +274,8 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
     fun discoverExpoTransitiveDependenciesForPublication(expoGPProjection: ExpoGradleProjectProjection): VersionMediatingDependencySet? {
         val publication =
-            getPublishingInfo(expoGPProjection)
-                ?: error(
-                    "Cannot configure publishing for Expo project " +
-                        "${expoGPProjection.name} - could not determine publishing info",
-                )
+            LocalMavenUtils.getPublishingInfo(expoGPProjection, brownfieldAppProject)
+                ?: error(LocalMavenUtils.publishingNotFound(expoGPProjection.name))
 
         val pkgProjectDir = File(expoGPProjection.sourceDir)
         val pkgProject =
@@ -285,18 +283,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 it.projectDir.canonicalFile == pkgProjectDir.canonicalFile
             }
         val expoPkgLocalMavenRepo = pkgProjectDir.parentFile.resolve("local-maven-repo")
-
-        val pomFile =
-            expoPkgLocalMavenRepo
-                .resolve(
-                    "${
-                        publication.groupId.replace(
-                            '.',
-                            '/',
-                        )
-                    }/${publication.artifactId}/${publication.version}/" +
-                        "${publication.artifactId}-${publication.version}.pom",
-                )
+        val pomFile = LocalMavenUtils.getPomFile(expoPkgLocalMavenRepo, publication)
 
         val dependencies = VersionMediatingDependencySet()
         var depsDiscoverySource: String
@@ -405,7 +392,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
      * Discovers Expo projects in the current brownfield app project that are marked for publication.
      * @return List of ExpoGradleProjectProjection representing the discoverable Expo projects.
      */
-    protected fun getDiscoverableExpoProjects(): List<ExpoGradleProjectProjection> {
+    fun getDiscoverableExpoProjects(): List<ExpoGradleProjectProjection> {
         val expoExtension =
             brownfieldAppProject.rootProject.gradle.extensions.findByType(Class.forName("expo.modules.plugin.ExpoGradleExtension"))
                 ?: error("Expo Gradle extension not found. This should never happen in an Expo project.")
@@ -441,43 +428,5 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                         expoGradleProjectProjection.name,
                     )
             }
-    }
-
-    fun getPublishingInfo(expoGPProjection: ExpoGradleProjectProjection): BrownfieldPublishingInfo? {
-        return expoGPProjection.publication?.let {
-            BrownfieldPublishingInfo(
-                groupId = it.groupId,
-                artifactId = it.artifactId,
-                version = it.version,
-            )
-        } ?: run {
-            val targetProject =
-                brownfieldAppProject.rootProject.allprojects.firstOrNull {
-                    it.projectDir.absoluteFile.path == expoGPProjection.sourceDir
-                }
-
-            if (targetProject == null) {
-                return null
-            }
-
-            val targetProjectAndroidLibExt =
-                targetProject.extensions.getByType(LibraryExtension::class.java)
-
-            val packagePieces = targetProjectAndroidLibExt.namespace!!.split(".")
-            val artifactId = packagePieces.last()
-            // below: remove the trailing artifactId component -> leaves only the groupId components
-            val groupId = packagePieces.dropLast(1).joinToString(".")
-
-            (
-                BrownfieldPublishingInfo(
-                    groupId = groupId,
-                    artifactId = artifactId,
-                    version = (
-                        targetProjectAndroidLibExt.defaultConfig.versionName
-                            ?: targetProject.version.toString()
-                    ),
-                )
-            )
-        }
     }
 }
