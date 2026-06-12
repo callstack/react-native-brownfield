@@ -66,6 +66,19 @@ publishing {
                         distribution.set("repo")
                     }
                 }
+
+                developers {
+                    developer {
+                        id.set("callstack")
+                        name.set("Callstack Team")
+                        email.set("it-admin@callstack.com")
+                    }
+                }
+                scm {
+                    connection.set(property("SCM_CONNECTION").toString())
+                    developerConnection.set(property("SCM_DEV_CONNECTION").toString())
+                    url.set(property("GITHUB_URL").toString())
+                }
             }
         }
     }
