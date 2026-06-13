@@ -142,6 +142,22 @@ jobs:
           rn-project-path: apps/ExpoApp${{ matrix.version }}
           rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp${{ matrix.version }}/brownfieldlib
 
+  android-androidapp-rock:
+    name: Android road test (RNApp & AndroidApp - Rock)
+    runs-on: ubuntu-latest
+    needs: build-lint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run RockApp -> AndroidApp road test (Rock)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: rock
+          rn-project-path: apps/RockApp
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/rockapp/brownfieldlib
+
   android-androidapp-vanilla:
     name: Android road test (AndroidApp - Vanilla)
     runs-on: ubuntu-latest
@@ -220,3 +236,18 @@ jobs:
         with:
           variant: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
+
+  ios-appleapp-rock:
+    name: iOS road test (RNApp & AppleApp - Rock)
+    runs-on: macos-26
+    needs: build-lint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run RNApp -> AppleApp road test (Rock)
+        uses: ./.github/actions/appleapp-road-test
+        with:
+          variant: rock
+          rn-project-path: apps/RockApp

@@ -3,6 +3,9 @@
 This directory contains demo projects showcasing the usage of the `react-native-brownfield` library.
 
 - `RNApp` - the React Native application that is packaged to AAR and XCFramework archives and integrated into native projects
+- `RockApp` - an equivalent React Native application powered by [Rock](https://rockjs.dev) (instead of the React Native Community CLI). It shares the same UI as `RNApp` via the `brownfield-example-shared` package and is packaged to AAR / XCFramework using Rock's brownfield plugins.
+- `brownfield-example-shared` - workspace package containing the React Native UI shared by `RNApp` and `RockApp` (root `App`, `HomeScreen`, `Counter`, navigation stack, theming helpers, native OS version context)
+- `brownfield-example-shared-tests` - workspace package containing the Jest test suites shared by the demo apps
 - `ExpoApp54` - the Expo application that is packaged analogously to the above using React Native Brownfield Expo config plugin; this app uses Expo SDK v54, which is an important test case since pre-55 versions require additional configuration steps
 - `ExpoApp55` - another Expo application similar to `ExpoApp54`, but using Expo SDK v55
 - `AndroidApp` - the native Android application that integrates the RNApp AAR package (a "consumer" of the RNApp library); it comes in two flavors:

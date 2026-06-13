@@ -22,6 +22,7 @@
     "@callstack/brownfield-example-android-app",
     "@callstack/brownfield-example-ios-app",
     "@callstack/brownfield-example-rn-app",
+    "@callstack/brownfield-example-rock-app",
     "@callstack/brownfield-example-expo-app-54",
     "@callstack/brownfield-example-expo-app-55",
     "@callstack/brownfield-gradle-plugin-react"

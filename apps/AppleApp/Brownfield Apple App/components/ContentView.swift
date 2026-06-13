@@ -16,13 +16,19 @@ let initialState = BrownfieldStore(
 
 #if USE_EXPO_HOST
 private let hostAppName = "iOS Expo"
+#elseif USE_ROCK_HOST
+private let hostAppName = "iOS Rock"
 #else
 private let hostAppName = "iOS Vanilla"
 #endif
 
 // The packaged brownfield example surface is registered under `RNApp`
 // for both the plain React Native and Expo example apps.
+#if USE_ROCK_HOST
+private let reactNativeModuleName = "RockApp"
+#else
 private let reactNativeModuleName = "RNApp"
+#endif
 
 struct ContentView: View {
     var body: some View {
@@ -43,6 +49,13 @@ struct ContentView: View {
                     .navigationBarHidden(true)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .background(Color(UIColor.systemBackground))
+                
+                Button("Stop React Native") {
+                    ReactNativeBrownfield.shared.stopReactNative()
+                }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.top)
+                    .foregroundColor(.red)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(16)

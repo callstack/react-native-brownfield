@@ -8,6 +8,7 @@
     "build:example:ios-consumer:expo54": "node prepareXCFrameworks.js --appName ExpoApp54 && yarn internal::build::common -scheme \"Brownfield Apple App Expo 54\" -configuration Release",
     "build:example:ios-consumer:expo55": "node prepareXCFrameworks.js --appName ExpoApp55 && yarn internal::build::common -scheme \"Brownfield Apple App Expo 55\" -configuration Release",
     "build:example:ios-consumer:vanilla": "node prepareXCFrameworks.js --appName RNApp && yarn internal::build::common -scheme \"Brownfield Apple App Vanilla\" -configuration \"Release Vanilla\"",
+    "build:example:ios-consumer:rock": "node prepareXCFrameworks.js --appName RockApp && yarn internal::build::common -scheme \"Brownfield Apple App Rock\" -configuration \"Release Rock\"",
     "internal::build::common": "xcodebuild -project \"Brownfield Apple App.xcodeproj\" -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build"
   },
   "devDependencies": {
