@@ -39,7 +39,8 @@ runs:
 
     - name: Install Android NDK required by Expo
       run: |
-        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.0.12077973"
+        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.0.12077973"
+        test -d "$ANDROID_HOME/ndk/27.0.12077973"
       shell: bash
 
     - name: Build packages
