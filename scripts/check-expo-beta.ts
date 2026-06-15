@@ -86,9 +86,9 @@ export async function fetchLatestExpoBetaVersion(): Promise<string | null> {
     return betaTag;
   }
 
-  const versions = Object.keys(data.versions ?? {}).filter((version) =>
-    version.includes('beta')
-  );
+  const versions = Object.keys(data.versions ?? {})
+    .filter((version) => version.includes('beta'))
+    .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
 
   return versions.at(-1) ?? null;
 }
@@ -106,6 +106,8 @@ function generateExpoBetaApp(): void {
   updateFileContents(EXPO_BETA_PACKAGE_JSON_PATH, (contents) =>
     contents
       .replaceAll('@callstack/brownfield-example-expo-app-55', '@callstack/brownfield-example-expo-app-beta')
+      .replaceAll('com.callstack.rnbrownfield.demo.expoapp55', 'com.callstack.rnbrownfield.demo.expobeta')
+      .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
       .replaceAll('ExpoApp55', 'ExpoAppBeta')
       .replaceAll('expoapp55', 'expoappbeta')
       .replaceAll('expoapp56', 'expoappbeta')
