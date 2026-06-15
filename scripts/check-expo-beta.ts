@@ -25,8 +25,8 @@ export interface ExpoPackageJson {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
-const EXPO_TEMPLATE_APP_DIR = path.join(REPO_ROOT, 'apps', 'ExpoApp55');
 const EXPO_BETA_APP_DIR = path.join(REPO_ROOT, 'apps', 'ExpoAppBeta');
+const EXPO_TEMPLATE_APP_CANDIDATES = ['ExpoApp56', 'ExpoApp55'];
 const EXPO_BETA_PACKAGE_JSON_PATH = path.join(EXPO_BETA_APP_DIR, 'package.json');
 const EXPO_BETA_APP_JSON_PATH = path.join(EXPO_BETA_APP_DIR, 'app.json');
 const EXPO_NPM_REGISTRY_URL = 'https://registry.npmjs.org/expo';
@@ -98,37 +98,56 @@ function updateFileContents(filePath: string, updater: (contents: string) => str
   writeFileSync(filePath, updater(contents), 'utf8');
 }
 
+function getExpoTemplateAppDir(): string {
+  for (const candidate of EXPO_TEMPLATE_APP_CANDIDATES) {
+    const candidatePath = path.join(REPO_ROOT, 'apps', candidate);
+    if (existsSync(candidatePath)) {
+      return candidatePath;
+    }
+  }
+
+  throw new Error('Could not find an Expo template app directory');
+}
+
+function replaceTemplateAppReferences(contents: string): string {
+  return contents
+    .replaceAll('@callstack/brownfield-example-expo-app-56', '@callstack/brownfield-example-expo-app-beta')
+    .replaceAll('@callstack/brownfield-example-expo-app-55', '@callstack/brownfield-example-expo-app-beta')
+    .replaceAll('com.callstack.rnbrownfield.demo.expoapp56', 'com.callstack.rnbrownfield.demo.expobeta')
+    .replaceAll('com.callstack.rnbrownfield.demo.expoapp55', 'com.callstack.rnbrownfield.demo.expobeta')
+    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp56/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
+    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
+    .replaceAll('ExpoApp56', 'ExpoAppBeta')
+    .replaceAll('ExpoApp55', 'ExpoAppBeta')
+    .replaceAll('expoapp56', 'expoappbeta')
+    .replaceAll('expoapp55', 'expoappbeta')
+    .replaceAll('expoappbeta56', 'expoappbeta')
+    .replaceAll('expoappbeta55', 'expoappbeta');
+}
+
 function generateExpoBetaApp(): void {
   rmSync(EXPO_BETA_APP_DIR, { recursive: true, force: true });
   mkdirSync(path.dirname(EXPO_BETA_APP_DIR), { recursive: true });
-  cpSync(EXPO_TEMPLATE_APP_DIR, EXPO_BETA_APP_DIR, { recursive: true });
+  cpSync(getExpoTemplateAppDir(), EXPO_BETA_APP_DIR, { recursive: true });
 
-  updateFileContents(EXPO_BETA_PACKAGE_JSON_PATH, (contents) =>
-    contents
-      .replaceAll('@callstack/brownfield-example-expo-app-55', '@callstack/brownfield-example-expo-app-beta')
-      .replaceAll('com.callstack.rnbrownfield.demo.expoapp55', 'com.callstack.rnbrownfield.demo.expobeta')
-      .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
-      .replaceAll('ExpoApp55', 'ExpoAppBeta')
-      .replaceAll('expoapp55', 'expoappbeta')
-      .replaceAll('expoapp56', 'expoappbeta')
-      .replaceAll('expoappbeta55', 'expoappbeta')
-  );
+  updateFileContents(EXPO_BETA_PACKAGE_JSON_PATH, replaceTemplateAppReferences);
 
-  updateFileContents(EXPO_BETA_APP_JSON_PATH, (contents) =>
-    contents
-      .replaceAll('ExpoApp55', 'ExpoAppBeta')
-      .replaceAll('expoapp55', 'expoappbeta')
-      .replaceAll('com.callstack.rnbrownfield.demo.expoapp55', 'com.callstack.rnbrownfield.demo.expobeta')
-  );
+  updateFileContents(EXPO_BETA_APP_JSON_PATH, replaceTemplateAppReferences);
 
   const testPath = path.join(EXPO_BETA_APP_DIR, '__tests__', 'brownfield.example.test.tsx');
   if (existsSync(testPath)) {
-    updateFileContents(testPath, (contents) => contents.replaceAll('ExpoApp55', 'ExpoAppBeta'));
+    updateFileContents(testPath, replaceTemplateAppReferences);
   }
 
   const homeScreenPath = path.join(EXPO_BETA_APP_DIR, 'src', 'app', 'index.tsx');
   if (existsSync(homeScreenPath)) {
-    updateFileContents(homeScreenPath, (contents) => contents.replaceAll('Expo\u00a055', 'Expo\u00a0Beta').replaceAll('Expo&nbsp;55', 'Expo&nbsp;Beta'));
+    updateFileContents(homeScreenPath, (contents) =>
+      contents
+        .replaceAll('Expo\u00a056', 'Expo\u00a0Beta')
+        .replaceAll('Expo\u00a055', 'Expo\u00a0Beta')
+        .replaceAll('Expo&nbsp;56', 'Expo&nbsp;Beta')
+        .replaceAll('Expo&nbsp;55', 'Expo&nbsp;Beta')
+    );
   }
 }
 
