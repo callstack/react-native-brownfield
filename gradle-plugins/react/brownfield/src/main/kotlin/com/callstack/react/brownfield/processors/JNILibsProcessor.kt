@@ -1,140 +1,99 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.LibraryExtension
-import com.callstack.react.brownfield.exceptions.TaskNotFound
+import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-class JNILibsProcessor(val project: Project) {
-    fun processJniLibs(
-        aarLibraries: Collection<AndroidArchiveLibrary>,
-        variantName: String,
-    ) {
-        val capitalizedVariantName = variantName.capitalized()
-        val taskName = "merge${capitalizedVariantName}JniLibFolders"
-        val mergeJniLibsTask = project.tasks.named(taskName)
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.*
+import kotlin.collections.component1
+import kotlin.collections.component2
 
-        if (!mergeJniLibsTask.isPresent) {
-            throw TaskNotFound("Task $taskName not found")
+abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val aarJniDirs: ConfigurableFileCollection
+
+    @get:InputDirectory
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val strippedLibsDir: DirectoryProperty
+
+    @get:Input
+    abstract val useStrippedSoFiles: Property<Boolean>
+
+    @get:Input
+    abstract val dynamicLibs: ListProperty<String>
+
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
+
+    @TaskAction
+    fun execute() {
+        val outDir = outputDirectory.get().asFile
+        // Clear out old data to ensure clean, reproducible builds
+        outDir.deleteRecursively()
+        outDir.mkdirs()
+
+        val existingJNILibs = listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+            .associateWith { mutableListOf<String>() }
+            .toMutableMap()
+
+        // 1. Scan and process duplicate libs from AAR paths
+        aarJniDirs.forEach { jniDir ->
+            if (jniDir.exists()) {
+                processNestedLibs(jniDir.listFiles(), existingJNILibs)
+
+                // If not using stripped files, copy the unstripped ones directly to our output
+                if (!useStrippedSoFiles.get()) {
+                    jniDir.copyRecursively(outDir, overwrite = true)
+                }
+            }
         }
 
-        val androidExtension = project.extensions.getByName("android") as LibraryExtension
-        val copyTask = copySoLibsTask(variantName)
+        // 2. If using stripped files, copy targeted files from the stripped directory
+        if (useStrippedSoFiles.get() && strippedLibsDir.isPresent) {
+            copyStrippedSoLibs(outDir, existingJNILibs)
+        }
+    }
 
-        mergeJniLibsTask.configure {
-            it.dependsOn(copyTask)
+    private fun copyStrippedSoLibs(outDir: File, existingJNILibs: MutableMap<String, MutableList<String>>) {
+        val fromDir = strippedLibsDir.get().asFile
+        if (fromDir.exists()) {
+            val allowedExtraLibs = dynamicLibs.get()
 
-            it.doFirst {
-                val projectExt = project.extensions.getByType(Extension::class.java)
-                val existingJNILibs =
-                    listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-                        .associateWith { mutableListOf<String>() }
-                        .toMutableMap()
-                for (archiveLibrary in aarLibraries) {
-                    val jniDir = archiveLibrary.getJniDir()
-                    processNestedLibs(jniDir.listFiles(), existingJNILibs)
-                    if (!projectExt.useStrippedSoFiles) {
-                        if (jniDir.exists()) {
-                            val filteredSourceSets =
-                                androidExtension.sourceSets.filter { sourceSet -> sourceSet.name == variantName }
-                            filteredSourceSets.forEach { sourceSet ->
-                                sourceSet.jniLibs.srcDir(
-                                    jniDir,
-                                )
+            existingJNILibs.forEach { (arch, libNames) ->
+                val sourceArchDir = File(fromDir, arch)
+                if (sourceArchDir.exists()) {
+                    val destArchDir = File(outDir, arch).apply { mkdirs() }
+
+                    sourceArchDir.listFiles()?.forEach { file ->
+                        val name = file.name
+
+
+                        val isCodegenLib = name.startsWith("libreact_codegen_") && name.endsWith(".so")
+                        val isAllowedLib = allowedExtraLibs.any { lib -> name == lib || name.contains(lib) }
+                        // Check against the filter patterns
+                        val matchesFilter = name == "libappmodules.so" || isCodegenLib || isAllowedLib
+
+                        if (name in libNames && matchesFilter) {
+                            try {
+                                file.copyTo(File(destArchDir, name), overwrite = true)
+                            } catch (e: java.io.IOException) {
+                                Logging.error("Failed to copy $name: ${e.message}", e.cause)
                             }
                         }
                     }
                 }
-                if (projectExt.useStrippedSoFiles) {
-                    copyStrippedSoLibs(variantName, existingJNILibs)
-                }
-            }
-        }
-    }
-
-    private fun getStrippedLibsPath(variantName: String): Pair<File, File> {
-        val projectExt = project.extensions.getByType(Extension::class.java)
-        val appProject = project.rootProject.project(projectExt.appProjectName)
-        val appBuildDir = appProject.layout.buildDirectory.get()
-
-        val capitalizedVariant = variantName.capitalized()
-
-        val fromDir =
-            appBuildDir
-                .dir("intermediates/stripped_native_libs/$variantName/strip${capitalizedVariant}DebugSymbols/out/lib")
-                .asFile
-
-        val intoDir = project.rootProject.file("${project.name}/libs$capitalizedVariant")
-
-        return Pair(fromDir, intoDir)
-    }
-
-    private fun copySoLibsTask(variantName: String): TaskProvider<Copy> {
-        val capitalizedVariant = variantName.capitalized()
-        val projectExt = project.extensions.getByType(Extension::class.java)
-        val appProject = project.rootProject.project(projectExt.appProjectName)
-
-        val stripTask = ":${appProject.name}:strip${capitalizedVariant}DebugSymbols"
-        val codegenTask = ":${project.name}:generateCodegenSchemaFromJavaScript"
-
-        val (fromDir, intoDir) = getStrippedLibsPath(variantName)
-
-        return project.tasks.register("copy${capitalizedVariant}LibSources", Copy::class.java) {
-            it.dependsOn(stripTask, codegenTask)
-            it.from(fromDir)
-            it.into(intoDir)
-
-            it.include("**/libappmodules.so", "**/libreact_codegen_*.so")
-            projectExt.dynamicLibs.forEach { lib -> it.include("**/$lib") }
-        }
-    }
-
-    private fun copyStrippedSoLibs(
-        variantName: String,
-        existingJNILibs: MutableMap<String, MutableList<String>>,
-    ) {
-        val (fromDir, intoDir) = getStrippedLibsPath(variantName)
-
-        existingJNILibs.forEach { (arch, libNames) ->
-            copyLibsForArchitecture(fromDir, intoDir, arch, libNames)
-        }
-    }
-
-    private fun copyLibsForArchitecture(
-        fromDir: File,
-        intoDir: File,
-        arch: String,
-        libNames: List<String>,
-    ) {
-        val sourceArchDir = File(fromDir, arch)
-        if (!sourceArchDir.exists()) return
-
-        val destArchDir = File(intoDir, arch).apply { mkdirs() }
-
-        libNames.forEach { libName ->
-            copyLibFile(sourceArchDir, destArchDir, libName)
-        }
-    }
-
-    private fun copyLibFile(
-        sourceArchDir: File,
-        destArchDir: File,
-        libName: String,
-    ) {
-        val sourceFile = File(sourceArchDir, libName)
-        val destFile = File(destArchDir, libName)
-
-        if (sourceFile.exists()) {
-            try {
-                sourceFile.copyTo(destFile, overwrite = true)
-            } catch (e: java.io.IOException) {
-                Logging.log("Failed to copy $libName: ${e.message}")
             }
         }
     }
@@ -149,17 +108,45 @@ class JNILibsProcessor(val project: Project) {
 
             libFiles.forEach { file ->
                 if (file.name in libList) {
-                    deleteFile(file)
+                    file.delete()
                 } else {
                     libList.add(file.name)
                 }
             }
         }
     }
+}
 
-    private fun deleteFile(file: File) {
-        if (!file.delete()) {
-            Logging.log("Failed to delete: ${file.name}")
+class JNILibsProcessor(val project: Project) {
+    fun processJniLibs(
+        aarLibraries: Collection<AndroidArchiveLibrary>,
+        variant: LibraryVariant,
+    ) {
+        val variantName = variant.name
+        val capitalizedVariantName = variantName.capitalized()
+        val projectExt = project.extensions.getByType(Extension::class.java)
+        val appProject = project.rootProject.project(projectExt.appProjectName)
+
+        val processJniTask = project.tasks.register("processCustomJniLibsFor$capitalizedVariantName",ProcessAndCopyJniLibsTask::class.java) {
+            it.useStrippedSoFiles.set(projectExt.useStrippedSoFiles)
+            it.dynamicLibs.set(projectExt.dynamicLibs)
+
+            val jniDirs = aarLibraries.map { aarLib -> aarLib.getJniDir() }
+            it.aarJniDirs.setFrom(jniDirs)
+
+            val fromDirProvider = appProject.layout.buildDirectory.dir(
+                "intermediates/stripped_native_libs/$variantName/strip${capitalizedVariantName}DebugSymbols/out/lib"
+            )
+            it.strippedLibsDir.set(fromDirProvider)
+
+            val stripTaskPath = ":${appProject.name}:strip${capitalizedVariantName}DebugSymbols"
+            val codegenTaskPath = ":${project.name}:generateCodegenSchemaFromJavaScript"
+            it.dependsOn(stripTaskPath, codegenTaskPath)
         }
+
+        variant.sources.jniLibs?.addGeneratedSourceDirectory(
+            taskProvider = processJniTask,
+            wiredWith = { it.outputDirectory }
+        )
     }
 }

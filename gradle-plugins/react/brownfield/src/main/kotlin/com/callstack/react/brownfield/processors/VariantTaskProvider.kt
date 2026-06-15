@@ -81,12 +81,11 @@ class VariantTaskProvider(val project: Project) {
         val projectExt = project.extensions.getByType(Extension::class.java)
         val appProject = project.rootProject.project(projectExt.appProjectName)
         
-        // NOTE: With flavor dimensions, the below throws error when used with `capitalizedBundledAssetsVariantName`
-        val jsBundleTaskName = "${appProject.path}:createBundle${variant.buildType?.capitalized()}JsAndAssets"
+        val jsBundleTaskName = "${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets"
 
         variant.lifecycleTasks.registerPreBuild(explodeAarTask, jsBundleTaskName)
         if (Utils.isExpoProject(project)) {
-            variant.lifecycleTasks.registerPreBuild("${appProject.path}:create${variant.buildType?.capitalized()}UpdatesResources")
+            variant.lifecycleTasks.registerPreBuild("${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources")
         }
     }
 }

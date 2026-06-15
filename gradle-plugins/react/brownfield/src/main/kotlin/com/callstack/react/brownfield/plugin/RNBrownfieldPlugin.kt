@@ -9,6 +9,7 @@ import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.processors.AssetTaskProcessor
 import com.callstack.react.brownfield.processors.ExplodeTaskProvider
+import com.callstack.react.brownfield.processors.JNILibsProcessor
 import com.callstack.react.brownfield.processors.ManifestTaskProcessor
 import com.callstack.react.brownfield.processors.ProguardProcessor
 import com.callstack.react.brownfield.processors.ResourceTaskProcessor
@@ -148,8 +149,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
         VariantPackagesProperty.getVariantPackagesProperty().put(variantName, packageIDs)
 
         /** ===== jniLibsProcessor ===== */
-//        val jniLibsProcessor = JNILibsProcessor(project)
-//        jniLibsProcessor.processJniLibs(aarLibraries, variantName)
+        val jniLibsProcessor = JNILibsProcessor(project)
+        jniLibsProcessor.processJniLibs(aarLibraries, variant)
 
         /** ===== proguardProcessor ===== */
 //        val proguardProcessor = ProguardProcessor(project)
