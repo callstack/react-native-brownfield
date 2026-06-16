@@ -100,11 +100,17 @@ if ci_local_e2e_should_build "${TEST_ONLY}"; then
   echo "==> Verify embedded JS bundle in BrownfieldLib (E2E — Metro not required)"
   PRODUCTS_DIR="${APPLE_APP_PATH}/build/Build/Products/${E2E_CONFIGURATION}-iphonesimulator"
   APP_PATH="$(find "${PRODUCTS_DIR}" -maxdepth 1 -name '*.app' -print -quit)"
+  EXECUTABLE_PATH="${APP_PATH}/$(basename "${APP_PATH}" .app)"
+  if [[ ! -f "${EXECUTABLE_PATH}" ]]; then
+    echo "error: ${EXECUTABLE_PATH} missing — host app target produced an invalid .app (no bundle executable)." >&2
+    exit 1
+  fi
   BUNDLE_PATH="${APP_PATH}/Frameworks/BrownfieldLib.framework/main.jsbundle"
   if [[ ! -f "${BUNDLE_PATH}" ]]; then
     echo "error: ${BUNDLE_PATH} missing — package ${XCFRAMEWORK_APP} first (see ci-local-appleapp-ios-e2e.sh)." >&2
     exit 1
   fi
+  echo "App executable OK: ${EXECUTABLE_PATH} ($(wc -c < "${EXECUTABLE_PATH}") bytes)"
   echo "Embedded bundle OK: ${BUNDLE_PATH} ($(wc -c < "${BUNDLE_PATH}") bytes)"
 elif [[ "${TEST_ONLY}" == "true" ]]; then
   echo "==> --test-only: using existing AppleApp/build binary"

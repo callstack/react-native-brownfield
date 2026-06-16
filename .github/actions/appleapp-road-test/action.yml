@@ -176,12 +176,19 @@ runs:
           echo "error: no .app under $PRODUCTS_DIR" >&2
           exit 1
         fi
+        EXECUTABLE_PATH="$APP_PATH/$(basename "$APP_PATH" .app)"
+        if [[ ! -f "$EXECUTABLE_PATH" ]]; then
+          echo "error: $EXECUTABLE_PATH missing — host app target produced an invalid .app (no bundle executable)." >&2
+          echo "Check AppleApp target membership for BrownfieldAppleApp.swift and related sources." >&2
+          exit 1
+        fi
         BUNDLE_PATH="$APP_PATH/Frameworks/BrownfieldLib.framework/main.jsbundle"
         if [[ ! -f "$BUNDLE_PATH" ]]; then
           echo "error: $BUNDLE_PATH missing — E2E needs the packaged ${APPLEAPP_XCFRAMEWORK_APP} bundle, not Metro." >&2
           echo "Re-run: yarn brownfield:package:ios (${APPLEAPP_XCFRAMEWORK_APP}) && node prepareXCFrameworks.js --appName ${APPLEAPP_XCFRAMEWORK_APP}" >&2
           exit 1
         fi
+        echo "App executable OK: $EXECUTABLE_PATH ($(wc -c < "$EXECUTABLE_PATH") bytes)"
         echo "Embedded bundle OK: $BUNDLE_PATH ($(wc -c < "$BUNDLE_PATH") bytes)"
       shell: bash
 
