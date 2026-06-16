@@ -45,14 +45,23 @@ async function scrollToNativeShellExpo() {
 }
 
 async function waitForAppleAppReadyVanilla() {
-  const rnHome = element(by.id(ids.rnAppHome));
+  const rnHomeMatcher = by.id(ids.rnAppHome);
+  const rnHome = element(rnHomeMatcher);
   try {
-    await waitForVisibleIgnoringSync(by.id(ids.rnAppHome), 60000);
+    await waitForVisibleIgnoringSync(rnHomeMatcher, 30000);
   } catch {
+    // Some CI runs start with an unmounted RN surface; one reload usually recovers.
+    await device.reloadReactNative();
+    try {
+      await waitForVisibleIgnoringSync(rnHomeMatcher, 30000);
+      return;
+    } catch {
+      // Embedded RN may be off-screen in the native scroll view.
+    }
     await device.disableSynchronization();
     try {
       await scrollToEmbeddedRnVanilla();
-      await waitFor(rnHome).toBeVisible().withTimeout(30000);
+      await waitFor(rnHome).toBeVisible().withTimeout(20000);
     } finally {
       await device.enableSynchronization();
     }
@@ -61,13 +70,22 @@ async function waitForAppleAppReadyVanilla() {
 
 async function waitForAppleAppReadyExpo() {
   const homeTab = by.label('Home');
+  const homeElement = () => element(homeTab).atIndex(0);
   try {
-    await waitForVisibleIgnoringSync(homeTab, 60000, 0);
+    await waitForVisibleIgnoringSync(homeTab, 30000, 0);
   } catch {
+    // Some CI runs start with an unmounted RN surface; one reload usually recovers.
+    await device.reloadReactNative();
+    try {
+      await waitForVisibleIgnoringSync(homeTab, 30000, 0);
+      return;
+    } catch {
+      // Embedded RN may be off-screen in the native scroll view.
+    }
     await device.disableSynchronization();
     try {
       await scrollToEmbeddedRnExpo();
-      await waitFor(element(homeTab).atIndex(0)).toBeVisible().withTimeout(30000);
+      await waitFor(homeElement()).toBeVisible().withTimeout(20000);
     } finally {
       await device.enableSynchronization();
     }

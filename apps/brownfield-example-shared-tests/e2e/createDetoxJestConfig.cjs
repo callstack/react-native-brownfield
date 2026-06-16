@@ -17,7 +17,8 @@ function createDetoxJestConfig({ e2eDir, testMatch }) {
     roots: [appRoot, sharedTestsRoot],
     // Shared E2E files live under brownfield-example-shared-tests; resolve host-app deps (detox) from here.
     modulePaths: [path.join(appRoot, 'node_modules')],
-    testTimeout: 120000,
+    // beforeEach relaunches the app and waits for the embedded RN surface (up to ~80s on slow CI).
+    testTimeout: 180000,
     verbose: true,
     reporters: ['detox/runners/jest/reporter'],
     globalSetup: 'detox/runners/jest/globalSetup',
