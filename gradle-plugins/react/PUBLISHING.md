@@ -68,6 +68,8 @@ The workflow expects these repository secrets:
 - `JRELEASER_GPG_PUBLIC_KEY`
 - `JRELEASER_GPG_SECRET_KEY`
 - `JRELEASER_GPG_PASSPHRASE`
+- `JRELEASER_PROJECT_JAVA_GROUP_ID`
+- `JRELEASER_MAVENCENTRAL_SONATYPE_NAMESPACE`
 
 `GITHUB_TOKEN` is provided by GitHub Actions and is used for the GitHub release step.
 
