@@ -97,9 +97,9 @@ jobs:
             --output out/jreleaser/brownfield-gradle-plugin-release-notes.md
 
       - name: Stage Maven release artifacts
-        working-directory: gradle-plugins/react
+        working-directory: gradle-plugins/react/brownfield
         run: |
-          ./gradlew :brownfield:publishMavenLocalPublicationToReleaseStagingRepository \
+          ./gradlew publishMavenLocalPublicationToReleaseStagingRepository \
             -PSkipSigning=true \
             --no-daemon \
             --stacktrace
@@ -160,6 +160,8 @@ jobs:
           JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
           JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
+          JRELEASER_PROJECT_JAVA_GROUP_ID: ${{ secrets.JRELEASER_PROJECT_JAVA_GROUP_ID }}
+          JRELEASER_MAVENCENTRAL_SONATYPE_NAMESPACE: ${{ secrets.JRELEASER_MAVENCENTRAL_SONATYPE_NAMESPACE }}
 
       - name: Upload JReleaser output
         if: always()

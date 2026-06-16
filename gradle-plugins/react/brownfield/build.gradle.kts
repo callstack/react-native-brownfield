@@ -66,6 +66,7 @@ publishing {
                         distribution.set("repo")
                     }
                 }
+
                 developers {
                     developer {
                         id.set("callstack")

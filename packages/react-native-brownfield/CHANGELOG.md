@@ -1,5 +1,31 @@
 # @callstack/react-native-brownfield
 
+## 3.12.0
+
+### Minor Changes
+
+- [#237](https://github.com/callstack/react-native-brownfield/pull/237) [`4186cc8`](https://github.com/callstack/react-native-brownfield/commit/4186cc8e2ed2fa7aa41e84cdba7a23f7035ee08d) Thanks [@hurali97](https://github.com/hurali97)! - Bump brownfield-gradle-plugin
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.12.0
+
+## 3.11.0
+
+### Minor Changes
+
+- [#317](https://github.com/callstack/react-native-brownfield/pull/317) [`c04301b`](https://github.com/callstack/react-native-brownfield/commit/c04301b79d288ab108aaa44d7c79dd876b8405e9) Thanks [@adamTrz](https://github.com/adamTrz)! - Add an opt-in iOS Debug mode for loading the embedded JavaScript bundle with `preferEmbeddedBundleInDebug`, fix `bundleURLOverride` fallback behavior when the override returns `nil`, and add native bundle-resolution tests.
+
+### Patch Changes
+
+- [#361](https://github.com/callstack/react-native-brownfield/pull/361) [`aa14eb2`](https://github.com/callstack/react-native-brownfield/commit/aa14eb26e26ea1e6075b91027237e4b41b932b57) Thanks [@hurali97](https://github.com/hurali97)! - make EXUpdates as a dependency only when installed
+
+- [#347](https://github.com/callstack/react-native-brownfield/pull/347) [`c19a81b`](https://github.com/callstack/react-native-brownfield/commit/c19a81b7502cc458d742ab947186591bb69cb261) Thanks [@marcinszalski-callstack](https://github.com/marcinszalski-callstack)! - fix: fix method to deallocate reactNativeFactory instance for expo
+
+- Updated dependencies [[`3715ac7`](https://github.com/callstack/react-native-brownfield/commit/3715ac7783000756ef1c66ecfe24a85c5e43abab), [`05c557d`](https://github.com/callstack/react-native-brownfield/commit/05c557da9e2b6fca02e6e1a0b0fe71a909bab15f)]:
+  - @callstack/brownfield-cli@3.11.0
+
 ## 3.10.0
 
 ### Patch Changes

@@ -37,6 +37,12 @@ runs:
         docker-images: true
         swap-storage: false
 
+    - name: Install Android NDK required by Expo
+      run: |
+        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.0.12077973"
+        test -d "$ANDROID_HOME/ndk/27.0.12077973"
+      shell: bash
+
     - name: Build packages
       if: inputs.run-yarn-build == 'true'
       run: yarn build

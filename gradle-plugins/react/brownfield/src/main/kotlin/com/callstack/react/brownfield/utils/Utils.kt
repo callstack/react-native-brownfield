@@ -5,21 +5,6 @@ import org.gradle.api.Project
 import java.io.File
 
 object Utils {
-    fun getAGPVersion(): String {
-        return try {
-            extractAGPVersion("com.android.Version")
-        } catch (ignore: Throwable) {
-            extractAGPVersion("com.android.builder.model.Version")
-        }
-    }
-
-    private fun extractAGPVersion(className: String): String {
-        val versionField =
-            Class.forName(className)
-                .getDeclaredField("ANDROID_GRADLE_PLUGIN_VERSION")
-        return versionField.get(null) as String
-    }
-
     fun mergeFiles(
         inputFiles: Collection<File>?,
         output: File,
@@ -39,19 +24,23 @@ object Utils {
         }
     }
 
-    fun isExampleLibrary(projectName: String): Boolean {
-        return projectName == "example-android-library"
-    }
-
     fun isExpoProject(project: Project): Boolean {
         return project.findProject(EXPO_PROJECT_LOCATOR) != null
     }
 
     fun getBundledAssetsVariantName(
-        variantName: String,
-        buildTypeName: String,
+        variantName: String?,
+        buildTypeName: String?,
         isDebuggable: Boolean,
     ): String {
+        require(!variantName.isNullOrEmpty()) {
+            "getBundledAssetsVariantName: Variant name cannot be empty"
+        }
+
+        require(!buildTypeName.isNullOrEmpty()) {
+            "getBundledAssetsVariantName: Build Type cannot be empty"
+        }
+
         if (!isDebuggable) {
             return variantName
         }
