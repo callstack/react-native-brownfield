@@ -56,19 +56,14 @@ elif [[ "${REBUILD_ONLY}" == "true" ]]; then
   echo "==> --rebuild: skipping install/prebuild/pods; rebuilding Detox app only"
 fi
 
-XCODE_ENV_UPDATES="${IOS_PATH}/.xcode.env.updates"
-if ci_local_e2e_should_build "${TEST_ONLY}" && [[ ! -f "${XCODE_ENV_UPDATES}" ]]; then
-  echo "==> Missing ${XCODE_ENV_UPDATES}; running brownfield codegen + expo prebuild"
-  (cd "${APP_PATH}" && node "${CLI_CODEGEN}" codegen && yarn expo prebuild --platform ios --no-install)
-fi
-
 if ci_local_e2e_should_build "${TEST_ONLY}"; then
+  ci_local_e2e_ensure_ios_xcode_env_updates "${IOS_PATH}"
   ci_local_e2e_run_detox_build "${APP_PATH}"
   DETOX_APP="${IOS_PATH}/build/Build/Products/Debug-iphonesimulator/${APP_NAME}.app"
   if [[ ! -f "${DETOX_APP}/main.jsbundle" ]]; then
     echo "error: ${DETOX_APP}/main.jsbundle missing after Detox build." >&2
     echo "E2E needs an embedded bundle (Metro is not started in CI or local Detox runs)." >&2
-    echo "Re-run without --rebuild so prebuild creates ios/.xcode.env.updates, then rebuild." >&2
+    echo "Re-run without --rebuild so ios/.xcode.env.updates is written and the app is rebuilt." >&2
     exit 1
   fi
 elif [[ "${TEST_ONLY}" == "true" ]]; then

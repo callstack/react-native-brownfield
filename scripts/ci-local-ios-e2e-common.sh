@@ -89,6 +89,27 @@ ci_local_e2e_run_detox_postinstall() {
   node "${app_path}/node_modules/detox/scripts/postinstall.js"
 }
 
+ci_local_e2e_ensure_ios_xcode_env_updates() {
+  local ios_path="$1"
+  local file="${ios_path}/.xcode.env.updates"
+  local marker='# Detox / CI embedded bundle'
+
+  if [[ -f "${file}" ]] && grep -q "${marker}" "${file}"; then
+    return 0
+  fi
+
+  # Detox sets FORCE_BUNDLING=1, but Expo Debug also sets SKIP_BUNDLING=1 in the Xcode
+  # bundle script. Unset SKIP_BUNDLING when FORCE_BUNDLING is set so main.jsbundle is embedded.
+  cat > "${file}" <<'EOF'
+# Detox / CI embedded bundle
+# When FORCE_BUNDLING=1 (see apps/*/.detoxrc.cjs), embed JS for simulator E2E without Metro.
+if [[ -n "$FORCE_BUNDLING" ]]; then
+  unset SKIP_BUNDLING
+fi
+EOF
+  echo "==> Wrote ${file} for Detox embedded bundle builds"
+}
+
 ci_local_e2e_run_detox_build() {
   local app_path="$1"
   echo "==> Detox build (iOS Simulator, embeds main.jsbundle for E2E)"
