@@ -19,7 +19,6 @@ describe('resolveConfig', () => {
         moduleName: 'brownfieldlib',
         packageName: 'com.example.expo57',
         minSdkVersion: 24,
-        targetSdkVersion: 35,
         compileSdkVersion: undefined,
         groupId: 'com.example.expo57',
         artifactId: 'brownfieldlib',
@@ -38,7 +37,6 @@ describe('resolveConfig', () => {
             deploymentTarget: '17.0',
           },
           android: {
-            targetSdkVersion: 38,
             compileSdkVersion: 38,
           },
         },
@@ -57,7 +55,6 @@ describe('resolveConfig', () => {
         moduleName: 'brownfieldlib',
         packageName: 'com.example.expo57',
         minSdkVersion: 24,
-        targetSdkVersion: 38,
         compileSdkVersion: 38,
         groupId: 'com.example.expo57',
         artifactId: 'brownfieldlib',

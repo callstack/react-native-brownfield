@@ -28,7 +28,14 @@ export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
 
         <Button
           title="Navigate to Settings"
-          onPress={() => BrownfieldNavigation.navigateToSettings()}
+          onPress={() =>
+            BrownfieldNavigation.navigateToSettings({
+              id: 'expo-user-123',
+              name: 'Expo User',
+              flags: ['expo56'],
+              ids: ['expo-user-123'],
+            })
+          }
         />
         <Button
           title="Navigate to Referrals"

@@ -13,12 +13,15 @@ import { getProjectInfo } from '../../utils/project.js';
 import { resolvePackagedFrameworkName } from '../../utils/resolvePackagedFrameworkName.js';
 import { supportsPrebuiltRNCore } from '../../utils/supportsPrebuiltRNCore.js';
 
+const projectRoot = '/tmp/repo';
+const iosSourceDir = `${projectRoot}/ios`;
+
 vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
   const actual = await importOriginal<typeof appleHelpers>();
   return {
     ...actual,
     buildApp: vi.fn(async () => ({
-      appPath: '/private/tmp/repo/build/RNApp.app',
+      appPath: `${projectRoot}/build/RNApp.app`,
       scheme: 'BrownfieldLib',
     })),
     genericDestinations: {
@@ -38,7 +41,7 @@ vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
       },
     ]),
     getValidProjectConfig: vi.fn(() => ({
-      sourceDir: '/private/tmp/repo/ios',
+      sourceDir: iosSourceDir,
     })),
   };
 });
@@ -67,10 +70,10 @@ vi.mock('../../utils/expo.js', () => ({
 
 vi.mock('../../utils/project.js', () => ({
   getProjectInfo: vi.fn(() => ({
-    projectRoot: '/private/tmp/repo',
+    projectRoot,
     platformConfig: {},
     userConfig: {
-      reactNativePath: '/private/tmp/repo/node_modules/react-native',
+      reactNativePath: `${projectRoot}/node_modules/react-native`,
       project: {
         ios: {
           sourceDir: 'ios',
@@ -117,8 +120,7 @@ vi.mock('../../utils/resolvePackagedFrameworkName.js', () => ({
 
 vi.mock('../../utils/createLocalSpmPackage.js', () => ({
   createLocalSpmPackage: vi.fn(() => ({
-    packageManifestPath:
-      '/private/tmp/repo/ios/.brownfield/package/build/Package.swift',
+    packageManifestPath: `${iosSourceDir}/.brownfield/package/build/Package.swift`,
   })),
 }));
 
@@ -176,8 +178,7 @@ describe('package:ios action --add-spm-package', () => {
       candidates: [],
     });
     mockCreateLocalSpmPackage.mockReturnValue({
-      packageManifestPath:
-        '/private/tmp/repo/ios/.brownfield/package/build/Package.swift',
+      packageManifestPath: `${iosSourceDir}/.brownfield/package/build/Package.swift`,
     });
   });
 
@@ -185,19 +186,19 @@ describe('package:ios action --add-spm-package', () => {
     await invokePackageIosAction(['--add-spm-package', '--configuration', 'Release']);
 
     expect(copyDebugBundleToSimulatorSlice).toHaveBeenCalledWith({
-      productsPath: '/private/tmp/repo/ios/.brownfield/build/Build/Products',
+      productsPath: `${iosSourceDir}/.brownfield/build/Build/Products`,
       configuration: 'Release',
       frameworkName: 'BrownfieldLib',
     });
     expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith({
-      packageDir: '/private/tmp/repo/ios/.brownfield/package/build',
+      packageDir: `${iosSourceDir}/.brownfield/package/build`,
       frameworkName: 'BrownfieldLib',
     });
     expect(mockLoggerSuccess).toHaveBeenCalledWith(
-      'Local SPM package manifest created at /private/tmp/repo/ios/.brownfield/package/build/Package.swift'
+      `Local SPM package manifest created at ${iosSourceDir}/.brownfield/package/build/Package.swift`
     );
     expect(mockLoggerInfo).toHaveBeenCalledWith(
-      'Add the local package folder in Xcode: /private/tmp/repo/ios/.brownfield/package/build'
+      `Add the local package folder in Xcode: ${iosSourceDir}/.brownfield/package/build`
     );
   });
 

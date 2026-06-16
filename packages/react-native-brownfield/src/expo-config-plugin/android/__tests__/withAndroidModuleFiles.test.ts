@@ -229,7 +229,6 @@ describe('createAndroidModule', () => {
         moduleName: 'brownfieldlib',
         packageName: 'com.example.brownfield',
         minSdkVersion: 24,
-        targetSdkVersion: 35,
         compileSdkVersion: 35,
         groupId: 'com.example',
         artifactId: 'brownfieldlib',

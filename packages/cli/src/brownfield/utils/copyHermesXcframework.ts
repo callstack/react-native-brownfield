@@ -27,6 +27,12 @@ export function copyHermesXcframework({
     fs.rmSync(destinationPath, { recursive: true, force: true });
   }
 
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(
+      `Hermes XCFramework not found at ${sourcePath}. Ensure CocoaPods dependencies are installed successfully before running brownfield package:ios.`
+    );
+  }
+
   fs.cpSync(sourcePath, destinationPath, { recursive: true, force: true });
   logger.debug(`Copied ${colorLink(destinationPath)}`);
 }
