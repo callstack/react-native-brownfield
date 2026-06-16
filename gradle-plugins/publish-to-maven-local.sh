@@ -2,13 +2,13 @@
 
 set -e
 
-cd ./gradle-plugins/react
+cd ./gradle-plugins/react/brownfield
 ./gradlew clean
 
 if [ "$1" == "--skip-signing" ]; then
     ./gradlew build
-    ./gradlew :brownfield:publishMavenLocalPublicationToMavenLocalRepository -PSkipSigning=true -PIS_SNAPSHOT=true
+    ./gradlew publishMavenLocalPublicationToMavenLocalRepository -PSkipSigning=true -PIS_SNAPSHOT=true
 else
     ./gradlew build
-    ./gradlew :brownfield:publishMavenLocalPublicationToMavenLocalRepository
+    ./gradlew publishMavenLocalPublicationToMavenLocalRepository
 fi

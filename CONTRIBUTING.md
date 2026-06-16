@@ -63,7 +63,7 @@ There are 2 brownfield host apps.
   - `build:example:ios-consumer:expo55` (or `expo`) — target `Brownfield Apple App (ExpoApp55)`, scheme **Brownfield Apple App Expo 55**
   - `build:example:ios-consumer:vanilla` — target `Brownfield Apple App (RNApp)`, scheme **Brownfield Apple App Vanilla**
 
-For iOS, each script uses the previously packaged artifacts from the respective directory (`apps/RNApp`, `apps/ExpoApp54`, or `apps/ExpoApp55`), invokes `prepareXCFrameworks.js` to copy XCFrameworks into `apps/AppleApp/package`, then runs `xcodebuild` against the matching scheme. The Xcode project reads fixed paths under `package/` (for example `package/BrownfieldLib.xcframework`).
+For iOS, these scripts validate the legacy direct-XCFramework integration path. Each script uses the previously packaged artifacts from the respective directory (`apps/RNApp`, `apps/ExpoApp54`, or `apps/ExpoApp55`), invokes `prepareXCFrameworks.js` to copy XCFrameworks into `apps/AppleApp/package`, then runs `xcodebuild` against the matching scheme. The Xcode project reads fixed paths under `package/` (for example `package/BrownfieldLib.xcframework`).
 
 | Yarn script | RN app | Xcode target | Scheme | Configuration |
 | --- | --- | --- | --- | --- |
@@ -73,6 +73,27 @@ For iOS, each script uses the previously packaged artifacts from the respective 
 
 > [!IMPORTANT]
 > You can build and run `AppleApp` from the Xcode GUI by selecting the scheme for the variant you want. Before running, after switching schemes or re-packaging an RN app, run the matching `build:example:ios-consumer:...` script so fresh artifacts are present in `apps/AppleApp/package`. Otherwise Xcode will still link against the previous XCFrameworks.
+
+### Running `AppleApp` with local SPM
+
+The local Swift Package Manager flow is separate from `prepareXCFrameworks.js`. Instead of copying artifacts into `apps/AppleApp/package`, generate a local package next to the packaged RN app and add that package in Xcode.
+
+1. Package the producer app with `--add-spm-package`, for example:
+   - `cd apps/RNApp && yarn exec brownfield package:ios --scheme BrownfieldLib --configuration Release --add-spm-package`
+   - `cd apps/ExpoApp55 && yarn exec brownfield package:ios --scheme BrownfieldLib --configuration Release --add-spm-package`
+2. Open `apps/AppleApp/Brownfield Apple App.xcodeproj`.
+3. Select the host scheme you want to validate:
+   - `Brownfield Apple App Vanilla`
+   - `Brownfield Apple App Expo 54`
+   - `Brownfield Apple App Expo 55`
+4. In Xcode, go to `Package Dependencies`, click `+`, choose `Add Local...`, and select the generated package folder:
+   - `apps/RNApp/ios/.brownfield/package/build`
+   - `apps/ExpoApp54/ios/.brownfield/package/build`
+   - `apps/ExpoApp55/ios/.brownfield/package/build`
+5. Add the `BrownfieldLib` product to the matching AppleApp target.
+6. Remove old direct `package/*.xcframework` references from that target if you are switching from the legacy direct-XCFramework path.
+
+AppleApp now derives its native shell label from target build settings and uses the shared brownfield React Native entry point directly, so the local SPM flow does not require `prepareXCFrameworks.js` to rewrite Swift source files before you build.
 
 ## Tests
 

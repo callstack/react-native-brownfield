@@ -2,17 +2,25 @@ import { Command, Option } from 'commander';
 import * as rockTools from '@rock-js/tools';
 import { describe, expect, test } from 'vitest';
 
-import { parseUsePrebuiltRnCoreArgument } from '../packageIos.js';
+import {
+  packageIosCommand,
+  parseUsePrebuiltRnCoreArgument,
+} from '../packageIos.js';
 
 /** Mirrors `--use-prebuilt-rn-core` on `packageIosCommand` (preset + parser). */
 function parsePackageIosArgv(argv: string[]) {
-  const program = new Command('package:ios').addOption(
-    new Option('--use-prebuilt-rn-core [bool]', 'test')
-      .preset(true)
-      .argParser(parseUsePrebuiltRnCoreArgument)
-  );
+  const program = new Command('package:ios')
+    .addOption(
+      new Option('--use-prebuilt-rn-core [bool]', 'test')
+        .preset(true)
+        .argParser(parseUsePrebuiltRnCoreArgument)
+    )
+    .addOption(new Option('--add-spm-package', 'test'));
   program.parse(argv, { from: 'user' });
-  return program.opts() as { usePrebuiltRnCore?: boolean };
+  return program.opts() as {
+    usePrebuiltRnCore?: boolean;
+    addSpmPackage?: boolean;
+  };
 }
 
 describe('parseUsePrebuiltRnCoreArgument', () => {
@@ -62,5 +70,25 @@ describe('--use-prebuilt-rn-core (Commander)', () => {
     expect(
       parsePackageIosArgv(['--use-prebuilt-rn-core', 'false']).usePrebuiltRnCore
     ).toBe(false);
+  });
+});
+
+describe('--add-spm-package (Commander)', () => {
+  test('package:ios exposes the add-spm-package option', () => {
+    expect(
+      packageIosCommand.options.some(
+        (option) => option.long === '--add-spm-package'
+      )
+    ).toBe(true);
+  });
+
+  test('omits property when flag is absent', () => {
+    expect(parsePackageIosArgv([]).addSpmPackage).toBeUndefined();
+  });
+
+  test('bare flag sets addSpmPackage to true', () => {
+    expect(parsePackageIosArgv(['--add-spm-package']).addSpmPackage).toBe(
+      true
+    );
   });
 });
