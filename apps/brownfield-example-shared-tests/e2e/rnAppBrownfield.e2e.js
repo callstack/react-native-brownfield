@@ -1,6 +1,9 @@
 const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
 const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
-const { assertDetoxTextMatches } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
+const {
+  assertDetoxTextMatches,
+  configureDetoxForBrownfieldIos,
+} = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 describe('Brownfield (RNApp)', () => {
   beforeEach(async () => {
@@ -9,6 +12,7 @@ describe('Brownfield (RNApp)', () => {
       newInstance: true,
       launchArgs: { BrownfieldPreferEmbeddedBundleInDebug: 'YES' },
     });
+    await configureDetoxForBrownfieldIos();
     const home = element(by.id(ids.rnAppHome));
     try {
       await waitFor(home).toBeVisible().withTimeout(45000);

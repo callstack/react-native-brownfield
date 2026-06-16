@@ -56,15 +56,48 @@ export default TurboModuleRegistry.getEnforcing<Spec>(
 `;
 }
 
+const SKIP_TYPE_TOKENS = new Set([
+  'Array',
+  'Date',
+  'Map',
+  'Object',
+  'Promise',
+  'ReadonlyArray',
+  'Record',
+  'Set',
+  'any',
+  'boolean',
+  'false',
+  'null',
+  'number',
+  'object',
+  'string',
+  'true',
+  'undefined',
+  'unknown',
+  'void',
+]);
+
 function collectTypesUsedByMethods(methods: MethodSignature[]): Set<string> {
   const used = new Set<string>();
 
   for (const method of methods) {
-    for (const param of method.params) {
-      used.add(param.type.replace(/Promise<(.+)>/, '$1').trim());
-    }
-    if (method.returnType !== 'void') {
-      used.add(method.returnType.replace(/Promise<(.+)>/, '$1').trim());
+    const typeTexts = [
+      method.returnType,
+      ...method.params.map((param) => param.type),
+    ];
+
+    for (const typeText of typeTexts) {
+      const matches = typeText.match(/\b[A-Za-z_]\w*\b/g);
+      if (!matches) {
+        continue;
+      }
+
+      for (const name of matches) {
+        if (!SKIP_TYPE_TOKENS.has(name)) {
+          used.add(name);
+        }
+      }
     }
   }
 

@@ -3,7 +3,7 @@ description: Package the given RN app as XCFramework, build the corresponding Ap
 
 inputs:
   variant:
-    description: 'AppleApp yarn command variant to run (vanilla, expo54, or expo55)'
+    description: 'AppleApp yarn command variant to run (vanilla or expo<version>)'
     required: true
 
   rn-project-path:
