@@ -10,6 +10,7 @@ const {
   scrollToEmbeddedRnVanilla,
   scrollToNativeShellVanilla,
   waitForAppleAppReadyVanilla,
+  sendPostMessageToNativeAndWaitForToast,
 } = require('@callstack/brownfield-example-shared-tests/e2e/appleAppDetoxUtils');
 
 describe('Brownfield (AppleApp — Vanilla)', () => {
@@ -40,8 +41,7 @@ describe('Brownfield (AppleApp — Vanilla)', () => {
   });
 
   it('shows a native toast when RN sends postMessage', async () => {
-    await element(by.id(ids.sendMessageToNative)).tap();
-    await waitForVisibleIgnoringSync(by.id(ids.appleAppPostMessageToast), 5000);
+    await sendPostMessageToNativeAndWaitForToast(/Hello from React Native!/);
   });
 
   it('navigates to native settings from the RN surface', async () => {

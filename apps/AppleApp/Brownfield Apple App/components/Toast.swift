@@ -1,5 +1,15 @@
 import SwiftUI
 
+private enum ToastE2E {
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("-DetoxE2E")
+    }
+
+    static var visibleDuration: TimeInterval {
+        isEnabled ? 10 : 2
+    }
+}
+
 struct Toast: View {
     let message: String
     @Binding var isShowing: Bool
@@ -20,15 +30,25 @@ struct Toast: View {
                 .scaleEffect(scale)
                 .opacity(opacity)
                 .onAppear {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    if ToastE2E.isEnabled {
                         scale = 1.0
                         opacity = 1.0
+                    } else {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            scale = 1.0
+                            opacity = 1.0
+                        }
                     }
 
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            scale = 0.5
+                    DispatchQueue.main.asyncAfter(deadline: .now() + ToastE2E.visibleDuration) {
+                        if ToastE2E.isEnabled {
+                            scale = 1.0
                             opacity = 0.0
+                        } else {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                scale = 0.5
+                                opacity = 0.0
+                            }
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             isShowing = false

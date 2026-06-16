@@ -1,6 +1,9 @@
 const { device, element, by, waitFor } = require('detox');
 const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
-const { waitForVisibleIgnoringSync } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
+const {
+  assertDetoxTextMatches,
+  waitForVisibleIgnoringSync,
+} = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const detoxLaunchArgs = {
   BrownfieldPreferEmbeddedBundleInDebug: 'YES',
@@ -98,6 +101,23 @@ async function openPostMessageTabExpo() {
   await waitForVisibleIgnoringSync(by.id(ids.sendMessageToNative), 30000);
 }
 
+async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
+  await waitForVisibleIgnoringSync(by.id(ids.sendMessageToNative), 30000);
+  await element(by.id(ids.sendMessageToNative)).tap();
+  const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline) {
+    try {
+      await assertDetoxTextMatches(bubble, rnMessagePattern);
+      break;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+  }
+  await assertDetoxTextMatches(bubble, rnMessagePattern);
+  await waitForVisibleIgnoringSync(by.id(ids.appleAppPostMessageToast), 10000);
+}
+
 module.exports = {
   detoxLaunchArgs,
   scrollToEmbeddedRnVanilla,
@@ -107,4 +127,5 @@ module.exports = {
   waitForAppleAppReadyVanilla,
   waitForAppleAppReadyExpo,
   openPostMessageTabExpo,
+  sendPostMessageToNativeAndWaitForToast,
 };

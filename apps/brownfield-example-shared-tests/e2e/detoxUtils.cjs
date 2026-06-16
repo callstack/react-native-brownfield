@@ -47,7 +47,7 @@ async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0)
         await detoxExpect(target()).toBeVisible();
         return;
       } catch {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
     }
     await detoxExpect(target()).toBeVisible();
