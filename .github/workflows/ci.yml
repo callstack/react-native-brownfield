@@ -49,6 +49,7 @@ jobs:
               - 'apps/brownfield-example-shared-tests/**'
             androidapp:
               - 'apps/AndroidApp/**'
+              - 'apps/brownfield-example-shared-tests/**'
             appleapp:
               - 'apps/AppleApp/**'
               - 'apps/brownfield-example-shared-tests/**'
@@ -121,8 +122,9 @@ jobs:
           swift test --scratch-path "$RUNNER_TEMP/swift-cache/swiftpm"
 
   android-androidapp-expo:
-    name: Android road test (AndroidApp - Expo ${{ matrix.version }})
+    name: Android road test${{ matrix.run-e2e == 'true' && ' & E2E' || '' }} (AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ matrix.run-e2e == 'true' && 90 || 60 }}
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -138,22 +140,27 @@ jobs:
       matrix:
         include:
           - version: '54'
+            run-e2e: 'false'
           - version: '55'
+            run-e2e: 'true'
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AndroidApp road test (Expo ${{ matrix.version }})
+      - name: Run ExpoApp -> AndroidApp road test${{ matrix.run-e2e == 'true' && ' & Detox E2E' || '' }} (Expo ${{ matrix.version }})
         uses: ./.github/actions/androidapp-road-test
         with:
           flavor: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
           rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp${{ matrix.version }}/brownfieldlib
+          run-e2e: ${{ matrix.run-e2e }}
+          e2e-artifact-name: detox-androidapp-expo${{ matrix.version }}
 
   android-androidapp-vanilla:
-    name: Android road test (AndroidApp - Vanilla)
+    name: Android road test & E2E (AndroidApp - Vanilla)
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -169,12 +176,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AndroidApp road test (Vanilla)
+      - name: Run RNApp -> AndroidApp road test & Detox E2E (Vanilla)
         uses: ./.github/actions/androidapp-road-test
         with:
           flavor: vanilla
           rn-project-path: apps/RNApp
           rn-project-maven-path: com/rnapp/brownfieldlib
+          run-e2e: 'true'
+          e2e-artifact-name: detox-androidapp-vanilla
 
   ios-appleapp-vanilla:
     name: iOS road test & E2E (AppleApp - Vanilla)

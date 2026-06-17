@@ -1,5 +1,26 @@
 const assert = require('node:assert/strict');
+const { execSync } = require('node:child_process');
 const { device, element, waitFor, expect: detoxExpect } = require('detox');
+
+function adbShell(command) {
+  try {
+    execSync(`adb shell ${command}`, { stdio: 'ignore' });
+  } catch {
+    // Emulator may be offline or the command may be unsupported on older API levels.
+  }
+}
+
+/**
+ * Collapse the notification shade via adb.
+ * Safe after launchApp and after scroll gestures — never press Back here (that can
+ * finish MainActivity and Espresso reports "No activities found").
+ */
+async function dismissAndroidSystemOverlays() {
+  if (device.getPlatform() !== 'android') {
+    return;
+  }
+  adbShell('cmd statusbar collapse');
+}
 
 function detoxAttrsText(attrs) {
   if (!attrs || typeof attrs !== 'object') {
@@ -29,12 +50,17 @@ async function configureDetoxForBrownfieldIos() {
   ]);
 }
 
+/** AndroidApp release E2E uses the embedded AAR bundle (no Metro). */
+async function configureDetoxForBrownfieldAndroid() {
+  // No URL blacklist needed on Android.
+}
+
 async function waitForVisible(matcher, timeoutMs = 20000) {
   await waitFor(element(matcher)).toBeVisible().withTimeout(timeoutMs);
 }
 
 /**
- * Poll visibility with synchronization disabled (RN Debug keeps the run loop "busy").
+ * Poll visibility with synchronization disabled (RN keeps the run loop "busy").
  * Do not use waitFor().toBeVisible() while sync is off — it returns immediately.
  */
 async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0) {
@@ -59,6 +85,8 @@ async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0)
 module.exports = {
   detoxAttrsText,
   assertDetoxTextMatches,
+  dismissAndroidSystemOverlays,
+  configureDetoxForBrownfieldAndroid,
   configureDetoxForBrownfieldIos,
   waitForVisible,
   waitForVisibleIgnoringSync,

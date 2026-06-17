@@ -1,6 +1,5 @@
 package com.callstack.brownfield.android.example.components
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,19 +18,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.callstack.brownfield.android.example.E2eTestIds
 import com.callstack.reactnativebrownfield.OnMessageListener
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import org.json.JSONObject
 
 @Composable
-fun PostMessageCard() {
+fun PostMessageCard(
+    onMessageReceived: (String) -> Unit = {},
+) {
     var nextId by remember { mutableIntStateOf(0) }
     var draft by remember { mutableStateOf("") }
-    val lastToast = remember { mutableStateOf<Toast?>(null) }
-
-    val context = LocalContext.current
 
     DisposableEffect(Unit) {
         val listener = OnMessageListener { raw ->
@@ -40,14 +39,7 @@ fun PostMessageCard() {
             } catch (_: Exception) {
                 raw
             }
-            val toast = Toast.makeText(
-                context,
-                "Received message from React Native: $text",
-                Toast.LENGTH_LONG
-            )
-            lastToast.value?.cancel() // cancel previous toast if still visible
-            toast.show()
-            lastToast.value = toast
+            onMessageReceived("Received message from React Native: $text")
         }
         ReactNativeBrownfield.shared.addMessageListener(listener)
         onDispose { ReactNativeBrownfield.shared.removeMessageListener(listener) }
@@ -66,7 +58,7 @@ fun PostMessageCard() {
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .padding(bottom = 2.dp)
-                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.CenterHorizontally),
             )
 
             Row(
@@ -82,12 +74,16 @@ fun PostMessageCard() {
                     placeholder = { Text("Type a message...") },
                     singleLine = true,
                 )
-                Button(onClick = {
-                    val text = draft.ifBlank { "Hello from Android! (#${nextId++})" }
-                    val json = JSONObject().put("text", text).toString()
-                    ReactNativeBrownfield.shared.postMessage(json)
-                    draft = ""
-                }) {
+                Button(
+                    onClick = {
+                        val text = draft.ifBlank { "Hello from Android! (#${nextId++})" }
+                        val json = JSONObject().put("text", text).toString()
+                        ReactNativeBrownfield.shared.postMessage(json)
+                        draft = ""
+                    },
+                    modifier = Modifier.testTag(E2eTestIds.nativeAppPostMessageSend),
+                ) {
+                    EspressoTagAnchor(E2eTestIds.nativeAppPostMessageSend)
                     Text("Send")
                 }
             }

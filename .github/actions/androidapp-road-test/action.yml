@@ -1,5 +1,5 @@
 name: Android road test (selected RN app & AndroidApp)
-description: Package the given RN app as AAR, publish to Maven Local, and build the corresponding AndroidApp flavor
+description: Package the given RN app as AAR, publish to Maven Local, build the corresponding AndroidApp flavor, and optionally run Detox E2E
 
 inputs:
   flavor:
@@ -13,6 +13,16 @@ inputs:
   rn-project-maven-path:
     description: 'Maven path to the RN project, e.g. com/rnapp/brownfieldlib'
     required: true
+
+  run-e2e:
+    description: 'Run Detox E2E after packaging (uses release APK with embedded JS bundle, no Metro)'
+    required: false
+    default: 'false'
+
+  e2e-artifact-name:
+    description: 'Name prefix for Detox artifacts uploaded on failure'
+    required: false
+    default: 'detox-androidapp'
 
 runs:
   using: composite
@@ -75,8 +85,80 @@ runs:
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
       shell: bash
 
+    - name: Verify embedded JS bundle in release AAR (E2E)
+      if: inputs.run-e2e == 'true'
+      run: |
+        set -euo pipefail
+        AAR_PATH="${HOME}/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar"
+        TMP_DIR="$(mktemp -d)"
+        trap 'rm -rf "${TMP_DIR}"' EXIT
+        unzip -q "${AAR_PATH}" -d "${TMP_DIR}"
+        BUNDLE_PATH="$(find "${TMP_DIR}/assets" -name 'index.android.bundle' -print -quit)"
+        if [[ -z "${BUNDLE_PATH}" ]]; then
+          echo "error: index.android.bundle missing from ${AAR_PATH} — E2E needs the packaged AAR bundle, not Metro." >&2
+          exit 1
+        fi
+        echo "Embedded bundle OK: ${BUNDLE_PATH} ($(wc -c < "${BUNDLE_PATH}") bytes)"
+      shell: bash
+
     # == AndroidApp ==
 
     - name: Build native Android Brownfield app
+      if: inputs.run-e2e != 'true'
       run: yarn run build:example:android-consumer:${{ inputs.flavor }}
       shell: bash
+
+    - name: Resolve AndroidApp E2E settings
+      if: inputs.run-e2e == 'true'
+      run: |
+        node <<'NODE'
+        const { getAndroidAppDetoxVariant } = require('./apps/brownfield-example-shared-tests/detox-androidapp-variants.cjs');
+        const variant = getAndroidAppDetoxVariant(process.env.ANDROIDAPP_VARIANT);
+        const append = (key, value) => {
+          const fs = require('node:fs');
+          fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${value}\n`);
+        };
+        append('ANDROIDAPP_E2E_BUILD_SCRIPT', variant.e2eBuildScript);
+        append('ANDROIDAPP_E2E_TEST_SCRIPT', variant.e2eTestScript);
+        NODE
+      env:
+        ANDROIDAPP_VARIANT: ${{ inputs.flavor }}
+      shell: bash
+
+    - name: Install Detox Android artifacts
+      if: inputs.run-e2e == 'true'
+      run: node node_modules/detox/scripts/postinstall.js
+      working-directory: apps/AndroidApp
+      shell: bash
+
+    - name: Detox build (AndroidApp ${{ inputs.flavor }})
+      if: inputs.run-e2e == 'true'
+      run: yarn "$ANDROIDAPP_E2E_BUILD_SCRIPT"
+      working-directory: apps/AndroidApp
+      shell: bash
+
+    - name: Detox test (AndroidApp ${{ inputs.flavor }})
+      if: inputs.run-e2e == 'true'
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        target: google_apis
+        arch: x86_64
+        profile: pixel_6
+        avd-name: test
+        disable-animations: true
+        script: |
+          bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
+          cd apps/AndroidApp
+          yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
+      env:
+        ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
+        DETOX_DEVICE: test
+
+    - name: Upload Detox artifacts on failure
+      if: failure() && inputs.run-e2e == 'true'
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.e2e-artifact-name }}-${{ inputs.flavor }}-android
+        path: apps/AndroidApp/artifacts
+        if-no-files-found: ignore

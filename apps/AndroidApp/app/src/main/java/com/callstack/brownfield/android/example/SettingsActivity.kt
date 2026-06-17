@@ -14,8 +14,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
+import com.callstack.brownfield.android.example.E2eTestIds
 import androidx.compose.ui.unit.dp
+import com.callstack.brownfield.android.example.components.EspressoTagAnchor
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
 
 class SettingsActivity : ComponentActivity() {
@@ -25,7 +30,11 @@ class SettingsActivity : ComponentActivity() {
 
         setContent {
             AndroidBrownfieldAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics { testTagsAsResourceId = true },
+                ) { innerPadding ->
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -34,9 +43,12 @@ class SettingsActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        EspressoTagAnchor(E2eTestIds.nativeAppNativeSettings)
+
                         Text(
                             text = "Settings",
-                            style = MaterialTheme.typography.headlineMedium
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.testTag(E2eTestIds.nativeAppNativeSettings),
                         )
                         Text(
                             text = "Opened from BrownfieldNavigation.navigateToSettings().",

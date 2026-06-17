@@ -25,6 +25,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testBuildType = System.getProperty("testBuildType", "debug")
     }
 
     flavorDimensions += "app"
@@ -46,6 +47,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            isDebuggable = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -83,8 +85,14 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("com.wix:detox:+")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    // Compose ↔ Espresso bridge (ComposeIdlingResource / EspressoLink) for Detox.
+    androidTestImplementation("androidx.compose.ui:ui-test")
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation(libs.androidx.compose.ui.test.manifest)
+    // Release Detox E2E: expose Compose semantics to Espresso (debugImplementation is not on release APKs).
+    releaseImplementation(libs.androidx.compose.ui.test.manifest)
 }

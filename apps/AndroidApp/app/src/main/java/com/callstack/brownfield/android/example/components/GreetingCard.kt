@@ -15,7 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import com.callstack.brownfield.android.example.E2eTestIds
 import androidx.compose.ui.unit.dp
 import com.callstack.brownfield.android.example.BrownfieldStore
 import com.callstack.brownie.Store
@@ -53,10 +55,13 @@ fun GreetingCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            EspressoTagAnchor(E2eTestIds.nativeAppGreeting)
+
             Text(
                 text = "Hello native $name 👋",
                 style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag(E2eTestIds.nativeAppGreeting),
             )
 
             Text(
