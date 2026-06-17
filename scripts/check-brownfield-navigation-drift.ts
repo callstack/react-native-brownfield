@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = __dirname;
+const REPO_ROOT = path.resolve(__dirname, '..');
 const SKIP_ENV_VAR = 'SKIP_BROWNFIELD_NAVIGATION_CHECK';
 
 const PROTECTED_GENERATED_FILES = [

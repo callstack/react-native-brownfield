@@ -12,7 +12,7 @@ After contributing your changes, please make sure to add a [changeset](https://g
 
 ### Pre-commit guard for brownfield-navigation
 
-This is a mono repo and the files inside `@callstack/brownfield-navigation` are auto-generated whenever `brownfield:package:*` is run. This is a desired behavior for the end user as these files will be inside the `node_modules`. However, since in this repo this package is sym-linked, we see the changes in our git tree.
+ This is a monorepo and the files inside `@callstack/brownfield-navigation` are auto-generated whenever `brownfield:package:*` is run. This is a desired behavior for the end user as these files will be inside the `node_modules`. However, since in this repo this package is symlinked, we see the changes in our git tree.
 
 These should not be committed by accident. A `pre-commit` guard blocks commits when those generated files are staged.
 
