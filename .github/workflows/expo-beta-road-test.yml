@@ -76,6 +76,8 @@ jobs:
         uses: ./.github/actions/setup
         with:
           restore-turbo-cache: 'false'
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
 
       - name: Install Expo beta dependencies
         env:
@@ -111,6 +113,8 @@ jobs:
         uses: ./.github/actions/setup
         with:
           restore-turbo-cache: 'false'
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
 
       - name: Install Expo beta dependencies
         env:
