@@ -33,9 +33,14 @@ export type BrownfieldPublishAndroidOptions = BrownfieldCommonOptions &
 export type BrownfieldPackageIosOptions = BrownfieldCommonOptions &
   Partial<PackageIosOptions>;
 
-export type BrownfieldAndroidConfig = Partial<PackageAarFlags> &
-  Partial<PublishLocalAarFlags>;
-export type BrownfieldIosConfig = Partial<PackageIosOptions>;
+export type BrownfieldAndroidConfig = Omit<
+  Partial<PackageAarFlags> & Partial<PublishLocalAarFlags>,
+  keyof BrownfieldCommonOptions
+>;
+export type BrownfieldIosConfig = Omit<
+  Partial<PackageIosOptions>,
+  keyof BrownfieldCommonOptions
+>;
 
 export type BrownfieldConfig = BrownfieldConfigMetadata &
   BrownfieldCommonOptions &
