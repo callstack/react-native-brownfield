@@ -1,14 +1,24 @@
 name: Apple road test (selected RN app & AppleApp)
-description: Package the given RN app as XCFramework, and build the corresponding AppleApp variant
+description: Package the given RN app as XCFramework, build the corresponding AppleApp variant, and optionally run Detox E2E
 
 inputs:
   variant:
-    description: 'AppleApp yarn command variant to run (expo or vanilla)'
+    description: 'AppleApp yarn command variant to run (vanilla or expo<version>)'
     required: true
 
   rn-project-path:
     description: 'Path to the RN project to build'
     required: true
+
+  run-e2e:
+    description: 'Run Detox E2E after packaging (uses Debug build instead of Release road-test build)'
+    required: false
+    default: 'false'
+
+  e2e-artifact-name:
+    description: 'Name prefix for Detox artifacts uploaded on failure'
+    required: false
+    default: 'detox-appleapp'
 
 runs:
   using: composite
@@ -29,6 +39,13 @@ runs:
 
     - name: Install ccache
       run: brew install ccache
+      shell: bash
+
+    - name: Install applesimutils
+      if: inputs.run-e2e == 'true'
+      run: |
+        brew tap wix/brew
+        brew install applesimutils
       shell: bash
 
     - name: Enable ccache
@@ -55,8 +72,27 @@ runs:
         restore-keys: |
           ${{ runner.os }}-rnapp-${{ inputs.variant }}-ios-pods-
 
+    - name: Brownfield codegen (RN ${{ inputs.variant }} app)
+      if: inputs.variant == 'vanilla' && inputs.run-e2e == 'true'
+      run: yarn codegen
+      working-directory: ${{ inputs.rn-project-path }}
+      shell: bash
+
+    # RN 0.84+ defaults to prebuilt RNCore during pod install. For the Detox packaging
+    # step we build RN from source so native deps (e.g. react-native-screens) link against
+    # the same headers as the Debug simulator XCFramework. Road-test builds without E2E
+    # keep the default prebuilt path for faster CI.
+    - name: Install pods (RN ${{ inputs.variant }} app, E2E)
+      if: inputs.variant == 'vanilla' && inputs.run-e2e == 'true'
+      env:
+        RCT_USE_PREBUILT_RNCORE: '0'
+      run: |
+        cd ${{ inputs.rn-project-path }}/ios
+        pod install
+      shell: bash
+
     - name: Install pods (RN ${{ inputs.variant }} app)
-      if: inputs.variant == 'vanilla'
+      if: inputs.variant == 'vanilla' && inputs.run-e2e != 'true'
       run: |
         cd ${{ inputs.rn-project-path }}/ios
         pod install
@@ -79,9 +115,96 @@ runs:
     # == AppleApp ==
 
     - name: Build Brownfield iOS native app (${{ inputs.variant }})
+      if: inputs.run-e2e != 'true'
       run: |
         yarn run build:example:ios-consumer:${{ inputs.variant }}
       shell: bash
+
+    - name: Resolve AppleApp E2E settings
+      if: inputs.run-e2e == 'true'
+      run: |
+        node <<'NODE'
+        const { getAppleAppDetoxVariant } = require('./apps/brownfield-example-shared-tests/detox-appleapp-variants.cjs');
+        const variant = getAppleAppDetoxVariant(process.env.APPLEAPP_VARIANT);
+        const append = (key, value) => {
+          const fs = require('node:fs');
+          fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${value}\n`);
+        };
+        append('APPLEAPP_XCFRAMEWORK_APP', variant.xcframeworkApp);
+        append('APPLEAPP_E2E_CONFIGURATION', variant.configuration);
+        append('APPLEAPP_E2E_BUILD_SCRIPT', variant.e2eBuildScript);
+        append('APPLEAPP_E2E_TEST_SCRIPT', variant.e2eTestScript);
+        NODE
+      env:
+        APPLEAPP_VARIANT: ${{ inputs.variant }}
+      shell: bash
+
+    - name: Copy XCFrameworks into AppleApp
+      if: inputs.run-e2e == 'true'
+      run: node prepareXCFrameworks.js --appName "$APPLEAPP_XCFRAMEWORK_APP"
+      working-directory: apps/AppleApp
+      shell: bash
+
+    - name: Restore Detox build cache (AppleApp)
+      if: inputs.run-e2e == 'true'
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: apps/AppleApp/build
+        key: ${{ runner.os }}-e2e-appleapp-${{ inputs.variant }}-build-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path), 'apps/AppleApp/Brownfield Apple App.xcodeproj/project.pbxproj', 'apps/brownfield-example-shared-tests/e2e/**') }}
+        restore-keys: |
+          ${{ runner.os }}-e2e-appleapp-${{ inputs.variant }}-build-
+
+    - name: Install Detox iOS artifacts
+      if: inputs.run-e2e == 'true'
+      run: node node_modules/detox/scripts/postinstall.js
+      working-directory: apps/AppleApp
+      shell: bash
+
+    - name: Detox build (AppleApp ${{ inputs.variant }})
+      if: inputs.run-e2e == 'true'
+      run: yarn "$APPLEAPP_E2E_BUILD_SCRIPT"
+      working-directory: apps/AppleApp
+      shell: bash
+
+    - name: Verify embedded JS bundle in BrownfieldLib (E2E)
+      if: inputs.run-e2e == 'true'
+      run: |
+        set -euo pipefail
+        PRODUCTS_DIR="apps/AppleApp/build/Build/Products/${APPLEAPP_E2E_CONFIGURATION}-iphonesimulator"
+        APP_PATH="$(find "$PRODUCTS_DIR" -maxdepth 1 -name '*.app' -print -quit)"
+        if [[ -z "$APP_PATH" ]]; then
+          echo "error: no .app under $PRODUCTS_DIR" >&2
+          exit 1
+        fi
+        EXECUTABLE_PATH="$APP_PATH/$(basename "$APP_PATH" .app)"
+        if [[ ! -f "$EXECUTABLE_PATH" ]]; then
+          echo "error: $EXECUTABLE_PATH missing — host app target produced an invalid .app (no bundle executable)." >&2
+          echo "Check AppleApp target membership for BrownfieldAppleApp.swift and related sources." >&2
+          exit 1
+        fi
+        BUNDLE_PATH="$APP_PATH/Frameworks/BrownfieldLib.framework/main.jsbundle"
+        if [[ ! -f "$BUNDLE_PATH" ]]; then
+          echo "error: $BUNDLE_PATH missing — E2E needs the packaged ${APPLEAPP_XCFRAMEWORK_APP} bundle, not Metro." >&2
+          echo "Re-run: yarn brownfield:package:ios (${APPLEAPP_XCFRAMEWORK_APP}) && node prepareXCFrameworks.js --appName ${APPLEAPP_XCFRAMEWORK_APP}" >&2
+          exit 1
+        fi
+        echo "App executable OK: $EXECUTABLE_PATH ($(wc -c < "$EXECUTABLE_PATH") bytes)"
+        echo "Embedded bundle OK: $BUNDLE_PATH ($(wc -c < "$BUNDLE_PATH") bytes)"
+      shell: bash
+
+    - name: Detox test (AppleApp ${{ inputs.variant }})
+      if: inputs.run-e2e == 'true'
+      run: yarn "$APPLEAPP_E2E_TEST_SCRIPT"
+      working-directory: apps/AppleApp
+      shell: bash
+
+    - name: Upload Detox artifacts on failure
+      if: failure() && inputs.run-e2e == 'true'
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.e2e-artifact-name }}-${{ inputs.variant }}-ios
+        path: apps/AppleApp/artifacts
+        if-no-files-found: ignore
 
     # ==============
 
