@@ -65,6 +65,14 @@ function getSharedConfig(config: BrownfieldConfig): ConfigurableOptions {
   return config.verbose === undefined ? {} : { verbose: config.verbose };
 }
 
+function formatConfigValue(value: unknown): string {
+  return typeof value === 'string' ? value : JSON.stringify(value);
+}
+
+function areConfigValuesEqual(configValue: unknown, optionValue: unknown) {
+  return JSON.stringify(configValue) === JSON.stringify(optionValue);
+}
+
 export function mergeBrownfieldConfigWithOptions<T extends object>(
   options: T,
   platform: BrownfieldPlatform
@@ -73,15 +81,33 @@ export function mergeBrownfieldConfigWithOptions<T extends object>(
 
   validateBrownfieldCLIConfig(reactNativeBrownfieldConfig);
 
-  const platformConfig = {
+  const platformConfig: ConfigurableOptions = {
     ...getSharedConfig(reactNativeBrownfieldConfig),
     ...reactNativeBrownfieldConfig[platform],
   };
 
+  const cliOptions = Object.fromEntries(
+    Object.entries(options).filter(([, value]) => value !== undefined)
+  );
+
+  for (const [key, value] of Object.entries(cliOptions)) {
+    const configValue = platformConfig[key];
+
+    if (
+      configValue !== undefined &&
+      !areConfigValuesEqual(configValue, value)
+    ) {
+      logger.warn(
+        'CLI option "%s" is overriding the react-native-brownfield config value: %s -> %s.',
+        key,
+        formatConfigValue(configValue),
+        formatConfigValue(value)
+      );
+    }
+  }
+
   return {
     ...platformConfig,
-    ...Object.fromEntries(
-      Object.entries(options).filter(([, value]) => value !== undefined)
-    ),
+    ...cliOptions,
   } as T;
 }

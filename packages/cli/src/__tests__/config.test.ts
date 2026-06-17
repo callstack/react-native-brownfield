@@ -265,7 +265,37 @@ describe('mergeBrownfieldConfigWithOptions', () => {
     const mergedOptions = mergeBrownfieldConfigWithOptions(options, 'ios');
 
     expect(mergedOptions.scheme).toBe('CliScheme');
-    expect(mockLoggerWarn).not.toHaveBeenCalled();
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      'CLI option "%s" is overriding the react-native-brownfield config value: %s -> %s.',
+      'scheme',
+      'ConfigScheme',
+      'CliScheme'
+    );
+  });
+
+  it('logs array config values overridden by CLI options', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: {
+        ios: {
+          destination: ['simulator'],
+        },
+      },
+    });
+    process.chdir(tempDir);
+
+    mergeBrownfieldConfigWithOptions(
+      {
+        destination: ['device'],
+      },
+      'ios'
+    );
+
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      'CLI option "%s" is overriding the react-native-brownfield config value: %s -> %s.',
+      'destination',
+      '["simulator"]',
+      '["device"]'
+    );
   });
 
   it('does not allow undefined options to override platform config', () => {
