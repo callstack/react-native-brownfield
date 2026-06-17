@@ -35,6 +35,12 @@ if (process.argv.includes('--clean')) {
   process.exit(0);
 }
 
+if (!fs.existsSync(sourceBrownfieldPath)) {
+  console.error(`Error: Source path not found: ${sourceBrownfieldPath}`);
+  console.error('This script must be run from within the monorepo.');
+  process.exit(1);
+}
+
 // Always start from a clean slate to avoid stale files
 fs.rmSync(targetRoot, { recursive: true, force: true });
 

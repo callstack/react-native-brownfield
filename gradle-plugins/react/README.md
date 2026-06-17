@@ -100,6 +100,11 @@ pluginManagement {
             }.standardOutput.asText.get().trim()
         ).parentFile.resolve("gradle-plugin/brownfield")
     )
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 ```
 
@@ -108,6 +113,11 @@ For standard React Native app layouts, this shorter form also works:
 ```kotlin
 pluginManagement {
     includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/brownfield")
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 ```
 
