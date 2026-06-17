@@ -29,6 +29,9 @@ import {
 } from '../config.js';
 
 const mockLoggerWarn = rockTools.logger.warn as ReturnType<typeof vi.fn>;
+const mockLoggerSetVerbose = rockTools.logger.setVerbose as ReturnType<
+  typeof vi.fn
+>;
 const originalCwd = process.cwd();
 
 function createTempProject({
@@ -336,5 +339,25 @@ describe('mergeBrownfieldConfigWithOptions', () => {
       verbose: true,
       moduleName: ':BrownfieldLib',
     });
+    expect(mockLoggerSetVerbose).toHaveBeenCalledWith(true);
+  });
+
+  it('applies verbose after CLI options override shared config', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: {
+        verbose: true,
+      },
+    });
+    process.chdir(tempDir);
+
+    const mergedOptions = mergeBrownfieldConfigWithOptions(
+      {
+        verbose: false,
+      },
+      'android'
+    );
+
+    expect(mergedOptions.verbose).toBe(false);
+    expect(mockLoggerSetVerbose).toHaveBeenCalledWith(false);
   });
 });

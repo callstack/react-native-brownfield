@@ -106,8 +106,14 @@ export function mergeBrownfieldConfigWithOptions<T extends object>(
     }
   }
 
-  return {
+  const mergedOptions = {
     ...platformConfig,
     ...cliOptions,
-  } as T;
+  } as T & { verbose?: unknown };
+
+  if (typeof mergedOptions.verbose === 'boolean') {
+    logger.setVerbose(mergedOptions.verbose);
+  }
+
+  return mergedOptions;
 }
