@@ -23,8 +23,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Setup
-        uses: ./.github/actions/setup
+      - name: Setup Node.js
+        uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
+        with:
+          node-version: 'lts/*'
+          package-manager-cache: false # disable caching
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
 
       - name: Setup Pages
         uses: actions/configure-pages@d5606572c479bee637007364c6b4800ac4fc8573 # v5
