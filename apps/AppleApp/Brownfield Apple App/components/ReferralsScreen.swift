@@ -24,5 +24,7 @@ struct ReferralsScreen: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
         .navigationTitle("Referrals")
+        .accessibilityIdentifier(E2eTestIds.appleAppNativeReferrals)
+        .accessibilityElement()
     }
 }

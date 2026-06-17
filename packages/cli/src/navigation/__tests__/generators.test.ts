@@ -118,6 +118,54 @@ describe('navigation code generators', () => {
     );
   });
 
+  it('imports referenced custom types used inside generic and union signatures', () => {
+    const customTypeMethods: MethodSignature[] = [
+      {
+        name: 'loadUsers',
+        params: [{ name: 'filter', type: 'UserFilter | null', optional: true }],
+        returnType: 'Promise<Array<UserType>>',
+        isAsync: true,
+      },
+      {
+        name: 'loadUserIds',
+        params: [],
+        returnType: 'UserType[]',
+        isAsync: false,
+      },
+    ];
+    const referencedTypeDeclarations = [
+      {
+        name: 'UserType',
+        declaration: 'export type UserType = { id: string; };',
+      },
+      {
+        name: 'UserFilter',
+        declaration: 'export type UserFilter = { active: boolean; };',
+      },
+      {
+        name: 'UnusedType',
+        declaration: 'export type UnusedType = { ignored: boolean; };',
+      },
+    ];
+
+    const indexTs = generateIndexTs(
+      customTypeMethods,
+      referencedTypeDeclarations
+    );
+    const indexDts = generateIndexDts(
+      customTypeMethods,
+      referencedTypeDeclarations
+    );
+
+    expect(indexTs).toContain(
+      "import type { UserType, UserFilter } from './NativeBrownfieldNavigation';"
+    );
+    expect(indexTs).not.toContain('UnusedType');
+    expect(indexDts).toContain(
+      "import type { UserType, UserFilter } from './NativeBrownfieldNavigation';"
+    );
+  });
+
   it('generates iOS bindings for sync methods', () => {
     const swiftDelegate = generateSwiftDelegate(methods);
     const objcImplementation = generateObjCImplementation(methods);

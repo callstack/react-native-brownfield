@@ -24,28 +24,65 @@ private let hostAppName = "iOS Vanilla"
 // for both the plain React Native and Expo example apps.
 private let reactNativeModuleName = "RNApp"
 
+private func brownfieldPostMessageText(from raw: String) -> String {
+    if let data = raw.data(using: .utf8),
+        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        let text = json["text"] as? String
+    {
+        return text
+    }
+    return raw
+}
+
 struct ContentView: View {
+    @State private var messageObserver: NSObjectProtocol?
+    @State private var showPostMessageToast = false
+    @State private var postMessageToastText = ""
+
     var body: some View {
         NavigationView {
+            ZStack {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        GreetingCard(name: hostAppName)
 
-            VStack(spacing: 16) {
-                GreetingCard(name: hostAppName)
+                        MessagesView()
 
-                MessagesView()
+                        ReactNativeView(
+                            moduleName: reactNativeModuleName,
+                            initialProperties: [
+                                "nativeOsVersionLabel":
+                                    "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+                            ]
+                        )
+                        .navigationBarHidden(true)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .background(Color(UIColor.systemBackground))
+                        .frame(minHeight: 520)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+                }
 
-                ReactNativeView(
-                    moduleName: reactNativeModuleName,
-                    initialProperties: [
-                        "nativeOsVersionLabel":
-                            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
-                    ]
-                )
-                    .navigationBarHidden(true)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .background(Color(UIColor.systemBackground))
+                if showPostMessageToast {
+                    Toast(
+                        message: postMessageToastText,
+                        isShowing: $showPostMessageToast
+                    )
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(16)
+        }
+        .onAppear {
+            messageObserver = ReactNativeBrownfield.shared.onMessage { raw in
+                postMessageToastText = brownfieldPostMessageText(from: raw)
+                showPostMessageToast = true
+            }
+        }
+        .onDisappear {
+            if let observer = messageObserver {
+                NotificationCenter.default.removeObserver(observer)
+                messageObserver = nil
+            }
         }
     }
 }
