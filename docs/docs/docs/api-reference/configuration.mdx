@@ -3,7 +3,7 @@
 The Brownfield CLI can load configuration from a file instead of repeating the same flags on every command.
 That configuration covers both `@callstack/react-native-brownfield` and `@callstack/brownie` options.
 
-Configuration keys use camelCase names that match CLI flags.
+Configuration keys use camelCase names that match CLI flags inside their platform section.
 For example, `--module-name` becomes `moduleName`, `--build-folder` becomes `buildFolder`, and `--use-prebuilt-rn-core` becomes `usePrebuiltRnCore`.
 
 ## Choose one configuration source
@@ -27,9 +27,13 @@ If you prefer a JavaScript file, create `react-native-brownfield.config.js` and 
 ```js
 /** @type {import('@callstack/react-native-brownfield').BrownfieldConfig} */
 module.exports = {
-  moduleName: ':BrownfieldLib',
-  scheme: 'BrownfieldLib',
   verbose: true,
+  android: {
+    moduleName: ':BrownfieldLib',
+  },
+  ios: {
+    scheme: 'BrownfieldLib',
+  },
   brownie: {
     kotlin:
       './android/BrownfieldLib/src/main/java/com/example/brownfield/Generated/',
@@ -45,11 +49,15 @@ If you want schema autocomplete and validation directly in the config file, use 
 ```json
 {
   "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
-  "moduleName": "brownfieldlib",
-  "scheme": "BrownfieldLib",
-  "configuration": "Release",
   "verbose": true,
-  "usePrebuiltRnCore": true,
+  "android": {
+    "moduleName": "brownfieldlib"
+  },
+  "ios": {
+    "scheme": "BrownfieldLib",
+    "configuration": "Release",
+    "usePrebuiltRnCore": true
+  },
   "brownie": {
     "kotlin": "./android/brownfieldlib/src/main/java/com/example/brownfield/Generated/",
     "kotlinPackageName": "com.example.brownfield"
@@ -65,9 +73,13 @@ If you prefer to keep everything in `package.json`, place the configuration unde
 {
   "name": "my-app",
   "brownfield": {
-    "moduleName": ":BrownfieldLib",
-    "scheme": "BrownfieldLib",
     "verbose": true,
+    "android": {
+      "moduleName": ":BrownfieldLib"
+    },
+    "ios": {
+      "scheme": "BrownfieldLib"
+    },
     "brownie": {
       "kotlin": "./android/BrownfieldLib/src/main/java/com/example/brownfield/Generated/",
       "kotlinPackageName": "com.example.brownfield"
@@ -78,7 +90,7 @@ If you prefer to keep everything in `package.json`, place the configuration unde
 
 ## Configuration reference
 
-All file-based options mirror CLI flags, but they use camelCase property names.
+All file-based platform options mirror CLI flags, but they use camelCase property names under `android` or `ios`.
 
 ### Shared keys
 
@@ -90,28 +102,29 @@ All file-based options mirror CLI flags, but they use camelCase property names.
 
 ### Android keys
 
-| Key          | Type     | Description                                                          |
-| ------------ | -------- | -------------------------------------------------------------------- |
-| `moduleName` | `string` | Android module name used for packaging and publishing AAR artifacts. |
-| `variant`    | `string` | Android build variant, for example `debug` or `freeRelease`.         |
+| Key                  | Type     | Description                                                          |
+| -------------------- | -------- | -------------------------------------------------------------------- |
+| `android.moduleName` | `string` | Android module name used for packaging and publishing AAR artifacts. |
+| `android.variant`    | `string` | Android build variant, for example `debug` or `freeRelease`.         |
 
 ### iOS keys
 
-| Key                  | Type       | Description                                                                                                            |
-| -------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `scheme`             | `string`   | Xcode scheme used for packaging.                                                                                       |
-| `configuration`      | `string`   | Xcode build configuration, for example `Debug` or `Release`.                                                           |
-| `target`             | `string`   | Explicit Xcode target name.                                                                                            |
-| `destination`        | `string[]` | One or more Xcode destinations, such as `simulator`, `device`, or full destination strings.                            |
-| `buildFolder`        | `string`   | Custom build output directory. By default, Brownfield uses the `.brownfield/build` path inside the iOS project.        |
-| `archive`            | `boolean`  | Creates an archive build suitable for IPA export and distribution.                                                     |
-| `extraParams`        | `string[]` | Extra arguments passed to `xcodebuild`.                                                                                |
-| `exportExtraParams`  | `string[]` | Extra arguments passed to the archive export step.                                                                     |
-| `exportOptionsPlist` | `string`   | Export options plist filename used during archive export.                                                              |
-| `installPods`        | `boolean`  | Controls automatic CocoaPods installation. Set `false` to match `--no-install-pods`.                                   |
-| `newArch`            | `boolean`  | Controls React Native new architecture support. Set `false` to match `--no-new-arch`.                                  |
-| `local`              | `boolean`  | Forces a local `xcodebuild` flow.                                                                                      |
-| `usePrebuiltRnCore`  | `boolean`  | Controls whether iOS packaging uses React Native Apple prebuilts. Omit it to keep Brownfield's version-aware defaults. |
+| Key                      | Type       | Description                                                                                                            |
+| ------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `ios.scheme`             | `string`   | Xcode scheme used for packaging.                                                                                       |
+| `ios.configuration`      | `string`   | Xcode build configuration, for example `Debug` or `Release`.                                                           |
+| `ios.target`             | `string`   | Explicit Xcode target name.                                                                                            |
+| `ios.destination`        | `string[]` | One or more Xcode destinations, such as `simulator`, `device`, or full destination strings.                            |
+| `ios.buildFolder`        | `string`   | Custom build output directory. By default, Brownfield uses the `.brownfield/build` path inside the iOS project.        |
+| `ios.archive`            | `boolean`  | Creates an archive build suitable for IPA export and distribution.                                                     |
+| `ios.extraParams`        | `string[]` | Extra arguments passed to `xcodebuild`.                                                                                |
+| `ios.exportExtraParams`  | `string[]` | Extra arguments passed to the archive export step.                                                                     |
+| `ios.exportOptionsPlist` | `string`   | Export options plist filename used during archive export.                                                              |
+| `ios.installPods`        | `boolean`  | Controls automatic CocoaPods installation. Set `false` to match `--no-install-pods`.                                   |
+| `ios.newArch`            | `boolean`  | Controls React Native new architecture support. Set `false` to match `--no-new-arch`.                                  |
+| `ios.local`              | `boolean`  | Forces a local `xcodebuild` flow.                                                                                      |
+| `ios.usePrebuiltRnCore`  | `boolean`  | Controls whether iOS packaging uses React Native Apple prebuilts. Omit it to keep Brownfield's version-aware defaults. |
+| `ios.addSpmPackage`      | `boolean`  | Generates a local Swift Package Manager manifest next to the packaged XCFramework outputs.                             |
 
 ## Brownie configuration
 
@@ -158,8 +171,12 @@ The new format moves the same values under the main Brownfield config:
 ```json
 {
   "brownfield": {
-    "moduleName": ":BrownfieldLib",
-    "scheme": "BrownfieldLib",
+    "android": {
+      "moduleName": ":BrownfieldLib"
+    },
+    "ios": {
+      "scheme": "BrownfieldLib"
+    },
     "brownie": {
       "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
       "kotlinPackageName": "com.rnapp.brownfieldlib"
@@ -173,8 +190,12 @@ You can also migrate to a standalone config file:
 ```json
 {
   "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
-  "moduleName": ":BrownfieldLib",
-  "scheme": "BrownfieldLib",
+  "android": {
+    "moduleName": ":BrownfieldLib"
+  },
+  "ios": {
+    "scheme": "BrownfieldLib"
+  },
   "brownie": {
     "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
     "kotlinPackageName": "com.rnapp.brownfieldlib"

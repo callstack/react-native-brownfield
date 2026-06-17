@@ -15,6 +15,7 @@ import { getProjectInfo } from '../utils/project.js';
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
+import { mergeBrownfieldConfigWithOptions } from '../../config.js';
 
 export const publishAndroidCommand = curryOptions(
   new Command('publish:android').description(
@@ -22,7 +23,9 @@ export const publishAndroidCommand = curryOptions(
   ),
   publishLocalAarOptions
 ).action(
-  actionRunner(async (options: PublishLocalAarFlags) => {
+  actionRunner(async (cliOptions: PublishLocalAarFlags) => {
+    const options = mergeBrownfieldConfigWithOptions(cliOptions, 'android');
+
     const { projectRoot, platformConfig } = getProjectInfo('android');
     await runExpoPrebuildIfNeeded({
       projectRoot,

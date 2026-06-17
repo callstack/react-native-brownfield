@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { findProjectRoot } from '../brownfield/utils/paths';
+import { findProjectRoot } from '../brownfield/utils/paths.js';
 import type { BrownieConfig } from '../types.js';
 
 interface PackageJson {

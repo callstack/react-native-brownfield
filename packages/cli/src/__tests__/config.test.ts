@@ -3,7 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 
 import * as rockTools from '@rock-js/tools';
-import { Command } from 'commander';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@rock-js/tools', async (importOriginal) => {
@@ -24,8 +23,8 @@ vi.mock('../brownfield/utils/paths.js', () => ({
 }));
 
 import {
-  addBrownfieldConfig,
   loadBrownfieldConfig,
+  mergeBrownfieldConfigWithOptions,
   validateBrownfieldCLIConfig,
 } from '../config.js';
 
@@ -74,15 +73,6 @@ function createTempProject({
   return tempDir;
 }
 
-function createCommand(): Command {
-  return new Command()
-    .option('--scheme <scheme>')
-    .option('--install-pods')
-    .option('--destination <destination...>')
-    .option('--target <target>')
-    .option('--extra-params <extraParams...>');
-}
-
 describe('loadBrownfieldConfig', () => {
   let tempDir: string | null = null;
 
@@ -102,41 +92,53 @@ describe('loadBrownfieldConfig', () => {
   it('loads config from package.json', () => {
     tempDir = createTempProject({
       packageJsonConfig: {
-        scheme: 'PackageScheme',
-        destination: ['simulator'],
+        ios: {
+          scheme: 'PackageScheme',
+          destination: ['simulator'],
+        },
       },
     });
 
     expect(loadBrownfieldConfig(tempDir)).toEqual({
-      scheme: 'PackageScheme',
-      destination: ['simulator'],
+      ios: {
+        scheme: 'PackageScheme',
+        destination: ['simulator'],
+      },
     });
   });
 
   it('loads config from a JavaScript config file', () => {
     tempDir = createTempProject({
       jsConfig: {
-        scheme: 'JsScheme',
-        installPods: true,
+        ios: {
+          scheme: 'JsScheme',
+          installPods: true,
+        },
       },
     });
 
     expect(loadBrownfieldConfig(tempDir)).toEqual({
-      scheme: 'JsScheme',
-      installPods: true,
+      ios: {
+        scheme: 'JsScheme',
+        installPods: true,
+      },
     });
   });
 
   it('loads config from a JSON config file', () => {
     tempDir = createTempProject({
       jsonConfig: {
-        scheme: 'JsonScheme',
+        ios: {
+          scheme: 'JsonScheme',
+        },
         verbose: true,
       },
     });
 
     expect(loadBrownfieldConfig(tempDir)).toEqual({
-      scheme: 'JsonScheme',
+      ios: {
+        scheme: 'JsonScheme',
+      },
       verbose: true,
     });
   });
@@ -150,10 +152,14 @@ describe('loadBrownfieldConfig', () => {
   it('throws when multiple config sources are present', () => {
     tempDir = createTempProject({
       packageJsonConfig: {
-        scheme: 'PackageScheme',
+        ios: {
+          scheme: 'PackageScheme',
+        },
       },
       jsConfig: {
-        scheme: 'JsScheme',
+        ios: {
+          scheme: 'JsScheme',
+        },
       },
     });
 
@@ -170,10 +176,12 @@ describe('validateBrownfieldCLIConfig', () => {
 
   it('does not warn for a schema-valid config', () => {
     validateBrownfieldCLIConfig({
-      scheme: 'AppScheme',
-      destination: ['simulator'],
-      usePrebuiltRnCore: true,
       verbose: true,
+      ios: {
+        scheme: 'AppScheme',
+        destination: ['simulator'],
+        usePrebuiltRnCore: true,
+      },
       brownie: {
         kotlin:
           './android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/',
@@ -196,7 +204,7 @@ describe('validateBrownfieldCLIConfig', () => {
   });
 });
 
-describe('addBrownfieldConfig', () => {
+describe('mergeBrownfieldConfigWithOptions', () => {
   let tempDir: string | null = null;
 
   beforeEach(() => {
@@ -212,22 +220,26 @@ describe('addBrownfieldConfig', () => {
     }
   });
 
-  it('applies config values to undefined CLI options', () => {
+  it('applies platform config values to undefined CLI options', () => {
     tempDir = createTempProject({
       packageJsonConfig: {
-        scheme: 'ConfigScheme',
-        installPods: true,
-        destination: ['simulator'],
+        ios: {
+          scheme: 'ConfigScheme',
+          installPods: true,
+          destination: ['simulator'],
+        },
       },
     });
     process.chdir(tempDir);
 
-    const command = createCommand();
-    command.setOptionValue('target', 'MyApp');
+    const options = {
+      target: 'MyApp',
+      scheme: undefined,
+    };
 
-    addBrownfieldConfig(command);
+    const mergedOptions = mergeBrownfieldConfigWithOptions(options, 'ios');
 
-    expect(command.optsWithGlobals()).toMatchObject({
+    expect(mergedOptions).toMatchObject({
       scheme: 'ConfigScheme',
       installPods: true,
       destination: ['simulator'],
@@ -236,20 +248,63 @@ describe('addBrownfieldConfig', () => {
     expect(mockLoggerWarn).not.toHaveBeenCalled();
   });
 
-  it('warns and preserves the CLI value when it overrides the config', () => {
+  it('preserves CLI options when they override platform config', () => {
     tempDir = createTempProject({
       packageJsonConfig: {
-        scheme: 'ConfigScheme',
+        ios: {
+          scheme: 'ConfigScheme',
+        },
       },
     });
     process.chdir(tempDir);
 
-    const command = createCommand();
-    command.setOptionValue('scheme', 'CliScheme');
+    const options = {
+      scheme: 'CliScheme',
+    };
 
-    addBrownfieldConfig(command);
+    const mergedOptions = mergeBrownfieldConfigWithOptions(options, 'ios');
 
-    expect(command.optsWithGlobals().scheme).toBe('CliScheme');
-    expect(mockLoggerWarn).toHaveBeenCalled();
+    expect(mergedOptions.scheme).toBe('CliScheme');
+    expect(mockLoggerWarn).not.toHaveBeenCalled();
+  });
+
+  it('does not allow undefined options to override platform config', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: {
+        android: {
+          variant: 'release',
+        },
+      },
+    });
+    process.chdir(tempDir);
+
+    const options = {
+      variant: undefined,
+    };
+
+    const mergedOptions = mergeBrownfieldConfigWithOptions(options, 'android');
+
+    expect(mergedOptions.variant).toBe('release');
+  });
+
+  it('applies shared config values to platform commands', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: {
+        verbose: true,
+        android: {
+          moduleName: ':BrownfieldLib',
+        },
+      },
+    });
+    process.chdir(tempDir);
+
+    const options = {};
+
+    const mergedOptions = mergeBrownfieldConfigWithOptions(options, 'android');
+
+    expect(mergedOptions).toMatchObject({
+      verbose: true,
+      moduleName: ':BrownfieldLib',
+    });
   });
 });

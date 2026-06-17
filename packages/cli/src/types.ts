@@ -39,5 +39,8 @@ export type BrownfieldIosConfig = Partial<PackageIosOptions>;
 
 export type BrownfieldConfig = BrownfieldConfigMetadata &
   BrownfieldCommonOptions &
-  BrownfieldAndroidConfig &
-  BrownfieldIosConfig & { brownie?: BrownieConfig };
+  Partial<{
+    android: BrownfieldAndroidConfig;
+    ios: BrownfieldIosConfig;
+    brownie: BrownieConfig;
+  }>;

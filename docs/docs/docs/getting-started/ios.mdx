@@ -112,8 +112,10 @@ Create `react-native-brownfield.config.json` in your project root:
 ```json
 {
   "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
-  "scheme": "<framework_target_name>",
-  "configuration": "Release"
+  "ios": {
+    "scheme": "<framework_target_name>",
+    "configuration": "Release"
+  }
 }
 ```
 

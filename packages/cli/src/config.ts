@@ -9,7 +9,6 @@ import { findProjectRoot } from './brownfield/utils/paths.js';
 
 import BrownfieldSchema from '../schema.json' with { type: 'json' };
 import { logger } from '@rock-js/tools';
-import { Command } from 'commander';
 
 const CONFIG_BASE_NAME = 'brownfield';
 const JS_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.js`;
@@ -59,27 +58,30 @@ export function loadBrownfieldConfig(
   return packageJson[CONFIG_BASE_NAME] || {};
 }
 
-export function addBrownfieldConfig(...args: any[]): void {
-  // Last argument is the current command instance
-  const command = args.at(-1) as Command;
+type BrownfieldPlatform = 'android' | 'ios';
+type ConfigurableOptions = Record<string, unknown>;
 
-  if (!(command instanceof Command)) return;
+function getSharedConfig(config: BrownfieldConfig): ConfigurableOptions {
+  return config.verbose === undefined ? {} : { verbose: config.verbose };
+}
 
+export function mergeBrownfieldConfigWithOptions<T extends object>(
+  options: T,
+  platform: BrownfieldPlatform
+): T {
   const reactNativeBrownfieldConfig = loadBrownfieldConfig();
 
   validateBrownfieldCLIConfig(reactNativeBrownfieldConfig);
 
-  for (const [key, value] of Object.entries(reactNativeBrownfieldConfig)) {
-    const cliOptionValue = command.optsWithGlobals()[key];
+  const platformConfig = {
+    ...getSharedConfig(reactNativeBrownfieldConfig),
+    ...reactNativeBrownfieldConfig[platform],
+  };
 
-    if (cliOptionValue !== undefined) {
-      logger.warn(
-        'CLI option "%s" is overriding the react-native-brownfield config value.',
-        key
-      );
-      continue;
-    }
-
-    command.setOptionValue(key, value);
-  }
+  return {
+    ...platformConfig,
+    ...Object.fromEntries(
+      Object.entries(options).filter(([, value]) => value !== undefined)
+    ),
+  } as T;
 }

@@ -1,13 +1,8 @@
 import * as rockTools from '@rock-js/tools';
-import * as configModule from '../../../config.js';
 
 import { beforeEach, expect, Mock, test, vi } from 'vitest';
 
 import { actionRunner } from '../cli.js';
-
-vi.mock('../../../config.js', () => ({
-  addBrownfieldConfig: vi.fn(),
-}));
 
 vi.mock('@rock-js/tools', async (importOriginal) => {
   const actual = await importOriginal<typeof rockTools>();
@@ -28,7 +23,6 @@ const processExitMock = vi.spyOn(process, 'exit').mockImplementation(() => {
   // no-op
 });
 
-const mockAddBrownfieldConfig = configModule.addBrownfieldConfig as Mock;
 const mockLoggerError = rockTools.logger.error as Mock;
 
 const FAILING_ACTION_ERROR_MESSAGE = 'Test error';
@@ -49,15 +43,6 @@ test('actionRunner should call the wrapped function', async () => {
   await wrappedAction();
 
   expect(mockAction).toHaveBeenCalledOnce();
-});
-
-test('actionRunner should call addBrownfieldConfig with wrapped args', async () => {
-  const mockAction = vi.fn(async (_a: number, _b: number) => Promise.resolve());
-  const wrappedAction = actionRunner(mockAction);
-
-  await wrappedAction(1, 2);
-
-  expect(mockAddBrownfieldConfig).toHaveBeenCalledExactlyOnceWith(1, 2);
 });
 
 test('actionRunner should gracefully handle Errors', async () => {

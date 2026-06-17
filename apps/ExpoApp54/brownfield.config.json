@@ -1,7 +1,11 @@
 {
   "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
-  "moduleName": "brownfieldlib",
-  "scheme": "BrownfieldLib",
+  "android": {
+    "moduleName": "brownfieldlib"
+  },
+  "ios": {
+    "scheme": "BrownfieldLib"
+  },
   "verbose": true,
   "brownie": {
     "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp54/Generated/",

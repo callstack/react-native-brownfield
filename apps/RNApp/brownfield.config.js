@@ -2,7 +2,11 @@
  * @type {import('@callstack/react-native-brownfield').BrownfieldConfig}
  */
 module.exports = {
-  moduleName: ':BrownfieldLib',
-  scheme: 'BrownfieldLib',
+  android: {
+    moduleName: ':BrownfieldLib',
+  },
+  ios: {
+    scheme: 'BrownfieldLib',
+  },
   verbose: true,
 };

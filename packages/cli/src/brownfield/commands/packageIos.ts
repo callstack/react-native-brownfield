@@ -31,6 +31,7 @@ import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkN
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 import type { PackageIosOptions } from '../../types.js';
 import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
+import { mergeBrownfieldConfigWithOptions } from '../../config.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -94,7 +95,9 @@ export const packageIosCommand = curryOptions(
     )
   )
   .action(
-    actionRunner(async (options: PackageIosOptions) => {
+    actionRunner(async (cliOptions: PackageIosOptions) => {
+      const options = mergeBrownfieldConfigWithOptions(cliOptions, 'ios');
+
       const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
 
       const prebuiltRNCoreSupport = supportsPrebuiltRNCore({ projectRoot });

@@ -1,7 +1,6 @@
 import { logger, RockError, type RockCLIOptions } from '@rock-js/tools';
 
 import type { Command } from 'commander';
-import { addBrownfieldConfig } from '../../config.js';
 
 export function curryOptions(programCommand: Command, options: RockCLIOptions) {
   options.forEach((option) => {
@@ -24,10 +23,11 @@ export function curryOptions(programCommand: Command, options: RockCLIOptions) {
   return programCommand;
 }
 
-export function actionRunner<T, R>(fn: (...args: T[]) => Promise<R>) {
-  return async function wrappedCLIAction(...args: T[]) {
+export function actionRunner<Args extends unknown[], R>(
+  fn: (...args: Args) => Promise<R>
+) {
+  return async function wrappedCLIAction(...args: Args) {
     try {
-      addBrownfieldConfig(...args);
       await fn(...args);
     } catch (error) {
       if (error instanceof RockError) {
