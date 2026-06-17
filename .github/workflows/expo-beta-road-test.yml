@@ -75,7 +75,7 @@ jobs:
       - name: Install Expo beta dependencies
         run: |
           cd apps/ExpoAppBeta
-          npm install
+          yarn install
           npx expo install --fix
 
       - name: Run ExpoAppBeta -> AndroidApp road test
@@ -100,7 +100,7 @@ jobs:
       - name: Install Expo beta dependencies
         run: |
           cd apps/ExpoAppBeta
-          npm install
+          yarn install
           npx expo install --fix
 
       - name: Run ExpoAppBeta -> AppleApp road test

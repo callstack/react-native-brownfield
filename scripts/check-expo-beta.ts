@@ -118,22 +118,16 @@ function getExpoTemplateAppDir(): string {
 
 function replaceTemplateAppReferences(contents: string): string {
   return contents
-    .replaceAll('@callstack/brownfield-example-expo-app-56', '@callstack/brownfield-example-expo-app-beta')
-    .replaceAll('@callstack/brownfield-example-expo-app-55', '@callstack/brownfield-example-expo-app-beta')
+    .replace(/@callstack\/brownfield-example-expo-app-\d+/g, '@callstack/brownfield-example-expo-app-beta')
     .replaceAll('"@callstack/brownfield-navigation": "workspace:^"', '"@callstack/brownfield-navigation": "file:../../packages/brownfield-navigation"')
     .replaceAll('"@callstack/brownie": "workspace:^"', '"@callstack/brownie": "file:../../packages/brownie"')
     .replaceAll('"@callstack/react-native-brownfield": "workspace:^"', '"@callstack/react-native-brownfield": "file:../../packages/react-native-brownfield"')
     .replaceAll('"@callstack/brownfield-example-shared-tests": "workspace:^"', '"@callstack/brownfield-example-shared-tests": "file:../brownfield-example-shared-tests"')
-    .replaceAll('com.callstack.rnbrownfield.demo.expoapp56', 'com.callstack.rnbrownfield.demo.expobeta')
-    .replaceAll('com.callstack.rnbrownfield.demo.expoapp55', 'com.callstack.rnbrownfield.demo.expobeta')
-    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp56/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
-    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
-    .replaceAll('ExpoApp56', 'ExpoAppBeta')
-    .replaceAll('ExpoApp55', 'ExpoAppBeta')
-    .replaceAll('expoapp56', 'expoappbeta')
-    .replaceAll('expoapp55', 'expoappbeta')
-    .replaceAll('expoappbeta56', 'expoappbeta')
-    .replaceAll('expoappbeta55', 'expoappbeta');
+    .replace(/com\.callstack\.rnbrownfield\.demo\.expoapp\d+/g, 'com.callstack.rnbrownfield.demo.expobeta')
+    .replace(/\.\/android\/brownfieldlib\/src\/main\/java\/com\/callstack\/rnbrownfield\/demo\/expoapp\d+\/Generated\//g, './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
+    .replace(/ExpoApp\d+/g, 'ExpoAppBeta')
+    .replace(/expoapp\d+/g, 'expoappbeta')
+    .replace(/expoappbeta\d+/g, 'expoappbeta');
 }
 
 function generateExpoBetaApp(): void {
