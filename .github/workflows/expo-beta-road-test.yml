@@ -75,8 +75,7 @@ jobs:
       - name: Install Expo beta dependencies
         run: |
           cd apps/ExpoAppBeta
-          corepack enable
-          yarn install
+          YARN_ENABLE_IMMUTABLE_INSTALLS=true yarn install
           npx expo install --fix
 
       - name: Run ExpoAppBeta -> AndroidApp road test
@@ -101,8 +100,7 @@ jobs:
       - name: Install Expo beta dependencies
         run: |
           cd apps/ExpoAppBeta
-          corepack enable
-          yarn install
+          YARN_ENABLE_IMMUTABLE_INSTALLS=true yarn install
           npx expo install --fix
 
       - name: Run ExpoAppBeta -> AppleApp road test
