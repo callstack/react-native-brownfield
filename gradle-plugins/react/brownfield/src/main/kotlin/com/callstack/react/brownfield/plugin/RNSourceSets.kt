@@ -47,16 +47,17 @@ object RNSourceSets {
 
         // 2. Use the onVariants block to configure each variant
         componentsExtension.onVariants { variant ->
+            val variantName = variant.name
             val bundledAssetsVariantName =
                 Utils.getBundledAssetsVariantName(
-                    variantName = variant.name,
+                    variantName = variantName,
                     buildTypeName = variant.buildType,
                     isDebuggable = variant.debuggable,
                 )
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
 
             // 3. Lazily configure the 'main' source set using .named()
-            androidExtension.sourceSets.named(variant.name) { sourceSet ->
+            androidExtension.sourceSets.named(variantName) { sourceSet ->
                 // Paths are collected and added, similar to your improved version
                 val bundlePathSegments =
                     listOf(
@@ -72,16 +73,8 @@ object RNSourceSets {
                 val appBuildDir = getAppBuildDir()
                 sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
                 sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
+                sourceSet.jniLibs.srcDirs("libs${variantName.capitalized()}")
             }
-        }
-
-        // These remain the same, but using .named() is the modern, lazy approach
-        androidExtension.sourceSets.named("release") {
-            it.jniLibs.srcDirs("libsRelease")
-        }
-
-        androidExtension.sourceSets.named("debug") {
-            it.jniLibs.srcDirs("libsDebug")
         }
     }
 
