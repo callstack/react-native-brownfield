@@ -114,6 +114,26 @@ vi.mock('../../utils/createLocalSpmPackage.js', () => ({
   })),
 }));
 
+vi.mock('../../utils/copyBundledXcframeworks.js', () => ({
+  copyBundledXcframeworks: vi.fn(),
+}));
+
+vi.mock('../../utils/packageReactBrownfieldXcframework.js', () => ({
+  packageSupportModuleXcframework: vi.fn(),
+}));
+
+vi.mock('../../utils/packageTransitiveDynamicFrameworks.js', () => ({
+  packageTransitiveDynamicFrameworks: vi.fn(),
+}));
+
+vi.mock('../../utils/stripFrameworkBinary.js', () => ({
+  stripFrameworkBinary: vi.fn(),
+}));
+
+vi.mock('../../utils/stripPackagedCodeSignatures.js', () => ({
+  stripPackagedCodeSignatures: vi.fn(),
+}));
+
 const invokePackageIosAction = async (argv: string[]) => {
   await packageIosCommand.parseAsync(argv, { from: 'user' });
 };

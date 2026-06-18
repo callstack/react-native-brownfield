@@ -24,12 +24,17 @@
     "brownfield:plugin:version:sync": "node --experimental-strip-types --no-warnings ./scripts/sync-brownfield-gradle-plugin-version.ts",
     "generate:store": "node --experimental-strip-types --no-warnings ./scripts/generate-store.ts",
     "skillgym:brownie": "skillgym run skillgym/suites/brownie-suite.ts",
-    "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts"
+    "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts",
+    "ci:local:rnapp:e2e:ios": "bash ./scripts/ci-local-rnapp-ios-e2e.sh",
+    "ci:local:expo54:e2e:ios": "bash ./scripts/ci-local-expo54-ios-e2e.sh",
+    "ci:local:expo55:e2e:ios": "bash ./scripts/ci-local-expo55-ios-e2e.sh",
+    "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh",
+    "ci:local:appleapp:e2e:ios:expo55": "bash ./scripts/ci-local-appleapp-ios-e2e.sh --variant expo55"
   },
   "resolutions": {
     "@types/react": "19.1.1",
     "chromium-edge-launcher": "0.3.0",
-    "glob": "13.0.6"
+    "detox/glob": "npm:7.2.3"
   },
   "packageManager": "yarn@4.12.0",
   "dependencies": {

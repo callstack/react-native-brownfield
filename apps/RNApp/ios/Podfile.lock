@@ -1,5 +1,5 @@
 PODS:
-  - BrownfieldNavigation (3.11.0):
+  - BrownfieldNavigation (3.12.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -21,7 +21,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - Brownie (3.11.0):
+  - Brownie (3.12.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1803,7 +1803,7 @@ PODS:
     - ReactNativeDependencies
   - ReactAppDependencyProvider (0.85.0):
     - ReactCodegen
-  - ReactBrownfield (3.11.0):
+  - ReactBrownfield (3.12.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2174,10 +2174,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  BrownfieldNavigation: 134797f188d89b2b58d6036fa14f92ae335adba6
-  Brownie: bce403c09052ad4f08233241c499f0920a97809a
+  BrownfieldNavigation: eb4f0937d1f5d81f97bcccaea57484913a7e83e1
+  Brownie: 9d58df8e6fbc0c7f01968df81370af2207e76e16
   FBLazyVector: c00c20551d40126351a6783c47ce75f5b374851b
-  hermes-engine: bdbd0486a2fbe35adaf53f1b1bbff36ed0ea7385
+  hermes-engine: f9b3ab044c5d02769fb250593eb38a9fa04a66d4
   RCTDeprecation: 3bb167081b134461cfeb875ff7ae1945f8635257
   RCTRequired: 74839f55d5058a133a0bc4569b0afec750957f64
   RCTSwiftUI: 87a316382f3eab4dd13d2a0d0fd2adcce917361a
@@ -2186,7 +2186,7 @@ SPEC CHECKSUMS:
   React: 1b1536b9099195944034e65b1830f463caaa8390
   React-callinvoker: 6dff6d17d1d6cc8fdf85468a649bafed473c65f5
   React-Core: 00faa4d038298089a1d5a5b21dde8660c4f0820d
-  React-Core-prebuilt: 60991691e191ce1e3d0f1402438a87342a0fbb4a
+  React-Core-prebuilt: 02d77b64fe79daf3edd6e3a1878671283c7ba1ba
   React-CoreModules: a17807f849bfd86045b0b9a75ec8c19373b482f6
   React-cxxreact: c7b53ace5827be54048288bce5c55f337c41e95f
   React-debug: 1f20c32441d0090cf67e6b966895f4ccd929d84c
@@ -2246,10 +2246,10 @@ SPEC CHECKSUMS:
   React-utils: f747ea9fa3f4b293533ec4ef7976d1e37f004ef8
   React-webperformancenativemodule: cf676ba871cc4b6ae175f75b92e8c689960c4141
   ReactAppDependencyProvider: 5787b37b8e2e51dfeab697ec031cc7c4080dcea2
-  ReactBrownfield: 0982b3fac9de7576697414a6b4537c1c0d2a148d
+  ReactBrownfield: 3e3d19d1f8859299826e72a87976bb9525f378c8
   ReactCodegen: d9ba64702c846111b3eeb157ea2e15aa5bb2ea55
   ReactCommon: fe2a3af8975e63efa60f95fca8c34dc85deee360
-  ReactNativeDependencies: 3145f6edc8c5e2115e019b38722ea70344047e96
+  ReactNativeDependencies: e42de90f89529faa1da8c5943ee26a60b923ddad
   RNScreens: 85c533985720c563272c6f6dd19e1278dfd0f5d4
   Yoga: ce94692032f0a4e4ca7ed9e52a284cb208fcdbbb
 

@@ -38,7 +38,6 @@
 		79B8BE8A2FB7273600B94C6F /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; };
 		79B8BE8B2FB7273600B94C6F /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; };
 		79B8BE8C2FB7273600B94C6F /* React.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; };
-		A1B2C3D42FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D12FB9000000ABC001 /* ReactAppDependencyProvider.xcframework */; };
 		79B8BE8F2FB7273600B94C6F /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BE902FB7273600B94C6F /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BE912FB7273600B94C6F /* ReactNativeDependencies.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -46,7 +45,6 @@
 		79B8BE932FB7273600B94C6F /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BE942FB7273600B94C6F /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BE952FB7273600B94C6F /* React.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		A1B2C3D52FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D12FB9000000ABC001 /* ReactAppDependencyProvider.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BEA02FB8000000B94C6F /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; };
 		79B8BEA12FB8000000B94C6F /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; };
 		79B8BEA22FB8000000B94C6F /* ReactNativeDependencies.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; };
@@ -54,7 +52,6 @@
 		79B8BEA42FB8000000B94C6F /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; };
 		79B8BEA52FB8000000B94C6F /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; };
 		79B8BEA62FB8000000B94C6F /* React.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; };
-		A1B2C3D62FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D12FB9000000ABC001 /* ReactAppDependencyProvider.xcframework */; };
 		79B8BEA72FB8000000B94C6F /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BEA82FB8000000B94C6F /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BEA92FB8000000B94C6F /* ReactNativeDependencies.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -62,7 +59,6 @@
 		79B8BEAB2FB8000000B94C6F /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BEAC2FB8000000B94C6F /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79B8BEAD2FB8000000B94C6F /* React.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		A1B2C3D72FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D12FB9000000ABC001 /* ReactAppDependencyProvider.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7A1B2C3D4E5F60718293A101 /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; };
 		7A1B2C3D4E5F60718293A102 /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; };
 		7A1B2C3D4E5F60718293A103 /* ReactNativeDependencies.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; };
@@ -125,7 +121,6 @@
 				79B8BE932FB7273600B94C6F /* hermesvm.xcframework in Embed Frameworks */,
 				79B8BE942FB7273600B94C6F /* BrownfieldLib.xcframework in Embed Frameworks */,
 				79B8BE952FB7273600B94C6F /* React.xcframework in Embed Frameworks */,
-				A1B2C3D52FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -143,7 +138,6 @@
 				79B8BEAB2FB8000000B94C6F /* hermesvm.xcframework in Embed Frameworks */,
 				79B8BEAC2FB8000000B94C6F /* BrownfieldLib.xcframework in Embed Frameworks */,
 				79B8BEAD2FB8000000B94C6F /* React.xcframework in Embed Frameworks */,
-				A1B2C3D72FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,7 +170,6 @@
 		79B1D99D2FB4A61400A5F42B /* React.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = React.xcframework; path = package/React.xcframework; sourceTree = "<group>"; };
 		79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactBrownfield.xcframework; path = package/ReactBrownfield.xcframework; sourceTree = "<group>"; };
 		79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactNativeDependencies.xcframework; path = package/ReactNativeDependencies.xcframework; sourceTree = "<group>"; };
-		A1B2C3D12FB9000000ABC001 /* ReactAppDependencyProvider.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactAppDependencyProvider.xcframework; path = package/ReactAppDependencyProvider.xcframework; sourceTree = "<group>"; };
 		79B8BE802FB7270E00B94C6F /* Brownfield Apple App (ExpoApp54).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp54).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		79B8BE9B2FB7273600B94C6F /* Brownfield Apple App (ExpoApp55).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp55).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp56).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp56).app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -198,21 +191,6 @@
 				components/Toast.swift,
 			);
 			target = 79B8BE682FB7270E00B94C6F /* Brownfield Apple App (ExpoApp54) */;
-		};
-		79B8BE9C2FB7273600B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp55)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets.xcassets,
-				BrownfieldAppleApp.swift,
-				components/ContentView.swift,
-				components/GreetingCard.swift,
-				components/MaterialCard.swift,
-				components/MessagesView.swift,
-				components/ReferralsScreen.swift,
-				components/SettingsScreen.swift,
-				components/Toast.swift,
-			);
-			target = 79B8BE832FB7273600B94C6F /* Brownfield Apple App (ExpoApp55) */;
 		};
 		7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -236,7 +214,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				79B8BE822FB7270F00B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp54)" target */,
-				79B8BE9C2FB7273600B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp55)" target */,
 				7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */,
 			);
 			path = "Brownfield Apple App";
@@ -282,7 +259,6 @@
 				79B8BE8A2FB7273600B94C6F /* ReactBrownfield.xcframework in Frameworks */,
 				79B8BE8B2FB7273600B94C6F /* BrownfieldLib.xcframework in Frameworks */,
 				79B8BE8C2FB7273600B94C6F /* React.xcframework in Frameworks */,
-				A1B2C3D42FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,7 +273,6 @@
 				79B8BEA42FB8000000B94C6F /* ReactBrownfield.xcframework in Frameworks */,
 				79B8BEA52FB8000000B94C6F /* BrownfieldLib.xcframework in Frameworks */,
 				79B8BEA62FB8000000B94C6F /* React.xcframework in Frameworks */,
-				A1B2C3D62FB9000000ABC001 /* ReactAppDependencyProvider.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,7 +303,6 @@
 				79B1D99D2FB4A61400A5F42B /* React.xcframework */,
 				79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */,
 				79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */,
-				A1B2C3D12FB9000000ABC001 /* ReactAppDependencyProvider.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -365,6 +339,7 @@
 				793C76A42EEBF938008A2A34 /* Frameworks */,
 				793C76A52EEBF938008A2A34 /* Resources */,
 				79688AB82FB3EA8400D728BD /* Embed Frameworks */,
+				80A4C4012FBA000000ABC001 /* Embed Additional Packaged Frameworks */,
 			);
 			buildRules = (
 			);
@@ -388,6 +363,7 @@
 				79B8BE6A2FB7270E00B94C6F /* Frameworks */,
 				79B8BE722FB7270E00B94C6F /* Resources */,
 				79B8BE732FB7270E00B94C6F /* Embed Frameworks */,
+				80A4C4022FBA000000ABC001 /* Embed Additional Packaged Frameworks */,
 			);
 			buildRules = (
 			);
@@ -411,6 +387,7 @@
 				79B8BE852FB7273600B94C6F /* Frameworks */,
 				79B8BE8D2FB7273600B94C6F /* Resources */,
 				79B8BE8E2FB7273600B94C6F /* Embed Frameworks */,
+				80A4C4032FBA000000ABC001 /* Embed Additional Packaged Frameworks */,
 			);
 			buildRules = (
 			);
@@ -434,6 +411,7 @@
 					79B8BEAF2FB8000000B94C6F /* Frameworks */,
 					79B8BEB02FB8000000B94C6F /* Resources */,
 					79B8BEAE2FB8000000B94C6F /* Embed Frameworks */,
+					80A4C4042FBA000000ABC001 /* Embed Additional Packaged Frameworks */,
 				);
 				buildRules = (
 				);
@@ -457,6 +435,7 @@
 					7A1B2C3D4E5F60718293A204 /* Frameworks */,
 					7A1B2C3D4E5F60718293A303 /* Resources */,
 					7A1B2C3D4E5F60718293A201 /* Embed Frameworks */,
+					80A4C4052FBA000000ABC001 /* Embed Additional Packaged Frameworks */,
 				);
 				buildRules = (
 				);
@@ -553,6 +532,114 @@
 				runOnlyForDeploymentPostprocessing = 0;
 			};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+			80A4C4012FBA000000ABC001 /* Embed Additional Packaged Frameworks */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+					"${PROJECT_DIR}/package",
+					"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh",
+				);
+				name = "Embed Additional Packaged Frameworks";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "/bin/sh \"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh\"";
+			};
+			80A4C4022FBA000000ABC001 /* Embed Additional Packaged Frameworks */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+					"${PROJECT_DIR}/package",
+					"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh",
+				);
+				name = "Embed Additional Packaged Frameworks";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "/bin/sh \"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh\"";
+			};
+			80A4C4032FBA000000ABC001 /* Embed Additional Packaged Frameworks */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+					"${PROJECT_DIR}/package",
+					"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh",
+				);
+				name = "Embed Additional Packaged Frameworks";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "/bin/sh \"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh\"";
+			};
+			80A4C4042FBA000000ABC001 /* Embed Additional Packaged Frameworks */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+					"${PROJECT_DIR}/package",
+					"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh",
+				);
+				name = "Embed Additional Packaged Frameworks";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "/bin/sh \"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh\"";
+			};
+			80A4C4052FBA000000ABC001 /* Embed Additional Packaged Frameworks */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+					"${PROJECT_DIR}/package",
+					"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh",
+				);
+				name = "Embed Additional Packaged Frameworks";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "/bin/sh \"${PROJECT_DIR}/embedExtraPackagedFrameworks.sh\"";
+			};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 			793C76A32EEBF938008A2A34 /* Sources */ = {

@@ -10,6 +10,15 @@
   "exports": {
     ".": "./src/index.ts",
     "./jest/setup": "./jest/setup.js",
+    "./e2eTestIds": "./src/e2eTestIds.ts",
+    "./e2e/e2eTestIds": "./e2e/e2eTestIds.cjs",
+    "./e2e/detoxUtils": "./e2e/detoxUtils.cjs",
+    "./e2e/appleAppDetoxUtils": "./e2e/appleAppDetoxUtils.cjs",
+    "./e2e/createDetoxJestConfig": "./e2e/createDetoxJestConfig.cjs",
+    "./detox-rc-ios-sim-debug": "./detox-rc-ios-sim-debug.cjs",
+    "./detox-rc-appleapp-ios-sim-debug": "./detox-rc-appleapp-ios-sim-debug.cjs",
+    "./detox-appleapp-variants": "./detox-appleapp-variants.cjs",
+    "./detox-ios-simulator-device": "./detox-ios-simulator-device.cjs",
     "./jest/expo-config": "./jest/expo-config.js"
   },
   "peerDependencies": {

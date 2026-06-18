@@ -1,6 +1,9 @@
 pre-commit:
   parallel: true
   commands:
+    brownfield-navigation-drift:
+      run: node --experimental-strip-types --no-warnings ./scripts/check-brownfield-navigation-drift.ts
+
     lint:
       glob: '*.{js,ts,jsx,tsx}'
       run: yarn lint

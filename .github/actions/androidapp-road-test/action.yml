@@ -14,11 +14,18 @@ inputs:
     description: 'Maven path to the RN project, e.g. com/rnapp/brownfieldlib'
     required: true
 
+  restore-turbo-cache:
+    description: 'Whether to restore the Turbo cache during setup'
+    required: false
+    default: 'true'
+
 runs:
   using: composite
   steps:
     - name: Setup
       uses: ./.github/actions/setup
+      with:
+        restore-turbo-cache: ${{ inputs.restore-turbo-cache }}
 
     - name: Prepare Android environment
       uses: ./.github/actions/prepare-android

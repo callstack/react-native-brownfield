@@ -1,5 +1,15 @@
 import SwiftUI
 
+private enum ToastE2E {
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("-DetoxE2E")
+    }
+
+    static var visibleDuration: TimeInterval {
+        isEnabled ? 10 : 2
+    }
+}
+
 struct Toast: View {
     let message: String
     @Binding var isShowing: Bool
@@ -16,20 +26,29 @@ struct Toast: View {
                 .background(Color.black.opacity(0.8))
                 .cornerRadius(25)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(E2eTestIds.appleAppPostMessageToast)
                 .scaleEffect(scale)
                 .opacity(opacity)
                 .onAppear {
-                    // Scale-in bounce
-                    withAnimation(.interpolatingSpring(stiffness: 300, damping: 15)) {
+                    if ToastE2E.isEnabled {
                         scale = 1.0
                         opacity = 1.0
+                    } else {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            scale = 1.0
+                            opacity = 1.0
+                        }
                     }
 
-                    // Hide after 2 seconds with scale out
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            scale = 0.5
+                    DispatchQueue.main.asyncAfter(deadline: .now() + ToastE2E.visibleDuration) {
+                        if ToastE2E.isEnabled {
+                            scale = 1.0
                             opacity = 0.0
+                        } else {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                scale = 0.5
+                                opacity = 0.0
+                            }
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             isShowing = false
