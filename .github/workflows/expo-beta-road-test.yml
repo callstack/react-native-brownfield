@@ -72,11 +72,22 @@ jobs:
       - name: Generate and apply Expo beta to ExpoAppBeta
         run: node --experimental-strip-types --no-warnings ./scripts/check-expo-beta.ts --expo-version "${{ needs.prepare.outputs.latest_version }}" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
 
+      - name: Setup monorepo
+        uses: ./.github/actions/setup
+        with:
+          restore-turbo-cache: 'false'
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
+
       - name: Install Expo beta dependencies
+        env:
+          DETOX_DISABLE_POSTINSTALL: '1'
         run: |
           cd apps/ExpoAppBeta
-          YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
           npx expo install --fix
+
+      - name: Rebuild packages after Expo beta dependency updates
+        run: yarn build
 
       - name: Run ExpoAppBeta -> AndroidApp road test
         uses: ./.github/actions/androidapp-road-test
@@ -84,6 +95,7 @@ jobs:
           flavor: expobeta
           rn-project-path: apps/ExpoAppBeta
           rn-project-maven-path: com/callstack/rnbrownfield/demo/expobeta/brownfieldlib
+          restore-turbo-cache: 'false'
 
   ios:
     name: iOS road test (Expo beta)
@@ -97,17 +109,29 @@ jobs:
       - name: Generate and apply Expo beta to ExpoAppBeta
         run: node --experimental-strip-types --no-warnings ./scripts/check-expo-beta.ts --expo-version "${{ needs.prepare.outputs.latest_version }}" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
 
+      - name: Setup monorepo
+        uses: ./.github/actions/setup
+        with:
+          restore-turbo-cache: 'false'
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
+
       - name: Install Expo beta dependencies
+        env:
+          DETOX_DISABLE_POSTINSTALL: '1'
         run: |
           cd apps/ExpoAppBeta
-          YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
           npx expo install --fix
+
+      - name: Rebuild packages after Expo beta dependency updates
+        run: yarn build
 
       - name: Run ExpoAppBeta -> AppleApp road test
         uses: ./.github/actions/appleapp-road-test
         with:
           variant: expobeta
           rn-project-path: apps/ExpoAppBeta
+          restore-turbo-cache: 'false'
 
   record-success:
     name: Record tested Expo beta
