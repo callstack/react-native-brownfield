@@ -47,6 +47,7 @@ export function resolveConfig(
           moduleName: androidModuleName,
           packageName: config.android?.packageName ?? androidPackage,
           minSdkVersion: config.android?.minSdkVersion ?? 24,
+          targetSdkVersion: config.android?.targetSdkVersion,
           compileSdkVersion: config.android?.compileSdkVersion,
           groupId: config.android?.groupId ?? androidPackage,
           artifactId: config.android?.artifactId ?? androidModuleName,

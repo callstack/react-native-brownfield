@@ -20,7 +20,7 @@ describe('gradleHelpers', () => {
     );
   });
 
-  it('adds pluginManagement repositories, local plugin source includeBuild, and the Brownfield module include', () => {
+  it('adds the Brownfield module include without mutating pluginManagement', () => {
     const contents = `pluginManagement {
   includeBuild("../node_modules/@react-native/gradle-plugin")
 }
@@ -35,14 +35,9 @@ include ':app'
 
     const modified = modifySettingsGradle(contents, 'brownfieldlib');
 
-    expect(modified).toContain('repositories {');
-    expect(modified).toContain('google()');
-    expect(modified).toContain('mavenCentral()');
-    expect(modified).toContain('gradlePluginPortal()');
     expect(modified).toContain(
-      "const candidates = [path.join(packageDir, 'gradle-plugin', 'react', 'brownfield'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react', 'brownfield')]"
+      'includeBuild("../node_modules/@react-native/gradle-plugin")'
     );
-    expect(modified).toContain('includeBuild(brownfieldGradlePlugin)');
     expect(modified).toContain(`include ':brownfieldlib'`);
   });
 
@@ -53,7 +48,6 @@ include ':app'
     mavenCentral()
     gradlePluginPortal()
   }
-  includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/react")
 }
 
 rootProject.name = 'ExpoApp55'
@@ -63,48 +57,6 @@ include ':brownfieldlib'
 
     const modified = modifySettingsGradle(contents, 'brownfieldlib');
 
-    expect(
-      modified.match(
-        /const candidates = \[path\.join\(packageDir, 'gradle-plugin', 'react', 'brownfield'\), path\.join\(packageDir, '\.\.', '\.\.', 'gradle-plugins', 'react', 'brownfield'\)\]/g
-      )
-    ).toHaveLength(1);
-    expect(
-      modified.match(/includeBuild\(brownfieldGradlePlugin\)/g)
-    ).toHaveLength(1);
     expect(modified.match(/include ':brownfieldlib'/g)).toHaveLength(1);
-  });
-
-  it('replaces legacy Brownfield includeBuild snippets with the current dynamic form', () => {
-    const contents = `pluginManagement {
-  repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-  }
-  includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/react")
-  def brownfieldGradlePlugin = new File(
-    providers.exec {
-      workingDir(rootDir)
-      commandLine("node", "--print", "require.resolve('@callstack/react-native-brownfield/package.json', { paths: [rootDir] })")
-    }.standardOutput.asText.get().trim(),
-    "../gradle-plugin/react"
-  ).absolutePath
-  includeBuild(brownfieldGradlePlugin)
-}
-
-include ':app'
-`;
-
-    const modified = modifySettingsGradle(contents, 'brownfieldlib');
-
-    expect(
-      modified.includes(
-        'includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/react")'
-      )
-    ).toBe(false);
-    expect(modified.includes('{ paths: [rootDir] }')).toBe(false);
-    expect(modified).toContain(
-      "const candidates = [path.join(packageDir, 'gradle-plugin', 'react', 'brownfield'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react', 'brownfield')]"
-    );
   });
 });

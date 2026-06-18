@@ -1,22 +1,6 @@
 import { brownfieldGradlePluginDependency } from './constants';
 import { Logger } from '../../logging';
 
-const brownfieldPluginIncludeBuildSnippet = `def brownfieldGradlePlugin =
-    providers.exec {
-      workingDir(rootDir)
-      commandLine(
-        "node",
-        "--print",
-        "(() => { const fs = require('fs'); const path = require('path'); const packageJsonPath = require.resolve('@callstack/react-native-brownfield/package.json', { paths: [require.resolve('react-native/package.json')] }); const packageDir = path.dirname(packageJsonPath); const candidates = [path.join(packageDir, 'gradle-plugin', 'react', 'brownfield'), path.join(packageDir, '..', '..', 'gradle-plugins', 'react', 'brownfield')]; const match = candidates.find((candidate) => fs.existsSync(candidate)); if (!match) { throw new Error('Unable to locate the Brownfield Gradle plugin sources.'); } return match; })()"
-      )
-    }.standardOutput.asText.get().trim()
-  includeBuild(brownfieldGradlePlugin)`;
-const pluginManagementRepositoriesBlock = `repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-  }`;
-
 /**
  * Modifies the root build.gradle to add the Brownfield Gradle plugin dependency
  * @param contents The original build.gradle content
@@ -66,23 +50,13 @@ export function modifySettingsGradle(
   moduleName: string
 ): string {
   const includeStatement = `include ':${moduleName}'`;
-  let modifiedContents = normalizeBrownfieldPluginIncludeBuild(contents);
-
-  if (modifiedContents.includes('pluginManagement {')) {
-    modifiedContents = ensurePluginManagementRepositories(modifiedContents);
-    modifiedContents = ensurePluginManagementIncludeBuild(modifiedContents);
-  } else {
-    modifiedContents =
-      `pluginManagement {\n  ${pluginManagementRepositoriesBlock}\n  ${brownfieldPluginIncludeBuildSnippet}\n}\n\n` +
-      modifiedContents;
-  }
 
   // check if already included
-  if (modifiedContents.includes(includeStatement)) {
+  if (contents.includes(includeStatement)) {
     Logger.logDebug(
       `Module "${moduleName}" already in settings.gradle, skipping`
     );
-    return modifiedContents;
+    return contents;
   }
 
   Logger.logDebug(
@@ -90,53 +64,9 @@ export function modifySettingsGradle(
   );
 
   // add the include statement at the end
-  modifiedContents += `\n${includeStatement}\n`;
+  const modifiedContents = contents + `\n${includeStatement}\n`;
 
   Logger.logDebug(`Added module "${moduleName}" to settings.gradle`);
 
   return modifiedContents;
-}
-
-function ensurePluginManagementRepositories(contents: string): string {
-  const pluginManagementWithRepositoriesRegex =
-    /(pluginManagement\s*\{[\s\S]*?repositories\s*\{[\s\S]*?\}[\s\S]*?\})/m;
-
-  if (pluginManagementWithRepositoriesRegex.test(contents)) {
-    return contents;
-  }
-
-  return contents.replace(
-    /(pluginManagement\s*\{)/,
-    `$1\n  ${pluginManagementRepositoriesBlock}`
-  );
-}
-
-function ensurePluginManagementIncludeBuild(contents: string): string {
-  if (contents.includes(brownfieldPluginIncludeBuildSnippet)) {
-    return contents;
-  }
-
-  const pluginManagementRegex = /pluginManagement\s*\{([\s\S]*?)\n\}/m;
-  const match = contents.match(pluginManagementRegex);
-
-  if (!match) {
-    return contents;
-  }
-
-  return contents.replace(
-    pluginManagementRegex,
-    `pluginManagement {${match[1]}\n  ${brownfieldPluginIncludeBuildSnippet}\n}`
-  );
-}
-
-function normalizeBrownfieldPluginIncludeBuild(contents: string): string {
-  return contents
-    .replace(
-      /\n\s*includeBuild\("\.\.\/node_modules\/@callstack\/react-native-brownfield\/gradle-plugin\/react"\)\s*/g,
-      '\n'
-    )
-    .replace(
-      /\n\s*def brownfieldGradlePlugin = new File\([\s\S]*?includeBuild\(brownfieldGradlePlugin\)\s*/g,
-      '\n'
-    );
 }

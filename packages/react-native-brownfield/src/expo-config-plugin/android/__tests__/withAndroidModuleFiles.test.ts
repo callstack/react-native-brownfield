@@ -6,6 +6,7 @@ import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../../types';
 import {
   createAndroidModule,
   resolveCompileSdkVersionExpression,
+  resolveTargetSdkVersionExpression,
   syncAndroidModuleExpoUpdatesFromAppFiles,
 } from '../withAndroidModuleFiles';
 
@@ -178,29 +179,35 @@ describe('createAndroidModule', () => {
     );
   });
 
-  it('excludes libc++_shared from the generated library JNI packaging', () => {
+  it('inherits targetSdk from the Expo app project when the user did not override it', () => {
     const androidDir = createAndroidDir();
 
     createAndroidModule({
       androidDir,
-      config: createConfig(),
+      config: createConfig({
+        android: {
+          targetSdkVersion: undefined,
+        },
+      }),
       rnVersion: '0.85.3',
       isExpoPre55: false,
     });
 
     expect(readLibraryBuildGradle(androidDir)).toContain(
-      'excludes += listOf("**/libc++_shared.so")'
+      'targetSdk = resolveRootProjectInt("targetSdkVersion")'
     );
   });
 
-  it('keeps an explicit compileSdk override when one is provided', () => {
+  it('keeps explicit SDK overrides when they are provided', () => {
     const config = createConfig({
       android: {
+        targetSdkVersion: 37,
         compileSdkVersion: 38,
       },
     });
 
     expect(resolveCompileSdkVersionExpression(config)).toBe('38');
+    expect(resolveTargetSdkVersionExpression(config)).toBe('37');
   });
 
   function createAndroidDir(): string {
@@ -229,6 +236,7 @@ describe('createAndroidModule', () => {
         moduleName: 'brownfieldlib',
         packageName: 'com.example.brownfield',
         minSdkVersion: 24,
+        targetSdkVersion: 35,
         compileSdkVersion: 35,
         groupId: 'com.example',
         artifactId: 'brownfieldlib',

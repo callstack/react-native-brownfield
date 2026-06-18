@@ -34,7 +34,7 @@ publishing {
             artifactId = "{{ARTIFACT_ID}}"
             version = "{{ARTIFACT_VERSION}}"
             afterEvaluate {
-                from(components.getByName("release"))
+                from(components.getByName("default"))
             }
         }
     }
@@ -54,6 +54,7 @@ android {
 
     defaultConfig {
         minSdk = {{MIN_SDK_VERSION}}
+        targetSdk = {{TARGET_SDK_VERSION}}
 
         buildConfigField(
             "boolean",
@@ -92,14 +93,10 @@ android {
         jvmTarget = "17"
     }
 
-    packaging {
-        jniLibs {
-            excludes += listOf("**/libc++_shared.so")
-        }
-    }
-
     publishing {
-        singleVariant("release")
+        multipleVariants {
+            allVariants()
+        }
     }
 }
 

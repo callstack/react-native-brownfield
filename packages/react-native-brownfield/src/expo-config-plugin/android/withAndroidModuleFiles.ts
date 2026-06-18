@@ -32,6 +32,16 @@ export function resolveCompileSdkVersionExpression(
   return 'resolveRootProjectInt("compileSdkVersion")';
 }
 
+export function resolveTargetSdkVersionExpression(
+  config: ResolvedBrownfieldPluginConfigWithAndroid
+): string {
+  if (config.android.targetSdkVersion != null) {
+    return config.android.targetSdkVersion.toString();
+  }
+
+  return 'resolveRootProjectInt("targetSdkVersion")';
+}
+
 /**
  * Creates the Android library module directory structure and files
  */
@@ -76,6 +86,7 @@ export function createAndroidModule({
   const hermesArtifact = getHermesArtifact(rnVersion);
   const compileSdkVersionExpression =
     resolveCompileSdkVersionExpression(config);
+  const targetSdkVersionExpression = resolveTargetSdkVersionExpression(config);
   Logger.logDebug(
     `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
   );
@@ -87,6 +98,7 @@ export function createAndroidModule({
       content: renderTemplate('android', 'build.gradle.kts', {
         '{{PACKAGE_NAME}}': android.packageName,
         '{{MIN_SDK_VERSION}}': android.minSdkVersion.toString(),
+        '{{TARGET_SDK_VERSION}}': targetSdkVersionExpression,
         '{{COMPILE_SDK_VERSION}}': compileSdkVersionExpression,
         '{{GROUP_ID}}': android.groupId,
         '{{ARTIFACT_ID}}': android.artifactId,

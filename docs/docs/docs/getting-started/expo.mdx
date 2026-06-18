@@ -229,7 +229,9 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
   - Package name used for the Android library module.
 - `minSdkVersion` (`number`, default: `24`)
   - Minimum Android SDK supported by the library.
-- `compileSdkVersion` (`number`, default: `35`)
+- `targetSdkVersion` (`number`, default: inherited from the generated Expo app project when available)
+  - Target Android SDK version used to build the library.
+- `compileSdkVersion` (`number`, default: inherited from the generated Expo app project when available)
   - Compile Android SDK version used to build the library.
 - `groupId` (`string`, default: package name)
   - Maven group ID used when publishing the AAR.
