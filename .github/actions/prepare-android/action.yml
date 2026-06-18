@@ -8,9 +8,14 @@ inputs:
     default: 'true'
 
   run-yarn-build:
-    description: 'Whether to run yarn build'
+    description: 'Whether to run yarn build (usually false when ./.github/actions/setup already ran)'
     required: false
-    default: 'true'
+    default: 'false'
+
+  gradle-workflow-job-context:
+    description: 'Segment Gradle cache per app/project (e.g. vanilla, expo54). Falls back to github.job when empty.'
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -23,6 +28,13 @@ runs:
       with:
         distribution: 'zulu'
         java-version: '17'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
+      with:
+        # Validates all gradle-wrapper.jar files, caches Gradle User Home efficiently,
+        # and captures Build Scan links. Do not combine with actions/cache on ~/.gradle.
+        workflow-job-context: ${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}
 
     - name: Free Disk Space (Ubuntu)
       if: inputs.free-disk-space == 'true'
