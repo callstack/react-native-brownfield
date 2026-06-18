@@ -82,6 +82,18 @@ runs:
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
       shell: bash
 
+    # clean up build artifacts to ensure no ENOSPC
+    - name: Clean up local build artifacts
+      run: |
+        rm -rf ${{ inputs.rn-project-path }}/android/build
+        rm -rf ${{ inputs.rn-project-path }}/android/.cxx
+        rm -rf ${{ inputs.rn-project-path }}/android/.gradle
+        rm -rf ${{ inputs.rn-project-path }}/android/app/build
+        rm -rf ${{ inputs.rn-project-path }}/android/app/.cxx
+        rm -rf ${{ inputs.rn-project-path }}/android/app/.gradle
+        rm -rf ${{ inputs.rn-project-path }}/android/app/build
+      shell: bash
+
     # == AndroidApp ==
 
     - name: Build native Android Brownfield app
