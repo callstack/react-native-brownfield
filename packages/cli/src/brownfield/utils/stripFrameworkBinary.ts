@@ -1,10 +1,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { logger } from '@rock-js/tools';
-
-import { sanitizeFrameworkModuleMap } from './sanitizeFrameworkModuleMap.js';
 
 interface SliceConfig {
   target: string;
@@ -22,31 +20,25 @@ const SLICE_CONFIGS: Record<string, SliceConfig> = {
   },
 };
 
-function writeEmptySourceFile(tempDir: string): string {
-  const tempSource = path.join(tempDir, 'empty.c');
-  fs.writeFileSync(tempSource, '');
-  return tempSource;
-}
-
-function runXcrun(args: string[], options?: Parameters<typeof execFileSync>[2]) {
-  return execFileSync('xcrun', args, {
-    stdio: 'pipe',
-    ...options,
-  });
-}
-
 /**
  * Creates an empty static library for the given target.
  */
 function createEmptyStaticLib(target: string): string {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'framework-strip-'));
-  const tempSource = writeEmptySourceFile(tempDir);
   const tempObj = path.join(tempDir, 'empty.o');
   const tempLib = path.join(tempDir, 'empty.a');
 
   try {
-    runXcrun(['clang', '-x', 'c', '-c', tempSource, '-o', tempObj, '-target', target]);
-    runXcrun(['ar', 'rcs', tempLib, tempObj]);
+    execSync(
+      `echo "" | xcrun clang -x c -c - -o "${tempObj}" -target ${target}`,
+      {
+        stdio: 'pipe',
+      }
+    );
+
+    execSync(`xcrun ar rcs "${tempLib}" "${tempObj}"`, {
+      stdio: 'pipe',
+    });
   } catch (error) {
     fs.rmSync(tempDir, { recursive: true });
     throw new Error(
@@ -54,7 +46,6 @@ function createEmptyStaticLib(target: string): string {
     );
   }
 
-  fs.unlinkSync(tempSource);
   fs.unlinkSync(tempObj);
 
   return tempLib;
@@ -72,7 +63,12 @@ function createFatStaticLib(targets: string[]): string {
   const outputLib = path.join(outputDir, 'fat.a');
 
   try {
-    runXcrun(['lipo', '-create', ...libs, '-output', outputLib]);
+    execSync(
+      `xcrun lipo -create ${libs.map((l) => `"${l}"`).join(' ')} -output "${outputLib}"`,
+      {
+        stdio: 'pipe',
+      }
+    );
   } catch (error) {
     libs.forEach((lib) => fs.rmSync(path.dirname(lib), { recursive: true }));
     fs.rmSync(outputDir, { recursive: true });
@@ -87,66 +83,6 @@ function createFatStaticLib(targets: string[]): string {
   });
 
   return outputLib;
-}
-
-function sdkForTarget(target: string): 'iphoneos' | 'iphonesimulator' {
-  return target.includes('simulator') ? 'iphonesimulator' : 'iphoneos';
-}
-
-function createEmptyDynamicLibrary(
-  frameworkName: string,
-  target: string,
-  outputPath: string
-): void {
-  const sdk = sdkForTarget(target);
-  const sdkPath = String(
-    runXcrun(['--sdk', sdk, '--show-sdk-path'], {
-      encoding: 'utf8',
-    })
-  ).trim();
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'framework-strip-dylib-'));
-  const tempSource = writeEmptySourceFile(tempDir);
-  const tempObj = path.join(tempDir, 'empty.o');
-
-  try {
-    runXcrun(['clang', '-x', 'c', '-c', tempSource, '-o', tempObj, '-target', target]);
-    runXcrun([
-      'clang',
-      '-dynamiclib',
-      tempObj,
-      '-target',
-      target,
-      '-isysroot',
-      sdkPath,
-      '-install_name',
-      `@rpath/${frameworkName}.framework/${frameworkName}`,
-      '-o',
-      outputPath,
-    ]);
-  } finally {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  }
-}
-
-function createFatDynamicLibrary(
-  frameworkName: string,
-  targets: string[],
-  outputPath: string
-): void {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'framework-strip-fat-dylib-'));
-  const dylibPaths: string[] = [];
-
-  try {
-    for (const [index, target] of targets.entries()) {
-      const dylibPath = path.join(tempDir, `${index}.dylib`);
-      createEmptyDynamicLibrary(frameworkName, target, dylibPath);
-      dylibPaths.push(dylibPath);
-    }
-
-    runXcrun(['lipo', '-create', ...dylibPaths, '-output', outputPath]);
-  } finally {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  }
 }
 
 /**
@@ -178,10 +114,7 @@ export function stripFrameworkBinary(xcframeworkPath: string): void {
       sliceName,
       `${frameworkName}.framework`
     );
-    const isFrameworkSlice = fs.existsSync(frameworkDir);
-    const binaryPath = isFrameworkSlice
-      ? path.join(frameworkDir, frameworkName)
-      : path.join(xcframeworkPath, sliceName, `lib${frameworkName}.a`);
+    const binaryPath = path.join(frameworkDir, frameworkName);
 
     if (!fs.existsSync(binaryPath)) {
       logger.warn(`No binary found at ${binaryPath}, skipping`);
@@ -194,30 +127,22 @@ export function stripFrameworkBinary(xcframeworkPath: string): void {
       continue;
     }
 
-    const targets = config.additionalTargets
-      ? [config.target, ...config.additionalTargets]
-      : [config.target];
-
-    if (isFrameworkSlice) {
-      if (targets.length > 1) {
-        createFatDynamicLibrary(frameworkName, targets, binaryPath);
-      } else {
-        createEmptyDynamicLibrary(frameworkName, targets[0], binaryPath);
-      }
-
-      sanitizeFrameworkModuleMap(frameworkDir, frameworkName);
+    let emptyLib: string;
+    if (config.additionalTargets) {
+      // Create fat library for multiple architectures
+      emptyLib = createFatStaticLib([
+        config.target,
+        ...config.additionalTargets,
+      ]);
     } else {
-      let emptyLib: string;
-      if (targets.length > 1) {
-        emptyLib = createFatStaticLib(targets);
-      } else {
-        emptyLib = createEmptyStaticLib(targets[0]);
-      }
-
-      fs.copyFileSync(emptyLib, binaryPath);
-      fs.unlinkSync(emptyLib);
-      fs.rmSync(path.dirname(emptyLib), { recursive: true });
+      // Create single-arch library
+      emptyLib = createEmptyStaticLib(config.target);
     }
+
+    // Replace original binary with empty stub
+    fs.copyFileSync(emptyLib, binaryPath);
+    fs.unlinkSync(emptyLib);
+    fs.rmSync(path.dirname(emptyLib), { recursive: true });
   }
 
   logger.success(`${frameworkName}.xcframework is now interface-only`);

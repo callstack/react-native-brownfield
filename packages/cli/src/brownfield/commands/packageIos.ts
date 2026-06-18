@@ -2,12 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import {
-  buildApp,
-  genericDestinations,
   getBuildOptions,
-  getValidProjectConfig,
+  mergeFrameworks,
   type BuildFlags as AppleBuildFlags,
 } from '@rock-js/platform-apple-helpers';
+import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
 import {
   RockError,
   colorLink,
@@ -29,15 +28,9 @@ import {
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
-import { copyHermesXcframework } from '../utils/copyHermesXcframework.js';
-import { copyReactXcframeworks } from '../utils/copyReactXcframeworks.js';
-import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
-import { mergeFrameworkSlicesManually } from '../utils/mergeFrameworkSlicesManually.js';
-import { mergeStaticLibraryXcframework } from '../utils/mergeStaticLibraryXcframework.js';
-import { normalizeLibraryXcframeworkToFramework } from '../utils/normalizeLibraryXcframework.js';
 import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
-import { sanitizeSwiftInterfaces } from '../utils/sanitizeSwiftInterfaces.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -177,179 +170,23 @@ export const packageIosCommand = curryOptions(
       const { hasNavigation } =
         await runNavigationCodegenIfApplicable(projectRoot);
 
-      const iosConfig = getValidProjectConfig('ios', projectRoot, platformConfig);
-      const destination = options.destination ?? [
-        genericDestinations.ios.device,
-        genericDestinations.ios.simulator,
-      ];
-      const reactNativeVersion = getReactNativeVersion(projectRoot);
-
-      const { appPath, scheme } = await buildApp({
-        projectRoot,
-        projectConfig: iosConfig,
-        platformName: 'ios',
-        args: { ...options, destination, buildFolder: options.buildFolder },
-        reactNativePath: userConfig.reactNativePath,
-        brownfield: true,
-        usePrebuiltRNCore: options.usePrebuiltRnCore,
-        pluginConfig: platformConfig,
-        skipCache: true,
-      });
-
-      logger.log(`Build available at: ${colorLink(relativeToCwd(appPath))}`);
+      await packageIosAction(
+        options,
+        {
+          projectRoot,
+          reactNativePath: userConfig.reactNativePath,
+          // below: the userConfig.reactNativeVersion may be a non-semver-format string,
+          // e.g. '0.82' (note the missing patch component),
+          // therefore we resolve it manually from RN's package.json using Rock's utils
+          reactNativeVersion: getReactNativeVersion(projectRoot),
+          packageDir, // the output directory for artifacts
+          skipCache: true, // cache is dependent on existence of Rock config file
+          usePrebuiltRNCore: options.usePrebuiltRnCore,
+        },
+        platformConfig
+      );
 
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
-      const frameworkTargetOutputDir =
-        path.isAbsolute(packageDir)
-          ? packageDir
-          : path.join(iosConfig.sourceDir, packageDir);
-      fs.mkdirSync(frameworkTargetOutputDir, { recursive: true });
-
-      mergeFrameworkSlicesManually({
-        deviceFrameworkPath: path.join(
-          productsPath,
-          `${configuration}-iphoneos`,
-          `${scheme}.framework`
-        ),
-        frameworkName: scheme!,
-        outputPath: path.join(frameworkTargetOutputDir, `${scheme}.xcframework`),
-        simulatorFrameworkPath: path.join(
-          productsPath,
-          `${configuration}-iphonesimulator`,
-          `${scheme}.framework`
-        ),
-      });
-
-      copyHermesXcframework({
-        sourceDir: iosConfig.sourceDir,
-        destinationDir: frameworkTargetOutputDir,
-        reactNativeVersion,
-      });
-
-      copyReactXcframeworks({
-        sourceDir: iosConfig.sourceDir,
-        destinationDir: frameworkTargetOutputDir,
-      });
-
-      const packageSupportModule = async (
-        supportFrameworkName: string,
-        outputPath: string
-      ) => {
-        const headersSourceDir = path.join(
-          iosConfig.sourceDir,
-          'Pods',
-          'Headers',
-          'Public',
-          supportFrameworkName
-        );
-        const copyPublicHeadersToPackagedFramework = () => {
-          if (!fs.existsSync(headersSourceDir)) {
-            return;
-          }
-
-          for (const sliceName of fs.readdirSync(outputPath)) {
-            const frameworkHeadersDir = path.join(
-              outputPath,
-              sliceName,
-              `${supportFrameworkName}.framework`,
-              'Headers'
-            );
-
-            if (!fs.existsSync(frameworkHeadersDir)) {
-              continue;
-            }
-
-            for (const entry of fs.readdirSync(headersSourceDir)) {
-              fs.cpSync(
-                path.join(headersSourceDir, entry),
-                path.join(frameworkHeadersDir, entry),
-                {
-                  recursive: true,
-                  force: true,
-                  dereference: true,
-                }
-              );
-            }
-          }
-        };
-
-        const resolveSupportFrameworkPath = (
-          sdk: 'iphoneos' | 'iphonesimulator'
-        ) => {
-          const sdkProductsPath = path.join(
-            productsPath,
-            `${configuration}-${sdk}`
-          );
-          const directPath = path.join(
-            sdkProductsPath,
-            `${supportFrameworkName}.framework`
-          );
-
-          if (fs.existsSync(directPath)) {
-            return directPath;
-          }
-
-          const nestedPath = path.join(
-            sdkProductsPath,
-            supportFrameworkName,
-            `${supportFrameworkName}.framework`
-          );
-
-          return fs.existsSync(nestedPath) ? nestedPath : null;
-        };
-
-        const deviceFrameworkPath = resolveSupportFrameworkPath('iphoneos');
-        const simulatorFrameworkPath =
-          resolveSupportFrameworkPath('iphonesimulator');
-
-        if (
-          deviceFrameworkPath != null &&
-          simulatorFrameworkPath != null
-        ) {
-          mergeFrameworkSlicesManually({
-            deviceFrameworkPath,
-            frameworkName: supportFrameworkName,
-            outputPath,
-            simulatorFrameworkPath,
-          });
-          copyPublicHeadersToPackagedFramework();
-          return;
-        }
-
-        mergeStaticLibraryXcframework({
-          sourceDir: iosConfig.sourceDir,
-          outputPath,
-          frameworkName: supportFrameworkName,
-          deviceModuleOutputDir: path.join(
-            productsPath,
-            `${configuration}-iphoneos`,
-            supportFrameworkName
-          ),
-          simulatorModuleOutputDir: path.join(
-            productsPath,
-            `${configuration}-iphonesimulator`,
-            supportFrameworkName
-          ),
-          headersSourceDir: fs.existsSync(headersSourceDir)
-            ? headersSourceDir
-            : undefined,
-        });
-        normalizeLibraryXcframeworkToFramework({
-          xcframeworkPath: outputPath,
-          frameworkName: supportFrameworkName,
-        });
-      };
-
-      const sanitizePackagedFramework = (
-        frameworkPath: string,
-        moduleName: string
-      ) => {
-        sanitizeSwiftInterfaces({
-          moduleName,
-          rootPath: frameworkPath,
-        });
-      };
-
       const { frameworkName, resolution, candidates } =
         resolvePackagedFrameworkName({
           explicitScheme: options.scheme,
@@ -375,19 +212,21 @@ export const packageIosCommand = curryOptions(
 
         if (configuration.includes('Debug')) {
           // Re-merge only Debug frameworks so the simulator slice includes main.jsbundle.
-          mergeFrameworkSlicesManually({
-            deviceFrameworkPath: path.join(
-              productsPath,
-              `${configuration}-iphoneos`,
-              `${frameworkName}.framework`
-            ),
-            frameworkName,
+          await mergeFrameworks({
+            sourceDir: userConfig.project.ios.sourceDir,
+            frameworkPaths: [
+              path.join(
+                productsPath,
+                `${configuration}-iphoneos`,
+                `${frameworkName}.framework`
+              ),
+              path.join(
+                productsPath,
+                `${configuration}-iphonesimulator`,
+                `${frameworkName}.framework`
+              ),
+            ],
             outputPath: path.join(packageDir, `${frameworkName}.xcframework`),
-            simulatorFrameworkPath: path.join(
-              productsPath,
-              `${configuration}-iphonesimulator`,
-              `${frameworkName}.framework`
-            ),
           });
         }
       } else if (configuration.includes('Debug')) {
@@ -403,16 +242,7 @@ export const packageIosCommand = curryOptions(
         packageDir,
         'ReactBrownfield.xcframework'
       );
-      await packageSupportModule(
-        'ReactBrownfield',
-        reactBrownfieldXcframeworkPath
-      );
       if (fs.existsSync(reactBrownfieldXcframeworkPath)) {
-        sanitizePackagedFramework(
-          reactBrownfieldXcframeworkPath,
-          'ReactBrownfield'
-        );
-
         // Strip the binary from ReactBrownfield.xcframework to make it interface-only.
         // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
         // (which contains ReactBrownfield symbols) and ReactBrownfield.xcframework.
@@ -421,7 +251,25 @@ export const packageIosCommand = curryOptions(
 
       if (hasBrownie) {
         const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
-        await packageSupportModule('Brownie', brownieOutputPath);
+
+        await mergeFrameworks({
+          sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              'Brownie',
+              'Brownie.framework'
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              'Brownie',
+              'Brownie.framework'
+            ),
+          ],
+          outputPath: brownieOutputPath,
+        });
 
         // Strip the binary from Brownie.xcframework to make it interface-only.
         // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
@@ -438,70 +286,30 @@ export const packageIosCommand = curryOptions(
           packageDir,
           'BrownfieldNavigation.xcframework'
         );
-        await packageSupportModule(
-          'BrownfieldNavigation',
-          brownfieldNavigationOutputPath
-        );
+
+        await mergeFrameworks({
+          sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              'BrownfieldNavigation',
+              'BrownfieldNavigation.framework'
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              'BrownfieldNavigation',
+              'BrownfieldNavigation.framework'
+            ),
+          ],
+          outputPath: brownfieldNavigationOutputPath,
+        });
 
         stripFrameworkBinary(brownfieldNavigationOutputPath);
 
         logger.success(
           `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
-        );
-      }
-
-      const reactAppDependencyProviderHeadersDir = path.join(
-        iosConfig.sourceDir,
-        'Pods',
-        'Headers',
-        'Public',
-        'ReactAppDependencyProvider'
-      );
-      const reactAppDependencyProviderOutputPath = path.join(
-        packageDir,
-        'ReactAppDependencyProvider.xcframework'
-      );
-      const reactAppDependencyProviderDeviceOutputDir = path.join(
-        productsPath,
-        `${configuration}-iphoneos`,
-        'ReactAppDependencyProvider'
-      );
-      const reactAppDependencyProviderSimulatorOutputDir = path.join(
-        productsPath,
-        `${configuration}-iphonesimulator`,
-        'ReactAppDependencyProvider'
-      );
-
-      if (
-        fs.existsSync(reactAppDependencyProviderHeadersDir) &&
-        fs.existsSync(
-          path.join(
-            reactAppDependencyProviderDeviceOutputDir,
-            'libReactAppDependencyProvider.a'
-          )
-        ) &&
-        fs.existsSync(
-          path.join(
-            reactAppDependencyProviderSimulatorOutputDir,
-            'libReactAppDependencyProvider.a'
-          )
-        )
-      ) {
-        mergeStaticLibraryXcframework({
-          sourceDir: iosConfig.sourceDir,
-          outputPath: reactAppDependencyProviderOutputPath,
-          frameworkName: 'ReactAppDependencyProvider',
-          deviceModuleOutputDir: reactAppDependencyProviderDeviceOutputDir,
-          simulatorModuleOutputDir: reactAppDependencyProviderSimulatorOutputDir,
-          headersSourceDir: reactAppDependencyProviderHeadersDir,
-        });
-        normalizeLibraryXcframeworkToFramework({
-          xcframeworkPath: reactAppDependencyProviderOutputPath,
-          frameworkName: 'ReactAppDependencyProvider',
-        });
-
-        logger.success(
-          `ReactAppDependencyProvider.xcframework created at ${colorLink(relativeToCwd(reactAppDependencyProviderOutputPath))}`
         );
       }
 
