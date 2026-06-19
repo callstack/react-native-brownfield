@@ -1,6 +1,7 @@
 'use strict';
 
 const { getIosSimulatorDeviceType } = require('./detox-ios-simulator-device.cjs');
+const { getDetoxArtifactsConfig } = require('./detox-artifacts-config.cjs');
 
 /**
  * Shared Detox iOS Simulator debug config for brownfield example apps.
@@ -18,6 +19,7 @@ function createIosSimDebugDetoxConfig({ workspace, scheme, appBinaryName }) {
     ` -derivedDataPath ios/build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES`;
 
   return {
+    artifacts: getDetoxArtifactsConfig(),
     testRunner: {
       $0: 'jest',
       args: {
