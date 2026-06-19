@@ -94,8 +94,10 @@ publishing {
 
 val skipSigning: Boolean = project.findProperty("SkipSigning") == "true"
 signing {
-    isRequired = !project.hasProperty("SkipSigning")
-    sign(publishing.publications["mavenLocal"])
+    isRequired = !skipSigning
+    if (!skipSigning) {
+        sign(publishing.publications["mavenLocal"])
+    }
 }
 
 repositories {

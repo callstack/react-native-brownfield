@@ -83,50 +83,85 @@ class VariantHelper : BaseProject() {
     }
 
     fun syncMergedKotlinMetadataIntoClassesJar(variantName: String) {
-        val mergeMetaDir = File(DirectoryManager.getMergeClassDirectory(variantName), "META-INF")
+        val mergeClassesDir = DirectoryManager.getMergeClassDirectory(variantName)
         val classesJar = DirectoryManager.getAarMainJarClassesJar(variantName)
 
-        if (!mergeMetaDir.exists() || !classesJar.exists()) {
+        if (!mergeClassesDir.exists() || !classesJar.exists()) {
             return
         }
 
-        val kotlinModuleFiles =
-            mergeMetaDir.listFiles { file -> file.isFile && file.extension == "kotlin_module" }
-                ?.sortedBy { it.name }
-                .orEmpty()
+        val replacementEntries =
+            mergeClassesDir.walkTopDown()
+                .filter { it.isFile }
+                .associateBy { file ->
+                    mergeClassesDir.toPath().relativize(file.toPath()).toString().replace(File.separatorChar, '/')
+                }
 
-        if (kotlinModuleFiles.isEmpty()) {
+        if (replacementEntries.isEmpty()) {
             return
         }
 
-        val replacementEntries = kotlinModuleFiles.associateBy { "META-INF/${it.name}" }
         val tempJar = File(classesJar.parentFile, "${classesJar.name}.tmp")
 
-        ZipInputStream(FileInputStream(classesJar)).use { input ->
-            ZipOutputStream(FileOutputStream(tempJar)).use { output ->
-                generateSequence { input.nextEntry }
-                    .forEach { entry ->
-                        if (entry.name !in replacementEntries) {
-                            output.putNextEntry(ZipEntry(entry.name).apply { time = entry.time })
-                            input.copyTo(output)
-                            output.closeEntry()
-                        }
-                        input.closeEntry()
-                    }
-
-                kotlinModuleFiles.forEach { file ->
-                    output.putNextEntry(ZipEntry("META-INF/${file.name}"))
-                    file.inputStream().use { metadataInput ->
-                        metadataInput.copyTo(output)
-                    }
-                    output.closeEntry()
-                }
-            }
-        }
+        rewriteClassesJarWithMergedEntries(
+            classesJar = classesJar,
+            tempJar = tempJar,
+            replacementEntries = replacementEntries,
+        )
 
         if (!tempJar.renameTo(classesJar)) {
             tempJar.copyTo(classesJar, overwrite = true)
             tempJar.delete()
+        }
+    }
+
+    private fun rewriteClassesJarWithMergedEntries(
+        classesJar: File,
+        tempJar: File,
+        replacementEntries: Map<String, File>,
+    ) {
+        ZipInputStream(FileInputStream(classesJar)).use { input ->
+            ZipOutputStream(FileOutputStream(tempJar)).use { output ->
+                copyExistingEntries(input, output, replacementEntries)
+                writeReplacementEntries(output, replacementEntries)
+            }
+        }
+    }
+
+    private fun copyExistingEntries(
+        input: ZipInputStream,
+        output: ZipOutputStream,
+        replacementEntries: Map<String, File>,
+    ) {
+        generateSequence { input.nextEntry }
+            .forEach { entry ->
+                if (entry.name !in replacementEntries) {
+                    copyZipEntry(input, output, entry)
+                }
+                input.closeEntry()
+            }
+    }
+
+    private fun copyZipEntry(
+        input: ZipInputStream,
+        output: ZipOutputStream,
+        entry: ZipEntry,
+    ) {
+        output.putNextEntry(ZipEntry(entry.name).apply { time = entry.time })
+        input.copyTo(output)
+        output.closeEntry()
+    }
+
+    private fun writeReplacementEntries(
+        output: ZipOutputStream,
+        replacementEntries: Map<String, File>,
+    ) {
+        replacementEntries.toSortedMap().forEach { (entryName, file) ->
+            output.putNextEntry(ZipEntry(entryName))
+            file.inputStream().use { replacementInput ->
+                replacementInput.copyTo(output)
+            }
+            output.closeEntry()
         }
     }
 }

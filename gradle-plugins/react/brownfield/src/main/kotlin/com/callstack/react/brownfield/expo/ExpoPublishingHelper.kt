@@ -29,6 +29,9 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
 }
 
 open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
+    protected fun normalizedDependencyVersion(version: String?): String? =
+        version?.trim()?.takeUnless { it.isEmpty() || it == "null" || it == "unspecified" }
+
     protected fun compileOnlyApiDeclaredDependencies(): Set<Pair<String, String>> =
         listOf("compileOnlyApi")
             .mapNotNull { brownfieldAppProject.configurations.findByName(it) }
@@ -49,9 +52,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 }
             }.toSet()
 
-    protected fun existingModuleDependencies(
-        variant: Map<String, Any>,
-    ): Set<Pair<String, String>> =
+    protected fun existingModuleDependencies(variant: Map<String, Any>): Set<Pair<String, String>> =
         (variant["dependencies"] as? List<Map<String, Any>>)
             .orEmpty()
             .mapNotNull { dependency ->
@@ -60,9 +61,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                 if (group != null && module != null) group to module else null
             }.toSet()
 
-    protected fun existingPomDependencies(
-        dependenciesNode: groovy.util.Node,
-    ): Set<Pair<String, String>> =
+    protected fun existingPomDependencies(dependenciesNode: groovy.util.Node): Set<Pair<String, String>> =
         dependenciesNode.children()
             .filterIsInstance<groovy.util.Node>()
             .mapNotNull { dependency ->
@@ -76,7 +75,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         location: String,
         variantName: String? = null,
     ): Boolean {
-        if (!dependencyInfo.version.isNullOrBlank()) {
+        if (normalizedDependencyVersion(dependencyInfo.version) != null) {
             return true
         }
 
@@ -192,7 +191,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                                     "group" to dependencyToAdd.groupId,
                                     "module" to dependencyToAdd.artifactId,
                                 ).apply {
-                                    dependencyToAdd.version?.let { version ->
+                                    normalizedDependencyVersion(dependencyToAdd.version)?.let { version ->
                                         put(
                                             "version",
                                             mapOf(
@@ -217,10 +216,10 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                                     (group to module) in compileOnlyApiDependencies
                             val shouldBeExcluded =
                                 isCompileOnlyApiRuntimeLeak ||
-                                shouldExcludeDependency(
-                                    groupId = group,
-                                    artifactId = module,
-                                )
+                                    shouldExcludeDependency(
+                                        groupId = group,
+                                        artifactId = module,
+                                    )
 
                             if (shouldBeExcluded) {
                                 Logging.log(
@@ -314,8 +313,8 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                                         "optional" to dependencyToAdd.optional.toString(),
                                     )
 
-                                if (dependencyToAdd.version?.isNotBlank() == true) {
-                                    childTags["version"] = dependencyToAdd.version
+                                normalizedDependencyVersion(dependencyToAdd.version)?.let { version ->
+                                    childTags["version"] = version
                                 }
 
                                 dependenciesNode.appendNode("dependency").let { newDepNode ->
