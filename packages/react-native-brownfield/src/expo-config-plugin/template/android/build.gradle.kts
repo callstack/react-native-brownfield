@@ -1,4 +1,3 @@
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 plugins {
@@ -34,7 +33,18 @@ publishing {
             artifactId = "{{ARTIFACT_ID}}"
             version = "{{ARTIFACT_VERSION}}"
             afterEvaluate {
-                from(components.getByName("default"))
+                from(components.getByName("release"))
+            }
+
+            pom {
+                withXml {
+                    val dependenciesNode =
+                        (asNode().get("dependencies") as groovy.util.NodeList).first() as groovy.util.Node
+                    dependenciesNode.children()
+                        .filterIsInstance<groovy.util.Node>()
+                        .filter { (it.get("groupId") as groovy.util.NodeList).text() == rootProject.name }
+                        .forEach { dependenciesNode.remove(it) }
+                }
             }
         }
     }
@@ -94,15 +104,13 @@ android {
     }
 
     publishing {
-        multipleVariants {
-            allVariants()
-        }
+        singleVariant("release")
     }
 }
 
 dependencies {
-    api("com.facebook.react:react-android:{{RN_VERSION}}")
-    api("{{HERMES_ARTIFACT}}")
+    add("compileOnlyApi", "com.facebook.react:react-android:{{RN_VERSION}}")
+    add("compileOnlyApi", "{{HERMES_ARTIFACT}}")
 
     api("io.coil-kt.coil3:coil-compose:3.2.0")
     api("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
