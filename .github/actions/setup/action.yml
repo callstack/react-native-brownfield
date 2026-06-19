@@ -16,14 +16,6 @@ runs:
         node-version: 'lts/*'
         cache: 'yarn'
 
-    - name: Install dependencies
-      run: yarn install
-      shell: bash
-
-    - name: Build packages
-      run: yarn build
-      shell: bash
-
     - name: Restore Turbo cache
       if: inputs.restore-turbo-cache == 'true'
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
@@ -36,3 +28,14 @@ runs:
         restore-keys: |
           ${{ runner.os }}-turbo-
 
+    - name: Install dependencies
+      env:
+        # Monorepo has detox in multiple workspaces; parallel postinstalls race on
+        # $HOME/Library/Detox/ios/framework. E2E jobs run postinstall once later.
+        DETOX_DISABLE_POSTINSTALL: '1'
+      run: yarn install
+      shell: bash
+
+    - name: Build packages
+      run: yarn build
+      shell: bash

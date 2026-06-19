@@ -91,7 +91,7 @@ class ProjectConfigurations(private val project: Project) {
         Logging.log("created configuration $configName ✅")
     }
 
-    private fun <T> copyAttribute(
+    private fun <T : Any> copyAttribute(
         key: Attribute<T>,
         from: AttributeContainer,
         into: AttributeContainer,

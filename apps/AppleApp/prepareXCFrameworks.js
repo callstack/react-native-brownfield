@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -38,6 +39,11 @@ const sourcePackagePath = path.join(
 );
 
 const targetPackagePath = path.join(__dirname, 'package');
+
+const prebuiltRnCoreArtifacts = [
+  'React.xcframework',
+  'ReactNativeDependencies.xcframework',
+];
 
 /**
  * The Xcode project is configured to link the following frameworks:
@@ -110,6 +116,21 @@ for (const candidateDir of ['hermes.xcframework', 'hermesvm.xcframework']) {
 
 if (!hermesArtifactFound) {
   throw new Error('Hermes artifact not found');
+}
+
+for (const artifact of prebuiltRnCoreArtifacts) {
+  const xcframeworkPath = path.join(targetPackagePath, artifact);
+  if (!fs.existsSync(xcframeworkPath)) {
+    continue;
+  }
+
+  // RN prebuilts ship with a sealed signature that CocoaPods/brownfield packaging
+  // can invalidate (module.modulemap drift). Re-sign locally so Xcode can embed them.
+  logger.info(`Re-signing ${artifact} for AppleApp consumer build`);
+  execFileSync('codesign', ['--force', '--sign', '-', '--deep', xcframeworkPath], {
+    stdio: 'inherit',
+  });
+  logger.success(`${artifact} re-signed`);
 }
 
 for (const file of fs.readdirSync(targetPackagePath)) {

@@ -144,62 +144,9 @@
 		7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppBeta).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoAppBeta).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		79B8BE822FB7270F00B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp54)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets.xcassets,
-				BrownfieldAppleApp.swift,
-				components/ContentView.swift,
-				components/GreetingCard.swift,
-				components/MaterialCard.swift,
-				components/MessagesView.swift,
-				components/ReferralsScreen.swift,
-				components/SettingsScreen.swift,
-				components/Toast.swift,
-			);
-			target = 79B8BE682FB7270E00B94C6F /* Brownfield Apple App (ExpoApp54) */;
-		};
-		79B8BE9C2FB7273600B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp55)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets.xcassets,
-				BrownfieldAppleApp.swift,
-				components/ContentView.swift,
-				components/GreetingCard.swift,
-				components/MaterialCard.swift,
-				components/MessagesView.swift,
-				components/ReferralsScreen.swift,
-				components/SettingsScreen.swift,
-				components/Toast.swift,
-			);
-			target = 79B8BE832FB7273600B94C6F /* Brownfield Apple App (ExpoApp55) */;
-		};
-		7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets.xcassets,
-				BrownfieldAppleApp.swift,
-				components/ContentView.swift,
-				components/GreetingCard.swift,
-				components/MaterialCard.swift,
-				components/MessagesView.swift,
-				components/ReferralsScreen.swift,
-				components/SettingsScreen.swift,
-				components/Toast.swift,
-			);
-			target = 7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppBeta) */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		793C76A92EEBF938008A2A34 /* Brownfield Apple App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				79B8BE822FB7270F00B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp54)" target */,
-				79B8BE9C2FB7273600B94C6F /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoApp55)" target */,
-				7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */,
-			);
 			path = "Brownfield Apple App";
 			sourceTree = "<group>";
 		};

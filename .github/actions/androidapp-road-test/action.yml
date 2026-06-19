@@ -14,25 +14,23 @@ inputs:
     description: 'Maven path to the RN project, e.g. com/rnapp/brownfieldlib'
     required: true
 
+  restore-turbo-cache:
+    description: 'Whether to restore the Turbo cache during setup'
+    required: false
+    default: 'true'
+
 runs:
   using: composite
   steps:
     - name: Setup
       uses: ./.github/actions/setup
+      with:
+        restore-turbo-cache: ${{ inputs.restore-turbo-cache }}
 
     - name: Prepare Android environment
       uses: ./.github/actions/prepare-android
-
-    - name: Restore Gradle cache
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-
-          ${{ runner.os }}-android-androidapp-gradle-
+        gradle-workflow-job-context: ${{ inputs.flavor }}
 
     # == Brownfield Gradle Plugin ==
     - name: Publish Brownfield Gradle Plugin to Maven Local
@@ -85,6 +83,18 @@ runs:
 
     - name: Verify release AAR exists in Maven Local
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.release }}.aar
+      shell: bash
+
+    # clean up build artifacts to ensure no ENOSPC
+    - name: Clean up local build artifacts
+      run: |
+        rm -rf ${{ inputs.rn-project-path }}/android/build
+        rm -rf ${{ inputs.rn-project-path }}/android/.cxx
+        rm -rf ${{ inputs.rn-project-path }}/android/.gradle
+        rm -rf ${{ inputs.rn-project-path }}/android/app/build
+        rm -rf ${{ inputs.rn-project-path }}/android/app/.cxx
+        rm -rf ${{ inputs.rn-project-path }}/android/app/.gradle
+        rm -rf ${{ inputs.rn-project-path }}/android/app/build
       shell: bash
 
     # == AndroidApp ==
