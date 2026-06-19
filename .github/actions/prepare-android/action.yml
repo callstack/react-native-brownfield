@@ -36,6 +36,11 @@ runs:
         # and captures Build Scan links. Do not combine with actions/cache on ~/.gradle.
         workflow-job-context: ${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}
 
+    # ubuntu-latest is x86_64; match the emulator ABI so CI only compiles one JNI arch.
+    - name: Limit native builds to runner emulator ABI
+      run: echo "ORG_GRADLE_PROJECT_reactNativeArchitectures=x86_64" >> "$GITHUB_ENV"
+      shell: bash
+
     - name: Free Disk Space (Ubuntu)
       if: inputs.free-disk-space == 'true'
       uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
