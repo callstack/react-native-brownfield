@@ -37,10 +37,23 @@
           }
         }
       ],
-      ["@callstack/react-native-brownfield", { "debug": true }],
+      [
+        "@callstack/react-native-brownfield",
+        {
+          "debug": true
+        }
+      ],
       "expo-image",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "buildReactNativeFromSource": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

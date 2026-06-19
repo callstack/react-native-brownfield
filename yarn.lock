@@ -2048,6 +2048,7 @@ __metadata:
     eslint: "npm:^9.25.0"
     eslint-config-expo: "npm:~55.0.0"
     expo: "npm:~55.0.23"
+    expo-build-properties: "npm:~55.0.14"
     expo-constants: "npm:~55.0.16"
     expo-device: "npm:~55.0.16"
     expo-font: "npm:~55.0.7"
@@ -2096,6 +2097,7 @@ __metadata:
     eslint: "npm:^9.25.0"
     eslint-config-expo: "npm:~56.0.4"
     expo: "npm:~56.0.8"
+    expo-build-properties: "npm:~56.0.19"
     expo-constants: "npm:~56.0.16"
     expo-device: "npm:~56.0.4"
     expo-font: "npm:~56.0.5"
@@ -12150,6 +12152,32 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10/b678dab167b1786fa3a107eb9cd1cf4a86c9a04ad4c344c865383759fa7867c5ad31402826df20bb85884186b118425b3778f93bcb50da7d86efeb9f758fa4d6
+  languageName: node
+  linkType: hard
+
+"expo-build-properties@npm:~55.0.14":
+  version: 55.0.14
+  resolution: "expo-build-properties@npm:55.0.14"
+  dependencies:
+    "@expo/schema-utils": "npm:^55.0.4"
+    resolve-from: "npm:^5.0.0"
+    semver: "npm:^7.6.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10/bc5b4ae8a0d32165b8db839a529835b49762256d9db98f858ca4381d3ce1c8586e8cd3dd0d05c6aa7690a357d7c675067a0c092064b716976471cf5486227c79
+  languageName: node
+  linkType: hard
+
+"expo-build-properties@npm:~56.0.19":
+  version: 56.0.19
+  resolution: "expo-build-properties@npm:56.0.19"
+  dependencies:
+    "@expo/schema-utils": "npm:^56.0.0"
+    resolve-from: "npm:^5.0.0"
+    semver: "npm:^7.6.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10/7b3ad89838170a1ea6dc1d8a31052a865958b90a0956a1947f3e14ff7c91166c32b0c9073efb824dba804f5c16f717cd77ab9f1bfdfc686baf2e9bed9c755b81
   languageName: node
   linkType: hard
 

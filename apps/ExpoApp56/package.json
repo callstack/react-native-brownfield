@@ -13,7 +13,7 @@
     "brownfield:prepare:android:ci": "cd .. && node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts ExpoApp56",
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release --verbose",
     "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib --verbose",
-    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --verbose",
+    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --use-prebuilt-rn-core --verbose",
     "eas:stg": "EXPO_TOKEN=$EAS_TOKEN eas update --channel production --message 'testing 1st stg channel update' --platform ios --environment staging"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
     "expo": "~56.0.8",
+    "expo-build-properties": "~56.0.19",
     "expo-constants": "~56.0.16",
     "expo-device": "~56.0.4",
     "expo-font": "~56.0.5",
