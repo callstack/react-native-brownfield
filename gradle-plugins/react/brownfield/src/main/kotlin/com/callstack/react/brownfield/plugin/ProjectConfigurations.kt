@@ -1,7 +1,7 @@
 package com.callstack.react.brownfield.plugin
 
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
@@ -91,7 +91,7 @@ class ProjectConfigurations(private val project: Project) {
         Logging.log("created configuration $configName ✅")
     }
 
-    private fun <T> copyAttribute(
+    private fun <T : Any> copyAttribute(
         key: Attribute<T>,
         from: AttributeContainer,
         into: AttributeContainer,

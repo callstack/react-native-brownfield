@@ -27,45 +27,6 @@ class VariantTaskProvider(val project: Project) {
         }
     }
 
-    fun processDataBinding(
-        bundleTask: TaskProvider<Task>,
-        aarLibraries: Collection<AndroidArchiveLibrary>,
-        variantName: String,
-    ) {
-        bundleTask.configure { task ->
-            task.doLast {
-                aarLibraries.forEach {
-                    val dataBindingFolder = it.getDataBindingFolder()
-                    if (dataBindingFolder.exists()) {
-                        val filePath = getReBundleFilePath(dataBindingFolder.name, variantName)
-                        File(filePath).mkdirs()
-                        project.copy { copyTask ->
-                            copyTask.from(dataBindingFolder)
-                            copyTask.into(filePath)
-                        }
-                    }
-
-                    val dataBindingLogFolder = it.getDataBindingLogFolder()
-                    if (dataBindingLogFolder.exists()) {
-                        val filePath = getReBundleFilePath(dataBindingLogFolder.name, variantName)
-                        File(filePath).mkdirs()
-                        project.copy { copyTask ->
-                            copyTask.from(dataBindingLogFolder)
-                            copyTask.into(filePath)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getReBundleFilePath(
-        folderName: String,
-        variantName: String,
-    ) = "${DirectoryManager.getReBundleDirectory(
-        variantName,
-    ).path}/$folderName"
-
     fun preBuildTaskByVariant(
         variant: LibraryVariant,
         explodeAarTask: TaskProvider<ExplodeAarTask>,

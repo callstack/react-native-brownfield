@@ -1,9 +1,7 @@
 package com.callstack.react.brownfield.plugin
 
-import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
-import com.android.build.gradle.internal.crash.afterEvaluate
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
@@ -157,9 +155,5 @@ class RNBrownfieldPlugin : Plugin<Project> {
 //        val proguardRules = aarLibraries.map { it.getProguardRules() }
 //        proguardProcessor.processConsumerFiles(proguardRules, capitalizedVariantName)
 //        proguardProcessor.processGeneratedFiles(proguardRules, capitalizedVariantName)
-
-        /** ===== processDataBinding ===== */
-//        val bundleTask = variantTaskProvider.bundleTaskProvider(project, variantName)
-//        variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variantName)
     }
 }
