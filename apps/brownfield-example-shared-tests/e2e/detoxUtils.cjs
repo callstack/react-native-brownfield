@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const { device, element, waitFor, expect: detoxExpect } = require('detox');
+const { DETOX_TIMING } = require('./detoxTiming.cjs');
 
 function detoxAttrsText(attrs) {
   if (!attrs || typeof attrs !== 'object') {
@@ -29,6 +30,20 @@ async function configureDetoxForBrownfieldIos() {
   ]);
 }
 
+/**
+ * Reload RN without waiting for the app to become idle. RN debug surfaces (and
+ * animations) keep the run loop busy, so reload with sync enabled can hang until
+ * the Jest timeout.
+ */
+async function reloadReactNativeIgnoringSync() {
+  await device.disableSynchronization();
+  try {
+    await device.reloadReactNative();
+  } finally {
+    await device.enableSynchronization();
+  }
+}
+
 async function waitForVisible(matcher, timeoutMs = 20000) {
   await waitFor(element(matcher)).toBeVisible().withTimeout(timeoutMs);
 }
@@ -47,7 +62,9 @@ async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0)
         await detoxExpect(target()).toBeVisible();
         return;
       } catch {
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) =>
+          setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+        );
       }
     }
     await detoxExpect(target()).toBeVisible();
@@ -60,6 +77,7 @@ module.exports = {
   detoxAttrsText,
   assertDetoxTextMatches,
   configureDetoxForBrownfieldIos,
+  reloadReactNativeIgnoringSync,
   waitForVisible,
   waitForVisibleIgnoringSync,
 };
