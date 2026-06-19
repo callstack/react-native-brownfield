@@ -201,17 +201,20 @@ runs:
 
     - name: Detox test (AppleApp ${{ inputs.variant }})
       if: inputs.run-e2e == 'true'
-      run: yarn "$APPLEAPP_E2E_TEST_SCRIPT"
+      run: |
+        rm -rf e2e-artifacts
+        yarn "$APPLEAPP_E2E_TEST_SCRIPT"
       working-directory: apps/AppleApp
       shell: bash
 
-    - name: Upload Detox artifacts on failure
+    - name: Upload Detox recordings on failure
       if: failure() && inputs.run-e2e == 'true'
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
-        name: ${{ inputs.e2e-artifact-name }}-${{ inputs.variant }}-ios
-        path: apps/AppleApp/artifacts
-        if-no-files-found: ignore
+        name: ${{ inputs.e2e-artifact-name }}-${{ inputs.variant }}-ios-recordings
+        path: apps/AppleApp/e2e-artifacts
+        if-no-files-found: warn
+        retention-days: 5
 
     # ==============
 

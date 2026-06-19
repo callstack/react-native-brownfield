@@ -21,16 +21,6 @@ jobs:
           free-disk-space: 'false'
           run-yarn-build: 'false'
 
-      - name: Restore Gradle cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Run Detekt
         working-directory: gradle-plugins/react/brownfield
         run: ./gradlew detekt --no-daemon --stacktrace
