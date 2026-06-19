@@ -1,6 +1,8 @@
-const { device, element, by } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
-const { DETOX_TIMING } = require('@callstack/brownfield-example-shared-tests/e2e/detoxTiming.cjs');
+const { element, by } = require('detox');
+const {
+  brownfieldE2eTestIds: ids,
+} = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
   assertDetoxTextMatches,
   reloadReactNativeIgnoringSync,
