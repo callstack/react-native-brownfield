@@ -56,7 +56,7 @@ object RNSourceSets {
                 )
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
 
-            // 3. Lazily configure the 'main' source set using .named()
+            // 3. Lazily configure the 'variant-specific' source set using .named()
             androidExtension.sourceSets.named(variantName) { sourceSet ->
                 // Paths are collected and added, similar to your improved version
                 val bundlePathSegments =
