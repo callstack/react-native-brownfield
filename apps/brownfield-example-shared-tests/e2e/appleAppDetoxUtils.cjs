@@ -53,14 +53,9 @@ async function waitForAppleAppReadyVanilla() {
   try {
     await waitForVisibleIgnoringSync(rnHomeMatcher, 30000);
   } catch {
-    // Some CI runs start with an unmounted RN surface; one reload usually recovers.
-    await device.reloadReactNative();
-    try {
-      await waitForVisibleIgnoringSync(rnHomeMatcher, 30000);
-      return;
-    } catch {
-      // Embedded RN may be off-screen in the native scroll view.
-    }
+    // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
+    // cannot safely call reloadReactNative() here. Fall back to scroll-based
+    // recovery when the embedded surface is mounted off-screen.
     await device.disableSynchronization();
     try {
       await scrollToEmbeddedRnVanilla();
@@ -79,15 +74,9 @@ async function waitForAppleAppReadyExpo() {
     await waitForVisibleIgnoringSync(homeTab, 30000, 0);
     return;
   } catch {
-    // Some CI runs start with an unmounted RN surface; one reload usually recovers.
-  }
-
-  await device.reloadReactNative();
-  try {
-    await waitForVisibleIgnoringSync(homeTab, 30000, 0);
-    return;
-  } catch {
-    // Embedded RN may be off-screen in the native scroll view.
+    // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
+    // cannot safely call reloadReactNative() here. Fall back to scroll-based
+    // recovery when the embedded surface is mounted off-screen.
   }
 
   await device.disableSynchronization();
