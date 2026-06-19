@@ -74,7 +74,7 @@ async function waitForAppleAppReadyVanilla() {
 async function waitForAppleAppReadyExpo() {
   const homeTab = by.label('Home');
   const homeElement = () => element(homeTab).atIndex(0);
-  const welcomeTitle = by.text(/Welcome to\s+Expo\s+55/);
+  const welcomeTitle = by.text(/Welcome to\s+Expo\s+\d+/);
   try {
     await waitForVisibleIgnoringSync(homeTab, 30000, 0);
     return;

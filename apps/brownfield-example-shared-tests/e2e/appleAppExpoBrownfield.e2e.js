@@ -29,7 +29,7 @@ describe('Brownfield (AppleApp — Expo)', () => {
     await detoxExpect(greeting).toBeVisible();
     await assertDetoxTextMatches(greeting, /Hello native iOS Expo/);
     await detoxExpect(element(by.label('Home')).atIndex(0)).toBeVisible();
-    await detoxExpect(element(by.text(/Welcome to\s+Expo\s+55/))).toBeVisible();
+    await detoxExpect(element(by.text(/Welcome to\s+Expo\s+\d+/))).toBeVisible();
   });
 
   it('shows a native toast when Expo RN sends postMessage', async () => {

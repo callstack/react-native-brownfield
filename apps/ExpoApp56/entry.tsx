@@ -1,12 +1,12 @@
 import { ExpoRoot } from 'expo-router';
 import { AppRegistry } from 'react-native';
-import RNApp from './RNApp';
 
 function App() {
   const ctx = require.context('./src/app');
   return <ExpoRoot context={ctx} />;
 }
 
-AppRegistry.registerComponent('RNApp', () => RNApp);
+// AppleApp brownfield embeds the module named `RNApp`; mount the full Expo Router tree.
+AppRegistry.registerComponent('RNApp', () => App);
 // Keep compatibility with Expo's default app key.
 AppRegistry.registerComponent('main', () => App);
