@@ -5,7 +5,7 @@ import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import {
   syncBrownfieldE2EModeFromRootProps,
   type BrownfieldRootProps,
-} from '@callstack/brownfield-example-shared-tests';
+} from '@callstack/brownfield-example-shared-tests/runtime';
 import { checkAndFetchUpdate } from './src/utils/expo-rn-updates';
 
 import Counter from './src/components/counter';

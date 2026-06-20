@@ -5,7 +5,7 @@ import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import {
   syncBrownfieldE2EModeFromRootProps,
   type BrownfieldRootProps,
-} from '@callstack/brownfield-example-shared-tests';
+} from '@callstack/brownfield-example-shared-tests/runtime';
 
 import Counter from './components/counter';
 

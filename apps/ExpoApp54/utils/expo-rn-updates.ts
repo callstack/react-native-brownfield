@@ -1,4 +1,4 @@
-import { userAlert } from '@callstack/brownfield-example-shared-tests';
+import { userAlert } from '@callstack/brownfield-example-shared-tests/runtime';
 import * as Updates from 'expo-updates';
 
 export async function checkAndFetchUpdate() {

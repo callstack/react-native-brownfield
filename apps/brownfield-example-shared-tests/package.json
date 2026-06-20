@@ -9,6 +9,7 @@
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./runtime": "./src/runtime.ts",
     "./jest/setup": "./jest/setup.js",
     "./e2eTestIds": "./src/e2eTestIds.ts",
     "./e2e/e2eTestIds": "./e2e/e2eTestIds.cjs",

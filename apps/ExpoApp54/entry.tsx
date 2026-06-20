@@ -4,7 +4,7 @@ import { AppRegistry } from 'react-native';
 import {
   syncBrownfieldE2EModeFromRootProps,
   type BrownfieldRootProps,
-} from '@callstack/brownfield-example-shared-tests';
+} from '@callstack/brownfield-example-shared-tests/runtime';
 
 function App(props: BrownfieldRootProps) {
   useEffect(() => {
