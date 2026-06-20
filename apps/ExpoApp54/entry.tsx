@@ -1,7 +1,17 @@
 import { ExpoRoot } from 'expo-router';
+import { useEffect } from 'react';
 import { AppRegistry } from 'react-native';
+import {
+  syncBrownfieldE2EModeFromRootProps,
+  type BrownfieldRootProps,
+} from '@callstack/brownfield-example-shared-tests';
 
-function App() {
+function App(props: BrownfieldRootProps) {
+  useEffect(() => {
+    syncBrownfieldE2EModeFromRootProps(props);
+    return () => syncBrownfieldE2EModeFromRootProps(undefined);
+  }, [props.brownfieldE2E]);
+
   const ctx = require.context('./app');
   return <ExpoRoot context={ctx} />;
 }

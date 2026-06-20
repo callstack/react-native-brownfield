@@ -1,8 +1,11 @@
 const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const {
+  brownfieldE2ETestIds: ids,
+} = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
   configureDetoxForBrownfieldIos,
+  detoxLaunchArgs,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 describe('Brownfield (RNApp)', () => {
@@ -10,7 +13,7 @@ describe('Brownfield (RNApp)', () => {
     // Full relaunch is more reliable than reloadReactNative() on newer RN/Xcode.
     await device.launchApp({
       newInstance: true,
-      launchArgs: { BrownfieldPreferEmbeddedBundleInDebug: 'YES' },
+      launchArgs: detoxLaunchArgs,
     });
     await configureDetoxForBrownfieldIos();
     const home = element(by.id(ids.rnAppHome));

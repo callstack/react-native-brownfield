@@ -2,6 +2,11 @@ const assert = require('node:assert/strict');
 const { device, element, waitFor, expect: detoxExpect } = require('detox');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
 
+const detoxLaunchArgs = {
+  BrownfieldPreferEmbeddedBundleInDebug: 'YES',
+  DetoxE2E: 'YES',
+};
+
 function detoxAttrsText(attrs) {
   if (!attrs || typeof attrs !== 'object') {
     return '';
@@ -74,6 +79,7 @@ async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0)
 }
 
 module.exports = {
+  detoxLaunchArgs,
   detoxAttrsText,
   assertDetoxTextMatches,
   configureDetoxForBrownfieldIos,

@@ -1,7 +1,7 @@
 /**
  * Stable identifiers for Detox (and optional Maestro) runs across demo apps.
  */
-export const brownfieldE2eTestIds = {
+export const brownfieldE2ETestIds = {
   rnAppHome: 'brownfield-e2e-rnapp-home',
   /** Title copy on RNApp home — use for Detox instead of `by.text` (iOS accessibility / Fabric). */
   rnAppHomeTitle: 'brownfield-e2e-rnapp-home-title',

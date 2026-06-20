@@ -1,21 +1,17 @@
 const { element, by } = require('detox');
 const {
-  brownfieldE2eTestIds: ids,
+  brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
   assertDetoxTextMatches,
+  detoxLaunchArgs,
   reloadReactNativeIgnoringSync,
   waitForVisibleIgnoringSync,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const EXPO_HOME_TAB = by.label('Home');
 const EXPO_WELCOME_TITLE = by.text(/Welcome to\s+Expo\s+55/);
-
-const detoxLaunchArgs = {
-  BrownfieldPreferEmbeddedBundleInDebug: 'YES',
-  DetoxE2E: 'YES',
-};
 
 async function scrollToEmbeddedRnVanilla() {
   try {
