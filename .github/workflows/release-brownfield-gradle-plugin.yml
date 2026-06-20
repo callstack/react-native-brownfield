@@ -105,13 +105,13 @@ jobs:
             --stacktrace
 
       - name: Upload release notes artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: brownfield-gradle-plugin-release-notes
           path: out/jreleaser/brownfield-gradle-plugin-release-notes.md
 
       - name: Upload staged Maven repository artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: brownfield-gradle-plugin-staging-repo
           path: gradle-plugins/react/brownfield/build/staging-deploy
@@ -165,7 +165,7 @@ jobs:
 
       - name: Upload JReleaser output
         if: always()
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: brownfield-gradle-plugin-jreleaser-output
           path: |
