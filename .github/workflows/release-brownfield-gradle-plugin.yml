@@ -148,7 +148,7 @@ jobs:
           path: gradle-plugins/react/brownfield/build/staging-deploy
 
       - name: Run JReleaser
-        uses: jreleaser/release-action@v2
+        uses: jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5 # v2.5.0
         with:
           arguments: full-release
         env:

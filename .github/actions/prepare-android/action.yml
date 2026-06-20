@@ -80,7 +80,7 @@ runs:
       shell: bash
 
     - name: Restore Android ccache
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: .android_ccache
         key: ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-x86_64-${{ hashFiles('yarn.lock', '**/gradle-wrapper.properties', inputs.rn-project-path != '' && format('{0}/package.json', inputs.rn-project-path) || 'package.json') }}
