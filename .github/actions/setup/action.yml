@@ -14,11 +14,19 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Setup Node.js
+    - name: Setup Node.js (with cache)
+      if: inputs.disable-cache != 'true'
       uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
       with:
         node-version: 'lts/*'
-        cache: ${{ inputs.disable-cache != 'true' && 'yarn' || '' }}
+        cache: 'yarn'
+
+    - name: Setup Node.js (no cache)
+      if: inputs.disable-cache == 'true'
+      uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
+      with:
+        node-version: 'lts/*'
+        package-manager-cache: false
 
     - name: Restore Turbo cache
       if: inputs.disable-cache != 'true' && inputs.restore-turbo-cache == 'true'

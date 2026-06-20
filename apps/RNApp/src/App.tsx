@@ -15,7 +15,7 @@ type AppProps = BrownfieldRootProps;
 
 export default function App({ nativeOsVersionLabel, brownfieldE2E }: AppProps) {
   useEffect(() => {
-    syncBrownfieldE2EModeFromRootProps({ brownfieldE2E });
+    syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
     return () => syncBrownfieldE2EModeFromRootProps(undefined);
   }, [brownfieldE2E]);
 

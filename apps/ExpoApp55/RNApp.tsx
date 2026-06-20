@@ -17,7 +17,7 @@ export default function RNApp({
   brownfieldE2E,
 }: RNAppProps) {
   useEffect(() => {
-    syncBrownfieldE2EModeFromRootProps({ brownfieldE2E });
+    syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
     return () => syncBrownfieldE2EModeFromRootProps(undefined);
   }, [brownfieldE2E]);
 

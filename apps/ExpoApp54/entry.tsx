@@ -8,7 +8,7 @@ import {
 
 function App(props: BrownfieldRootProps) {
   useEffect(() => {
-    syncBrownfieldE2EModeFromRootProps(props);
+    syncBrownfieldE2EModeFromRootProps(props.brownfieldE2E);
     return () => syncBrownfieldE2EModeFromRootProps(undefined);
   }, [props.brownfieldE2E]);
 
