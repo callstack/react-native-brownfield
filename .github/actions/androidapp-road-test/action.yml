@@ -22,6 +22,12 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: '::group:: Setup & prepare Android'
+      run: |
+        echo "::group::Setup & prepare Android"
+        echo "flavor=${{ inputs.flavor }} rn-project=${{ inputs.rn-project-path }}"
+      shell: bash
+
     - name: Setup
       uses: ./.github/actions/setup
       with:
@@ -33,13 +39,27 @@ runs:
         gradle-workflow-job-context: ${{ inputs.flavor }}
         rn-project-path: ${{ inputs.rn-project-path }}
 
-    # == Brownfield Gradle Plugin ==
+    - name: '::endgroup:: Setup & prepare Android'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Brownfield Gradle plugin'
+      run: echo "::group::Brownfield Gradle plugin"
+      shell: bash
+
     - name: Publish Brownfield Gradle Plugin to Maven Local
       run: |
         yarn run brownfield:plugin:publish:local
       shell: bash
 
-    # == RN app ==
+    - name: '::endgroup:: Brownfield Gradle plugin'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: RN app — prebuild, package & publish AAR'
+      run: echo "::group::RN app — prebuild, package & publish AAR"
+      shell: bash
+
     - name: Prebuild Expo app
       if: ${{ startsWith(inputs.flavor, 'expo') }}
       run: |
@@ -74,14 +94,20 @@ runs:
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
       shell: bash
 
+    - name: '::endgroup:: RN app — prebuild, package & publish AAR'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Save ccache & clean RN android outputs'
+      run: echo "::group::Save ccache & clean RN android outputs"
+      shell: bash
+
     - name: Save Android ccache after native AAR build
       uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: .android_ccache
         key: ${{ runner.os }}-android-ccache-${{ inputs.flavor }}-x86_64-${{ hashFiles('yarn.lock', '**/gradle-wrapper.properties', format('{0}/package.json', inputs.rn-project-path)) }}
 
-    # Compile results are in .android_ccache (saved above + at job end). Drop .cxx CMake trees
-    # and other RN android outputs to avoid ENOSPC before AndroidApp assemble.
     - name: Clean up local RN Android build outputs
       run: |
         ANDROID_DIR="${{ inputs.rn-project-path }}/android"
@@ -94,13 +120,31 @@ runs:
         find "$ANDROID_DIR" -maxdepth 2 -name '.cxx' -type d -prune -exec rm -rf {} +
       shell: bash
 
-    # == AndroidApp ==
+    - name: '::endgroup:: Save ccache & clean RN android outputs'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: AndroidApp — assemble consumer app'
+      run: echo "::group::AndroidApp — assemble consumer app"
+      shell: bash
 
     - name: Build native Android Brownfield app
       run: yarn run build:example:android-consumer:${{ inputs.flavor }}
+      shell: bash
+
+    - name: '::endgroup:: AndroidApp — assemble consumer app'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Summary'
+      run: echo "::group::Summary"
       shell: bash
 
     - name: Log Android ccache stats
       uses: ./.github/actions/ccache-summary
       with:
         name: Android road test (${{ inputs.flavor }})
+
+    - name: '::endgroup:: Summary'
+      run: echo "::endgroup::"
+      shell: bash

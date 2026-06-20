@@ -25,6 +25,10 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: '::group:: Gradle & Java'
+      run: echo "::group::Gradle & Java"
+      shell: bash
+
     - name: Validate Gradle Wrapper
       uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
 
@@ -46,6 +50,14 @@ runs:
       run: echo "ORG_GRADLE_PROJECT_reactNativeArchitectures=x86_64" >> "$GITHUB_ENV"
       shell: bash
 
+    - name: '::endgroup:: Gradle & Java'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Disk space & Android NDK'
+      run: echo "::group::Disk space & Android NDK"
+      shell: bash
+
     - name: Free Disk Space (Ubuntu)
       if: inputs.free-disk-space == 'true'
       uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
@@ -63,6 +75,14 @@ runs:
       run: |
         "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.0.12077973"
         test -d "$ANDROID_HOME/ndk/27.0.12077973"
+      shell: bash
+
+    - name: '::endgroup:: Disk space & Android NDK'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Android ccache'
+      run: echo "::group::Android ccache"
       shell: bash
 
     - name: Install ccache
@@ -87,7 +107,21 @@ runs:
         restore-keys: |
           ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-
 
+    - name: '::endgroup:: Android ccache'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Build packages'
+      if: inputs.run-yarn-build == 'true'
+      run: echo "::group::Build packages"
+      shell: bash
+
     - name: Build packages
       if: inputs.run-yarn-build == 'true'
       run: yarn build
+      shell: bash
+
+    - name: '::endgroup:: Build packages'
+      if: inputs.run-yarn-build == 'true'
+      run: echo "::endgroup::"
       shell: bash
