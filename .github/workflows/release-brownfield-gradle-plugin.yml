@@ -47,7 +47,8 @@ jobs:
         with:
           free-disk-space: 'false'
           run-yarn-build: 'false'
-          disable-cache: 'true'
+          gradle-cache: 'false'
+          android-ccache: 'false'
 
       - name: Derive release metadata
         id: metadata

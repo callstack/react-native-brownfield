@@ -38,6 +38,7 @@ runs:
       with:
         gradle-workflow-job-context: ${{ inputs.flavor }}
         rn-project-path: ${{ inputs.rn-project-path }}
+        android-ccache: 'true'
 
     - name: '::endgroup:: Setup & prepare Android'
       run: echo "::endgroup::"

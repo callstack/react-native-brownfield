@@ -12,8 +12,13 @@ inputs:
     required: false
     default: 'false'
 
-  disable-cache:
-    description: 'Disable Gradle and Android ccache restore (use for release/publish workflows)'
+  gradle-cache:
+    description: 'Enable Gradle User Home cache restore/save via setup-gradle'
+    required: false
+    default: 'true'
+
+  android-ccache:
+    description: 'Install, restore, and allow saving Android ccache (native JNI builds only)'
     required: false
     default: 'false'
 
@@ -49,7 +54,7 @@ runs:
         # Validates all gradle-wrapper.jar files, caches Gradle User Home efficiently,
         # and captures Build Scan links. Do not combine with actions/cache on ~/.gradle.
         workflow-job-context: ${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}
-        cache-disabled: ${{ inputs.disable-cache == 'true' }}
+        cache-disabled: ${{ inputs.gradle-cache != 'true' }}
 
     # ubuntu-latest is x86_64; match the emulator ABI so CI only compiles one JNI arch.
     - name: Limit native builds to runner emulator ABI
@@ -88,14 +93,17 @@ runs:
       shell: bash
 
     - name: '::group:: Android ccache'
+      if: inputs.android-ccache == 'true'
       run: echo "::group::Android ccache"
       shell: bash
 
     - name: Install ccache
+      if: inputs.android-ccache == 'true'
       run: sudo apt-get update && sudo apt-get install -y ccache
       shell: bash
 
     - name: Configure Android ccache
+      if: inputs.android-ccache == 'true'
       run: |
         mkdir -p "${GITHUB_WORKSPACE}/.android_ccache"
         echo "compiler_check = content" > "${GITHUB_WORKSPACE}/.android_ccache.conf"
@@ -106,7 +114,7 @@ runs:
       shell: bash
 
     - name: Restore Android ccache
-      if: inputs.disable-cache != 'true'
+      if: inputs.android-ccache == 'true'
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: .android_ccache
@@ -115,6 +123,7 @@ runs:
           ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-
 
     - name: '::endgroup:: Android ccache'
+      if: inputs.android-ccache == 'true'
       run: echo "::endgroup::"
       shell: bash
 
