@@ -31,6 +31,7 @@ runs:
       uses: ./.github/actions/prepare-android
       with:
         gradle-workflow-job-context: ${{ inputs.flavor }}
+        rn-project-path: ${{ inputs.rn-project-path }}
 
     # == Brownfield Gradle Plugin ==
     - name: Publish Brownfield Gradle Plugin to Maven Local
@@ -73,16 +74,24 @@ runs:
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
       shell: bash
 
-    # clean up build artifacts to ensure no ENOSPC
-    - name: Clean up local build artifacts
+    - name: Save Android ccache after native AAR build
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: .android_ccache
+        key: ${{ runner.os }}-android-ccache-${{ inputs.flavor }}-x86_64-${{ hashFiles('yarn.lock', '**/gradle-wrapper.properties', format('{0}/package.json', inputs.rn-project-path)) }}
+
+    # Compile results are in .android_ccache (saved above + at job end). Drop .cxx CMake trees
+    # and other RN android outputs to avoid ENOSPC before AndroidApp assemble.
+    - name: Clean up local RN Android build outputs
       run: |
-        rm -rf ${{ inputs.rn-project-path }}/android/build
-        rm -rf ${{ inputs.rn-project-path }}/android/.cxx
-        rm -rf ${{ inputs.rn-project-path }}/android/.gradle
-        rm -rf ${{ inputs.rn-project-path }}/android/app/build
-        rm -rf ${{ inputs.rn-project-path }}/android/app/.cxx
-        rm -rf ${{ inputs.rn-project-path }}/android/app/.gradle
-        rm -rf ${{ inputs.rn-project-path }}/android/app/build
+        ANDROID_DIR="${{ inputs.rn-project-path }}/android"
+        rm -rf "$ANDROID_DIR/build"
+        rm -rf "$ANDROID_DIR/.cxx"
+        rm -rf "$ANDROID_DIR/.gradle"
+        rm -rf "$ANDROID_DIR/app/build"
+        rm -rf "$ANDROID_DIR/app/.cxx"
+        rm -rf "$ANDROID_DIR/app/.gradle"
+        find "$ANDROID_DIR" -maxdepth 2 -name '.cxx' -type d -prune -exec rm -rf {} +
       shell: bash
 
     # == AndroidApp ==
@@ -90,3 +99,8 @@ runs:
     - name: Build native Android Brownfield app
       run: yarn run build:example:android-consumer:${{ inputs.flavor }}
       shell: bash
+
+    - name: Log Android ccache stats
+      uses: ./.github/actions/ccache-summary
+      with:
+        name: Android road test (${{ inputs.flavor }})

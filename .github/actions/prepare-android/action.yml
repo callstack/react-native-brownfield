@@ -17,6 +17,11 @@ inputs:
     required: false
     default: ''
 
+  rn-project-path:
+    description: 'Optional RN app path for native ccache key segmentation (e.g. apps/ExpoApp55)'
+    required: false
+    default: ''
+
 runs:
   using: composite
   steps:
@@ -59,6 +64,28 @@ runs:
         "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.0.12077973"
         test -d "$ANDROID_HOME/ndk/27.0.12077973"
       shell: bash
+
+    - name: Install ccache
+      run: sudo apt-get update && sudo apt-get install -y ccache
+      shell: bash
+
+    - name: Configure Android ccache
+      run: |
+        mkdir -p "${GITHUB_WORKSPACE}/.android_ccache"
+        echo "compiler_check = content" > "${GITHUB_WORKSPACE}/.android_ccache.conf"
+        echo "CCACHE_CONFIGPATH=${GITHUB_WORKSPACE}/.android_ccache.conf" >> "$GITHUB_ENV"
+        echo "CCACHE_DIR=${GITHUB_WORKSPACE}/.android_ccache" >> "$GITHUB_ENV"
+        echo "CCACHE_BASEDIR=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
+        echo "CCACHE_COMPRESS=1" >> "$GITHUB_ENV"
+      shell: bash
+
+    - name: Restore Android ccache
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: .android_ccache
+        key: ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-x86_64-${{ hashFiles('yarn.lock', '**/gradle-wrapper.properties', inputs.rn-project-path != '' && format('{0}/package.json', inputs.rn-project-path) || 'package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-
 
     - name: Build packages
       if: inputs.run-yarn-build == 'true'
