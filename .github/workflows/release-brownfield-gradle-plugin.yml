@@ -40,13 +40,14 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          restore-turbo-cache: 'false'
+          disable-cache: 'true'
 
       - name: Prepare Android environment
         uses: ./.github/actions/prepare-android
         with:
           free-disk-space: 'false'
           run-yarn-build: 'false'
+          disable-cache: 'true'
 
       - name: Derive release metadata
         id: metadata

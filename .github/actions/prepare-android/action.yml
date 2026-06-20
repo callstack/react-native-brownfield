@@ -12,6 +12,11 @@ inputs:
     required: false
     default: 'false'
 
+  disable-cache:
+    description: 'Disable Gradle and Android ccache restore (use for release/publish workflows)'
+    required: false
+    default: 'false'
+
   gradle-workflow-job-context:
     description: 'Segment Gradle cache per app/project (e.g. vanilla, expo54). Falls back to github.job when empty.'
     required: false
@@ -44,6 +49,7 @@ runs:
         # Validates all gradle-wrapper.jar files, caches Gradle User Home efficiently,
         # and captures Build Scan links. Do not combine with actions/cache on ~/.gradle.
         workflow-job-context: ${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}
+        cache-disabled: ${{ inputs.disable-cache == 'true' }}
 
     # ubuntu-latest is x86_64; match the emulator ABI so CI only compiles one JNI arch.
     - name: Limit native builds to runner emulator ABI
@@ -100,6 +106,7 @@ runs:
       shell: bash
 
     - name: Restore Android ccache
+      if: inputs.disable-cache != 'true'
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: .android_ccache
