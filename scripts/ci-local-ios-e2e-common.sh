@@ -144,8 +144,28 @@ ci_local_e2e_restore_tracked_pod_settings() {
   done
 }
 
+ci_local_e2e_ensure_xcodeproj_gem() {
+  local app_root="$1"
+
+  if [[ -f "${app_root}/Gemfile" ]]; then
+    echo "==> bundle install (${app_root}) for xcodeproj"
+    (cd "${app_root}" && bundle install --quiet)
+    if (cd "${app_root}" && bundle exec ruby -e "require 'xcodeproj'" 2>/dev/null); then
+      return 0
+    fi
+  fi
+
+  if ruby -e "require 'xcodeproj'" 2>/dev/null; then
+    return 0
+  fi
+
+  echo "==> gem install xcodeproj"
+  gem install xcodeproj --no-document --version 1.25.1
+}
+
 ci_local_e2e_apply_brownfield_debug_pod_settings() {
   local ios_path="$1"
+  local app_root="$(cd "${ios_path}/.." && pwd)"
   local pods_project="${ios_path}/Pods/Pods.xcodeproj"
 
   if [[ ! -d "${pods_project}" ]]; then
@@ -153,8 +173,13 @@ ci_local_e2e_apply_brownfield_debug_pod_settings() {
     return 0
   fi
 
+  ci_local_e2e_ensure_xcodeproj_gem "${app_root}"
+
   echo "==> Brownfield pods: disable Swift module interface for Debug E2E builds"
-  ruby - "${pods_project}" <<'RUBY'
+
+  if [[ -f "${app_root}/Gemfile" ]] \
+    && (cd "${app_root}" && bundle exec ruby -e "require 'xcodeproj'" 2>/dev/null); then
+    (cd "${app_root}" && bundle exec ruby - "${pods_project}" <<'RUBY'
 require 'xcodeproj'
 
 project = Xcodeproj::Project.open(ARGV[0])
@@ -173,6 +198,28 @@ end
 
 project.save
 RUBY
+    )
+  else
+    ruby - "${pods_project}" <<'RUBY'
+require 'xcodeproj'
+
+project = Xcodeproj::Project.open(ARGV[0])
+brownfield_pods = %w[Brownie BrownfieldNavigation ReactBrownfield]
+
+project.targets.each do |target|
+  next unless brownfield_pods.include?(target.name)
+
+  target.build_configurations.each do |config|
+    next unless config.name == 'Debug'
+
+    config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+    config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
+  end
+end
+
+project.save
+RUBY
+  fi
 
   ci_local_e2e_register_pod_settings_restore "${ios_path}"
 }
