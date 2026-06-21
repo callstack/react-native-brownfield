@@ -118,6 +118,13 @@ runs:
         pod install
       shell: bash
 
+    - name: Apply Brownfield Debug pod settings (E2E)
+      if: inputs.variant == 'vanilla' && inputs.run-e2e == 'true'
+      run: |
+        source scripts/ci-local-ios-e2e-common.sh
+        ci_local_e2e_apply_brownfield_debug_pod_settings "${{ github.workspace }}/${{ inputs.rn-project-path }}/ios"
+      shell: bash
+
     - name: Install pods (RN ${{ inputs.variant }} app)
       if: inputs.variant == 'vanilla' && inputs.run-e2e != 'true'
       run: |

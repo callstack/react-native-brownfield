@@ -10,10 +10,6 @@ const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
   '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>';
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
   '# <<< react-native-brownfield Expo SDK 55+ swift defines <<<';
-const BROWNFIELD_DEBUG_E2E_POD_SETTINGS_MARKER_START =
-  '# >>> react-native-brownfield Debug E2E pod settings >>>';
-const BROWNFIELD_DEBUG_E2E_POD_SETTINGS_MARKER_END =
-  '# <<< react-native-brownfield Debug E2E pod settings <<<';
 const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
 const REACT_NATIVE_PODS_REQUIRE_REGEX =
   /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
@@ -58,24 +54,10 @@ ${BROWNFIELD_POD_HOOK_MARKER_END}
 }
 
 function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
-  let modifiedPodfile = podfile;
-
-  if (
-    !modifiedPodfile.includes(BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START)
-  ) {
-    modifiedPodfile = injectExpoGte55SwiftDefinesHook(modifiedPodfile);
+  if (podfile.includes(BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START)) {
+    return podfile;
   }
 
-  if (
-    !modifiedPodfile.includes(BROWNFIELD_DEBUG_E2E_POD_SETTINGS_MARKER_START)
-  ) {
-    modifiedPodfile = injectBrownfieldDebugE2ePodSettingsHook(modifiedPodfile);
-  }
-
-  return modifiedPodfile;
-}
-
-function injectExpoGte55SwiftDefinesHook(podfile: string): string {
   const hook = `
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START}
     installer.pods_project.targets.each do |target|
@@ -92,30 +74,6 @@ function injectExpoGte55SwiftDefinesHook(podfile: string): string {
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END}
 `;
 
-  return injectIntoPostInstall(podfile, hook);
-}
-
-function injectBrownfieldDebugE2ePodSettingsHook(podfile: string): string {
-  const hook = `
-    ${BROWNFIELD_DEBUG_E2E_POD_SETTINGS_MARKER_START}
-    brownfield_debug_pods = %w[Brownie BrownfieldNavigation ReactBrownfield]
-    installer.pods_project.targets.each do |target|
-      next unless brownfield_debug_pods.include?(target.name)
-
-      target.build_configurations.each do |config|
-        next unless config.name == 'Debug'
-
-        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
-        config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
-      end
-    end
-    ${BROWNFIELD_DEBUG_E2E_POD_SETTINGS_MARKER_END}
-`;
-
-  return injectIntoPostInstall(podfile, hook);
-}
-
-function injectIntoPostInstall(podfile: string, hook: string): string {
   const postInstallMatch = podfile.match(
     /(post_install\s+do\s+\|installer\|\s*\n)((?:(?!^\s*end\s*$)[\s\S])*)(^\s*end\s*$)/m
   );

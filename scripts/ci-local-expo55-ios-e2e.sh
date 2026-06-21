@@ -8,7 +8,9 @@
 #   yarn ci:local:expo55:e2e:ios --rebuild           # Detox build + test (skip yarn install / prebuild / pods)
 #   yarn ci:local:expo55:e2e:ios --test-only         # tests only — does NOT rebuild the app
 #   yarn ci:local:expo55:e2e:ios --build-only        # build Detox app, skip tests
+#   yarn ci:local:expo55:e2e:ios --no-restore-pods   # keep E2E Pods.xcodeproj patches after exit
 #
+# Local runs auto-run `pod install` on exit to restore Brownfield pod Debug settings.
 # From apps/ExpoApp55: yarn ci:local:e2e:ios [--flags]
 #
 set -euo pipefail

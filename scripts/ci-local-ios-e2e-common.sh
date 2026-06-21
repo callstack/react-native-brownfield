@@ -24,6 +24,7 @@ ci_local_e2e_parse_common_flags() {
   REBUILD_ONLY=false
   BUILD_ONLY=false
   CLEAN_IOS=false
+  NO_RESTORE_PODS=false
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -34,6 +35,10 @@ ci_local_e2e_parse_common_flags() {
       --rebuild) REBUILD_ONLY=true; SKIP_INSTALL=true; SKIP_BREW=true; shift ;;
       --build-only) BUILD_ONLY=true; shift ;;
       --clean-ios) CLEAN_IOS=true; shift ;;
+      --no-restore-pods)
+        NO_RESTORE_PODS=true
+        shift
+        ;;
       *)
         return 0
         ;;
@@ -90,6 +95,54 @@ ci_local_e2e_run_detox_postinstall() {
   (cd "${app_path}" && node node_modules/detox/scripts/postinstall.js)
 }
 
+CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE=()
+CI_LOCAL_E2E_POD_RESTORE_TRAP_REGISTERED=0
+
+ci_local_e2e_register_pod_settings_restore() {
+  local ios_path="$1"
+  local existing
+
+  if [[ "${NO_RESTORE_PODS:-false}" == "true" ]] || [[ -n "${CI:-}" ]]; then
+    return 0
+  fi
+
+  for existing in "${CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE[@]}"; do
+    if [[ "${existing}" == "${ios_path}" ]]; then
+      return 0
+    fi
+  done
+
+  CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE+=("${ios_path}")
+
+  if [[ "${CI_LOCAL_E2E_POD_RESTORE_TRAP_REGISTERED}" != "1" ]]; then
+    trap ci_local_e2e_restore_tracked_pod_settings EXIT
+    CI_LOCAL_E2E_POD_RESTORE_TRAP_REGISTERED=1
+  fi
+}
+
+ci_local_e2e_restore_brownfield_debug_pod_settings() {
+  local ios_path="$1"
+
+  if [[ ! -f "${ios_path}/Podfile.lock" ]]; then
+    return 0
+  fi
+
+  echo "==> Restore iOS Pods after E2E (pod install — resets Brownfield Debug pod settings)"
+  (cd "${ios_path}" && pod install)
+}
+
+ci_local_e2e_restore_tracked_pod_settings() {
+  local ios_path
+
+  if [[ "${#CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE[@]}" -eq 0 ]]; then
+    return 0
+  fi
+
+  for ios_path in "${CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE[@]}"; do
+    ci_local_e2e_restore_brownfield_debug_pod_settings "${ios_path}"
+  done
+}
+
 ci_local_e2e_apply_brownfield_debug_pod_settings() {
   local ios_path="$1"
   local pods_project="${ios_path}/Pods/Pods.xcodeproj"
@@ -119,6 +172,8 @@ end
 
 project.save
 RUBY
+
+  ci_local_e2e_register_pod_settings_restore "${ios_path}"
 }
 
 ci_local_e2e_ensure_ios_xcode_env_updates() {
