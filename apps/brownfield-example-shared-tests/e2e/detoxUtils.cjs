@@ -36,45 +36,34 @@ async function configureDetoxForBrownfieldIos() {
 }
 
 /**
- * Launch with synchronization disabled so Detox does not wait for RN Debug to become
- * idle (Metro polling / animations can block until the Jest timeout).
+ * Launch without waiting for RN Debug idle, then re-enable Detox synchronization for tests.
+ *
+ * Sync is disabled only via launchArgs — disableSynchronization() before launchApp()
+ * fails because Detox is not connected to the app yet.
  */
 async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
-  await device.disableSynchronization();
-  try {
-    await device.launchApp({
-      newInstance,
-      launchArgs: detoxLaunchArgs,
-    });
-    await configureDetoxForBrownfieldIos();
-  } finally {
-    await device.enableSynchronization();
-  }
+  await device.launchApp({
+    newInstance,
+    launchArgs: {
+      ...detoxLaunchArgs,
+      detoxEnableSynchronization: 0,
+    },
+  });
+  await configureDetoxForBrownfieldIos();
+  await device.enableSynchronization();
+}
+
+async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
+  await waitFor(element(matcher).atIndex(index))
+    .toBeVisible()
+    .withTimeout(timeoutMs);
 }
 
 /**
- * Reload RN without waiting for the app to become idle. RN debug surfaces (and
- * animations) keep the run loop busy, so reload with sync enabled can hang until
- * the Jest timeout.
+ * Poll native-only / short-lived UI (toasts, popups, pushed native screens) with sync
+ * temporarily off. RN Debug can keep sync busy while a native overlay is already visible.
  */
-async function reloadReactNativeIgnoringSync() {
-  await device.disableSynchronization();
-  try {
-    await device.reloadReactNative();
-  } finally {
-    await device.enableSynchronization();
-  }
-}
-
-async function waitForVisible(matcher, timeoutMs = 20000) {
-  await waitFor(element(matcher)).toBeVisible().withTimeout(timeoutMs);
-}
-
-/**
- * Poll visibility with synchronization disabled (RN Debug keeps the run loop "busy").
- * Do not use waitFor().toBeVisible() while sync is off — it returns immediately.
- */
-async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0) {
+async function waitForNativeOverlayVisible(matcher, timeoutMs = 20000, index = 0) {
   await device.disableSynchronization();
   try {
     const deadline = Date.now() + timeoutMs;
@@ -101,7 +90,6 @@ module.exports = {
   assertDetoxTextMatches,
   configureDetoxForBrownfieldIos,
   launchBrownfieldAppForDetox,
-  reloadReactNativeIgnoringSync,
   waitForVisible,
-  waitForVisibleIgnoringSync,
+  waitForNativeOverlayVisible,
 };

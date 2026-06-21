@@ -1,4 +1,4 @@
-const { element, by } = require('detox');
+const { device, element, by } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
@@ -6,8 +6,8 @@ const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
   assertDetoxTextMatches,
   detoxLaunchArgs,
-  reloadReactNativeIgnoringSync,
-  waitForVisibleIgnoringSync,
+  waitForVisible,
+  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const EXPO_HOME_TAB = by.label('Home');
@@ -58,17 +58,13 @@ async function waitForEmbeddedMatcher(matcher, index = 0) {
   }
 
   try {
-    await waitForVisibleIgnoringSync(
-      matcher,
-      DETOX_TIMING.VISIBILITY_TIMEOUT_MS,
-      index
-    );
+    await waitForVisible(matcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS, index);
     return;
   } catch {
     // Continue with reload recovery.
   }
 
-  await reloadReactNativeIgnoringSync();
+  await device.reloadReactNative();
 
   try {
     await scrollToEmbeddedRnExpo();
@@ -76,11 +72,7 @@ async function waitForEmbeddedMatcher(matcher, index = 0) {
     // Continue polling visibility.
   }
 
-  await waitForVisibleIgnoringSync(
-    matcher,
-    DETOX_TIMING.VISIBILITY_TIMEOUT_MS,
-    index
-  );
+  await waitForVisible(matcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS, index);
 }
 
 async function waitForAppleAppReadyVanilla() {
@@ -93,16 +85,13 @@ async function waitForAppleAppReadyVanilla() {
   }
 
   try {
-    await waitForVisibleIgnoringSync(
-      rnHomeMatcher,
-      DETOX_TIMING.VISIBILITY_TIMEOUT_MS
-    );
+    await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
     return;
   } catch {
     // Continue with reload recovery.
   }
 
-  await reloadReactNativeIgnoringSync();
+  await device.reloadReactNative();
 
   try {
     await scrollToEmbeddedRnVanilla();
@@ -110,10 +99,7 @@ async function waitForAppleAppReadyVanilla() {
     // Continue polling visibility.
   }
 
-  await waitForVisibleIgnoringSync(
-    rnHomeMatcher,
-    DETOX_TIMING.VISIBILITY_TIMEOUT_MS
-  );
+  await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
 }
 
 async function waitForAppleAppReadyExpo() {
@@ -129,20 +115,20 @@ async function waitForAppleAppReadyExpo() {
 
 async function openPostMessageTabExpo() {
   await scrollToEmbeddedRnExpo();
-  await waitForVisibleIgnoringSync(
+  await waitForVisible(
     by.label('postMessage API'),
     DETOX_TIMING.VISIBILITY_TIMEOUT_MS,
     0
   );
   await element(by.label('postMessage API')).atIndex(0).tap();
-  await waitForVisibleIgnoringSync(
+  await waitForVisible(
     by.id(ids.sendMessageToNative),
     DETOX_TIMING.VISIBILITY_TIMEOUT_MS
   );
 }
 
 async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
-  await waitForVisibleIgnoringSync(
+  await waitForVisible(
     by.id(ids.sendMessageToNative),
     DETOX_TIMING.VISIBILITY_TIMEOUT_MS
   );
@@ -160,7 +146,7 @@ async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
     }
   }
   await assertDetoxTextMatches(bubble, rnMessagePattern);
-  await waitForVisibleIgnoringSync(
+  await waitForNativeOverlayVisible(
     by.id(ids.appleAppPostMessageToast),
     DETOX_TIMING.TOAST_VISIBILITY_TIMEOUT_MS
   );

@@ -5,7 +5,7 @@ const {
 const {
   assertDetoxTextMatches,
   launchBrownfieldAppForDetox,
-  waitForVisibleIgnoringSync,
+  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
   scrollToNativeShellVanilla,
@@ -42,11 +42,11 @@ describe('Brownfield (AppleApp — Vanilla)', () => {
 
   it('navigates to native settings from the RN surface', async () => {
     await element(by.id(ids.openNativeSettings)).tap();
-    await waitForVisibleIgnoringSync(by.label('Settings'), 10000);
+    await waitForNativeOverlayVisible(by.label('Settings'), 10000);
   });
 
   it('navigates to native referrals from the RN surface', async () => {
     await element(by.id(ids.openNativeReferrals)).tap();
-    await waitForVisibleIgnoringSync(by.label('Referrals'), 10000, 0);
+    await waitForNativeOverlayVisible(by.label('Referrals'), 10000, 0);
   });
 });

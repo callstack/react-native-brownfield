@@ -1,22 +1,21 @@
-const { element, by, expect: detoxExpect } = require('detox');
+const { device, element, by, expect: detoxExpect } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
   launchBrownfieldAppForDetox,
-  reloadReactNativeIgnoringSync,
-  waitForVisibleIgnoringSync,
+  waitForVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 describe('Brownfield (RNApp)', () => {
   beforeAll(async () => {
     await launchBrownfieldAppForDetox({ newInstance: true });
     try {
-      await waitForVisibleIgnoringSync(by.id(ids.rnAppHome), 45000);
+      await waitForVisible(by.id(ids.rnAppHome), 45000);
     } catch {
-      await reloadReactNativeIgnoringSync();
-      await waitForVisibleIgnoringSync(by.id(ids.rnAppHome), 45000);
+      await device.reloadReactNative();
+      await waitForVisible(by.id(ids.rnAppHome), 45000);
     }
   });
 
