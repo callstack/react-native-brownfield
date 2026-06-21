@@ -76,6 +76,7 @@ ci_local_e2e_install_applesimutils() {
     if ! command -v applesimutils >/dev/null 2>&1; then
       echo "==> Installing applesimutils (Detox iOS simulator helper)"
       brew tap wix/brew
+      brew trust --formula wix/brew/applesimutils 2>/dev/null || true
       brew install applesimutils
     else
       echo "==> applesimutils already installed: $(command -v applesimutils)"

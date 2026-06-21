@@ -64,6 +64,7 @@ runs:
       if: inputs.run-e2e == 'true'
       run: |
         brew tap wix/brew
+        brew trust --formula wix/brew/applesimutils
         brew install applesimutils
       shell: bash
 
