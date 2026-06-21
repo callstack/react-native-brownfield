@@ -86,7 +86,39 @@ ci_local_e2e_should_build() {
 ci_local_e2e_run_detox_postinstall() {
   local app_path="$1"
   echo "==> Detox iOS postinstall (single run, avoids monorepo race)"
-  node "${app_path}/node_modules/detox/scripts/postinstall.js"
+  # Detox postinstall patches android/ relative to cwd; run from the app root (same as CI AppleApp step).
+  (cd "${app_path}" && node node_modules/detox/scripts/postinstall.js)
+}
+
+ci_local_e2e_apply_brownfield_debug_pod_settings() {
+  local ios_path="$1"
+  local pods_project="${ios_path}/Pods/Pods.xcodeproj"
+
+  if [[ ! -d "${pods_project}" ]]; then
+    echo "warning: ${pods_project} not found; skipping Brownfield Debug pod settings" >&2
+    return 0
+  fi
+
+  echo "==> Brownfield pods: disable Swift module interface for Debug E2E builds"
+  ruby - "${pods_project}" <<'RUBY'
+require 'xcodeproj'
+
+project = Xcodeproj::Project.open(ARGV[0])
+brownfield_pods = %w[Brownie BrownfieldNavigation ReactBrownfield]
+
+project.targets.each do |target|
+  next unless brownfield_pods.include?(target.name)
+
+  target.build_configurations.each do |config|
+    next unless config.name == 'Debug'
+
+    config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+    config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
+  end
+end
+
+project.save
+RUBY
 }
 
 ci_local_e2e_ensure_ios_xcode_env_updates() {
