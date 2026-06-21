@@ -1,15 +1,13 @@
-const { device, element, by, expect: detoxExpect } = require('detox');
+const { element, by, expect: detoxExpect } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
-  configureDetoxForBrownfieldIos,
+  launchBrownfieldAppForDetox,
   waitForVisibleIgnoringSync,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
-  detoxLaunchArgs,
-  scrollToEmbeddedRnVanilla,
   scrollToNativeShellVanilla,
   waitForAppleAppReadyVanilla,
   sendPostMessageToNativeAndWaitForToast,
@@ -17,11 +15,7 @@ const {
 
 describe('Brownfield (AppleApp — Vanilla)', () => {
   beforeEach(async () => {
-    await device.launchApp({
-      newInstance: true,
-      launchArgs: detoxLaunchArgs,
-    });
-    await configureDetoxForBrownfieldIos();
+    await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAppleAppReadyVanilla();
   });
 

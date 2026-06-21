@@ -36,6 +36,23 @@ async function configureDetoxForBrownfieldIos() {
 }
 
 /**
+ * Launch with synchronization disabled so Detox does not wait for RN Debug to become
+ * idle (Metro polling / animations can block until the Jest timeout).
+ */
+async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
+  await device.disableSynchronization();
+  try {
+    await device.launchApp({
+      newInstance,
+      launchArgs: detoxLaunchArgs,
+    });
+    await configureDetoxForBrownfieldIos();
+  } finally {
+    await device.enableSynchronization();
+  }
+}
+
+/**
  * Reload RN without waiting for the app to become idle. RN debug surfaces (and
  * animations) keep the run loop busy, so reload with sync enabled can hang until
  * the Jest timeout.
@@ -83,6 +100,7 @@ module.exports = {
   detoxAttrsText,
   assertDetoxTextMatches,
   configureDetoxForBrownfieldIos,
+  launchBrownfieldAppForDetox,
   reloadReactNativeIgnoringSync,
   waitForVisible,
   waitForVisibleIgnoringSync,
