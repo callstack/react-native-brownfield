@@ -34,6 +34,7 @@ runs:
         restore-turbo-cache: ${{ inputs.restore-turbo-cache }}
 
     - name: Prepare Android environment
+      id: prepare-android
       uses: ./.github/actions/prepare-android
       with:
         gradle-workflow-job-context: ${{ inputs.flavor }}
@@ -99,15 +100,9 @@ runs:
       run: echo "::endgroup::"
       shell: bash
 
-    - name: '::group:: Save ccache & clean RN android outputs'
-      run: echo "::group::Save ccache & clean RN android outputs"
+    - name: '::group:: Clean RN android outputs'
+      run: echo "::group::Clean RN android outputs"
       shell: bash
-
-    - name: Save Android ccache after native AAR build
-      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
-      with:
-        path: .android_ccache
-        key: ${{ runner.os }}-android-ccache-${{ inputs.flavor }}-x86_64-${{ hashFiles('yarn.lock', '**/gradle-wrapper.properties', format('{0}/package.json', inputs.rn-project-path)) }}
 
     - name: Clean up local RN Android build outputs
       run: |
@@ -121,7 +116,7 @@ runs:
         find "$ANDROID_DIR" -maxdepth 2 -name '.cxx' -type d -prune -exec rm -rf {} +
       shell: bash
 
-    - name: '::endgroup:: Save ccache & clean RN android outputs'
+    - name: '::endgroup:: Clean RN android outputs'
       run: echo "::endgroup::"
       shell: bash
 
@@ -137,15 +132,22 @@ runs:
       run: echo "::endgroup::"
       shell: bash
 
-    - name: '::group:: Summary'
-      run: echo "::group::Summary"
+    - name: '::group:: Save ccache & summary'
+      run: echo "::group::Save ccache & summary"
       shell: bash
+
+    - name: Save Android ccache
+      if: steps.prepare-android.outputs.android-ccache-cache-hit != 'true'
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: .android_ccache
+        key: ${{ steps.prepare-android.outputs.android-ccache-cache-primary-key }}
 
     - name: Log Android ccache stats
       uses: ./.github/actions/ccache-summary
       with:
         name: Android road test (${{ inputs.flavor }})
 
-    - name: '::endgroup:: Summary'
+    - name: '::endgroup:: Save ccache & summary'
       run: echo "::endgroup::"
       shell: bash

@@ -32,6 +32,14 @@ inputs:
     required: false
     default: ''
 
+outputs:
+  android-ccache-cache-hit:
+    description: 'Whether Android ccache restore matched the primary cache key exactly'
+    value: ${{ steps.android-ccache-restore.outputs.cache-hit }}
+  android-ccache-cache-primary-key:
+    description: 'Primary cache key used for Android ccache restore/save'
+    value: ${{ steps.android-ccache-restore.outputs.cache-primary-key }}
+
 runs:
   using: composite
   steps:
@@ -114,8 +122,9 @@ runs:
       shell: bash
 
     - name: Restore Android ccache
+      id: android-ccache-restore
       if: inputs.android-ccache == 'true'
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: .android_ccache
         key: ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-x86_64-${{ hashFiles('yarn.lock', '**/gradle-wrapper.properties', inputs.rn-project-path != '' && format('{0}/package.json', inputs.rn-project-path) || 'package.json') }}
