@@ -63,6 +63,9 @@ fi
 
     expect(rewritten).toContain('unset SKIP_BUNDLING');
     expect(rewritten).toContain('export FORCE_BUNDLING=1');
+    expect(rewritten).toContain(
+      'export EXTRA_PACKAGER_ARGS="$EXTRA_PACKAGER_ARGS --dev false"'
+    );
     expect(rewritten).not.toContain('export SKIP_BUNDLING=1');
     expect(rewritten).toContain('export BUNDLE_COMMAND="export:embed"');
     expect(rewritten).toContain('react-native-xcode.sh');
@@ -77,7 +80,7 @@ fi
       rewriteBundleReactNativePhaseScriptForFrameworkTarget(script);
 
     expect(rewritten).toMatch(
-      /^# Brownfield framework packaging must embed JS in Debug builds\.\nif \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\n {2}unset SKIP_BUNDLING\n {2}export FORCE_BUNDLING=1\nfi\n\nexport ENTRY_FILE="index\.js"/
+      /^# Brownfield framework packaging must embed JS in Debug builds\.\nif \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\n {2}unset SKIP_BUNDLING\n {2}export FORCE_BUNDLING=1\n {2}export EXTRA_PACKAGER_ARGS="\$EXTRA_PACKAGER_ARGS --dev false"\nfi\n\nexport ENTRY_FILE="index\.js"/
     );
   });
 });

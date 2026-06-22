@@ -454,6 +454,7 @@ export function rewriteBundleReactNativePhaseScriptForFrameworkTarget(
 if [[ "$CONFIGURATION" = *Debug* ]]; then
   unset SKIP_BUNDLING
   export FORCE_BUNDLING=1
+  export EXTRA_PACKAGER_ARGS="$EXTRA_PACKAGER_ARGS --dev false"
 fi
 `;
   const debugSkipBundlingBlock =
