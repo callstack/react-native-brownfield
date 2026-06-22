@@ -7,7 +7,7 @@
     "ios": "yarn brownfield:package:ios && brownfield codegen && react-native run-ios",
     "build:example:android-rn": "react-native build-android",
     "build:example:ios-rn": "react-native build-ios",
-    "brownfield:package:android": "brownfield package:android --module-name :BrownfieldLib --variant release --verbose",
+    "brownfield:package:android": "brownfield package:android --module-name :BrownfieldLib --variant devRelease --verbose",
     "brownfield:publish:android": "brownfield publish:android --module-name :BrownfieldLib --verbose",
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --verbose",
     "lint": "eslint .",
