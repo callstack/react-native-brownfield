@@ -22,7 +22,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          restore-turbo-cache: 'false' # in release workflow, build from scratch
+          disable-cache: 'true'
 
 
       - name: Build

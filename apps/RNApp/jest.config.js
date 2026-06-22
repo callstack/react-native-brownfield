@@ -7,6 +7,7 @@ module.exports = {
     '^react$': require.resolve('react'),
     '^react/jsx-runtime$': require.resolve('react/jsx-runtime'),
     '^react/jsx-dev-runtime$': require.resolve('react/jsx-dev-runtime'),
+    '^react-native$': require.resolve('react-native'),
     '^@testing-library/react-native$':
       require.resolve('@testing-library/react-native'),
     '^@callstack/react-native-brownfield$': path.join(

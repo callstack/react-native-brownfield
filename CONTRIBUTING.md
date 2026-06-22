@@ -12,7 +12,7 @@ After contributing your changes, please make sure to add a [changeset](https://g
 
 ### Pre-commit guard for brownfield-navigation
 
- This is a monorepo and the files inside `@callstack/brownfield-navigation` are auto-generated whenever `brownfield:package:*` is run. This is a desired behavior for the end user as these files will be inside the `node_modules`. However, since in this repo this package is symlinked, we see the changes in our git tree.
+This is a monorepo and the files inside `@callstack/brownfield-navigation` are auto-generated whenever `brownfield:package:*` is run. This is a desired behavior for the end user as these files will be inside the `node_modules`. However, since in this repo this package is symlinked, we see the changes in our git tree.
 
 These should not be committed by accident. A `pre-commit` guard blocks commits when those generated files are staged.
 
@@ -75,11 +75,11 @@ There are 2 brownfield host apps.
 
 For iOS, these scripts validate the legacy direct-XCFramework integration path. Each script uses the previously packaged artifacts from the respective directory (`apps/RNApp`, `apps/ExpoApp54`, or `apps/ExpoApp55`), invokes `prepareXCFrameworks.js` to copy XCFrameworks into `apps/AppleApp/package`, then runs `xcodebuild` against the matching scheme. The Xcode project reads fixed paths under `package/` (for example `package/BrownfieldLib.xcframework`).
 
-| Yarn script | RN app | Xcode target | Scheme | Configuration |
-| --- | --- | --- | --- | --- |
-| `build:example:ios-consumer:vanilla` | `RNApp` | `Brownfield Apple App (RNApp)` | Brownfield Apple App Vanilla | `Release Vanilla` |
-| `build:example:ios-consumer:expo54` | `ExpoApp54` | `Brownfield Apple App (ExpoApp54)` | Brownfield Apple App Expo 54 | `Release` |
-| `build:example:ios-consumer:expo55` | `ExpoApp55` | `Brownfield Apple App (ExpoApp55)` | Brownfield Apple App Expo 55 | `Release` |
+| Yarn script                          | RN app      | Xcode target                       | Scheme                       | Configuration     |
+| ------------------------------------ | ----------- | ---------------------------------- | ---------------------------- | ----------------- |
+| `build:example:ios-consumer:vanilla` | `RNApp`     | `Brownfield Apple App (RNApp)`     | Brownfield Apple App Vanilla | `Release Vanilla` |
+| `build:example:ios-consumer:expo54`  | `ExpoApp54` | `Brownfield Apple App (ExpoApp54)` | Brownfield Apple App Expo 54 | `Release`         |
+| `build:example:ios-consumer:expo55`  | `ExpoApp55` | `Brownfield Apple App (ExpoApp55)` | Brownfield Apple App Expo 55 | `Release`         |
 
 > [!IMPORTANT]
 > You can build and run `AppleApp` from the Xcode GUI by selecting the scheme for the variant you want. Before running, after switching schemes or re-packaging an RN app, run the matching `build:example:ios-consumer:...` script so fresh artifacts are present in `apps/AppleApp/package`. Otherwise Xcode will still link against the previous XCFrameworks.
@@ -111,18 +111,82 @@ The React Native example apps share Jest utilities and test suites from `apps/br
 
 From the repository root:
 
-| Command | Description |
-| --- | --- |
+| Command          | Description                                                             |
+| ---------------- | ----------------------------------------------------------------------- |
 | `yarn test:apps` | Runs `test` in all workspaces under `apps/` that define it (via Turbo). |
 
 Per example app (run from the repo root):
 
-| Command | App |
-| --- | --- |
-| `yarn workspace @callstack/brownfield-example-rn-app test` | Plain React Native (`apps/RNApp`) |
-| `yarn workspace @callstack/brownfield-example-expo-app-54 test` | Expo SDK 54 (`apps/ExpoApp54`) |
-| `yarn workspace @callstack/brownfield-example-expo-app-55 test` | Expo SDK 55 (`apps/ExpoApp55`) |
+| Command                                                         | App                               |
+| --------------------------------------------------------------- | --------------------------------- |
+| `yarn workspace @callstack/brownfield-example-rn-app test`      | Plain React Native (`apps/RNApp`) |
+| `yarn workspace @callstack/brownfield-example-expo-app-54 test` | Expo SDK 54 (`apps/ExpoApp54`)    |
+| `yarn workspace @callstack/brownfield-example-expo-app-55 test` | Expo SDK 55 (`apps/ExpoApp55`)    |
 
 Package-level scripts (`yarn test` inside `apps/RNApp`, `apps/ExpoApp54`, or `apps/ExpoApp55`) invoke Jest with each app’s `jest.config.js`.
 
 The native-only sample apps (`apps/AppleApp`, `apps/AndroidApp`) use their platform test runners (Xcode / Gradle), not Jest.
+
+## E2E tests (Detox)
+
+End-to-end tests use [Detox](https://wix.github.io/Detox/) on the iOS Simulator. Shared specs and helpers live in `apps/brownfield-example-shared-tests/e2e/`; each app wires them through its own `.detoxrc.cjs` and `e2e/jest.config.cjs`.
+
+E2E runs without Metro: the Debug simulator build embeds `main.jsbundle` (`FORCE_BUNDLING=1`) so the app loads JS from the binary, matching CI.
+
+### Two integration paths
+
+| Path                                            | What it exercises                                                | Typical flow                                                                                    |
+| ----------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| RN host app (`RNApp`, `ExpoApp54`, `ExpoApp55`) | Brownfield RN app running as the simulator target                | `expo prebuild` / pods → Detox build → Detox test                                               |
+| native host app (`AppleApp`)                    | Native host app consuming a packaged `BrownfieldLib` XCFramework | `brownfield:package:ios` → copy XCFrameworks into `AppleApp/package` → Detox build → Detox test |
+
+Per-app Detox scripts (run from the app directory):
+
+| App                       | Build                       | Test                       | Shared spec                        |
+| ------------------------- | --------------------------- | -------------------------- | ---------------------------------- |
+| `RNApp`                   | `yarn e2e:build:ios`        | `yarn e2e:test:ios`        | `rnAppBrownfield.e2e.js`           |
+| `ExpoApp54` / `ExpoApp55` | `yarn e2e:build:ios`        | `yarn e2e:test:ios`        | `expoPostMessageBrownfield.e2e.js` |
+| `AppleApp` (vanilla)      | `yarn e2e:build:ios`        | `yarn e2e:test:ios`        | `appleAppBrownfield.e2e.js`        |
+| `AppleApp` (Expo 55)      | `yarn e2e:build:ios:expo55` | `yarn e2e:test:ios:expo55` | `appleAppExpoBrownfield.e2e.js`    |
+
+### CI
+
+iOS Detox E2E runs in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) via [`.github/actions/appleapp-road-test`](.github/actions/appleapp-road-test/action.yml):
+
+| Job                           | E2E | Notes                                    |
+| ----------------------------- | --- | ---------------------------------------- |
+| `ios-appleapp-vanilla`        | Yes | `RNApp` → package → `AppleApp` Detox     |
+| `ios-appleapp-expo` (Expo 54) | No  | Road test only (Release build)           |
+| `ios-appleapp-expo` (Expo 55) | Yes | `ExpoApp55` → package → `AppleApp` Detox |
+
+On failure, CI uploads `apps/AppleApp/e2e-artifacts/` as a workflow artifact (`detox-appleapp-*-ios-recordings`).
+
+Direct host-app E2E is local-only — use the `ci:local:*` scripts below to reproduce CI-like setup on macOS.
+
+### Local CI scripts
+
+From the repo root (macOS + Xcode + Simulator required). All wrap `scripts/ci-local-ios-e2e-common.sh` and accept the same flags:
+
+| Command                                 | Mirrors                          |
+| --------------------------------------- | -------------------------------- |
+| `yarn ci:local:rnapp:e2e:ios`           | RN host app E2E (`apps/RNApp`)   |
+| `yarn ci:local:expo54:e2e:ios`          | Expo 54 host app E2E             |
+| `yarn ci:local:expo55:e2e:ios`          | Expo 55 host app E2E             |
+| `yarn ci:local:appleapp:e2e:ios`        | CI `ios-appleapp-vanilla`        |
+| `yarn ci:local:appleapp:e2e:ios:expo55` | CI `ios-appleapp-expo` (Expo 55) |
+
+Common flags (append to any command above):
+
+| Flag             | Effect                                                 |
+| ---------------- | ------------------------------------------------------ |
+| `--clean-ios`    | Remove `ios/Pods` and `ios/build` before setup         |
+| `--skip-install` | Skip root `yarn install` / `yarn build`                |
+| `--rebuild`      | Detox build + test only (skip install, prebuild, pods) |
+| `--test-only`    | Run tests against an existing build (no rebuild)       |
+| `--build-only`   | Detox build only, skip tests                           |
+
+Host-app scripts run `yarn install`, `yarn build`, brownfield codegen, `expo prebuild`, `pod install`, Detox postinstall, then `e2e:build:ios` and `e2e:test:ios`. The AppleApp script packages the RN app and copies XCFrameworks first (same as CI).
+
+### `e2e-artifacts/`
+
+Detox writes failure diagnostics under `<app>/e2e-artifacts/` (configured in `apps/brownfield-example-shared-tests/detox-artifacts-config.cjs`). Each run creates a timestamped subfolder, e.g. `e2e-artifacts/ios.sim.debug.<TIMESTAMP>/`.

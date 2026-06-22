@@ -11,6 +11,7 @@ function createExpoJestConfig({ appRootDir, moduleNameMapper = {} }) {
       '^react$': appRequire.resolve('react'),
       '^react/jsx-runtime$': appRequire.resolve('react/jsx-runtime'),
       '^react/jsx-dev-runtime$': appRequire.resolve('react/jsx-dev-runtime'),
+      '^react-native$': appRequire.resolve('react-native'),
       '^@testing-library/react-native$': appRequire.resolve(
         '@testing-library/react-native'
       ),

@@ -10,7 +10,9 @@
 #   yarn ci:local:appleapp:e2e:ios --rebuild
 #   yarn ci:local:appleapp:e2e:ios --test-only
 #   yarn ci:local:appleapp:e2e:ios --build-only
+#   yarn ci:local:appleapp:e2e:ios --no-restore-pods   # keep E2E Pods.xcodeproj patches after exit
 #
+# Local runs auto-run `pod install` on exit to restore Brownfield pod Debug settings (vanilla RN host).
 # From apps/AppleApp: yarn ci:local:e2e:ios [--flags]
 #
 set -euo pipefail
@@ -80,6 +82,7 @@ if ci_local_e2e_should_build "${TEST_ONLY}" && [[ "${REBUILD_ONLY}" != "true" ]]
 
     echo "==> pod install (RNApp — build RN from source for RNScreens)"
     (cd "${RN_PROJECT_IOS_PATH}" && RCT_USE_PREBUILT_RNCORE=0 pod install)
+    ci_local_e2e_apply_brownfield_debug_pod_settings "${RN_PROJECT_IOS_PATH}"
   fi
 
   echo "==> Package ${XCFRAMEWORK_APP} XCFramework for AppleApp"

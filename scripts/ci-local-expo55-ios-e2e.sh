@@ -8,7 +8,9 @@
 #   yarn ci:local:expo55:e2e:ios --rebuild           # Detox build + test (skip yarn install / prebuild / pods)
 #   yarn ci:local:expo55:e2e:ios --test-only         # tests only — does NOT rebuild the app
 #   yarn ci:local:expo55:e2e:ios --build-only        # build Detox app, skip tests
+#   yarn ci:local:expo55:e2e:ios --no-restore-pods   # keep E2E Pods.xcodeproj patches after exit
 #
+# Local runs auto-run `pod install` on exit to restore Brownfield pod Debug settings.
 # From apps/ExpoApp55: yarn ci:local:e2e:ios [--flags]
 #
 set -euo pipefail
@@ -50,6 +52,7 @@ if ci_local_e2e_should_build "${TEST_ONLY}" && [[ "${SKIP_INSTALL}" == "false" ]
 
   echo "==> pod install"
   (cd "${IOS_PATH}" && pod install)
+  ci_local_e2e_apply_brownfield_debug_pod_settings "${IOS_PATH}"
 
   ci_local_e2e_run_detox_postinstall "${APP_PATH}"
 elif [[ "${REBUILD_ONLY}" == "true" ]]; then
@@ -57,6 +60,7 @@ elif [[ "${REBUILD_ONLY}" == "true" ]]; then
 fi
 
 if ci_local_e2e_should_build "${TEST_ONLY}"; then
+  ci_local_e2e_apply_brownfield_debug_pod_settings "${IOS_PATH}"
   ci_local_e2e_ensure_ios_xcode_env_updates "${IOS_PATH}"
   ci_local_e2e_run_detox_build "${APP_PATH}"
   DETOX_APP="${IOS_PATH}/build/Build/Products/Debug-iphonesimulator/${APP_NAME}.app"
