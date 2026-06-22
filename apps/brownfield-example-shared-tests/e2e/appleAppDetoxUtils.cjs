@@ -10,8 +10,47 @@ const {
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
-const EXPO_HOME_TAB = by.label('Home');
+const EXPO_HOME_TAB_MATCHERS = [by.id(ids.expoHomeTab), by.label('Home')];
+const EXPO_POST_MESSAGE_TAB_MATCHERS = [
+  by.id(ids.expoPostMessageTab),
+  by.label('postMessage API'),
+];
 const EXPO_WELCOME_TITLE = by.text(/Welcome to\s+Expo\s+\d+/);
+
+async function withExpoTabMatcher(matchers, action) {
+  let lastError;
+  for (const matcher of matchers) {
+    try {
+      return await action(matcher);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+async function tapExpoTab(matchers) {
+  try {
+    await withExpoTabMatcher(matchers, async (matcher) => {
+      await waitForVisible(matcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS, 0);
+      await element(matcher).atIndex(0).tap();
+    });
+    return;
+  } catch {
+    // AppleApp can clip the native tab bar inside the embedded Expo surface.
+    // Fall back to a direct native tap when the tab exists but does not meet
+    // Detox visibility heuristics.
+  }
+
+  await device.disableSynchronization();
+  try {
+    await withExpoTabMatcher(matchers, (matcher) =>
+      element(matcher).atIndex(0).tap()
+    );
+  } finally {
+    await device.enableSynchronization();
+  }
+}
 
 async function scrollToEmbeddedRnVanilla() {
   try {
@@ -29,7 +68,9 @@ async function scrollToEmbeddedRnExpo() {
     try {
       await scrollView.scrollTo('bottom');
     } catch {
-      await element(EXPO_HOME_TAB).atIndex(0).swipe('up', 'fast', 0.85);
+      await withExpoTabMatcher(EXPO_HOME_TAB_MATCHERS, (matcher) =>
+        element(matcher).atIndex(0).swipe('up', 'fast', 0.85)
+      );
     }
   }
 }
@@ -46,7 +87,9 @@ async function scrollToNativeShellExpo() {
   try {
     await element(by.type('UIScrollView')).atIndex(0).scrollTo('top');
   } catch {
-    await element(EXPO_HOME_TAB).atIndex(0).swipe('down', 'fast', 0.85);
+    await withExpoTabMatcher(EXPO_HOME_TAB_MATCHERS, (matcher) =>
+      element(matcher).atIndex(0).swipe('down', 'fast', 0.85)
+    );
   }
 }
 
@@ -121,23 +164,24 @@ async function waitForAppleAppReadyVanilla() {
 
 async function waitForAppleAppReadyExpo() {
   try {
-    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB, 0);
+    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
     return;
   } catch {
-    // Home tab can be off-screen or slow; welcome title is a reliable fallback.
+    // Expo 55 does not expose tab IDs; fall back to the visible tab label.
   }
 
+  await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
+}
+
+async function openHomeTabExpo() {
+  await scrollToEmbeddedRnExpo();
+  await tapExpoTab(EXPO_HOME_TAB_MATCHERS);
   await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE);
 }
 
 async function openPostMessageTabExpo() {
   await scrollToEmbeddedRnExpo();
-  await waitForVisible(
-    by.label('postMessage API'),
-    DETOX_TIMING.VISIBILITY_TIMEOUT_MS,
-    0
-  );
-  await element(by.label('postMessage API')).atIndex(0).tap();
+  await tapExpoTab(EXPO_POST_MESSAGE_TAB_MATCHERS);
   await waitForVisible(
     by.id(ids.sendMessageToNative),
     DETOX_TIMING.VISIBILITY_TIMEOUT_MS
@@ -175,8 +219,10 @@ module.exports = {
   scrollToEmbeddedRnExpo,
   scrollToNativeShellVanilla,
   scrollToNativeShellExpo,
+  waitForEmbeddedExpoMatcher,
   waitForAppleAppReadyVanilla,
   waitForAppleAppReadyExpo,
+  openHomeTabExpo,
   openPostMessageTabExpo,
   sendPostMessageToNativeAndWaitForToast,
 };

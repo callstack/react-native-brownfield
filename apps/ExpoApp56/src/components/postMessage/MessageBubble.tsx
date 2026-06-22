@@ -1,6 +1,7 @@
 import { Animated, StyleSheet } from 'react-native';
 import { Message } from './Message';
 import { useEffect, useState } from 'react';
+import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import { ThemedText } from '@/components/themed-text';
 
 export function MessageBubble({ item }: { item: Message }) {
@@ -40,7 +41,13 @@ export function MessageBubble({ item }: { item: Message }) {
       <ThemedText style={styles.bubbleLabel}>
         {isFromNative ? 'From Native' : 'From RN'}
       </ThemedText>
-      <ThemedText style={styles.bubbleText}>{item.text}</ThemedText>
+      <ThemedText
+        style={styles.bubbleText}
+        testID={
+          isFromNative ? undefined : brownfieldE2ETestIds.rnPostMessageText
+        }>
+        {item.text}
+      </ThemedText>
     </Animated.View>
   );
 }
