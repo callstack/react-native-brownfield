@@ -34,6 +34,14 @@ private func brownfieldPostMessageText(from raw: String) -> String {
     return raw
 }
 
+private var brownfieldInitialProperties: [String: Any] {
+    [
+        "nativeOsVersionLabel":
+            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)",
+        "brownfieldE2E": ProcessInfo.processInfo.arguments.contains("-DetoxE2E"),
+    ]
+}
+
 struct ContentView: View {
     @State private var messageObserver: NSObjectProtocol?
     @State private var showPostMessageToast = false
@@ -50,10 +58,7 @@ struct ContentView: View {
 
                         ReactNativeView(
                             moduleName: reactNativeModuleName,
-                            initialProperties: [
-                                "nativeOsVersionLabel":
-                                    "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
-                            ]
+                            initialProperties: brownfieldInitialProperties
                         )
                         .navigationBarHidden(true)
                         .clipShape(RoundedRectangle(cornerRadius: 16))

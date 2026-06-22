@@ -28,6 +28,10 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: '::group:: Setup & prepare iOS'
+      run: echo "::group::Setup & prepare iOS"
+      shell: bash
+
     - name: Setup
       uses: ./.github/actions/setup
       with:
@@ -35,6 +39,14 @@ runs:
 
     - name: Prepare iOS environment
       uses: ./.github/actions/prepare-ios
+
+    - name: '::endgroup:: Setup & prepare iOS'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: ccache & iOS build caches'
+      run: echo "::group::ccache & iOS build caches"
+      shell: bash
 
     - name: Configure ccache environment
       run: |
@@ -52,6 +64,7 @@ runs:
       if: inputs.run-e2e == 'true'
       run: |
         brew tap wix/brew
+        brew trust --formula wix/brew/applesimutils
         brew install applesimutils
       shell: bash
 
@@ -60,7 +73,7 @@ runs:
       shell: bash
 
     - name: Restore AppleApp ccache
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: |
           .ios_ccache
@@ -68,10 +81,18 @@ runs:
         restore-keys: |
           ${{ runner.os }}-rnapp-appleapp-${{ inputs.variant }}-ios-ccache-
 
-    # == RN app ==
+    - name: '::endgroup:: ccache & iOS build caches'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: RN app — pods & package iOS XCFramework'
+      run: |
+        echo "::group::RN app — pods & package iOS XCFramework"
+        echo "variant=${{ inputs.variant }} rn-project=${{ inputs.rn-project-path }}"
+      shell: bash
 
     - name: Restore Pods cache (RN ${{ inputs.variant }} app)
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: |
           ${{ inputs.rn-project-path }}/ios/Pods
@@ -98,6 +119,13 @@ runs:
         pod install
       shell: bash
 
+    - name: Apply Brownfield Debug pod settings (E2E)
+      if: inputs.variant == 'vanilla' && inputs.run-e2e == 'true'
+      run: |
+        source scripts/ci-local-ios-e2e-common.sh
+        ci_local_e2e_apply_brownfield_debug_pod_settings "${{ github.workspace }}/${{ inputs.rn-project-path }}/ios"
+      shell: bash
+
     - name: Install pods (RN ${{ inputs.variant }} app)
       if: inputs.variant == 'vanilla' && inputs.run-e2e != 'true'
       run: |
@@ -106,7 +134,7 @@ runs:
       shell: bash
 
     - name: Restore DerivedData cache (RN ${{ inputs.variant }} app)
-      uses: actions/cache@v5
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ${{ inputs.rn-project-path }}/ios/build
         key: ${{ runner.os }}-ios-rnapp-${{ inputs.variant }}-derived-data-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path), format('{0}/ios/*.xcodeproj/project.pbxproj', inputs.rn-project-path)) }}
@@ -119,12 +147,29 @@ runs:
         yarn run brownfield:package:ios
       shell: bash
 
-    # == AppleApp ==
+    - name: '::endgroup:: RN app — pods & package iOS XCFramework'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: AppleApp — Release road test build'
+      if: inputs.run-e2e != 'true'
+      run: echo "::group::AppleApp — Release road test build"
+      shell: bash
 
     - name: Build Brownfield iOS native app (${{ inputs.variant }})
       if: inputs.run-e2e != 'true'
       run: |
         yarn run build:example:ios-consumer:${{ inputs.variant }}
+      shell: bash
+
+    - name: '::endgroup:: AppleApp — Release road test build'
+      if: inputs.run-e2e != 'true'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: AppleApp — Detox E2E'
+      if: inputs.run-e2e == 'true'
+      run: echo "::group::AppleApp — Detox E2E"
       shell: bash
 
     - name: Resolve AppleApp E2E settings
@@ -154,7 +199,7 @@ runs:
 
     - name: Restore Detox build cache (AppleApp)
       if: inputs.run-e2e == 'true'
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: apps/AppleApp/build
         key: ${{ runner.os }}-e2e-appleapp-${{ inputs.variant }}-build-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path), 'apps/AppleApp/Brownfield Apple App.xcodeproj/project.pbxproj', 'apps/brownfield-example-shared-tests/e2e/**') }}
@@ -176,6 +221,7 @@ runs:
     - name: Verify embedded JS bundle in BrownfieldLib (E2E)
       if: inputs.run-e2e == 'true'
       run: |
+        echo "::group::Verify embedded JS bundle"
         set -euo pipefail
         PRODUCTS_DIR="apps/AppleApp/build/Build/Products/${APPLEAPP_E2E_CONFIGURATION}-iphonesimulator"
         APP_PATH="$(find "$PRODUCTS_DIR" -maxdepth 1 -name '*.app' -print -quit)"
@@ -197,28 +243,42 @@ runs:
         fi
         echo "App executable OK: $EXECUTABLE_PATH ($(wc -c < "$EXECUTABLE_PATH") bytes)"
         echo "Embedded bundle OK: $BUNDLE_PATH ($(wc -c < "$BUNDLE_PATH") bytes)"
+        echo "::endgroup::"
       shell: bash
 
     - name: Detox test (AppleApp ${{ inputs.variant }})
       if: inputs.run-e2e == 'true'
       run: |
+        echo "::group::Detox test"
         rm -rf e2e-artifacts
         yarn "$APPLEAPP_E2E_TEST_SCRIPT"
+        echo "::endgroup::"
       working-directory: apps/AppleApp
       shell: bash
 
     - name: Upload Detox recordings on failure
       if: failure() && inputs.run-e2e == 'true'
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: ${{ inputs.e2e-artifact-name }}-${{ inputs.variant }}-ios-recordings
         path: apps/AppleApp/e2e-artifacts
         if-no-files-found: warn
         retention-days: 5
 
-    # ==============
+    - name: '::endgroup:: AppleApp — Detox E2E'
+      if: always() && inputs.run-e2e == 'true'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Summary'
+      run: echo "::group::Summary"
+      shell: bash
 
     - name: Log ccache stats
       uses: ./.github/actions/ccache-summary
       with:
         name: RN ${{ inputs.variant }} app & AppleApp
+
+    - name: '::endgroup:: Summary'
+      run: echo "::endgroup::"
+      shell: bash

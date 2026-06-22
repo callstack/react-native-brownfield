@@ -1,14 +1,17 @@
 const { device, element, by, waitFor } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const {
+  brownfieldE2ETestIds: ids,
+} = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
   assertDetoxTextMatches,
-  waitForVisibleIgnoringSync,
+  detoxLaunchArgs,
+  waitForVisible,
+  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
-const detoxLaunchArgs = {
-  BrownfieldPreferEmbeddedBundleInDebug: 'YES',
-  DetoxE2E: 'YES',
-};
+const EXPO_HOME_TAB = by.label('Home');
+const EXPO_WELCOME_TITLE = by.text(/Welcome to\s+Expo\s+\d+/);
 
 async function scrollToEmbeddedRnVanilla() {
   try {
@@ -26,7 +29,7 @@ async function scrollToEmbeddedRnExpo() {
     try {
       await scrollView.scrollTo('bottom');
     } catch {
-      await element(by.label('Home')).swipe('up', 'fast', 0.85);
+      await element(EXPO_HOME_TAB).atIndex(0).swipe('up', 'fast', 0.85);
     }
   }
 }
@@ -43,35 +46,63 @@ async function scrollToNativeShellExpo() {
   try {
     await element(by.type('UIScrollView')).atIndex(0).scrollTo('top');
   } catch {
-    await element(by.label('Home')).swipe('down', 'fast', 0.85);
+    await element(EXPO_HOME_TAB).atIndex(0).swipe('down', 'fast', 0.85);
+  }
+}
+
+async function waitForEmbeddedExpoMatcher(matcher, index = 0) {
+  try {
+    await scrollToEmbeddedRnExpo();
+  } catch {
+    // Embedded RN may already be on screen.
+  }
+
+  try {
+    await waitForVisible(matcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS, index);
+    return;
+  } catch {
+    // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
+    // cannot safely call reloadReactNative() here. Fall back to manual scroll
+    // recovery while synchronization is disabled.
+  }
+
+  await device.disableSynchronization();
+  try {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await scrollToEmbeddedRnExpo();
+      } catch {
+        // Continue polling visibility.
+      }
+
+      try {
+        await waitFor(element(matcher).atIndex(index))
+          .toBeVisible()
+          .withTimeout(10_000);
+        return;
+      } catch {
+        // Continue retry loop.
+      }
+    }
+
+    await waitFor(element(matcher).atIndex(index))
+      .toBeVisible()
+      .withTimeout(10_000);
+  } finally {
+    await device.enableSynchronization();
   }
 }
 
 async function waitForAppleAppReadyVanilla() {
   const rnHomeMatcher = by.id(ids.rnAppHome);
-  const rnHome = element(rnHomeMatcher);
   try {
-    await waitForVisibleIgnoringSync(rnHomeMatcher, 30000);
+    await scrollToEmbeddedRnVanilla();
   } catch {
-    // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
-    // cannot safely call reloadReactNative() here. Fall back to scroll-based
-    // recovery when the embedded surface is mounted off-screen.
-    await device.disableSynchronization();
-    try {
-      await scrollToEmbeddedRnVanilla();
-      await waitFor(rnHome).toBeVisible().withTimeout(20000);
-    } finally {
-      await device.enableSynchronization();
-    }
+    // Continue polling visibility.
   }
-}
 
-async function waitForAppleAppReadyExpo() {
-  const homeTab = by.label('Home');
-  const homeElement = () => element(homeTab).atIndex(0);
-  const welcomeTitle = by.text(/Welcome to\s+Expo\s+\d+/);
   try {
-    await waitForVisibleIgnoringSync(homeTab, 30000, 0);
+    await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
     return;
   } catch {
     // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
@@ -81,49 +112,61 @@ async function waitForAppleAppReadyExpo() {
 
   await device.disableSynchronization();
   try {
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      try {
-        await scrollToEmbeddedRnExpo();
-      } catch {}
-
-      try {
-        await waitFor(homeElement()).toBeVisible().withTimeout(10000);
-        return;
-      } catch {}
-
-      try {
-        await waitFor(element(welcomeTitle)).toBeVisible().withTimeout(10000);
-        return;
-      } catch {}
-    }
-
-    await waitFor(homeElement()).toBeVisible().withTimeout(10000);
+    await scrollToEmbeddedRnVanilla();
+    await waitFor(element(rnHomeMatcher)).toBeVisible().withTimeout(20_000);
   } finally {
     await device.enableSynchronization();
   }
 }
 
+async function waitForAppleAppReadyExpo() {
+  try {
+    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB, 0);
+    return;
+  } catch {
+    // Home tab can be off-screen or slow; welcome title is a reliable fallback.
+  }
+
+  await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE);
+}
+
 async function openPostMessageTabExpo() {
-  await waitForVisibleIgnoringSync(by.label('postMessage API'), 30000, 0);
+  await scrollToEmbeddedRnExpo();
+  await waitForVisible(
+    by.label('postMessage API'),
+    DETOX_TIMING.VISIBILITY_TIMEOUT_MS,
+    0
+  );
   await element(by.label('postMessage API')).atIndex(0).tap();
-  await waitForVisibleIgnoringSync(by.id(ids.sendMessageToNative), 30000);
+  await waitForVisible(
+    by.id(ids.sendMessageToNative),
+    DETOX_TIMING.VISIBILITY_TIMEOUT_MS
+  );
 }
 
 async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
-  await waitForVisibleIgnoringSync(by.id(ids.sendMessageToNative), 30000);
+  await waitForVisible(
+    by.id(ids.sendMessageToNative),
+    DETOX_TIMING.VISIBILITY_TIMEOUT_MS
+  );
   await element(by.id(ids.sendMessageToNative)).tap();
   const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
-  const deadline = Date.now() + 15000;
+  const deadline = Date.now() + DETOX_TIMING.POST_MESSAGE_BUBBLE_TIMEOUT_MS;
   while (Date.now() < deadline) {
     try {
       await assertDetoxTextMatches(bubble, rnMessagePattern);
       break;
     } catch {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) =>
+        setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+      );
     }
   }
   await assertDetoxTextMatches(bubble, rnMessagePattern);
-  await waitForVisibleIgnoringSync(by.id(ids.appleAppPostMessageToast), 10000);
+  await waitForNativeOverlayVisible(
+    by.id(ids.appleAppPostMessageToast),
+    DETOX_TIMING.TOAST_VISIBILITY_TIMEOUT_MS
+  );
 }
 
 module.exports = {

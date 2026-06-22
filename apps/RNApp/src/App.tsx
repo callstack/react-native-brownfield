@@ -1,16 +1,24 @@
 import '../BrownfieldStore.brownie';
 
 import { NavigationContainer } from '@react-navigation/native';
+import { useEffect } from 'react';
+import {
+  syncBrownfieldE2EModeFromRootProps,
+  type BrownfieldRootProps,
+} from '@callstack/brownfield-example-shared-tests/runtime';
 
 import { HomeScreen } from './HomeScreen';
 import { NativeOsVersionLabelContext } from './nativeHostContext';
 import { Stack } from './navigation/RootStack';
 
-type AppProps = {
-  nativeOsVersionLabel?: string;
-};
+type AppProps = BrownfieldRootProps;
 
-export default function App({ nativeOsVersionLabel }: AppProps) {
+export default function App({ nativeOsVersionLabel, brownfieldE2E }: AppProps) {
+  useEffect(() => {
+    syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
+    return () => syncBrownfieldE2EModeFromRootProps(undefined);
+  }, [brownfieldE2E]);
+
   return (
     <NativeOsVersionLabelContext.Provider value={nativeOsVersionLabel}>
       <NavigationContainer>

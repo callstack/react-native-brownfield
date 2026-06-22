@@ -10,5 +10,10 @@ runs:
   using: composite
   steps:
     - name: Log ccache stats
-      run: ccache -s > $GITHUB_STEP_SUMMARY
+      run: |
+        {
+          echo "### ${{ inputs.name }}"
+          echo
+          ccache -s
+        } >> "$GITHUB_STEP_SUMMARY"
       shell: bash
