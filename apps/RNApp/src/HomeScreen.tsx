@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
-import { brownfieldE2eTestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
+import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
 import { getRandomTheme } from './utils';
@@ -64,7 +64,7 @@ function MessageBubble({ item, color }: { item: Message; color: string }) {
       </Text>
       <Text
         testID={
-          isFromNative ? undefined : brownfieldE2eTestIds.rnPostMessageText
+          isFromNative ? undefined : brownfieldE2ETestIds.rnPostMessageText
         }
         style={styles.bubbleText}
       >
@@ -128,11 +128,11 @@ export function HomeScreen({
 
   return (
     <View
-      testID={brownfieldE2eTestIds.rnAppHome}
+      testID={brownfieldE2ETestIds.rnAppHome}
       style={[styles.container, { backgroundColor: colors.primary }]}
     >
       <Text
-        testID={brownfieldE2eTestIds.rnAppHomeTitle}
+        testID={brownfieldE2ETestIds.rnAppHomeTitle}
         accessibilityLabel="React Native Screen"
         style={[styles.text, { color: colors.secondary }]}
       >
@@ -152,7 +152,7 @@ export function HomeScreen({
 
       <View style={styles.nativeNavButtons}>
         <Button
-          testID={brownfieldE2eTestIds.openNativeSettings}
+          testID={brownfieldE2ETestIds.openNativeSettings}
           onPress={() =>
             BrownfieldNavigation.navigateToSettings({
               id: '123',
@@ -170,7 +170,7 @@ export function HomeScreen({
         />
 
         <Button
-          testID={brownfieldE2eTestIds.openNativeReferrals}
+          testID={brownfieldE2ETestIds.openNativeReferrals}
           onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
           color={colors.secondary}
           title="Open native referrals"
@@ -179,7 +179,7 @@ export function HomeScreen({
 
       <View style={styles.messageSection}>
         <TouchableOpacity
-          testID={brownfieldE2eTestIds.sendMessageToNative}
+          testID={brownfieldE2ETestIds.sendMessageToNative}
           style={[styles.sendButton, { backgroundColor: colors.secondary }]}
           onPress={sendMessage}
           activeOpacity={0.8}

@@ -83,6 +83,52 @@ react {
  val appProject = project(":app")
 ```
 
+### From `node_modules` Source
+
+The Maven dependency is the recommended default because it uses the prebuilt plugin and is faster.
+Use this source-based setup only when you need to patch the Brownfield Gradle Plugin locally. See the [Android integration docs](../../docs/docs/docs/getting-started/android.mdx#advanced-load-the-plugin-from-node-modules) for details.
+
+Add this to the top of `android/settings.gradle.kts`:
+
+```kotlin
+pluginManagement {
+    includeBuild(
+        File(
+            providers.exec {
+                workingDir(rootDir)
+                commandLine("node", "--print", "require.resolve('@callstack/react-native-brownfield/package.json')")
+            }.standardOutput.asText.get().trim()
+        ).parentFile.resolve("gradle-plugin/brownfield")
+    )
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+```
+
+For standard React Native app layouts, this shorter form also works:
+
+```kotlin
+pluginManagement {
+    includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/brownfield")
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+```
+
+Then remove the Maven classpath dependency:
+
+```diff
+- classpath("com.callstack.react:brownfield-gradle-plugin:1.1.0")
+```
+
+Keep using `id("com.callstack.react.brownfield")` in your brownfield Android library module.
+
 ## API Usage
 
 - **About Dependencies**

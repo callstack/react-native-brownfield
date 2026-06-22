@@ -8,7 +8,9 @@
 #   yarn ci:local:rnapp:e2e:ios --rebuild           # Detox build + test (skip yarn install / pods)
 #   yarn ci:local:rnapp:e2e:ios --test-only         # tests only — does NOT rebuild the app
 #   yarn ci:local:rnapp:e2e:ios --build-only        # build Detox app, skip tests
+#   yarn ci:local:rnapp:e2e:ios --no-restore-pods   # keep E2E Pods.xcodeproj patches after exit
 #
+# Local runs auto-run `pod install` on exit to restore Brownfield pod Debug settings.
 # From apps/RNApp: yarn ci:local:e2e:ios [--flags]
 #
 set -euo pipefail
@@ -43,6 +45,7 @@ if ci_local_e2e_should_build "${TEST_ONLY}" && [[ "${SKIP_INSTALL}" == "false" ]
 
   echo "==> pod install (RCT_USE_PREBUILT_RNCORE=0 — build RN from source for RNScreens)"
   (cd "${IOS_PATH}" && RCT_USE_PREBUILT_RNCORE=0 pod install)
+  ci_local_e2e_apply_brownfield_debug_pod_settings "${IOS_PATH}"
 
   ci_local_e2e_run_detox_postinstall "${APP_PATH}"
 elif [[ "${REBUILD_ONLY}" == "true" ]]; then

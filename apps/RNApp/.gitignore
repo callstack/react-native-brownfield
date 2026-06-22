@@ -64,7 +64,7 @@ yarn-error.log
 
 # testing
 /coverage
-/artifacts
+/e2e-artifacts
 
 # Yarn
 .yarn/*

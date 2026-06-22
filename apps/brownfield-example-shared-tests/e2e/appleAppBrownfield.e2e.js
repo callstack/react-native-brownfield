@@ -1,13 +1,13 @@
-const { device, element, by, expect: detoxExpect } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { element, by, expect: detoxExpect } = require('detox');
+const {
+  brownfieldE2ETestIds: ids,
+} = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
-  configureDetoxForBrownfieldIos,
-  waitForVisibleIgnoringSync,
+  launchBrownfieldAppForDetox,
+  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
-  detoxLaunchArgs,
-  scrollToEmbeddedRnVanilla,
   scrollToNativeShellVanilla,
   waitForAppleAppReadyVanilla,
   sendPostMessageToNativeAndWaitForToast,
@@ -15,11 +15,7 @@ const {
 
 describe('Brownfield (AppleApp — Vanilla)', () => {
   beforeEach(async () => {
-    await device.launchApp({
-      newInstance: true,
-      launchArgs: detoxLaunchArgs,
-    });
-    await configureDetoxForBrownfieldIos();
+    await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAppleAppReadyVanilla();
   });
 
@@ -46,11 +42,11 @@ describe('Brownfield (AppleApp — Vanilla)', () => {
 
   it('navigates to native settings from the RN surface', async () => {
     await element(by.id(ids.openNativeSettings)).tap();
-    await waitForVisibleIgnoringSync(by.label('Settings'), 10000);
+    await waitForNativeOverlayVisible(by.label('Settings'), 10000);
   });
 
   it('navigates to native referrals from the RN surface', async () => {
     await element(by.id(ids.openNativeReferrals)).tap();
-    await waitForVisibleIgnoringSync(by.label('Referrals'), 10000, 0);
+    await waitForNativeOverlayVisible(by.label('Referrals'), 10000, 0);
   });
 });

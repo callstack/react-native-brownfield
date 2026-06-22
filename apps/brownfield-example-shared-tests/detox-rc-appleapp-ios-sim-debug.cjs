@@ -1,6 +1,7 @@
 'use strict';
 
 const { getIosSimulatorDeviceType } = require('./detox-ios-simulator-device.cjs');
+const { getDetoxArtifactsConfig } = require('./detox-artifacts-config.cjs');
 
 /**
  * Detox iOS Simulator debug config for AppleApp (native Xcode project consumer).
@@ -30,6 +31,7 @@ function createAppleAppIosSimDebugDetoxConfig({
     ` -derivedDataPath build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO`;
 
   return {
+    artifacts: getDetoxArtifactsConfig(),
     testRunner: {
       $0: 'jest',
       args: {

@@ -1,7 +1,7 @@
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { brownfieldE2eTestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
+import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 import type { MessageEvent } from '@callstack/react-native-brownfield';
 
@@ -52,7 +52,7 @@ export default function PostMessageTab() {
   return (
     <ThemedView style={styles.messageSection}>
       <TouchableOpacity
-        testID={brownfieldE2eTestIds.sendMessageToNative}
+        testID={brownfieldE2ETestIds.sendMessageToNative}
         style={styles.sendButton}
         onPress={sendMessage}
         activeOpacity={0.8}

@@ -39,7 +39,7 @@ yarn-error.*
 app-example
 
 # Detox
-artifacts/
+e2e-artifacts/
 
 # generated native folders
 /ios

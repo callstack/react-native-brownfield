@@ -1,8 +1,9 @@
+import type { BrownfieldRootProps } from '../userAlert';
 import type { ComponentType } from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
-type RNAppProps = { nativeOsVersionLabel?: string };
+type RNAppProps = BrownfieldRootProps;
 
 function resetBrownieExampleStore() {
   const g = globalThis as typeof globalThis & {

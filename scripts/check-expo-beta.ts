@@ -26,7 +26,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const EXPO_BETA_APP_DIR = path.join(REPO_ROOT, 'apps', 'ExpoAppBeta');
-const EXPO_TEMPLATE_APP_CANDIDATES = ['ExpoApp56', 'ExpoApp55'];
 const EXPO_BETA_PACKAGE_JSON_PATH = path.join(EXPO_BETA_APP_DIR, 'package.json');
 const EXPO_BETA_APP_JSON_PATH = path.join(EXPO_BETA_APP_DIR, 'app.json');
 const EXPO_NPM_REGISTRY_URL = 'https://registry.npmjs.org/expo';
@@ -69,7 +68,7 @@ function parseArgs(argv: string[]): CliOptions {
   return options;
 }
 
-export async function fetchLatestExpoBetaVersion(): Promise<string | null> {
+export async function fetchLatestExpoCanaryVersion(): Promise<string | null> {
   const response = await fetch(EXPO_NPM_REGISTRY_URL);
 
   if (!response.ok) {
@@ -81,13 +80,13 @@ export async function fetchLatestExpoBetaVersion(): Promise<string | null> {
     versions?: Record<string, unknown>;
   };
 
-  const betaTag = data['dist-tags']?.beta;
-  if (betaTag) {
-    return betaTag;
+  const canaryTag = data['dist-tags']?.canary;
+  if (canaryTag) {
+    return canaryTag;
   }
 
   const versions = Object.keys(data.versions ?? {})
-    .filter((version) => version.includes('beta'))
+    .filter((version) => version.includes('canary'))
     .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
 
   return versions.at(-1) ?? null;
@@ -99,14 +98,22 @@ function updateFileContents(filePath: string, updater: (contents: string) => str
 }
 
 function getExpoTemplateAppDir(): string {
-  for (const candidate of EXPO_TEMPLATE_APP_CANDIDATES) {
-    const candidatePath = path.join(REPO_ROOT, 'apps', candidate);
-    if (existsSync(candidatePath)) {
-      return candidatePath;
-    }
+  const appsDir = path.join(REPO_ROOT, 'apps');
+  const expoAppCandidates = fs
+    .readdirSync(appsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && /^ExpoApp\d+$/.test(entry.name))
+    .map((entry) => ({
+      path: path.join(appsDir, entry.name),
+      version: Number(entry.name.replace('ExpoApp', '')),
+    }))
+    .sort((left, right) => right.version - left.version);
+
+  const latestCandidate = expoAppCandidates[0];
+  if (!latestCandidate) {
+    throw new Error('Could not find an Expo template app directory');
   }
 
-  throw new Error('Could not find an Expo template app directory');
+  return latestCandidate.path;
 }
 
 function replaceTemplateAppReferences(contents: string): string {
@@ -217,7 +224,7 @@ function appendSummary(
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const latestVersion = options.expoVersion ?? (await fetchLatestExpoBetaVersion());
+  const latestVersion = options.expoVersion ?? (await fetchLatestExpoCanaryVersion());
 
   if (!latestVersion) {
     appendKeyValueFile(options.githubOutput, {
