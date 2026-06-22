@@ -229,4 +229,29 @@ describe('runCodegen', () => {
 
     expect(mockGenerateSwift).toHaveBeenCalled();
   });
+
+  it('generates kotlin files from brownfield.config.json', async () => {
+    tempDir = createTempPackageJson({});
+    fs.writeFileSync(
+      path.join(tempDir, 'brownfield.config.json'),
+      JSON.stringify({
+        brownie: {
+          kotlin: './Generated',
+          kotlinPackageName: 'com.test',
+        },
+      })
+    );
+    mockCwd.mockReturnValue(tempDir);
+
+    await runCodegen({ platform: 'kotlin', projectRoot: tempDir });
+
+    expect(mockGenerateKotlin).toHaveBeenCalledWith({
+      name: 'TestStore',
+      schemaPath: '/path/to/TestStore.brownie.ts',
+      typeName: 'TestStore',
+      outputPath: 'Generated/TestStore.kt',
+      packageName: 'com.test',
+    });
+    expect(mockGenerateSwift).not.toHaveBeenCalled();
+  });
 });

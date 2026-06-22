@@ -9,7 +9,7 @@ export async function runBrownieCodegenIfApplicable(
 ) {
   const hasBrownie = isBrownieInstalled(projectRoot);
   if (hasBrownie) {
-    await runCodegen({ platform });
+    await runCodegen({ platform, projectRoot });
   }
 
   return { hasBrownie };

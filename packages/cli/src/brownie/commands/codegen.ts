@@ -6,7 +6,11 @@ import { Command, Option } from 'commander';
 import { intro, logger, outro } from '@rock-js/tools';
 import { QuickTypeError } from 'quicktype-core';
 import { actionRunner } from '../../shared/index.js';
-import { hasLegacyConfig, loadConfig, getSwiftOutputPath } from '../config.js';
+import {
+  getSwiftOutputPath,
+  resolveBrownieCodegenConfig,
+} from '../config.js';
+import { findProjectRoot } from '../../brownfield/utils/paths.js';
 import { generateSwift } from '../generators/swift.js';
 import { generateKotlin } from '../generators/kotlin.js';
 import { discoverStores, type DiscoveredStore } from '../store-discovery.js';
@@ -30,7 +34,8 @@ async function generateForStore(
   store: DiscoveredStore,
   config: BrownieConfig,
   platforms: Platform[],
-  showLabel: boolean
+  showLabel: boolean,
+  projectRoot: string
 ): Promise<void> {
   const { name, schemaPath } = store;
   const storeLabel = showLabel ? ` [${name}]` : '';
@@ -41,7 +46,7 @@ async function generateForStore(
     let outputPath: string;
 
     if (p === 'swift') {
-      const swiftOutputDir = getSwiftOutputPath();
+      const swiftOutputDir = getSwiftOutputPath(projectRoot);
       outputPath = getOutputPath(swiftOutputDir, name, 'swift');
     } else {
       const kotlinOutputDir = config.kotlin;
@@ -83,31 +88,32 @@ async function generateForStore(
 export type RunCodegenOptions = {
   platform?: Platform;
   brownie?: BrownieConfig;
+  projectRoot?: string;
 };
 
 /**
  * Runs the codegen command with the given arguments.
  */
-export async function runCodegen({ platform, brownie }: RunCodegenOptions) {
+export async function runCodegen({
+  platform,
+  brownie,
+  projectRoot,
+}: RunCodegenOptions) {
   intro(
     `Running Brownie codegen for ${platform ? `platform ${platform}` : 'all platforms'}`
   );
 
-  const legacyConfig = hasLegacyConfig() ? loadConfig() : undefined;
+  const resolvedProjectRoot = projectRoot ?? findProjectRoot();
+  const { config, usedLegacyConfig } = resolveBrownieCodegenConfig({
+    brownie,
+    projectRoot: resolvedProjectRoot,
+  });
 
-  if (legacyConfig && brownie) {
-    throw new Error(
-      'Cannot use both legacy and new Brownie configuration formats simultaneously. Please migrate to the new configuration format and remove legacy configuration files: https://oss.callstack.com/react-native-brownfield/docs/api-reference/configuration#migrating-from-legacy-brownie-configuration'
-    );
-  }
-
-  if (legacyConfig) {
+  if (usedLegacyConfig) {
     logger.warn(
       'You are using legacy Brownie configuration. Please migrate to the new configuration format. See the documentation for more details: https://oss.callstack.com/react-native-brownfield/docs/api-reference/configuration#migrating-from-legacy-brownie-configuration'
     );
   }
-
-  const config = brownie || legacyConfig || {};
 
   if (platform && !['swift', 'kotlin'].includes(platform)) {
     logger.error(`Invalid platform: ${platform}. Must be 'swift' or 'kotlin'`);
@@ -115,7 +121,7 @@ export async function runCodegen({ platform, brownie }: RunCodegenOptions) {
   }
 
   try {
-    const stores = discoverStores();
+    const stores = discoverStores(resolvedProjectRoot);
     const isMultipleStores = stores.length > 1;
     const schemaList = stores
       .map((s) => path.basename(s.schemaPath))
@@ -135,7 +141,13 @@ export async function runCodegen({ platform, brownie }: RunCodegenOptions) {
         platforms = ['swift', 'kotlin'];
       }
 
-      await generateForStore(store, config, platforms, isMultipleStores);
+      await generateForStore(
+        store,
+        config,
+        platforms,
+        isMultipleStores,
+        resolvedProjectRoot
+      );
     }
   } catch (error) {
     if (error instanceof NoBrownieStoresError) {
