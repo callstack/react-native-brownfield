@@ -14,9 +14,9 @@
     "ci:local:e2e:ios": "bash ../../scripts/ci-local-expo55-ios-e2e.sh",
     "prebuild": "expo prebuild",
     "brownfield:prepare:android:ci": "cd .. && node --experimental-strip-types --no-warnings ./scripts/prepare-android-build-gradle-for-ci.ts ExpoApp55",
-    "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release --verbose",
-    "brownfield:publish:android": "brownfield publish:android --module-name brownfieldlib --verbose",
-    "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --use-prebuilt-rn-core --verbose",
+    "brownfield:package:android": "brownfield package:android --variant release",
+    "brownfield:publish:android": "brownfield publish:android",
+    "brownfield:package:ios": "brownfield package:ios --configuration Release",
     "eas:stg": "EXPO_TOKEN=$EAS_TOKEN eas update --channel production --message 'testing 1st stg channel update' --platform ios --environment staging"
   },
   "dependencies": {
@@ -68,8 +68,17 @@
     "typescript": "~5.9.2"
   },
   "private": true,
-  "brownie": {
-    "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/",
-    "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp55"
+  "brownfield": {
+    "brownie": {
+      "kotlin": "./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/",
+      "kotlinPackageName": "com.callstack.rnbrownfield.demo.expoapp55"
+    },
+    "android": {
+      "moduleName": "brownfieldlib"
+    },
+    "ios": {
+      "scheme": "BrownfieldLib"
+    },
+    "verbose": true
   }
 }

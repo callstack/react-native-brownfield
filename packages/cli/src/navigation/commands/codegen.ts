@@ -42,9 +42,7 @@ export const navigationCodegenCommand = new Command('navigation:codegen')
         const specPath = typeof args[0] === 'string' ? args[0] : undefined;
         const options =
           args.find(
-            (
-              arg
-            ): arg is RunNavigationCodegenCommandOptions =>
+            (arg): arg is RunNavigationCodegenCommandOptions =>
               typeof arg === 'object' && arg !== null && 'dryRun' in arg
           ) ?? {};
 

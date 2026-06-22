@@ -47,19 +47,19 @@ object RNSourceSets {
 
         // 2. Use the onVariants block to configure each variant
         componentsExtension.onVariants { variant ->
+            val variantName = variant.name
             val bundledAssetsVariantName =
                 Utils.getBundledAssetsVariantName(
-                    variantName = variant.name,
+                    variantName = variantName,
                     buildTypeName = variant.buildType,
                     isDebuggable = variant.debuggable,
                 )
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
             val appProject = getAppProject()
 
-            // 3. Lazily configure the 'main' source set using .named()
-            androidExtension.sourceSets.named(variant.name) { sourceSet ->
-                // Paths are collected and added, similar to your improved version
-                val assetPathSegments =
+            // 3. Lazily configure the 'variant-specific' source set using .named()
+            androidExtension.sourceSets.named(variantName) { sourceSet ->
+                val bundlePathSegments =
                     listOf(
                         // outputs for RN <= 0.81
                         "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
@@ -68,10 +68,10 @@ object RNSourceSets {
                     )
                 val updateResourcesPathSegment = Utils.getExpoUpdatesResourcesTaskName(variant.name)
 
-                // Add the variant-specific generated asset and resource directories
                 val appBuildDir = getAppBuildDir()
-                sourceSet.assets.srcDirs(assetPathSegments.map { "$appBuildDir/generated/assets/$it" })
-                sourceSet.res.srcDirs(assetPathSegments.map { "$appBuildDir/generated/res/$it" })
+                sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
+                sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
+                sourceSet.jniLibs.srcDirs("libs${variantName.capitalized()}")
                 if (Utils.hasExpoUpdates(appProject, variant.name)) {
                     val updateResourcesTask = appProject.tasks.named(updateResourcesPathSegment)
                     sourceSet.assets.srcDir(
@@ -82,15 +82,6 @@ object RNSourceSets {
                     )
                 }
             }
-        }
-
-        // These remain the same, but using .named() is the modern, lazy approach
-        androidExtension.sourceSets.named("release") {
-            it.jniLibs.srcDirs("libsRelease")
-        }
-
-        androidExtension.sourceSets.named("debug") {
-            it.jniLibs.srcDirs("libsDebug")
         }
     }
 

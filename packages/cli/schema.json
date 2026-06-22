@@ -1,0 +1,110 @@
+{
+  "$ref": "#/definitions/BrownfieldConfig",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "BrownfieldAndroidConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "moduleName": {
+          "type": "string"
+        },
+        "variant": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BrownfieldConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "android": {
+          "$ref": "#/definitions/BrownfieldAndroidConfig"
+        },
+        "brownie": {
+          "$ref": "#/definitions/BrownieConfig"
+        },
+        "ios": {
+          "$ref": "#/definitions/BrownfieldIosConfig"
+        },
+        "verbose": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "BrownfieldIosConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "addSpmPackage": {
+          "description": "When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs.",
+          "type": "boolean"
+        },
+        "archive": {
+          "type": "boolean"
+        },
+        "buildFolder": {
+          "type": "string"
+        },
+        "configuration": {
+          "type": "string"
+        },
+        "destination": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exportExtraParams": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exportOptionsPlist": {
+          "type": "string"
+        },
+        "extraParams": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "installPods": {
+          "type": "boolean"
+        },
+        "local": {
+          "type": "boolean"
+        },
+        "newArch": {
+          "type": "boolean"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "usePrebuiltRnCore": {
+          "description": "Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults).",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "BrownieConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "kotlin": {
+          "type": "string"
+        },
+        "kotlinPackageName": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

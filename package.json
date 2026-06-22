@@ -22,6 +22,7 @@
     "brownfield:plugin:release-notes": "node --experimental-strip-types --no-warnings ./scripts/generate-brownfield-gradle-plugin-release-notes.ts",
     "brownfield:plugin:version:check": "node --experimental-strip-types --no-warnings ./scripts/sync-brownfield-gradle-plugin-version.ts --check",
     "brownfield:plugin:version:sync": "node --experimental-strip-types --no-warnings ./scripts/sync-brownfield-gradle-plugin-version.ts",
+    "generate:schema": "yarn workspace @callstack/brownfield-cli generate:schema",
     "generate:store": "node --experimental-strip-types --no-warnings ./scripts/generate-store.ts",
     "skillgym:brownie": "skillgym run skillgym/suites/brownie-suite.ts",
     "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts",

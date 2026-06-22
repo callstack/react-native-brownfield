@@ -199,6 +199,27 @@ reactBrownfield {
 
 <hr/>
 
+**Flavored Android Builds**
+
+To use product flavors and dimensions in your brownfield module, define them as usual:
+
+```kts
+    flavorDimensions += "env"
+
+    productFlavors {
+        create("prod") {
+            dimension = "env"
+        }
+        create("dev") {
+            dimension = "env"
+        }
+    }
+```
+
+This lets you run tasks like `gradle :brownfieldlib:assembleDevRelease`. However, once you add a flavor and dimension to the brownfield module, you must ensure the same flavor and dimension are defined in the `:app` module (your React Native app). This is required so the `brownfield-gradle-plugin` can correctly look up tasks for JavaScript bundling, Expo resources, and native binaries.
+
+If there is a flavor mismatch, the build will fail. If your `:app` module defines multiple flavors, that is fine. You only need to ensure that every flavor used in the brownfield module also exists in the app module.
+
 ## Tooling
 
 - We are using `ktlint` and `detekt` for formatting and linting

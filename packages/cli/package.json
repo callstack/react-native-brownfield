@@ -37,6 +37,11 @@
       "types": "./dist/navigation/index.d.ts",
       "default": "./dist/navigation/index.js"
     },
+    "./types": {
+      "source": "./src/types.ts",
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -45,6 +50,7 @@
     "build:brownfield": "yarn run build",
     "build": "node -e \"const fs=require('fs'),p=require('path');const d=p.join('dist','index.d.ts');if(!fs.existsSync(d)){try{fs.unlinkSync('tsconfig.tsbuildinfo')}catch{}}\" && tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
+    "generate:schema": "ts-json-schema-generator --path src/types.ts --type BrownfieldConfig --out schema.json && prettier --write schema.json",
     "test": "vitest run"
   },
   "keywords": [
@@ -81,6 +87,7 @@
     "@rock-js/plugin-brownfield-android": "^0.13.3",
     "@rock-js/plugin-brownfield-ios": "^0.13.3",
     "@rock-js/tools": "^0.13.3",
+    "ajv": "^8.20.0",
     "commander": "^14.0.3",
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",
@@ -100,6 +107,7 @@
     "eslint": "^9.39.3",
     "globals": "^17.3.0",
     "nodemon": "^3.1.14",
+    "ts-json-schema-generator": "^2.9.0",
     "typescript": "5.9.3",
     "vitest": "^4.1.4"
   },

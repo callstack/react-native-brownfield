@@ -3,7 +3,6 @@ import path from 'node:path';
 import {
   getBuildOptions,
   mergeFrameworks,
-  type BuildFlags as AppleBuildFlags,
 } from '@rock-js/platform-apple-helpers';
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
 import {
@@ -29,11 +28,13 @@ import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNa
 import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
 import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+import type { PackageIosOptions } from '../../types.js';
 import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
 import { packageTransitiveDynamicFrameworks } from '../utils/packageTransitiveDynamicFrameworks.js';
 import { copyBundledXcframeworks } from '../utils/copyBundledXcframeworks.js';
 import { packageSupportModuleXcframework } from '../utils/packageReactBrownfieldXcframework.js';
 import { stripPackagedCodeSignatures } from '../utils/stripPackagedCodeSignatures.js';
+import { mergeBrownfieldConfigWithOptions } from '../../config.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -72,13 +73,6 @@ function getPackagedFrameworkResolutionFailureMessage({
     : 'could not resolve the packaged framework output automatically; pass --scheme explicitly';
 }
 
-type PackageIosCliFlags = AppleBuildFlags & {
-  /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
-  usePrebuiltRnCore?: boolean;
-  /** When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs. */
-  addSpmPackage?: boolean;
-};
-
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
   getBuildOptions({ platformName: 'ios' }).map((option) =>
@@ -104,7 +98,9 @@ export const packageIosCommand = curryOptions(
     )
   )
   .action(
-    actionRunner(async (options: PackageIosCliFlags) => {
+    actionRunner(async (cliOptions: PackageIosOptions) => {
+      const options = mergeBrownfieldConfigWithOptions(cliOptions, 'ios');
+
       const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
 
       const prebuiltRNCoreSupport = supportsPrebuiltRNCore({ projectRoot });
@@ -215,10 +211,12 @@ export const packageIosCommand = curryOptions(
 
       if (!frameworkName && options.addSpmPackage) {
         throw new RockError(
-          `Cannot generate local SPM package: ${getPackagedFrameworkResolutionFailureMessage({
-            resolution,
-            candidates,
-          })}`
+          `Cannot generate local SPM package: ${getPackagedFrameworkResolutionFailureMessage(
+            {
+              resolution,
+              candidates,
+            }
+          )}`
         );
       }
 
@@ -250,10 +248,12 @@ export const packageIosCommand = curryOptions(
         }
       } else if (configuration.includes('Debug')) {
         logger.warn(
-          `Skipping Debug simulator JS bundle copy: ${getPackagedFrameworkResolutionFailureMessage({
-            resolution,
-            candidates,
-          })}`
+          `Skipping Debug simulator JS bundle copy: ${getPackagedFrameworkResolutionFailureMessage(
+            {
+              resolution,
+              candidates,
+            }
+          )}`
         );
       }
 
@@ -365,7 +365,7 @@ export const packageIosCommand = curryOptions(
           `Add the local package folder in Xcode: ${colorLink(relativeToCwd(packageDir))}`
         );
         logger.info(
-          "In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder."
+          'In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder.'
         );
       }
     })
