@@ -4,6 +4,7 @@
 module.exports = {
   android: {
     moduleName: ':BrownfieldLib',
+    varian: 'devRelease',
   },
   ios: {
     scheme: 'BrownfieldLib',
