@@ -1,5 +1,20 @@
 # @callstack/react-native-brownfield
 
+## 3.13.0
+
+### Minor Changes
+
+- [#359](https://github.com/callstack/react-native-brownfield/pull/359) [`533569b`](https://github.com/callstack/react-native-brownfield/commit/533569b59a4981669dfb738295b505343623bc32) Thanks [@MrMuzyk](https://github.com/MrMuzyk)! - Expose the Brownfield Android Gradle Plugin source from the npm package for opt-in local patching.
+
+- [#339](https://github.com/callstack/react-native-brownfield/pull/339) [`ef835b5`](https://github.com/callstack/react-native-brownfield/commit/ef835b52a130e4cd8770a2db04402cbb066b9c27) Thanks [@Esemesek](https://github.com/Esemesek)! - Added configuration file support for react-native-brownfield packages.
+
+### Patch Changes
+
+- [#391](https://github.com/callstack/react-native-brownfield/pull/391) [`95dbb43`](https://github.com/callstack/react-native-brownfield/commit/95dbb434d4c526b8f75bfd4c54b1d023e349ccf4) Thanks [@adamTrz](https://github.com/adamTrz)! - Fix Expo iOS framework debug bundle packaging so Debug builds load from Metro when it is available and fall back to embedded bundles without dev-server-only runtime code.
+
+- Updated dependencies [[`ef835b5`](https://github.com/callstack/react-native-brownfield/commit/ef835b52a130e4cd8770a2db04402cbb066b9c27)]:
+  - @callstack/brownfield-cli@3.13.0
+
 ## 3.12.0
 
 ### Minor Changes
