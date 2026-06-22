@@ -10,9 +10,13 @@ const {
 
 async function openPostMessageTab() {
   await device.disableSynchronization();
-  await waitForVisible(by.label('postMessage API'), 45000);
-  await element(by.label('postMessage API')).atIndex(0).tap();
-  await waitForVisible(by.id(ids.sendMessageToNative), 45000);
+  try {
+    await waitForVisible(by.label('postMessage API'), 45000);
+    await element(by.label('postMessage API')).atIndex(0).tap();
+    await waitForVisible(by.id(ids.sendMessageToNative), 45000);
+  } finally {
+    await device.enableSynchronization();
+  }
 }
 
 describe('Brownfield postMessage (Expo demo)', () => {
