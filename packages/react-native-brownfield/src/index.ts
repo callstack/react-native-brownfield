@@ -2,6 +2,8 @@ import { Platform } from 'react-native';
 
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
 
+export type { BrownfieldConfig } from '@callstack/brownfield-cli/types';
+
 export interface MessageEvent {
   data: unknown;
 }

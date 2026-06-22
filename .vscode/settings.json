@@ -1,0 +1,8 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["**/package.json"],
+      "url": "https://oss.callstack.com/react-native-brownfield/package-json.schema.json"
+    }
+  ]
+}

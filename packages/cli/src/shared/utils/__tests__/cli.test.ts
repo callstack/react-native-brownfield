@@ -1,6 +1,6 @@
 import * as rockTools from '@rock-js/tools';
 
-import { expect, Mock, test, vi } from 'vitest';
+import { beforeEach, expect, Mock, test, vi } from 'vitest';
 
 import { actionRunner } from '../cli.js';
 
@@ -31,6 +31,10 @@ const createWrappedFailingAction = (ErrorCls: new (message: string) => Error) =>
   actionRunner(async (_a: number, _b: number) => {
     throw new ErrorCls(FAILING_ACTION_ERROR_MESSAGE);
   });
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 test('actionRunner should call the wrapped function', async () => {
   const mockAction = vi.fn(async () => Promise.resolve());

@@ -23,8 +23,10 @@ export function curryOptions(programCommand: Command, options: RockCLIOptions) {
   return programCommand;
 }
 
-export function actionRunner<T, R>(fn: (...args: T[]) => Promise<R>) {
-  return async function wrappedCLIAction(...args: T[]) {
+export function actionRunner<Args extends unknown[], R>(
+  fn: (...args: Args) => Promise<R>
+) {
+  return async function wrappedCLIAction(...args: Args) {
     try {
       await fn(...args);
     } catch (error) {

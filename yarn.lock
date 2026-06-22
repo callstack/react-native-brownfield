@@ -1688,12 +1688,14 @@ __metadata:
     "@types/babel__preset-env": "npm:^7.10.0"
     "@types/node": "npm:^25.5.0"
     "@vitest/coverage-v8": "npm:^4.1.0"
+    ajv: "npm:^8.20.0"
     commander: "npm:^14.0.3"
     eslint: "npm:^9.39.3"
     globals: "npm:^17.3.0"
     nodemon: "npm:^3.1.14"
     quicktype-core: "npm:^23.2.6"
     quicktype-typescript-input: "npm:^23.2.6"
+    ts-json-schema-generator: "npm:^2.9.0"
     ts-morph: "npm:^27.0.2"
     typescript: "npm:5.9.3"
     vitest: "npm:^4.1.4"
@@ -7485,7 +7487,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.11.0, ajv@npm:^8.6.3":
+"ajv@npm:^8.11.0, ajv@npm:^8.20.0, ajv@npm:^8.6.3":
   version: 8.20.0
   resolution: "ajv@npm:8.20.0"
   dependencies:
@@ -19425,7 +19427,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"safe-stable-stringify@npm:^2.2.0, safe-stable-stringify@npm:^2.3.1":
+"safe-stable-stringify@npm:^2.2.0, safe-stable-stringify@npm:^2.3.1, safe-stable-stringify@npm:^2.5.0":
   version: 2.5.0
   resolution: "safe-stable-stringify@npm:2.5.0"
   checksum: 10/2697fa186c17c38c3ca5309637b4ac6de2f1c3d282da27cd5e1e3c88eca0fb1f9aea568a6aabdf284111592c8782b94ee07176f17126031be72ab1313ed46c5c
@@ -20708,6 +20710,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ts-json-schema-generator@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "ts-json-schema-generator@npm:2.9.0"
+  dependencies:
+    "@types/json-schema": "npm:^7.0.15"
+    commander: "npm:^14.0.3"
+    glob: "npm:^13.0.6"
+    json5: "npm:^2.2.3"
+    normalize-path: "npm:^3.0.0"
+    safe-stable-stringify: "npm:^2.5.0"
+    tslib: "npm:^2.8.1"
+    typescript: "npm:^5.9.3"
+  bin:
+    ts-json-schema-generator: bin/ts-json-schema-generator.js
+  checksum: 10/50a18cb6a1171e495af16a4fe8165000d0155ef693cec9345bacb8a5b6cc559dcc730443ebdc025590cd29ffd2019564267a8222c7f6389bdf5558856fbe479b
+  languageName: node
+  linkType: hard
+
 "ts-morph@npm:^27.0.2":
   version: 27.0.2
   resolution: "ts-morph@npm:27.0.2"
@@ -20768,7 +20788,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.5.3, tslib@npm:^2.8.0":
+"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.5.3, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10/3e2e043d5c2316461cb54e5c7fe02c30ef6dccb3384717ca22ae5c6b5bc95232a6241df19c622d9c73b809bea33b187f6dbc73030963e29950c2141bc32a79f7

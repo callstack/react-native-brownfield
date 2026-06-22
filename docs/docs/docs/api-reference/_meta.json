@@ -1,5 +1,10 @@
 [
   {
+    "type": "file",
+    "name": "configuration",
+    "label": "Configuration files"
+  },
+  {
     "type": "dir",
     "name": "react-native-brownfield",
     "label": "iOS & Android integration"

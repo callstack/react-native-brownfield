@@ -15,16 +15,15 @@ import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { getProjectInfo } from '../utils/project.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
+import { mergeBrownfieldConfigWithOptions } from '../../config.js';
 
 export const packageAndroidCommand = curryOptions(
   new Command('package:android').description('Build Android AAR'),
-  packageAarOptions.map((option) =>
-    option.name.startsWith('--variant')
-      ? { ...option, default: 'debug' }
-      : option
-  )
+  packageAarOptions
 ).action(
-  actionRunner(async (options: PackageAarFlags) => {
+  actionRunner(async (cliOptions: PackageAarFlags) => {
+    const options = mergeBrownfieldConfigWithOptions(cliOptions, 'android');
+
     const { projectRoot, platformConfig } = getProjectInfo('android');
     await runExpoPrebuildIfNeeded({
       projectRoot,
