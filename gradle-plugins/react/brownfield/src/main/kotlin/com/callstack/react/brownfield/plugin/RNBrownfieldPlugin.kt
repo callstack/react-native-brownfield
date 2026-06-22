@@ -21,6 +21,7 @@ import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
@@ -127,7 +128,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
         variantTaskProvider: VariantTaskProvider,
     ) {
         val variantName = variant.name
-        val capitalizedVariantName = variantName.replaceFirstChar(Char::titlecase)
 
         /** =======  EXPLODE AAR  =========*/
         val explodeTask = ExplodeTaskProvider.getTask(variant, project, artifacts)
@@ -151,9 +151,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
         jniLibsProcessor.processJniLibs(aarLibraries, variant)
 
         /** ===== proguardProcessor ===== */
-//        val proguardProcessor = ProguardProcessor(project)
-//        val proguardRules = aarLibraries.map { it.getProguardRules() }
-//        proguardProcessor.processConsumerFiles(proguardRules, capitalizedVariantName)
-//        proguardProcessor.processGeneratedFiles(proguardRules, capitalizedVariantName)
+        val proguardProcessor = ProguardProcessor(project)
+        val proguardRules = aarLibraries.map { it.getProguardRules() }
+        proguardProcessor.processFiles(proguardRules, variantName.capitalized(), explodeTask)
     }
 }
