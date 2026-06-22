@@ -60,6 +60,27 @@ function scoreDeviceType(name) {
   return score;
 }
 
+function pickBestDeviceType(types) {
+  let best = null;
+  let bestScore = -1;
+  for (const type of types) {
+    const score = scoreDeviceType(type);
+    if (score > bestScore) {
+      bestScore = score;
+      best = type;
+    }
+  }
+  return best;
+}
+
+function pickIosSimulatorDeviceType({ deviceTypes, availableDevices }) {
+  return (
+    pickBestDeviceType(availableDevices) ||
+    pickBestDeviceType(deviceTypes) ||
+    FALLBACK_DEVICE_TYPE
+  );
+}
+
 /**
  * Device `type` string for Detox `ios.simulator` config (matches Xcode / simctl names).
  *
@@ -74,21 +95,10 @@ function getIosSimulatorDeviceType() {
     process.env.DETOX_IOS_SIMULATOR_DEVICE?.trim();
   if (fromEnv) return fromEnv;
 
-  const types = [
-    ...listSimctlIphoneDeviceTypes(),
-    ...listSimctlAvailableIphoneDevices(),
-  ];
-
-  let best = null;
-  let bestScore = -1;
-  for (const t of types) {
-    const s = scoreDeviceType(t);
-    if (s > bestScore) {
-      bestScore = s;
-      best = t;
-    }
-  }
-  return best || FALLBACK_DEVICE_TYPE;
+  return pickIosSimulatorDeviceType({
+    deviceTypes: listSimctlIphoneDeviceTypes(),
+    availableDevices: listSimctlAvailableIphoneDevices(),
+  });
 }
 
-module.exports = { getIosSimulatorDeviceType };
+module.exports = { getIosSimulatorDeviceType, pickIosSimulatorDeviceType };

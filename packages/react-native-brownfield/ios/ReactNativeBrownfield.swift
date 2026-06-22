@@ -56,7 +56,7 @@ internal import Expo
   }
 
   /**
-   * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
+   * Use the embedded JavaScript bundle as a Debug fallback when Metro is unavailable.
    * Default value: false
    */
   @objc public var preferEmbeddedBundleInDebug: Bool = false {

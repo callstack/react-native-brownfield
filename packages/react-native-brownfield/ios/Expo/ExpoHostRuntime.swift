@@ -102,7 +102,7 @@ final class ExpoHostRuntime {
   }
 
   /**
-   * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
+   * Use the embedded JavaScript bundle as a Debug fallback when Metro is unavailable.
    * Default value: false
    */
   public var preferEmbeddedBundleInDebug: Bool = false {
@@ -232,7 +232,8 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
         bundleURLOverride: nil,
         metroURL: {
           RCTBundleURLProvider.sharedSettings().jsBundleURL(
-            forBundleRoot: entryFile
+            forBundleRoot: entryFile,
+            fallbackURLProvider: { nil }
           )
         }
       )
