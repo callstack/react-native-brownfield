@@ -1,6 +1,8 @@
 package com.callstack.react.brownfield.processors
 
 import com.android.build.api.variant.LibraryVariant
+import com.callstack.react.brownfield.shared.Constants.INTERMEDIATES_TEMP_DIR
+import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
@@ -17,6 +19,18 @@ import org.gradle.api.tasks.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 
+/**
+ * Below contains a list of dynamic libs which we should not embed
+ * with the AAR as they are provided by the Gradle when AAR is
+ * consumed by the host App.
+ */
+val UN_ALLOWED_LIBS = listOf(
+    "libc++_shared.so", "libfbjni.so", "libhermestooling.so",
+    "libhermesvm.so", "libimagepipeline.so", "libjsi.so",
+    "libnative-filters.so", "libnative-imagetranscoder.so",
+    "libreactnative.so"
+)
+
 abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
 
     @get:InputFiles
@@ -30,9 +44,6 @@ abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
 
     @get:Input
     abstract val useStrippedSoFiles: Property<Boolean>
-
-    @get:Input
-    abstract val dynamicLibs: ListProperty<String>
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -51,17 +62,23 @@ abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
         // 1. Scan and process duplicate libs from AAR paths
         aarJniDirs.forEach { jniDir ->
             if (jniDir.exists()) {
+                println("=== output path -- ${outDir.path}")
+                println("=== JNI Dir -- ${jniDir.path}")
                 processNestedLibs(jniDir.listFiles(), existingJNILibs)
 
                 // If not using stripped files, copy the unstripped ones directly to our output
                 if (!useStrippedSoFiles.get()) {
+                    println("=== copying unstripped libs")
                     jniDir.copyRecursively(outDir, overwrite = true)
                 }
+            } else {
+                println("=== JNI do not exists")
             }
         }
 
         // 2. If using stripped files, copy targeted files from the stripped directory
         if (useStrippedSoFiles.get() && strippedLibsDir.isPresent) {
+            println("=== copying stripped libs")
             copyStrippedSoLibs(outDir, existingJNILibs)
         }
     }
@@ -69,23 +86,18 @@ abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
     private fun copyStrippedSoLibs(outDir: File, existingJNILibs: MutableMap<String, MutableList<String>>) {
         val fromDir = strippedLibsDir.get().asFile
         if (fromDir.exists()) {
-            val allowedExtraLibs = dynamicLibs.get()
-
             existingJNILibs.forEach { (arch, libNames) ->
                 val sourceArchDir = File(fromDir, arch)
                 if (sourceArchDir.exists()) {
                     val destArchDir = File(outDir, arch).apply { mkdirs() }
-
                     sourceArchDir.listFiles()?.forEach { file ->
                         val name = file.name
 
-
                         val isCodegenLib = name.startsWith("libreact_codegen_") && name.endsWith(".so")
-                        val isAllowedLib = allowedExtraLibs.any { lib -> name == lib || name.contains(lib) }
-                        // Check against the filter patterns
-                        val matchesFilter = name == "libappmodules.so" || isCodegenLib || isAllowedLib
+                        val isUnAllowedLib = UN_ALLOWED_LIBS.any { lib -> name == lib || name.contains(lib) }
+                        val matchesFilter = name == "libappmodules.so" || isCodegenLib || !isUnAllowedLib
 
-                        if (name in libNames && matchesFilter) {
+                        if (matchesFilter) {
                             try {
                                 file.copyTo(File(destArchDir, name), overwrite = true)
                             } catch (e: java.io.IOException) {
@@ -121,6 +133,7 @@ class JNILibsProcessor(val project: Project) {
     fun processJniLibs(
         aarLibraries: Collection<AndroidArchiveLibrary>,
         variant: LibraryVariant,
+        explodeTask: TaskProvider<ExplodeAarTask>,
     ) {
         val variantName = variant.name
         val capitalizedVariantName = variantName.capitalized()
@@ -128,10 +141,14 @@ class JNILibsProcessor(val project: Project) {
         val appProject = project.rootProject.project(projectExt.appProjectName)
 
         val processJniTask = project.tasks.register("processCustomJniLibsFor$capitalizedVariantName",ProcessAndCopyJniLibsTask::class.java) {
+//            Verify if this is required
+//            it.dependsOn(explodeTask)
             it.useStrippedSoFiles.set(projectExt.useStrippedSoFiles)
-            it.dynamicLibs.set(projectExt.dynamicLibs)
 
-            val jniDirs = aarLibraries.map { aarLib -> aarLib.getJniDir() }
+            val jniDirs = aarLibraries.map { aarLib ->
+                aarLib.getJniDir()
+            }
+
             it.aarJniDirs.setFrom(jniDirs)
 
             val fromDirProvider = appProject.layout.buildDirectory.dir(

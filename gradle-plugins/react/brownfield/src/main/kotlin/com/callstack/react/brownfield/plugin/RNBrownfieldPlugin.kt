@@ -148,7 +148,7 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
         /** ===== jniLibsProcessor ===== */
         val jniLibsProcessor = JNILibsProcessor(project)
-        jniLibsProcessor.processJniLibs(aarLibraries, variant)
+        jniLibsProcessor.processJniLibs(aarLibraries, variant, explodeTask)
 
         /** ===== proguardProcessor ===== */
         val proguardProcessor = ProguardProcessor(project)
