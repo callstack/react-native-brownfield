@@ -459,6 +459,7 @@ fi
 `;
   const debugSkipBundlingBlock =
     /if \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\s+export SKIP_BUNDLING=1\s+fi\s*/m;
+  const forceBundlingExport = /^([ \t]*)export FORCE_BUNDLING=1[ \t]*$/m;
 
   if (debugSkipBundlingBlock.test(shellScript)) {
     return shellScript.replace(
@@ -468,6 +469,18 @@ fi
   }
 
   if (shellScript.includes('export FORCE_BUNDLING=1')) {
+    if (shellScript.includes('--dev false')) {
+      return shellScript;
+    }
+
+    if (forceBundlingExport.test(shellScript)) {
+      return shellScript.replace(
+        forceBundlingExport,
+        (_, indentation: string) =>
+          `${indentation}export FORCE_BUNDLING=1\n${indentation}export EXTRA_PACKAGER_ARGS="$EXTRA_PACKAGER_ARGS --dev false"`
+      );
+    }
+
     return shellScript;
   }
 
