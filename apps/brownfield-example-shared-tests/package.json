@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "node -e \"process.exit(0)\""
+    "test": "node --test ./*.test.cjs"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",

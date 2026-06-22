@@ -15,14 +15,20 @@ final class BrownfieldBundleURLResolver {
       return overriddenURL
     }
 
-    if isDebug && !preferEmbeddedBundleInDebug {
-      return metroURL()
-    }
-
     let (resourceName, fileExtension) = try BrownfieldBundlePathResolver.resourceComponents(
       from: bundlePath
     )
 
-    return bundle.url(forResource: resourceName, withExtension: fileExtension)
+    let embeddedBundleURL = bundle.url(forResource: resourceName, withExtension: fileExtension)
+
+    if isDebug {
+      if preferEmbeddedBundleInDebug {
+        return metroURL() ?? embeddedBundleURL
+      }
+
+      return metroURL()
+    }
+
+    return embeddedBundleURL
   }
 }

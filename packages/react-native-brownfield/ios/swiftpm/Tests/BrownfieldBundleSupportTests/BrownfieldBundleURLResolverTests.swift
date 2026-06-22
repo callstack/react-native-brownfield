@@ -2,7 +2,7 @@ import XCTest
 @testable import BrownfieldBundleSupport
 
 final class BrownfieldBundleURLResolverTests: XCTestCase {
-  func test_debugResolutionPrefersBundledResourceWhenEnabled() throws {
+  func test_debugResolutionUsesMetroWhenAvailableWithBundledFallbackEnabled() throws {
     let metroURL = URL(string: "http://localhost:8081/index.bundle?platform=ios")!
     let bundle = try makeFixtureBundle()
 
@@ -15,9 +15,23 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
       metroURL: { metroURL }
     )
 
+    XCTAssertEqual(resolvedURL, metroURL)
+  }
+
+  func test_debugResolutionFallsBackToBundledResourceWhenMetroIsUnavailable() throws {
+    let bundle = try makeFixtureBundle()
+
+    let resolvedURL = try BrownfieldBundleURLResolver.resolve(
+      isDebug: true,
+      preferEmbeddedBundleInDebug: true,
+      bundlePath: "main.jsbundle",
+      bundle: bundle,
+      bundleURLOverride: nil,
+      metroURL: { nil }
+    )
+
     XCTAssertNotNil(resolvedURL)
     XCTAssertEqual(resolvedURL?.lastPathComponent, "main.jsbundle")
-    XCTAssertNotEqual(resolvedURL, metroURL)
   }
 
   func test_debugResolutionUsesMetroByDefault() throws {
@@ -84,9 +98,7 @@ final class BrownfieldBundleURLResolverTests: XCTestCase {
       metroURL: { metroURL }
     )
 
-    XCTAssertNotNil(resolvedURL)
-    XCTAssertEqual(resolvedURL?.lastPathComponent, "main.jsbundle")
-    XCTAssertNotEqual(resolvedURL, metroURL)
+    XCTAssertEqual(resolvedURL, metroURL)
   }
 
   func test_invalidBundlePathThrows() {

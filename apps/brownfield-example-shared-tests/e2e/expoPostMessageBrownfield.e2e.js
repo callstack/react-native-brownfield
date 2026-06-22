@@ -8,14 +8,21 @@ const {
   waitForVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
+async function openPostMessageTab() {
+  await device.disableSynchronization();
+  await waitForVisible(by.label('postMessage API'), 45000);
+  await element(by.label('postMessage API')).atIndex(0).tap();
+  await waitForVisible(by.id(ids.sendMessageToNative), 45000);
+}
+
 describe('Brownfield postMessage (Expo demo)', () => {
   beforeEach(async () => {
     await launchBrownfieldAppForDetox({ newInstance: true });
     try {
-      await waitForVisible(by.id(ids.sendMessageToNative), 45000);
+      await openPostMessageTab();
     } catch {
       await device.reloadReactNative();
-      await waitForVisible(by.id(ids.sendMessageToNative), 45000);
+      await openPostMessageTab();
     }
   });
 

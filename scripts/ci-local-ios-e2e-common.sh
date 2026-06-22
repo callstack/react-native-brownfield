@@ -107,11 +107,13 @@ ci_local_e2e_register_pod_settings_restore() {
     return 0
   fi
 
-  for existing in "${CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE[@]}"; do
-    if [[ "${existing}" == "${ios_path}" ]]; then
-      return 0
-    fi
-  done
+  if [[ "${#CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE[@]}" -gt 0 ]]; then
+    for existing in "${CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE[@]}"; do
+      if [[ "${existing}" == "${ios_path}" ]]; then
+        return 0
+      fi
+    done
+  fi
 
   CI_LOCAL_E2E_IOS_PATHS_FOR_POD_RESTORE+=("${ios_path}")
 
@@ -229,17 +231,21 @@ ci_local_e2e_ensure_ios_xcode_env_updates() {
   local file="${ios_path}/.xcode.env.updates"
   local marker='# Detox / CI embedded bundle'
 
-  if [[ -f "${file}" ]] && grep -q "${marker}" "${file}"; then
+  if [[ -f "${file}" ]] &&
+    grep -q "${marker}" "${file}" &&
+    grep -q -- "--dev false" "${file}"; then
     return 0
   fi
 
   # Detox sets FORCE_BUNDLING=1, but Expo Debug also sets SKIP_BUNDLING=1 in the Xcode
-  # bundle script. Unset SKIP_BUNDLING when FORCE_BUNDLING is set so main.jsbundle is embedded.
+  # bundle script. Unset SKIP_BUNDLING and disable dev transforms when FORCE_BUNDLING is set
+  # so main.jsbundle is embedded and can run without Metro/devtools.
   cat > "${file}" <<'EOF'
 # Detox / CI embedded bundle
-# When FORCE_BUNDLING=1 (see apps/*/.detoxrc.cjs), embed JS for simulator E2E without Metro.
+# When FORCE_BUNDLING=1 (see apps/*/.detoxrc.cjs), embed production JS for simulator E2E without Metro.
 if [[ -n "$FORCE_BUNDLING" ]]; then
   unset SKIP_BUNDLING
+  export EXTRA_PACKAGER_ARGS="${EXTRA_PACKAGER_ARGS:-} --dev false"
 fi
 EOF
   echo "==> Wrote ${file} for Detox embedded bundle builds"
