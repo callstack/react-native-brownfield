@@ -94,13 +94,15 @@ runs:
         if [[ "${{ inputs.flavor }}" == "vanilla" ]]; then
           echo "debug=devDebug" >> "$GITHUB_OUTPUT"
           echo "release=devRelease" >> "$GITHUB_OUTPUT"
+          echo "verify_debug=true" >> "$GITHUB_OUTPUT"
         else
-          echo "debug=debug" >> "$GITHUB_OUTPUT"
           echo "release=release" >> "$GITHUB_OUTPUT"
+          echo "verify_debug=false" >> "$GITHUB_OUTPUT"
         fi
       shell: bash
 
     - name: Verify debug AAR exists in Maven Local
+      if: ${{ steps.aar-variants.outputs.verify_debug == 'true' }}
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.debug }}.aar
       shell: bash
 
