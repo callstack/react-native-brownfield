@@ -134,7 +134,7 @@ export function createAndroidModule({
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
-  const hermesArtifact = getHermesArtifact(rnVersion);
+  const hermesArtifact = getHermesArtifact(rnVersion, projectRoot);
   const compileSdkVersionExpression =
     resolveCompileSdkVersionExpression(config);
   const targetSdkVersionExpression = resolveTargetSdkVersionExpression(config);

@@ -198,6 +198,44 @@ describe('createAndroidModule', () => {
     );
   });
 
+  it('uses api dependencies and the installed React Native Hermes artifact for newer Expo projects', () => {
+    const androidDir = createAndroidDir();
+    const projectRoot = path.dirname(androidDir);
+    const versionPropertiesPath = path.join(
+      projectRoot,
+      'node_modules',
+      'react-native',
+      'sdks',
+      'hermes-engine',
+      'version.properties'
+    );
+
+    fs.mkdirSync(path.dirname(versionPropertiesPath), { recursive: true });
+    fs.writeFileSync(
+      versionPropertiesPath,
+      `HERMES_VERSION_NAME=0.16.0
+HERMES_V1_VERSION_NAME=250829098.0.10
+`,
+      'utf8'
+    );
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.85.3',
+      isExpoPre55: false,
+      projectRoot,
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'api("com.facebook.react:react-android:0.85.3")'
+    );
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'api("com.facebook.hermes:hermes-android:250829098.0.10")'
+    );
+    expect(readLibraryBuildGradle(androidDir)).not.toContain('compileOnlyApi');
+  });
+
   it('keeps explicit SDK overrides when they are provided', () => {
     const config = createConfig({
       android: {
