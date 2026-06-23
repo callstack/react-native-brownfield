@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 3.13.1
+
+### Patch Changes
+
+- [#394](https://github.com/callstack/react-native-brownfield/pull/394) [`89bc23c`](https://github.com/callstack/react-native-brownfield/commit/89bc23c00bb85c036fce6d4ea142fb3ba0846deb) Thanks [@Esemesek](https://github.com/Esemesek)! - Fix schema.json not being released
+
 ## 3.13.0
 
 ### Minor Changes
