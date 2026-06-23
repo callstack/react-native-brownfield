@@ -69,7 +69,8 @@
     "!**/__fixtures__",
     "!**/__mocks__",
     "!**/.*",
-    "README.md"
+    "README.md",
+    "schema.json"
   ],
   "publishConfig": {
     "access": "public"
