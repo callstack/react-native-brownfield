@@ -71,6 +71,23 @@ is_dynamic_framework_binary() {
   esac
 }
 
+remove_static_frameworks() {
+  find "${FRAMEWORKS_DIR}" -maxdepth 1 -type d -name '*.framework' | while IFS= read -r framework_dir; do
+    framework_name="$(basename "${framework_dir}" .framework)"
+    framework_binary="${framework_dir}/${framework_name}"
+
+    if [ ! -f "${framework_binary}" ]; then
+      continue
+    fi
+
+    if is_dynamic_framework_binary "${framework_binary}"; then
+      continue
+    fi
+
+    rm -rf "${framework_dir}"
+  done
+}
+
 case "${PLATFORM_NAME:-}" in
   *simulator*)
     want_simulator="yes"
@@ -117,3 +134,5 @@ printf '%s\n' "${xcframework_paths}" | while IFS= read -r xcframework_path; do
   cp -R "${framework_path}" "${destination_path}"
   sign_framework_if_needed "${destination_path}"
 done
+
+remove_static_frameworks

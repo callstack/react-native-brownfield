@@ -86,6 +86,15 @@ android {
         buildConfig = true
     }
 
+    packaging {
+        jniLibs {
+            // Brownfield packages stripped native libs from the prepared host app.
+            // Those overlap with transitive AAR JNI payloads, so the packaged copy
+            // must win instead of failing the merge on duplicate .so entries.
+            pickFirsts += setOf("**/*.so")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
