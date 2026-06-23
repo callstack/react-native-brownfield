@@ -10,6 +10,7 @@ import {
   modifySettingsGradle,
 } from './utils/gradleHelpers';
 import {
+  syncAndroidProjectGradleProperties,
   syncAndroidModuleExpoUpdatesFromAppFiles,
   withAndroidModuleFiles,
 } from './withAndroidModuleFiles';
@@ -55,6 +56,10 @@ export const withBrownfieldAndroid: ConfigPlugin<
   config = withFinalizedMod(config, [
     'android',
     async (finalizedConfig) => {
+      syncAndroidProjectGradleProperties({
+        androidDir: finalizedConfig.modRequest.platformProjectRoot,
+      });
+
       syncAndroidModuleExpoUpdatesFromAppFiles({
         androidDir: finalizedConfig.modRequest.platformProjectRoot,
         config: props,

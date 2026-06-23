@@ -46,11 +46,11 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "build": "bob build",
-    "dev": "nodemon --exitcrash false --ext '*' --watch src --exec \"bob build\"",
+    "build": "bob build && node ./scripts/sync-expo-template-assets.js",
+    "dev": "nodemon --exitcrash false --ext '*' --watch src --exec \"bob build && node ./scripts/sync-expo-template-assets.js\"",
     "build:brownfield": "yarn run build",
     "sync:gradle-plugin": "node ./scripts/sync-gradle-plugin-source.js",
-    "prepack": "node ./scripts/sync-gradle-plugin-source.js && cp ../../README.md ./README.md",
+    "prepack": "node ./scripts/sync-expo-template-assets.js && node ./scripts/sync-gradle-plugin-source.js && cp ../../README.md ./README.md",
     "postpack": "node ./scripts/sync-gradle-plugin-source.js --clean && rm ./README.md",
     "test": "vitest run"
   },

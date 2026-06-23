@@ -22,6 +22,57 @@ import {
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
 
+const MIN_GRADLE_METASPACE_MIB = 1024;
+const DEFAULT_GRADLE_HEAP_ARG = '-Xmx2048m';
+const FILE_ENCODING_ARG = '-Dfile.encoding=UTF-8';
+
+function toMiB(value: string, unit: string): number {
+  const numericValue = Number.parseInt(value, 10);
+  return unit.toLowerCase() === 'g' ? numericValue * 1024 : numericValue;
+}
+
+function ensureMinGradleJvmArg(
+  args: string,
+  pattern: RegExp,
+  fallbackArg: string,
+  minimumMiB: number,
+  renderArg: (miB: number) => string
+): string {
+  const match = args.match(pattern);
+  if (!match) {
+    return `${args} ${fallbackArg}`.trim();
+  }
+
+  const currentMiB = toMiB(match[1], match[2]);
+  if (currentMiB >= minimumMiB) {
+    return args;
+  }
+
+  return args.replace(pattern, renderArg(minimumMiB));
+}
+
+function normalizeGradleJvmArgs(args: string): string {
+  let normalized = args.trim();
+
+  normalized = ensureMinGradleJvmArg(
+    normalized,
+    /-XX:MaxMetaspaceSize=(\d+)([gGmM])/,
+    `-XX:MaxMetaspaceSize=${MIN_GRADLE_METASPACE_MIB}m`,
+    MIN_GRADLE_METASPACE_MIB,
+    (miB) => `-XX:MaxMetaspaceSize=${miB}m`
+  );
+
+  if (!/-Xmx\d+[gGmM]/.test(normalized)) {
+    normalized = `${DEFAULT_GRADLE_HEAP_ARG} ${normalized}`.trim();
+  }
+
+  if (!normalized.includes(FILE_ENCODING_ARG)) {
+    normalized = `${normalized} ${FILE_ENCODING_ARG}`.trim();
+  }
+
+  return normalized.replace(/\s+/g, ' ');
+}
+
 export function resolveCompileSdkVersionExpression(
   config: ResolvedBrownfieldPluginConfigWithAndroid
 ): string {
@@ -251,6 +302,39 @@ export function syncAndroidModuleExpoUpdatesFromAppFiles({
     config,
     expoUpdatesStringResources,
   });
+}
+
+export function syncAndroidProjectGradleProperties({
+  androidDir,
+}: {
+  androidDir: string;
+}): void {
+  const gradlePropertiesPath = path.join(androidDir, 'gradle.properties');
+  if (!fs.existsSync(gradlePropertiesPath)) {
+    Logger.logDebug(
+      `Skipping Gradle properties sync because file does not exist: ${gradlePropertiesPath}`
+    );
+    return;
+  }
+
+  const contents = fs.readFileSync(gradlePropertiesPath, 'utf8');
+  const jvmArgsPattern = /^org\.gradle\.jvmargs=(.*)$/m;
+  const existingMatch = contents.match(jvmArgsPattern);
+  const existingArgs = existingMatch?.[1]?.trim() ?? '';
+  const normalizedArgs = normalizeGradleJvmArgs(existingArgs);
+
+  const nextContents = existingMatch
+    ? contents.replace(jvmArgsPattern, `org.gradle.jvmargs=${normalizedArgs}`)
+    : `${contents.trimEnd()}\norg.gradle.jvmargs=${normalizedArgs}\n`;
+
+  if (nextContents === contents) {
+    return;
+  }
+
+  fs.writeFileSync(gradlePropertiesPath, nextContents, 'utf8');
+  Logger.logDebug(
+    `Updated Gradle JVM args in ${gradlePropertiesPath}: ${normalizedArgs}`
+  );
 }
 
 /**
