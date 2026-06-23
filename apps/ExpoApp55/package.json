@@ -56,7 +56,7 @@
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^30.0.0",
     "@types/react": "~19.2.10",
-    "detox": "^20.27.0",
+    "detox": "^20.51.4",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~55.0.0",
     "globals": "^17.6.0",

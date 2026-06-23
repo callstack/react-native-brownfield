@@ -98,7 +98,7 @@
     "@react-native/babel-preset": "0.83.2",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.1.1",
-    "@vitest/coverage-v8": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^9.39.3",
     "globals": "^17.3.0",
     "import": "^0.0.6",
@@ -107,7 +107,7 @@
     "react-native": "0.83.2",
     "react-native-builder-bob": "^0.41.0",
     "typescript": "5.9.3",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.9"
   },
   "codegenConfig": {
     "name": "ReactNativeBrownfield",

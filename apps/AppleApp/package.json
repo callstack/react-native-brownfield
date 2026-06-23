@@ -19,8 +19,8 @@
   },
   "devDependencies": {
     "@callstack/brownfield-example-shared-tests": "workspace:^",
-    "@rock-js/tools": "^0.13.3",
-    "detox": "^20.27.0",
+    "@rock-js/tools": "^0.13.4",
+    "detox": "^20.51.4",
     "jest": "^29.7.0"
   }
 }
