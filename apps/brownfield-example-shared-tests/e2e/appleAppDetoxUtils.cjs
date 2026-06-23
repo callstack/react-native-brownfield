@@ -1,4 +1,4 @@
-const { device, element, by, waitFor } = require('detox');
+const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
@@ -17,6 +17,15 @@ const EXPO_POST_MESSAGE_TAB_MATCHERS = [
 ];
 const EXPO_WELCOME_TITLE = by.text(/Welcome to\s+Expo\s+\d+/);
 
+async function isVisible(matcher, index = 0) {
+  try {
+    await detoxExpect(element(matcher).atIndex(index)).toBeVisible();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function withExpoTabMatcher(matchers, action) {
   let lastError;
   for (const matcher of matchers) {
@@ -26,6 +35,32 @@ async function withExpoTabMatcher(matchers, action) {
       lastError = error;
     }
   }
+  throw lastError;
+}
+
+async function waitForAnyVisible(matchers, timeoutMs, index = 0) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    for (const matcher of matchers) {
+      if (await isVisible(matcher, index)) {
+        return matcher;
+      }
+    }
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  let lastError;
+  for (const matcher of matchers) {
+    try {
+      await detoxExpect(element(matcher).atIndex(index)).toBeVisible();
+      return matcher;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
   throw lastError;
 }
 
@@ -61,6 +96,14 @@ async function scrollToEmbeddedRnVanilla() {
 }
 
 async function scrollToEmbeddedRnExpo() {
+  if (
+    (await isVisible(EXPO_HOME_TAB_MATCHERS[0])) ||
+    (await isVisible(EXPO_HOME_TAB_MATCHERS[1])) ||
+    (await isVisible(EXPO_WELCOME_TITLE))
+  ) {
+    return;
+  }
+
   const scrollView = element(by.type('UIScrollView')).atIndex(0);
   try {
     await scrollView.scroll(500, 'down');
@@ -68,9 +111,13 @@ async function scrollToEmbeddedRnExpo() {
     try {
       await scrollView.scrollTo('bottom');
     } catch {
-      await withExpoTabMatcher(EXPO_HOME_TAB_MATCHERS, (matcher) =>
-        element(matcher).atIndex(0).swipe('up', 'fast', 0.85)
-      );
+      try {
+        await scrollView.swipe('up', 'fast', 0.85);
+      } catch {
+        await withExpoTabMatcher(EXPO_HOME_TAB_MATCHERS, (matcher) =>
+          element(matcher).atIndex(0).swipe('up', 'fast', 0.85)
+        );
+      }
     }
   }
 }
@@ -94,6 +141,13 @@ async function scrollToNativeShellExpo() {
 }
 
 async function waitForEmbeddedExpoMatcher(matcher, index = 0) {
+  try {
+    await waitForVisible(matcher, 5_000, index);
+    return;
+  } catch {
+    // The embedded Expo surface may already be mounted but off-screen.
+  }
+
   try {
     await scrollToEmbeddedRnExpo();
   } catch {
@@ -164,23 +218,41 @@ async function waitForAppleAppReadyVanilla() {
 
 async function waitForAppleAppReadyExpo() {
   try {
+    await waitForAnyVisible(
+      [EXPO_HOME_TAB_MATCHERS[0], EXPO_HOME_TAB_MATCHERS[1], EXPO_WELCOME_TITLE],
+      10_000
+    );
+    return;
+  } catch {
+    // Continue with scroll-based recovery when the embedded surface starts
+    // outside the initial viewport.
+  }
+
+  try {
     await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
     return;
   } catch {
     // Expo 55 does not expose tab IDs; fall back to the visible tab label.
   }
 
-  await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
+  try {
+    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
+    return;
+  } catch {
+    // Some Expo builds render the screen title before the tab labels settle.
+  }
+
+  await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE, 0);
 }
 
 async function openHomeTabExpo() {
-  await scrollToEmbeddedRnExpo();
+  await waitForAppleAppReadyExpo();
   await tapExpoTab(EXPO_HOME_TAB_MATCHERS);
   await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE);
 }
 
 async function openPostMessageTabExpo() {
-  await scrollToEmbeddedRnExpo();
+  await waitForAppleAppReadyExpo();
   await tapExpoTab(EXPO_POST_MESSAGE_TAB_MATCHERS);
   await waitForVisible(
     by.id(ids.sendMessageToNative),
