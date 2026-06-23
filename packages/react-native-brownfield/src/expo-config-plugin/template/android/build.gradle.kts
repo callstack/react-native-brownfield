@@ -109,8 +109,8 @@ android {
 }
 
 dependencies {
-    add("compileOnlyApi", "com.facebook.react:react-android:{{RN_VERSION}}")
-    add("compileOnlyApi", "{{HERMES_ARTIFACT}}")
+    api("com.facebook.react:react-android:{{RN_VERSION}}")
+    api("{{HERMES_ARTIFACT}}")
 
     api("io.coil-kt.coil3:coil-compose:3.2.0")
     api("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
