@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -38,6 +39,14 @@ const sourcePackagePath = path.join(
 );
 
 const targetPackagePath = path.join(__dirname, 'package');
+const inputFileListPath = path.join(
+  targetPackagePath,
+  'embed-framework-inputs.xcfilelist'
+);
+const outputFileListPath = path.join(
+  targetPackagePath,
+  'embed-framework-outputs.xcfilelist'
+);
 
 /**
  * The Xcode project is configured to link the following frameworks:
@@ -67,6 +76,76 @@ const spmArtifactsPath = path.join(sourcePackagePath, 'spm-artifacts');
 const preferredArtifactSourcePath = fs.existsSync(spmArtifactsPath)
   ? spmArtifactsPath
   : sourcePackagePath;
+const xcodeManagedFrameworks = new Set([
+  'BrownfieldLib.xcframework',
+  'BrownfieldNavigation.xcframework',
+  'Brownie.xcframework',
+  'React.xcframework',
+  'ReactBrownfield.xcframework',
+  'ReactNativeDependencies.xcframework',
+  'hermesvm.xcframework',
+]);
+
+const listFrameworkOutputs = (frameworkPath, destinationRoot) => {
+  const outputs = new Set([destinationRoot]);
+
+  const walk = (sourcePath, destinationPath) => {
+    outputs.add(destinationPath);
+
+    for (const entry of fs.readdirSync(sourcePath, { withFileTypes: true })) {
+      const childSourcePath = path.join(sourcePath, entry.name);
+      const childDestinationPath = path.join(destinationPath, entry.name);
+
+      outputs.add(childDestinationPath);
+
+      if (entry.isDirectory()) {
+        walk(childSourcePath, childDestinationPath);
+      }
+    }
+  };
+
+  walk(frameworkPath, destinationRoot);
+  outputs.add(path.join(destinationRoot, '_CodeSignature'));
+  outputs.add(path.join(destinationRoot, '_CodeSignature', 'CodeRequirements'));
+  outputs.add(path.join(destinationRoot, '_CodeSignature', 'CodeResources'));
+
+  return outputs;
+};
+
+const isDynamicFrameworkBinary = (binaryPath) => {
+  const output = execFileSync('file', [binaryPath], {
+    encoding: 'utf8',
+  });
+
+  return output.includes('dynamically linked shared library');
+};
+
+const findEmbeddableFrameworkBinary = (xcframeworkPath) => {
+  const infoPlistPath = path.join(xcframeworkPath, 'Info.plist');
+  const info = JSON.parse(
+    execFileSync('plutil', ['-convert', 'json', '-o', '-', infoPlistPath], {
+      encoding: 'utf8',
+    })
+  );
+
+  for (const library of info.AvailableLibraries ?? []) {
+    const binaryPath = path.join(
+      xcframeworkPath,
+      library.LibraryIdentifier,
+      library.BinaryPath
+    );
+
+    if (fs.existsSync(binaryPath) && isDynamicFrameworkBinary(binaryPath)) {
+      return binaryPath;
+    }
+  }
+
+  return null;
+};
+
+const shouldCopyFramework = (frameworkName, frameworkPath) =>
+  xcodeManagedFrameworks.has(frameworkName) ||
+  findEmbeddableFrameworkBinary(frameworkPath) !== null;
 
 for (const file of fs.readdirSync(preferredArtifactSourcePath)) {
   const sourcePath = path.join(preferredArtifactSourcePath, file);
@@ -75,6 +154,10 @@ for (const file of fs.readdirSync(preferredArtifactSourcePath)) {
     !fs.statSync(sourcePath).isDirectory() ||
     !file.endsWith('.xcframework')
   ) {
+    continue;
+  }
+
+  if (!shouldCopyFramework(file, sourcePath)) {
     continue;
   }
 
@@ -119,5 +202,63 @@ for (const file of fs.readdirSync(targetPackagePath)) {
 
   logger.success(`${file} prepared`);
 }
+
+const preparedFrameworks = fs
+  .readdirSync(targetPackagePath)
+  .filter((file) => file.endsWith('.xcframework'))
+  .sort();
+const additionalFrameworks = preparedFrameworks.filter(
+  (file) =>
+    !xcodeManagedFrameworks.has(file) &&
+    findEmbeddableFrameworkBinary(path.join(targetPackagePath, file))
+);
+
+fs.writeFileSync(
+  inputFileListPath,
+  additionalFrameworks
+    .map((file) => path.join(targetPackagePath, file))
+    .join('\n') + '\n'
+);
+
+const outputPaths = new Set();
+
+for (const file of additionalFrameworks) {
+  const xcframeworkPath = path.join(targetPackagePath, file);
+  const slices = fs.readdirSync(xcframeworkPath, { withFileTypes: true });
+
+  for (const slice of slices) {
+    if (!slice.isDirectory()) {
+      continue;
+    }
+
+    const slicePath = path.join(xcframeworkPath, slice.name);
+    const frameworkName = fs
+      .readdirSync(slicePath)
+      .find((entry) => entry.endsWith('.framework'));
+
+    if (!frameworkName) {
+      continue;
+    }
+
+    const frameworkPath = path.join(slicePath, frameworkName);
+    const destinationRoot = path.join(
+      '$(TARGET_BUILD_DIR)',
+      '$(FRAMEWORKS_FOLDER_PATH)',
+      frameworkName
+    );
+
+    for (const outputPath of listFrameworkOutputs(
+      frameworkPath,
+      destinationRoot
+    )) {
+      outputPaths.add(outputPath);
+    }
+  }
+}
+
+fs.writeFileSync(
+  outputFileListPath,
+  Array.from(outputPaths).sort().join('\n') + '\n'
+);
 
 outro(`Done!`);

@@ -541,6 +541,7 @@
 				files = (
 				);
 				inputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-inputs.xcfilelist",
 				);
 				inputPaths = (
 					"${PROJECT_DIR}/package",
@@ -548,6 +549,7 @@
 				);
 				name = "Embed Additional Packaged Frameworks";
 				outputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-outputs.xcfilelist",
 				);
 				outputPaths = (
 				);
@@ -562,6 +564,7 @@
 				files = (
 				);
 				inputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-inputs.xcfilelist",
 				);
 				inputPaths = (
 					"${PROJECT_DIR}/package",
@@ -569,6 +572,7 @@
 				);
 				name = "Embed Additional Packaged Frameworks";
 				outputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-outputs.xcfilelist",
 				);
 				outputPaths = (
 				);
@@ -583,6 +587,7 @@
 				files = (
 				);
 				inputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-inputs.xcfilelist",
 				);
 				inputPaths = (
 					"${PROJECT_DIR}/package",
@@ -590,6 +595,7 @@
 				);
 				name = "Embed Additional Packaged Frameworks";
 				outputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-outputs.xcfilelist",
 				);
 				outputPaths = (
 				);
@@ -604,6 +610,7 @@
 				files = (
 				);
 				inputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-inputs.xcfilelist",
 				);
 				inputPaths = (
 					"${PROJECT_DIR}/package",
@@ -611,6 +618,7 @@
 				);
 				name = "Embed Additional Packaged Frameworks";
 				outputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-outputs.xcfilelist",
 				);
 				outputPaths = (
 				);
@@ -625,6 +633,7 @@
 				files = (
 				);
 				inputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-inputs.xcfilelist",
 				);
 				inputPaths = (
 					"${PROJECT_DIR}/package",
@@ -632,6 +641,7 @@
 				);
 				name = "Embed Additional Packaged Frameworks";
 				outputFileListPaths = (
+					"${PROJECT_DIR}/package/embed-framework-outputs.xcfilelist",
 				);
 				outputPaths = (
 				);

@@ -65,6 +65,151 @@ function findFrameworkPath(platformProductsPath: string, frameworkName: string) 
   return null;
 }
 
+function getFrameworkArchitectures(frameworkPath: string) {
+  const binaryPath = findFrameworkBinaryPath(frameworkPath);
+
+  if (!binaryPath) {
+    return [];
+  }
+
+  const lipoOutput = execFileSync('xcrun', ['lipo', '-info', binaryPath], {
+    encoding: 'utf8',
+  }).trim();
+
+  const fatMatch = lipoOutput.match(/are:\s(.+)$/);
+  if (fatMatch) {
+    return fatMatch[1].split(/\s+/).filter(Boolean);
+  }
+
+  const thinMatch = lipoOutput.match(/architecture:\s(.+)$/);
+  if (thinMatch) {
+    return [thinMatch[1]];
+  }
+
+  return [];
+}
+
+function writeFallbackXcframework({
+  frameworkName,
+  outputPath,
+  deviceFrameworkPath,
+  simulatorFrameworkPath,
+}: {
+  frameworkName: string;
+  outputPath: string;
+  deviceFrameworkPath: string;
+  simulatorFrameworkPath: string;
+}) {
+  fs.rmSync(outputPath, { recursive: true, force: true });
+  fs.mkdirSync(outputPath, { recursive: true });
+  const deviceArchitectures = getFrameworkArchitectures(deviceFrameworkPath);
+  const simulatorArchitectures = getFrameworkArchitectures(simulatorFrameworkPath);
+
+  const slices = [
+    {
+      frameworkPath: deviceFrameworkPath,
+      libraryIdentifier: `ios-${deviceArchitectures.join('_') || 'arm64'}`,
+      supportedArchitectures:
+        deviceArchitectures.length > 0 ? deviceArchitectures : ['arm64'],
+      supportedPlatform: 'ios',
+      supportedPlatformVariant: null,
+    },
+    {
+      frameworkPath: simulatorFrameworkPath,
+      libraryIdentifier: `ios-${simulatorArchitectures.join('_') || 'arm64_x86_64'}-simulator`,
+      supportedArchitectures:
+        simulatorArchitectures.length > 0
+          ? simulatorArchitectures
+          : ['arm64', 'x86_64'],
+      supportedPlatform: 'ios',
+      supportedPlatformVariant: 'simulator',
+    },
+  ];
+
+  const availableLibrariesXml = slices
+    .map(
+      ({
+        libraryIdentifier,
+        supportedArchitectures,
+        supportedPlatform,
+        supportedPlatformVariant,
+      }) => `    <dict>
+      <key>BinaryPath</key>
+      <string>${frameworkName}.framework/${frameworkName}</string>
+      <key>LibraryIdentifier</key>
+      <string>${libraryIdentifier}</string>
+      <key>LibraryPath</key>
+      <string>${frameworkName}.framework</string>
+      <key>SupportedArchitectures</key>
+      <array>
+${supportedArchitectures
+  .map((architecture) => `        <string>${architecture}</string>`)
+  .join('\n')}
+      </array>
+      <key>SupportedPlatform</key>
+      <string>${supportedPlatform}</string>
+${supportedPlatformVariant ? `      <key>SupportedPlatformVariant</key>\n      <string>${supportedPlatformVariant}</string>\n` : ''}    </dict>`
+    )
+    .join('\n');
+
+  for (const { frameworkPath, libraryIdentifier } of slices) {
+    fs.cpSync(
+      frameworkPath,
+      path.join(outputPath, libraryIdentifier, `${frameworkName}.framework`),
+      { recursive: true }
+    );
+  }
+
+  fs.writeFileSync(
+    path.join(outputPath, 'Info.plist'),
+    `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>AvailableLibraries</key>
+  <array>
+${availableLibrariesXml}
+  </array>
+  <key>CFBundlePackageType</key>
+  <string>XFWK</string>
+  <key>XCFrameworkFormatVersion</key>
+  <string>1.0</string>
+</dict>
+</plist>
+`
+  );
+}
+
+function collectBuiltFrameworkNames(platformProductsPath: string) {
+  const frameworkNames = new Set<string>();
+  const pending = [platformProductsPath];
+
+  while (pending.length > 0) {
+    const currentPath = pending.pop();
+
+    if (!currentPath || !fs.existsSync(currentPath)) {
+      continue;
+    }
+
+    for (const entry of fs.readdirSync(currentPath, { withFileTypes: true })) {
+      if (!entry.isDirectory()) {
+        continue;
+      }
+
+      const entryPath = path.join(currentPath, entry.name);
+
+      if (entry.name.endsWith('.framework') && findFrameworkBinaryPath(entryPath)) {
+        frameworkNames.add(path.basename(entry.name, '.framework'));
+        continue;
+      }
+
+      pending.push(entryPath);
+    }
+  }
+
+  return frameworkNames;
+}
+
 export async function packageTransitiveDynamicFrameworks({
   configuration,
   frameworkName,
@@ -84,6 +229,17 @@ export async function packageTransitiveDynamicFrameworks({
   const frameworkNameQueue = [frameworkName];
   const additionalFrameworkNames = new Set<string>();
   const resolvedFrameworkPaths = new Map<string, string>();
+  const deviceProductFrameworkNames = collectBuiltFrameworkNames(
+    path.join(productsPath, `${configuration}-iphoneos`)
+  );
+  const simulatorProductFrameworkNames = collectBuiltFrameworkNames(
+    path.join(productsPath, `${configuration}-iphonesimulator`)
+  );
+  const productFrameworkNamesWithBothSlices = new Set(
+    [...deviceProductFrameworkNames].filter((name) =>
+      simulatorProductFrameworkNames.has(name)
+    )
+  );
 
   const resolveFrameworkPath = (platform: Platform, name: string) => {
     const cacheKey = `${platform}:${name}`;
@@ -133,6 +289,12 @@ export async function packageTransitiveDynamicFrameworks({
     }
   }
 
+  for (const dependencyName of productFrameworkNamesWithBothSlices) {
+    if (!alreadyPackagedFrameworkNames.has(dependencyName)) {
+      additionalFrameworkNames.add(dependencyName);
+    }
+  }
+
   for (const dependencyName of [...additionalFrameworkNames].sort()) {
     const deviceFrameworkPath = resolveFrameworkPath('iphoneos', dependencyName);
     const simulatorFrameworkPath = resolveFrameworkPath(
@@ -149,14 +311,26 @@ export async function packageTransitiveDynamicFrameworks({
 
     const outputPath = path.join(packageDir, `${dependencyName}.xcframework`);
 
-    await mergeFrameworks({
-      sourceDir,
-      frameworkPaths: [deviceFrameworkPath, simulatorFrameworkPath],
-      outputPath,
-    });
+    try {
+      await mergeFrameworks({
+        sourceDir,
+        frameworkPaths: [deviceFrameworkPath, simulatorFrameworkPath],
+        outputPath,
+      });
+    } catch {
+      writeFallbackXcframework({
+        frameworkName: dependencyName,
+        outputPath,
+        deviceFrameworkPath,
+        simulatorFrameworkPath,
+      });
+      logger.warn(
+        `Fell back to raw-slice XCFramework staging for ${dependencyName}`
+      );
+    }
 
     logger.success(
-      `Packaged transitive XCFramework at ${colorLink(relativeToCwd(outputPath))}`
+      `Packaged additional XCFramework at ${colorLink(relativeToCwd(outputPath))}`
     );
   }
 }
