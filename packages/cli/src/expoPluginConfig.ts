@@ -1,5 +1,4 @@
 import type { BrownfieldConfig } from './types.js';
-import { hasBrownfieldConfigFile } from './config.js';
 
 export { loadBrownfieldConfig } from './config.js';
 
@@ -119,18 +118,16 @@ function fileConfigToPluginProps(
 
 /**
  * Asserts that there is no overlap between the file config and the plugin props.
- * @param _fileConfig - The file config to check for overlap.
+ * @param fileConfig - The loaded file config, or null when no config source exists.
  * @param pluginProps - The plugin props to check for overlap.
- * @param projectRoot - The project root in which to look for the config file
  * @throws An error if there is overlap.
  * @returns void
  */
 export function assertNoConfigFilePluginOverlap(
-  _fileConfig: BrownfieldConfig,
-  pluginProps: BrownfieldPluginProps,
-  projectRoot?: string
+  fileConfig: BrownfieldConfig | null,
+  pluginProps: BrownfieldPluginProps
 ): void {
-  if (!hasBrownfieldConfigFile(projectRoot)) {
+  if (fileConfig === null) {
     return;
   }
 
@@ -148,13 +145,11 @@ export function assertNoConfigFilePluginOverlap(
  */
 export function resolveBrownfieldPluginConfig(
   pluginProps: BrownfieldPluginProps,
-  fileConfig: BrownfieldConfig,
+  fileConfig: BrownfieldConfig | null,
   expoConfig: BrownfieldExpoConfig
 ): ResolvedBrownfieldPluginConfig {
-  const useFileConfig = hasBrownfieldConfigFile();
-  const effectiveProps = useFileConfig
-    ? fileConfigToPluginProps(fileConfig)
-    : pluginProps;
+  const effectiveProps =
+    fileConfig !== null ? fileConfigToPluginProps(fileConfig) : pluginProps;
 
   const androidPackage = expoConfig.android?.package;
   const androidModuleName =

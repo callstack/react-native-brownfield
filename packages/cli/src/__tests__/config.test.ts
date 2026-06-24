@@ -146,8 +146,16 @@ describe('loadBrownfieldConfig', () => {
     });
   });
 
-  it('returns an empty config when no source exists', () => {
+  it('returns null when no source exists', () => {
     tempDir = createTempProject();
+
+    expect(loadBrownfieldConfig(tempDir)).toBeNull();
+  });
+
+  it('returns an empty config when package.json brownfield key is empty', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: {},
+    });
 
     expect(loadBrownfieldConfig(tempDir)).toEqual({});
   });

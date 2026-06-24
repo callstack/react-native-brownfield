@@ -8,7 +8,7 @@ vi.mock('../brownfield/utils/paths.js', () => ({
   findProjectRoot: vi.fn(() => process.cwd()),
 }));
 
-import { hasBrownfieldConfigFile } from '../config.js';
+import { loadBrownfieldConfig } from '../config.js';
 import {
   assertNoConfigFilePluginOverlap,
   resolveBrownfieldPluginConfig,
@@ -69,7 +69,7 @@ const baseExpoConfig = {
   },
 };
 
-describe('hasBrownfieldConfigFile', () => {
+describe('loadBrownfieldConfig', () => {
   let tempDir: string | null = null;
 
   afterEach(() => {
@@ -80,29 +80,29 @@ describe('hasBrownfieldConfigFile', () => {
     }
   });
 
-  it('returns true when brownfield.config.json exists', () => {
+  it('returns config when brownfield.config.json exists', () => {
     tempDir = createTempProject({
       jsonConfig: { verbose: true },
     });
     process.chdir(tempDir);
 
-    expect(hasBrownfieldConfigFile()).toBe(true);
+    expect(loadBrownfieldConfig()).toEqual({ verbose: true });
   });
 
-  it('returns true when package.json contains a brownfield key', () => {
+  it('returns config when package.json contains a brownfield key', () => {
     tempDir = createTempProject({
       packageJsonConfig: {},
     });
     process.chdir(tempDir);
 
-    expect(hasBrownfieldConfigFile()).toBe(true);
+    expect(loadBrownfieldConfig()).toEqual({});
   });
 
-  it('returns false when no brownfield config source exists', () => {
+  it('returns null when no brownfield config source exists', () => {
     tempDir = createTempProject();
     process.chdir(tempDir);
 
-    expect(hasBrownfieldConfigFile()).toBe(false);
+    expect(loadBrownfieldConfig()).toBeNull();
   });
 });
 
@@ -161,10 +161,9 @@ describe('assertNoConfigFilePluginOverlap', () => {
     process.chdir(tempDir);
 
     expect(() =>
-      assertNoConfigFilePluginOverlap(
-        {},
-        { ios: { frameworkName: 'BrownfieldLib' } }
-      )
+      assertNoConfigFilePluginOverlap(null, {
+        ios: { frameworkName: 'BrownfieldLib' },
+      })
     ).not.toThrow();
   });
 });
@@ -186,7 +185,7 @@ describe('resolveBrownfieldPluginConfig', () => {
   });
 
   it('resolves defaults from Expo config when no file config exists', () => {
-    const resolved = resolveBrownfieldPluginConfig({}, {}, baseExpoConfig);
+    const resolved = resolveBrownfieldPluginConfig({}, null, baseExpoConfig);
 
     expect(resolved).toEqual({
       debug: false,
@@ -217,7 +216,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         ios: { frameworkName: 'CustomLib' },
         android: { moduleName: 'customlib' },
       },
-      {},
+      null,
       baseExpoConfig
     );
 

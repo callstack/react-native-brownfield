@@ -29,7 +29,7 @@ export function validateBrownfieldCLIConfig(config: unknown): void {
 
 export function loadBrownfieldConfig(
   projectRoot: string = findProjectRoot()
-): BrownfieldConfig {
+): BrownfieldConfig | null {
   const require = createRequire(path.join(projectRoot, 'package.json'));
 
   const jsConfigFilePath = path.join(projectRoot, JS_CONFIG_FILE_NAME);
@@ -55,24 +55,11 @@ export function loadBrownfieldConfig(
     return require(jsonConfigFilePath) as BrownfieldConfig;
   }
 
-  return packageJson[CONFIG_BASE_NAME] || {};
-}
-
-export function hasBrownfieldConfigFile(
-  projectRoot: string = findProjectRoot()
-): boolean {
-  const jsConfigFilePath = path.join(projectRoot, JS_CONFIG_FILE_NAME);
-  const jsonConfigFilePath = path.join(projectRoot, JSON_CONFIG_FILE_NAME);
-
-  if (fs.existsSync(jsConfigFilePath) || fs.existsSync(jsonConfigFilePath)) {
-    return true;
+  if (CONFIG_BASE_NAME in packageJson) {
+    return (packageJson[CONFIG_BASE_NAME] as BrownfieldConfig) ?? {};
   }
 
-  const require = createRequire(path.join(projectRoot, 'package.json'));
-  const packageJsonPath = path.join(projectRoot, 'package.json');
-  const packageJson = require(packageJsonPath) as Record<string, unknown>;
-
-  return CONFIG_BASE_NAME in packageJson;
+  return null;
 }
 
 type BrownfieldPlatform = 'android' | 'ios';
@@ -94,7 +81,7 @@ export function mergeBrownfieldConfigWithOptions<T extends object>(
   options: T,
   platform: BrownfieldPlatform
 ): T {
-  const reactNativeBrownfieldConfig = loadBrownfieldConfig();
+  const reactNativeBrownfieldConfig = loadBrownfieldConfig() ?? {};
 
   validateBrownfieldCLIConfig(reactNativeBrownfieldConfig);
 
