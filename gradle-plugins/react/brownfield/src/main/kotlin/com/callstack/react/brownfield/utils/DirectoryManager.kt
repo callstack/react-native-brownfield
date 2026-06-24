@@ -14,13 +14,6 @@ object DirectoryManager : BaseProject() {
         return project.file("$buildDir/tmp/kotlin-classes/$variantName/META-INF")
     }
 
-    fun getJavaResMetaDirectory(variantName: String): File {
-        val capitalizedVariantName = variantName.replaceFirstChar(Char::titlecase)
-        return project.file(
-            "$buildDir/intermediates/java_res/$variantName/process${capitalizedVariantName}JavaRes/out/META-INF",
-        )
-    }
-
     fun getReBundleDirectory(variantName: String): File {
         return project.file("$buildDir/outputs/$RE_BUNDLE_FOLDER/$variantName")
     }

@@ -2,6 +2,7 @@ package com.callstack.react.brownfield.processors
 
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
+import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.file.ConfigurableFileCollection
 import java.io.File
@@ -49,6 +50,12 @@ class VariantHelper : BaseProject() {
             copyTask.from(outputDir)
             copyTask.into(javacDir)
             copyTask.exclude("META-INF/")
+        }
+
+        project.copy { copyTask ->
+            copyTask.from("${outputDir.absolutePath}/META-INF")
+            copyTask.into(DirectoryManager.getKotlinMetaDirectory(variantName))
+            copyTask.include("*.kotlin_module")
         }
     }
 }
