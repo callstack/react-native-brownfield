@@ -7,6 +7,9 @@ import type { BuildFlags as AppleBuildFlags } from '@rock-js/platform-apple-help
 export type Platform = 'swift' | 'kotlin';
 
 export type BrownfieldCommonOptions = Partial<{
+  /**
+   * Enables verbose CLI logging.
+   */
   verbose: boolean;
 }>;
 
@@ -15,13 +18,21 @@ export type BrownfieldConfigMetadata = Partial<{
 }>;
 
 export type BrownieConfig = {
+  /**
+   * The output path to generate Kotlin Brownie store files at.
+   */
   kotlin?: string;
+
+  /**
+   * The package name for the Kotlin source code.
+   */
   kotlinPackageName?: string;
 };
 
 export type PackageIosOptions = AppleBuildFlags & {
   /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
   usePrebuiltRnCore?: boolean;
+
   /** When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs. */
   addSpmPackage?: boolean;
 };
@@ -45,7 +56,18 @@ export type BrownfieldIosConfig = Omit<
 export type BrownfieldConfig = BrownfieldConfigMetadata &
   BrownfieldCommonOptions &
   Partial<{
+    /**
+     * Brownfield Android configuration.
+     */
     android: BrownfieldAndroidConfig;
+
+    /**
+     * Brownfield iOS configuration.
+     */
     ios: BrownfieldIosConfig;
+
+    /**
+     * Brownie (state library) configuration.
+     */
     brownie: BrownieConfig;
   }>;
