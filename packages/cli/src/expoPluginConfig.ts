@@ -152,8 +152,15 @@ export function resolveBrownfieldPluginConfig(
     fileConfig !== null ? fileConfigToPluginProps(fileConfig) : pluginProps;
 
   const androidPackage = expoConfig.android?.package;
-  const androidModuleName =
-    effectiveProps.android?.moduleName ?? 'brownfieldlib';
+  /**
+   * Below: android.moduleName may be provided in the fully-qualified Gradle format
+   * (e.g. :BrownfieldLib — this is shown in the CLI example usage).
+   * The Expo prebuild side expects a raw module folder/name (it later
+   * prepends : itself and uses it as a path), so a leading : is removed.
+   */
+  const androidModuleName = (
+    effectiveProps.android?.moduleName ?? 'brownfieldlib'
+  ).replace(/^:/, '');
 
   return {
     debug: effectiveProps.debug ?? false,

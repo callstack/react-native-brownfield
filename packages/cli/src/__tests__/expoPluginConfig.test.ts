@@ -225,6 +225,16 @@ describe('resolveBrownfieldPluginConfig', () => {
     expect(resolved.android?.moduleName).toBe('customlib');
   });
 
+  it('strips leading ":" from android.moduleName when resolving from file config', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      { android: { moduleName: ':mylib' } },
+      baseExpoConfig
+    );
+    expect(resolved.android?.moduleName).toBe('mylib');
+    expect(resolved.android?.artifactId).toBe('mylib');
+  });
+
   it('maps ios.scheme to frameworkName and verbose to debug from file config', () => {
     fs.writeFileSync(
       path.join(tempDir!, 'brownfield.config.json'),

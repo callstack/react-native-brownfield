@@ -39,7 +39,7 @@ function createTempProject({
   jsConfig,
   jsonConfig,
 }: {
-  packageJsonConfig?: Record<string, unknown>;
+  packageJsonConfig?: Record<string, unknown> | null;
   jsConfig?: Record<string, unknown>;
   jsonConfig?: Record<string, unknown>;
 } = {}): string {
@@ -160,6 +160,14 @@ describe('loadBrownfieldConfig', () => {
     expect(loadBrownfieldConfig(tempDir)).toEqual({});
   });
 
+  it('returns an empty config when package.json brownfield key is null', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: null,
+    });
+
+    expect(loadBrownfieldConfig(tempDir)).toEqual({});
+  });
+
   it('throws when multiple config sources are present', () => {
     tempDir = createTempProject({
       packageJsonConfig: {
@@ -172,6 +180,17 @@ describe('loadBrownfieldConfig', () => {
           scheme: 'JsScheme',
         },
       },
+    });
+
+    expect(() => loadBrownfieldConfig(tempDir!)).toThrow(
+      'Project has multiple Brownfield configuration files'
+    );
+  });
+
+  it('throws when package.json brownfield key is null and a config file exists', () => {
+    tempDir = createTempProject({
+      packageJsonConfig: null,
+      jsonConfig: { verbose: true },
     });
 
     expect(() => loadBrownfieldConfig(tempDir!)).toThrow(
