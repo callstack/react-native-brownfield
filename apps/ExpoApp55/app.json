@@ -37,7 +37,7 @@
           }
         }
       ],
-      ["@callstack/react-native-brownfield", { "debug": true }],
+      "@callstack/react-native-brownfield",
       "expo-image",
       "expo-font",
       "expo-web-browser"
