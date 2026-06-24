@@ -11,6 +11,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
+    "test:packages": "turbo run test --filter='./packages/*'",
     "test:apps": "turbo run test --filter='./apps/*'",
     "dev": "yarn workspaces foreach -Api run dev",
     "ci:version": "changeset version && yarn install --no-immutable && node --experimental-strip-types --no-warnings ./scripts/consolidate-changelog.ts",

@@ -97,6 +97,9 @@ jobs:
       - name: Run app tests (Jest)
         run: yarn test:apps
 
+      - name: Run packages' tests (Jest & vitest)
+        run: yarn test:packages
+
       - name: Test Brownfield CLI (version)
         run: |
           yarn workspace @callstack/react-native-brownfield brownfield --version
