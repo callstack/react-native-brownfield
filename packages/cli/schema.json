@@ -46,9 +46,6 @@
           "description": "When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs.",
           "type": "boolean"
         },
-        "archive": {
-          "type": "boolean"
-        },
         "buildFolder": {
           "type": "string"
         },
@@ -77,9 +74,6 @@
           "type": "array"
         },
         "installPods": {
-          "type": "boolean"
-        },
-        "local": {
           "type": "boolean"
         },
         "newArch": {

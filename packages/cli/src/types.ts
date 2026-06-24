@@ -29,7 +29,7 @@ export type BrownieConfig = {
   kotlinPackageName?: string;
 };
 
-export type PackageIosOptions = AppleBuildFlags & {
+export type PackageIosOptions = Omit<AppleBuildFlags, 'archive' | 'local'> & {
   /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
   usePrebuiltRnCore?: boolean;
 
