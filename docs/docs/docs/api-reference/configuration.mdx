@@ -10,8 +10,8 @@ For example, `--module-name` becomes `moduleName`, `--build-folder` becomes `bui
 
 The CLI supports exactly one configuration source per project:
 
-- `react-native-brownfield.config.js`
-- `react-native-brownfield.config.json`
+- `brownfield.config.js`
+- `brownfield.config.json`
 - `package.json` under the `react-native-brownfield` key
 
 Do not keep more than one of these at the same time.
@@ -81,7 +81,7 @@ For Expo projects, register the plugin without options when using a config file:
 
 ## JavaScript config file
 
-If you prefer a JavaScript file, create `react-native-brownfield.config.js` and export a plain object with `module.exports`:
+If you prefer a JavaScript file, create `brownfield.config.js` and export a plain object with `module.exports`:
 
 ```js
 /** @type {import('@callstack/react-native-brownfield').BrownfieldConfig} */
@@ -103,7 +103,7 @@ module.exports = {
 
 ## JSON config file
 
-If you want schema autocomplete and validation directly in the config file, use `react-native-brownfield.config.json`:
+If you want schema autocomplete and validation directly in the config file, use `brownfield.config.json`:
 
 > [!TIP]
 >
@@ -224,7 +224,7 @@ Currently supported Brownie keys are:
 | `kotlin`            | `string` | Directory where generated Kotlin Brownie store files should be written. |
 | `kotlinPackageName` | `string` | Kotlin package name used in generated Brownie store files.              |
 
-Example inside `react-native-brownfield.config.json`:
+Example inside `brownfield.config.json`:
 
 ```json
 {
