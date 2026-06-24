@@ -5,46 +5,8 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-ENV['RCT_USE_RN_DEP'] ||= '0'
-ENV['RCT_USE_PREBUILT_RNCORE'] ||= '0'
-
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
-
-def normalize_react_codegen_script_paths!(installer, app_root_relative_path)
-  expected_rn_dir = '$RCT_SCRIPT_POD_INSTALLATION_ROOT/' + app_root_relative_path + '/node_modules/react-native'
-
-  installer.pods_project.targets.each do |target|
-    target.shell_script_build_phases.each do |phase|
-      next unless phase.name == '[CP-User] Generate Specs'
-      next unless phase.shell_script
-
-      phase.shell_script = phase.shell_script.gsub(
-        /export RCT_SCRIPT_RN_DIR="[^"]+"/,
-        "export RCT_SCRIPT_RN_DIR=\"#{expected_rn_dir}\""
-      )
-    end
-  end
-
-  react_codegen_podspec_path = File.join(
-    installer.sandbox.root,
-    'Local Podspecs',
-    'ReactCodegen.podspec.json'
-  )
-
-  return unless File.exist?(react_codegen_podspec_path)
-
-  content = File.read(react_codegen_podspec_path)
-  updated = content.gsub(
-    /export RCT_SCRIPT_RN_DIR=\\"[^"]+\\"/,
-    "export RCT_SCRIPT_RN_DIR=\\\"#{expected_rn_dir}\\\""
-  )
-
-  return if updated == content
-
-  File.chmod(0644, react_codegen_podspec_path)
-  File.write(react_codegen_podspec_path, updated)
-end
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -54,10 +16,9 @@ end
 
 target 'RNApp' do
   config = use_native_modules!
-  react_native_path = '../node_modules/react-native'
 
   use_react_native!(
-    :path => react_native_path,
+    :path => config[:reactNativePath],
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
@@ -69,22 +30,9 @@ target 'RNApp' do
   post_install do |installer|
     react_native_post_install(
       installer,
-      react_native_path,
+      config[:reactNativePath],
       :mac_catalyst_enabled => false,
       :ccache_enabled => ENV['USE_CCACHE'] == '1'
     )
-
-    normalize_react_codegen_script_paths!(installer, '../')
-
-    installer.pods_project.targets.each do |target|
-      next unless ['ReactBrownfield', 'Brownie', 'BrownfieldNavigation'].include?(target.name)
-
-      target.build_configurations.each do |build_configuration|
-        next unless build_configuration.name.start_with?('Debug')
-
-        build_configuration.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
-        build_configuration.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
-      end
-    end
   end
 end
