@@ -21,13 +21,6 @@ object DirectoryManager : BaseProject() {
         )
     }
 
-    fun getAarMainJarClassesJar(variantName: String): File {
-        val capitalizedVariantName = variantName.replaceFirstChar(Char::titlecase)
-        return project.file(
-            "$buildDir/intermediates/aar_main_jar/$variantName/sync${capitalizedVariantName}LibJars/classes.jar",
-        )
-    }
-
     fun getReBundleDirectory(variantName: String): File {
         return project.file("$buildDir/outputs/$RE_BUNDLE_FOLDER/$variantName")
     }

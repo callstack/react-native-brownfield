@@ -49,14 +49,6 @@ object Constants {
             ArtifactMatcher(groupId = StringMatcher.literal("host.exp.exponent")),
             ArtifactMatcher(groupId = StringMatcher.literal("BareExpo")),
             ArtifactMatcher(groupId = StringMatcher.regex("expo.*")),
-            ArtifactMatcher(
-                groupId = StringMatcher.literal("io.coil-kt.coil3"),
-                artifactId = StringMatcher.literal("coil-compose"),
-            ),
-            ArtifactMatcher(
-                groupId = StringMatcher.literal("io.coil-kt.coil3"),
-                artifactId = StringMatcher.literal("coil-network-okhttp"),
-            ),
             // below: a broken transitive dependency that has no version specified and thus breaks the build
             ArtifactMatcher(
                 groupId = StringMatcher.literal("org.jetbrains.kotlin"),

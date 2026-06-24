@@ -29,65 +29,6 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
 }
 
 open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
-    protected fun normalizedDependencyVersion(version: String?): String? =
-        version?.trim()?.takeUnless { it.isEmpty() || it == "null" || it == "unspecified" }
-
-    protected fun compileOnlyApiDeclaredDependencies(): Set<Pair<String, String>> =
-        listOf("compileOnlyApi")
-            .mapNotNull { brownfieldAppProject.configurations.findByName(it) }
-            .flatMap { configuration ->
-                configuration.dependencies.mapNotNull { dependency ->
-                    val group = dependency.group
-                    if (group.isNullOrBlank()) null else group to dependency.name
-                }
-            }.toSet()
-
-    protected fun declaredBrownfieldDependencies(): Set<Pair<String, String>> =
-        listOf("api", "implementation", "compileOnly", "compileOnlyApi", "runtimeOnly")
-            .mapNotNull { brownfieldAppProject.configurations.findByName(it) }
-            .flatMap { configuration ->
-                configuration.dependencies.mapNotNull { dependency ->
-                    val group = dependency.group
-                    if (group.isNullOrBlank()) null else group to dependency.name
-                }
-            }.toSet()
-
-    protected fun existingModuleDependencies(variant: Map<String, Any>): Set<Pair<String, String>> =
-        (variant["dependencies"] as? List<Map<String, Any>>)
-            .orEmpty()
-            .mapNotNull { dependency ->
-                val group = dependency["group"] as? String
-                val module = dependency["module"] as? String
-                if (group != null && module != null) group to module else null
-            }.toSet()
-
-    protected fun existingPomDependencies(dependenciesNode: groovy.util.Node): Set<Pair<String, String>> =
-        dependenciesNode.children()
-            .filterIsInstance<groovy.util.Node>()
-            .mapNotNull { dependency ->
-                val group = (dependency.get("groupId") as? NodeList)?.text()
-                val module = (dependency.get("artifactId") as? NodeList)?.text()
-                if (group.isNullOrBlank() || module.isNullOrBlank()) null else group to module
-            }.toSet()
-
-    protected fun shouldPublishDependency(
-        dependencyInfo: DependencyInfo,
-        location: String,
-        variantName: String? = null,
-    ): Boolean {
-        if (normalizedDependencyVersion(dependencyInfo.version) != null) {
-            return true
-        }
-
-        val variantSuffix = variantName?.let { " for variant '$it'" }.orEmpty()
-        Logging.log(
-            "Skipping versionless dependency in $location$variantSuffix: " +
-                "${dependencyInfo.groupId}:${dependencyInfo.artifactId}",
-        )
-
-        return false
-    }
-
     fun configure(): List<ExpoGradleProjectProjection> {
         val discoverableExpoProjects = getDiscoverableExpoProjects()
 
@@ -144,8 +85,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
      */
     @Suppress("LongMethod")
     protected fun reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
-        val declaredDependencies = declaredBrownfieldDependencies()
-        val compileOnlyApiDependencies = compileOnlyApiDeclaredDependencies()
         val removeDependenciesFromModuleFileTask =
             brownfieldAppProject.tasks.register("removeDependenciesFromModuleFile")
         removeDependenciesFromModuleFileTask.configure { task ->
@@ -158,31 +97,9 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                     discoveredExpoTransitiveDependencies.forEach { dependencyToAdd ->
                         @Suppress("UNCHECKED_CAST")
                         (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                            val variantName = variant["name"] as? String
-                            if (!shouldPublishDependency(dependencyToAdd, "Gradle module JSON", variantName)) {
-                                return@forEach
-                            }
-
-                            if ((dependencyToAdd.groupId to dependencyToAdd.artifactId) in declaredDependencies) {
-                                Logging.log(
-                                    "Skipping brownfield-declared dependency for Gradle module JSON variant " +
-                                        "'$variantName': ${dependencyToAdd.groupId}:${dependencyToAdd.artifactId}",
-                                )
-                                return@forEach
-                            }
-
-                            val existingDependencies = existingModuleDependencies(variant)
-                            if ((dependencyToAdd.groupId to dependencyToAdd.artifactId) in existingDependencies) {
-                                Logging.log(
-                                    "Skipping duplicate dependency for Gradle module JSON variant " +
-                                        "'$variantName': ${dependencyToAdd.groupId}:${dependencyToAdd.artifactId}",
-                                )
-                                return@forEach
-                            }
-
                             Logging.log(
                                 "Injecting dependency to Gradle module JSON for variant " +
-                                    "'$variantName': ${dependencyToAdd.groupId}:" +
+                                    "'${variant["name"]}': ${dependencyToAdd.groupId}:" +
                                     "${dependencyToAdd.artifactId}:${dependencyToAdd.version}",
                             )
 
@@ -191,7 +108,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                                     "group" to dependencyToAdd.groupId,
                                     "module" to dependencyToAdd.artifactId,
                                 ).apply {
-                                    normalizedDependencyVersion(dependencyToAdd.version)?.let { version ->
+                                    dependencyToAdd.version?.let { version ->
                                         put(
                                             "version",
                                             mapOf(
@@ -206,20 +123,15 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
 
                     @Suppress("UNCHECKED_CAST")
                     (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                        val variantName = variant["name"] as? String
                         (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
                             val group = it["group"] as String
                             val module = it["module"] as String
 
-                            val isCompileOnlyApiRuntimeLeak =
-                                variantName?.contains("RuntimePublication") == true &&
-                                    (group to module) in compileOnlyApiDependencies
                             val shouldBeExcluded =
-                                isCompileOnlyApiRuntimeLeak ||
-                                    shouldExcludeDependency(
-                                        groupId = group,
-                                        artifactId = module,
-                                    )
+                                shouldExcludeDependency(
+                                    groupId = group,
+                                    artifactId = module,
+                                )
 
                             if (shouldBeExcluded) {
                                 Logging.log(
@@ -257,7 +169,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
      */
     @Suppress("LongMethod")
     protected fun reconfigurePOM(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
-        val declaredDependencies = declaredBrownfieldDependencies()
         brownfieldAppProject.pluginManager.withPlugin("maven-publish") {
             brownfieldAppProject.extensions.configure(PublishingExtension::class.java) { publishing ->
                 publishing.publications.withType(MavenPublication::class.java)
@@ -275,31 +186,10 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                                 root.get("dependencies") as NodeList
                             val dependenciesNode =
                                 dependenciesNodeList.first() as groovy.util.Node
-                            val existingDependencies = existingPomDependencies(dependenciesNode)
 
                             // below: inject the discovered Expo transitive dependencies
                             // into the POM's <dependencies> node
                             discoveredExpoTransitiveDependencies.forEach { dependencyToAdd ->
-                                if (!shouldPublishDependency(dependencyToAdd, "POM")) {
-                                    return@forEach
-                                }
-
-                                if ((dependencyToAdd.groupId to dependencyToAdd.artifactId) in declaredDependencies) {
-                                    Logging.log(
-                                        "Skipping brownfield-declared dependency in POM: ${dependencyToAdd.groupId}:" +
-                                            "${dependencyToAdd.artifactId}",
-                                    )
-                                    return@forEach
-                                }
-
-                                if ((dependencyToAdd.groupId to dependencyToAdd.artifactId) in existingDependencies) {
-                                    Logging.log(
-                                        "Skipping duplicate dependency in POM: ${dependencyToAdd.groupId}:" +
-                                            "${dependencyToAdd.artifactId}",
-                                    )
-                                    return@forEach
-                                }
-
                                 Logging.log(
                                     "Injecting dependency to POM: ${dependencyToAdd.groupId}:" +
                                         "${dependencyToAdd.artifactId}:${dependencyToAdd.version}",
@@ -313,8 +203,8 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                                         "optional" to dependencyToAdd.optional.toString(),
                                     )
 
-                                normalizedDependencyVersion(dependencyToAdd.version)?.let { version ->
-                                    childTags["version"] = version
+                                if (dependencyToAdd.version?.isNotBlank() == true) {
+                                    childTags["version"] = dependencyToAdd.version
                                 }
 
                                 dependenciesNode.appendNode("dependency").let { newDepNode ->
