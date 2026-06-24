@@ -10,9 +10,9 @@ import { findProjectRoot } from './brownfield/utils/paths.js';
 import BrownfieldSchema from '../schema.json' with { type: 'json' };
 import { logger } from '@rock-js/tools';
 
-const CONFIG_BASE_NAME = 'brownfield';
-const JS_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.js`;
-const JSON_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.json`;
+export const CONFIG_BASE_NAME = 'brownfield';
+export const JS_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.js`;
+export const JSON_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.json`;
 
 const SEPARATOR = '\n● ';
 
@@ -56,6 +56,23 @@ export function loadBrownfieldConfig(
   }
 
   return packageJson[CONFIG_BASE_NAME] || {};
+}
+
+export function hasBrownfieldConfigFile(
+  projectRoot: string = findProjectRoot()
+): boolean {
+  const jsConfigFilePath = path.join(projectRoot, JS_CONFIG_FILE_NAME);
+  const jsonConfigFilePath = path.join(projectRoot, JSON_CONFIG_FILE_NAME);
+
+  if (fs.existsSync(jsConfigFilePath) || fs.existsSync(jsonConfigFilePath)) {
+    return true;
+  }
+
+  const require = createRequire(path.join(projectRoot, 'package.json'));
+  const packageJsonPath = path.join(projectRoot, 'package.json');
+  const packageJson = require(packageJsonPath) as Record<string, unknown>;
+
+  return CONFIG_BASE_NAME in packageJson;
 }
 
 type BrownfieldPlatform = 'android' | 'ios';
