@@ -16,7 +16,7 @@ export const JSON_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.json`;
 
 const SEPARATOR = '\n● ';
 
-const ajv = new Ajv({ allErrors: true });
+const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
 const validateBrownfieldConfig = ajv.compile(BrownfieldSchema);
 
 export function validateBrownfieldCLIConfig(config: unknown): void {
