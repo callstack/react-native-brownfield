@@ -46,6 +46,14 @@ module.exports = {
 
 If you want schema autocomplete and validation directly in the config file, use `react-native-brownfield.config.json`:
 
+> [!TIP]
+>
+> The schema URL is not required, but it's recommended to include it for autocomplete and validation. If you want to use it, you may need to configure `oss.callstack.com` as a trusted domain in your IDE.
+>
+> In VS Code, you can do it by adding `oss.callstack.com` to `JSON › Schema Download: Trusted Domains` in your preferences.
+>
+> In Cursor, it is sufficient to enable `JSON › Schema Download: Enable` in preferences.
+
 ```json
 {
   "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
@@ -116,13 +124,11 @@ All file-based platform options mirror CLI flags, but they use camelCase propert
 | `ios.target`             | `string`   | Explicit Xcode target name.                                                                                            |
 | `ios.destination`        | `string[]` | One or more Xcode destinations, such as `simulator`, `device`, or full destination strings.                            |
 | `ios.buildFolder`        | `string`   | Custom build output directory. By default, Brownfield uses the `.brownfield/build` path inside the iOS project.        |
-| `ios.archive`            | `boolean`  | Creates an archive build suitable for IPA export and distribution.                                                     |
 | `ios.extraParams`        | `string[]` | Extra arguments passed to `xcodebuild`.                                                                                |
 | `ios.exportExtraParams`  | `string[]` | Extra arguments passed to the archive export step.                                                                     |
 | `ios.exportOptionsPlist` | `string`   | Export options plist filename used during archive export.                                                              |
 | `ios.installPods`        | `boolean`  | Controls automatic CocoaPods installation. Set `false` to match `--no-install-pods`.                                   |
 | `ios.newArch`            | `boolean`  | Controls React Native new architecture support. Set `false` to match `--no-new-arch`.                                  |
-| `ios.local`              | `boolean`  | Forces a local `xcodebuild` flow.                                                                                      |
 | `ios.usePrebuiltRnCore`  | `boolean`  | Controls whether iOS packaging uses React Native Apple prebuilts. Omit it to keep Brownfield's version-aware defaults. |
 | `ios.addSpmPackage`      | `boolean`  | Generates a local Swift Package Manager manifest next to the packaged XCFramework outputs.                             |
 
