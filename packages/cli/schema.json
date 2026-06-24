@@ -21,15 +21,19 @@
           "type": "string"
         },
         "android": {
-          "$ref": "#/definitions/BrownfieldAndroidConfig"
+          "$ref": "#/definitions/BrownfieldAndroidConfig",
+          "description": "Brownfield Android configuration."
         },
         "brownie": {
-          "$ref": "#/definitions/BrownieConfig"
+          "$ref": "#/definitions/BrownieConfig",
+          "description": "Brownie (state library) configuration."
         },
         "ios": {
-          "$ref": "#/definitions/BrownfieldIosConfig"
+          "$ref": "#/definitions/BrownfieldIosConfig",
+          "description": "Brownfield iOS configuration."
         },
         "verbose": {
+          "description": "Enables verbose CLI logging.",
           "type": "boolean"
         }
       },
@@ -98,9 +102,11 @@
       "additionalProperties": false,
       "properties": {
         "kotlin": {
+          "description": "The output path to generate Kotlin Brownie store files at.",
           "type": "string"
         },
         "kotlinPackageName": {
+          "description": "The package name for the Kotlin source code.",
           "type": "string"
         }
       },

@@ -1693,6 +1693,7 @@ __metadata:
     eslint: "npm:^9.39.3"
     globals: "npm:^17.3.0"
     nodemon: "npm:^3.1.14"
+    prettier: "npm:^3.8.1"
     quicktype-core: "npm:^23.2.6"
     quicktype-typescript-input: "npm:^23.2.6"
     ts-json-schema-generator: "npm:^2.9.0"
