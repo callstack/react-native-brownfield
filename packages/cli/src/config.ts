@@ -41,7 +41,7 @@ export function loadBrownfieldConfig(
     [
       fs.existsSync(jsConfigFilePath),
       fs.existsSync(jsonConfigFilePath),
-      packageJson[CONFIG_BASE_NAME],
+      CONFIG_BASE_NAME in packageJson,
     ].filter(Boolean).length > 1
   ) {
     throw new Error('Project has multiple Brownfield configuration files');
