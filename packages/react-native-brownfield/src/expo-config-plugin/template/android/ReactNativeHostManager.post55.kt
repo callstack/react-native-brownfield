@@ -16,8 +16,6 @@ object ReactNativeHostManager {
             ExpoReactHostFactory.getDefaultReactHost(
                 context = application.applicationContext,
                 packageList = PackageList(application).packages,
-                jsMainModulePath = ".expo/.virtual-metro-entry",
-                jsBundleAssetPath = "index.android.bundle",
             )
         }
     }

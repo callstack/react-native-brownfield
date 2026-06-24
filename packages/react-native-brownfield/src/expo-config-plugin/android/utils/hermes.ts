@@ -106,22 +106,14 @@ export function getHermesArtifact(
     );
   }
 
-  if (rnMinorVersion >= 83) {
+  // above: 0.84.x
+  if (rnMinorVersion >= 84) {
     const installedReactNativeArtifact =
       resolveHermesArtifactFromInstalledReactNative(projectRoot);
 
     if (installedReactNativeArtifact) {
       return installedReactNativeArtifact;
     }
-  }
-
-  // below: 0.84.x
-  if (rnMinorVersion >= 84) {
-    return {
-      groupId: 'com.facebook.hermes',
-      artifactId: 'hermes-android',
-      version: '0.15.1',
-    };
   }
 
   // below: 0.83.x

@@ -33,18 +33,7 @@ publishing {
             artifactId = "{{ARTIFACT_ID}}"
             version = "{{ARTIFACT_VERSION}}"
             afterEvaluate {
-                from(components.getByName("release"))
-            }
-
-            pom {
-                withXml {
-                    val dependenciesNode =
-                        (asNode().get("dependencies") as groovy.util.NodeList).first() as groovy.util.Node
-                    dependenciesNode.children()
-                        .filterIsInstance<groovy.util.Node>()
-                        .filter { (it.get("groupId") as groovy.util.NodeList).text() == rootProject.name }
-                        .forEach { dependenciesNode.remove(it) }
-                }
+                from(components.getByName("default"))
             }
         }
     }
@@ -104,7 +93,9 @@ android {
     }
 
     publishing {
-        singleVariant("release")
+        multipleVariants {
+            allVariants()
+        }
     }
 }
 
