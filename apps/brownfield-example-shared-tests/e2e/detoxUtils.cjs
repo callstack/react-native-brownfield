@@ -8,9 +8,14 @@ const detoxLaunchArgs = {
   DetoxE2E: 'YES',
 };
 
+const ANDROID_BROWNFIELD_MAIN_COMPONENT =
+  'com.callstack.brownfield.android.example/com.callstack.brownfield.android.example.MainActivity';
+
 function adbShell(command) {
+  const serial = process.env.ANDROID_SERIAL?.trim();
+  const adb = serial ? `adb -s ${serial}` : 'adb';
   try {
-    execSync(`adb shell ${command}`, { stdio: 'ignore' });
+    execSync(`${adb} shell ${command}`, { stdio: 'ignore' });
   } catch {
     // Emulator may be offline or the command may be unsupported on older API levels.
   }
@@ -30,6 +35,16 @@ async function dismissAndroidSystemOverlays() {
   adbShell('wm dismiss-keyguard');
   adbShell('cmd statusbar collapse');
   adbShell('settings put global heads_up_notifications_enabled 0');
+}
+
+/** Bring MainActivity to the foreground so Espresso can obtain window focus. */
+async function ensureAndroidAppWindowFocus() {
+  if (device.getPlatform() !== 'android') {
+    return;
+  }
+  await dismissAndroidSystemOverlays();
+  adbShell(`am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT}`);
+  await new Promise((resolve) => setTimeout(resolve, 300));
 }
 
 function detoxAttrsText(attrs) {
@@ -66,7 +81,44 @@ async function configureDetoxForBrownfieldAndroid() {
 }
 
 /**
- * Launch without waiting for RN Debug idle, then re-enable Detox synchronization for tests.
+ * Poll via UiAutomator getAttributes() — avoids Espresso's window-focus gate used by
+ * toBeVisible(), which headless CI emulators often fail for 10s per attempt.
+ */
+async function pollUntilElementAttributes(matcher, timeoutMs = 20000, index = 0) {
+  const deadline = Date.now() + timeoutMs;
+  const target = element(matcher).atIndex(index);
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const attrs = await target.getAttributes();
+      if (attrs) {
+        return attrs;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (device.getPlatform() === 'android') {
+      await dismissAndroidSystemOverlays();
+    }
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  try {
+    return await target.getAttributes();
+  } catch (error) {
+    throw lastError || error;
+  }
+}
+
+/**
+ * Launch without waiting for RN Debug idle. On Android, leave Detox synchronization
+ * disabled until the readiness helper finishes — re-enabling sync while RN is still
+ * mounting causes long "The app seems to be idle" stalls and window-focus failures.
  *
  * Sync is disabled only via launchArgs — disableSynchronization() before launchApp()
  * fails because Detox is not connected to the app yet.
@@ -79,11 +131,22 @@ async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
       detoxEnableSynchronization: 0,
     },
   });
+
   if (device.getPlatform() === 'android') {
-    await dismissAndroidSystemOverlays();
-  } else {
-    await configureDetoxForBrownfieldIos();
+    await ensureAndroidAppWindowFocus();
+    return;
   }
+
+  await configureDetoxForBrownfieldIos();
+  await device.enableSynchronization();
+}
+
+/** Call after Android readiness polling so Espresso matchers can interact with the app. */
+async function finishAndroidDetoxLaunch() {
+  if (device.getPlatform() !== 'android') {
+    return;
+  }
+  await ensureAndroidAppWindowFocus();
   await device.enableSynchronization();
 }
 
@@ -94,27 +157,14 @@ async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
 }
 
 /**
- * Poll native-only / short-lived UI (toasts, popups, pushed native screens) with sync
- * temporarily off. RN Debug can keep sync busy while a native overlay is already visible.
+ * Poll native-only / short-lived UI (toasts, popups, pushed native screens).
+ * Uses getAttributes() instead of toBeVisible() so CI emulators without window focus
+ * can still detect Compose / native overlays during startup.
  */
 async function waitForNativeOverlayVisible(matcher, timeoutMs = 20000, index = 0) {
-  await device.disableSynchronization();
-  try {
-    const deadline = Date.now() + timeoutMs;
-    const target = () => element(matcher).atIndex(index);
-    while (Date.now() < deadline) {
-      try {
-        await detoxExpect(target()).toBeVisible();
-        return;
-      } catch {
-        await new Promise((resolve) =>
-          setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
-        );
-      }
-    }
-    await detoxExpect(target()).toBeVisible();
-  } finally {
-    await device.enableSynchronization();
+  await pollUntilElementAttributes(matcher, timeoutMs, index);
+  if (device.getPlatform() === 'android') {
+    await ensureAndroidAppWindowFocus();
   }
 }
 
@@ -123,9 +173,12 @@ module.exports = {
   detoxAttrsText,
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
+  ensureAndroidAppWindowFocus,
   configureDetoxForBrownfieldAndroid,
   configureDetoxForBrownfieldIos,
   launchBrownfieldAppForDetox,
+  finishAndroidDetoxLaunch,
+  pollUntilElementAttributes,
   waitForVisible,
   waitForNativeOverlayVisible,
 };

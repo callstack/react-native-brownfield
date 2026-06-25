@@ -1,9 +1,12 @@
-const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
+const { element, by } = require('detox');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
+  ensureAndroidAppWindowFocus,
+  finishAndroidDetoxLaunch,
+  pollUntilElementAttributes,
   waitForVisible,
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
@@ -14,20 +17,14 @@ const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
 const NATIVE_SHELL_SCROLL_ANCHOR = VANILLA_NATIVE_GREETING;
 
 async function scrollNativeShell(fingerDirection) {
-  await device.disableSynchronization();
+  const anchor = element(NATIVE_SHELL_SCROLL_ANCHOR);
   try {
-    const anchor = element(NATIVE_SHELL_SCROLL_ANCHOR);
-    try {
-      await detoxExpect(anchor).toBeVisible();
-      await anchor.swipe(fingerDirection, 'slow', 0.75);
-    } catch {
-      await element(by.type('android.widget.ScrollView')).atIndex(0).scroll(
-        400,
-        fingerDirection === 'up' ? 'down' : 'up'
-      );
-    }
-  } finally {
-    await device.enableSynchronization();
+    await anchor.swipe(fingerDirection, 'slow', 0.75);
+  } catch {
+    await element(by.type('android.widget.ScrollView')).atIndex(0).scroll(
+      400,
+      fingerDirection === 'up' ? 'down' : 'up'
+    );
   }
   await dismissAndroidSystemOverlays();
 }
@@ -59,36 +56,16 @@ async function scrollToNativeShellExpo() {
 }
 
 async function waitForEmbeddedRnHome(timeoutMs = DETOX_TIMING.VISIBILITY_TIMEOUT_MS) {
-  await device.disableSynchronization();
-  try {
-    const deadline = Date.now() + timeoutMs;
-    const rnHome = element(by.id(ids.rnAppHome));
-    while (Date.now() < deadline) {
-      try {
-        await detoxExpect(rnHome).toBeVisible();
-        return;
-      } catch {
-        await dismissAndroidSystemOverlays();
-        await new Promise((resolve) =>
-          setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
-        );
-      }
-    }
-    await detoxExpect(rnHome).toBeVisible();
-  } finally {
-    await device.enableSynchronization();
-  }
+  await pollUntilElementAttributes(by.id(ids.rnAppHome), timeoutMs);
 }
 
 /**
- * Mirror iOS vanilla readiness: scroll to the embedded RN surface and poll for
- * rnAppHome with sync off. Native greeting ids are avoided here because the old
- * 1dp EspressoTagAnchor + duplicate Compose testTag pair failed Detox visibility.
+ * Wait for the native shell and embedded RN home while Detox sync stays off.
+ * Re-enable sync only after both surfaces are present and MainActivity has focus.
  */
 async function waitForAndroidAppReadyVanilla() {
-  await dismissAndroidSystemOverlays();
-  await waitForNativeOverlayVisible(VANILLA_NATIVE_GREETING, 60000);
-  await dismissAndroidSystemOverlays();
+  await ensureAndroidAppWindowFocus();
+  await pollUntilElementAttributes(VANILLA_NATIVE_GREETING, 60000);
 
   try {
     await scrollToEmbeddedRnVanilla();
@@ -98,6 +75,7 @@ async function waitForAndroidAppReadyVanilla() {
 
   try {
     await waitForEmbeddedRnHome(120000);
+    await finishAndroidDetoxLaunch();
     return;
   } catch {
     // Fall through to a second scroll attempt.
@@ -110,21 +88,23 @@ async function waitForAndroidAppReadyVanilla() {
   }
 
   await waitForEmbeddedRnHome(60000);
+  await finishAndroidDetoxLaunch();
 }
 
 async function waitForAndroidAppReadyExpo() {
   const homeTab = by.label('Home');
   try {
-    await waitForVisible(homeTab, 120000, 0);
+    await pollUntilElementAttributes(homeTab, 120000, 0);
   } catch {
-    await device.disableSynchronization();
     try {
       await scrollToEmbeddedRnExpo();
-      await waitFor(element(homeTab).atIndex(0)).toBeVisible().withTimeout(30000);
-    } finally {
-      await device.enableSynchronization();
+      await pollUntilElementAttributes(homeTab, 30000, 0);
+    } catch {
+      await scrollToEmbeddedRnExpo();
+      await pollUntilElementAttributes(homeTab, 30000, 0);
     }
   }
+  await finishAndroidDetoxLaunch();
 }
 
 async function openPostMessageTabExpo() {
