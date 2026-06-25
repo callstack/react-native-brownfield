@@ -14,6 +14,11 @@ inputs:
     description: 'Maven path to the RN project, e.g. com/rnapp/brownfieldlib'
     required: true
 
+  restore-turbo-cache:
+    description: 'Whether to restore the Turbo cache during setup'
+    required: false
+    default: 'true'
+
   run-e2e:
     description: 'Run Detox E2E after packaging (uses release APK with embedded JS bundle, no Metro)'
     required: false
@@ -27,30 +32,46 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: '::group:: Setup & prepare Android'
+      run: |
+        echo "::group::Setup & prepare Android"
+        echo "flavor=${{ inputs.flavor }} rn-project=${{ inputs.rn-project-path }}"
+      shell: bash
+
     - name: Setup
       uses: ./.github/actions/setup
+      with:
+        restore-turbo-cache: ${{ inputs.restore-turbo-cache }}
 
     - name: Prepare Android environment
+      id: prepare-android
       uses: ./.github/actions/prepare-android
-
-    - name: Restore Gradle cache
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-android-androidapp-${{ inputs.flavor }}-gradle-
-          ${{ runner.os }}-android-androidapp-gradle-
+        gradle-workflow-job-context: ${{ inputs.flavor }}
+        rn-project-path: ${{ inputs.rn-project-path }}
+        android-ccache: 'true'
 
-    # == Brownfield Gradle Plugin ==
+    - name: '::endgroup:: Setup & prepare Android'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Brownfield Gradle plugin'
+      run: echo "::group::Brownfield Gradle plugin"
+      shell: bash
+
     - name: Publish Brownfield Gradle Plugin to Maven Local
       run: |
         yarn run brownfield:plugin:publish:local
       shell: bash
 
-    # == RN app ==
+    - name: '::endgroup:: Brownfield Gradle plugin'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: RN app — prebuild, package & publish AAR'
+      run: echo "::group::RN app — prebuild, package & publish AAR"
+      shell: bash
+
     - name: Prebuild Expo app
       if: ${{ startsWith(inputs.flavor, 'expo') }}
       run: |
@@ -77,12 +98,52 @@ runs:
         yarn run brownfield:publish:android
       shell: bash
 
+    - name: Resolve AAR variants
+      id: aar-variants
+      run: |
+        if [[ "${{ inputs.flavor }}" == "vanilla" ]]; then
+          echo "debug=devDebug" >> "$GITHUB_OUTPUT"
+          echo "release=devRelease" >> "$GITHUB_OUTPUT"
+        else
+          echo "debug=debug" >> "$GITHUB_OUTPUT"
+          echo "release=release" >> "$GITHUB_OUTPUT"
+        fi
+      shell: bash
+
     - name: Verify debug AAR exists in Maven Local
-      run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-debug.aar
+      run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.debug }}.aar
       shell: bash
 
     - name: Verify release AAR exists in Maven Local
-      run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar
+      run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.release }}.aar
+      shell: bash
+
+    - name: '::endgroup:: RN app — prebuild, package & publish AAR'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Clean RN android outputs'
+      run: echo "::group::Clean RN android outputs"
+      shell: bash
+
+    - name: Clean up local RN Android build outputs
+      run: |
+        ANDROID_DIR="${{ inputs.rn-project-path }}/android"
+        rm -rf "$ANDROID_DIR/build"
+        rm -rf "$ANDROID_DIR/.cxx"
+        rm -rf "$ANDROID_DIR/.gradle"
+        rm -rf "$ANDROID_DIR/app/build"
+        rm -rf "$ANDROID_DIR/app/.cxx"
+        rm -rf "$ANDROID_DIR/app/.gradle"
+        find "$ANDROID_DIR" -maxdepth 2 -name '.cxx' -type d -prune -exec rm -rf {} +
+      shell: bash
+
+    - name: '::endgroup:: Clean RN android outputs'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: AndroidApp — assemble consumer app'
+      run: echo "::group::AndroidApp — assemble consumer app"
       shell: bash
 
     - name: Verify embedded JS bundle in release AAR (E2E)
@@ -101,11 +162,33 @@ runs:
         echo "Embedded bundle OK: ${BUNDLE_PATH} ($(wc -c < "${BUNDLE_PATH}") bytes)"
       shell: bash
 
-    # == AndroidApp ==
-
     - name: Build native Android Brownfield app
       if: inputs.run-e2e != 'true'
       run: yarn run build:example:android-consumer:${{ inputs.flavor }}
+      shell: bash
+
+    - name: '::endgroup:: AndroidApp — assemble consumer app'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Save ccache & summary'
+      run: echo "::group::Save ccache & summary"
+      shell: bash
+
+    - name: Save Android ccache
+      if: steps.prepare-android.outputs.android-ccache-cache-hit != 'true'
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: .android_ccache
+        key: ${{ steps.prepare-android.outputs.android-ccache-cache-primary-key }}
+
+    - name: Log Android ccache stats
+      uses: ./.github/actions/ccache-summary
+      with:
+        name: Android road test (${{ inputs.flavor }})
+
+    - name: '::endgroup:: Save ccache & summary'
+      run: echo "::endgroup::"
       shell: bash
 
     - name: Resolve AndroidApp E2E settings

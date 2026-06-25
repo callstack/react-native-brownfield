@@ -1,7 +1,7 @@
 'use strict';
 
-// Detox E2E (CJS). Keep in sync with ../src/e2eTestIds.ts and native E2eTestIds (Swift/Kotlin).
-const brownfieldE2eTestIds = {
+// Detox E2E (CJS). Keep in sync with ../src/e2eTestIds.ts
+const brownfieldE2ETestIds = {
   rnAppHome: 'brownfield-e2e-rnapp-home',
   rnAppHomeTitle: 'brownfield-e2e-rnapp-home-title',
   sendMessageToNative: 'brownfield-e2e-send-message-native',
@@ -18,5 +18,5 @@ const brownfieldE2eTestIds = {
 };
 
 module.exports = {
-  brownfieldE2eTestIds,
+  brownfieldE2ETestIds,
 };

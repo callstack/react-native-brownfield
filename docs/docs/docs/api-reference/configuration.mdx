@@ -1,0 +1,221 @@
+# Configuration files
+
+The Brownfield CLI can load configuration from a file instead of repeating the same flags on every command.
+That configuration covers both `@callstack/react-native-brownfield` and `@callstack/brownie` options.
+
+Configuration keys use camelCase names that match CLI flags inside their platform section.
+For example, `--module-name` becomes `moduleName`, `--build-folder` becomes `buildFolder`, and `--use-prebuilt-rn-core` becomes `usePrebuiltRnCore`.
+
+## Choose one configuration source
+
+The CLI supports exactly one configuration source per project:
+
+- `react-native-brownfield.config.js`
+- `react-native-brownfield.config.json`
+- `package.json` under the `react-native-brownfield` key
+
+Do not keep more than one of these at the same time.
+If the CLI finds multiple sources, it throws an error instead of guessing which one should win.
+
+When both a config value and a CLI flag are set for the same option, the CLI flag wins.
+The CLI also validates the file against the published schema and logs warnings for unknown or invalid keys.
+
+## JavaScript config file
+
+If you prefer a JavaScript file, create `react-native-brownfield.config.js` and export a plain object with `module.exports`:
+
+```js
+/** @type {import('@callstack/react-native-brownfield').BrownfieldConfig} */
+module.exports = {
+  verbose: true,
+  android: {
+    moduleName: ':BrownfieldLib',
+  },
+  ios: {
+    scheme: 'BrownfieldLib',
+  },
+  brownie: {
+    kotlin:
+      './android/BrownfieldLib/src/main/java/com/example/brownfield/Generated/',
+    kotlinPackageName: 'com.example.brownfield',
+  },
+};
+```
+
+## JSON config file
+
+If you want schema autocomplete and validation directly in the config file, use `react-native-brownfield.config.json`:
+
+> [!TIP]
+>
+> The schema URL is not required, but it's recommended to include it for autocomplete and validation. If you want to use it, you may need to configure `oss.callstack.com` as a trusted domain in your IDE.
+>
+> In VS Code, you can do it by adding `oss.callstack.com` to `JSON › Schema Download: Trusted Domains` in your preferences.
+>
+> In Cursor, it is sufficient to enable `JSON › Schema Download: Enable` in preferences.
+
+```json
+{
+  "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
+  "verbose": true,
+  "android": {
+    "moduleName": "brownfieldlib"
+  },
+  "ios": {
+    "scheme": "BrownfieldLib",
+    "configuration": "Release",
+    "usePrebuiltRnCore": true
+  },
+  "brownie": {
+    "kotlin": "./android/brownfieldlib/src/main/java/com/example/brownfield/Generated/",
+    "kotlinPackageName": "com.example.brownfield"
+  }
+}
+```
+
+## package.json config
+
+If you prefer to keep everything in `package.json`, place the configuration under `react-native-brownfield`:
+
+```json
+{
+  "name": "my-app",
+  "brownfield": {
+    "verbose": true,
+    "android": {
+      "moduleName": ":BrownfieldLib"
+    },
+    "ios": {
+      "scheme": "BrownfieldLib"
+    },
+    "brownie": {
+      "kotlin": "./android/BrownfieldLib/src/main/java/com/example/brownfield/Generated/",
+      "kotlinPackageName": "com.example.brownfield"
+    }
+  }
+}
+```
+
+## Configuration reference
+
+All file-based platform options mirror CLI flags, but they use camelCase property names under `android` or `ios`.
+
+### Shared keys
+
+| Key       | Type      | Description                                                           |
+| --------- | --------- | --------------------------------------------------------------------- |
+| `$schema` | `string`  | JSON Schema URL used by editors for validation and autocomplete.      |
+| `verbose` | `boolean` | Enables verbose CLI logging.                                          |
+| `brownie` | `object`  | Nested Brownie configuration used by `brownfield codegen`. See below. |
+
+### Android keys
+
+| Key                  | Type     | Description                                                          |
+| -------------------- | -------- | -------------------------------------------------------------------- |
+| `android.moduleName` | `string` | Android module name used for packaging and publishing AAR artifacts. |
+| `android.variant`    | `string` | Android build variant, for example `debug` or `freeRelease`.         |
+
+### iOS keys
+
+| Key                      | Type       | Description                                                                                                            |
+| ------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `ios.scheme`             | `string`   | Xcode scheme used for packaging.                                                                                       |
+| `ios.configuration`      | `string`   | Xcode build configuration, for example `Debug` or `Release`.                                                           |
+| `ios.target`             | `string`   | Explicit Xcode target name.                                                                                            |
+| `ios.destination`        | `string[]` | One or more Xcode destinations, such as `simulator`, `device`, or full destination strings.                            |
+| `ios.buildFolder`        | `string`   | Custom build output directory. By default, Brownfield uses the `.brownfield/build` path inside the iOS project.        |
+| `ios.extraParams`        | `string[]` | Extra arguments passed to `xcodebuild`.                                                                                |
+| `ios.exportExtraParams`  | `string[]` | Extra arguments passed to the archive export step.                                                                     |
+| `ios.exportOptionsPlist` | `string`   | Export options plist filename used during archive export.                                                              |
+| `ios.installPods`        | `boolean`  | Controls automatic CocoaPods installation. Set `false` to match `--no-install-pods`.                                   |
+| `ios.newArch`            | `boolean`  | Controls React Native new architecture support. Set `false` to match `--no-new-arch`.                                  |
+| `ios.usePrebuiltRnCore`  | `boolean`  | Controls whether iOS packaging uses React Native Apple prebuilts. Omit it to keep Brownfield's version-aware defaults. |
+| `ios.addSpmPackage`      | `boolean`  | Generates a local Swift Package Manager manifest next to the packaged XCFramework outputs.                             |
+
+## Brownie configuration
+
+The Brownie configuration lives inside the main Brownfield config under the `brownie` key.
+This is the preferred format for Brownie code generation.
+
+Currently supported Brownie keys are:
+
+| Key                 | Type     | Description                                                             |
+| ------------------- | -------- | ----------------------------------------------------------------------- |
+| `kotlin`            | `string` | Directory where generated Kotlin Brownie store files should be written. |
+| `kotlinPackageName` | `string` | Kotlin package name used in generated Brownie store files.              |
+
+Example inside `react-native-brownfield.config.json`:
+
+```json
+{
+  "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
+  "brownie": {
+    "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
+    "kotlinPackageName": "com.rnapp.brownfieldlib"
+  }
+}
+```
+
+Only the Kotlin output is configurable.
+Swift Brownie files are always generated to `node_modules/@callstack/brownie/ios/Generated/`.
+
+## Migrating from legacy Brownie configuration
+
+Legacy Brownie configuration used a top-level `brownie` block in `package.json`:
+
+```json
+{
+  "brownie": {
+    "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
+    "kotlinPackageName": "com.rnapp.brownfieldlib"
+  }
+}
+```
+
+The new format moves the same values under the main Brownfield config:
+
+```json
+{
+  "brownfield": {
+    "android": {
+      "moduleName": ":BrownfieldLib"
+    },
+    "ios": {
+      "scheme": "BrownfieldLib"
+    },
+    "brownie": {
+      "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
+      "kotlinPackageName": "com.rnapp.brownfieldlib"
+    }
+  }
+}
+```
+
+You can also migrate to a standalone config file:
+
+```json
+{
+  "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
+  "android": {
+    "moduleName": ":BrownfieldLib"
+  },
+  "ios": {
+    "scheme": "BrownfieldLib"
+  },
+  "brownie": {
+    "kotlin": "./android/BrownfieldLib/src/main/java/com/rnapp/brownfieldlib/Generated/",
+    "kotlinPackageName": "com.rnapp.brownfieldlib"
+  }
+}
+```
+
+Migration steps:
+
+1. Pick one main Brownfield config source.
+2. Move the legacy `package.json#brownie` values into the nested `brownie` object in that source.
+3. Remove the old top-level `brownie` block from `package.json`.
+4. Run `brownfield codegen` again.
+
+Do not keep the legacy and new Brownie configuration at the same time.
+If both are present, `brownfield codegen` throws an error.
+If only the legacy format is present, the command still works for now, but it prints a migration warning.

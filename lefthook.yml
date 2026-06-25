@@ -1,6 +1,12 @@
 pre-commit:
   parallel: true
   commands:
+    brownfield-config-schema:
+      run: yarn generate:schema && git add packages/cli/schema.json
+
+    brownfield-navigation-drift:
+      run: node --experimental-strip-types --no-warnings ./scripts/check-brownfield-navigation-drift.ts
+
     lint:
       glob: '*.{js,ts,jsx,tsx}'
       run: yarn lint

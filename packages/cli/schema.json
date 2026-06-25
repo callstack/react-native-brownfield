@@ -1,0 +1,122 @@
+{
+  "$ref": "#/definitions/BrownfieldConfig",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "BrownfieldAndroidConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "moduleName": {
+          "description": "AAR module name.",
+          "type": "string"
+        },
+        "variant": {
+          "description": "Your app's build variant, which is constructed from build type and product flavor, e.g. 'debug' or 'freeRelease'.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BrownfieldConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "android": {
+          "$ref": "#/definitions/BrownfieldAndroidConfig",
+          "description": "Brownfield Android configuration."
+        },
+        "brownie": {
+          "$ref": "#/definitions/BrownieConfig",
+          "description": "Brownie (state library) configuration."
+        },
+        "ios": {
+          "$ref": "#/definitions/BrownfieldIosConfig",
+          "description": "Brownfield iOS configuration."
+        },
+        "verbose": {
+          "description": "Enables verbose CLI logging.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "BrownfieldIosConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "addSpmPackage": {
+          "description": "When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs.",
+          "type": "boolean"
+        },
+        "buildFolder": {
+          "description": "Location for iOS build artifacts.",
+          "type": "string"
+        },
+        "configuration": {
+          "description": "Xcode scheme configuration (case sensitive).",
+          "type": "string"
+        },
+        "destination": {
+          "description": "Destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values can be either: \"simulator\", \"device\" or destinations supported by \"xcodebuild -destination\" flag, e.g. \"generic/platform=iOS\".",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exportExtraParams": {
+          "description": "Custom xcodebuild export archive parameters.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exportOptionsPlist": {
+          "description": "Export options file name for archiving (default: ExportOptions.plist).",
+          "type": "string"
+        },
+        "extraParams": {
+          "description": "Custom xcodebuild parameters.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "installPods": {
+          "description": "Whether to install CocoaPods.",
+          "type": "boolean"
+        },
+        "newArch": {
+          "description": "Whether to build in new architecture.",
+          "type": "boolean"
+        },
+        "scheme": {
+          "description": "Xcode scheme to use.",
+          "type": "string"
+        },
+        "target": {
+          "description": "Xcode target to use.",
+          "type": "string"
+        },
+        "usePrebuiltRnCore": {
+          "description": "Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults).",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "BrownieConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "kotlin": {
+          "description": "The output path to generate Kotlin Brownie store files at.",
+          "type": "string"
+        },
+        "kotlinPackageName": {
+          "description": "The package name for the Kotlin source code.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

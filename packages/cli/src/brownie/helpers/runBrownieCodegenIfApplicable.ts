@@ -1,7 +1,7 @@
 import { runCodegen } from '../commands/codegen.js';
 import { isBrownieInstalled } from '../config.js';
 
-import type { Platform } from '../types.js';
+import type { Platform } from '../../types.js';
 
 export async function runBrownieCodegenIfApplicable(
   projectRoot: string,
@@ -9,7 +9,7 @@ export async function runBrownieCodegenIfApplicable(
 ) {
   const hasBrownie = isBrownieInstalled(projectRoot);
   if (hasBrownie) {
-    await runCodegen({ platform });
+    await runCodegen({ platform, projectRoot });
   }
 
   return { hasBrownie };

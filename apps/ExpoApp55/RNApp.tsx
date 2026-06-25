@@ -1,15 +1,26 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
+import {
+  syncBrownfieldE2EModeFromRootProps,
+  type BrownfieldRootProps,
+} from '@callstack/brownfield-example-shared-tests/runtime';
 import { checkAndFetchUpdate } from './src/utils/expo-rn-updates';
 
 import Counter from './src/components/counter';
 
-type RNAppProps = {
-  nativeOsVersionLabel?: string;
-};
+type RNAppProps = BrownfieldRootProps;
 
-export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
+export default function RNApp({
+  nativeOsVersionLabel,
+  brownfieldE2E,
+}: RNAppProps) {
+  useEffect(() => {
+    syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
+    return () => syncBrownfieldE2EModeFromRootProps(undefined);
+  }, [brownfieldE2E]);
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Expo React Native Brownfield</Text>

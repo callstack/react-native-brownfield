@@ -31,7 +31,10 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
         bundle: bundle,
         bundleURLOverride: bundleURLOverride,
         metroURL: {
-          RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: entryFile)
+          RCTBundleURLProvider.sharedSettings().jsBundleURL(
+            forBundleRoot: entryFile,
+            fallbackURLProvider: { nil }
+          )
         }
       )
     } catch {
@@ -86,7 +89,7 @@ final class ReactNativeHostRuntime {
   }
 
   /**
-   * Prefer the embedded JavaScript bundle instead of Metro when this framework is built in Debug.
+   * Use the embedded JavaScript bundle as a Debug fallback when Metro is unavailable.
    * Default value: false
    */
   public var preferEmbeddedBundleInDebug: Bool = false {

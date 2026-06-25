@@ -1,25 +1,21 @@
-const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { device, element, by, expect: detoxExpect } = require('detox');
+const {
+  brownfieldE2ETestIds: ids,
+} = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
-  configureDetoxForBrownfieldIos,
+  launchBrownfieldAppForDetox,
+  waitForVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 describe('Brownfield (RNApp)', () => {
-  beforeEach(async () => {
-    // Full relaunch is more reliable than reloadReactNative() on newer RN/Xcode.
-    await device.launchApp({
-      newInstance: true,
-      launchArgs: { BrownfieldPreferEmbeddedBundleInDebug: 'YES' },
-    });
-    await configureDetoxForBrownfieldIos();
-    const home = element(by.id(ids.rnAppHome));
+  beforeAll(async () => {
+    await launchBrownfieldAppForDetox({ newInstance: true });
     try {
-      await waitFor(home).toBeVisible().withTimeout(45000);
+      await waitForVisible(by.id(ids.rnAppHome), 45000);
     } catch {
-      // Some CI runs start with an unmounted RN surface; one reload usually recovers.
       await device.reloadReactNative();
-      await waitFor(home).toBeVisible().withTimeout(45000);
+      await waitForVisible(by.id(ids.rnAppHome), 45000);
     }
   });
 

@@ -2,6 +2,32 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies [[`89bc23c`](https://github.com/callstack/react-native-brownfield/commit/89bc23c00bb85c036fce6d4ea142fb3ba0846deb)]:
+  - @callstack/brownfield-cli@3.13.1
+
+- [#394](https://github.com/callstack/react-native-brownfield/pull/394) [`89bc23c`](https://github.com/callstack/react-native-brownfield/commit/89bc23c00bb85c036fce6d4ea142fb3ba0846deb) Thanks [@Esemesek](https://github.com/Esemesek)! - Fix schema.json not being released
+
+## 3.13.0
+
+### Minor Changes
+
+- [#352](https://github.com/callstack/react-native-brownfield/pull/352) [`b451bb1`](https://github.com/callstack/react-native-brownfield/commit/b451bb18dffe3974e39537cc0c023ef634ff3152) Thanks [@alpharius-ck](https://github.com/alpharius-ck)! - e2e tests
+
+- [#339](https://github.com/callstack/react-native-brownfield/pull/339) [`ef835b5`](https://github.com/callstack/react-native-brownfield/commit/ef835b52a130e4cd8770a2db04402cbb066b9c27) Thanks [@Esemesek](https://github.com/Esemesek)! - Added configuration file support for react-native-brownfield packages.
+
+- [#359](https://github.com/callstack/react-native-brownfield/pull/359) [`533569b`](https://github.com/callstack/react-native-brownfield/commit/533569b59a4981669dfb738295b505343623bc32) Thanks [@MrMuzyk](https://github.com/MrMuzyk)! - Expose the Brownfield Android Gradle Plugin source from the npm package for opt-in local patching.
+
+### Patch Changes
+
+- Updated dependencies [[`ef835b5`](https://github.com/callstack/react-native-brownfield/commit/ef835b52a130e4cd8770a2db04402cbb066b9c27)]:
+  - @callstack/brownfield-cli@3.13.0
+
+- [#391](https://github.com/callstack/react-native-brownfield/pull/391) [`95dbb43`](https://github.com/callstack/react-native-brownfield/commit/95dbb434d4c526b8f75bfd4c54b1d023e349ccf4) Thanks [@adamTrz](https://github.com/adamTrz)! - Fix Expo iOS framework debug bundle packaging so Debug builds load from Metro when it is available and fall back to embedded bundles without dev-server-only runtime code.
+
 ## 3.12.0
 
 ### Minor Changes

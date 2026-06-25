@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('node:path');
+const { DETOX_TIMING } = require('./detoxTiming.cjs');
 
 /**
  * Shared Detox Jest config for brownfield example apps (RNApp, ExpoApp54, ExpoApp55, AppleApp).
@@ -9,7 +10,10 @@ const path = require('node:path');
  */
 function createDetoxJestConfig({ e2eDir, testMatch }) {
   const appRoot = path.join(e2eDir, '..');
-  const sharedTestsRoot = path.join(e2eDir, '../../brownfield-example-shared-tests');
+  const sharedTestsRoot = path.join(
+    e2eDir,
+    '../../brownfield-example-shared-tests'
+  );
 
   return {
     maxWorkers: 1,
@@ -17,8 +21,7 @@ function createDetoxJestConfig({ e2eDir, testMatch }) {
     roots: [appRoot, sharedTestsRoot],
     // Shared E2E files live under brownfield-example-shared-tests; resolve host-app deps (detox) from here.
     modulePaths: [path.join(appRoot, 'node_modules')],
-    // beforeEach relaunches the app and waits for the embedded RN surface (up to ~80s on slow CI).
-    testTimeout: 180000,
+    testTimeout: DETOX_TIMING.TEST_TIMEOUT_MS,
     verbose: true,
     reporters: ['detox/runners/jest/reporter'],
     globalSetup: 'detox/runners/jest/globalSetup',

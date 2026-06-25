@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "React Native Brownfield package.json extension",
+  "description": "Adds react-native-brownfield configuration completions to package.json.",
+  "type": "object",
+  "properties": {
+    "brownfield": {
+      "$ref": "https://oss.callstack.com/react-native-brownfield/schema.json"
+    }
+  }
+}

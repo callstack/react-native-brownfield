@@ -1,6 +1,12 @@
 const assert = require('node:assert/strict');
 const { execSync } = require('node:child_process');
 const { device, element, waitFor, expect: detoxExpect } = require('detox');
+const { DETOX_TIMING } = require('./detoxTiming.cjs');
+
+const detoxLaunchArgs = {
+  BrownfieldPreferEmbeddedBundleInDebug: 'YES',
+  DetoxE2E: 'YES',
+};
 
 function adbShell(command) {
   try {
@@ -55,15 +61,35 @@ async function configureDetoxForBrownfieldAndroid() {
   // No URL blacklist needed on Android.
 }
 
-async function waitForVisible(matcher, timeoutMs = 20000) {
-  await waitFor(element(matcher)).toBeVisible().withTimeout(timeoutMs);
+/**
+ * Launch without waiting for RN Debug idle, then re-enable Detox synchronization for tests.
+ *
+ * Sync is disabled only via launchArgs — disableSynchronization() before launchApp()
+ * fails because Detox is not connected to the app yet.
+ */
+async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
+  await device.launchApp({
+    newInstance,
+    launchArgs: {
+      ...detoxLaunchArgs,
+      detoxEnableSynchronization: 0,
+    },
+  });
+  await configureDetoxForBrownfieldIos();
+  await device.enableSynchronization();
+}
+
+async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
+  await waitFor(element(matcher).atIndex(index))
+    .toBeVisible()
+    .withTimeout(timeoutMs);
 }
 
 /**
- * Poll visibility with synchronization disabled (RN keeps the run loop "busy").
- * Do not use waitFor().toBeVisible() while sync is off — it returns immediately.
+ * Poll native-only / short-lived UI (toasts, popups, pushed native screens) with sync
+ * temporarily off. RN Debug can keep sync busy while a native overlay is already visible.
  */
-async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0) {
+async function waitForNativeOverlayVisible(matcher, timeoutMs = 20000, index = 0) {
   await device.disableSynchronization();
   try {
     const deadline = Date.now() + timeoutMs;
@@ -73,7 +99,9 @@ async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0)
         await detoxExpect(target()).toBeVisible();
         return;
       } catch {
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) =>
+          setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+        );
       }
     }
     await detoxExpect(target()).toBeVisible();
@@ -83,11 +111,13 @@ async function waitForVisibleIgnoringSync(matcher, timeoutMs = 20000, index = 0)
 }
 
 module.exports = {
+  detoxLaunchArgs,
   detoxAttrsText,
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
   configureDetoxForBrownfieldAndroid,
   configureDetoxForBrownfieldIos,
+  launchBrownfieldAppForDetox,
   waitForVisible,
-  waitForVisibleIgnoringSync,
+  waitForNativeOverlayVisible,
 };

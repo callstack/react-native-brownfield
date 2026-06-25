@@ -40,13 +40,15 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          restore-turbo-cache: 'false'
+          disable-cache: 'true'
 
       - name: Prepare Android environment
         uses: ./.github/actions/prepare-android
         with:
           free-disk-space: 'false'
           run-yarn-build: 'false'
+          gradle-cache: 'false'
+          android-ccache: 'false'
 
       - name: Derive release metadata
         id: metadata
@@ -105,13 +107,13 @@ jobs:
             --stacktrace
 
       - name: Upload release notes artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: brownfield-gradle-plugin-release-notes
           path: out/jreleaser/brownfield-gradle-plugin-release-notes.md
 
       - name: Upload staged Maven repository artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: brownfield-gradle-plugin-staging-repo
           path: gradle-plugins/react/brownfield/build/staging-deploy
@@ -148,7 +150,7 @@ jobs:
           path: gradle-plugins/react/brownfield/build/staging-deploy
 
       - name: Run JReleaser
-        uses: jreleaser/release-action@v2
+        uses: jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5 # v2.5.0
         with:
           arguments: full-release
         env:
@@ -165,7 +167,7 @@ jobs:
 
       - name: Upload JReleaser output
         if: always()
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: brownfield-gradle-plugin-jreleaser-output
           path: |

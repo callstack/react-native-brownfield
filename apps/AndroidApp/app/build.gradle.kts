@@ -26,6 +26,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testBuildType = System.getProperty("testBuildType", "debug")
+        missingDimensionStrategy("env", "dev")
     }
 
     flavorDimensions += "app"

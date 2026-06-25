@@ -1,5 +1,7 @@
 package com.callstack.brownfield.android.example
 
+import com.callstack.brownie.registerStoreIfNeeded
+import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
@@ -25,9 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.semantics.semantics
@@ -170,6 +174,11 @@ private fun MainScreen(modifier: Modifier = Modifier) {
 fun ReactNativeView(
     modifier: Modifier = Modifier
 ) {
+    val activity = LocalContext.current as? Activity
+    val brownfieldE2E = remember(activity) {
+        activity?.intent?.getStringExtra("DetoxE2E") == "YES"
+    }
+
     AndroidFragment<ReactNativeFragment>(
         modifier = modifier,
         arguments = Bundle().apply {
@@ -184,6 +193,7 @@ fun ReactNativeView(
                         "nativeOsVersionLabel",
                         "Android ${Build.VERSION.RELEASE}"
                     )
+                    putBoolean("brownfieldE2E", brownfieldE2E)
                 }
             )
         }

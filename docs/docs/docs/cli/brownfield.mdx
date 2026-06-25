@@ -2,6 +2,11 @@
 
 The `brownfield` CLI provides utilities for building & packaging artifacts for brownfield projects that use the `@callstack/react-native-brownfield` library.
 
+:::tip Configuration file
+You can store supported `brownfield` CLI options in a project configuration file instead of passing the same flags on every command.
+See [Configuration files](/docs/api-reference/configuration) for supported config sources and option names.
+:::
+
 ## Usage
 
 ```bash
@@ -31,13 +36,10 @@ Available arguments:
 | --export-options-plist        | Name of the export options file for archiving. Defaults to: `ExportOptions.plist`                                                                                                                                                                                                                                                                                 |
 | --build-folder                | Location for iOS build artifacts. Corresponds to Xcode's "-derivedDataPath". By default, the '\<iOS project folder>/.brownfield/build' path will be used.                                                                                                                                                                                                         |
 | --destination                 | Define destination(s) for the build. You can pass multiple destinations as separate values or repeated use of the flag. Values: "simulator", "device", or xcodebuild destinations                                                                                                                                                                                 |
-| --archive                     | Create an Xcode archive (IPA) of the build, required for uploading to App Store Connect or distributing to TestFlight                                                                                                                                                                                                                                             |
-| --add-spm-package             | Generate a local `Package.swift` next to the packaged XCFramework outputs so the folder can be added to Xcode as a local Swift Package                                                                                                                                                                                                                              |
+| --add-spm-package             | Generate a local `Package.swift` next to the packaged XCFramework outputs so the folder can be added to Xcode as a local Swift Package                                                                                                                                                                                                                            |
 | --use-prebuilt-rn-core [bool] | Controls usage of React Native Apple prebuilt binaries for the packaging Xcode build. Omit for version-aware defaults (see [Getting Started — iOS — React Native Prebuilts](/docs/getting-started/ios#react-native-prebuilts)). Pass `true`, `false`, or use the flag without a value as shorthand for `true`. Supported only for Expo 55+ OR vanilla RN >= 0.81. |
 | --no-install-pods             | Skip automatic CocoaPods installation                                                                                                                                                                                                                                                                                                                             |
 | --no-new-arch                 | Run React Native in legacy async architecture                                                                                                                                                                                                                                                                                                                     |
-| --local                       | Force local build with xcodebuild                                                                                                                                                                                                                                                                                                                                 |
-| --verbose                     | Enable verbose logging                                                                                                                                                                                                                                                                                                                                            |
 
 The build directory will be placed in the `<iOS project folder>/.brownfield/build` folder by default and the build outputs (XCFrameworks) will be created in the `<iOS project folder>/.brownfield/package/build` folder:
 
