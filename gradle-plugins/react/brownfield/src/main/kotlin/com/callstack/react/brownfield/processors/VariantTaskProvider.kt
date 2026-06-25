@@ -98,14 +98,10 @@ class VariantTaskProvider(val project: Project) {
             val updatesResourcesTaskName =
                 "create${capitalizedBundledAssetsVariantName}UpdatesResources"
 
-            appProject.tasks.findByName(updatesResourcesTaskName)?.let { updatesTask ->
+            appProject.tasks
+            .matching { it.name == updatesResourcesTaskName }
+            .configureEach { updatesTask ->
                 preBuildTask.dependsOn(updatesTask)
-            }
-
-            appProject.tasks.whenTaskAdded { task ->
-                if (task.name == updatesResourcesTaskName) {
-                    preBuildTask.dependsOn(task)
-                }
             }
         }
     }
