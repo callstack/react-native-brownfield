@@ -25,7 +25,6 @@ vi.mock('@rock-js/tools', async (importOriginal) => {
 
 const mockLoggerWarn = rockTools.logger.warn as ReturnType<typeof vi.fn>;
 const mockLoggerSuccess = rockTools.logger.success as ReturnType<typeof vi.fn>;
-const isDarwin = process.platform === 'darwin';
 
 function createMockXcframework(
   baseDir: string,
@@ -66,7 +65,7 @@ describe('stripFrameworkBinary', () => {
     );
   });
 
-  it.skipIf(!isDarwin)('strips binary from ios-arm64 slice', () => {
+  it('strips binary from ios-arm64 slice', () => {
     const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
       'ios-arm64',
     ]);
@@ -88,7 +87,7 @@ describe('stripFrameworkBinary', () => {
     );
   });
 
-  it.skipIf(!isDarwin)('strips binary from simulator slice with fat binary', () => {
+  it('strips binary from simulator slice with fat binary', () => {
     const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
       'ios-arm64_x86_64-simulator',
     ]);
@@ -112,7 +111,7 @@ describe('stripFrameworkBinary', () => {
     expect(archInfo).toContain('x86_64');
   });
 
-  it.skipIf(!isDarwin)('handles multiple slices', () => {
+  it('handles multiple slices', () => {
     const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
       'ios-arm64',
       'ios-arm64_x86_64-simulator',
@@ -166,7 +165,7 @@ describe('stripFrameworkBinary', () => {
     );
   });
 
-  it.skipIf(!isDarwin)('ignores non-ios directories', () => {
+  it('ignores non-ios directories', () => {
     const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
       'ios-arm64',
     ]);

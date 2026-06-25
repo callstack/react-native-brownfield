@@ -1,9 +1,9 @@
 const { device, element, by, expect: detoxExpect } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
   configureDetoxForBrownfieldAndroid,
-  waitForVisibleIgnoringSync,
+  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
   scrollToNativeShellVanilla,
@@ -41,11 +41,11 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
 
   it('navigates to native settings from the RN surface', async () => {
     await element(by.id(ids.openNativeSettings)).tap();
-    await waitForVisibleIgnoringSync(by.id(ids.appleAppNativeSettings), 10000);
+    await waitForNativeOverlayVisible(by.id(ids.appleAppNativeSettings), 10000);
   });
 
   it('navigates to native referrals from the RN surface', async () => {
     await element(by.id(ids.openNativeReferrals)).tap();
-    await waitForVisibleIgnoringSync(by.id(ids.appleAppNativeReferrals), 10000, 0);
+    await waitForNativeOverlayVisible(by.id(ids.appleAppNativeReferrals), 10000, 0);
   });
 });

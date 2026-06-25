@@ -150,7 +150,7 @@ runs:
       if: inputs.run-e2e == 'true'
       run: |
         set -euo pipefail
-        AAR_PATH="${HOME}/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-release.aar"
+        AAR_PATH="${HOME}/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.release }}.aar"
         TMP_DIR="$(mktemp -d)"
         trap 'rm -rf "${TMP_DIR}"' EXIT
         unzip -q "${AAR_PATH}" -d "${TMP_DIR}"
@@ -223,10 +223,18 @@ runs:
     - name: Install Android emulator runtime libraries
       if: inputs.run-e2e == 'true'
       run: |
-        # qemu-system-x86_64 is linked against libpulse even with -no-audio; free-disk-space
-        # on ubuntu-latest can remove it before the emulator starts.
+        # free-disk-space (prepare-android) can remove libs the QEMU emulator needs,
+        # even with -no-audio (libpulse) and headless CI (libgl1, libxkbfile1).
         sudo apt-get update
-        sudo apt-get install -y libpulse0
+        sudo apt-get install -y libpulse0 libgl1 libxkbfile1
+      shell: bash
+
+    - name: Enable KVM for Android emulator
+      if: inputs.run-e2e == 'true'
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
       shell: bash
 
     - name: Detox test (AndroidApp ${{ inputs.flavor }})

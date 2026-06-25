@@ -1,9 +1,10 @@
 const { device, element, by, waitFor } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
-  waitForVisibleIgnoringSync,
+  waitForVisible,
+  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
@@ -66,7 +67,7 @@ async function waitForAndroidAppReadyVanilla() {
 async function waitForAndroidAppReadyExpo() {
   const homeTab = by.label('Home');
   try {
-    await waitForVisibleIgnoringSync(homeTab, 120000, 0);
+    await waitForVisible(homeTab, 120000, 0);
   } catch {
     await device.disableSynchronization();
     try {
@@ -79,13 +80,13 @@ async function waitForAndroidAppReadyExpo() {
 }
 
 async function openPostMessageTabExpo() {
-  await waitForVisibleIgnoringSync(by.label('postMessage API'), 30000, 0);
+  await waitForVisible(by.label('postMessage API'), 30000, 0);
   await element(by.label('postMessage API')).atIndex(0).tap();
-  await waitForVisibleIgnoringSync(by.id(ids.sendMessageToNative), 30000);
+  await waitForVisible(by.id(ids.sendMessageToNative), 30000);
 }
 
 async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
-  await waitForVisibleIgnoringSync(by.id(ids.sendMessageToNative), 30000);
+  await waitForVisible(by.id(ids.sendMessageToNative), 30000);
   await element(by.id(ids.sendMessageToNative)).tap();
   if (rnMessagePattern) {
     const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
@@ -100,7 +101,7 @@ async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
     }
     await assertDetoxTextMatches(bubble, rnMessagePattern);
   }
-  await waitForVisibleIgnoringSync(by.id(ids.appleAppPostMessageToast), 10000);
+  await waitForNativeOverlayVisible(by.id(ids.appleAppPostMessageToast), 10000);
 }
 
 module.exports = {

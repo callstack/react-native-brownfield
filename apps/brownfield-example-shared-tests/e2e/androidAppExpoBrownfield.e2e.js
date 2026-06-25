@@ -1,9 +1,8 @@
 const { device, element, by, expect: detoxExpect } = require('detox');
-const { brownfieldE2eTestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
   configureDetoxForBrownfieldAndroid,
-  waitForVisibleIgnoringSync,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
   scrollToNativeShellExpo,
