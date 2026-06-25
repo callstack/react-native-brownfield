@@ -8,7 +8,6 @@ const {
 const {
   scrollToNativeShellVanilla,
   waitForAndroidAppReadyVanilla,
-  sendPostMessageToNativeAndWaitForToast,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
 describe('Brownfield (AndroidApp — Vanilla)', () => {
@@ -35,8 +34,11 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
     await assertDetoxTextMatches(count, /Count:\s*1/);
   });
 
-  it('shows a native toast when RN sends postMessage', async () => {
-    await sendPostMessageToNativeAndWaitForToast(/Hello from React Native!/);
+  it('records the RN postMessage bubble after sending to native', async () => {
+    await element(by.id(ids.sendMessageToNative)).tap();
+    const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
+    await detoxExpect(bubble).toBeVisible();
+    await assertDetoxTextMatches(bubble, /Hello from React Native!/);
   });
 
   it('navigates to native settings from the RN surface', async () => {
