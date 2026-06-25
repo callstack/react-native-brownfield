@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.callstack.brownfield.android.example.E2eTestIds
 import com.callstack.reactnativebrownfield.OnMessageListener
@@ -81,10 +80,11 @@ fun PostMessageCard(
                         ReactNativeBrownfield.shared.postMessage(json)
                         draft = ""
                     },
-                    modifier = Modifier.testTag(E2eTestIds.nativeAppPostMessageSend),
+                    modifier = Modifier.weight(1f),
                 ) {
-                    EspressoTagAnchor(E2eTestIds.nativeAppPostMessageSend)
-                    Text("Send")
+                    EspressoTagAnchor(E2eTestIds.nativeAppPostMessageSend) {
+                        Text("Send")
+                    }
                 }
             }
         }

@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.callstack.brownfield.android.example.E2eTestIds
@@ -53,19 +52,19 @@ fun PostMessageToast(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.BottomCenter,
         ) {
-            Text(
-                text = message,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                    .padding(bottom = 50.dp)
-                    .scale(animatedScale)
-                    .alpha(animatedOpacity)
-                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(25.dp))
-                    .testTag(E2eTestIds.nativeAppPostMessageToast),
-            )
-            EspressoTagAnchor(E2eTestIds.nativeAppPostMessageToast)
+            EspressoTagAnchor(E2eTestIds.nativeAppPostMessageToast) {
+                Text(
+                    text = message,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .padding(bottom = 50.dp)
+                        .scale(animatedScale)
+                        .alpha(animatedOpacity)
+                        .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(25.dp)),
+                )
+            }
         }
     }
 }

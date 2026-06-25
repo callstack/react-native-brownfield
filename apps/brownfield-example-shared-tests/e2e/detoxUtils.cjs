@@ -25,7 +25,11 @@ async function dismissAndroidSystemOverlays() {
   if (device.getPlatform() !== 'android') {
     return;
   }
+  // Headless CI emulators can leave the keyguard, shade, or heads-up UI without window focus.
+  adbShell('input keyevent KEYCODE_WAKEUP');
+  adbShell('wm dismiss-keyguard');
   adbShell('cmd statusbar collapse');
+  adbShell('settings put global heads_up_notifications_enabled 0');
 }
 
 function detoxAttrsText(attrs) {
@@ -75,7 +79,11 @@ async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
       detoxEnableSynchronization: 0,
     },
   });
-  await configureDetoxForBrownfieldIos();
+  if (device.getPlatform() === 'android') {
+    await dismissAndroidSystemOverlays();
+  } else {
+    await configureDetoxForBrownfieldIos();
+  }
   await device.enableSynchronization();
 }
 

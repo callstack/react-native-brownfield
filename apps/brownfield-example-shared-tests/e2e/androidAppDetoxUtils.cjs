@@ -1,5 +1,6 @@
-const { device, element, by, waitFor } = require('detox');
+const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
@@ -7,19 +8,26 @@ const {
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
+const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
+
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
-const NATIVE_SHELL_SCROLL_ANCHOR = ids.appleAppGreeting;
+const NATIVE_SHELL_SCROLL_ANCHOR = VANILLA_NATIVE_GREETING;
 
 async function scrollNativeShell(fingerDirection) {
-  const anchor = element(by.id(NATIVE_SHELL_SCROLL_ANCHOR));
-  await waitFor(anchor).toBeVisible().withTimeout(10000);
+  await device.disableSynchronization();
   try {
-    await anchor.swipe(fingerDirection, 'slow', 0.75);
-  } catch {
-    await element(by.type('android.widget.ScrollView')).atIndex(0).scroll(
-      400,
-      fingerDirection === 'up' ? 'down' : 'up'
-    );
+    const anchor = element(NATIVE_SHELL_SCROLL_ANCHOR);
+    try {
+      await detoxExpect(anchor).toBeVisible();
+      await anchor.swipe(fingerDirection, 'slow', 0.75);
+    } catch {
+      await element(by.type('android.widget.ScrollView')).atIndex(0).scroll(
+        400,
+        fingerDirection === 'up' ? 'down' : 'up'
+      );
+    }
+  } finally {
+    await device.enableSynchronization();
   }
   await dismissAndroidSystemOverlays();
 }
@@ -50,18 +58,58 @@ async function scrollToNativeShellExpo() {
   await dismissAndroidSystemOverlays();
 }
 
-async function waitForAndroidAppReadyVanilla() {
-  await waitFor(element(by.id(ids.appleAppGreeting))).toBeVisible().withTimeout(60000);
-
-  await scrollToEmbeddedRnVanilla();
-
-  const rnHome = element(by.id(ids.rnAppHome));
+async function waitForEmbeddedRnHome(timeoutMs = DETOX_TIMING.VISIBILITY_TIMEOUT_MS) {
+  await device.disableSynchronization();
   try {
-    await waitFor(rnHome).toBeVisible().withTimeout(60000);
-  } catch {
-    await scrollToEmbeddedRnVanilla();
-    await waitFor(rnHome).toBeVisible().withTimeout(30000);
+    const deadline = Date.now() + timeoutMs;
+    const rnHome = element(by.id(ids.rnAppHome));
+    while (Date.now() < deadline) {
+      try {
+        await detoxExpect(rnHome).toBeVisible();
+        return;
+      } catch {
+        await dismissAndroidSystemOverlays();
+        await new Promise((resolve) =>
+          setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+        );
+      }
+    }
+    await detoxExpect(rnHome).toBeVisible();
+  } finally {
+    await device.enableSynchronization();
   }
+}
+
+/**
+ * Mirror iOS vanilla readiness: scroll to the embedded RN surface and poll for
+ * rnAppHome with sync off. Native greeting ids are avoided here because the old
+ * 1dp EspressoTagAnchor + duplicate Compose testTag pair failed Detox visibility.
+ */
+async function waitForAndroidAppReadyVanilla() {
+  await dismissAndroidSystemOverlays();
+  await waitForNativeOverlayVisible(VANILLA_NATIVE_GREETING, 60000);
+  await dismissAndroidSystemOverlays();
+
+  try {
+    await scrollToEmbeddedRnVanilla();
+  } catch {
+    // RN may already be on screen or the native shell is still mounting.
+  }
+
+  try {
+    await waitForEmbeddedRnHome(120000);
+    return;
+  } catch {
+    // Fall through to a second scroll attempt.
+  }
+
+  try {
+    await scrollToEmbeddedRnVanilla();
+  } catch {
+    // Continue polling visibility.
+  }
+
+  await waitForEmbeddedRnHome(60000);
 }
 
 async function waitForAndroidAppReadyExpo() {

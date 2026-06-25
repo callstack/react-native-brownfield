@@ -74,6 +74,45 @@ function getAndroidEmulatorAvdName() {
   return pickPreferredAndroidEmulatorAvd(avds);
 }
 
+function getAttachedAdbSerial() {
+  return (
+    process.env.ANDROID_SERIAL?.trim() ||
+    process.env.ANDROID_ADB_SERIAL?.trim() ||
+    ''
+  );
+}
+
+/**
+ * Detox device entry for AndroidApp E2E.
+ *
+ * CI uses reactivecircus/android-emulator-runner, which exports ANDROID_SERIAL for
+ * the script phase. Prefer android.attached there so Detox does not cold-boot a
+ * second emulator (that race produces endless `getprop sys.boot_completed` noise
+ * and `adb: device 'emulator-5554' not found`).
+ *
+ * @returns {{ deviceKey: string, deviceConfig: { type: string, device: object } }}
+ */
+function resolveAndroidDetoxDevice() {
+  const adbName = getAttachedAdbSerial();
+  if (adbName) {
+    return {
+      deviceKey: 'android.attached',
+      deviceConfig: {
+        type: 'android.attached',
+        device: { adbName },
+      },
+    };
+  }
+
+  return {
+    deviceKey: 'android.emulator',
+    deviceConfig: {
+      type: 'android.emulator',
+      device: { avdName: getAndroidEmulatorAvdName() },
+    },
+  };
+}
+
 module.exports = {
   FALLBACK_AVD_NAME,
   PREFERRED_LOCAL_AVD_NAMES,
@@ -81,4 +120,6 @@ module.exports = {
   pickPreferredAndroidEmulatorAvd,
   getRunningEmulatorAvdName,
   getAndroidEmulatorAvdName,
+  getAttachedAdbSerial,
+  resolveAndroidDetoxDevice,
 };

@@ -1,8 +1,8 @@
-const { device, element, by, expect: detoxExpect } = require('detox');
+const { element, by, expect: detoxExpect } = require('detox');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
-  configureDetoxForBrownfieldAndroid,
+  launchBrownfieldAppForDetox,
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
@@ -12,8 +12,7 @@ const {
 
 describe('Brownfield (AndroidApp — Vanilla)', () => {
   beforeEach(async () => {
-    await device.launchApp({ newInstance: true });
-    await configureDetoxForBrownfieldAndroid();
+    await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAndroidAppReadyVanilla();
   });
 

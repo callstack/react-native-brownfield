@@ -220,6 +220,16 @@ runs:
       working-directory: apps/AndroidApp
       shell: bash
 
+    - name: Free workspace disk space before Detox emulator
+      if: inputs.run-e2e == 'true'
+      run: |
+        # Heavy Expo/RN Gradle outputs can leave too little room for the AVD to start.
+        ANDROID_DIR="${{ inputs.rn-project-path }}/android"
+        rm -rf "$ANDROID_DIR/build" "$ANDROID_DIR/.cxx" "$ANDROID_DIR/.gradle"
+        rm -rf apps/AndroidApp/.gradle
+        df -h .
+      shell: bash
+
     - name: Install Android emulator runtime libraries
       if: inputs.run-e2e == 'true'
       run: |
@@ -246,14 +256,16 @@ runs:
         arch: x86_64
         profile: pixel_6
         avd-name: test
+        force-avd-creation: true
         disable-animations: true
+        emulator-boot-timeout: 600
+        emulator-options: -no-snapshot-save -no-snapshot-load -memory 4096
         script: |
           bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
           cd apps/AndroidApp
           yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
       env:
         ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
-        DETOX_DEVICE: test
 
     - name: Upload Detox artifacts on failure
       if: failure() && inputs.run-e2e == 'true'

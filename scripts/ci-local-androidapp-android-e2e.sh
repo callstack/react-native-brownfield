@@ -103,6 +103,11 @@ ensure_android_emulator() {
   if [[ -z "${RUNNING_AVD}" ]]; then
     start_detox_emulator "${DETOX_DEVICE}" "${INSTALLED_AVDS}"
   fi
+
+  ANDROID_SERIAL="$(adb devices | awk '/^emulator-[^[:space:]]+[[:space:]]device$/{print $1; exit}')"
+  if [[ -n "${ANDROID_SERIAL}" ]]; then
+    export ANDROID_SERIAL
+  fi
 }
 
 resolve_variant() {
@@ -180,7 +185,7 @@ if [[ "${BUILD_ONLY}" == "false" ]]; then
   bash "${REPO_ROOT}/apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh"
 
   echo "==> Detox test (AndroidApp ${VARIANT}, emulator — Metro not required)"
-  (cd "${ANDROID_APP_PATH}" && DETOX_DEVICE="${DETOX_DEVICE}" yarn "${E2E_TEST_SCRIPT}")
+  (cd "${ANDROID_APP_PATH}" && yarn "${E2E_TEST_SCRIPT}")
 fi
 
 echo "==> Done."

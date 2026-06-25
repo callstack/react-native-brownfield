@@ -1,6 +1,6 @@
 'use strict';
 
-const { getAndroidEmulatorAvdName } = require('./detox-android-emulator-device.cjs');
+const { resolveAndroidDetoxDevice } = require('./detox-android-emulator-device.cjs');
 
 /**
  * Detox Android emulator release config for AndroidApp (native Gradle consumer).
@@ -28,6 +28,8 @@ function createAndroidAppEmulatorReleaseDetoxConfig({
   const binaryPath = `app/build/outputs/apk/${gradleFlavor}/release/app-${gradleFlavor}-release.apk`;
   const testBinaryPath = `app/build/outputs/apk/androidTest/${gradleFlavor}/release/app-${gradleFlavor}-release-androidTest.apk`;
 
+  const { deviceKey, deviceConfig } = resolveAndroidDetoxDevice();
+
   return {
     testRunner: {
       $0: 'jest',
@@ -39,6 +41,12 @@ function createAndroidAppEmulatorReleaseDetoxConfig({
         setupTimeout: 300000,
       },
     },
+    behavior: {
+      cleanup: {
+        // CI owns emulator lifecycle via android-emulator-runner.
+        shutdownDevice: false,
+      },
+    },
     apps: {
       'android.release': {
         type: 'android.apk',
@@ -48,16 +56,11 @@ function createAndroidAppEmulatorReleaseDetoxConfig({
       },
     },
     devices: {
-      'android.emulator': {
-        type: 'android.emulator',
-        device: {
-          avdName: getAndroidEmulatorAvdName(),
-        },
-      },
+      [deviceKey]: deviceConfig,
     },
     configurations: {
       [detoxConfiguration]: {
-        device: 'android.emulator',
+        device: deviceKey,
         app: 'android.release',
       },
     },
