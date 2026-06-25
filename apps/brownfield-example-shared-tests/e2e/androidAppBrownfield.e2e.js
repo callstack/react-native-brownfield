@@ -1,8 +1,8 @@
-const { device, element, by, expect: detoxExpect } = require('detox');
+const { element, by, expect: detoxExpect } = require('detox');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
-  configureDetoxForBrownfieldAndroid,
+  launchBrownfieldAppForDetox,
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
@@ -12,8 +12,7 @@ const {
 
 describe('Brownfield (AndroidApp — Vanilla)', () => {
   beforeEach(async () => {
-    await device.launchApp({ newInstance: true });
-    await configureDetoxForBrownfieldAndroid();
+    await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAndroidAppReadyVanilla();
   });
 
@@ -37,7 +36,15 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
   it('records the RN postMessage bubble after sending to native', async () => {
     await element(by.id(ids.sendMessageToNative)).tap();
     const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
-    await detoxExpect(bubble).toBeVisible();
+    const deadline = Date.now() + 15000;
+    while (Date.now() < deadline) {
+      try {
+        await assertDetoxTextMatches(bubble, /Hello from React Native!/);
+        return;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+    }
     await assertDetoxTextMatches(bubble, /Hello from React Native!/);
   });
 
