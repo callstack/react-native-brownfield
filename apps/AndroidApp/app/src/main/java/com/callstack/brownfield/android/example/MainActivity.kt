@@ -96,10 +96,6 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     }
 
     private fun showReactNativeLoadedToastWhenReady() {
-        if (intent?.getStringExtra("DetoxE2E") == "YES") {
-            return
-        }
-
         val reactHost = ReactNativeBrownfield.shared.reactHost
         reactHost.currentReactContext?.let {
             Toast.makeText(this, "React Native has been loaded", Toast.LENGTH_LONG).show()

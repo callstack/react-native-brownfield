@@ -51,16 +51,16 @@ async function scrollToNativeShellExpo() {
 }
 
 async function waitForAndroidAppReadyVanilla() {
-  await waitForNativeOverlayVisible(by.id(ids.appleAppGreeting), 60000);
-  await dismissAndroidSystemOverlays();
+  await waitFor(element(by.id(ids.appleAppGreeting))).toBeVisible().withTimeout(60000);
 
   await scrollToEmbeddedRnVanilla();
 
+  const rnHome = element(by.id(ids.rnAppHome));
   try {
-    await waitForNativeOverlayVisible(by.id(ids.rnAppHome), 60000);
+    await waitFor(rnHome).toBeVisible().withTimeout(60000);
   } catch {
     await scrollToEmbeddedRnVanilla();
-    await waitForNativeOverlayVisible(by.id(ids.rnAppHome), 30000);
+    await waitFor(rnHome).toBeVisible().withTimeout(30000);
   }
 }
 
