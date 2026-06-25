@@ -220,6 +220,15 @@ runs:
       working-directory: apps/AndroidApp
       shell: bash
 
+    - name: Install Android emulator runtime libraries
+      if: inputs.run-e2e == 'true'
+      run: |
+        # qemu-system-x86_64 is linked against libpulse even with -no-audio; free-disk-space
+        # on ubuntu-latest can remove it before the emulator starts.
+        sudo apt-get update
+        sudo apt-get install -y libpulse0
+      shell: bash
+
     - name: Detox test (AndroidApp ${{ inputs.flavor }})
       if: inputs.run-e2e == 'true'
       uses: reactivecircus/android-emulator-runner@v2
