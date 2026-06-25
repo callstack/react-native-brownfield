@@ -256,10 +256,10 @@ runs:
         arch: x86_64
         profile: pixel_6
         avd-name: test
-        force-avd-creation: true
         disable-animations: true
-        emulator-boot-timeout: 600
-        emulator-options: -no-snapshot-save -no-snapshot-load -memory 4096
+        # Do not pass partial emulator-options — they replace the action defaults
+        # (-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim).
+        # Omitting them keeps headless/software-GPU settings required on ubuntu-latest.
         script: |
           bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
           cd apps/AndroidApp
