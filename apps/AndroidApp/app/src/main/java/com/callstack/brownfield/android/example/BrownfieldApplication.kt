@@ -6,12 +6,17 @@ import com.callstack.brownie.registerStoreIfNeeded
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
+import com.facebook.react.ReactNativeHost
 
 /**
  * Detox expects a [ReactApplication] so it can await the embedded RN context during E2E runs.
  * RN is initialized at process start (embedded AAR bundle — no Metro).
  */
 class BrownfieldApplication : Application(), ReactApplication {
+    @Suppress("DEPRECATION")
+    override val reactNativeHost: ReactNativeHost
+        get() = ReactNativeHostManager.reactNativeHost
+
     override val reactHost: ReactHost
         get() = ReactNativeBrownfield.shared.reactHost
 
