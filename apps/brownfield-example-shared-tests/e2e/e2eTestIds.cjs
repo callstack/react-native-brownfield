@@ -1,6 +1,6 @@
 'use strict';
 
-// Detox E2E (CJS). Keep in sync with ../src/e2eTestIds.ts
+// Detox E2E (CJS). Keep in sync with ../src/e2eTestIds.ts and native E2eTestIds (Swift/Kotlin).
 const brownfieldE2ETestIds = {
   rnAppHome: 'brownfield-e2e-rnapp-home',
   rnAppHomeTitle: 'brownfield-e2e-rnapp-home-title',

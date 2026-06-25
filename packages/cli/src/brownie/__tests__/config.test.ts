@@ -41,7 +41,9 @@ describe('loadConfig', () => {
 
   it('throws when package.json not found', () => {
     mockCwd.mockReturnValue('/nonexistent/path');
-    expect(() => loadConfig()).toThrow('package.json not found');
+    expect(() => loadConfig()).toThrow(
+      'Could not find project root (no package.json found)'
+    );
   });
 
   it('returns empty config when brownie config missing', () => {
