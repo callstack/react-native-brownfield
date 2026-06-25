@@ -205,6 +205,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         groupId: 'com.example.app',
         artifactId: 'brownfieldlib',
         version: '0.0.1-SNAPSHOT',
+        useLocalGradlePlugin: false,
       },
     });
   });
@@ -314,5 +315,37 @@ describe('resolveBrownfieldPluginConfig', () => {
       deploymentTarget: '16.0',
       bundleIdentifier: 'com.example.framework',
     });
+  });
+
+  it('maps android.expo.useLocalGradlePlugin from file config', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      {
+        android: {
+          moduleName: 'mylib',
+          expo: {
+            useLocalGradlePlugin: true,
+          },
+        },
+      },
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.useLocalGradlePlugin).toBe(true);
+  });
+
+  it('maps android.useLocalGradlePlugin from legacy app.json plugin props', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: {
+          moduleName: 'mylib',
+          useLocalGradlePlugin: true,
+        },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.useLocalGradlePlugin).toBe(true);
   });
 });

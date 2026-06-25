@@ -251,3 +251,5 @@ When using a Brownfield config file, register the plugin without options:
   - Maven artifact ID used when publishing the AAR.
 - `version` (`string`, default: `"0.0.1-SNAPSHOT"`)
   - Maven version used when publishing the AAR.
+- `useLocalGradlePlugin` (`boolean`, default: `false`)
+  - Load the Brownfield Gradle plugin from `@callstack/react-native-brownfield/gradle-plugin/brownfield` in `node_modules` via `includeBuild` instead of adding the Maven classpath dependency. In `brownfield.config.*`, use `android.expo.useLocalGradlePlugin` instead. Useful when patching the plugin locally or working with an unreleased version. See [Load the Plugin from Node Modules](/docs/getting-started/android#advanced-load-the-plugin-from-node-modules) for details.

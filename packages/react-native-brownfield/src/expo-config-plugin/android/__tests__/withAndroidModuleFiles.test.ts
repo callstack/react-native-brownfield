@@ -183,6 +183,7 @@ describe('createAndroidModule', () => {
         groupId: 'com.example',
         artifactId: 'brownfieldlib',
         version: '1.0.0',
+        useLocalGradlePlugin: false,
       },
     };
   }

@@ -32,7 +32,8 @@ export const withBrownfieldAndroid: ConfigPlugin<
   // Step 1: modify root build.gradle to add Brownfield Gradle plugin dependency
   config = withProjectBuildGradle(config, (gradleConfig) => {
     gradleConfig.modResults.contents = modifyRootBuildGradle(
-      gradleConfig.modResults.contents
+      gradleConfig.modResults.contents,
+      { useLocalGradlePlugin: androidConfig.useLocalGradlePlugin }
     );
 
     return gradleConfig;
@@ -42,7 +43,8 @@ export const withBrownfieldAndroid: ConfigPlugin<
   config = withSettingsGradle(config, (settingsConfig) => {
     settingsConfig.modResults.contents = modifySettingsGradle(
       settingsConfig.modResults.contents,
-      androidConfig.moduleName
+      androidConfig.moduleName,
+      { useLocalGradlePlugin: androidConfig.useLocalGradlePlugin }
     );
 
     return settingsConfig;

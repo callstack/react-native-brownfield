@@ -82,6 +82,14 @@ export type BrownfieldExpoAndroidConfig = {
    * Maven version used when publishing the AAR.
    */
   version?: string;
+
+  /**
+   * When true, load the Brownfield Gradle plugin from
+   * `@callstack/react-native-brownfield/gradle-plugin/brownfield` via
+   * `includeBuild` instead of adding the Maven classpath dependency.
+   * Disabled by default.
+   */
+  useLocalGradlePlugin?: boolean;
 };
 
 /**

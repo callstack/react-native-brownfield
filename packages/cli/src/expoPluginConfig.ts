@@ -23,6 +23,7 @@ export type BrownfieldPluginProps = {
     groupId?: string;
     artifactId?: string;
     version?: string;
+    useLocalGradlePlugin?: boolean;
   };
 };
 
@@ -35,6 +36,7 @@ export type ResolvedBrownfieldPluginAndroidConfig = {
   groupId: string;
   artifactId: string;
   version: string;
+  useLocalGradlePlugin: boolean;
 };
 
 export type ResolvedBrownfieldPluginIosConfig = {
@@ -185,6 +187,8 @@ export function resolveBrownfieldPluginConfig(
           groupId: effectiveProps.android?.groupId ?? androidPackage,
           artifactId: effectiveProps.android?.artifactId ?? androidModuleName,
           version: effectiveProps.android?.version ?? '0.0.1-SNAPSHOT',
+          useLocalGradlePlugin:
+            effectiveProps.android?.useLocalGradlePlugin ?? false,
         }
       : null,
   };

@@ -1,12 +1,29 @@
 import { brownfieldGradlePluginDependency } from './constants';
 import { Logger } from '../../logging';
 
+const LOCAL_GRADLE_PLUGIN_INCLUDE_BUILD =
+  'includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/brownfield")';
+
+type GradleModificationOptions = {
+  useLocalGradlePlugin?: boolean;
+};
+
 /**
  * Modifies the root build.gradle to add the Brownfield Gradle plugin dependency
  * @param contents The original build.gradle content
  * @returns The modified build.gradle content
  */
-export function modifyRootBuildGradle(contents: string): string {
+export function modifyRootBuildGradle(
+  contents: string,
+  { useLocalGradlePlugin = false }: GradleModificationOptions = {}
+): string {
+  if (useLocalGradlePlugin) {
+    Logger.logDebug(
+      'Skipping Maven Brownfield Gradle plugin classpath because useLocalGradlePlugin is enabled'
+    );
+    return contents;
+  }
+
   // check if already added
   if (contents.includes('brownfield-gradle-plugin')) {
     Logger.logDebug(
@@ -39,6 +56,33 @@ export function modifyRootBuildGradle(contents: string): string {
   return modifiedContents;
 }
 
+function addLocalGradlePluginIncludeBuild(contents: string): string {
+  if (contents.includes('gradle-plugin/brownfield')) {
+    Logger.logDebug(
+      'Local Brownfield Gradle plugin includeBuild already present, skipping'
+    );
+    return contents;
+  }
+
+  Logger.logDebug(
+    'Modifying settings.gradle to include local Brownfield Gradle plugin'
+  );
+
+  const pluginManagementMatch = contents.match(/pluginManagement\s*\{/);
+
+  if (pluginManagementMatch?.index !== undefined) {
+    const insertIndex =
+      pluginManagementMatch.index + pluginManagementMatch[0].length;
+    const insertion = `\n\t${LOCAL_GRADLE_PLUGIN_INCLUDE_BUILD}`;
+
+    return (
+      contents.slice(0, insertIndex) + insertion + contents.slice(insertIndex)
+    );
+  }
+
+  return `pluginManagement {\n\t${LOCAL_GRADLE_PLUGIN_INCLUDE_BUILD}\n}\n\n${contents}`;
+}
+
 /**
  * Modifies settings.gradle to include the Brownfield module
  * @param contents The original settings.gradle content
@@ -47,16 +91,23 @@ export function modifyRootBuildGradle(contents: string): string {
  */
 export function modifySettingsGradle(
   contents: string,
-  moduleName: string
+  moduleName: string,
+  { useLocalGradlePlugin = false }: GradleModificationOptions = {}
 ): string {
+  let modifiedContents = contents;
+
+  if (useLocalGradlePlugin) {
+    modifiedContents = addLocalGradlePluginIncludeBuild(modifiedContents);
+  }
+
   const includeStatement = `include ':${moduleName}'`;
 
   // check if already included
-  if (contents.includes(includeStatement)) {
+  if (modifiedContents.includes(includeStatement)) {
     Logger.logDebug(
       `Module "${moduleName}" already in settings.gradle, skipping`
     );
-    return contents;
+    return modifiedContents;
   }
 
   Logger.logDebug(
@@ -64,7 +115,7 @@ export function modifySettingsGradle(
   );
 
   // add the include statement at the end
-  const modifiedContents = contents + `\n${includeStatement}\n`;
+  modifiedContents = modifiedContents + `\n${includeStatement}\n`;
 
   Logger.logDebug(`Added module "${moduleName}" to settings.gradle`);
 
