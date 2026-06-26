@@ -176,7 +176,7 @@ runs:
       shell: bash
 
     - name: Save Android ccache
-      if: steps.prepare-android.outputs.android-ccache-cache-hit != 'true'
+      if: steps.prepare-android.outputs.android-ccache-cache-hit != 'true' && inputs.run-e2e != 'true'
       uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: .android_ccache
@@ -220,14 +220,35 @@ runs:
       working-directory: apps/AndroidApp
       shell: bash
 
+    - name: Free runner disk space before Detox emulator
+      if: inputs.run-e2e == 'true'
+      uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+      with:
+        android: false
+        tool-cache: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
     - name: Free workspace disk space before Detox emulator
       if: inputs.run-e2e == 'true'
       run: |
         # Heavy Expo/RN Gradle outputs can leave too little room for the AVD to start.
+        set -euo pipefail
         ANDROID_DIR="${{ inputs.rn-project-path }}/android"
         rm -rf "$ANDROID_DIR/build" "$ANDROID_DIR/.cxx" "$ANDROID_DIR/.gradle"
-        rm -rf apps/AndroidApp/.gradle
+        rm -rf apps/AndroidApp/.gradle apps/AndroidApp/build
+        rm -rf apps/AndroidApp/app/build/intermediates apps/AndroidApp/app/build/tmp
+        rm -rf "${HOME}/.m2/repository/${{ inputs.rn-project-maven-path }}"
+        rm -rf node_modules/.cache .turbo
         df -h .
+        avail_gib="$(df -BG . | awk 'NR==2 { print $4 }' | tr -d G)"
+        if (( avail_gib < 8 )); then
+          echo "error: need at least 8 GiB free on the workspace disk before starting the AVD (have ${avail_gib} GiB)" >&2
+          exit 1
+        fi
       shell: bash
 
     - name: Install Android emulator runtime libraries
@@ -245,6 +266,7 @@ runs:
         echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
         sudo udevadm control --reload-rules
         sudo udevadm trigger --name-match=kvm
+        ls -l /dev/kvm
       shell: bash
 
     - name: Detox test (AndroidApp ${{ inputs.flavor }})
@@ -257,6 +279,9 @@ runs:
         profile: pixel_6
         avd-name: test
         disable-animations: true
+        disk-size: 6000M
+        heap-size: 600M
+        emulator-boot-timeout: 900
         # Do not pass partial emulator-options — they replace the action defaults
         # (-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim).
         # Omitting them keeps headless/software-GPU settings required on ubuntu-latest.
@@ -266,6 +291,13 @@ runs:
           yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
       env:
         ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
+
+    - name: Save Android ccache (after E2E)
+      if: inputs.run-e2e == 'true' && steps.prepare-android.outputs.android-ccache-cache-hit != 'true'
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: .android_ccache
+        key: ${{ steps.prepare-android.outputs.android-ccache-cache-primary-key }}
 
     - name: Upload Detox artifacts on failure
       if: failure() && inputs.run-e2e == 'true'

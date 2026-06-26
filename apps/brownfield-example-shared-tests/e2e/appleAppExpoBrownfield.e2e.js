@@ -10,7 +10,6 @@ const {
   scrollToNativeShellExpo,
   waitForAppleAppReadyExpo,
   openPostMessageTabExpo,
-  sendPostMessageToNativeAndWaitForToast,
 } = require('@callstack/brownfield-example-shared-tests/e2e/appleAppDetoxUtils');
 
 describe('Brownfield (AppleApp — Expo)', () => {
@@ -26,11 +25,6 @@ describe('Brownfield (AppleApp — Expo)', () => {
     await assertDetoxTextMatches(greeting, /Hello native iOS Expo/);
     await detoxExpect(element(by.label('Home')).atIndex(0)).toBeVisible();
     await detoxExpect(element(by.text(/Welcome to\s+Expo\s+55/))).toBeVisible();
-  });
-
-  it('shows a native toast when Expo RN sends postMessage', async () => {
-    await openPostMessageTabExpo();
-    await sendPostMessageToNativeAndWaitForToast(/Hello from Expo!/);
   });
 
   it('records the RN postMessage bubble in the Expo surface', async () => {

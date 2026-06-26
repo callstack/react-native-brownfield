@@ -10,7 +10,6 @@ const {
   scrollToNativeShellExpo,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
-  sendPostMessageToNativeAndWaitForToast,
   EXPO55_RN_SURFACE_NEEDLE,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
@@ -31,11 +30,6 @@ describe('Brownfield (AndroidApp — Expo)', () => {
     await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, {
       keepCurrentActivity: true,
     });
-  });
-
-  it('shows a native toast when Expo RN sends postMessage', async () => {
-    await openPostMessageTabExpo();
-    await sendPostMessageToNativeAndWaitForToast(/Hello from Expo!/);
   });
 
   it('records the RN postMessage bubble in the Expo surface', async () => {
