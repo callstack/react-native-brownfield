@@ -48,3 +48,7 @@ fi
 "${ADB[@]}" shell settings put global heads_up_notifications_enabled 0 >/dev/null 2>&1 || true
 "${ADB[@]}" shell settings put secure user_setup_complete 1 >/dev/null 2>&1 || true
 "${ADB[@]}" shell settings put secure tv_user_setup_complete 1 >/dev/null 2>&1 || true
+# Gboard shows a "Try out your stylus" sheet on emulators when a text field is focused.
+"${ADB[@]}" shell settings put secure stylus_handwriting_enabled 0 >/dev/null 2>&1 || true
+"${ADB[@]}" shell setprop debug.input.simulate_stylus_with_touch false >/dev/null 2>&1 || true
+"${ADB[@]}" shell am force-stop com.google.android.inputmethod.latin >/dev/null 2>&1 || true

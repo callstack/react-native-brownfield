@@ -27,6 +27,7 @@ import org.json.JSONObject
 @Composable
 fun PostMessageCard(
     onMessageReceived: (String) -> Unit = {},
+    textInputEnabled: Boolean = true,
 ) {
     var nextId by remember { mutableIntStateOf(0) }
     var draft by remember { mutableStateOf("") }
@@ -72,6 +73,7 @@ fun PostMessageCard(
                     modifier = Modifier.weight(1f),
                     placeholder = { Text("Type a message...") },
                     singleLine = true,
+                    enabled = textInputEnabled,
                 )
                 Button(
                     onClick = {

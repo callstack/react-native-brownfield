@@ -1,6 +1,5 @@
 package com.callstack.brownfield.android.example
 
-import com.callstack.brownie.registerStoreIfNeeded
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
@@ -27,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,9 +75,9 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
-    override fun onPause() {
+    override fun onDestroy() {
         BrownfieldNavigationManager.clearDelegate()
-        super.onPause()
+        super.onDestroy()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -148,6 +146,10 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
 @Composable
 private fun MainScreen(modifier: Modifier = Modifier) {
     var postMessageToastText by remember { mutableStateOf<String?>(null) }
+    val activity = LocalContext.current as? Activity
+    val isDetoxE2E = remember(activity) {
+        activity?.intent?.getStringExtra("DetoxE2E") == "YES"
+    }
 
     Box(modifier = modifier) {
         Column(
@@ -165,6 +167,7 @@ private fun MainScreen(modifier: Modifier = Modifier) {
 
             PostMessageCard(
                 onMessageReceived = { message -> postMessageToastText = message },
+                textInputEnabled = !isDetoxE2E,
             )
 
             Spacer(modifier = Modifier.height(1.dp))
