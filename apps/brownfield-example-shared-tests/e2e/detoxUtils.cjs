@@ -130,8 +130,16 @@ async function ensureAndroidAppWindowFocus() {
     return;
   }
   await dismissAndroidSystemOverlays();
+  const launchExtras =
+    '--es DetoxE2E YES --es BrownfieldPreferEmbeddedBundleInDebug YES';
+  const activityFlags = isAndroidAppProcessRunning()
+    ? '--activity-single-top --activity-reorder-to-front'
+    : '';
   adbShell(
-    `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} --es DetoxE2E YES --es BrownfieldPreferEmbeddedBundleInDebug YES`
+    `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} ${activityFlags} ${launchExtras}`.replace(
+      /\s{2,}/g,
+      ' '
+    )
   );
   adbShell('input tap 540 1200');
   await new Promise((resolve) => setTimeout(resolve, 500));

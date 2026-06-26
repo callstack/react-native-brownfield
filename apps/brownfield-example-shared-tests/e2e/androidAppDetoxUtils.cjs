@@ -14,8 +14,8 @@ const {
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
 const EXPO55_GREETING_NEEDLE = 'Hello native Android (Expo 55)';
-/** Expo native tab label — reliably present in UIAutomator once the RN surface is scrolled in. */
-const EXPO55_RN_SURFACE_NEEDLE = 'Explore';
+/** Home tab hero title — reliably present in UIAutomator once the RN surface is scrolled in. */
+const EXPO55_RN_SURFACE_NEEDLE = 'Welcome to Expo 55';
 
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
 const NATIVE_SHELL_SCROLL_ANCHOR = VANILLA_NATIVE_GREETING;
@@ -102,22 +102,22 @@ async function waitForAndroidAppReadyVanilla() {
 }
 
 async function waitForAndroidAppReadyExpo() {
-  const homeTabLabel = 'Home';
+  const pollOptions = { keepCurrentActivity: true };
   try {
-    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 60000);
+    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 60000, pollOptions);
   } catch {
     // Greeting may be off-screen until the native shell is scrolled into view.
   }
 
   try {
-    await pollUntilUiAutomatorContains(homeTabLabel, 120000);
+    await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 120000, pollOptions);
   } catch {
     try {
       await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContains(homeTabLabel, 30000);
+      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, pollOptions);
     } catch {
       await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContains(homeTabLabel, 30000);
+      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, pollOptions);
     }
   }
   await finishAndroidDetoxLaunch();
@@ -126,7 +126,9 @@ async function waitForAndroidAppReadyExpo() {
 async function openPostMessageTabExpo() {
   await scrollToEmbeddedRnExpo();
   try {
-    await pollUntilUiAutomatorContains('postMessage API', 30000);
+    await pollUntilUiAutomatorContains('postMessage API', 30000, {
+      keepCurrentActivity: true,
+    });
   } catch {
     // RN tab bar may not expose the label until layout settles.
   }
