@@ -94,6 +94,12 @@ async function scrollAndroidNativeShellUp() {
   await dismissAndroidSystemOverlays();
 }
 
+/** Scroll the native shell downward so the greeting card moves back into view. */
+async function scrollAndroidNativeShellDown() {
+  adbShell('input swipe 540 800 540 1800 400');
+  await dismissAndroidSystemOverlays();
+}
+
 /**
  * Collapse the notification shade via adb.
  * Safe after launchApp and after scroll gestures — never press Back here (that can
@@ -123,23 +129,46 @@ async function ensureAndroidAppWindowFocus() {
   await new Promise((resolve) => setTimeout(resolve, 500));
 }
 
-function detoxAttrsText(attrs) {
+function detoxAttrFragments(attrs) {
   if (!attrs || typeof attrs !== 'object') {
-    return '';
+    return [''];
   }
   const fragment = (o) =>
     [o.text, o.value, o.label, o.hint]
       .filter((x) => x != null && String(x).length > 0)
       .join('');
   if ('elements' in attrs && Array.isArray(attrs.elements)) {
-    return attrs.elements.map(fragment).join('').trim();
+    return attrs.elements.map(fragment).map((text) => text.trim()).filter(Boolean);
   }
-  return fragment(attrs).trim();
+  return [fragment(attrs).trim()];
+}
+
+function detoxAttrsText(attrs) {
+  const fragments = detoxAttrFragments(attrs);
+  return fragments[0] || '';
 }
 
 async function assertDetoxTextMatches(nativeElement, pattern) {
   const attrs = await nativeElement.getAttributes();
-  assert.match(detoxAttrsText(attrs).trim(), pattern);
+  const fragments = detoxAttrFragments(attrs);
+  const matched = fragments.some((text) => pattern.test(text));
+  assert.ok(
+    matched,
+    `Expected ${pattern} in one of: ${fragments.join(' | ') || '(empty)'}`
+  );
+}
+
+async function assertDetoxTextEventually(nativeElement, pattern, timeoutMs = 15000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      await assertDetoxTextMatches(nativeElement, pattern);
+      return;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS));
+    }
+  }
+  await assertDetoxTextMatches(nativeElement, pattern);
 }
 
 /** Ignore Metro / packager polling so Detox does not wait forever in Debug without a dev server. */
@@ -302,11 +331,13 @@ module.exports = {
   detoxLaunchArgs,
   detoxAttrsText,
   assertDetoxTextMatches,
+  assertDetoxTextEventually,
   dismissAndroidSystemOverlays,
   ensureAndroidAppWindowFocus,
   waitForAndroidAppProcess,
   pollUntilUiAutomatorContains,
   scrollAndroidNativeShellUp,
+  scrollAndroidNativeShellDown,
   configureDetoxForBrownfieldAndroid,
   configureDetoxForBrownfieldIos,
   launchBrownfieldAppForDetox,

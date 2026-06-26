@@ -1,6 +1,7 @@
 const { element, by, expect: detoxExpect } = require('detox');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
+  assertDetoxTextEventually,
   assertDetoxTextMatches,
   launchBrownfieldAppForDetox,
   waitForNativeOverlayVisible,
@@ -26,20 +27,20 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
   });
 
   it('increments the embedded RN shared-store counter', async () => {
-    const count = element(by.id(ids.counterCount));
+    const count = element(by.id(ids.counterCount)).atIndex(0);
     await detoxExpect(count).toBeVisible();
     await assertDetoxTextMatches(count, /Count:\s*0/);
-    await element(by.id(ids.counterIncrement)).tap();
-    await assertDetoxTextMatches(count, /Count:\s*1/);
+    await element(by.id(ids.counterIncrement)).atIndex(0).tap();
+    await assertDetoxTextEventually(count, /Count:\s*1/);
   });
 
   it('navigates to native settings from the RN surface', async () => {
     await element(by.id(ids.openNativeSettings)).tap();
-    await waitForNativeOverlayVisible(ids.appleAppNativeSettings, 10000);
+    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToSettings', 10000);
   });
 
   it('navigates to native referrals from the RN surface', async () => {
     await element(by.id(ids.openNativeReferrals)).tap();
-    await waitForNativeOverlayVisible(ids.appleAppNativeReferrals, 10000);
+    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToReferrals', 10000);
   });
 });

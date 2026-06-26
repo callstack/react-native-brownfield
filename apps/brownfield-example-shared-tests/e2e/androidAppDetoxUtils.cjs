@@ -6,6 +6,7 @@ const {
   dismissAndroidSystemOverlays,
   finishAndroidDetoxLaunch,
   pollUntilUiAutomatorContains,
+  scrollAndroidNativeShellDown,
   scrollAndroidNativeShellUp,
   waitForVisible,
   waitForNativeOverlayVisible,
@@ -21,10 +22,11 @@ async function scrollNativeShell(fingerDirection) {
   try {
     await anchor.swipe(fingerDirection, 'slow', 0.75);
   } catch {
-    await element(by.type('android.widget.ScrollView')).atIndex(0).scroll(
-      400,
-      fingerDirection === 'up' ? 'down' : 'up'
-    );
+    if (fingerDirection === 'up') {
+      await scrollAndroidNativeShellUp();
+    } else {
+      await scrollAndroidNativeShellDown();
+    }
   }
   await dismissAndroidSystemOverlays();
 }
