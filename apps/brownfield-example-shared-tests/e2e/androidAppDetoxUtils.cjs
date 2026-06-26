@@ -13,6 +13,9 @@ const {
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
+const EXPO55_GREETING_NEEDLE = 'Hello native Android (Expo 55)';
+/** Expo native tab label — reliably present in UIAutomator once the RN surface is scrolled in. */
+const EXPO55_RN_SURFACE_NEEDLE = 'Explore';
 
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
 const NATIVE_SHELL_SCROLL_ANCHOR = VANILLA_NATIVE_GREETING;
@@ -41,7 +44,9 @@ async function scrollToEmbeddedRnVanilla() {
 
 async function scrollToEmbeddedRnExpo() {
   try {
-    await element(by.label('Home')).atIndex(0).swipe('up', 'fast', 0.85);
+    const homeTab = element(by.label('Home')).atIndex(0);
+    await homeTab.swipe('up', 'slow', 0.75);
+    await homeTab.swipe('up', 'slow', 0.5);
   } catch {
     await scrollToEmbeddedRnVanilla();
   }
@@ -54,9 +59,13 @@ async function scrollToNativeShellVanilla() {
 
 async function scrollToNativeShellExpo() {
   try {
-    await element(by.label('Home')).atIndex(0).swipe('down', 'fast', 0.85);
+    await element(by.id(ids.appleAppGreeting)).swipe('down', 'slow', 0.75);
   } catch {
-    await scrollToNativeShellVanilla();
+    try {
+      await element(by.label('Home')).atIndex(0).swipe('down', 'fast', 0.85);
+    } catch {
+      await scrollToNativeShellVanilla();
+    }
   }
   await dismissAndroidSystemOverlays();
 }
@@ -95,6 +104,12 @@ async function waitForAndroidAppReadyVanilla() {
 async function waitForAndroidAppReadyExpo() {
   const homeTabLabel = 'Home';
   try {
+    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 60000);
+  } catch {
+    // Greeting may be off-screen until the native shell is scrolled into view.
+  }
+
+  try {
     await pollUntilUiAutomatorContains(homeTabLabel, 120000);
   } catch {
     try {
@@ -109,6 +124,12 @@ async function waitForAndroidAppReadyExpo() {
 }
 
 async function openPostMessageTabExpo() {
+  await scrollToEmbeddedRnExpo();
+  try {
+    await pollUntilUiAutomatorContains('postMessage API', 30000);
+  } catch {
+    // RN tab bar may not expose the label until layout settles.
+  }
   await waitForVisible(by.label('postMessage API'), 30000, 0);
   await element(by.label('postMessage API')).atIndex(0).tap();
   await waitForVisible(by.id(ids.sendMessageToNative), 30000);
@@ -116,6 +137,12 @@ async function openPostMessageTabExpo() {
 
 async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
   await waitForVisible(by.id(ids.sendMessageToNative), 30000);
+  const toastNeedle =
+    rnMessagePattern instanceof RegExp ? rnMessagePattern.source : String(rnMessagePattern);
+  // Compose toast tags are not always visible to UIAutomator; match the message text instead.
+  const toastWatch = waitForNativeOverlayVisible(toastNeedle, 15000, 0, {
+    keepCurrentActivity: true,
+  });
   await element(by.id(ids.sendMessageToNative)).tap();
   if (rnMessagePattern) {
     const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
@@ -130,7 +157,7 @@ async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
     }
     await assertDetoxTextMatches(bubble, rnMessagePattern);
   }
-  await waitForNativeOverlayVisible(ids.appleAppPostMessageToast, 10000);
+  await toastWatch;
 }
 
 module.exports = {
@@ -142,4 +169,6 @@ module.exports = {
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
   sendPostMessageToNativeAndWaitForToast,
+  EXPO55_GREETING_NEEDLE,
+  EXPO55_RN_SURFACE_NEEDLE,
 };

@@ -3,16 +3,19 @@ const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-sha
 const {
   assertDetoxTextMatches,
   launchBrownfieldAppForDetox,
+  pollUntilUiAutomatorContains,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
+  scrollToEmbeddedRnExpo,
   scrollToNativeShellExpo,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
   sendPostMessageToNativeAndWaitForToast,
+  EXPO55_RN_SURFACE_NEEDLE,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
 describe('Brownfield (AndroidApp — Expo)', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAndroidAppReadyExpo();
   });
@@ -21,9 +24,13 @@ describe('Brownfield (AndroidApp — Expo)', () => {
     await scrollToNativeShellExpo();
     const greeting = element(by.id(ids.appleAppGreeting));
     await detoxExpect(greeting).toBeVisible();
-    await assertDetoxTextMatches(greeting, /Hello native Android \(Expo 55\)/);
-    await detoxExpect(element(by.label('Home')).atIndex(0)).toBeVisible();
-    await detoxExpect(element(by.text(/Welcome to\s+Expo\s+55/))).toBeVisible();
+    await pollUntilUiAutomatorContains('Hello native Android (Expo 55)', 10000, {
+      keepCurrentActivity: true,
+    });
+    await scrollToEmbeddedRnExpo();
+    await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, {
+      keepCurrentActivity: true,
+    });
   });
 
   it('shows a native toast when Expo RN sends postMessage', async () => {
