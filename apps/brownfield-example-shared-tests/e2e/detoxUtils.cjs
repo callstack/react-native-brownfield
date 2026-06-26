@@ -56,7 +56,11 @@ function dumpUiAutomatorHierarchy() {
   return adbExecOut('exec-out uiautomator dump /dev/fd/1');
 }
 
-async function pollUntilUiAutomatorContains(needle, timeoutMs = 20000) {
+async function pollUntilUiAutomatorContains(
+  needle,
+  timeoutMs = 20000,
+  { keepCurrentActivity = false } = {}
+) {
   const deadline = Date.now() + timeoutMs;
   let lastError;
 
@@ -70,7 +74,11 @@ async function pollUntilUiAutomatorContains(needle, timeoutMs = 20000) {
       lastError = error;
     }
 
-    await ensureAndroidAppWindowFocus();
+    if (keepCurrentActivity) {
+      await dismissAndroidSystemOverlays();
+    } else {
+      await ensureAndroidAppWindowFocus();
+    }
     await new Promise((resolve) =>
       setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
     );
@@ -133,10 +141,21 @@ function detoxAttrFragments(attrs) {
   if (!attrs || typeof attrs !== 'object') {
     return [''];
   }
-  const fragment = (o) =>
-    [o.text, o.value, o.label, o.hint]
-      .filter((x) => x != null && String(x).length > 0)
-      .join('');
+  const fragment = (o) => {
+    if (o.text != null && String(o.text).length > 0) {
+      return String(o.text);
+    }
+    if (o.label != null && String(o.label).length > 0) {
+      return String(o.label);
+    }
+    if (o.value != null && String(o.value).length > 0) {
+      return String(o.value);
+    }
+    if (o.hint != null && String(o.hint).length > 0) {
+      return String(o.hint);
+    }
+    return '';
+  };
   if ('elements' in attrs && Array.isArray(attrs.elements)) {
     return attrs.elements.map(fragment).map((text) => text.trim()).filter(Boolean);
   }
@@ -307,22 +326,30 @@ async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
 /**
  * Poll native-only / short-lived UI (toasts, popups, pushed native screens).
  * On Android, pass a test-id or text needle string, or a Detox matcher (best-effort).
+ * Set keepCurrentActivity when waiting on a pushed native Activity (Settings, Referrals).
  */
-async function waitForNativeOverlayVisible(matcherOrNeedle, timeoutMs = 20000, index = 0) {
+async function waitForNativeOverlayVisible(
+  matcherOrNeedle,
+  timeoutMs = 20000,
+  index = 0,
+  { keepCurrentActivity = false } = {}
+) {
   if (device.getPlatform() === 'android') {
     const needle =
       typeof matcherOrNeedle === 'string'
         ? matcherOrNeedle
         : androidUiAutomatorNeedleForMatcher(matcherOrNeedle);
     if (needle) {
-      await pollUntilUiAutomatorContains(needle, timeoutMs);
-      await ensureAndroidAppWindowFocus();
+      await pollUntilUiAutomatorContains(needle, timeoutMs, { keepCurrentActivity });
+      if (!keepCurrentActivity) {
+        await ensureAndroidAppWindowFocus();
+      }
       return;
     }
   }
 
   await pollUntilElementAttributes(matcherOrNeedle, timeoutMs, index);
-  if (device.getPlatform() === 'android') {
+  if (device.getPlatform() === 'android' && !keepCurrentActivity) {
     await ensureAndroidAppWindowFocus();
   }
 }
