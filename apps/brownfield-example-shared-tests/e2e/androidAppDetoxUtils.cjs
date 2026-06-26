@@ -75,7 +75,8 @@ async function scrollToNativeShellExpo() {
  * Mirrors iOS vanilla readiness — native greeting is optional; rnAppHome is the gate.
  */
 async function waitForAndroidAppReadyVanilla() {
-  await pollUntilUiAutomatorContains('Hello native Android', 60000);
+  const pollOptions = { keepCurrentActivity: true };
+  await pollUntilUiAutomatorContains('Hello native Android', 60000, pollOptions);
 
   try {
     await scrollToEmbeddedRnVanilla();
@@ -84,7 +85,7 @@ async function waitForAndroidAppReadyVanilla() {
   }
 
   try {
-    await pollUntilUiAutomatorContains(ids.rnAppHome, 120000);
+    await pollUntilUiAutomatorContains(ids.rnAppHome, 120000, pollOptions);
     await finishAndroidDetoxLaunch();
     return;
   } catch {
@@ -97,7 +98,7 @@ async function waitForAndroidAppReadyVanilla() {
     await scrollAndroidNativeShellUp();
   }
 
-  await pollUntilUiAutomatorContains(ids.rnAppHome, 60000);
+  await pollUntilUiAutomatorContains(ids.rnAppHome, 60000, pollOptions);
   await finishAndroidDetoxLaunch();
 }
 

@@ -1,7 +1,6 @@
 package com.callstack.reactnativebrownfield
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import com.facebook.react.ReactDelegate
 import com.facebook.react.ReactHost
@@ -33,25 +32,5 @@ class ReactDelegateWrapper(
 
     fun onReactHostResume() {
         super.reactHost?.onHostResume(activity, backBtnHandler)
-    }
-
-    override fun onHostPause() {
-        try {
-            super.onHostPause()
-        } catch (error: AssertionError) {
-            if (
-                error.message?.contains(
-                    "Pausing an activity that is not the current activity"
-                ) == true
-            ) {
-                Log.w(
-                    "ReactDelegateWrapper",
-                    "Ignoring stale onHostPause for ${activity?.javaClass?.simpleName}",
-                    error
-                )
-                return
-            }
-            throw error
-        }
     }
 }
