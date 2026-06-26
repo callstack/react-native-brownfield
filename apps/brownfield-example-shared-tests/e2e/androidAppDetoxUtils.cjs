@@ -4,9 +4,9 @@ const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
-  ensureAndroidAppWindowFocus,
   finishAndroidDetoxLaunch,
-  pollUntilElementAttributes,
+  pollUntilUiAutomatorContains,
+  scrollAndroidNativeShellUp,
   waitForVisible,
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
@@ -30,7 +30,11 @@ async function scrollNativeShell(fingerDirection) {
 }
 
 async function scrollToEmbeddedRnVanilla() {
-  await scrollNativeShell('up');
+  try {
+    await scrollNativeShell('up');
+  } catch {
+    await scrollAndroidNativeShellUp();
+  }
 }
 
 async function scrollToEmbeddedRnExpo() {
@@ -55,26 +59,21 @@ async function scrollToNativeShellExpo() {
   await dismissAndroidSystemOverlays();
 }
 
-async function waitForEmbeddedRnHome(timeoutMs = DETOX_TIMING.VISIBILITY_TIMEOUT_MS) {
-  await pollUntilElementAttributes(by.id(ids.rnAppHome), timeoutMs);
-}
-
 /**
- * Wait for the native shell and embedded RN home while Detox sync stays off.
- * Re-enable sync only after both surfaces are present and MainActivity has focus.
+ * Wait for embedded RN home via adb UIAutomator (no Espresso window-focus gate).
+ * Mirrors iOS vanilla readiness — native greeting is optional; rnAppHome is the gate.
  */
 async function waitForAndroidAppReadyVanilla() {
-  await ensureAndroidAppWindowFocus();
-  await pollUntilElementAttributes(VANILLA_NATIVE_GREETING, 60000);
+  await pollUntilUiAutomatorContains('Hello native Android', 60000);
 
   try {
     await scrollToEmbeddedRnVanilla();
   } catch {
-    // RN may already be on screen or the native shell is still mounting.
+    await scrollAndroidNativeShellUp();
   }
 
   try {
-    await waitForEmbeddedRnHome(120000);
+    await pollUntilUiAutomatorContains(ids.rnAppHome, 120000);
     await finishAndroidDetoxLaunch();
     return;
   } catch {
@@ -84,24 +83,24 @@ async function waitForAndroidAppReadyVanilla() {
   try {
     await scrollToEmbeddedRnVanilla();
   } catch {
-    // Continue polling visibility.
+    await scrollAndroidNativeShellUp();
   }
 
-  await waitForEmbeddedRnHome(60000);
+  await pollUntilUiAutomatorContains(ids.rnAppHome, 60000);
   await finishAndroidDetoxLaunch();
 }
 
 async function waitForAndroidAppReadyExpo() {
-  const homeTab = by.label('Home');
+  const homeTabLabel = 'Home';
   try {
-    await pollUntilElementAttributes(homeTab, 120000, 0);
+    await pollUntilUiAutomatorContains(homeTabLabel, 120000);
   } catch {
     try {
       await scrollToEmbeddedRnExpo();
-      await pollUntilElementAttributes(homeTab, 30000, 0);
+      await pollUntilUiAutomatorContains(homeTabLabel, 30000);
     } catch {
       await scrollToEmbeddedRnExpo();
-      await pollUntilElementAttributes(homeTab, 30000, 0);
+      await pollUntilUiAutomatorContains(homeTabLabel, 30000);
     }
   }
   await finishAndroidDetoxLaunch();
@@ -129,7 +128,7 @@ async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
     }
     await assertDetoxTextMatches(bubble, rnMessagePattern);
   }
-  await waitForNativeOverlayVisible(by.id(ids.appleAppPostMessageToast), 10000);
+  await waitForNativeOverlayVisible(ids.appleAppPostMessageToast, 10000);
 }
 
 module.exports = {

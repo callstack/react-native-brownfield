@@ -10,15 +10,88 @@ const detoxLaunchArgs = {
 
 const ANDROID_BROWNFIELD_MAIN_COMPONENT =
   'com.callstack.brownfield.android.example/com.callstack.brownfield.android.example.MainActivity';
+const ANDROID_BROWNFIELD_PACKAGE = 'com.callstack.brownfield.android.example';
+
+function adbCommand() {
+  const serial = process.env.ANDROID_SERIAL?.trim();
+  return serial ? `adb -s ${serial}` : 'adb';
+}
 
 function adbShell(command) {
-  const serial = process.env.ANDROID_SERIAL?.trim();
-  const adb = serial ? `adb -s ${serial}` : 'adb';
   try {
-    execSync(`${adb} shell ${command}`, { stdio: 'ignore' });
+    execSync(`${adbCommand()} shell ${command}`, { stdio: 'ignore' });
   } catch {
     // Emulator may be offline or the command may be unsupported on older API levels.
   }
+}
+
+function adbExecOut(args) {
+  return execSync(`${adbCommand()} ${args}`, {
+    encoding: 'utf8',
+    maxBuffer: 10 * 1024 * 1024,
+  });
+}
+
+function isAndroidAppProcessRunning() {
+  try {
+    return adbExecOut(`shell pidof ${ANDROID_BROWNFIELD_PACKAGE}`).trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+async function waitForAndroidAppProcess(timeoutMs = 60000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (isAndroidAppProcessRunning()) {
+      return;
+    }
+    await ensureAndroidAppWindowFocus();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`${ANDROID_BROWNFIELD_PACKAGE} process did not start`);
+}
+
+function dumpUiAutomatorHierarchy() {
+  return adbExecOut('exec-out uiautomator dump /dev/fd/1');
+}
+
+async function pollUntilUiAutomatorContains(needle, timeoutMs = 20000) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const xml = dumpUiAutomatorHierarchy();
+      if (xml.includes(needle)) {
+        return;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    await ensureAndroidAppWindowFocus();
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  try {
+    const xml = dumpUiAutomatorHierarchy();
+    if (xml.includes(needle)) {
+      return;
+    }
+  } catch (error) {
+    throw lastError || error;
+  }
+
+  throw new Error(`Timed out waiting for UIAutomator to contain: ${needle}`);
+}
+
+/** Scroll the native shell upward so the embedded RN fragment moves into view. */
+async function scrollAndroidNativeShellUp() {
+  adbShell('input swipe 540 1800 540 800 400');
+  await dismissAndroidSystemOverlays();
 }
 
 /**
@@ -43,8 +116,11 @@ async function ensureAndroidAppWindowFocus() {
     return;
   }
   await dismissAndroidSystemOverlays();
-  adbShell(`am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT}`);
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  adbShell(
+    `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} --es DetoxE2E YES --es BrownfieldPreferEmbeddedBundleInDebug YES`
+  );
+  adbShell('input tap 540 1200');
+  await new Promise((resolve) => setTimeout(resolve, 500));
 }
 
 function detoxAttrsText(attrs) {
@@ -81,10 +157,18 @@ async function configureDetoxForBrownfieldAndroid() {
 }
 
 /**
- * Poll via UiAutomator getAttributes() — avoids Espresso's window-focus gate used by
- * toBeVisible(), which headless CI emulators often fail for 10s per attempt.
+ * Poll for an element while Detox sync is off. On Android, use UIAutomator via adb
+ * because Espresso getAttributes()/toBeVisible() block on window focus in headless CI.
  */
 async function pollUntilElementAttributes(matcher, timeoutMs = 20000, index = 0) {
+  if (device.getPlatform() === 'android') {
+    const needle = androidUiAutomatorNeedleForMatcher(matcher);
+    if (needle) {
+      await pollUntilUiAutomatorContains(needle, timeoutMs);
+      return { visible: true };
+    }
+  }
+
   const deadline = Date.now() + timeoutMs;
   const target = element(matcher).atIndex(index);
   let lastError;
@@ -100,7 +184,7 @@ async function pollUntilElementAttributes(matcher, timeoutMs = 20000, index = 0)
     }
 
     if (device.getPlatform() === 'android') {
-      await dismissAndroidSystemOverlays();
+      await ensureAndroidAppWindowFocus();
     }
 
     await new Promise((resolve) =>
@@ -113,6 +197,38 @@ async function pollUntilElementAttributes(matcher, timeoutMs = 20000, index = 0)
   } catch (error) {
     throw lastError || error;
   }
+}
+
+function androidUiAutomatorNeedleForMatcher(matcher) {
+  if (!matcher || typeof matcher !== 'object') {
+    return null;
+  }
+
+  if (typeof matcher.value === 'string' && matcher.value.length > 0) {
+    return matcher.value;
+  }
+
+  if (typeof matcher.test === 'function') {
+    const source = String(matcher);
+    const labelMatch = source.match(/label:\s*'([^']+)'/);
+    if (labelMatch) {
+      return labelMatch[1];
+    }
+    const idMatch = source.match(/id:\s*'([^']+)'/);
+    if (idMatch) {
+      return idMatch[1];
+    }
+    const textMatch = source.match(/text:\s*(\/.+?\/[a-z]*)/);
+    if (textMatch) {
+      const pattern = textMatch[1];
+      const inner = pattern.match(/^\/(.+)\/([a-z]*)$/);
+      if (inner) {
+        return inner[1].replace(/\\(.)/g, '$1');
+      }
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -133,6 +249,8 @@ async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
   });
 
   if (device.getPlatform() === 'android') {
+    await device.disableSynchronization();
+    await waitForAndroidAppProcess();
     await ensureAndroidAppWindowFocus();
     return;
   }
@@ -148,6 +266,7 @@ async function finishAndroidDetoxLaunch() {
   }
   await ensureAndroidAppWindowFocus();
   await device.enableSynchronization();
+  await ensureAndroidAppWindowFocus();
 }
 
 async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
@@ -158,11 +277,22 @@ async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
 
 /**
  * Poll native-only / short-lived UI (toasts, popups, pushed native screens).
- * Uses getAttributes() instead of toBeVisible() so CI emulators without window focus
- * can still detect Compose / native overlays during startup.
+ * On Android, pass a test-id or text needle string, or a Detox matcher (best-effort).
  */
-async function waitForNativeOverlayVisible(matcher, timeoutMs = 20000, index = 0) {
-  await pollUntilElementAttributes(matcher, timeoutMs, index);
+async function waitForNativeOverlayVisible(matcherOrNeedle, timeoutMs = 20000, index = 0) {
+  if (device.getPlatform() === 'android') {
+    const needle =
+      typeof matcherOrNeedle === 'string'
+        ? matcherOrNeedle
+        : androidUiAutomatorNeedleForMatcher(matcherOrNeedle);
+    if (needle) {
+      await pollUntilUiAutomatorContains(needle, timeoutMs);
+      await ensureAndroidAppWindowFocus();
+      return;
+    }
+  }
+
+  await pollUntilElementAttributes(matcherOrNeedle, timeoutMs, index);
   if (device.getPlatform() === 'android') {
     await ensureAndroidAppWindowFocus();
   }
@@ -174,6 +304,9 @@ module.exports = {
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
   ensureAndroidAppWindowFocus,
+  waitForAndroidAppProcess,
+  pollUntilUiAutomatorContains,
+  scrollAndroidNativeShellUp,
   configureDetoxForBrownfieldAndroid,
   configureDetoxForBrownfieldIos,
   launchBrownfieldAppForDetox,

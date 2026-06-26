@@ -53,6 +53,9 @@ import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.bridge.ReactContext
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
+    private val isDetoxE2E: Boolean
+        get() = intent?.getStringExtra("DetoxE2E") == "YES"
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
@@ -62,6 +65,16 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     override fun onResume() {
         super.onResume()
         BrownfieldNavigationManager.setDelegate(this)
+        if (isDetoxE2E) {
+            window.decorView.post { window.decorView.requestFocus() }
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus && isDetoxE2E) {
+            window.decorView.post { window.decorView.requestFocus() }
+        }
     }
 
     override fun onPause() {
@@ -96,7 +109,7 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     }
 
     private fun showReactNativeLoadedToastWhenReady() {
-        if (intent?.getStringExtra("DetoxE2E") == "YES") {
+        if (isDetoxE2E) {
             return
         }
 

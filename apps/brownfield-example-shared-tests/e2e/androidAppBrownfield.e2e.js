@@ -35,11 +35,11 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
 
   it('navigates to native settings from the RN surface', async () => {
     await element(by.id(ids.openNativeSettings)).tap();
-    await waitForNativeOverlayVisible(by.id(ids.appleAppNativeSettings), 10000);
+    await waitForNativeOverlayVisible(ids.appleAppNativeSettings, 10000);
   });
 
   it('navigates to native referrals from the RN surface', async () => {
     await element(by.id(ids.openNativeReferrals)).tap();
-    await waitForNativeOverlayVisible(by.id(ids.appleAppNativeReferrals), 10000, 0);
+    await waitForNativeOverlayVisible(ids.appleAppNativeReferrals, 10000);
   });
 });
