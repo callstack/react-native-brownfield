@@ -220,22 +220,12 @@ runs:
       working-directory: apps/AndroidApp
       shell: bash
 
-    - name: Free runner disk space before Detox emulator
-      if: inputs.run-e2e == 'true'
-      uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-      with:
-        android: false
-        tool-cache: true
-        dotnet: true
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true
-
     - name: Free workspace disk space before Detox emulator
       if: inputs.run-e2e == 'true'
       run: |
-        # Heavy Expo/RN Gradle outputs can leave too little room for the AVD to start.
+        # Native Gradle/NDK outputs can leave too little room for the AVD userdata partition.
+        # Do not run jlumbroso/free-disk-space here — large-packages removal can uninstall
+        # libX11 and other libs the QEMU emulator needs on ubuntu-latest.
         set -euo pipefail
         ANDROID_DIR="${{ inputs.rn-project-path }}/android"
         rm -rf "$ANDROID_DIR/build" "$ANDROID_DIR/.cxx" "$ANDROID_DIR/.gradle"
@@ -243,21 +233,29 @@ runs:
         rm -rf apps/AndroidApp/app/build/intermediates apps/AndroidApp/app/build/tmp
         rm -rf "${HOME}/.m2/repository/${{ inputs.rn-project-maven-path }}"
         rm -rf node_modules/.cache .turbo
+        rm -rf "${ANDROID_HOME:?}/ndk"
+        rm -rf "${HOME}/.gradle/caches/build-cache-1"
+        rm -rf "${HOME}/.gradle/caches/transforms-3"
         df -h .
-        avail_gib="$(df -BG . | awk 'NR==2 { print $4 }' | tr -d G)"
-        if (( avail_gib < 8 )); then
-          echo "error: need at least 8 GiB free on the workspace disk before starting the AVD (have ${avail_gib} GiB)" >&2
-          exit 1
-        fi
       shell: bash
 
     - name: Install Android emulator runtime libraries
       if: inputs.run-e2e == 'true'
       run: |
         # free-disk-space (prepare-android) can remove libs the QEMU emulator needs,
-        # even with -no-audio (libpulse) and headless CI (libgl1, libxkbfile1).
+        # even with -no-audio (libpulse) and headless CI (libgl1, libxkbfile1, libX11-xcb).
         sudo apt-get update
-        sudo apt-get install -y libpulse0 libgl1 libxkbfile1
+        sudo apt-get install -y \
+          libpulse0 \
+          libgl1 \
+          libxkbfile1 \
+          libx11-6 \
+          libx11-xcb1 \
+          libxdamage1 \
+          libxfixes3 \
+          libxrandr2 \
+          libgbm1 \
+          libasound2
       shell: bash
 
     - name: Enable KVM for Android emulator
@@ -279,9 +277,10 @@ runs:
         profile: pixel_6
         avd-name: test
         disable-animations: true
-        disk-size: 6000M
-        heap-size: 600M
         emulator-boot-timeout: 900
+        pre-emulator-launch-script: df -h .
+        # Do not set disk-size — a large userdata partition fails when the runner is
+        # low on disk after Gradle/NDK builds (see ReactiveCircus/android-emulator-runner#455).
         # Do not pass partial emulator-options — they replace the action defaults
         # (-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim).
         # Omitting them keeps headless/software-GPU settings required on ubuntu-latest.
