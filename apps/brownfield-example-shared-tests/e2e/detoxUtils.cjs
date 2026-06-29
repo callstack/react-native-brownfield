@@ -63,6 +63,28 @@ function dumpUiAutomatorHierarchy() {
   return adbExecOut('exec-out uiautomator dump /dev/fd/1');
 }
 
+function getAndroidDisplaySize() {
+  try {
+    const out = adbExecOut('shell wm size');
+    const match = out.match(/(\d+)x(\d+)/);
+    if (match) {
+      return { width: Number(match[1]), height: Number(match[2]) };
+    }
+  } catch {
+    // Fall back to a common CI/local emulator size.
+  }
+  return { width: 1080, height: 2400 };
+}
+
+function uiAutomatorHierarchyContainsAny(xml, needles) {
+  for (const needle of needles) {
+    if (xml.includes(needle)) {
+      return needle;
+    }
+  }
+  return null;
+}
+
 async function pollUntilUiAutomatorContains(
   needle,
   timeoutMs = 20000,
@@ -101,6 +123,41 @@ async function pollUntilUiAutomatorContains(
   }
 
   throw new Error(`Timed out waiting for UIAutomator to contain: ${needle}`);
+}
+
+async function pollUntilUiAutomatorContainsAny(
+  needles,
+  timeoutMs = 20000,
+  { keepCurrentActivity = false } = {}
+) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const xml = dumpUiAutomatorHierarchy();
+      const matched = uiAutomatorHierarchyContainsAny(xml, needles);
+      if (matched) {
+        return matched;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (keepCurrentActivity) {
+      await dismissAndroidSystemOverlays();
+    } else {
+      await ensureAndroidAppWindowFocus();
+    }
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  throw (
+    lastError ||
+    new Error(`Timed out waiting for UIAutomator to contain any of: ${needles.join(', ')}`)
+  );
 }
 
 function parseUiAutomatorBounds(boundsAttr) {
@@ -211,13 +268,21 @@ async function pollUntilUiAutomatorResourceId(
 
 /** Scroll the native shell upward so the embedded RN fragment moves into view. */
 async function scrollAndroidNativeShellUp() {
-  adbShell('input swipe 540 1800 540 800 400');
+  const { width, height } = getAndroidDisplaySize();
+  const x = Math.floor(width / 2);
+  const yStart = Math.floor(height * 0.78);
+  const yEnd = Math.floor(height * 0.32);
+  adbShell(`input swipe ${x} ${yStart} ${x} ${yEnd} 400`);
   await dismissAndroidSystemOverlays();
 }
 
 /** Scroll the native shell downward so the greeting card moves back into view. */
 async function scrollAndroidNativeShellDown() {
-  adbShell('input swipe 540 800 540 1800 400');
+  const { width, height } = getAndroidDisplaySize();
+  const x = Math.floor(width / 2);
+  const yStart = Math.floor(height * 0.32);
+  const yEnd = Math.floor(height * 0.78);
+  adbShell(`input swipe ${x} ${yStart} ${x} ${yEnd} 400`);
   await dismissAndroidSystemOverlays();
 }
 
@@ -251,7 +316,8 @@ async function ensureAndroidAppWindowFocus() {
   adbShell(
     `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} --activity-single-top --activity-reorder-to-front ${launchExtras}`
   );
-  adbShell('input tap 540 1200');
+  const { width, height } = getAndroidDisplaySize();
+  adbShell(`input tap ${Math.floor(width / 2)} ${Math.floor(height * 0.52)}`);
   await new Promise((resolve) => setTimeout(resolve, 500));
 }
 
@@ -483,7 +549,10 @@ module.exports = {
   dismissAndroidSystemOverlays,
   ensureAndroidAppWindowFocus,
   waitForAndroidAppProcess,
+  getAndroidDisplaySize,
+  uiAutomatorHierarchyContainsAny,
   pollUntilUiAutomatorContains,
+  pollUntilUiAutomatorContainsAny,
   pollUntilUiAutomatorResourceId,
   tapUiAutomatorTarget,
   scrollAndroidNativeShellUp,

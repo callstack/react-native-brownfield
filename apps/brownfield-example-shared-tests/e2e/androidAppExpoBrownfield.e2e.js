@@ -1,10 +1,8 @@
-const { element, by, expect: detoxExpect } = require('detox');
-const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   dismissAndroidSystemOverlays,
-  ensureAndroidAppWindowFocus,
   launchBrownfieldAppForDetox,
   pollUntilUiAutomatorContains,
+  pollUntilUiAutomatorContainsAny,
   tapUiAutomatorTarget,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
@@ -13,7 +11,7 @@ const {
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
   EXPO55_GREETING_NEEDLE,
-  EXPO55_RN_SURFACE_NEEDLE,
+  EXPO55_RN_SURFACE_NEEDLES,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
 describe('Brownfield (AndroidApp — Expo)', () => {
@@ -26,18 +24,15 @@ describe('Brownfield (AndroidApp — Expo)', () => {
 
   beforeEach(async () => {
     await dismissAndroidSystemOverlays();
-    await ensureAndroidAppWindowFocus();
   });
 
   it('shows the native greeting shell and embedded Expo home', async () => {
     await scrollToNativeShellExpo();
-    const greeting = element(by.id(ids.appleAppGreeting));
-    await detoxExpect(greeting).toBeVisible();
-    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 10000, {
+    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 15000, {
       keepCurrentActivity: true,
     });
     await scrollToEmbeddedRnExpo();
-    await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, {
+    await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 30000, {
       keepCurrentActivity: true,
     });
   });

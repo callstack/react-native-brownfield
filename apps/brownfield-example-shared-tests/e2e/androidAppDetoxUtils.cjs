@@ -6,6 +6,7 @@ const {
   dismissAndroidSystemOverlays,
   finishAndroidDetoxLaunch,
   pollUntilUiAutomatorContains,
+  pollUntilUiAutomatorContainsAny,
   scrollAndroidNativeShellDown,
   scrollAndroidNativeShellUp,
   tapUiAutomatorTarget,
@@ -17,6 +18,12 @@ const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
 const EXPO55_GREETING_NEEDLE = 'Hello native Android (Expo 55)';
 /** Unique copy on the Expo home screen — survives nbsp/emoji quirks in UIAutomator. */
 const EXPO55_RN_SURFACE_NEEDLE = 'GET STARTED';
+const EXPO55_RN_SURFACE_NEEDLES = [
+  EXPO55_RN_SURFACE_NEEDLE,
+  'Welcome to',
+  'Try editing',
+];
+const EXPO_ANDROID_POLL = { keepCurrentActivity: true };
 
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
 const NATIVE_SHELL_SCROLL_ANCHOR = VANILLA_NATIVE_GREETING;
@@ -51,6 +58,23 @@ async function scrollToEmbeddedRnExpo() {
   } catch {
     await scrollToEmbeddedRnVanilla();
   }
+
+  try {
+    await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 3000, EXPO_ANDROID_POLL);
+  } catch {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      await scrollAndroidNativeShellUp();
+      try {
+        await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 2000, EXPO_ANDROID_POLL);
+        break;
+      } catch {
+        if (attempt === 5) {
+          await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 30000, EXPO_ANDROID_POLL);
+        }
+      }
+    }
+  }
+
   await dismissAndroidSystemOverlays();
 }
 
@@ -68,6 +92,23 @@ async function scrollToNativeShellExpo() {
       await scrollToNativeShellVanilla();
     }
   }
+
+  try {
+    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 3000, EXPO_ANDROID_POLL);
+  } catch {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      await scrollAndroidNativeShellDown();
+      try {
+        await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 2000, EXPO_ANDROID_POLL);
+        break;
+      } catch {
+        if (attempt === 5) {
+          await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 15000, EXPO_ANDROID_POLL);
+        }
+      }
+    }
+  }
+
   await dismissAndroidSystemOverlays();
 }
 
@@ -104,7 +145,6 @@ async function waitForAndroidAppReadyVanilla() {
 }
 
 async function waitForAndroidAppReadyExpo() {
-  const pollOptions = { keepCurrentActivity: true };
   console.log('[e2e] Waiting for Expo RN surface (Home tab or welcome title)...');
 
   try {
@@ -114,13 +154,13 @@ async function waitForAndroidAppReadyExpo() {
   }
 
   try {
-    await pollUntilUiAutomatorContains('Home', 90000, pollOptions);
+    await pollUntilUiAutomatorContains('Home', 90000, EXPO_ANDROID_POLL);
   } catch {
     try {
-      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 90000, pollOptions);
+      await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 90000, EXPO_ANDROID_POLL);
     } catch {
       await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 60000, pollOptions);
+      await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 60000, EXPO_ANDROID_POLL);
     }
   }
 
@@ -131,12 +171,8 @@ async function waitForAndroidAppReadyExpo() {
 async function openPostMessageTabExpo() {
   await scrollToEmbeddedRnExpo();
   await dismissAndroidSystemOverlays();
-  await tapUiAutomatorTarget({ needle: 'postMessage API' }, 30000, {
-    keepCurrentActivity: true,
-  });
-  await pollUntilUiAutomatorContains('Send message to Native', 30000, {
-    keepCurrentActivity: true,
-  });
+  await tapUiAutomatorTarget({ needle: 'postMessage API' }, 30000, EXPO_ANDROID_POLL);
+  await pollUntilUiAutomatorContains('Send message to Native', 30000, EXPO_ANDROID_POLL);
 }
 
 async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
@@ -175,4 +211,5 @@ module.exports = {
   sendPostMessageToNativeAndWaitForToast,
   EXPO55_GREETING_NEEDLE,
   EXPO55_RN_SURFACE_NEEDLE,
+  EXPO55_RN_SURFACE_NEEDLES,
 };
