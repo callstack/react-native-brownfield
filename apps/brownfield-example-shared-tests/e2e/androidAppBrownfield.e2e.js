@@ -19,6 +19,22 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
     await waitForAndroidAppReadyVanilla();
   });
 
+  it('navigates to native settings from the RN surface', async () => {
+    await scrollToEmbeddedRnVanilla();
+    await element(by.id(ids.openNativeSettings)).atIndex(0).tap();
+    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToSettings', 10000, 0, {
+      keepCurrentActivity: true,
+    });
+  });
+
+  it('navigates to native referrals from the RN surface', async () => {
+    await scrollToEmbeddedRnVanilla();
+    await element(by.id(ids.openNativeReferrals)).atIndex(0).tap();
+    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToReferrals', 10000, 0, {
+      keepCurrentActivity: true,
+    });
+  });
+
   it('shows the native greeting shell and embedded RN home', async () => {
     await scrollToNativeShellVanilla();
     await detoxExpect(element(by.id(ids.appleAppGreeting))).toBeVisible();
@@ -35,21 +51,5 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
     await element(by.id(ids.counterIncrement)).atIndex(0).tap();
     await pollUntilUiAutomatorContains('Count: 1', 15000, { keepCurrentActivity: true });
     await assertDetoxTextEventually(count, /Count:\s*1/);
-  });
-
-  it('navigates to native settings from the RN surface', async () => {
-    await scrollToEmbeddedRnVanilla();
-    await element(by.id(ids.openNativeSettings)).atIndex(0).tap();
-    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToSettings', 10000, 0, {
-      keepCurrentActivity: true,
-    });
-  });
-
-  it('navigates to native referrals from the RN surface', async () => {
-    await scrollToEmbeddedRnVanilla();
-    await element(by.id(ids.openNativeReferrals)).atIndex(0).tap();
-    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToReferrals', 10000, 0, {
-      keepCurrentActivity: true,
-    });
   });
 });

@@ -277,13 +277,21 @@ runs:
         profile: pixel_6
         avd-name: test
         disable-animations: true
+        # ubuntu-latest has 2 vCPUs; default cores: 2 starves the host and QEMU hangs under load.
+        cores: 1
+        ram-size: 3072M
         emulator-boot-timeout: 900
+        emulator-options: >-
+          -no-window
+          -gpu swiftshader_indirect
+          -no-snapshot
+          -no-snapshot-save
+          -noaudio
+          -no-boot-anim
+          -camera-back none
         pre-emulator-launch-script: df -h .
         # Do not set disk-size — a large userdata partition fails when the runner is
         # low on disk after Gradle/NDK builds (see ReactiveCircus/android-emulator-runner#455).
-        # Do not pass partial emulator-options — they replace the action defaults
-        # (-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim).
-        # Omitting them keeps headless/software-GPU settings required on ubuntu-latest.
         script: |
           bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
           cd apps/AndroidApp

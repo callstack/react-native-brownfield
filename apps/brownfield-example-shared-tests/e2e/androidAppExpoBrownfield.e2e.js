@@ -14,7 +14,7 @@ const {
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
 describe('Brownfield (AndroidApp — Expo)', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAndroidAppReadyExpo();
   });
