@@ -1,7 +1,6 @@
 const { element, by, expect: detoxExpect } = require('detox');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
-  assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
   ensureAndroidAppWindowFocus,
   launchBrownfieldAppForDetox,
@@ -13,6 +12,7 @@ const {
   scrollToNativeShellExpo,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
+  EXPO55_GREETING_NEEDLE,
   EXPO55_RN_SURFACE_NEEDLE,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
@@ -33,7 +33,9 @@ describe('Brownfield (AndroidApp — Expo)', () => {
     await scrollToNativeShellExpo();
     const greeting = element(by.id(ids.appleAppGreeting));
     await detoxExpect(greeting).toBeVisible();
-    await assertDetoxTextMatches(greeting, /Hello native Android \(Expo 55\)/);
+    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 10000, {
+      keepCurrentActivity: true,
+    });
     await scrollToEmbeddedRnExpo();
     await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, {
       keepCurrentActivity: true,
@@ -42,23 +44,11 @@ describe('Brownfield (AndroidApp — Expo)', () => {
 
   it('records the RN postMessage bubble in the Expo surface', async () => {
     await openPostMessageTabExpo();
-    try {
-      await element(by.id(ids.sendMessageToNative)).tap();
-    } catch {
-      await tapUiAutomatorTarget(
-        { resourceId: ids.sendMessageToNative },
-        30000,
-        { keepCurrentActivity: true }
-      );
-    }
-    try {
-      await pollUntilUiAutomatorContains('Hello from Expo!', 15000, {
-        keepCurrentActivity: true,
-      });
-      return;
-    } catch {
-      const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
-      await assertDetoxTextMatches(bubble, /Hello from Expo!/);
-    }
+    await tapUiAutomatorTarget({ needle: 'Send message to Native' }, 30000, {
+      keepCurrentActivity: true,
+    });
+    await pollUntilUiAutomatorContains('Hello from Expo!', 15000, {
+      keepCurrentActivity: true,
+    });
   });
 });

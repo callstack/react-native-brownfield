@@ -119,6 +119,8 @@ function parseUiAutomatorBounds(boundsAttr) {
 }
 
 function findUiAutomatorNodeCenter(xml, { needle, resourceId } = {}) {
+  const candidates = [];
+
   for (const chunk of xml.split('<node ')) {
     if (needle) {
       const textMatch = chunk.match(/text="([^"]*)"/);
@@ -140,12 +142,28 @@ function findUiAutomatorNodeCenter(xml, { needle, resourceId } = {}) {
     }
 
     const center = parseUiAutomatorBounds(boundsMatch[1]);
-    if (center) {
-      return center;
+    if (!center) {
+      continue;
     }
+
+    const descMatch = chunk.match(/content-desc="([^"]*)"/);
+    candidates.push({
+      center,
+      clickable: chunk.includes('clickable="true"'),
+      exactDesc: descMatch?.[1] === needle,
+    });
   }
 
-  return null;
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const preferred =
+    candidates.find((c) => c.exactDesc && c.clickable) ||
+    candidates.find((c) => c.clickable) ||
+    candidates[0];
+
+  return preferred.center;
 }
 
 async function tapUiAutomatorTarget(

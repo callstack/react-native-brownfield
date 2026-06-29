@@ -9,15 +9,14 @@ const {
   scrollAndroidNativeShellDown,
   scrollAndroidNativeShellUp,
   tapUiAutomatorTarget,
-  pollUntilUiAutomatorResourceId,
   waitForVisible,
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
-const EXPO55_GREETING_NEEDLE = 'Android (Expo 55)';
-/** Home tab hero title — reliably present in UIAutomator once the RN surface is scrolled in. */
-const EXPO55_RN_SURFACE_NEEDLE = 'Welcome to Expo 55';
+const EXPO55_GREETING_NEEDLE = 'Hello native Android (Expo 55)';
+/** Unique copy on the Expo home screen — survives nbsp/emoji quirks in UIAutomator. */
+const EXPO55_RN_SURFACE_NEEDLE = 'GET STARTED';
 
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
 const NATIVE_SHELL_SCROLL_ANCHOR = VANILLA_NATIVE_GREETING;
@@ -135,7 +134,7 @@ async function openPostMessageTabExpo() {
   await tapUiAutomatorTarget({ needle: 'postMessage API' }, 30000, {
     keepCurrentActivity: true,
   });
-  await pollUntilUiAutomatorResourceId(ids.sendMessageToNative, 30000, {
+  await pollUntilUiAutomatorContains('Send message to Native', 30000, {
     keepCurrentActivity: true,
   });
 }
