@@ -36,17 +36,24 @@ function isAndroidAppProcessRunning() {
   try {
     return adbExecOut(`shell pidof ${ANDROID_BROWNFIELD_PACKAGE}`).trim().length > 0;
   } catch {
-    return false;
+    try {
+      return adbExecOut(`shell pgrep -f ${ANDROID_BROWNFIELD_PACKAGE}`).trim().length > 0;
+    } catch {
+      return false;
+    }
   }
 }
 
-async function waitForAndroidAppProcess(timeoutMs = 60000) {
+async function waitForAndroidAppProcess(timeoutMs = 90000) {
+  // Let Detox instrumentation finish starting the app before probing the process list.
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (isAndroidAppProcessRunning()) {
       return;
     }
-    await ensureAndroidAppWindowFocus();
+    await dismissAndroidSystemOverlays();
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
   throw new Error(`${ANDROID_BROWNFIELD_PACKAGE} process did not start`);
@@ -130,16 +137,13 @@ async function ensureAndroidAppWindowFocus() {
     return;
   }
   await dismissAndroidSystemOverlays();
+  if (!isAndroidAppProcessRunning()) {
+    return;
+  }
   const launchExtras =
     '--es DetoxE2E YES --es BrownfieldPreferEmbeddedBundleInDebug YES';
-  const activityFlags = isAndroidAppProcessRunning()
-    ? '--activity-single-top --activity-reorder-to-front'
-    : '';
   adbShell(
-    `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} ${activityFlags} ${launchExtras}`.replace(
-      /\s{2,}/g,
-      ' '
-    )
+    `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} --activity-single-top --activity-reorder-to-front ${launchExtras}`
   );
   adbShell('input tap 540 1200');
   await new Promise((resolve) => setTimeout(resolve, 500));
@@ -295,7 +299,7 @@ function androidUiAutomatorNeedleForMatcher(matcher) {
  * Sync is disabled only via launchArgs — disableSynchronization() before launchApp()
  * fails because Detox is not connected to the app yet.
  */
-async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
+async function launchBrownfieldAppForDetox({ newInstance = true, processTimeoutMs } = {}) {
   await device.launchApp({
     newInstance,
     launchArgs: {
@@ -306,7 +310,7 @@ async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
 
   if (device.getPlatform() === 'android') {
     await device.disableSynchronization();
-    await waitForAndroidAppProcess();
+    await waitForAndroidAppProcess(processTimeoutMs);
     await ensureAndroidAppWindowFocus();
     return;
   }
