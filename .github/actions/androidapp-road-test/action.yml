@@ -89,7 +89,7 @@ runs:
 
     - name: Download prebuilt Detox APKs
       if: steps.e2e.outputs.phase == 'test'
-      uses: actions/download-artifact@65a9edc588144f32b3ebe1dd8fd0dcec0a22987f # v4.1.7
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
         name: ${{ inputs.e2e-apk-artifact-name }}
 
