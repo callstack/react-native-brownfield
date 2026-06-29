@@ -125,9 +125,9 @@ jobs:
           swift test --scratch-path "$RUNNER_TEMP/swift-cache/swiftpm"
 
   android-androidapp-expo:
-    name: Android road test${{ matrix.run-e2e == 'true' && ' & E2E' || '' }} (AndroidApp - Expo ${{ matrix.version }})
+    name: Android road test (AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ matrix.run-e2e == 'true' && 150 || 60 }}
+    timeout-minutes: 60
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -143,22 +143,77 @@ jobs:
       matrix:
         include:
           - version: '54'
-            run-e2e: 'false'
-          - version: '55'
-            run-e2e: 'true'
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run ExpoApp -> AndroidApp road test${{ matrix.run-e2e == 'true' && ' & Detox E2E' || '' }} (Expo ${{ matrix.version }})
+      - name: Run ExpoApp -> AndroidApp road test (Expo ${{ matrix.version }})
         uses: ./.github/actions/androidapp-road-test
         with:
           flavor: expo${{ matrix.version }}
           rn-project-path: apps/ExpoApp${{ matrix.version }}
           rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp${{ matrix.version }}/brownfieldlib
-          run-e2e: ${{ matrix.run-e2e }}
           e2e-artifact-name: detox-androidapp-expo${{ matrix.version }}
+
+  android-androidapp-expo55-build:
+    name: Build AndroidApp & Detox APKs (Expo 55)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo55 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Build Expo 55 AndroidApp Detox APKs
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo55
+          rn-project-path: apps/ExpoApp55
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp55/brownfieldlib
+          e2e-phase: build
+          e2e-apk-artifact-name: androidapp-expo55-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo55
+
+  android-androidapp-expo55-e2e:
+    name: Detox E2E (AndroidApp - Expo 55)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [filter, build-lint, android-androidapp-expo55-build]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo55 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
+      needs.android-androidapp-expo55-build.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run Expo 55 Detox E2E (prebuilt APKs)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo55
+          rn-project-path: apps/ExpoApp55
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp55/brownfieldlib
+          e2e-phase: test
+          e2e-apk-artifact-name: androidapp-expo55-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo55
 
   android-androidapp-vanilla:
     name: Android road test & E2E (AndroidApp - Vanilla)
