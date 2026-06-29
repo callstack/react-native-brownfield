@@ -15,8 +15,10 @@ const {
 
 describe('Brownfield (AndroidApp — Expo)', () => {
   beforeAll(async () => {
+    console.log('[e2e] Expo beforeAll: launch + readiness');
     await launchBrownfieldAppForDetox({ newInstance: true, processTimeoutMs: 120000 });
     await waitForAndroidAppReadyExpo();
+    console.log('[e2e] Expo beforeAll: ready');
   });
 
   it('shows the native greeting shell and embedded Expo home', async () => {

@@ -127,7 +127,7 @@ jobs:
   android-androidapp-expo:
     name: Android road test${{ matrix.run-e2e == 'true' && ' & E2E' || '' }} (AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ matrix.run-e2e == 'true' && 90 || 60 }}
+    timeout-minutes: ${{ matrix.run-e2e == 'true' && 150 || 60 }}
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -163,7 +163,7 @@ jobs:
   android-androidapp-vanilla:
     name: Android road test & E2E (AndroidApp - Vanilla)
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     needs: [filter, build-lint]
     if: |
       always() &&

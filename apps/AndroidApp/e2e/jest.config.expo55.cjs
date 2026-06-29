@@ -5,6 +5,7 @@ const {
 
 module.exports = createDetoxJestConfig({
   e2eDir: __dirname,
+  testTimeout: 600_000,
   testMatch: [
     path.join(
       __dirname,

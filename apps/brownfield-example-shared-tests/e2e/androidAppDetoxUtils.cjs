@@ -104,23 +104,26 @@ async function waitForAndroidAppReadyVanilla() {
 
 async function waitForAndroidAppReadyExpo() {
   const pollOptions = { keepCurrentActivity: true };
+  console.log('[e2e] Waiting for Expo RN surface (Home tab or welcome title)...');
+
   try {
-    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 60000, pollOptions);
+    await scrollToEmbeddedRnExpo();
   } catch {
-    // Greeting may be off-screen until the native shell is scrolled into view.
+    // RN surface may already be partially visible.
   }
 
   try {
-    await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 120000, pollOptions);
+    await pollUntilUiAutomatorContains('Home', 90000, pollOptions);
   } catch {
     try {
-      await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, pollOptions);
+      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 90000, pollOptions);
     } catch {
       await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 30000, pollOptions);
+      await pollUntilUiAutomatorContains(EXPO55_RN_SURFACE_NEEDLE, 60000, pollOptions);
     }
   }
+
+  console.log('[e2e] Expo RN surface ready');
   await finishAndroidDetoxLaunch();
 }
 

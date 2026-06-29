@@ -300,6 +300,7 @@ function androidUiAutomatorNeedleForMatcher(matcher) {
  * fails because Detox is not connected to the app yet.
  */
 async function launchBrownfieldAppForDetox({ newInstance = true, processTimeoutMs } = {}) {
+  console.log('[e2e] Launching brownfield app via Detox...');
   await device.launchApp({
     newInstance,
     launchArgs: {
@@ -310,8 +311,10 @@ async function launchBrownfieldAppForDetox({ newInstance = true, processTimeoutM
 
   if (device.getPlatform() === 'android') {
     await device.disableSynchronization();
+    console.log('[e2e] Waiting for Android app process...');
     await waitForAndroidAppProcess(processTimeoutMs);
     await ensureAndroidAppWindowFocus();
+    console.log('[e2e] Android app process is up');
     return;
   }
 

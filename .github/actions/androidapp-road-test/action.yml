@@ -293,6 +293,7 @@ runs:
         # Do not set disk-size — a large userdata partition fails when the runner is
         # low on disk after Gradle/NDK builds (see ReactiveCircus/android-emulator-runner#455).
         script: |
+          echo "==> Starting Detox tests at $(date -u +%H:%M:%S)"
           bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
           cd apps/AndroidApp
           yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"

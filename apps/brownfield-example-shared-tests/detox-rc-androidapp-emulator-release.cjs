@@ -53,6 +53,8 @@ function createAndroidAppEmulatorReleaseDetoxConfig({
         binaryPath,
         testBinaryPath,
         build: detoxAndroidReleaseBuild,
+        // Expo brownfield cold start can exceed Detox's default launch budget on CI.
+        launchTimeout: 300000,
       },
     },
     devices: {
