@@ -8,12 +8,14 @@ const {
   pollUntilUiAutomatorContains,
   scrollAndroidNativeShellDown,
   scrollAndroidNativeShellUp,
+  tapUiAutomatorTarget,
+  pollUntilUiAutomatorResourceId,
   waitForVisible,
   waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
-const EXPO55_GREETING_NEEDLE = 'Hello native Android (Expo 55)';
+const EXPO55_GREETING_NEEDLE = 'Android (Expo 55)';
 /** Home tab hero title — reliably present in UIAutomator once the RN surface is scrolled in. */
 const EXPO55_RN_SURFACE_NEEDLE = 'Welcome to Expo 55';
 
@@ -129,16 +131,13 @@ async function waitForAndroidAppReadyExpo() {
 
 async function openPostMessageTabExpo() {
   await scrollToEmbeddedRnExpo();
-  try {
-    await pollUntilUiAutomatorContains('postMessage API', 30000, {
-      keepCurrentActivity: true,
-    });
-  } catch {
-    // RN tab bar may not expose the label until layout settles.
-  }
-  await waitForVisible(by.label('postMessage API'), 30000, 0);
-  await element(by.label('postMessage API')).atIndex(0).tap();
-  await waitForVisible(by.id(ids.sendMessageToNative), 30000);
+  await dismissAndroidSystemOverlays();
+  await tapUiAutomatorTarget({ needle: 'postMessage API' }, 30000, {
+    keepCurrentActivity: true,
+  });
+  await pollUntilUiAutomatorResourceId(ids.sendMessageToNative, 30000, {
+    keepCurrentActivity: true,
+  });
 }
 
 async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {

@@ -103,6 +103,94 @@ async function pollUntilUiAutomatorContains(
   throw new Error(`Timed out waiting for UIAutomator to contain: ${needle}`);
 }
 
+function parseUiAutomatorBounds(boundsAttr) {
+  const match = boundsAttr.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
+  if (!match) {
+    return null;
+  }
+  const left = Number(match[1]);
+  const top = Number(match[2]);
+  const right = Number(match[3]);
+  const bottom = Number(match[4]);
+  return {
+    x: Math.floor((left + right) / 2),
+    y: Math.floor((top + bottom) / 2),
+  };
+}
+
+function findUiAutomatorNodeCenter(xml, { needle, resourceId } = {}) {
+  for (const chunk of xml.split('<node ')) {
+    if (needle) {
+      const textMatch = chunk.match(/text="([^"]*)"/);
+      const descMatch = chunk.match(/content-desc="([^"]*)"/);
+      const text = textMatch?.[1] ?? '';
+      const desc = descMatch?.[1] ?? '';
+      if (!text.includes(needle) && !desc.includes(needle)) {
+        continue;
+      }
+    }
+
+    if (resourceId && !chunk.includes(resourceId)) {
+      continue;
+    }
+
+    const boundsMatch = chunk.match(/bounds="(\[\d+,\d+\]\[\d+,\d+\])"/);
+    if (!boundsMatch) {
+      continue;
+    }
+
+    const center = parseUiAutomatorBounds(boundsMatch[1]);
+    if (center) {
+      return center;
+    }
+  }
+
+  return null;
+}
+
+async function tapUiAutomatorTarget(
+  { needle, resourceId },
+  timeoutMs = 30000,
+  { keepCurrentActivity = true } = {}
+) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const xml = dumpUiAutomatorHierarchy();
+      const center = findUiAutomatorNodeCenter(xml, { needle, resourceId });
+      if (center) {
+        adbShell(`input tap ${center.x} ${center.y}`);
+        await dismissAndroidSystemOverlays();
+        return;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (keepCurrentActivity) {
+      await dismissAndroidSystemOverlays();
+    } else {
+      await ensureAndroidAppWindowFocus();
+    }
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  const label = needle || resourceId;
+  throw lastError || new Error(`Timed out waiting to tap UIAutomator target: ${label}`);
+}
+
+async function pollUntilUiAutomatorResourceId(
+  resourceId,
+  timeoutMs = 20000,
+  options = {}
+) {
+  return pollUntilUiAutomatorContains(resourceId, timeoutMs, options);
+}
+
 /** Scroll the native shell upward so the embedded RN fragment moves into view. */
 async function scrollAndroidNativeShellUp() {
   adbShell('input swipe 540 1800 540 800 400');
@@ -378,6 +466,8 @@ module.exports = {
   ensureAndroidAppWindowFocus,
   waitForAndroidAppProcess,
   pollUntilUiAutomatorContains,
+  pollUntilUiAutomatorResourceId,
+  tapUiAutomatorTarget,
   scrollAndroidNativeShellUp,
   scrollAndroidNativeShellDown,
   configureDetoxForBrownfieldAndroid,
