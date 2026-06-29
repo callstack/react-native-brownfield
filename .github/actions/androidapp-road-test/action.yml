@@ -255,7 +255,7 @@ runs:
           libxfixes3 \
           libxrandr2 \
           libgbm1 \
-          libasound2
+          libasound2t64
       shell: bash
 
     - name: Enable KVM for Android emulator
