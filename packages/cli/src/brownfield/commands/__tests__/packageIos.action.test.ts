@@ -122,10 +122,6 @@ vi.mock('../../utils/emitExpoSupportXcframeworks.js', () => ({
   emitExpoSupportXcframeworks: vi.fn(() => false),
 }));
 
-vi.mock('../../utils/packageReactBrownfieldXcframework.js', () => ({
-  packageSupportModuleXcframework: vi.fn(),
-}));
-
 vi.mock('../../utils/stripFrameworkBinary.js', () => ({
   stripFrameworkBinary: vi.fn(),
 }));
