@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.callstack.react.brownfield.shared
 
 import com.android.build.api.dsl.LibraryExtension

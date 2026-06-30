@@ -62,23 +62,17 @@ abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
         // 1. Scan and process duplicate libs from AAR paths
         aarJniDirs.forEach { jniDir ->
             if (jniDir.exists()) {
-                println("=== output path -- ${outDir.path}")
-                println("=== JNI Dir -- ${jniDir.path}")
                 processNestedLibs(jniDir.listFiles(), existingJNILibs)
 
                 // If not using stripped files, copy the unstripped ones directly to our output
                 if (!useStrippedSoFiles.get()) {
-                    println("=== copying unstripped libs")
                     jniDir.copyRecursively(outDir, overwrite = true)
                 }
-            } else {
-                println("=== JNI do not exists")
             }
         }
 
         // 2. If using stripped files, copy targeted files from the stripped directory
         if (useStrippedSoFiles.get() && strippedLibsDir.isPresent) {
-            println("=== copying stripped libs")
             copyStrippedSoLibs(outDir, existingJNILibs)
         }
     }

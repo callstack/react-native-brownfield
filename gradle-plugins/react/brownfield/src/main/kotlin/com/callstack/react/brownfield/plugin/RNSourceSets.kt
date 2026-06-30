@@ -45,7 +45,7 @@ object RNSourceSets {
             sourceSet.java.srcDir("${getModuleBuildDir()}/generated/autolinking/src/main/java")
         }
 
-        // 2. Use the onVariants block to configure each variant
+        // 2. Use the onVariants block to wire RN bundle outputs via the Variant Sources API
         componentsExtension.onVariants { variant ->
             val bundledAssetsVariantName =
                 Utils.getBundledAssetsVariantName(
@@ -55,23 +55,20 @@ object RNSourceSets {
                 )
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
 
-            // 3. Lazily configure the 'main' source set using .named()
-            androidExtension.sourceSets.named(variant.name) { sourceSet ->
-                // Paths are collected and added, similar to your improved version
-                val bundlePathSegments =
-                    listOf(
-                        // outputs for RN <= 0.81
-                        "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
-                        // outputs for RN >= 0.82
-                        "react/$bundledAssetsVariantName",
-                        // expo update resources
-                        "create${capitalizedBundledAssetsVariantName}UpdatesResources",
-                    )
+            val bundlePathSegments =
+                listOf(
+                    // outputs for RN <= 0.81
+                    "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
+                    // outputs for RN >= 0.82
+                    "react/$bundledAssetsVariantName",
+                    // expo update resources
+                    "create${capitalizedBundledAssetsVariantName}UpdatesResources",
+                )
 
-                // Add the variant-specific generated asset and resource directories
-                val appBuildDir = getAppBuildDir()
-                sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
-                sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
+            val appBuildDir = getAppBuildDir()
+            bundlePathSegments.forEach { segment ->
+                variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$segment")
+                variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$segment")
             }
         }
 
