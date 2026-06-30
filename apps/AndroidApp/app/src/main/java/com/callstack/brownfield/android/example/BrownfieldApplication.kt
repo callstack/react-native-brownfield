@@ -11,6 +11,8 @@ import com.facebook.react.ReactNativeHost
 /**
  * Detox expects a [ReactApplication] so it can await the embedded RN context during E2E runs.
  * RN is initialized at process start (embedded AAR bundle — no Metro).
+ * 
+ * We should not have React internals import in a native Android app and should only rely on *ReactNativeHostManager or ReactNativeBrownfield, however, since this app is a testing app and we are *using Detox as E2E testing driver, we are making that trade-off.
  */
 class BrownfieldApplication : Application(), ReactApplication {
     @Suppress("DEPRECATION")
