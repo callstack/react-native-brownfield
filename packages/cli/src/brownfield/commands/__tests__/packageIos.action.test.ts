@@ -122,16 +122,8 @@ vi.mock('../../utils/emitExpoSupportXcframeworks.js', () => ({
   emitExpoSupportXcframeworks: vi.fn(() => false),
 }));
 
-vi.mock('../../utils/copyBundledXcframeworks.js', () => ({
-  copyBundledXcframeworks: vi.fn(),
-}));
-
 vi.mock('../../utils/packageReactBrownfieldXcframework.js', () => ({
   packageSupportModuleXcframework: vi.fn(),
-}));
-
-vi.mock('../../utils/packageTransitiveDynamicFrameworks.js', () => ({
-  packageTransitiveDynamicFrameworks: vi.fn(),
 }));
 
 vi.mock('../../utils/stripFrameworkBinary.js', () => ({
