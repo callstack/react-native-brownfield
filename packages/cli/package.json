@@ -84,7 +84,7 @@
     "@react-native-community/cli-config": "^20.0.0",
     "@react-native-community/cli-config-android": "^20.0.0",
     "@rock-js/platform-android": "^0.13.5",
-    "@rock-js/platform-apple-helpers": "^0.13.5",
+    "@rock-js/platform-apple-helpers": "patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch",
     "@rock-js/plugin-brownfield-android": "^0.13.5",
     "@rock-js/plugin-brownfield-ios": "^0.13.5",
     "@rock-js/tools": "^0.13.5",

@@ -8,14 +8,44 @@ import { getExpoSdkMajor, isExpoProject } from './project.js';
 
 const MIN_EXPO_SDK_MAJOR_FOR_SUPPORT_XCFRAMEWORKS = 56;
 
-export const EXPO_SUPPORT_XCFRAMEWORK_NAMES = ['ExpoModulesJSI'] as const;
+/**
+ * Swift support XCFrameworks
+ *
+ * These are required for the Expo Image module to work.
+ * 
+ * TODO: This needs investigation and maybe a discussion with the Expo team.
+ */
+const SWIFT_SUPPORT_XCFRAMEWORK_NAMES = [
+  'SDWebImage',
+  'SDWebImageSVGCoder',
+  'SDWebImageWebPCoder',
+  'SDWebImageAVIFCoder',
+  'libavif',
+] as const;
+
+const EXPO_SUPPORT_XCFRAMEWORK_NAMES = [
+  'ExpoModulesJSI',
+  'ExpoFileSystem',
+  'ExpoFont',
+  'ExpoModulesCore',
+  'ExpoImage',
+  'ExpoModulesWorklets'
+] as const;
+
+export const ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES = [
+  ...EXPO_SUPPORT_XCFRAMEWORK_NAMES,
+  ...SWIFT_SUPPORT_XCFRAMEWORK_NAMES,
+] as const;
+
+type SwiftSupportXcframeworkName =
+  (typeof SWIFT_SUPPORT_XCFRAMEWORK_NAMES)[number];
 
 type ExpoSupportXcframeworkName =
   (typeof EXPO_SUPPORT_XCFRAMEWORK_NAMES)[number];
 
 function resolveExpoFrameworkSourcePath(
   projectRoot: string,
-  frameworkName: ExpoSupportXcframeworkName
+  frameworkName: SwiftSupportXcframeworkName | ExpoSupportXcframeworkName
 ) {
   if (frameworkName === 'ExpoModulesJSI') {
     return path.join(
@@ -25,6 +55,26 @@ function resolveExpoFrameworkSourcePath(
       'apple',
       'Products',
       'ExpoModulesJSI.xcframework'
+    );
+  }
+
+  if (SWIFT_SUPPORT_XCFRAMEWORK_NAMES.includes(frameworkName as SwiftSupportXcframeworkName)) {
+    return path.join(
+      projectRoot,
+      'ios',
+      'Pods',
+      'ExpoImage',
+      `${frameworkName}.xcframework`
+    );
+  }
+
+  if (EXPO_SUPPORT_XCFRAMEWORK_NAMES.includes(frameworkName as ExpoSupportXcframeworkName)) {
+    return path.join(
+      projectRoot,
+      'ios',
+      'Pods',
+      frameworkName,
+      `${frameworkName}.xcframework`
     );
   }
 
@@ -50,7 +100,7 @@ export function emitExpoSupportXcframeworks({
     return false;
   }
 
-  for (const frameworkName of EXPO_SUPPORT_XCFRAMEWORK_NAMES) {
+  for (const frameworkName of ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES) {
     const sourcePath = resolveExpoFrameworkSourcePath(
       projectRoot,
       frameworkName

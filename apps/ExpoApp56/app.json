@@ -45,15 +45,7 @@
       ],
       "expo-image",
       "expo-font",
-      "expo-web-browser",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "usePrecompiledModules": false
-          }
-        }
-      ]
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

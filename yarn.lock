@@ -1956,7 +1956,7 @@ __metadata:
     "@react-native/babel-preset": "npm:0.82.1"
     "@react-native/eslint-config": "npm:0.82.1"
     "@rock-js/platform-android": "npm:^0.13.5"
-    "@rock-js/platform-apple-helpers": "npm:^0.13.5"
+    "@rock-js/platform-apple-helpers": "patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch"
     "@rock-js/plugin-brownfield-android": "npm:^0.13.5"
     "@rock-js/plugin-brownfield-ios": "npm:^0.13.5"
     "@rock-js/tools": "npm:^0.13.5"
@@ -6924,7 +6924,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rock-js/platform-apple-helpers@npm:^0.13.5":
+"@rock-js/platform-apple-helpers@npm:0.13.5":
   version: 0.13.5
   resolution: "@rock-js/platform-apple-helpers@npm:0.13.5"
   dependencies:
@@ -6935,6 +6935,20 @@ __metadata:
     fast-xml-parser: "npm:^4.5.0"
     tslib: "npm:^2.3.0"
   checksum: 10/e53171a46e2ad0db574009ba4d66fcb6b22f5243d334662cb506c9d2aaf60574bf30f9537204e84bdf486627b2796da47cd7592a5aaaaba72ea3ca345bb31b10
+  languageName: node
+  linkType: hard
+
+"@rock-js/platform-apple-helpers@patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch":
+  version: 0.13.5
+  resolution: "@rock-js/platform-apple-helpers@patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch::version=0.13.5&hash=e71a96"
+  dependencies:
+    "@react-native-community/cli-config": "npm:^20.0.0"
+    "@react-native-community/cli-config-apple": "npm:^20.0.0"
+    "@rock-js/tools": "npm:^0.13.5"
+    adm-zip: "npm:^0.5.16"
+    fast-xml-parser: "npm:^4.5.0"
+    tslib: "npm:^2.3.0"
+  checksum: 10/c95074f74d61ed2fcf5d8351af104825686b1a9306489377bc494eb02daded24db1c342485a5e82ad9ca3fb47daee63ef5266a82b9437e34074a3d905bafed31
   languageName: node
   linkType: hard
 

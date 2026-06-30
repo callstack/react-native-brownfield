@@ -125,6 +125,8 @@ describe('createLocalSpmPackage', () => {
     createXcframework(tempDir, 'hermesvm');
     createXcframework(tempDir, 'ReactBrownfield');
     createXcframework(tempDir, 'ExpoModulesJSI');
+    createXcframework(tempDir, 'ExpoFileSystem');
+    createXcframework(tempDir, 'ExpoFont');
 
     const result = createLocalSpmPackage({
       packageDir: tempDir,
@@ -134,6 +136,12 @@ describe('createLocalSpmPackage', () => {
     const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
 
     expect(manifest).toContain('binaryTarget(name: "ExpoModulesJSI"');
+    expect(manifest).toContain('binaryTarget(name: "ExpoFileSystem"');
+    expect(manifest).toContain(
+      'path: "./spm-artifacts/ExpoFileSystem.xcframework"'
+    );
+    expect(manifest).toContain('binaryTarget(name: "ExpoFont"');
+    expect(manifest).toContain('path: "./spm-artifacts/ExpoFont.xcframework"');
   });
 
   it('uses hermes.xcframework when hermesvm.xcframework is not present', () => {

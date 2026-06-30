@@ -41,6 +41,8 @@ describe('emitExpoSupportXcframeworks', () => {
   let projectRoot: string;
   let packageDir: string;
   let expoModulesJsiDir: string;
+  let expoFileSystemPodsDir: string;
+  let expoFontPodsDir: string;
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(
@@ -48,7 +50,20 @@ describe('emitExpoSupportXcframeworks', () => {
     );
     projectRoot = path.join(tempDir, 'project');
     packageDir = path.join(tempDir, 'package');
-    expoModulesJsiDir = path.join(projectRoot, 'node_modules', 'expo-modules-jsi', 'apple', 'Products');
+    expoModulesJsiDir = path.join(
+      projectRoot,
+      'node_modules',
+      'expo-modules-jsi',
+      'apple',
+      'Products'
+    );
+    expoFileSystemPodsDir = path.join(
+      projectRoot,
+      'ios',
+      'Pods',
+      'ExpoFileSystem'
+    );
+    expoFontPodsDir = path.join(projectRoot, 'ios', 'Pods', 'ExpoFont');
     fs.mkdirSync(projectRoot, { recursive: true });
     fs.mkdirSync(packageDir, { recursive: true });
     vi.clearAllMocks();
@@ -62,10 +77,9 @@ describe('emitExpoSupportXcframeworks', () => {
     vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
     vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
 
-    createSignedMockXcframework(
-      expoModulesJsiDir,
-      'ExpoModulesJSI'
-    );
+    createSignedMockXcframework(expoModulesJsiDir, 'ExpoModulesJSI');
+    createSignedMockXcframework(expoFileSystemPodsDir, 'ExpoFileSystem');
+    createSignedMockXcframework(expoFontPodsDir, 'ExpoFont');
 
     expect(
       emitExpoSupportXcframeworks({
@@ -74,48 +88,51 @@ describe('emitExpoSupportXcframeworks', () => {
       })
     ).toBe(true);
 
-    const frameworkName = 'ExpoModulesJSI';
-    const copiedFrameworkDir = path.join(
-      packageDir,
-      `${frameworkName}.xcframework`,
-      'ios-arm64_x86_64-simulator',
-      `${frameworkName}.framework`
-    );
+    for (const frameworkName of [
+      'ExpoModulesJSI',
+      'ExpoFileSystem',
+      'ExpoFont',
+    ] as const) {
+      const copiedFrameworkDir = path.join(
+        packageDir,
+        `${frameworkName}.xcframework`,
+        'ios-arm64_x86_64-simulator',
+        `${frameworkName}.framework`
+      );
 
-    expect(fs.existsSync(path.join(copiedFrameworkDir, frameworkName))).toBe(
-      true
-    );
-    expect(
-      fs.existsSync(
-        path.join(copiedFrameworkDir, '_CodeSignature', 'CodeResources')
-      )
-    ).toBe(false);
+      expect(fs.existsSync(path.join(copiedFrameworkDir, frameworkName))).toBe(
+        true
+      );
+      expect(
+        fs.existsSync(
+          path.join(copiedFrameworkDir, '_CodeSignature', 'CodeResources')
+        )
+      ).toBe(false);
 
-    expect(childProcess.execFileSync).toHaveBeenCalledTimes(6);
-    expect(childProcess.execFileSync).toHaveBeenCalledWith(
-      'codesign',
-      [
-        '--remove-signature',
-        path.join(
-          packageDir,
-          'ExpoModulesJSI.xcframework',
-          'ios-arm64_x86_64-simulator',
-          'ExpoModulesJSI.framework',
-          'ExpoModulesJSI'
-        ),
-      ],
-      expect.objectContaining({ stdio: 'pipe' })
-    );
+      expect(childProcess.execFileSync).toHaveBeenCalledWith(
+        'codesign',
+        [
+          '--remove-signature',
+          path.join(
+            packageDir,
+            `${frameworkName}.xcframework`,
+            'ios-arm64_x86_64-simulator',
+            `${frameworkName}.framework`,
+            frameworkName
+          ),
+        ],
+        expect.objectContaining({ stdio: 'pipe' })
+      );
+    }
+
+    expect(childProcess.execFileSync).toHaveBeenCalled();
   });
 
-  it('fails clearly when an expected Expo SDK 56 XCFramework is missing', () => {
+  it('fails clearly when ExpoFileSystem.xcframework is missing from Pods', () => {
     vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
     vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
 
-    createSignedMockXcframework(
-      expoModulesJsiDir,
-      'ExpoModulesJSI'
-    );
+    createSignedMockXcframework(expoModulesJsiDir, 'ExpoModulesJSI');
 
     expect(() =>
       emitExpoSupportXcframeworks({
@@ -123,7 +140,24 @@ describe('emitExpoSupportXcframeworks', () => {
         packageDir,
       })
     ).toThrow(
-      'Expected Expo SDK 56+ XCFramework not found: ExpoModulesJSI.xcframework at node_modules/expo-modules-jsi/apple/Products/ExpoModulesJSI.xcframework'
+      'Expected Expo SDK 56+ XCFramework not found: ExpoFileSystem.xcframework at ios/Pods/ExpoFileSystem/ExpoFileSystem.xcframework'
+    );
+  });
+
+  it('fails clearly when ExpoFont.xcframework is missing from Pods', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+
+    createSignedMockXcframework(expoModulesJsiDir, 'ExpoModulesJSI');
+    createSignedMockXcframework(expoFileSystemPodsDir, 'ExpoFileSystem');
+
+    expect(() =>
+      emitExpoSupportXcframeworks({
+        projectRoot,
+        packageDir,
+      })
+    ).toThrow(
+      'Expected Expo SDK 56+ XCFramework not found: ExpoFont.xcframework at ios/Pods/ExpoFont/ExpoFont.xcframework'
     );
   });
 
