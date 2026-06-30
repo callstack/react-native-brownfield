@@ -55,25 +55,33 @@ object RNSourceSets {
                     isDebuggable = variant.debuggable,
                 )
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
+            val appProject = getAppProject()
 
             // 3. Lazily configure the 'variant-specific' source set using .named()
             androidExtension.sourceSets.named(variantName) { sourceSet ->
-                // Paths are collected and added, similar to your improved version
                 val bundlePathSegments =
                     listOf(
                         // outputs for RN <= 0.81
                         "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
                         // outputs for RN >= 0.82
                         "react/$bundledAssetsVariantName",
-                        // expo update resources
-                        "create${capitalizedBundledAssetsVariantName}UpdatesResources",
                     )
+                val updateResourcesPathSegment = Utils.getExpoUpdatesResourcesTaskName(variant.name)
 
                 // Add the variant-specific generated asset and resource directories
                 val appBuildDir = getAppBuildDir()
                 sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
                 sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
                 sourceSet.jniLibs.srcDirs("libs${variantName.capitalized()}")
+                if (Utils.hasExpoUpdates(appProject, variant.name)) {
+                    val updateResourcesTask = appProject.tasks.named(updateResourcesPathSegment)
+                    sourceSet.assets.srcDir(
+                        project.files("$appBuildDir/generated/assets/$updateResourcesPathSegment").builtBy(updateResourcesTask),
+                    )
+                    sourceSet.res.srcDir(
+                        project.files("$appBuildDir/generated/res/$updateResourcesPathSegment").builtBy(updateResourcesTask),
+                    )
+                }
             }
         }
     }

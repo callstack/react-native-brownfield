@@ -95,9 +95,10 @@ class VariantTaskProvider(val project: Project) {
         preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets")
 
         if (Utils.isExpoProject(project)) {
-            preBuildTask.dependsOn(
-                "${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources",
-            )
+            val updatesResourcesTaskName = Utils.getExpoUpdatesResourcesTaskName(variantName)
+            if (Utils.hasExpoUpdates(appProject, variantName)) {
+                preBuildTask.dependsOn("${appProject.path}:$updatesResourcesTaskName")
+            }
         }
     }
 }
