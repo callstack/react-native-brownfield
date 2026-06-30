@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		61591FDB2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */; };
+		61591FDC2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		795327712FB4A902008398F3 /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; };
 		795327722FB4A902008398F3 /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		795327732FB4A904008398F3 /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; };
@@ -135,6 +137,7 @@
 				79B8BEA82FB8000000B94C6F /* ReactBrownfield.xcframework in Embed Frameworks */,
 				79B8BEA92FB8000000B94C6F /* ReactNativeDependencies.xcframework in Embed Frameworks */,
 				79B8BEAA2FB8000000B94C6F /* BrownfieldNavigation.xcframework in Embed Frameworks */,
+				61591FDC2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework in Embed Frameworks */,
 				79B8BEAB2FB8000000B94C6F /* hermesvm.xcframework in Embed Frameworks */,
 				79B8BEAC2FB8000000B94C6F /* BrownfieldLib.xcframework in Embed Frameworks */,
 				79B8BEAD2FB8000000B94C6F /* React.xcframework in Embed Frameworks */,
@@ -162,6 +165,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ExpoModulesJSI.xcframework; path = package/ExpoModulesJSI.xcframework; sourceTree = "<group>"; };
 		793C76A72EEBF938008A2A34 /* Brownfield Apple App (RNApp).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (RNApp).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BrownfieldLib.xcframework; path = package/BrownfieldLib.xcframework; sourceTree = "<group>"; };
 		79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BrownfieldNavigation.xcframework; path = package/BrownfieldNavigation.xcframework; sourceTree = "<group>"; };
@@ -270,6 +274,7 @@
 				79B8BEA12FB8000000B94C6F /* BrownfieldNavigation.xcframework in Frameworks */,
 				79B8BEA22FB8000000B94C6F /* ReactNativeDependencies.xcframework in Frameworks */,
 				79B8BEA32FB8000000B94C6F /* hermesvm.xcframework in Frameworks */,
+				61591FDB2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework in Frameworks */,
 				79B8BEA42FB8000000B94C6F /* ReactBrownfield.xcframework in Frameworks */,
 				79B8BEA52FB8000000B94C6F /* BrownfieldLib.xcframework in Frameworks */,
 				79B8BEA62FB8000000B94C6F /* React.xcframework in Frameworks */,
@@ -296,6 +301,7 @@
 		6108E5322F40A26800EA8FA1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */,
 				79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */,
 				79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */,
 				79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */,

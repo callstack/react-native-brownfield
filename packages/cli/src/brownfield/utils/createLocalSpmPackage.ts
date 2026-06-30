@@ -5,6 +5,7 @@ import {
   prepareLocalSpmArtifacts,
   SPM_ARTIFACTS_DIR_NAME,
 } from './prepareLocalSpmArtifacts.js';
+import { EXPO_SUPPORT_XCFRAMEWORK_NAMES } from './emitExpoSupportXcframeworks.js';
 
 type CreateLocalSpmPackageOptions = {
   packageDir: string;
@@ -23,6 +24,7 @@ const RESERVED_FRAMEWORK_NAMES = new Set([
   'BrownfieldNavigation',
   'React',
   'ReactNativeDependencies',
+  ...EXPO_SUPPORT_XCFRAMEWORK_NAMES,
 ]);
 
 function requireXcframework(packageDir: string, name: string) {
@@ -130,7 +132,9 @@ function renderReadme({
   libraryName: string;
   targetNames: string[];
 }) {
-  const frameworks = targetNames.map((targetName) => `- \`${targetName}\``).join('\n');
+  const frameworks = targetNames
+    .map((targetName) => `- \`${targetName}\``)
+    .join('\n');
 
   return `# ${packageName}
 
@@ -178,6 +182,9 @@ export function createLocalSpmPackage({
     requireXcframework(packageDir, 'ReactBrownfield'),
     optionalXcframework(packageDir, 'Brownie'),
     optionalXcframework(packageDir, 'BrownfieldNavigation'),
+    ...EXPO_SUPPORT_XCFRAMEWORK_NAMES.map((frameworkName) =>
+      optionalXcframework(packageDir, frameworkName)
+    ),
     optionalXcframework(packageDir, 'React'),
     optionalXcframework(packageDir, 'ReactNativeDependencies'),
   ].filter((targetName): targetName is string => targetName !== null);

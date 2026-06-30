@@ -31,7 +31,9 @@ import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkN
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 import type { PackageIosOptions } from '../../types.js';
 import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
+import { emitExpoSupportXcframeworks } from '../utils/emitExpoSupportXcframeworks.js';
 import { mergeBrownfieldConfigWithOptions } from '../../config.js';
+import { stripPackagedCodeSignatures } from '../utils/stripPackagedCodeSignatures.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -165,22 +167,27 @@ export const packageIosCommand = curryOptions(
       );
       const { hasNavigation } =
         await runNavigationCodegenIfApplicable(projectRoot);
-        
-        await packageIosAction(
-          options,
-          {
-            projectRoot,
-            reactNativePath: userConfig.reactNativePath,
-            // below: the userConfig.reactNativeVersion may be a non-semver-format string,
-            // e.g. '0.82' (note the missing patch component),
-            // therefore we resolve it manually from RN's package.json using Rock's utils
-            reactNativeVersion: getReactNativeVersion(projectRoot),
-            packageDir, // the output directory for artifacts
-            skipCache: true, // cache is dependent on existence of Rock config file
-            usePrebuiltRNCore: options.usePrebuiltRnCore,
-          },
-          platformConfig
-        );
+
+      await packageIosAction(
+        options,
+        {
+          projectRoot,
+          reactNativePath: userConfig.reactNativePath,
+          // below: the userConfig.reactNativeVersion may be a non-semver-format string,
+          // e.g. '0.82' (note the missing patch component),
+          // therefore we resolve it manually from RN's package.json using Rock's utils
+          reactNativeVersion: getReactNativeVersion(projectRoot),
+          packageDir, // the output directory for artifacts
+          skipCache: true, // cache is dependent on existence of Rock config file
+          usePrebuiltRNCore: options.usePrebuiltRnCore,
+        },
+        platformConfig
+      );
+
+      emitExpoSupportXcframeworks({
+        projectRoot,
+        packageDir,
+      });
 
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const { frameworkName, resolution, candidates } =
@@ -313,6 +320,9 @@ export const packageIosCommand = curryOptions(
           `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
         );
       }
+
+      // TODO: Evaluate if we should do it as part of Rock??
+      stripPackagedCodeSignatures(packageDir);
 
       if (options.addSpmPackage) {
         const { packageManifestPath } = createLocalSpmPackage({
