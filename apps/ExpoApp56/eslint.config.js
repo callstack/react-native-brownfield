@@ -7,9 +7,6 @@ module.exports = defineConfig([
   expoConfig,
   {
     ignores: ['dist/*'],
-    rules: {
-      'import/no-unresolved': ['error', { ignore: ['^@callstack/.+$'] }],
-    },
   },
   // Jest config is executed by Node (CommonJS); teach ESLint Node globals like __dirname.
   {
