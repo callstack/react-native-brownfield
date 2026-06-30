@@ -9,10 +9,7 @@ import { runNavigationCodegenIfApplicable } from '../../../navigation/helpers/ru
 import { packageIosCommand } from '../packageIos.js';
 import { copyDebugBundleToSimulatorSlice } from '../../utils/copyDebugBundleToSimulatorSlice.js';
 import { createLocalSpmPackage } from '../../utils/createLocalSpmPackage.js';
-import { runExpoPrebuildIfNeeded } from '../../utils/expo.js';
-import { getProjectInfo } from '../../utils/project.js';
 import { resolvePackagedFrameworkName } from '../../utils/resolvePackagedFrameworkName.js';
-import { supportsPrebuiltRNCore } from '../../utils/supportsPrebuiltRNCore.js';
 
 vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
   const actual = await importOriginal<typeof appleHelpers>();
@@ -54,8 +51,16 @@ vi.mock('@rock-js/tools', async (importOriginal) => {
   };
 });
 
+vi.mock('../../../config.js', () => ({
+  mergeBrownfieldConfigWithOptions: vi.fn((options) => options),
+}));
+
 vi.mock('../../utils/expo.js', () => ({
   runExpoPrebuildIfNeeded: vi.fn(),
+}));
+
+vi.mock('../../utils/paths.js', () => ({
+  findProjectRoot: vi.fn(() => '/repo'),
 }));
 
 vi.mock('../../utils/project.js', () => ({
@@ -90,11 +95,14 @@ vi.mock('../../../brownie/helpers/runBrownieCodegenIfApplicable.js', () => ({
   })),
 }));
 
-vi.mock('../../../navigation/helpers/runNavigationCodegenIfApplicable.js', () => ({
-  runNavigationCodegenIfApplicable: vi.fn(async () => ({
-    hasNavigation: false,
-  })),
-}));
+vi.mock(
+  '../../../navigation/helpers/runNavigationCodegenIfApplicable.js',
+  () => ({
+    runNavigationCodegenIfApplicable: vi.fn(async () => ({
+      hasNavigation: false,
+    })),
+  })
+);
 
 vi.mock('../../utils/copyDebugBundleToSimulatorSlice.js', () => ({
   copyDebugBundleToSimulatorSlice: vi.fn(),
@@ -145,7 +153,11 @@ describe('package:ios action --add-spm-package', () => {
   });
 
   test('calls createLocalSpmPackage with the resolved framework name', async () => {
-    await invokePackageIosAction(['--add-spm-package', '--configuration', 'Release']);
+    await invokePackageIosAction([
+      '--add-spm-package',
+      '--configuration',
+      'Release',
+    ]);
 
     expect(packageIosAction).toHaveBeenCalledOnce();
     expect(copyDebugBundleToSimulatorSlice).toHaveBeenCalledWith({
@@ -172,7 +184,11 @@ describe('package:ios action --add-spm-package', () => {
       candidates: [],
     });
 
-    await invokePackageIosAction(['--add-spm-package', '--configuration', 'Release']);
+    await invokePackageIosAction([
+      '--add-spm-package',
+      '--configuration',
+      'Release',
+    ]);
 
     expect(mockCreateLocalSpmPackage).not.toHaveBeenCalled();
     expect(mockLoggerWarn).not.toHaveBeenCalled();
@@ -189,7 +205,11 @@ describe('package:ios action --add-spm-package', () => {
       candidates: ['AppOne', 'AppTwo'],
     });
 
-    await invokePackageIosAction(['--add-spm-package', '--configuration', 'Debug']);
+    await invokePackageIosAction([
+      '--add-spm-package',
+      '--configuration',
+      'Debug',
+    ]);
 
     expect(mockCreateLocalSpmPackage).not.toHaveBeenCalled();
     expect(mockLoggerWarn).not.toHaveBeenCalled();

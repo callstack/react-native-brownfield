@@ -12,6 +12,7 @@ import {
   curryOptions,
 } from '../../shared/index.js';
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
+import { findProjectRoot } from '../utils/paths.js';
 import { getProjectInfo } from '../utils/project.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
@@ -23,12 +24,14 @@ export const packageAndroidCommand = curryOptions(
 ).action(
   actionRunner(async (cliOptions: PackageAarFlags) => {
     const options = mergeBrownfieldConfigWithOptions(cliOptions, 'android');
+    const projectRoot = findProjectRoot();
 
-    const { projectRoot, platformConfig } = getProjectInfo('android');
     await runExpoPrebuildIfNeeded({
       projectRoot,
       platform: 'android',
     });
+
+    const { platformConfig } = getProjectInfo('android');
 
     await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
     await runNavigationCodegenIfApplicable(projectRoot);

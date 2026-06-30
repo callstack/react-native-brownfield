@@ -42,6 +42,11 @@
       "types": "./dist/types.d.ts",
       "default": "./dist/types.js"
     },
+    "./expo-plugin-config": {
+      "source": "./src/expoPluginConfig.ts",
+      "types": "./dist/expoPluginConfig.d.ts",
+      "default": "./dist/expoPluginConfig.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {

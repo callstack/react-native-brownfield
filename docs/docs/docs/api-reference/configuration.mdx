@@ -10,9 +10,9 @@ For example, `--module-name` becomes `moduleName`, `--build-folder` becomes `bui
 
 The CLI supports exactly one configuration source per project:
 
-- `react-native-brownfield.config.js`
-- `react-native-brownfield.config.json`
-- `package.json` under the `react-native-brownfield` key
+- `brownfield.config.js`
+- `brownfield.config.json`
+- `package.json` under the `brownfield` key
 
 Do not keep more than one of these at the same time.
 If the CLI finds multiple sources, it throws an error instead of guessing which one should win.
@@ -20,9 +20,68 @@ If the CLI finds multiple sources, it throws an error instead of guessing which 
 When both a config value and a CLI flag are set for the same option, the CLI flag wins.
 The CLI also validates the file against the published schema and logs warnings for unknown or invalid keys.
 
+## Expo projects
+
+For Expo apps, the Brownfield config file is also used by the `@callstack/react-native-brownfield` Expo config plugin during `expo prebuild`.
+
+Use **one configuration source** for Brownfield options:
+
+- `brownfield.config.js`, `brownfield.config.json`, or `package.json#brownfield`
+- **or** plugin options in the `app.json` `plugins` tuple
+
+Do not define the same options in both places. If a Brownfield config file exists and `app.json` also passes plugin options, prebuild throws an error.
+
+### Shared keys between CLI and Expo plugin
+
+| Config file key      | Expo plugin equivalent | Notes                                                      |
+| -------------------- | ---------------------- | ---------------------------------------------------------- |
+| `android.moduleName` | `android.moduleName`   | Same key for packaging and prebuild scaffolding.           |
+| `ios.scheme`         | `ios.frameworkName`    | Same value; `ios.scheme` is the canonical config file key. |
+| `verbose`            | `debug`                | Same intent; `verbose` is the canonical config file key.   |
+
+### Expo-only keys
+
+Plugin-only options that do not map to CLI flags belong under nested `expo` objects:
+
+- `android.expo.*` for Android prebuild scaffolding
+- `ios.expo.*` for iOS prebuild scaffolding
+
+Example:
+
+```json
+{
+  "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
+  "verbose": true,
+  "android": {
+    "moduleName": "brownfieldlib",
+    "variant": "release",
+    "expo": {
+      "packageName": "com.example.app",
+      "minSdkVersion": 24
+    }
+  },
+  "ios": {
+    "scheme": "BrownfieldLib",
+    "configuration": "Release",
+    "expo": {
+      "bundleIdentifier": "com.example.app.brownfield",
+      "deploymentTarget": "15.0"
+    }
+  }
+}
+```
+
+For Expo projects, register the plugin without options when using a config file:
+
+```json
+{
+  "plugins": ["@callstack/react-native-brownfield"]
+}
+```
+
 ## JavaScript config file
 
-If you prefer a JavaScript file, create `react-native-brownfield.config.js` and export a plain object with `module.exports`:
+If you prefer a JavaScript file, create `brownfield.config.js` and export a plain object with `module.exports`:
 
 ```js
 /** @type {import('@callstack/react-native-brownfield').BrownfieldConfig} */
@@ -44,7 +103,7 @@ module.exports = {
 
 ## JSON config file
 
-If you want schema autocomplete and validation directly in the config file, use `react-native-brownfield.config.json`:
+If you want schema autocomplete and validation directly in the config file, use `brownfield.config.json`:
 
 > [!TIP]
 >
@@ -110,16 +169,28 @@ All file-based platform options mirror CLI flags, but they use camelCase propert
 
 ### Android keys
 
-| Key                  | Type     | Description                                                          |
-| -------------------- | -------- | -------------------------------------------------------------------- |
-| `android.moduleName` | `string` | Android module name used for packaging and publishing AAR artifacts. |
-| `android.variant`    | `string` | Android build variant, for example `debug` or `freeRelease`.         |
+| Key                  | Type     | Description                                                                        |
+| -------------------- | -------- | ---------------------------------------------------------------------------------- |
+| `android.moduleName` | `string` | Android module name used for packaging, publishing, and Expo prebuild scaffolding. |
+| `android.variant`    | `string` | Android build variant, for example `debug` or `freeRelease`.                       |
+
+#### Android Expo keys
+
+| Key                              | Type     | Description                                            |
+| -------------------------------- | -------- | ------------------------------------------------------ |
+| `android.expo.packageName`       | `string` | Package name for the generated Android library module. |
+| `android.expo.minSdkVersion`     | `number` | Minimum Android SDK supported by the library.          |
+| `android.expo.targetSdkVersion`  | `number` | Target Android SDK version for the library.            |
+| `android.expo.compileSdkVersion` | `number` | Compile Android SDK version used to build the library. |
+| `android.expo.groupId`           | `string` | Maven group ID used when publishing the AAR.           |
+| `android.expo.artifactId`        | `string` | Maven artifact ID used when publishing the AAR.        |
+| `android.expo.version`           | `string` | Maven version used when publishing the AAR.            |
 
 ### iOS keys
 
 | Key                      | Type       | Description                                                                                                            |
 | ------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `ios.scheme`             | `string`   | Xcode scheme used for packaging.                                                                                       |
+| `ios.scheme`             | `string`   | Xcode scheme used for packaging. Also used as the generated framework name during Expo prebuild.                       |
 | `ios.configuration`      | `string`   | Xcode build configuration, for example `Debug` or `Release`.                                                           |
 | `ios.target`             | `string`   | Explicit Xcode target name.                                                                                            |
 | `ios.destination`        | `string[]` | One or more Xcode destinations, such as `simulator`, `device`, or full destination strings.                            |
@@ -131,6 +202,15 @@ All file-based platform options mirror CLI flags, but they use camelCase propert
 | `ios.newArch`            | `boolean`  | Controls React Native new architecture support. Set `false` to match `--no-new-arch`.                                  |
 | `ios.usePrebuiltRnCore`  | `boolean`  | Controls whether iOS packaging uses React Native Apple prebuilts. Omit it to keep Brownfield's version-aware defaults. |
 | `ios.addSpmPackage`      | `boolean`  | Generates a local Swift Package Manager manifest next to the packaged XCFramework outputs.                             |
+
+#### iOS Expo keys
+
+| Key                         | Type     | Description                                                     |
+| --------------------------- | -------- | --------------------------------------------------------------- |
+| `ios.expo.bundleIdentifier` | `string` | Bundle identifier assigned to the generated framework.          |
+| `ios.expo.buildSettings`    | `object` | Additional Xcode build settings applied to the framework build. |
+| `ios.expo.deploymentTarget` | `string` | Minimum iOS version supported by the generated framework.       |
+| `ios.expo.frameworkVersion` | `string` | Framework version used for Apple build settings.                |
 
 ## Brownie configuration
 
@@ -144,7 +224,7 @@ Currently supported Brownie keys are:
 | `kotlin`            | `string` | Directory where generated Kotlin Brownie store files should be written. |
 | `kotlinPackageName` | `string` | Kotlin package name used in generated Brownie store files.              |
 
-Example inside `react-native-brownfield.config.json`:
+Example inside `brownfield.config.json`:
 
 ```json
 {
