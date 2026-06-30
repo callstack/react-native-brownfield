@@ -50,7 +50,8 @@
         "expo-build-properties",
         {
           "ios": {
-            "buildReactNativeFromSource": true
+            "buildReactNativeFromSource": true,
+            "usePrecompiledModules": false
           }
         }
       ]

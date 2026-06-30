@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -30,10 +31,6 @@ import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkN
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 import type { PackageIosOptions } from '../../types.js';
 import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
-import { packageTransitiveDynamicFrameworks } from '../utils/packageTransitiveDynamicFrameworks.js';
-import { copyBundledXcframeworks } from '../utils/copyBundledXcframeworks.js';
-import { packageSupportModuleXcframework } from '../utils/packageReactBrownfieldXcframework.js';
-import { stripPackagedCodeSignatures } from '../utils/stripPackagedCodeSignatures.js';
 import { mergeBrownfieldConfigWithOptions } from '../../config.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
@@ -168,9 +165,7 @@ export const packageIosCommand = curryOptions(
       );
       const { hasNavigation } =
         await runNavigationCodegenIfApplicable(projectRoot);
-      const reactNativeVersion = getReactNativeVersion(projectRoot);
-
-      try {
+        
         await packageIosAction(
           options,
           {
@@ -179,27 +174,13 @@ export const packageIosCommand = curryOptions(
             // below: the userConfig.reactNativeVersion may be a non-semver-format string,
             // e.g. '0.82' (note the missing patch component),
             // therefore we resolve it manually from RN's package.json using Rock's utils
-            reactNativeVersion,
+            reactNativeVersion: getReactNativeVersion(projectRoot),
             packageDir, // the output directory for artifacts
             skipCache: true, // cache is dependent on existence of Rock config file
             usePrebuiltRNCore: options.usePrebuiltRnCore,
           },
           platformConfig
         );
-      } catch (error) {
-        const errorText =
-          error instanceof Error
-            ? `${error.message}\n${String(error.cause ?? '')}`
-            : String(error);
-
-        if (!errorText.includes('ReactBrownfield.framework')) {
-          throw error;
-        }
-
-        logger.warn(
-          'Rock could not package ReactBrownfield as a framework; continuing with Brownfield fallback packaging for ReactBrownfield support artifacts.'
-        );
-      }
 
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const { frameworkName, resolution, candidates } =
@@ -261,48 +242,34 @@ export const packageIosCommand = curryOptions(
         packageDir,
         'ReactBrownfield.xcframework'
       );
-      copyBundledXcframeworks({
-        packageDir,
-        projectRoot,
-        reactNativeVersion,
-        sourceDir: userConfig.project.ios.sourceDir,
-      });
-      await packageSupportModuleXcframework({
-        bundleIdentifier: 'com.callstack.ReactBrownfield',
-        configuration,
-        moduleName: 'ReactBrownfield',
-        npmPackageName: '@callstack/react-native-brownfield',
-        packageDir,
-        publicHeaders: [
-          'BrownfieldDevLoadingViewBridge.h',
-          'ReactNativeBrownfieldModule.h',
-        ],
-        productsPath,
-        projectRoot,
-        sourceDir: userConfig.project.ios.sourceDir,
-      });
-      // Strip the binary from ReactBrownfield.xcframework to make it interface-only.
-      // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
-      // (which contains ReactBrownfield symbols) and ReactBrownfield.xcframework.
-      stripFrameworkBinary(reactBrownfieldXcframeworkPath);
+
+      if (fs.existsSync(reactBrownfieldXcframeworkPath)) {
+        // Strip the binary from ReactBrownfield.xcframework to make it interface-only.
+        // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
+        // (which contains ReactBrownfield symbols) and ReactBrownfield.xcframework.
+        stripFrameworkBinary(reactBrownfieldXcframeworkPath);
+      }
 
       if (hasBrownie) {
         const brownieOutputPath = path.join(packageDir, 'Brownie.xcframework');
 
-        await packageSupportModuleXcframework({
-          bundleIdentifier: 'com.callstack.Brownie',
-          configuration,
-          moduleName: 'Brownie',
-          npmPackageName: '@callstack/brownie',
-          packageDir,
-          publicHeaders: [
-            'BrownieFollyConvert.h',
-            'BrownieModule.h',
-            'BrownieStoreBridge.h',
-          ],
-          productsPath,
-          projectRoot,
+        await mergeFrameworks({
           sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              'Brownie',
+              'Brownie.framework'
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              'Brownie',
+              'Brownie.framework'
+            ),
+          ],
+          outputPath: brownieOutputPath,
         });
 
         // Strip the binary from Brownie.xcframework to make it interface-only.
@@ -321,16 +288,23 @@ export const packageIosCommand = curryOptions(
           'BrownfieldNavigation.xcframework'
         );
 
-        await packageSupportModuleXcframework({
-          bundleIdentifier: 'com.callstack.BrownfieldNavigation',
-          configuration,
-          moduleName: 'BrownfieldNavigation',
-          npmPackageName: '@callstack/brownfield-navigation',
-          packageDir,
-          publicHeaders: ['NativeBrownfieldNavigation.h'],
-          productsPath,
-          projectRoot,
+        await mergeFrameworks({
           sourceDir: userConfig.project.ios.sourceDir,
+          frameworkPaths: [
+            path.join(
+              productsPath,
+              `${configuration}-iphoneos`,
+              'BrownfieldNavigation',
+              'BrownfieldNavigation.framework'
+            ),
+            path.join(
+              productsPath,
+              `${configuration}-iphonesimulator`,
+              'BrownfieldNavigation',
+              'BrownfieldNavigation.framework'
+            ),
+          ],
+          outputPath: brownfieldNavigationOutputPath,
         });
 
         stripFrameworkBinary(brownfieldNavigationOutputPath);
@@ -339,18 +313,6 @@ export const packageIosCommand = curryOptions(
           `BrownfieldNavigation.xcframework created at ${colorLink(relativeToCwd(brownfieldNavigationOutputPath))}`
         );
       }
-
-      if (frameworkName) {
-        await packageTransitiveDynamicFrameworks({
-          configuration,
-          frameworkName,
-          packageDir,
-          productsPath,
-          sourceDir: userConfig.project.ios.sourceDir,
-        });
-      }
-
-      stripPackagedCodeSignatures(packageDir);
 
       if (options.addSpmPackage) {
         const { packageManifestPath } = createLocalSpmPackage({
