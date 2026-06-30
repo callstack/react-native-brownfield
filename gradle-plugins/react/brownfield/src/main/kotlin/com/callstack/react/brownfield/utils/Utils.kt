@@ -28,6 +28,20 @@ object Utils {
         return project.findProject(EXPO_PROJECT_LOCATOR) != null
     }
 
+    fun getExpoUpdatesResourcesTaskName(variantName: String): String {
+        return "create${variantName.capitalized()}UpdatesResources"
+    }
+
+    fun hasExpoUpdates(
+        project: Project,
+        variantName: String,
+    ): Boolean {
+        return isExpoProject(project) &&
+            project.tasks.names.contains(
+                getExpoUpdatesResourcesTaskName(variantName),
+            )
+    }
+
     fun getBundledAssetsVariantName(
         variantName: String?,
         buildTypeName: String?,
