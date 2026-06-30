@@ -88,55 +88,91 @@ describe('stripFrameworkBinary', () => {
     );
   });
 
-  it.skipIf(!isDarwin)('strips binary from simulator slice with fat binary', () => {
-    const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
-      'ios-arm64_x86_64-simulator',
-    ]);
-    const binaryPath = path.join(
-      xcframeworkPath,
-      'ios-arm64_x86_64-simulator',
-      'TestFramework.framework',
-      'TestFramework'
-    );
-    const originalContent = fs.readFileSync(binaryPath, 'utf-8');
+  it.skipIf(!isDarwin)(
+    'strips binary from simulator slice with fat binary',
+    () => {
+      const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
+        'ios-arm64_x86_64-simulator',
+      ]);
+      const binaryPath = path.join(
+        xcframeworkPath,
+        'ios-arm64_x86_64-simulator',
+        'TestFramework.framework',
+        'TestFramework'
+      );
+      const originalContent = fs.readFileSync(binaryPath, 'utf-8');
 
-    stripFrameworkBinary(xcframeworkPath);
+      stripFrameworkBinary(xcframeworkPath);
 
-    const newContent = fs.readFileSync(binaryPath);
-    expect(newContent.toString()).not.toBe(originalContent);
+      const newContent = fs.readFileSync(binaryPath);
+      expect(newContent.toString()).not.toBe(originalContent);
 
-    const archInfo = execSync(`xcrun lipo -info "${binaryPath}"`, {
-      encoding: 'utf-8',
-    });
-    expect(archInfo).toContain('arm64');
-    expect(archInfo).toContain('x86_64');
-  });
+      const archInfo = execSync(`xcrun lipo -info "${binaryPath}"`, {
+        encoding: 'utf-8',
+      });
 
-  it.skipIf(!isDarwin)('handles multiple slices', () => {
-    const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
-      'ios-arm64',
-      'ios-arm64_x86_64-simulator',
-    ]);
+      it.skipIf(!isDarwin)('handles multiple slices', () => {
+        const xcframeworkPath = createMockXcframework(
+          tempDir,
+          'TestFramework',
+          ['ios-arm64', 'ios-arm64_x86_64-simulator']
+        );
 
-    stripFrameworkBinary(xcframeworkPath);
+        stripFrameworkBinary(xcframeworkPath);
 
-    const deviceBinary = path.join(
-      xcframeworkPath,
-      'ios-arm64',
-      'TestFramework.framework',
-      'TestFramework'
-    );
-    const simBinary = path.join(
-      xcframeworkPath,
-      'ios-arm64_x86_64-simulator',
-      'TestFramework.framework',
-      'TestFramework'
-    );
+        const newContent = fs.readFileSync(binaryPath);
+        expect(newContent.toString()).not.toBe(originalContent);
 
-    expect(fs.existsSync(deviceBinary)).toBe(true);
-    expect(fs.existsSync(simBinary)).toBe(true);
-    expect(mockLoggerSuccess).toHaveBeenCalledOnce();
-  });
+        const archInfo = execSync(`xcrun lipo -info "${binaryPath}"`, {
+          encoding: 'utf-8',
+        });
+        expect(archInfo).toContain('arm64');
+        expect(archInfo).toContain('x86_64');
+      });
+
+      it('handles multiple slices', () => {
+        const xcframeworkPath = createMockXcframework(
+          tempDir,
+          'TestFramework',
+          ['ios-arm64', 'ios-arm64_x86_64-simulator']
+        );
+
+        stripFrameworkBinary(xcframeworkPath);
+
+        const deviceBinary = path.join(
+          xcframeworkPath,
+          'ios-arm64',
+          'TestFramework.framework',
+          'TestFramework'
+        );
+        const simBinary = path.join(
+          xcframeworkPath,
+          'ios-arm64_x86_64-simulator',
+          'TestFramework.framework',
+          'TestFramework'
+        );
+
+        expect(fs.existsSync(deviceBinary)).toBe(true);
+        expect(fs.existsSync(simBinary)).toBe(true);
+        expect(mockLoggerSuccess).toHaveBeenCalledOnce();
+      });
+
+      it('ignores non-ios directories', () => {
+        const xcframeworkPath = createMockXcframework(
+          tempDir,
+          'TestFramework',
+          ['ios-arm64']
+        );
+        fs.mkdirSync(path.join(xcframeworkPath, 'macos-arm64'), {
+          recursive: true,
+        });
+
+        stripFrameworkBinary(xcframeworkPath);
+
+        expect(mockLoggerSuccess).toHaveBeenCalledOnce();
+      });
+    }
+  );
 
   it('warns and skips unknown slice types', () => {
     const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [

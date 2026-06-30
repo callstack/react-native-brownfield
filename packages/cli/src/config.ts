@@ -10,13 +10,13 @@ import { findProjectRoot } from './brownfield/utils/paths.js';
 import BrownfieldSchema from '../schema.json' with { type: 'json' };
 import { logger } from '@rock-js/tools';
 
-const CONFIG_BASE_NAME = 'brownfield';
-const JS_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.js`;
-const JSON_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.json`;
+export const CONFIG_BASE_NAME = 'brownfield';
+export const JS_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.js`;
+export const JSON_CONFIG_FILE_NAME = `${CONFIG_BASE_NAME}.config.json`;
 
 const SEPARATOR = '\n● ';
 
-const ajv = new Ajv({ allErrors: true });
+const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
 const validateBrownfieldConfig = ajv.compile(BrownfieldSchema);
 
 export function validateBrownfieldCLIConfig(config: unknown): void {
@@ -29,7 +29,7 @@ export function validateBrownfieldCLIConfig(config: unknown): void {
 
 export function loadBrownfieldConfig(
   projectRoot: string = findProjectRoot()
-): BrownfieldConfig {
+): BrownfieldConfig | null {
   const require = createRequire(path.join(projectRoot, 'package.json'));
 
   const jsConfigFilePath = path.join(projectRoot, JS_CONFIG_FILE_NAME);
@@ -41,7 +41,7 @@ export function loadBrownfieldConfig(
     [
       fs.existsSync(jsConfigFilePath),
       fs.existsSync(jsonConfigFilePath),
-      packageJson[CONFIG_BASE_NAME],
+      CONFIG_BASE_NAME in packageJson,
     ].filter(Boolean).length > 1
   ) {
     throw new Error('Project has multiple Brownfield configuration files');
@@ -55,7 +55,11 @@ export function loadBrownfieldConfig(
     return require(jsonConfigFilePath) as BrownfieldConfig;
   }
 
-  return packageJson[CONFIG_BASE_NAME] || {};
+  if (CONFIG_BASE_NAME in packageJson) {
+    return (packageJson[CONFIG_BASE_NAME] as BrownfieldConfig) ?? {};
+  }
+
+  return null;
 }
 
 type BrownfieldPlatform = 'android' | 'ios';
@@ -77,7 +81,7 @@ export function mergeBrownfieldConfigWithOptions<T extends object>(
   options: T,
   platform: BrownfieldPlatform
 ): T {
-  const reactNativeBrownfieldConfig = loadBrownfieldConfig();
+  const reactNativeBrownfieldConfig = loadBrownfieldConfig() ?? {};
 
   validateBrownfieldCLIConfig(reactNativeBrownfieldConfig);
 

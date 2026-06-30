@@ -5,6 +5,10 @@
     "BrownfieldAndroidConfig": {
       "additionalProperties": false,
       "properties": {
+        "expo": {
+          "$ref": "#/definitions/BrownfieldExpoAndroidConfig",
+          "description": "Expo config plugin options for Android Expo prebuild phase."
+        },
         "moduleName": {
           "description": "AAR module name.",
           "type": "string"
@@ -41,6 +45,71 @@
       },
       "type": "object"
     },
+    "BrownfieldExpoAndroidConfig": {
+      "additionalProperties": false,
+      "description": "Expo config plugin options for Android prebuild scaffolding.",
+      "properties": {
+        "artifactId": {
+          "description": "Maven artifact ID used when publishing the AAR.",
+          "type": "string"
+        },
+        "compileSdkVersion": {
+          "description": "Compile SDK version for the Android library.",
+          "type": "number"
+        },
+        "groupId": {
+          "description": "Maven group ID used when publishing the AAR.",
+          "type": "string"
+        },
+        "minSdkVersion": {
+          "description": "Minimum SDK version for the Android library.",
+          "type": "number"
+        },
+        "packageName": {
+          "description": "The package name for the Android library module.",
+          "type": "string"
+        },
+        "targetSdkVersion": {
+          "description": "Target SDK version for the Android library.",
+          "type": "number"
+        },
+        "useLocalGradlePlugin": {
+          "description": "When true, load the Brownfield Gradle plugin from `@callstack/react-native-brownfield/gradle-plugin/brownfield` via `includeBuild` instead of adding the Maven classpath dependency. Disabled by default.",
+          "type": "boolean"
+        },
+        "version": {
+          "description": "Maven version used when publishing the AAR.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BrownfieldExpoIosConfig": {
+      "additionalProperties": false,
+      "description": "Expo config plugin options for iOS prebuild scaffolding.",
+      "properties": {
+        "buildSettings": {
+          "additionalProperties": {
+            "type": ["string", "boolean", "number"]
+          },
+          "description": "Custom build settings applied when building the framework.",
+          "type": "object"
+        },
+        "bundleIdentifier": {
+          "description": "The bundle identifier for the framework.",
+          "type": "string"
+        },
+        "deploymentTarget": {
+          "description": "Minimum iOS deployment target for the generated framework.",
+          "type": "string"
+        },
+        "frameworkVersion": {
+          "description": "Framework version used for Apple build settings.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "BrownfieldIosConfig": {
       "additionalProperties": false,
       "properties": {
@@ -62,6 +131,10 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "expo": {
+          "$ref": "#/definitions/BrownfieldExpoIosConfig",
+          "description": "Expo config plugin options for iOS Expo prebuild phase."
         },
         "exportExtraParams": {
           "description": "Custom xcodebuild export archive parameters.",
