@@ -1,5 +1,18 @@
 # @callstack/react-native-brownfield
 
+## 3.13.2
+
+### Patch Changes
+
+- [#401](https://github.com/callstack/react-native-brownfield/pull/401) [`c4410f6`](https://github.com/callstack/react-native-brownfield/commit/c4410f6af4c781cf3513ba55d03fa1b1055a443b) Thanks [@artus9033](https://github.com/artus9033)! - fix: brownfield Gradle Plugin not to depend on \*UpdatesResources task from expo-updates if it is absent
+
+- [#398](https://github.com/callstack/react-native-brownfield/pull/398) [`8e90842`](https://github.com/callstack/react-native-brownfield/commit/8e90842291348dcb0542a6787f5cfbb1017532dd) Thanks [@artus9033](https://github.com/artus9033)! - feat: support brownfield unified config file in Expo
+
+- [#402](https://github.com/callstack/react-native-brownfield/pull/402) [`3475c3d`](https://github.com/callstack/react-native-brownfield/commit/3475c3db375988ebd63ce01bfd93f4dbb1a55e8d) Thanks [@artus9033](https://github.com/artus9033)! - feat: support local BGP in Expo config plugin
+
+- Updated dependencies [[`8e90842`](https://github.com/callstack/react-native-brownfield/commit/8e90842291348dcb0542a6787f5cfbb1017532dd), [`3475c3d`](https://github.com/callstack/react-native-brownfield/commit/3475c3db375988ebd63ce01bfd93f4dbb1a55e8d), [`4088c01`](https://github.com/callstack/react-native-brownfield/commit/4088c01a069306565dd3e279d9132f5dbe861d0b)]:
+  - @callstack/brownfield-cli@3.13.2
+
 ## 3.13.1
 
 ### Patch Changes
