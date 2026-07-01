@@ -2,7 +2,7 @@ diff --git a/dist/src/lib/utils/mergeFrameworks.js b/dist/src/lib/utils/mergeFra
 index 31aa95bf419abdc80cad6c2518816414e2068333..cfca8190c51e919a3edb68f9369f6b99e6f730db 100644
 --- a/dist/src/lib/utils/mergeFrameworks.js
 +++ b/dist/src/lib/utils/mergeFrameworks.js
-@@ -1,33 +1,173 @@
+@@ -1,33 +1,238 @@
  import fs, { existsSync } from 'node:fs';
 +import os from 'node:os';
  import path from 'node:path';
@@ -67,6 +67,64 @@ index 31aa95bf419abdc80cad6c2518816414e2068333..cfca8190c51e919a3edb68f9369f6b99
 +FOUNDATION_EXPORT const unsigned char ${frameworkName}VersionString[];
 +`;
 +}
++function collectLocalUmbrellaImports(umbrellaHeader, frameworkName) {
++    const imports = [];
++    const importPattern = /^\s*#import\s+(?:"([^"]+)"|<([^>]+)>)/gm;
++    let match;
++    while ((match = importPattern.exec(umbrellaHeader)) !== null) {
++        const quotedImport = match[1];
++        const angledImport = match[2];
++        if (quotedImport) {
++            imports.push(path.basename(quotedImport));
++            continue;
++        }
++        if (!angledImport) {
++            continue;
++        }
++        const [moduleName, headerName] = angledImport.split('/');
++        if (moduleName === frameworkName && headerName) {
++            imports.push(path.basename(headerName));
++        }
++    }
++    return imports;
++}
++function collectFoundationExports(umbrellaHeader) {
++    return umbrellaHeader.match(/^\s*FOUNDATION_EXPORT\b.*$/gm)?.map((line) => line.trim()) ?? [];
++}
++function renderSanitizedUmbrellaHeader({ frameworkName, headerNames, foundationExports, }) {
++    const imports = headerNames.map((headerName) => `#import "${headerName}"`).join('\n');
++    const foundationExportPrelude = `#ifndef FOUNDATION_EXPORT
++#if defined(__cplusplus)
++#define FOUNDATION_EXPORT extern "C"
++#else
++#define FOUNDATION_EXPORT extern
++#endif
++#endif`;
++    const exports = foundationExports.length > 0
++        ? foundationExports.join('\n')
++        : `FOUNDATION_EXPORT double ${frameworkName}VersionNumber;\nFOUNDATION_EXPORT const unsigned char ${frameworkName}VersionString[];`;
++    return `${imports}${imports ? '\n\n' : ''}${foundationExportPrelude}\n\n${exports}\n`;
++}
++function sanitizeUmbrellaHeader({ frameworkName, headersDir, umbrellaHeaderName, }) {
++    const umbrellaHeaderPath = path.join(headersDir, umbrellaHeaderName);
++    if (!existsSync(umbrellaHeaderPath)) {
++        return;
++    }
++    const umbrellaHeader = fs.readFileSync(umbrellaHeaderPath, 'utf8');
++    const localImports = collectLocalUmbrellaImports(umbrellaHeader, frameworkName);
++    if (localImports.length === 0) {
++        return;
++    }
++    const availableImports = localImports.filter((headerName) => existsSync(path.join(headersDir, headerName)));
++    if (availableImports.length === localImports.length) {
++        return;
++    }
++    fs.writeFileSync(umbrellaHeaderPath, renderSanitizedUmbrellaHeader({
++        frameworkName,
++        headerNames: availableImports,
++        foundationExports: collectFoundationExports(umbrellaHeader),
++    }), 'utf8');
++}
 +function resolveFrameworkName(frameworkPath) {
 +    return path.basename(frameworkPath, '.framework');
 +}
@@ -118,6 +176,13 @@ index 31aa95bf419abdc80cad6c2518816414e2068333..cfca8190c51e919a3edb68f9369f6b99
 +            frameworkName,
 +            headerNames: copiedHeaderNames,
 +        }), 'utf8');
++    }
++    else {
++        sanitizeUmbrellaHeader({
++            frameworkName,
++            headersDir,
++            umbrellaHeaderName,
++        });
 +    }
 +    const swiftHeaderName = copiedHeaders.has(`${frameworkName}-Swift.h`)
 +        ? `${frameworkName}-Swift.h`

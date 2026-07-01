@@ -6940,7 +6940,7 @@ __metadata:
 
 "@rock-js/platform-apple-helpers@patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch":
   version: 0.13.5
-  resolution: "@rock-js/platform-apple-helpers@patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch::version=0.13.5&hash=e71a96"
+  resolution: "@rock-js/platform-apple-helpers@patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch::version=0.13.5&hash=03e7f9"
   dependencies:
     "@react-native-community/cli-config": "npm:^20.0.0"
     "@react-native-community/cli-config-apple": "npm:^20.0.0"
@@ -6948,7 +6948,7 @@ __metadata:
     adm-zip: "npm:^0.5.16"
     fast-xml-parser: "npm:^4.5.0"
     tslib: "npm:^2.3.0"
-  checksum: 10/c95074f74d61ed2fcf5d8351af104825686b1a9306489377bc494eb02daded24db1c342485a5e82ad9ca3fb47daee63ef5266a82b9437e34074a3d905bafed31
+  checksum: 10/30da591c4140627b76b56894a8183821bc7b94d9d6d63f1d08fe222cb0c8a81c9514f775e53218ec42394408fdf5401fb5e30c5f310ea9ce7a8e2ade3dcd5cf2
   languageName: node
   linkType: hard
 
