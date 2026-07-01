@@ -31,6 +31,7 @@ val UN_ALLOWED_LIBS = listOf(
     "libreactnative.so"
 )
 
+@CacheableTask
 abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
 
     @get:InputFiles
