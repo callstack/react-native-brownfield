@@ -6,6 +6,7 @@ import com.callstack.reactnativebrownfield.OnJSBundleLoaded
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.PackageList
 import com.facebook.react.ReactPackage
+import com.facebook.react.ReactNativeHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ExpoReactHostFactory
@@ -13,10 +14,14 @@ import expo.modules.ReactNativeHostWrapper
 {{EXPO_UPDATES_IMPORTS}}
 
 object ReactNativeHostManager {
+    @Suppress("DEPRECATION")
+    lateinit var reactNativeHost: ReactNativeHost
+        private set
+
     fun initialize(application: Application, onJSBundleLoaded: OnJSBundleLoaded? = null) {
         ApplicationLifecycleDispatcher.onApplicationCreate(application)
 
-        val reactNativeHost = ReactNativeHostWrapper(
+        reactNativeHost = ReactNativeHostWrapper(
             application,
             object : DefaultReactNativeHost(application) {
                 override fun getUseDeveloperSupport(): Boolean {

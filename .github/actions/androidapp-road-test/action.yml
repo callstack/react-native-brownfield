@@ -1,5 +1,5 @@
 name: Android road test (selected RN app & AndroidApp)
-description: Package the given RN app as AAR, publish to Maven Local, and build the corresponding AndroidApp flavor
+description: Package the given RN app as AAR, publish to Maven Local, build the corresponding AndroidApp flavor, and optionally run Detox E2E
 
 inputs:
   flavor:
@@ -19,9 +19,51 @@ inputs:
     required: false
     default: 'true'
 
+  run-e2e:
+    description: 'Run Detox E2E after packaging (uses release APK with embedded JS bundle, no Metro). Ignored when e2e-phase is set.'
+    required: false
+    default: 'false'
+
+  e2e-phase:
+    description: 'Detox workflow phase: none (default from run-e2e), full (build+test), build (APKs only), test (reuse uploaded APKs)'
+    required: false
+    default: ''
+
+  e2e-apk-artifact-name:
+    description: 'Artifact name for prebuilt Detox APKs (build phase uploads, test phase downloads)'
+    required: false
+    default: 'androidapp-e2e-apks'
+
+  e2e-artifact-name:
+    description: 'Name prefix for Detox artifacts uploaded on failure'
+    required: false
+    default: 'detox-androidapp'
+
 runs:
   using: composite
   steps:
+    - name: Resolve E2E phase
+      id: e2e
+      run: |
+        PHASE="${{ inputs.e2e-phase }}"
+        if [[ -z "${PHASE}" ]]; then
+          if [[ "${{ inputs.run-e2e }}" == "true" ]]; then
+            PHASE="full"
+          else
+            PHASE="none"
+          fi
+        fi
+        case "${PHASE}" in
+          none|full|build|test) ;;
+          *)
+            echo "error: unknown e2e-phase '${PHASE}' (expected none, full, build, or test)" >&2
+            exit 1
+            ;;
+        esac
+        echo "phase=${PHASE}" >> "$GITHUB_OUTPUT"
+        echo "E2E phase: ${PHASE}"
+      shell: bash
+
     - name: '::group:: Setup & prepare Android'
       run: |
         echo "::group::Setup & prepare Android"
@@ -45,50 +87,77 @@ runs:
       run: echo "::endgroup::"
       shell: bash
 
+    - name: Download prebuilt Detox APKs
+      if: steps.e2e.outputs.phase == 'test'
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+      with:
+        name: ${{ inputs.e2e-apk-artifact-name }}
+
+    - name: Extract prebuilt Detox APKs
+      if: steps.e2e.outputs.phase == 'test'
+      run: |
+        set -euo pipefail
+        FLAVOR="${{ inputs.flavor }}"
+        TARBALL="${FLAVOR}-e2e-apks.tar.gz"
+        test -f "${TARBALL}"
+        mkdir -p apps/AndroidApp/app/build/outputs
+        tar -xzf "${TARBALL}" -C apps/AndroidApp/app/build/outputs
+        APP_APK="apps/AndroidApp/app/build/outputs/apk/${FLAVOR}/release/app-${FLAVOR}-release.apk"
+        TEST_APK="apps/AndroidApp/app/build/outputs/apk/androidTest/${FLAVOR}/release/app-${FLAVOR}-release-androidTest.apk"
+        ls -lh "${APP_APK}" "${TEST_APK}"
+      shell: bash
+
     - name: '::group:: Brownfield Gradle plugin'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::group::Brownfield Gradle plugin"
       shell: bash
 
     - name: Publish Brownfield Gradle Plugin to Maven Local
+      if: steps.e2e.outputs.phase != 'test'
       run: |
         yarn run brownfield:plugin:publish:local
       shell: bash
 
     - name: '::endgroup:: Brownfield Gradle plugin'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::endgroup::"
       shell: bash
 
     - name: '::group:: RN app — prebuild, package & publish AAR'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::group::RN app — prebuild, package & publish AAR"
       shell: bash
 
     - name: Prebuild Expo app
-      if: ${{ startsWith(inputs.flavor, 'expo') }}
+      if: steps.e2e.outputs.phase != 'test' && startsWith(inputs.flavor, 'expo')
       run: |
         cd ${{ inputs.rn-project-path }}
         yarn run expo prebuild --platform android
       shell: bash
 
     - name: Patch ExpoApp Android build.gradle for CI
-      if: ${{ startsWith(inputs.flavor, 'expo') }}
+      if: steps.e2e.outputs.phase != 'test' && startsWith(inputs.flavor, 'expo')
       run: |
         cd ${{ inputs.rn-project-path }}
         yarn run brownfield:prepare:android:ci
       shell: bash
 
     - name: Package AAR with the Brownfield CLI
+      if: steps.e2e.outputs.phase != 'test'
       run: |
         cd ${{ inputs.rn-project-path }}
         yarn run brownfield:package:android
       shell: bash
 
     - name: Publish AAR artifact to Maven Local
+      if: steps.e2e.outputs.phase != 'test'
       run: |
         cd ${{ inputs.rn-project-path }}
         yarn run brownfield:publish:android
       shell: bash
 
     - name: Resolve AAR variants
+      if: steps.e2e.outputs.phase != 'test'
       id: aar-variants
       run: |
         if [[ "${{ inputs.flavor }}" == "vanilla" ]]; then
@@ -101,22 +170,27 @@ runs:
       shell: bash
 
     - name: Verify debug AAR exists in Maven Local
+      if: steps.e2e.outputs.phase != 'test'
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.debug }}.aar
       shell: bash
 
     - name: Verify release AAR exists in Maven Local
+      if: steps.e2e.outputs.phase != 'test'
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.release }}.aar
       shell: bash
 
     - name: '::endgroup:: RN app — prebuild, package & publish AAR'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::endgroup::"
       shell: bash
 
     - name: '::group:: Clean RN android outputs'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::group::Clean RN android outputs"
       shell: bash
 
     - name: Clean up local RN Android build outputs
+      if: steps.e2e.outputs.phase != 'test'
       run: |
         ANDROID_DIR="${{ inputs.rn-project-path }}/android"
         rm -rf "$ANDROID_DIR/build"
@@ -129,37 +203,210 @@ runs:
       shell: bash
 
     - name: '::endgroup:: Clean RN android outputs'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::endgroup::"
       shell: bash
 
     - name: '::group:: AndroidApp — assemble consumer app'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::group::AndroidApp — assemble consumer app"
       shell: bash
 
+    - name: Verify embedded JS bundle in release AAR (E2E)
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'build'
+      run: |
+        set -euo pipefail
+        AAR_PATH="${HOME}/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.release }}.aar"
+        TMP_DIR="$(mktemp -d)"
+        trap 'rm -rf "${TMP_DIR}"' EXIT
+        unzip -q "${AAR_PATH}" -d "${TMP_DIR}"
+        BUNDLE_PATH="$(find "${TMP_DIR}/assets" -name 'index.android.bundle' -print -quit)"
+        if [[ -z "${BUNDLE_PATH}" ]]; then
+          echo "error: index.android.bundle missing from ${AAR_PATH} — E2E needs the packaged AAR bundle, not Metro." >&2
+          exit 1
+        fi
+        echo "Embedded bundle OK: ${BUNDLE_PATH} ($(wc -c < "${BUNDLE_PATH}") bytes)"
+      shell: bash
+
     - name: Build native Android Brownfield app
+      if: steps.e2e.outputs.phase == 'none'
       run: yarn run build:example:android-consumer:${{ inputs.flavor }}
       shell: bash
 
     - name: '::endgroup:: AndroidApp — assemble consumer app'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::endgroup::"
       shell: bash
 
     - name: '::group:: Save ccache & summary'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::group::Save ccache & summary"
       shell: bash
 
     - name: Save Android ccache
-      if: steps.prepare-android.outputs.android-ccache-cache-hit != 'true'
+      if: steps.e2e.outputs.phase == 'none' && steps.prepare-android.outputs.android-ccache-cache-hit != 'true'
       uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
       with:
         path: .android_ccache
         key: ${{ steps.prepare-android.outputs.android-ccache-cache-primary-key }}
 
     - name: Log Android ccache stats
+      if: steps.e2e.outputs.phase != 'test'
       uses: ./.github/actions/ccache-summary
       with:
         name: Android road test (${{ inputs.flavor }})
 
     - name: '::endgroup:: Save ccache & summary'
+      if: steps.e2e.outputs.phase != 'test'
       run: echo "::endgroup::"
       shell: bash
+
+    - name: Resolve AndroidApp E2E settings
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'build' || steps.e2e.outputs.phase == 'test'
+      run: |
+        node <<'NODE'
+        const { getAndroidAppDetoxVariant } = require('./apps/brownfield-example-shared-tests/detox-androidapp-variants.cjs');
+        const variant = getAndroidAppDetoxVariant(process.env.ANDROIDAPP_VARIANT);
+        const append = (key, value) => {
+          const fs = require('node:fs');
+          fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${value}\n`);
+        };
+        append('ANDROIDAPP_E2E_BUILD_SCRIPT', variant.e2eBuildScript);
+        append('ANDROIDAPP_E2E_TEST_SCRIPT', variant.e2eTestScript);
+        NODE
+      env:
+        ANDROIDAPP_VARIANT: ${{ inputs.flavor }}
+      shell: bash
+
+    - name: Install Detox Android artifacts
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'build' || steps.e2e.outputs.phase == 'test'
+      run: node node_modules/detox/scripts/postinstall.js
+      working-directory: apps/AndroidApp
+      shell: bash
+
+    - name: Detox build (AndroidApp ${{ inputs.flavor }})
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'build'
+      run: yarn "$ANDROIDAPP_E2E_BUILD_SCRIPT"
+      working-directory: apps/AndroidApp
+      shell: bash
+
+    - name: Package prebuilt Detox APKs
+      if: steps.e2e.outputs.phase == 'build'
+      run: |
+        set -euo pipefail
+        FLAVOR="${{ inputs.flavor }}"
+        APP_APK="apps/AndroidApp/app/build/outputs/apk/${FLAVOR}/release/app-${FLAVOR}-release.apk"
+        TEST_APK="apps/AndroidApp/app/build/outputs/apk/androidTest/${FLAVOR}/release/app-${FLAVOR}-release-androidTest.apk"
+        test -f "${APP_APK}"
+        test -f "${TEST_APK}"
+        STAGING="${RUNNER_TEMP}/detox-apks"
+        mkdir -p "${STAGING}/apk/${FLAVOR}/release"
+        mkdir -p "${STAGING}/apk/androidTest/${FLAVOR}/release"
+        cp "${APP_APK}" "${STAGING}/apk/${FLAVOR}/release/"
+        cp "${TEST_APK}" "${STAGING}/apk/androidTest/${FLAVOR}/release/"
+        tar -czf "${FLAVOR}-e2e-apks.tar.gz" -C "${STAGING}" apk
+        ls -lh "${FLAVOR}-e2e-apks.tar.gz"
+      shell: bash
+
+    - name: Upload prebuilt Detox APKs
+      if: steps.e2e.outputs.phase == 'build'
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.e2e-apk-artifact-name }}
+        path: ${{ inputs.flavor }}-e2e-apks.tar.gz
+        retention-days: 1
+
+    - name: Free workspace disk space before Detox emulator
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'test'
+      run: |
+        # Native Gradle/NDK outputs can leave too little room for the AVD userdata partition.
+        # Do not run jlumbroso/free-disk-space here — large-packages removal can uninstall
+        # libX11 and other libs the QEMU emulator needs on ubuntu-latest.
+        set -euo pipefail
+        ANDROID_DIR="${{ inputs.rn-project-path }}/android"
+        rm -rf "$ANDROID_DIR/build" "$ANDROID_DIR/.cxx" "$ANDROID_DIR/.gradle"
+        rm -rf apps/AndroidApp/.gradle apps/AndroidApp/build
+        rm -rf apps/AndroidApp/app/build/intermediates apps/AndroidApp/app/build/tmp
+        rm -rf "${HOME}/.m2/repository/${{ inputs.rn-project-maven-path }}"
+        rm -rf node_modules/.cache .turbo
+        rm -rf "${ANDROID_HOME:?}/ndk"
+        rm -rf "${HOME}/.gradle/caches/build-cache-1"
+        rm -rf "${HOME}/.gradle/caches/transforms-3"
+        df -h .
+      shell: bash
+
+    - name: Install Android emulator runtime libraries
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'test'
+      run: |
+        # free-disk-space (prepare-android) can remove libs the QEMU emulator needs,
+        # even with -no-audio (libpulse) and headless CI (libgl1, libxkbfile1, libX11-xcb).
+        sudo apt-get update
+        sudo apt-get install -y \
+          libpulse0 \
+          libgl1 \
+          libxkbfile1 \
+          libx11-6 \
+          libx11-xcb1 \
+          libxdamage1 \
+          libxfixes3 \
+          libxrandr2 \
+          libgbm1 \
+          libasound2t64
+      shell: bash
+
+    - name: Enable KVM for Android emulator
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'test'
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+        ls -l /dev/kvm
+      shell: bash
+
+    - name: Detox test (AndroidApp ${{ inputs.flavor }})
+      if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'test'
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        target: google_apis
+        arch: x86_64
+        profile: pixel_6
+        avd-name: test
+        disable-animations: true
+        # ubuntu-latest has 2 vCPUs; default cores: 2 starves the host and QEMU hangs under load.
+        cores: 1
+        ram-size: 3072M
+        emulator-boot-timeout: 900
+        emulator-options: >-
+          -no-window
+          -gpu swiftshader_indirect
+          -no-snapshot
+          -no-snapshot-save
+          -noaudio
+          -no-boot-anim
+          -camera-back none
+        pre-emulator-launch-script: df -h .
+        # Do not set disk-size — a large userdata partition fails when the runner is
+        # low on disk after Gradle/NDK builds (see ReactiveCircus/android-emulator-runner#455).
+        script: |
+          echo "==> Starting Detox tests at $(date -u +%H:%M:%S)"
+          bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
+          cd apps/AndroidApp
+          yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
+      env:
+        ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
+
+    - name: Save Android ccache (after E2E)
+      if: (steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'build') && steps.prepare-android.outputs.android-ccache-cache-hit != 'true'
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: .android_ccache
+        key: ${{ steps.prepare-android.outputs.android-ccache-cache-primary-key }}
+
+    - name: Upload Detox artifacts on failure
+      if: failure() && (steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'test')
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.e2e-artifact-name }}-${{ inputs.flavor }}-android
+        path: apps/AndroidApp/artifacts
+        if-no-files-found: ignore

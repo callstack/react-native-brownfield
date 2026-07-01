@@ -12,7 +12,7 @@ export const brownfieldE2ETestIds = {
   counterIncrement: 'brownfield-e2e-counter-increment',
   /** RN-authored postMessage bubble body (may repeat across list — use atIndex(0) for newest). */
   rnPostMessageText: 'brownfield-e2e-rn-post-message-text',
-  /** AppleApp native SwiftUI shell (keep in sync with apps/AppleApp/.../E2eTestIds.swift). */
+  /** AppleApp / AndroidApp native shell (keep in sync with native E2eTestIds). */
   appleAppGreeting: 'brownfield-e2e-appleapp-greeting',
   appleAppPostMessageSend: 'brownfield-e2e-appleapp-post-message-send',
   appleAppPostMessageToast: 'brownfield-e2e-appleapp-post-message-toast',

@@ -88,7 +88,7 @@ runs:
         haskell: true
         large-packages: true
         docker-images: true
-        swap-storage: false
+        swap-storage: true
 
     - name: Install Android NDK required by Expo
       run: |

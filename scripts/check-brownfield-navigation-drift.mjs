@@ -22,7 +22,7 @@ const PROTECTED_GENERATED_FILES = [
   'packages/brownfield-navigation/android/src/main/java/com/callstack/nativebrownfieldnavigation/NativeBrownfieldNavigationModule.kt',
 ];
 
-function readStagedFiles(repoRoot: string): string[] {
+function readStagedFiles(repoRoot) {
   const output = execFileSync(
     'git',
     ['diff', '--cached', '--name-only', '--diff-filter=ACMR'],
@@ -38,7 +38,7 @@ function readStagedFiles(repoRoot: string): string[] {
     .filter(Boolean);
 }
 
-function main(): void {
+function main() {
   if (process.env[SKIP_ENV_VAR] === '1') {
     console.log(
       `${SKIP_ENV_VAR}=1 set, skipping brownfield navigation generated file check`

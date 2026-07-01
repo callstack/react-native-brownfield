@@ -15,11 +15,15 @@
     "./e2e/e2eTestIds": "./e2e/e2eTestIds.cjs",
     "./e2e/detoxUtils": "./e2e/detoxUtils.cjs",
     "./e2e/appleAppDetoxUtils": "./e2e/appleAppDetoxUtils.cjs",
+    "./e2e/androidAppDetoxUtils": "./e2e/androidAppDetoxUtils.cjs",
     "./e2e/createDetoxJestConfig": "./e2e/createDetoxJestConfig.cjs",
     "./detox-rc-ios-sim-debug": "./detox-rc-ios-sim-debug.cjs",
     "./detox-rc-appleapp-ios-sim-debug": "./detox-rc-appleapp-ios-sim-debug.cjs",
+    "./detox-rc-androidapp-emulator-release": "./detox-rc-androidapp-emulator-release.cjs",
     "./detox-appleapp-variants": "./detox-appleapp-variants.cjs",
+    "./detox-androidapp-variants": "./detox-androidapp-variants.cjs",
     "./detox-ios-simulator-device": "./detox-ios-simulator-device.cjs",
+    "./detox-android-emulator-device": "./detox-android-emulator-device.cjs",
     "./jest/expo-config": "./jest/expo-config.js"
   },
   "peerDependencies": {

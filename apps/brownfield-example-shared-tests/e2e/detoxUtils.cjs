@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { execSync } = require('node:child_process');
 const { device, element, waitFor, expect: detoxExpect } = require('detox');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
 
@@ -7,23 +8,370 @@ const detoxLaunchArgs = {
   DetoxE2E: 'YES',
 };
 
-function detoxAttrsText(attrs) {
+const ANDROID_BROWNFIELD_MAIN_COMPONENT =
+  'com.callstack.brownfield.android.example/com.callstack.brownfield.android.example.MainActivity';
+const ANDROID_BROWNFIELD_PACKAGE = 'com.callstack.brownfield.android.example';
+
+function adbCommand() {
+  const serial = process.env.ANDROID_SERIAL?.trim();
+  return serial ? `adb -s ${serial}` : 'adb';
+}
+
+function adbShell(command) {
+  try {
+    execSync(`${adbCommand()} shell ${command}`, { stdio: 'ignore' });
+  } catch {
+    // Emulator may be offline or the command may be unsupported on older API levels.
+  }
+}
+
+function adbExecOut(args) {
+  return execSync(`${adbCommand()} ${args}`, {
+    encoding: 'utf8',
+    maxBuffer: 10 * 1024 * 1024,
+  });
+}
+
+function isAndroidAppProcessRunning() {
+  try {
+    return adbExecOut(`shell pidof ${ANDROID_BROWNFIELD_PACKAGE}`).trim().length > 0;
+  } catch {
+    try {
+      return adbExecOut(`shell pgrep -f ${ANDROID_BROWNFIELD_PACKAGE}`).trim().length > 0;
+    } catch {
+      return false;
+    }
+  }
+}
+
+async function waitForAndroidAppProcess(timeoutMs = 90000) {
+  // Let Detox instrumentation finish starting the app before probing the process list.
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (isAndroidAppProcessRunning()) {
+      return;
+    }
+    await dismissAndroidSystemOverlays();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`${ANDROID_BROWNFIELD_PACKAGE} process did not start`);
+}
+
+function dumpUiAutomatorHierarchy() {
+  return adbExecOut('exec-out uiautomator dump /dev/fd/1');
+}
+
+function getAndroidDisplaySize() {
+  try {
+    const out = adbExecOut('shell wm size');
+    const match = out.match(/(\d+)x(\d+)/);
+    if (match) {
+      return { width: Number(match[1]), height: Number(match[2]) };
+    }
+  } catch {
+    // Fall back to a common CI/local emulator size.
+  }
+  return { width: 1080, height: 2400 };
+}
+
+function uiAutomatorHierarchyContainsAny(xml, needles) {
+  for (const needle of needles) {
+    if (xml.includes(needle)) {
+      return needle;
+    }
+  }
+  return null;
+}
+
+async function pollUntilUiAutomatorContains(
+  needle,
+  timeoutMs = 20000,
+  { keepCurrentActivity = false } = {}
+) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const xml = dumpUiAutomatorHierarchy();
+      if (xml.includes(needle)) {
+        return;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (keepCurrentActivity) {
+      await dismissAndroidSystemOverlays();
+    } else {
+      await ensureAndroidAppWindowFocus();
+    }
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  try {
+    const xml = dumpUiAutomatorHierarchy();
+    if (xml.includes(needle)) {
+      return;
+    }
+  } catch (error) {
+    throw lastError || error;
+  }
+
+  throw new Error(`Timed out waiting for UIAutomator to contain: ${needle}`);
+}
+
+async function pollUntilUiAutomatorContainsAny(
+  needles,
+  timeoutMs = 20000,
+  { keepCurrentActivity = false } = {}
+) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const xml = dumpUiAutomatorHierarchy();
+      const matched = uiAutomatorHierarchyContainsAny(xml, needles);
+      if (matched) {
+        return matched;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (keepCurrentActivity) {
+      await dismissAndroidSystemOverlays();
+    } else {
+      await ensureAndroidAppWindowFocus();
+    }
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  throw (
+    lastError ||
+    new Error(`Timed out waiting for UIAutomator to contain any of: ${needles.join(', ')}`)
+  );
+}
+
+function parseUiAutomatorBounds(boundsAttr) {
+  const match = boundsAttr.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
+  if (!match) {
+    return null;
+  }
+  const left = Number(match[1]);
+  const top = Number(match[2]);
+  const right = Number(match[3]);
+  const bottom = Number(match[4]);
+  return {
+    x: Math.floor((left + right) / 2),
+    y: Math.floor((top + bottom) / 2),
+  };
+}
+
+function findUiAutomatorNodeCenter(xml, { needle, resourceId } = {}) {
+  const candidates = [];
+
+  for (const chunk of xml.split('<node ')) {
+    if (needle) {
+      const textMatch = chunk.match(/text="([^"]*)"/);
+      const descMatch = chunk.match(/content-desc="([^"]*)"/);
+      const text = textMatch?.[1] ?? '';
+      const desc = descMatch?.[1] ?? '';
+      if (!text.includes(needle) && !desc.includes(needle)) {
+        continue;
+      }
+    }
+
+    if (resourceId && !chunk.includes(resourceId)) {
+      continue;
+    }
+
+    const boundsMatch = chunk.match(/bounds="(\[\d+,\d+\]\[\d+,\d+\])"/);
+    if (!boundsMatch) {
+      continue;
+    }
+
+    const center = parseUiAutomatorBounds(boundsMatch[1]);
+    if (!center) {
+      continue;
+    }
+
+    const descMatch = chunk.match(/content-desc="([^"]*)"/);
+    candidates.push({
+      center,
+      clickable: chunk.includes('clickable="true"'),
+      exactDesc: descMatch?.[1] === needle,
+    });
+  }
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const preferred =
+    candidates.find((c) => c.exactDesc && c.clickable) ||
+    candidates.find((c) => c.clickable) ||
+    candidates[0];
+
+  return preferred.center;
+}
+
+async function tapUiAutomatorTarget(
+  { needle, resourceId },
+  timeoutMs = 30000,
+  { keepCurrentActivity = true } = {}
+) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const xml = dumpUiAutomatorHierarchy();
+      const center = findUiAutomatorNodeCenter(xml, { needle, resourceId });
+      if (center) {
+        adbShell(`input tap ${center.x} ${center.y}`);
+        await dismissAndroidSystemOverlays();
+        return;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (keepCurrentActivity) {
+      await dismissAndroidSystemOverlays();
+    } else {
+      await ensureAndroidAppWindowFocus();
+    }
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  const label = needle || resourceId;
+  throw lastError || new Error(`Timed out waiting to tap UIAutomator target: ${label}`);
+}
+
+async function pollUntilUiAutomatorResourceId(
+  resourceId,
+  timeoutMs = 20000,
+  options = {}
+) {
+  return pollUntilUiAutomatorContains(resourceId, timeoutMs, options);
+}
+
+/** Scroll the native shell upward so the embedded RN fragment moves into view. */
+async function scrollAndroidNativeShellUp() {
+  const { width, height } = getAndroidDisplaySize();
+  const x = Math.floor(width / 2);
+  const yStart = Math.floor(height * 0.78);
+  const yEnd = Math.floor(height * 0.32);
+  adbShell(`input swipe ${x} ${yStart} ${x} ${yEnd} 400`);
+  await dismissAndroidSystemOverlays();
+}
+
+/** Scroll the native shell downward so the greeting card moves back into view. */
+async function scrollAndroidNativeShellDown() {
+  const { width, height } = getAndroidDisplaySize();
+  const x = Math.floor(width / 2);
+  const yStart = Math.floor(height * 0.32);
+  const yEnd = Math.floor(height * 0.78);
+  adbShell(`input swipe ${x} ${yStart} ${x} ${yEnd} 400`);
+  await dismissAndroidSystemOverlays();
+}
+
+/**
+ * Collapse the notification shade via adb.
+ * Safe after launchApp and after scroll gestures — never press Back here (that can
+ * finish MainActivity and Espresso reports "No activities found").
+ */
+async function dismissAndroidSystemOverlays() {
+  if (device.getPlatform() !== 'android') {
+    return;
+  }
+  // Headless CI emulators can leave the keyguard, shade, or heads-up UI without window focus.
+  adbShell('input keyevent KEYCODE_WAKEUP');
+  adbShell('wm dismiss-keyguard');
+  adbShell('cmd statusbar collapse');
+  adbShell('settings put global heads_up_notifications_enabled 0');
+}
+
+/** Bring MainActivity to the foreground so Espresso can obtain window focus. */
+async function ensureAndroidAppWindowFocus() {
+  if (device.getPlatform() !== 'android') {
+    return;
+  }
+  await dismissAndroidSystemOverlays();
+  if (!isAndroidAppProcessRunning()) {
+    return;
+  }
+  const launchExtras =
+    '--es DetoxE2E YES --es BrownfieldPreferEmbeddedBundleInDebug YES';
+  adbShell(
+    `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} --activity-single-top --activity-reorder-to-front ${launchExtras}`
+  );
+  const { width, height } = getAndroidDisplaySize();
+  adbShell(`input tap ${Math.floor(width / 2)} ${Math.floor(height * 0.52)}`);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+}
+
+function detoxAttrFragments(attrs) {
   if (!attrs || typeof attrs !== 'object') {
+    return [''];
+  }
+  const fragment = (o) => {
+    if (o.text != null && String(o.text).length > 0) {
+      return String(o.text);
+    }
+    if (o.label != null && String(o.label).length > 0) {
+      return String(o.label);
+    }
+    if (o.value != null && String(o.value).length > 0) {
+      return String(o.value);
+    }
+    if (o.hint != null && String(o.hint).length > 0) {
+      return String(o.hint);
+    }
     return '';
-  }
-  const fragment = (o) =>
-    [o.text, o.value, o.label, o.hint]
-      .filter((x) => x != null && String(x).length > 0)
-      .join('');
+  };
   if ('elements' in attrs && Array.isArray(attrs.elements)) {
-    return attrs.elements.map(fragment).join('').trim();
+    return attrs.elements.map(fragment).map((text) => text.trim()).filter(Boolean);
   }
-  return fragment(attrs).trim();
+  return [fragment(attrs).trim()];
+}
+
+function detoxAttrsText(attrs) {
+  const fragments = detoxAttrFragments(attrs);
+  return fragments[0] || '';
 }
 
 async function assertDetoxTextMatches(nativeElement, pattern) {
   const attrs = await nativeElement.getAttributes();
-  assert.match(detoxAttrsText(attrs).trim(), pattern);
+  const fragments = detoxAttrFragments(attrs);
+  const matched = fragments.some((text) => pattern.test(text));
+  assert.ok(
+    matched,
+    `Expected ${pattern} in one of: ${fragments.join(' | ') || '(empty)'}`
+  );
+}
+
+async function assertDetoxTextEventually(nativeElement, pattern, timeoutMs = 15000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      await assertDetoxTextMatches(nativeElement, pattern);
+      return;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS));
+    }
+  }
+  await assertDetoxTextMatches(nativeElement, pattern);
 }
 
 /** Ignore Metro / packager polling so Detox does not wait forever in Debug without a dev server. */
@@ -35,13 +383,96 @@ async function configureDetoxForBrownfieldIos() {
   ]);
 }
 
+/** AndroidApp release E2E uses the embedded AAR bundle (no Metro). */
+async function configureDetoxForBrownfieldAndroid() {
+  // No URL blacklist needed on Android.
+}
+
 /**
- * Launch without waiting for RN Debug idle, then re-enable Detox synchronization for tests.
+ * Poll for an element while Detox sync is off. On Android, use UIAutomator via adb
+ * because Espresso getAttributes()/toBeVisible() block on window focus in headless CI.
+ */
+async function pollUntilElementAttributes(matcher, timeoutMs = 20000, index = 0) {
+  if (device.getPlatform() === 'android') {
+    const needle = androidUiAutomatorNeedleForMatcher(matcher);
+    if (needle) {
+      await pollUntilUiAutomatorContains(needle, timeoutMs);
+      return { visible: true };
+    }
+  }
+
+  const deadline = Date.now() + timeoutMs;
+  const target = element(matcher).atIndex(index);
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const attrs = await target.getAttributes();
+      if (attrs) {
+        return attrs;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (device.getPlatform() === 'android') {
+      await ensureAndroidAppWindowFocus();
+    }
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+    );
+  }
+
+  try {
+    return await target.getAttributes();
+  } catch (error) {
+    throw lastError || error;
+  }
+}
+
+function androidUiAutomatorNeedleForMatcher(matcher) {
+  if (!matcher || typeof matcher !== 'object') {
+    return null;
+  }
+
+  if (typeof matcher.value === 'string' && matcher.value.length > 0) {
+    return matcher.value;
+  }
+
+  if (typeof matcher.test === 'function') {
+    const source = String(matcher);
+    const labelMatch = source.match(/label:\s*'([^']+)'/);
+    if (labelMatch) {
+      return labelMatch[1];
+    }
+    const idMatch = source.match(/id:\s*'([^']+)'/);
+    if (idMatch) {
+      return idMatch[1];
+    }
+    const textMatch = source.match(/text:\s*(\/.+?\/[a-z]*)/);
+    if (textMatch) {
+      const pattern = textMatch[1];
+      const inner = pattern.match(/^\/(.+)\/([a-z]*)$/);
+      if (inner) {
+        return inner[1].replace(/\\(.)/g, '$1');
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Launch without waiting for RN Debug idle. On Android, leave Detox synchronization
+ * disabled until the readiness helper finishes — re-enabling sync while RN is still
+ * mounting causes long "The app seems to be idle" stalls and window-focus failures.
  *
  * Sync is disabled only via launchArgs — disableSynchronization() before launchApp()
  * fails because Detox is not connected to the app yet.
  */
-async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
+async function launchBrownfieldAppForDetox({ newInstance = true, processTimeoutMs } = {}) {
+  console.log('[e2e] Launching brownfield app via Detox...');
   await device.launchApp({
     newInstance,
     launchArgs: {
@@ -49,8 +480,28 @@ async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
       detoxEnableSynchronization: 0,
     },
   });
+
+  if (device.getPlatform() === 'android') {
+    await device.disableSynchronization();
+    console.log('[e2e] Waiting for Android app process...');
+    await waitForAndroidAppProcess(processTimeoutMs);
+    await ensureAndroidAppWindowFocus();
+    console.log('[e2e] Android app process is up');
+    return;
+  }
+
   await configureDetoxForBrownfieldIos();
   await device.enableSynchronization();
+}
+
+/** Call after Android readiness polling so Espresso matchers can interact with the app. */
+async function finishAndroidDetoxLaunch() {
+  if (device.getPlatform() !== 'android') {
+    return;
+  }
+  await ensureAndroidAppWindowFocus();
+  await device.enableSynchronization();
+  await ensureAndroidAppWindowFocus();
 }
 
 async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
@@ -60,27 +511,33 @@ async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
 }
 
 /**
- * Poll native-only / short-lived UI (toasts, popups, pushed native screens) with sync
- * temporarily off. RN Debug can keep sync busy while a native overlay is already visible.
+ * Poll native-only / short-lived UI (toasts, popups, pushed native screens).
+ * On Android, pass a test-id or text needle string, or a Detox matcher (best-effort).
+ * Set keepCurrentActivity when waiting on a pushed native Activity (Settings, Referrals).
  */
-async function waitForNativeOverlayVisible(matcher, timeoutMs = 20000, index = 0) {
-  await device.disableSynchronization();
-  try {
-    const deadline = Date.now() + timeoutMs;
-    const target = () => element(matcher).atIndex(index);
-    while (Date.now() < deadline) {
-      try {
-        await detoxExpect(target()).toBeVisible();
-        return;
-      } catch {
-        await new Promise((resolve) =>
-          setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
-        );
+async function waitForNativeOverlayVisible(
+  matcherOrNeedle,
+  timeoutMs = 20000,
+  index = 0,
+  { keepCurrentActivity = false } = {}
+) {
+  if (device.getPlatform() === 'android') {
+    const needle =
+      typeof matcherOrNeedle === 'string'
+        ? matcherOrNeedle
+        : androidUiAutomatorNeedleForMatcher(matcherOrNeedle);
+    if (needle) {
+      await pollUntilUiAutomatorContains(needle, timeoutMs, { keepCurrentActivity });
+      if (!keepCurrentActivity) {
+        await ensureAndroidAppWindowFocus();
       }
+      return;
     }
-    await detoxExpect(target()).toBeVisible();
-  } finally {
-    await device.enableSynchronization();
+  }
+
+  await pollUntilElementAttributes(matcherOrNeedle, timeoutMs, index);
+  if (device.getPlatform() === 'android' && !keepCurrentActivity) {
+    await ensureAndroidAppWindowFocus();
   }
 }
 
@@ -88,8 +545,23 @@ module.exports = {
   detoxLaunchArgs,
   detoxAttrsText,
   assertDetoxTextMatches,
+  assertDetoxTextEventually,
+  dismissAndroidSystemOverlays,
+  ensureAndroidAppWindowFocus,
+  waitForAndroidAppProcess,
+  getAndroidDisplaySize,
+  uiAutomatorHierarchyContainsAny,
+  pollUntilUiAutomatorContains,
+  pollUntilUiAutomatorContainsAny,
+  pollUntilUiAutomatorResourceId,
+  tapUiAutomatorTarget,
+  scrollAndroidNativeShellUp,
+  scrollAndroidNativeShellDown,
+  configureDetoxForBrownfieldAndroid,
   configureDetoxForBrownfieldIos,
   launchBrownfieldAppForDetox,
+  finishAndroidDetoxLaunch,
+  pollUntilElementAttributes,
   waitForVisible,
   waitForNativeOverlayVisible,
 };

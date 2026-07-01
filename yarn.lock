@@ -1711,6 +1711,10 @@ __metadata:
 "@callstack/brownfield-example-android-app@workspace:apps/AndroidApp":
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-android-app@workspace:apps/AndroidApp"
+  dependencies:
+    "@callstack/brownfield-example-shared-tests": "workspace:^"
+    detox: "npm:^20.27.0"
+    jest: "npm:^29.7.0"
   languageName: unknown
   linkType: soft
 

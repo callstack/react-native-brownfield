@@ -69,6 +69,26 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
         }
     }
 
+    override fun onPause() {
+        try {
+            super.onPause()
+        } catch (error: AssertionError) {
+            if (
+                error.message?.contains(
+                    "Pausing an activity that is not the current activity"
+                ) == true
+            ) {
+                Log.w(
+                    "ReactNativeFragment",
+                    "Ignoring stale onHostPause for ${activity?.javaClass?.simpleName}",
+                    error
+                )
+                return
+            }
+            throw error
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,

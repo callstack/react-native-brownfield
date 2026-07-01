@@ -5,7 +5,7 @@ pre-commit:
       run: yarn generate:schema && git add packages/cli/schema.json
 
     brownfield-navigation-drift:
-      run: node --experimental-strip-types --no-warnings ./scripts/check-brownfield-navigation-drift.ts
+      run: node ./scripts/check-brownfield-navigation-drift.mjs
 
     lint:
       glob: '*.{js,ts,jsx,tsx}'
