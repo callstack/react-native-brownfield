@@ -155,6 +155,20 @@ That command writes `Package.swift` into the same `ios/.brownfield/package/build
 
 ![Frameworks in Xcode Sidebar](/images/frameworks.png)
 
+   - Expo Only:
+     - `ExpoFileSystem.xcframework` | `ExpoFont.xcframework` | `ExpoImage.xcframework` | `ExpoModulesCore.xcframework` | `ExpoModulesJSI.xcframework` and `ExpoModulesWorklets.xcframework`
+        - These are required with the PreCompiled Expo option enabled. If it's disabled, only `ExpoModulesJSI.xcframework` is required to be linked.
+     - `libavif.xcframework` | `SDWebImage.xcframework` | `SDWebImageAVIFCoder.xcframework` | `SDWebImageSVGCoder.xcframework` and `SDWebImageWebPCoder.xcframework`
+        - These are required to be linked for `ExpoImage` to work correctly.
+
+![Expo Frameworks in Xcode Sidebar](/images/expo-frameworks.png)
+
+
+:::tip Prefer SPM packaging to avoid statically linking frameworks
+When using SPM packaging, you only need to link the local SPM file to the native iOS App, see below for a detailed guide.
+:::
+
+
 ### Optional: Add as a Local Swift Package
 
 If you ran `package:ios` with `--add-spm-package`, you can add the generated folder as a local Swift package instead of dragging XCFrameworks manually:
@@ -163,7 +177,7 @@ If you ran `package:ios` with `--add-spm-package`, you can add the generated fol
 2. Click **Add Local...**
 3. Select `ios/.brownfield/package/build/`
 
-The generated package references the packaged app XCFramework, Hermes, `ReactBrownfield`, and optional frameworks such as `Brownie`, `BrownfieldNavigation`, `React`, and `ReactNativeDependencies` when they exist in that folder.
+The generated package references the packaged Brownfield XCFramework, Hermes, `ReactBrownfield`, and other frameworks such as `Brownie`, `BrownfieldNavigation`, `React`, and `ReactNativeDependencies` when they exist in that folder. For Expo, this will also link the frameworks like `ExpoModulesCore` etc.
 
 After adding the local package:
 
