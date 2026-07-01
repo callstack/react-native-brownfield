@@ -126,9 +126,16 @@ vi.mock('../../utils/stripFrameworkBinary.js', () => ({
   stripFrameworkBinary: vi.fn(),
 }));
 
-vi.mock('../../utils/stripPackagedCodeSignatures.js', () => ({
-  stripPackagedCodeSignatures: vi.fn(),
-}));
+vi.mock('../../utils/normalizeCopiedXcframework.js', async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import('../../utils/normalizeCopiedXcframework.js')
+    >();
+  return {
+    ...actual,
+    removeCodeSignatureArtifacts: vi.fn(),
+  };
+});
 
 const invokePackageIosAction = async (argv: string[]) => {
   await packageIosCommand.parseAsync(argv, { from: 'user' });

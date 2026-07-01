@@ -33,7 +33,7 @@ import type { PackageIosOptions } from '../../types.js';
 import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
 import { emitExpoSupportXcframeworks } from '../utils/emitExpoSupportXcframeworks.js';
 import { mergeBrownfieldConfigWithOptions } from '../../config.js';
-import { stripPackagedCodeSignatures } from '../utils/stripPackagedCodeSignatures.js';
+import { removeCodeSignatureArtifacts } from '../utils/normalizeCopiedXcframework.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -321,8 +321,7 @@ export const packageIosCommand = curryOptions(
         );
       }
 
-      // TODO: Evaluate if we should do it as part of Rock??
-      stripPackagedCodeSignatures(packageDir);
+      removeCodeSignatureArtifacts(packageDir);
 
       if (options.addSpmPackage) {
         const { packageManifestPath } = createLocalSpmPackage({

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-function removeCodeSignatureArtifacts(dirPath: string) {
+export function removeCodeSignatureArtifacts(dirPath: string) {
   for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
     const entryPath = path.join(dirPath, entry.name);
 

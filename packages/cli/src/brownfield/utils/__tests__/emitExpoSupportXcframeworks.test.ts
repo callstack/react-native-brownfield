@@ -5,7 +5,10 @@ import * as childProcess from 'node:child_process';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { emitExpoSupportXcframeworks } from '../emitExpoSupportXcframeworks.js';
+import {
+  ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES,
+  emitExpoSupportXcframeworks,
+} from '../emitExpoSupportXcframeworks.js';
 import * as projectUtils from '../project.js';
 
 vi.mock('node:child_process', () => ({
@@ -36,13 +39,35 @@ function createSignedMockXcframework(rootDir: string, name: string) {
   );
 }
 
+function createAllRequiredExpoSupportXcframeworks(projectRoot: string) {
+  for (const frameworkName of ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES) {
+    const parentDir =
+      frameworkName === 'ExpoModulesJSI'
+        ? path.join(
+            projectRoot,
+            'node_modules',
+            'expo-modules-jsi',
+            'apple',
+            'Products'
+          )
+        : [
+              'SDWebImage',
+              'SDWebImageSVGCoder',
+              'SDWebImageWebPCoder',
+              'SDWebImageAVIFCoder',
+              'libavif',
+            ].includes(frameworkName)
+          ? path.join(projectRoot, 'ios', 'Pods', 'ExpoImage')
+          : path.join(projectRoot, 'ios', 'Pods', frameworkName);
+
+    createSignedMockXcframework(parentDir, frameworkName);
+  }
+}
+
 describe('emitExpoSupportXcframeworks', () => {
   let tempDir: string;
   let projectRoot: string;
   let packageDir: string;
-  let expoModulesJsiDir: string;
-  let expoFileSystemPodsDir: string;
-  let expoFontPodsDir: string;
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(
@@ -50,20 +75,6 @@ describe('emitExpoSupportXcframeworks', () => {
     );
     projectRoot = path.join(tempDir, 'project');
     packageDir = path.join(tempDir, 'package');
-    expoModulesJsiDir = path.join(
-      projectRoot,
-      'node_modules',
-      'expo-modules-jsi',
-      'apple',
-      'Products'
-    );
-    expoFileSystemPodsDir = path.join(
-      projectRoot,
-      'ios',
-      'Pods',
-      'ExpoFileSystem'
-    );
-    expoFontPodsDir = path.join(projectRoot, 'ios', 'Pods', 'ExpoFont');
     fs.mkdirSync(projectRoot, { recursive: true });
     fs.mkdirSync(packageDir, { recursive: true });
     vi.clearAllMocks();
@@ -77,9 +88,7 @@ describe('emitExpoSupportXcframeworks', () => {
     vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
     vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
 
-    createSignedMockXcframework(expoModulesJsiDir, 'ExpoModulesJSI');
-    createSignedMockXcframework(expoFileSystemPodsDir, 'ExpoFileSystem');
-    createSignedMockXcframework(expoFontPodsDir, 'ExpoFont');
+    createAllRequiredExpoSupportXcframeworks(projectRoot);
 
     expect(
       emitExpoSupportXcframeworks({
@@ -88,11 +97,7 @@ describe('emitExpoSupportXcframeworks', () => {
       })
     ).toBe(true);
 
-    for (const frameworkName of [
-      'ExpoModulesJSI',
-      'ExpoFileSystem',
-      'ExpoFont',
-    ] as const) {
+    for (const frameworkName of ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES) {
       const copiedFrameworkDir = path.join(
         packageDir,
         `${frameworkName}.xcframework`,
@@ -132,7 +137,17 @@ describe('emitExpoSupportXcframeworks', () => {
     vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
     vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
 
-    createSignedMockXcframework(expoModulesJsiDir, 'ExpoModulesJSI');
+    createAllRequiredExpoSupportXcframeworks(projectRoot);
+    fs.rmSync(
+      path.join(
+        projectRoot,
+        'ios',
+        'Pods',
+        'ExpoFileSystem',
+        'ExpoFileSystem.xcframework'
+      ),
+      { recursive: true, force: true }
+    );
 
     expect(() =>
       emitExpoSupportXcframeworks({
@@ -148,8 +163,11 @@ describe('emitExpoSupportXcframeworks', () => {
     vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
     vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
 
-    createSignedMockXcframework(expoModulesJsiDir, 'ExpoModulesJSI');
-    createSignedMockXcframework(expoFileSystemPodsDir, 'ExpoFileSystem');
+    createAllRequiredExpoSupportXcframeworks(projectRoot);
+    fs.rmSync(
+      path.join(projectRoot, 'ios', 'Pods', 'ExpoFont', 'ExpoFont.xcframework'),
+      { recursive: true, force: true }
+    );
 
     expect(() =>
       emitExpoSupportXcframeworks({
