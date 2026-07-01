@@ -70,7 +70,6 @@ class ProjectConfigurations(private val project: Project) {
         val configuration = project.configurations.create(configName)
 
         configuration.extendsFrom(project.configurations.getByName("implementation"))
-        configuration.isVisible = false
         configuration.isTransitive = false
 
         val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)

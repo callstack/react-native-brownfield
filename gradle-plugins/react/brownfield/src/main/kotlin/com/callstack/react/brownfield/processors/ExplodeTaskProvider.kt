@@ -32,12 +32,11 @@ object ExplodeTaskProvider {
             artifacts.forEach { art ->
                 var artifactPath = art.file
                 if (art.isExpoPublishDependency != true) {
-                    val defaultTaskName = "bundle${capitalizedVariantName}Aar"
                     val dependencyProject = project.project(":${art.moduleName}")
                     val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
-                    val taskName = bundleTaskProvider?.name ?: defaultTaskName
+                    val taskName = bundleTaskProvider.name
                     dependencyProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
-                    artifactPath = createArtifactFile(bundleTaskProvider?.get() as Task).absolutePath
+                    artifactPath = createArtifactFile(bundleTaskProvider.get()).absolutePath
                 }
 
                 finalArtifacts.add(

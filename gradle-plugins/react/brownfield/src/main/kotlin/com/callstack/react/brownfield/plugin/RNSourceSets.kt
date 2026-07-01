@@ -42,7 +42,7 @@ object RNSourceSets {
         // Move the non-variant-specific configuration out of the loop
         androidExtension.sourceSets.named("main") { sourceSet ->
             // This path is not variant-specific, so it's added once here.
-            sourceSet.java.srcDir("${getModuleBuildDir()}/generated/autolinking/src/main/java")
+            sourceSet.java.directories.add("${getModuleBuildDir()}/generated/autolinking/src/main/java")
         }
 
         // 2. Use the onVariants block to wire RN bundle outputs via the Variant Sources API
@@ -70,15 +70,6 @@ object RNSourceSets {
                 variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$segment")
                 variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$segment")
             }
-        }
-
-        // These remain the same, but using .named() is the modern, lazy approach
-        androidExtension.sourceSets.named("release") {
-            it.jniLibs.srcDirs("libsRelease")
-        }
-
-        androidExtension.sourceSets.named("debug") {
-            it.jniLibs.srcDirs("libsDebug")
         }
     }
 
