@@ -18,7 +18,6 @@ gson = "2.13.2"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 brownfieldlib-expo55 = { module = "com.callstack.rnbrownfield.demo.expoapp55:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expobeta = { module = "com.callstack.rnbrownfield.demo.expobeta:brownfieldlib", version.ref = "brownfieldlib" }
-brownfieldlib-expo54 = { module = "com.callstack.rnbrownfield.demo.expoapp54:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-vanilla = { module = "com.rnapp:brownfieldlib", version.ref = "brownfieldlib" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

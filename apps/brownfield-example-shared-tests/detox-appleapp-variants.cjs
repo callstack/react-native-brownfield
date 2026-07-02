@@ -5,7 +5,7 @@ const path = require('node:path');
 /** @typedef {import('detox').DetoxConfig} DetoxConfig */
 
 /**
- * AppleApp Detox / E2E settings per packaged RN host (RNApp, ExpoApp54, ExpoApp55).
+ * AppleApp Detox / E2E settings per packaged RN host (RNApp, ExpoApp55).
  *
  * @type {Record<string, {
  *   xcframeworkApp: string,
@@ -48,7 +48,7 @@ const appleAppDetoxVariants = {
 };
 
 /**
- * @param {string} variant AppleApp road-test variant (`vanilla`, `expo54`, `expo55`).
+ * @param {string} variant AppleApp road-test variant (`vanilla`, `expo55`).
  */
 function getAppleAppDetoxVariant(variant) {
   const config = appleAppDetoxVariants[variant];

@@ -9,7 +9,6 @@ import type {
 } from '../types';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
-import { getExpoInfo, hasExpoUpdatesInstalled } from '../expoUtils';
 import {
   type AndroidManifestMetaDataEntry,
   type AndroidStringResourceEntry,
@@ -29,19 +28,7 @@ export function createAndroidModule({
   androidDir,
   config,
   rnVersion,
-  isExpoPre55,
-  projectRoot,
 }: {
-  /**
-   * Expo app root (used to detect optional dependencies such as expo-updates)
-   */
-  projectRoot?: string;
-
-  /**
-   * Whether the Expo project is pre-55
-   */
-  isExpoPre55: boolean;
-
   /**
    * The root Android directory path
    */
@@ -59,7 +46,6 @@ export function createAndroidModule({
 }): void {
   const { android } = config;
   const moduleDir = path.join(androidDir, android.moduleName);
-  const hasExpoUpdates = hasExpoUpdatesInstalled(projectRoot);
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
@@ -89,25 +75,9 @@ export function createAndroidModule({
     },
     {
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
-      content: renderTemplate(
-        'android',
-        isExpoPre55
-          ? 'ReactNativeHostManager.pre55.kt'
-          : 'ReactNativeHostManager.post55.kt',
-        isExpoPre55
-          ? {
-              '{{PACKAGE_NAME}}': android.packageName,
-              '{{EXPO_UPDATES_IMPORTS}}': hasExpoUpdates
-                ? 'import expo.modules.updates.UpdatesController'
-                : '',
-              '{{EXPO_UPDATES_REACT_HOST_BLOCK}}': hasExpoUpdates
-                ? '\n        UpdatesController.setReactHost(reactHost)\n'
-                : '\n',
-            }
-          : {
-              '{{PACKAGE_NAME}}': android.packageName,
-            }
-      ),
+      content: renderTemplate('android', 'ReactNativeHostManager.post55.kt', {
+        '{{PACKAGE_NAME}}': android.packageName,
+      }),
     },
     {
       relativePath: 'consumer-rules.pro',
@@ -260,14 +230,10 @@ export const withAndroidModuleFiles: ConfigPlugin<
         );
       }
 
-      const { isExpoPre55 } = getExpoInfo(config);
-
       createAndroidModule({
         androidDir,
         config: props,
         rnVersion,
-        isExpoPre55,
-        projectRoot: dangerousConfig.modRequest.projectRoot,
       });
 
       return dangerousConfig;

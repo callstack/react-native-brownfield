@@ -2,56 +2,10 @@ import { SourceModificationError } from '../errors/SourceModificationError';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
 
-const BROWNFIELD_POD_HOOK_MARKER_START =
-  '# >>> react-native-brownfield expo phase ordering >>>';
-const BROWNFIELD_POD_HOOK_MARKER_END =
-  '# <<< react-native-brownfield expo phase ordering <<<';
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
   '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>';
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
   '# <<< react-native-brownfield Expo SDK 55+ swift defines <<<';
-const BROWNFIELD_POST_INTEGRATE_REQUIRE = `require File.join(File.dirname(\`node --print "require.resolve('@callstack/react-native-brownfield/package.json')"\`), "scripts/react_native_brownfield_post_integrate")`;
-const REACT_NATIVE_PODS_REQUIRE_REGEX =
-  /^require File\.join\(File\.dirname\(`node --print "require\.resolve\('react-native\/package\.json'\)"`\), "scripts\/react_native_pods"\)\s*$/m;
-
-function ensureBrownfieldPostIntegrateRequire(podfile: string): string {
-  if (podfile.includes('scripts/react_native_brownfield_post_integrate')) {
-    return podfile;
-  }
-
-  const reactNativePodsRequireMatch = podfile.match(
-    REACT_NATIVE_PODS_REQUIRE_REGEX
-  );
-  if (reactNativePodsRequireMatch) {
-    const requireLine = reactNativePodsRequireMatch[0];
-    return podfile.replace(
-      requireLine,
-      `${requireLine}\n${BROWNFIELD_POST_INTEGRATE_REQUIRE}\n`
-    );
-  }
-
-  return `${BROWNFIELD_POST_INTEGRATE_REQUIRE}\n\n${podfile}`;
-}
-
-function ensureExpoPhaseOrderingHook(podfile: string): string {
-  let modifiedPodfile = ensureBrownfieldPostIntegrateRequire(podfile);
-
-  if (modifiedPodfile.includes(BROWNFIELD_POD_HOOK_MARKER_START)) {
-    return modifiedPodfile;
-  }
-
-  const hook = `
-${BROWNFIELD_POD_HOOK_MARKER_START}
-post_integrate do |installer|
-  react_native_brownfield_post_integrate(installer)
-end
-${BROWNFIELD_POD_HOOK_MARKER_END}
-`;
-
-  modifiedPodfile = `${modifiedPodfile.trimEnd()}\n\n${hook}\n`;
-
-  return modifiedPodfile;
-}
 
 function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
   if (podfile.includes(BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START)) {
@@ -92,14 +46,9 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
  * Modifies the Podfile to include the Brownfield framework target
  * @param podfile The original Podfile content
  * @param frameworkName The name of the framework target to add
- * @param expoMajor The major version of the Expo SDK
  * @returns The modified Podfile content
  */
-export function modifyPodfile(
-  podfile: string,
-  frameworkName: string,
-  expoMajor: number
-): string {
+export function modifyPodfile(podfile: string, frameworkName: string): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
     Logger.logDebug(
@@ -139,12 +88,7 @@ export function modifyPodfile(
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
-  if (expoMajor < 55) {
-    modifiedPodfile = ensureExpoPhaseOrderingHook(modifiedPodfile);
-  } else {
-    // Expo SDK >= 55
-    modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
-  }
+  modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
 
   return modifiedPodfile;
 }

@@ -4,7 +4,7 @@ import { injectFmtFixIntoPodfile } from '../withFmtFix';
 
 describe('injectFmtFixIntoPodfile', () => {
   it('injects the fmt fix into an Expo post_install block', () => {
-    const podfile = `target 'ExpoApp54' do
+    const podfile = `target 'ExpoApp55' do
   use_expo_modules!
 
   post_install do |installer|
