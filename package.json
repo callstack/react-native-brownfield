@@ -61,7 +61,7 @@
     "quicktype-core": "^23.2.6",
     "quicktype-typescript-input": "^23.2.6",
     "skillgym": "^0.8.0",
-    "turbo": "^2.8.17",
+    "turbo": "^2.9.14",
     "typescript": "5.9.3"
   },
   "commitlint": {
