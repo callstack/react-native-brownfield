@@ -85,7 +85,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.20.0, @babel/core@npm:^7.23.9, @babel/core@npm:^7.24.4, @babel/core@npm:^7.25.2, @babel/core@npm:^7.28.5, @babel/core@npm:^7.29.0":
+"@babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.20.0, @babel/core@npm:^7.23.9, @babel/core@npm:^7.24.4, @babel/core@npm:^7.25.2, @babel/core@npm:^7.29.0":
   version: 7.29.0
   resolution: "@babel/core@npm:7.29.0"
   dependencies:
@@ -105,6 +105,29 @@ __metadata:
     json5: "npm:^2.2.3"
     semver: "npm:^6.3.1"
   checksum: 10/25f4e91688cdfbaf1365831f4f245b436cdaabe63d59389b75752013b8d61819ee4257101b52fc328b0546159fd7d0e74457ed7cf12c365fea54be4fb0a40229
+  languageName: node
+  linkType: hard
+
+"@babel/core@npm:^7.29.6":
+  version: 7.29.6
+  resolution: "@babel/core@npm:7.29.6"
+  dependencies:
+    "@babel/code-frame": "npm:^7.29.0"
+    "@babel/generator": "npm:^7.29.6"
+    "@babel/helper-compilation-targets": "npm:^7.28.6"
+    "@babel/helper-module-transforms": "npm:^7.28.6"
+    "@babel/helpers": "npm:^7.29.2"
+    "@babel/parser": "npm:^7.29.3"
+    "@babel/template": "npm:^7.28.6"
+    "@babel/traverse": "npm:^7.29.0"
+    "@babel/types": "npm:^7.29.0"
+    "@jridgewell/remapping": "npm:^2.3.5"
+    convert-source-map: "npm:^2.0.0"
+    debug: "npm:^4.1.0"
+    gensync: "npm:^1.0.0-beta.2"
+    json5: "npm:^2.2.3"
+    semver: "npm:^6.3.1"
+  checksum: 10/b81c3f35c1ab0b75634f4cf2bcfb1c28ed5a973cf926c5e864fd63b600024768392768f2b21befc68381f5182c0767342e247830046e8b160c01612314a3593d
   languageName: node
   linkType: hard
 
@@ -135,7 +158,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/generator@npm:^7.29.7":
+"@babel/generator@npm:^7.29.6, @babel/generator@npm:^7.29.7":
   version: 7.29.7
   resolution: "@babel/generator@npm:7.29.7"
   dependencies:
@@ -475,6 +498,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/helpers@npm:^7.29.2":
+  version: 7.29.7
+  resolution: "@babel/helpers@npm:7.29.7"
+  dependencies:
+    "@babel/template": "npm:^7.29.7"
+    "@babel/types": "npm:^7.29.7"
+  checksum: 10/b4d1ef12c19e896585c009ba29677839097ff04f8b11a2430d335c3fb6bd667b4f9e96a3b185a083fdde6b1137eabbbf2600c32425cb69cefc81d81d5cfe425d
+  languageName: node
+  linkType: hard
+
 "@babel/highlight@npm:^7.10.4":
   version: 7.25.9
   resolution: "@babel/highlight@npm:7.25.9"
@@ -498,7 +531,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/parser@npm:^7.29.7":
+"@babel/parser@npm:^7.29.3, @babel/parser@npm:^7.29.7":
   version: 7.29.7
   resolution: "@babel/parser@npm:7.29.7"
   dependencies:
@@ -1946,7 +1979,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-cli@workspace:packages/cli"
   dependencies:
-    "@babel/core": "npm:^7.28.5"
+    "@babel/core": "npm:^7.29.6"
     "@babel/preset-env": "npm:^7.28.5"
     "@babel/preset-typescript": "npm:^7.28.5"
     "@expo/config": "npm:^12.0.13"
@@ -2085,7 +2118,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-expo-app-56@workspace:apps/ExpoApp56"
   dependencies:
-    "@babel/core": "npm:^7.25.2"
+    "@babel/core": "npm:^7.29.6"
     "@callstack/brownfield-example-shared-tests": "workspace:^"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
@@ -2144,7 +2177,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-rn-app@workspace:apps/RNApp"
   dependencies:
-    "@babel/core": "npm:^7.25.2"
+    "@babel/core": "npm:^7.29.6"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
     "@callstack/brownfield-example-shared-tests": "workspace:^"
@@ -2235,7 +2268,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-navigation@workspace:packages/brownfield-navigation"
   dependencies:
-    "@babel/core": "npm:^7.25.2"
+    "@babel/core": "npm:^7.29.6"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
     "@callstack/brownfield-cli": "workspace:^"
@@ -2262,7 +2295,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownie@workspace:packages/brownie"
   dependencies:
-    "@babel/core": "npm:^7.25.2"
+    "@babel/core": "npm:^7.29.6"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/preset-typescript": "npm:^7.27.1"
     "@babel/runtime": "npm:^7.25.0"
@@ -2291,7 +2324,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/react-native-brownfield@workspace:packages/react-native-brownfield"
   dependencies:
-    "@babel/core": "npm:^7.25.2"
+    "@babel/core": "npm:^7.29.6"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
     "@callstack/brownfield-cli": "workspace:^"
