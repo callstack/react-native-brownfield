@@ -17,6 +17,7 @@ import {
 import { Command, Option } from 'commander';
 
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
+import { findProjectRoot } from '../utils/paths.js';
 import { getProjectInfo } from '../utils/project.js';
 import { supportsPrebuiltRNCore } from '../utils/supportsPrebuiltRNCore.js';
 import {
@@ -99,8 +100,11 @@ export const packageIosCommand = curryOptions(
   .action(
     actionRunner(async (cliOptions: PackageIosOptions) => {
       const options = mergeBrownfieldConfigWithOptions(cliOptions, 'ios');
+      const projectRoot = findProjectRoot();
 
-      const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
+      await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
+
+      const { platformConfig, userConfig } = getProjectInfo('ios');
 
       const prebuiltRNCoreSupport = supportsPrebuiltRNCore({ projectRoot });
 
@@ -127,8 +131,6 @@ export const packageIosCommand = curryOptions(
       if (options.usePrebuiltRnCore && !prebuiltRNCoreSupport.supported) {
         throw new RockError(prebuiltRNCoreSupport.reason);
       }
-
-      await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
 
       if (!userConfig.project.ios) {
         throw new Error('iOS project not found.');

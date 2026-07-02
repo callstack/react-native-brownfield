@@ -21,15 +21,46 @@ const cliConfig: typeof cliConfigImport =
     : // @ts-expect-error: interop default
       cliConfigImport.default;
 
+function hasExpoAppConfig(projectRoot: string): boolean {
+  return (
+    fs.existsSync(path.join(projectRoot, 'app.json')) ||
+    fs.existsSync(path.join(projectRoot, 'app.config.js')) ||
+    fs.existsSync(path.join(projectRoot, 'app.config.ts')) ||
+    fs.existsSync(path.join(projectRoot, 'app.config.mjs'))
+  );
+}
+
+function projectDependsOnExpo(projectRoot: string): boolean {
+  const packageJsonPath = path.join(projectRoot, 'package.json');
+
+  if (!fs.existsSync(packageJsonPath)) {
+    return false;
+  }
+
+  const packageJson = JSON.parse(
+    fs.readFileSync(packageJsonPath, 'utf-8')
+  ) as Record<string, Record<string, string>>;
+
+  return ['dependencies', 'peerDependencies', 'devDependencies'].some(
+    (key) => packageJson[key]?.expo
+  );
+}
+
 /**
  * Gets the Expo config if the project is an Expo project
  * @param projectRoot The project root path
  * @returns The Expo config if the project is an Expo project, null otherwise
  */
 export function getExpoConfigIfIsExpo(projectRoot: string) {
+  const hasAppConfig = hasExpoAppConfig(projectRoot);
+
   try {
     return getConfig(projectRoot, { skipSDKVersionRequirement: true });
-  } catch {
+  } catch (error) {
+    if (hasAppConfig) {
+      throw error;
+    }
+
     return null;
   }
 }
@@ -41,19 +72,7 @@ export function getExpoConfigIfIsExpo(projectRoot: string) {
  * @returns Whether the project is an Expo project
  */
 export function isExpoProject(projectRoot: string): boolean {
-  const hasExpoConfig = getExpoConfigIfIsExpo(projectRoot) !== null;
-
-  // additionally, it is needed to check if the project depends on Expo packages explicitly
-  // to prevent false positives in a monorepo setup
-  const rnProjectRoot = findProjectRoot();
-  const packageJsonPath = path.join(rnProjectRoot, 'package.json');
-  const dependsOnExpo =
-    fs.existsSync(packageJsonPath) &&
-    ['dependencies', 'peerDependencies', 'devDependencies'].some(
-      (key) => JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))[key]?.expo
-    );
-
-  return hasExpoConfig && dependsOnExpo;
+  return hasExpoAppConfig(projectRoot) && projectDependsOnExpo(projectRoot);
 }
 
 export function getExpoSdkMajor(projectRoot: string): number | null {

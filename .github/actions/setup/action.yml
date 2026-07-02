@@ -19,6 +19,7 @@ runs:
       uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
       with:
         node-version: 'lts/*'
+        check-latest: true
         cache: 'yarn'
 
     - name: Setup Node.js (no cache)
@@ -26,6 +27,7 @@ runs:
       uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
       with:
         node-version: 'lts/*'
+        check-latest: true
         package-manager-cache: false
 
     - name: Restore Turbo cache

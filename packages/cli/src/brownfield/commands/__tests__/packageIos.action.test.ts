@@ -4,16 +4,11 @@ import * as rockTools from '@rock-js/tools';
 
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 
-import { runBrownieCodegenIfApplicable } from '../../../brownie/helpers/runBrownieCodegenIfApplicable.js';
-import { runNavigationCodegenIfApplicable } from '../../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { packageIosCommand } from '../packageIos.js';
 import { copyDebugBundleToSimulatorSlice } from '../../utils/copyDebugBundleToSimulatorSlice.js';
 import { createLocalSpmPackage } from '../../utils/createLocalSpmPackage.js';
 import { emitExpoSupportXcframeworks } from '../../utils/emitExpoSupportXcframeworks.js';
-import { runExpoPrebuildIfNeeded } from '../../utils/expo.js';
-import { getProjectInfo } from '../../utils/project.js';
 import { resolvePackagedFrameworkName } from '../../utils/resolvePackagedFrameworkName.js';
-import { supportsPrebuiltRNCore } from '../../utils/supportsPrebuiltRNCore.js';
 
 vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
   const actual = await importOriginal<typeof appleHelpers>();
@@ -55,8 +50,16 @@ vi.mock('@rock-js/tools', async (importOriginal) => {
   };
 });
 
+vi.mock('../../../config.js', () => ({
+  mergeBrownfieldConfigWithOptions: vi.fn((options) => options),
+}));
+
 vi.mock('../../utils/expo.js', () => ({
   runExpoPrebuildIfNeeded: vi.fn(),
+}));
+
+vi.mock('../../utils/paths.js', () => ({
+  findProjectRoot: vi.fn(() => '/repo'),
 }));
 
 vi.mock('../../utils/project.js', () => ({

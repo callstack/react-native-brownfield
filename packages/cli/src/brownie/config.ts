@@ -108,7 +108,7 @@ export function resolveBrownieCodegenConfig({
   const legacyConfig = hasLegacyConfig(projectRoot)
     ? loadConfig(projectRoot)
     : undefined;
-  const brownfieldBrownie = loadBrownfieldConfig(projectRoot).brownie;
+  const brownfieldBrownie = loadBrownfieldConfig(projectRoot)?.brownie;
 
   if (legacyConfig !== undefined && (brownie ?? brownfieldBrownie)) {
     throw new Error(LEGACY_AND_NEW_BROWNIE_CONFIG_ERROR);

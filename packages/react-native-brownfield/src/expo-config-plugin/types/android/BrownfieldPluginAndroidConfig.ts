@@ -49,6 +49,13 @@ export interface BrownfieldPluginAndroidConfig {
    * @default "0.0.1-SNAPSHOT"
    */
   version?: string;
+
+  /**
+   * Load the Brownfield Gradle plugin from node_modules via includeBuild
+   * instead of the Maven classpath dependency.
+   * @default false
+   */
+  useLocalGradlePlugin?: boolean;
 }
 
 /**

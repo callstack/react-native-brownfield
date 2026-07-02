@@ -123,6 +123,11 @@ jobs:
           CLANG_MODULE_CACHE_PATH="$RUNNER_TEMP/swift-cache/clang" \
           swift test --scratch-path "$RUNNER_TEMP/swift-cache/swiftpm"
 
+      - name: Run brownfield tests including MacOS-only tests
+        run: |
+          cd packages/react-native-brownfield
+          yarn test
+
   android-androidapp-expo:
     name: Android road test (AndroidApp - Expo ${{ matrix.version }})
     runs-on: ubuntu-latest

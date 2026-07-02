@@ -1,6 +1,6 @@
 {
   "name": "@callstack/brownfield-cli",
-  "version": "3.13.1",
+  "version": "3.13.2",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": {
@@ -41,6 +41,11 @@
       "source": "./src/types.ts",
       "types": "./dist/types.d.ts",
       "default": "./dist/types.js"
+    },
+    "./expo-plugin-config": {
+      "source": "./src/expoPluginConfig.ts",
+      "types": "./dist/expoPluginConfig.d.ts",
+      "default": "./dist/expoPluginConfig.js"
     },
     "./package.json": "./package.json"
   },
