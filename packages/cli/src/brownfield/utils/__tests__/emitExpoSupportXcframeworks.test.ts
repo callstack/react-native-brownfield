@@ -133,6 +133,45 @@ describe('emitExpoSupportXcframeworks', () => {
     expect(childProcess.execFileSync).toHaveBeenCalled();
   });
 
+  it('emits only ExpoModulesJSI when prebuilt Expo support is disabled', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+
+    createSignedMockXcframework(
+      path.join(projectRoot, 'node_modules', 'expo-modules-jsi', 'apple', 'Products'),
+      'ExpoModulesJSI'
+    );
+
+    expect(
+      emitExpoSupportXcframeworks({
+        projectRoot,
+        packageDir,
+        usePrebuiltExpo: false,
+      })
+    ).toBe(true);
+
+    expect(
+      fs.existsSync(
+        path.join(
+          packageDir,
+          'ExpoModulesJSI.xcframework',
+          'ios-arm64_x86_64-simulator',
+          'ExpoModulesJSI.framework',
+          'ExpoModulesJSI'
+        )
+      )
+    ).toBe(true);
+    expect(fs.existsSync(path.join(packageDir, 'ExpoFileSystem.xcframework'))).toBe(
+      false
+    );
+    expect(fs.existsSync(path.join(packageDir, 'ExpoFont.xcframework'))).toBe(
+      false
+    );
+    expect(
+      fs.existsSync(path.join(packageDir, 'ExpoModulesCore.xcframework'))
+    ).toBe(false);
+  });
+
   it('fails clearly when ExpoFileSystem.xcframework is missing from Pods', () => {
     vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
     vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);

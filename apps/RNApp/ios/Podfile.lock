@@ -1,5 +1,5 @@
 PODS:
-  - BrownfieldNavigation (3.13.0):
+  - BrownfieldNavigation (3.13.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -21,7 +21,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - Brownie (3.13.0):
+  - Brownie (3.13.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1803,7 +1803,7 @@ PODS:
     - ReactNativeDependencies
   - ReactAppDependencyProvider (0.85.0):
     - ReactCodegen
-  - ReactBrownfield (3.13.0):
+  - ReactBrownfield (3.13.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2174,8 +2174,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  BrownfieldNavigation: 5e2a0bf8c681e2e55c0b7a9572313202a873ee38
-  Brownie: 6a10aac616dede9b5e6e59fe67af5540fe8fce0b
+  BrownfieldNavigation: 8146f96f66306e94c36d7e2f8f1d67a686a25051
+  Brownie: d670f2a9208c9aff2f99dd6b466877b2011a229f
   FBLazyVector: c00c20551d40126351a6783c47ce75f5b374851b
   hermes-engine: 05cd56ea9fb0e7f74219230acf32a6f31d86b3c8
   RCTDeprecation: 3bb167081b134461cfeb875ff7ae1945f8635257
@@ -2246,7 +2246,7 @@ SPEC CHECKSUMS:
   React-utils: f747ea9fa3f4b293533ec4ef7976d1e37f004ef8
   React-webperformancenativemodule: cf676ba871cc4b6ae175f75b92e8c689960c4141
   ReactAppDependencyProvider: 5787b37b8e2e51dfeab697ec031cc7c4080dcea2
-  ReactBrownfield: fe2c00d9a158d341a3e5b02471034b8acfb1c1ca
+  ReactBrownfield: a4c75a93524a50336ef486b799a73b95fe039fa5
   ReactCodegen: d9ba64702c846111b3eeb157ea2e15aa5bb2ea55
   ReactCommon: fe2a3af8975e63efa60f95fca8c34dc85deee360
   ReactNativeDependencies: 3112b1660fc53efb9f3670b66f4384aa879c8090

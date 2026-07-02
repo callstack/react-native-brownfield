@@ -9,6 +9,7 @@ import { copyDebugBundleToSimulatorSlice } from '../../utils/copyDebugBundleToSi
 import { createLocalSpmPackage } from '../../utils/createLocalSpmPackage.js';
 import { emitExpoSupportXcframeworks } from '../../utils/emitExpoSupportXcframeworks.js';
 import { resolvePackagedFrameworkName } from '../../utils/resolvePackagedFrameworkName.js';
+import { supportsPrebuiltExpo } from '../../utils/supportsPrebuiltExpo.js';
 
 vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
   const actual = await importOriginal<typeof appleHelpers>();
@@ -88,6 +89,14 @@ vi.mock('../../utils/supportsPrebuiltRNCore.js', () => ({
   })),
 }));
 
+vi.mock('../../utils/supportsPrebuiltExpo.js', () => ({
+  supportsPrebuiltExpo: vi.fn(() => ({
+    supported: true,
+    enabledByDefault: true,
+    reason: '',
+  })),
+}));
+
 vi.mock('../../../brownie/helpers/runBrownieCodegenIfApplicable.js', () => ({
   runBrownieCodegenIfApplicable: vi.fn(async () => ({
     hasBrownie: false,
@@ -156,6 +165,7 @@ const mockLoggerWarn = rockTools.logger.warn as Mock;
 const mockCreateLocalSpmPackage = createLocalSpmPackage as Mock;
 const mockEmitExpoSupportXcframeworks = emitExpoSupportXcframeworks as Mock;
 const mockResolvePackagedFrameworkName = resolvePackagedFrameworkName as Mock;
+const mockSupportsPrebuiltExpo = supportsPrebuiltExpo as Mock;
 
 describe('package:ios action --add-spm-package', () => {
   beforeEach(() => {
@@ -165,6 +175,11 @@ describe('package:ios action --add-spm-package', () => {
       frameworkName: 'BrownfieldLib',
       resolution: 'explicit',
       candidates: [],
+    });
+    mockSupportsPrebuiltExpo.mockReturnValue({
+      supported: true,
+      enabledByDefault: true,
+      reason: '',
     });
     mockCreateLocalSpmPackage.mockReturnValue({
       packageManifestPath: '/repo/ios/.brownfield/package/build/Package.swift',
@@ -188,6 +203,7 @@ describe('package:ios action --add-spm-package', () => {
     expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith({
       packageDir: '/repo/ios/.brownfield/package/build',
       frameworkName: 'BrownfieldLib',
+      usePrebuiltExpo: true,
     });
     expect(mockLoggerSuccess).toHaveBeenCalledWith(
       'Local SPM package manifest created at /repo/ios/.brownfield/package/build/Package.swift'
@@ -195,6 +211,27 @@ describe('package:ios action --add-spm-package', () => {
     expect(mockLoggerInfo).toHaveBeenCalledWith(
       'Add the local package folder in Xcode: /repo/ios/.brownfield/package/build'
     );
+  });
+
+  test('forwards explicit prebuilt Expo opt-out to Expo emission and SPM packaging', async () => {
+    await invokePackageIosAction([
+      '--add-spm-package',
+      '--use-prebuilt-expo',
+      'false',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith({
+      projectRoot: '/repo',
+      packageDir: '/repo/ios/.brownfield/package/build',
+      usePrebuiltExpo: false,
+    });
+    expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith({
+      packageDir: '/repo/ios/.brownfield/package/build',
+      frameworkName: 'BrownfieldLib',
+      usePrebuiltExpo: false,
+    });
   });
 
   test('fails fast when Release packaging cannot resolve the framework name and SPM output was requested', async () => {
@@ -251,6 +288,7 @@ describe('package:ios action --add-spm-package', () => {
     expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith({
       projectRoot: '/repo',
       packageDir: '/repo/ios/.brownfield/package/build',
+      usePrebuiltExpo: true,
     });
     expect(
       mockEmitExpoSupportXcframeworks.mock.invocationCallOrder[0]

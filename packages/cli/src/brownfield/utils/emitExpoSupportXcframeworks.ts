@@ -6,7 +6,7 @@ import { RockError } from '@rock-js/tools';
 import { normalizeCopiedXcframework } from './normalizeCopiedXcframework.js';
 import { getExpoSdkMajor, isExpoProject } from './project.js';
 
-const MIN_EXPO_SDK_MAJOR_FOR_SUPPORT_XCFRAMEWORKS = 56;
+import { MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_EXPO } from './supportsPrebuiltExpo.js';
 
 /**
  * Swift support XCFrameworks
@@ -23,7 +23,7 @@ const SWIFT_SUPPORT_XCFRAMEWORK_NAMES = [
   'libavif',
 ] as const;
 
-const EXPO_SUPPORT_XCFRAMEWORK_NAMES = [
+export const EXPO_SUPPORT_XCFRAMEWORK_NAMES = [
   'ExpoModulesJSI',
   'ExpoFileSystem',
   'ExpoFont',
@@ -36,6 +36,12 @@ export const ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES = [
   ...EXPO_SUPPORT_XCFRAMEWORK_NAMES,
   ...SWIFT_SUPPORT_XCFRAMEWORK_NAMES,
 ] as const;
+
+export function getExpoSupportXcframeworkNames(usePrebuiltExpo: boolean) {
+  return usePrebuiltExpo
+    ? ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES
+    : (['ExpoModulesJSI'] as const);
+}
 
 type SwiftSupportXcframeworkName =
   (typeof SWIFT_SUPPORT_XCFRAMEWORK_NAMES)[number];
@@ -84,9 +90,11 @@ function resolveExpoFrameworkSourcePath(
 export function emitExpoSupportXcframeworks({
   projectRoot,
   packageDir,
+  usePrebuiltExpo = true,
 }: {
   projectRoot: string;
   packageDir: string;
+  usePrebuiltExpo?: boolean;
 }) {
   if (!isExpoProject(projectRoot)) {
     return false;
@@ -95,19 +103,19 @@ export function emitExpoSupportXcframeworks({
   const expoSdkMajor = getExpoSdkMajor(projectRoot);
   if (
     expoSdkMajor === null ||
-    expoSdkMajor < MIN_EXPO_SDK_MAJOR_FOR_SUPPORT_XCFRAMEWORKS
+    expoSdkMajor < MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_EXPO
   ) {
     return false;
   }
 
-  for (const frameworkName of ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES) {
+  for (const frameworkName of getExpoSupportXcframeworkNames(usePrebuiltExpo)) {
     const sourcePath = resolveExpoFrameworkSourcePath(
       projectRoot,
       frameworkName
     );
     if (!fs.existsSync(sourcePath)) {
       throw new RockError(
-        `Expected Expo SDK ${MIN_EXPO_SDK_MAJOR_FOR_SUPPORT_XCFRAMEWORKS}+ XCFramework not found: ${frameworkName}.xcframework at ${path.relative(projectRoot, sourcePath)}`
+        `Expected Expo SDK ${MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_EXPO}+ XCFramework not found: ${frameworkName}.xcframework at ${path.relative(projectRoot, sourcePath)}`
       );
     }
 

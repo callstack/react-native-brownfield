@@ -134,6 +134,8 @@ This creates the XCFramework in **`ios/.brownfield/package/build/`** (relative t
 
 If you prefer to keep the settings on the command line, you can still run `npx brownfield package:ios --scheme <framework_target_name> --configuration Release` instead.
 
+If you are packaging an Expo app and want to keep the generated Expo support set minimal, pass `--use-prebuilt-expo false`. In that mode Brownfield emits only `ExpoModulesJSI.xcframework`; when the flag is omitted or set to `true`, the full Expo support set remains enabled.
+
 If you also want a local Swift Package Manager wrapper around the generated XCFrameworks, add `--add-spm-package`:
 
 ```bash
@@ -178,6 +180,8 @@ If you ran `package:ios` with `--add-spm-package`, you can add the generated fol
 3. Select `ios/.brownfield/package/build/`
 
 The generated package references the packaged Brownfield XCFramework, Hermes, `ReactBrownfield`, and other frameworks such as `Brownie`, `BrownfieldNavigation`, `React`, and `ReactNativeDependencies` when they exist in that folder. For Expo, this will also link the frameworks like `ExpoModulesCore` etc.
+
+If `--use-prebuilt-expo false` was used, the generated package only references `ExpoModulesJSI` from the Expo support set.
 
 After adding the local package:
 
@@ -311,6 +315,15 @@ When using the `--use-prebuilt-rn-core` flag:
   - Brownfield will use prebuilts if that flag is not set, or is set to true (default behaviour in flag absence: prebuilts **are** used)
   - if the flag is explicitly set to false, Brownfield will **not** use prebuilts
 - will fail for RN < 0.81, or Expo < 55 due to Brownfield CLI checks (those scenarios will not work with prebuilts)
+
+## Expo Prebuilts
+
+Starting Expo SDK 56, the prebuilts for expo modules are enabled by default. If you wish to opt out of prebuilt, pass the `--use-prebuilt-expo false` flag to the brownfield CLI.
+
+:::info
+The above only instructs the brownfield CLI whether to use prebuilt. You also need to disable prebuilt for Expo. See the [guide](https://docs.expo.dev/guides/prebuilt-expo-modules/)
+:::
+
 
 ## Next Steps
 
