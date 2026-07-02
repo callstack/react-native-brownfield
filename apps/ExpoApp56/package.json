@@ -1,7 +1,7 @@
 {
   "name": "@callstack/brownfield-example-expo-app-56",
   "main": "./entry.tsx",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
