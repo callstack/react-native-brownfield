@@ -1955,11 +1955,11 @@ __metadata:
     "@react-native-community/cli-types": "npm:^20.0.0"
     "@react-native/babel-preset": "npm:0.82.1"
     "@react-native/eslint-config": "npm:0.82.1"
-    "@rock-js/platform-android": "npm:^0.13.5"
-    "@rock-js/platform-apple-helpers": "patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch"
-    "@rock-js/plugin-brownfield-android": "npm:^0.13.5"
-    "@rock-js/plugin-brownfield-ios": "npm:^0.13.5"
-    "@rock-js/tools": "npm:^0.13.5"
+    "@rock-js/platform-android": "npm:^0.14.0"
+    "@rock-js/platform-apple-helpers": "npm:^0.14.0"
+    "@rock-js/plugin-brownfield-android": "npm:^0.14.0"
+    "@rock-js/plugin-brownfield-ios": "npm:^0.14.0"
+    "@rock-js/tools": "npm:^0.14.0"
     "@types/babel__core": "npm:^7.20.5"
     "@types/babel__preset-env": "npm:^7.10.0"
     "@types/node": "npm:^25.5.0"
@@ -6913,67 +6913,53 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rock-js/platform-android@npm:^0.13.5":
-  version: 0.13.5
-  resolution: "@rock-js/platform-android@npm:0.13.5"
+"@rock-js/platform-android@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@rock-js/platform-android@npm:0.14.0"
   dependencies:
     "@react-native-community/cli-config-android": "npm:^20.0.0"
-    "@rock-js/tools": "npm:^0.13.5"
+    "@rock-js/tools": "npm:^0.14.0"
     tslib: "npm:^2.3.0"
-  checksum: 10/21819b2d76ae8277ebcf3798598bdc89bc27c09c218ddae7ffb5498e4e9e597e7294aebc5b5381417991576e48ec273a7c21c24b088616eb2126addf70a1d7ae
+  checksum: 10/366a10cd0157fa75190e311196398813a4c20e647007421cce4e6734dbc68b790b74e9882b796d5d55d6fcabb9f687873c78c5f56415fc962967a3a7e6299a29
   languageName: node
   linkType: hard
 
-"@rock-js/platform-apple-helpers@npm:0.13.5":
-  version: 0.13.5
-  resolution: "@rock-js/platform-apple-helpers@npm:0.13.5"
+"@rock-js/platform-apple-helpers@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@rock-js/platform-apple-helpers@npm:0.14.0"
   dependencies:
     "@react-native-community/cli-config": "npm:^20.0.0"
     "@react-native-community/cli-config-apple": "npm:^20.0.0"
-    "@rock-js/tools": "npm:^0.13.5"
+    "@rock-js/tools": "npm:^0.14.0"
     adm-zip: "npm:^0.5.16"
     fast-xml-parser: "npm:^4.5.0"
     tslib: "npm:^2.3.0"
-  checksum: 10/e53171a46e2ad0db574009ba4d66fcb6b22f5243d334662cb506c9d2aaf60574bf30f9537204e84bdf486627b2796da47cd7592a5aaaaba72ea3ca345bb31b10
+  checksum: 10/442a90e6c6a064e9bac2ea68ae447734890734a26242bcab36c46ff11591d954cbe89cc0de62b4feec6da8bab13a3cbfca40b54fb7017349ef7403ddd086e55e
   languageName: node
   linkType: hard
 
-"@rock-js/platform-apple-helpers@patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch":
-  version: 0.13.5
-  resolution: "@rock-js/platform-apple-helpers@patch:@rock-js/platform-apple-helpers@npm%3A0.13.5#~/.yarn/patches/@rock-js-platform-apple-helpers-npm-0.13.5-faad2245ce.patch::version=0.13.5&hash=03e7f9"
-  dependencies:
-    "@react-native-community/cli-config": "npm:^20.0.0"
-    "@react-native-community/cli-config-apple": "npm:^20.0.0"
-    "@rock-js/tools": "npm:^0.13.5"
-    adm-zip: "npm:^0.5.16"
-    fast-xml-parser: "npm:^4.5.0"
-    tslib: "npm:^2.3.0"
-  checksum: 10/30da591c4140627b76b56894a8183821bc7b94d9d6d63f1d08fe222cb0c8a81c9514f775e53218ec42394408fdf5401fb5e30c5f310ea9ce7a8e2ade3dcd5cf2
-  languageName: node
-  linkType: hard
-
-"@rock-js/plugin-brownfield-android@npm:^0.13.5":
-  version: 0.13.5
-  resolution: "@rock-js/plugin-brownfield-android@npm:0.13.5"
+"@rock-js/plugin-brownfield-android@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@rock-js/plugin-brownfield-android@npm:0.14.0"
   dependencies:
     "@react-native-community/cli-config-android": "npm:^20.0.0"
-    "@rock-js/platform-android": "npm:^0.13.5"
-    "@rock-js/tools": "npm:^0.13.5"
+    "@rock-js/platform-android": "npm:^0.14.0"
+    "@rock-js/tools": "npm:^0.14.0"
     tslib: "npm:^2.3.0"
-  checksum: 10/77a32e463986b7f08919dfa54d6cb54868cc0f38de6ab381a5e9a07b549cc4c9b23f6e95135373d529b0619b0548172fa19cbc9affc98d0fabd79dff56ef8853
+  checksum: 10/5c22ffd3da57b5107ec19fa9909f26d936e0719f7774955553dbc0d3260fc46ae0b9eb085d215b3994d52ccb90afd76e943691438fdb795df6a4ffc215aabae9
   languageName: node
   linkType: hard
 
-"@rock-js/plugin-brownfield-ios@npm:^0.13.5":
-  version: 0.13.5
-  resolution: "@rock-js/plugin-brownfield-ios@npm:0.13.5"
+"@rock-js/plugin-brownfield-ios@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@rock-js/plugin-brownfield-ios@npm:0.14.0"
   dependencies:
     "@react-native-community/cli-config-apple": "npm:^20.0.0"
     "@react-native-community/cli-types": "npm:^20.0.0"
-    "@rock-js/platform-apple-helpers": "npm:^0.13.5"
-    "@rock-js/tools": "npm:^0.13.5"
+    "@rock-js/platform-apple-helpers": "npm:^0.14.0"
+    "@rock-js/tools": "npm:^0.14.0"
     tslib: "npm:^2.3.0"
-  checksum: 10/9b39f350286b463575621efba9cd0a4496e8cc8ed601e1b29649afca73f2ed8529a6b7738ef7f351b815a2e3e068fedca6aa8fe0ab80c2521aae4d23da33e994
+  checksum: 10/7ec4634d63d7b7913ed08e078dc52546cba08b176de864611cf36548b86ed4d7a67770f26b941816173e3cc5636114bbb1233a43652995ed18d186eebecc1aae
   languageName: node
   linkType: hard
 
@@ -6992,6 +6978,24 @@ __metadata:
     tar: "npm:^7.5.1"
     tslib: "npm:^2.3.0"
   checksum: 10/7731aee927e3895ac9ff265eccab7c62f388f54f91bd1f01ce9155a960172efb59598463c35ef5438990f51bcce00355b8ac877f0755612e689cf5ff0dd76f90
+  languageName: node
+  linkType: hard
+
+"@rock-js/tools@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@rock-js/tools@npm:0.14.0"
+  dependencies:
+    "@clack/prompts": "npm:^0.11.0"
+    adm-zip: "npm:^0.5.16"
+    appdirsjs: "npm:^1.2.7"
+    fs-fingerprint: "npm:^0.11.0"
+    is-unicode-supported: "npm:^2.1.0"
+    nano-spawn: "npm:^0.2.0"
+    picocolors: "npm:^1.1.1"
+    string-argv: "npm:^0.3.2"
+    tar: "npm:^7.5.1"
+    tslib: "npm:^2.3.0"
+  checksum: 10/f1aa44e7f98379a40f5deeb004ab9c0c683ed43fd66042fcac5ab124b47b8cb2a1fa2e8fa156cf8443441f2ef07aad7837f2db2860e839cbd32d2c82252ad74b
   languageName: node
   linkType: hard
 
