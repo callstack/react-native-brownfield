@@ -43,7 +43,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config: createConfig(),
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     expect(readLibraryManifest(androidDir))
@@ -79,7 +78,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config: createConfig(),
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     expect(readLibraryManifest(androidDir))
@@ -121,7 +119,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config,
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     writeAppManifest(

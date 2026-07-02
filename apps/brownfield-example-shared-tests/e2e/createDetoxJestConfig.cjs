@@ -4,7 +4,7 @@ const path = require('node:path');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
 
 /**
- * Shared Detox Jest config for brownfield example apps (RNApp, ExpoApp54, ExpoApp55, AppleApp).
+ * Shared Detox Jest config for brownfield example apps (RNApp, ExpoApp55, AppleApp).
  *
  * @param {{ e2eDir: string, testMatch: string[] }} options
  */

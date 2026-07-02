@@ -23,7 +23,7 @@ inputs:
     default: 'false'
 
   gradle-workflow-job-context:
-    description: 'Segment Gradle cache per app/project (e.g. vanilla, expo54). Falls back to github.job when empty.'
+    description: 'Segment Gradle cache per app/project (e.g. vanilla, expo55). Falls back to github.job when empty.'
     required: false
     default: ''
 
