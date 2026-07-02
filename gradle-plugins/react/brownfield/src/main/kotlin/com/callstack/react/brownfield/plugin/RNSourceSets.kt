@@ -68,7 +68,6 @@ object RNSourceSets {
                     )
                 val updateResourcesPathSegment = Utils.getExpoUpdatesResourcesTaskName(variant.name)
 
-                // Add the variant-specific generated asset and resource directories
                 val appBuildDir = getAppBuildDir()
                 sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
                 sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })

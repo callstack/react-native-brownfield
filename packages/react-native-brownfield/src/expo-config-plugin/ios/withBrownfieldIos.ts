@@ -9,6 +9,7 @@ import {
   addFrameworkTarget,
   addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
+  resolveFrameworkDeploymentTarget,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
 import { injectFmtFixIntoPodfile } from './withFmtFix';
@@ -37,11 +38,17 @@ export const withBrownfieldIos: ConfigPlugin<
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
     const hasExpoUpdates = hasExpoUpdatesInstalled(modRequest.projectRoot);
+    const iosProps = {
+      ...props.ios,
+      deploymentTarget: resolveFrameworkDeploymentTarget(project, modRequest, {
+        fallbackDeploymentTarget: props.ios.deploymentTarget,
+      }),
+    };
 
     const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
-      props.ios
+      iosProps
     );
 
     // Ensure Expo.plist is present in the framework resources phase when
@@ -90,7 +97,7 @@ export const withBrownfieldIos: ConfigPlugin<
       );
     }
 
-    addSourceFilesBuildPhase(project, frameworkTargetUUID, props.ios);
+    addSourceFilesBuildPhase(project, frameworkTargetUUID, iosProps);
 
     return xcodeConfig;
   });

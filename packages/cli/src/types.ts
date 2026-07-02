@@ -33,6 +33,9 @@ export type PackageIosOptions = Omit<AppleBuildFlags, 'archive' | 'local'> & {
   /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
   usePrebuiltRnCore?: boolean;
 
+  /** Set when `--use-prebuilt-expo` is passed; omitted when the flag is absent (Rock applies Expo version defaults). */
+  usePrebuiltExpo?: boolean;
+
   /** When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs. */
   addSpmPackage?: boolean;
 };

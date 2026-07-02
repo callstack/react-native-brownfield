@@ -1,6 +1,5 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -40,11 +39,6 @@ const sourcePackagePath = path.join(
 
 const targetPackagePath = path.join(__dirname, 'package');
 
-const prebuiltRnCoreArtifacts = [
-  'React.xcframework',
-  'ReactNativeDependencies.xcframework',
-];
-
 /**
  * The Xcode project is configured to link the following frameworks:
  * - BrownfieldLib (constant)
@@ -58,17 +52,6 @@ const prebuiltRnCoreArtifacts = [
  * RN >= 0.84 ships prebuilts by default, therefore Brownfield enables them in packaging by default for RN >= 0.84.
  *
  */
-
-const validNames = [
-  'BrownfieldLib.xcframework',
-  'Brownie.xcframework',
-  'hermesvm.xcframework',
-  'ReactBrownfield.xcframework',
-  'BrownfieldNavigation.xcframework',
-  // below: optional, emitted when RN is packaged with prebuilt iOS pods
-  'React.xcframework',
-  'ReactNativeDependencies.xcframework',
-];
 
 if (fs.existsSync(targetPackagePath)) {
   logger.info(`Removing ${targetPackagePath}\n`);
@@ -86,15 +69,17 @@ const preferredArtifactSourcePath = fs.existsSync(spmArtifactsPath)
   : sourcePackagePath;
 
 for (const file of fs.readdirSync(preferredArtifactSourcePath)) {
+  const sourcePath = path.join(preferredArtifactSourcePath, file);
+
   if (
-    !validNames.includes(file) &&
-    !['hermes.xcframework', 'hermesvm.xcframework'].includes(file)
+    !fs.statSync(sourcePath).isDirectory() ||
+    !file.endsWith('.xcframework')
   ) {
     continue;
   }
 
   fs.cpSync(
-    path.join(preferredArtifactSourcePath, file),
+    sourcePath,
     path.join(targetPackagePath, file),
     {
       recursive: true,
@@ -104,10 +89,19 @@ for (const file of fs.readdirSync(preferredArtifactSourcePath)) {
 
 // handle hermesvm.xcframework / hermes.xcframework
 let hermesArtifactFound = false;
-for (const candidateDir of ['hermes.xcframework', 'hermesvm.xcframework']) {
-  if (fs.existsSync(path.join(targetPackagePath, candidateDir))) {
+if (fs.existsSync(path.join(targetPackagePath, 'hermesvm.xcframework'))) {
+  hermesArtifactFound = true;
+}
+
+if (fs.existsSync(path.join(targetPackagePath, 'hermes.xcframework'))) {
+  if (hermesArtifactFound) {
+    fs.rmSync(path.join(targetPackagePath, 'hermes.xcframework'), {
+      recursive: true,
+      force: true,
+    });
+  } else {
     fs.renameSync(
-      path.join(targetPackagePath, candidateDir),
+      path.join(targetPackagePath, 'hermes.xcframework'),
       path.join(targetPackagePath, 'hermesvm.xcframework')
     );
     hermesArtifactFound = true;
@@ -118,23 +112,8 @@ if (!hermesArtifactFound) {
   throw new Error('Hermes artifact not found');
 }
 
-for (const artifact of prebuiltRnCoreArtifacts) {
-  const xcframeworkPath = path.join(targetPackagePath, artifact);
-  if (!fs.existsSync(xcframeworkPath)) {
-    continue;
-  }
-
-  // RN prebuilts ship with a sealed signature that CocoaPods/brownfield packaging
-  // can invalidate (module.modulemap drift). Re-sign locally so Xcode can embed them.
-  logger.info(`Re-signing ${artifact} for AppleApp consumer build`);
-  execFileSync('codesign', ['--force', '--sign', '-', '--deep', xcframeworkPath], {
-    stdio: 'inherit',
-  });
-  logger.success(`${artifact} re-signed`);
-}
-
 for (const file of fs.readdirSync(targetPackagePath)) {
-  if (!validNames.includes(file)) {
+  if (!file.endsWith('.xcframework')) {
     throw new Error(`Invalid file name: ${file}`);
   }
 

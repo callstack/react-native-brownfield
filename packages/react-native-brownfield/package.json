@@ -63,6 +63,7 @@
   "files": [
     "src",
     "lib",
+    "app.plugin.js",
     "scripts",
     "gradle-plugin",
     "android",
@@ -85,7 +86,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@expo/config-plugins": "^54.0.4"
+    "@expo/config-plugins": ">=54 <100"
   },
   "dependencies": {
     "@callstack/brownfield-cli": "workspace:^"
@@ -94,7 +95,7 @@
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
-    "@expo/config-plugins": "^54.0.4",
+    "@expo/config-plugins": "^56.0.8",
     "@react-native/babel-preset": "0.83.2",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.1.1",
