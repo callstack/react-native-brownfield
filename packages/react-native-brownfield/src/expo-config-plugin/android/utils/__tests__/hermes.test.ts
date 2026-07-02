@@ -26,7 +26,10 @@ describe('getHermesArtifact', () => {
   });
 
   it('should return correct artifact for RN 0.84.0', () => {
-    const artifact = getHermesArtifact('0.84.0');
+    const projectRoot = createProjectRootWithVersionProperties(
+      'HERMES_VERSION_NAME=0.15.1\n'
+    );
+    const artifact = getHermesArtifact('0.84.0', projectRoot);
     expect(artifact).toEqual({
       groupId: 'com.facebook.hermes',
       artifactId: 'hermes-android',
@@ -35,7 +38,10 @@ describe('getHermesArtifact', () => {
   });
 
   it('should return correct artifact for RN 0.85.0', () => {
-    const artifact = getHermesArtifact('0.85.0');
+    const projectRoot = createProjectRootWithVersionProperties(
+      'HERMES_VERSION_NAME=0.15.1\n'
+    );
+    const artifact = getHermesArtifact('0.85.0', projectRoot);
     expect(artifact).toEqual({
       groupId: 'com.facebook.hermes',
       artifactId: 'hermes-android',

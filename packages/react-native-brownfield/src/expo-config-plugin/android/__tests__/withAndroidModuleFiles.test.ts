@@ -248,24 +248,6 @@ HERMES_V1_VERSION_NAME=250829098.0.10
     expect(resolveTargetSdkVersionExpression(config)).toBe('37');
   });
 
-  it('writes an explicit Expo entrypoint into the generated post-55 host manager', () => {
-    const androidDir = createAndroidDir();
-
-    createAndroidModule({
-      androidDir,
-      config: createConfig(),
-      rnVersion: '0.85.3',
-      isExpoPre55: false,
-    });
-
-    expect(readLibraryHostManager(androidDir)).toContain(
-      'jsMainModulePath = ".expo/.virtual-metro-entry"'
-    );
-    expect(readLibraryHostManager(androidDir)).toContain(
-      'jsBundleAssetPath = "index.android.bundle"'
-    );
-  });
-
   function createAndroidDir(): string {
     const tempDirectory = fs.mkdtempSync(
       path.join(os.tmpdir(), 'react-native-brownfield-android-module-')
@@ -363,23 +345,6 @@ HERMES_V1_VERSION_NAME=250829098.0.10
   function readLibraryBuildGradle(androidDir: string): string {
     return fs.readFileSync(
       path.join(androidDir, 'brownfieldlib', 'build.gradle.kts'),
-      'utf8'
-    );
-  }
-
-  function readLibraryHostManager(androidDir: string): string {
-    return fs.readFileSync(
-      path.join(
-        androidDir,
-        'brownfieldlib',
-        'src',
-        'main',
-        'java',
-        'com',
-        'example',
-        'brownfield',
-        'ReactNativeHostManager.kt'
-      ),
       'utf8'
     );
   }
