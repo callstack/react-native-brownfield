@@ -1,5 +1,12 @@
 # @callstack/brownfield-navigation
 
+## 3.15.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.15.0
+
 ## 3.14.0
 
 ### Minor Changes

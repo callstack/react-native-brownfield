@@ -2,6 +2,17 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 3.15.0
+
+### Minor Changes
+
+- [#410](https://github.com/callstack/react-native-brownfield/pull/410) [`03c2496`](https://github.com/callstack/react-native-brownfield/commit/03c2496989fdafdc0863a97f01df9b7f5cd78a55) Thanks [@hurali97](https://github.com/hurali97)! - bump brownfield-gradle-plugin
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.15.0
+
 ## 3.14.0
 
 ### Minor Changes
