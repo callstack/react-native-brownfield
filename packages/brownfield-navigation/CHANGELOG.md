@@ -1,5 +1,16 @@
 # @callstack/brownfield-navigation
 
+## 3.14.0
+
+### Minor Changes
+
+- [#360](https://github.com/callstack/react-native-brownfield/pull/360) [`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56) Thanks [@adamTrz](https://github.com/adamTrz)! - Expo SDK 56 support
+
+### Patch Changes
+
+- Updated dependencies [[`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56)]:
+  - @callstack/brownfield-cli@3.14.0
+
 ## 3.13.2
 
 ### Patch Changes
