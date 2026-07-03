@@ -56,14 +56,72 @@ export default TurboModuleRegistry.getEnforcing<Spec>(
 `;
 }
 
+const SKIP_TYPE_TOKENS = new Set([
+  'Array',
+  'Date',
+  'Map',
+  'Object',
+  'Promise',
+  'ReadonlyArray',
+  'Record',
+  'Set',
+  'any',
+  'boolean',
+  'false',
+  'null',
+  'number',
+  'object',
+  'string',
+  'true',
+  'undefined',
+  'unknown',
+  'void',
+]);
+
+function collectTypesUsedByMethods(methods: MethodSignature[]): Set<string> {
+  const used = new Set<string>();
+
+  for (const method of methods) {
+    const typeTexts = [
+      method.returnType,
+      ...method.params.map((param) => param.type),
+    ];
+
+    for (const typeText of typeTexts) {
+      const matches = typeText.match(/\b[A-Za-z_]\w*\b/g);
+      if (!matches) {
+        continue;
+      }
+
+      for (const name of matches) {
+        if (!SKIP_TYPE_TOKENS.has(name)) {
+          used.add(name);
+        }
+      }
+    }
+  }
+
+  return used;
+}
+
 function buildTypeImportLine(
+  methods: MethodSignature[],
   referencedTypeDeclarations: TypeDeclaration[]
 ): string {
   if (referencedTypeDeclarations.length === 0) {
     return '';
   }
 
-  const names = referencedTypeDeclarations.map((entry) => entry.name).join(', ');
+  const usedTypes = collectTypesUsedByMethods(methods);
+  const names = referencedTypeDeclarations
+    .map((entry) => entry.name)
+    .filter((name) => usedTypes.has(name))
+    .join(', ');
+
+  if (names.length === 0) {
+    return '';
+  }
+
   return `import type { ${names} } from './NativeBrownfieldNavigation';\n`;
 }
 
@@ -71,7 +129,7 @@ export function generateIndexTs(
   methods: MethodSignature[],
   referencedTypeDeclarations: TypeDeclaration[] = []
 ): string {
-  const typeImportLine = buildTypeImportLine(referencedTypeDeclarations);
+  const typeImportLine = buildTypeImportLine(methods, referencedTypeDeclarations);
   const functionImplementations = methods
     .map((method) => {
       const params = method.params
@@ -155,7 +213,7 @@ export function generateIndexDts(
   methods: MethodSignature[],
   referencedTypeDeclarations: TypeDeclaration[] = []
 ): string {
-  const typeImportLine = buildTypeImportLine(referencedTypeDeclarations);
+  const typeImportLine = buildTypeImportLine(methods, referencedTypeDeclarations);
   const methodSignatures = methods
     .map((method) => {
       const params = method.params

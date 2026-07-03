@@ -31,9 +31,10 @@ class VariantTaskProvider(val project: Project) {
         variant: LibraryVariant,
         explodeAarTask: TaskProvider<ExplodeAarTask>,
     ) {
+        val variantName = variant.name
         val bundledAssetsVariantName =
             Utils.getBundledAssetsVariantName(
-                variantName = variant.name,
+                variantName = variantName,
                 buildTypeName = variant.buildType,
                 isDebuggable = variant.debuggable,
             )
@@ -45,8 +46,9 @@ class VariantTaskProvider(val project: Project) {
         val jsBundleTaskName = "${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets"
 
         variant.lifecycleTasks.registerPreBuild(explodeAarTask, jsBundleTaskName)
-        if (Utils.isExpoProject(project)) {
-            variant.lifecycleTasks.registerPreBuild("${appProject.path}:create${capitalizedBundledAssetsVariantName}UpdatesResources")
+        if (Utils.isExpoProject(project) && Utils.hasExpoUpdates(appProject, variantName)) {
+            val updatesResourcesTaskName = Utils.getExpoUpdatesResourcesTaskName(variantName)
+            variant.lifecycleTasks.registerPreBuild(updatesResourcesTaskName)
         }
     }
 }

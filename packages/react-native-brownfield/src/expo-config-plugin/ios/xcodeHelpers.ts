@@ -186,7 +186,9 @@ export type PbxReferenceLike = { value?: string; comment?: string } | string;
 
 export type PbxNativeTarget = {
   buildPhases?: PbxReferenceLike[];
+  buildConfigurationList?: string;
   name?: string;
+  productReference?: string;
 };
 
 export type PbxResourcesBuildPhase = {
@@ -428,7 +430,7 @@ export function getFrameworkBuildSettings(
 
     // basic settings
     PRODUCT_BUNDLE_IDENTIFIER: `"${bundleIdentifier}"`,
-    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget,
+    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget ?? '15.0',
 
     // Ensure the BrownfieldLib (or equivalent name) is installed at the correct path
     DYLIB_INSTALL_NAME_BASE: '"@rpath"',
@@ -454,10 +456,12 @@ export function rewriteBundleReactNativePhaseScriptForFrameworkTarget(
 if [[ "$CONFIGURATION" = *Debug* ]]; then
   unset SKIP_BUNDLING
   export FORCE_BUNDLING=1
+  export EXTRA_PACKAGER_ARGS="$EXTRA_PACKAGER_ARGS --dev false"
 fi
 `;
   const debugSkipBundlingBlock =
     /if \[\[ "\$CONFIGURATION" = \*Debug\* \]\]; then\s+export SKIP_BUNDLING=1\s+fi\s*/m;
+  const forceBundlingExport = /^([ \t]*)export FORCE_BUNDLING=1[ \t]*$/m;
 
   if (debugSkipBundlingBlock.test(shellScript)) {
     return shellScript.replace(
@@ -467,6 +471,18 @@ fi
   }
 
   if (shellScript.includes('export FORCE_BUNDLING=1')) {
+    if (shellScript.includes('--dev false')) {
+      return shellScript;
+    }
+
+    if (forceBundlingExport.test(shellScript)) {
+      return shellScript.replace(
+        forceBundlingExport,
+        (_, indentation: string) =>
+          `${indentation}export FORCE_BUNDLING=1\n${indentation}export EXTRA_PACKAGER_ARGS="$EXTRA_PACKAGER_ARGS --dev false"`
+      );
+    }
+
     return shellScript;
   }
 
@@ -665,6 +681,65 @@ function resolveAppTargetName(
   );
 
   return null;
+}
+
+function normalizeXcodeBuildSettingValue(
+  value: string | number | boolean | null | undefined
+): string | null {
+  if (value == null) {
+    return null;
+  }
+
+  const normalized = IOSConfig.XcodeUtils.unquote(String(value)).trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+export function getAppTargetDeploymentTarget(
+  project: Pick<XcodeProject, 'getBuildProperty'>,
+  appTargetName: string | null
+): string | null {
+  if (!appTargetName) {
+    return null;
+  }
+
+  return (
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Release',
+        appTargetName
+      )
+    ) ??
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Debug',
+        appTargetName
+      )
+    )
+  );
+}
+
+export function resolveFrameworkDeploymentTarget(
+  project: XcodeProject,
+  modRequest: ModProps<XcodeProject>,
+  {
+    fallbackDeploymentTarget,
+  }: {
+    fallbackDeploymentTarget?: string;
+  }
+): string {
+  if (fallbackDeploymentTarget != null) {
+    return fallbackDeploymentTarget;
+  }
+
+  const appTargetName = resolveAppTargetName(project, modRequest);
+  const appTargetDeploymentTarget = getAppTargetDeploymentTarget(
+    project,
+    appTargetName
+  );
+
+  return appTargetDeploymentTarget ?? '15.0';
 }
 
 /**

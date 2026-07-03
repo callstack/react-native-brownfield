@@ -12,9 +12,11 @@ import {
   ExampleUsage,
 } from '../../shared/index.js';
 import { getProjectInfo } from '../utils/project.js';
+import { findProjectRoot } from '../utils/paths.js';
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
+import { mergeBrownfieldConfigWithOptions } from '../../config.js';
 
 export const publishAndroidCommand = curryOptions(
   new Command('publish:android').description(
@@ -22,12 +24,16 @@ export const publishAndroidCommand = curryOptions(
   ),
   publishLocalAarOptions
 ).action(
-  actionRunner(async (options: PublishLocalAarFlags) => {
-    const { projectRoot, platformConfig } = getProjectInfo('android');
+  actionRunner(async (cliOptions: PublishLocalAarFlags) => {
+    const options = mergeBrownfieldConfigWithOptions(cliOptions, 'android');
+    const projectRoot = findProjectRoot();
+
     await runExpoPrebuildIfNeeded({
       projectRoot,
       platform: 'android',
     });
+
+    const { platformConfig } = getProjectInfo('android');
 
     await runBrownieCodegenIfApplicable(projectRoot, 'kotlin');
     await runNavigationCodegenIfApplicable(projectRoot);

@@ -1,0 +1,69 @@
+'use strict';
+
+const { getIosSimulatorDeviceType } = require('./detox-ios-simulator-device.cjs');
+const { getDetoxArtifactsConfig } = require('./detox-artifacts-config.cjs');
+
+/**
+ * Detox iOS Simulator debug config for AppleApp (native Xcode project consumer).
+ *
+ * Unlike RN/Expo host apps, AppleApp links pre-packaged XCFrameworks and has no ios/
+ * workspace. Build the matching RN app first (prepareXCFrameworks) before Detox build.
+ *
+ * @param {{
+ *   scheme: string,
+ *   configuration: string,
+ *   appBinaryName: string,
+ *   detoxConfiguration?: string,
+ *   jestConfigPath?: string,
+ * }} options
+ * @returns {import('detox').DetoxConfig}
+ */
+function createAppleAppIosSimDebugDetoxConfig({
+  scheme,
+  configuration,
+  appBinaryName,
+  detoxConfiguration = 'ios.sim.debug',
+  jestConfigPath = 'e2e/jest.config.cjs',
+}) {
+  const detoxIosDebugBuild =
+    `xcodebuild -project "Brownfield Apple App.xcodeproj"` +
+    ` -scheme "${scheme}" -configuration "${configuration}" -sdk iphonesimulator` +
+    ` -derivedDataPath build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO`;
+
+  return {
+    artifacts: getDetoxArtifactsConfig(),
+    testRunner: {
+      $0: 'jest',
+      args: {
+        config: jestConfigPath,
+        _: ['e2e'],
+      },
+      jest: {
+        setupTimeout: 300000,
+      },
+    },
+    apps: {
+      'ios.debug': {
+        type: 'ios.app',
+        binaryPath: `build/Build/Products/${configuration}-iphonesimulator/${appBinaryName}.app`,
+        build: detoxIosDebugBuild,
+      },
+    },
+    devices: {
+      'ios.sim': {
+        type: 'ios.simulator',
+        device: {
+          type: getIosSimulatorDeviceType(),
+        },
+      },
+    },
+    configurations: {
+      [detoxConfiguration]: {
+        device: 'ios.sim',
+        app: 'ios.debug',
+      },
+    },
+  };
+}
+
+module.exports = { createAppleAppIosSimDebugDetoxConfig };

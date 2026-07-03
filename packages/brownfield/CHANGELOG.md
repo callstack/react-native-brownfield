@@ -1,5 +1,47 @@
 # brownfield
 
+## 3.15.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.15.0
+
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies [[`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56)]:
+  - @callstack/brownfield-cli@3.14.0
+
+## 3.13.2
+
+### Patch Changes
+
+- Updated dependencies [[`8e90842`](https://github.com/callstack/react-native-brownfield/commit/8e90842291348dcb0542a6787f5cfbb1017532dd), [`3475c3d`](https://github.com/callstack/react-native-brownfield/commit/3475c3db375988ebd63ce01bfd93f4dbb1a55e8d), [`4088c01`](https://github.com/callstack/react-native-brownfield/commit/4088c01a069306565dd3e279d9132f5dbe861d0b)]:
+  - @callstack/brownfield-cli@3.13.2
+
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies [[`89bc23c`](https://github.com/callstack/react-native-brownfield/commit/89bc23c00bb85c036fce6d4ea142fb3ba0846deb)]:
+  - @callstack/brownfield-cli@3.13.1
+
+## 3.13.0
+
+### Patch Changes
+
+- Updated dependencies [[`ef835b5`](https://github.com/callstack/react-native-brownfield/commit/ef835b52a130e4cd8770a2db04402cbb066b9c27)]:
+  - @callstack/brownfield-cli@3.13.0
+
+## 3.12.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.12.0
+
 ## 3.11.0
 
 ### Patch Changes

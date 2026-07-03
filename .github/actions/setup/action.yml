@@ -2,6 +2,10 @@ name: Setup
 description: Setup Node.js and install dependencies
 
 inputs:
+  disable-cache:
+    description: 'Disable Node.js yarn cache and Turbo cache restore (use for release/publish workflows)'
+    required: false
+    default: 'false'
   restore-turbo-cache:
     description: 'Whether to restore the Turbo cache'
     required: false
@@ -10,23 +14,25 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Setup Node.js
+    - name: Setup Node.js (with cache)
+      if: inputs.disable-cache != 'true'
       uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
       with:
         node-version: 'lts/*'
+        check-latest: true
         cache: 'yarn'
 
-    - name: Install dependencies
-      run: yarn install
-      shell: bash
-
-    - name: Build packages
-      run: yarn build
-      shell: bash
+    - name: Setup Node.js (no cache)
+      if: inputs.disable-cache == 'true'
+      uses: actions/setup-node@65d868f8d4d85d7d4abb7de0875cde3fcc8798f5 # v6
+      with:
+        node-version: 'lts/*'
+        check-latest: true
+        package-manager-cache: false
 
     - name: Restore Turbo cache
-      if: inputs.restore-turbo-cache == 'true'
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      if: inputs.disable-cache != 'true' && inputs.restore-turbo-cache == 'true'
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: |
           .turbo
@@ -36,3 +42,14 @@ runs:
         restore-keys: |
           ${{ runner.os }}-turbo-
 
+    - name: Install dependencies
+      env:
+        # Monorepo has detox in multiple workspaces; parallel postinstalls race on
+        # $HOME/Library/Detox/ios/framework. E2E jobs run postinstall once later.
+        DETOX_DISABLE_POSTINSTALL: '1'
+      run: yarn install
+      shell: bash
+
+    - name: Build packages
+      run: yarn build
+      shell: bash

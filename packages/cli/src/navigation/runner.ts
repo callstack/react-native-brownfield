@@ -122,47 +122,52 @@ function getOutputPaths(
   };
 }
 
+function writeFileEnsuringDir(filePath: string, content: string): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, content);
+}
+
 function writeArtifacts(
   paths: NavigationOutputPaths,
   artifacts: GeneratedNavigationArtifacts
 ): void {
-  fs.writeFileSync(paths.turboModuleSpec, artifacts.turboModuleSpec);
+  writeFileEnsuringDir(paths.turboModuleSpec, artifacts.turboModuleSpec);
   logger.success(`Generated ${paths.turboModuleSpec}`);
 
-  fs.writeFileSync(paths.navigationTs, artifacts.indexTs);
+  writeFileEnsuringDir(paths.navigationTs, artifacts.indexTs);
   logger.success(`Generated ${paths.navigationTs}`);
 
-  fs.writeFileSync(paths.commonjsIndexJs, artifacts.indexJs);
+  writeFileEnsuringDir(paths.commonjsIndexJs, artifacts.indexJs);
   logger.success(`Generated ${paths.commonjsIndexJs}`);
 
-  fs.writeFileSync(paths.moduleIndexJs, artifacts.indexJs);
+  writeFileEnsuringDir(paths.moduleIndexJs, artifacts.indexJs);
   logger.success(`Generated ${paths.moduleIndexJs}`);
 
-  fs.writeFileSync(paths.commonjsIndexDts, artifacts.indexDts);
+  writeFileEnsuringDir(paths.commonjsIndexDts, artifacts.indexDts);
   logger.success(`Generated ${paths.commonjsIndexDts}`);
 
-  fs.writeFileSync(paths.moduleIndexDts, artifacts.indexDts);
+  writeFileEnsuringDir(paths.moduleIndexDts, artifacts.indexDts);
   logger.success(`Generated ${paths.moduleIndexDts}`);
 
-  fs.writeFileSync(paths.swiftDelegate, artifacts.swiftDelegate);
+  writeFileEnsuringDir(paths.swiftDelegate, artifacts.swiftDelegate);
   logger.success(`Generated ${paths.swiftDelegate}`);
 
   if (artifacts.swiftModels) {
-    fs.writeFileSync(paths.swiftModels, artifacts.swiftModels);
+    writeFileEnsuringDir(paths.swiftModels, artifacts.swiftModels);
     logger.success(`Generated ${paths.swiftModels}`);
   }
 
-  fs.writeFileSync(paths.objcImplementation, artifacts.objcImplementation);
+  writeFileEnsuringDir(paths.objcImplementation, artifacts.objcImplementation);
   logger.success(`Generated ${paths.objcImplementation}`);
 
-  fs.writeFileSync(paths.kotlinDelegate, artifacts.kotlinDelegate);
+  writeFileEnsuringDir(paths.kotlinDelegate, artifacts.kotlinDelegate);
   logger.success(`Generated ${paths.kotlinDelegate}`);
 
-  fs.writeFileSync(paths.kotlinModule, artifacts.kotlinModule);
+  writeFileEnsuringDir(paths.kotlinModule, artifacts.kotlinModule);
   logger.success(`Generated ${paths.kotlinModule}`);
 
   if (artifacts.kotlinModels) {
-    fs.writeFileSync(paths.kotlinModels, artifacts.kotlinModels);
+    writeFileEnsuringDir(paths.kotlinModels, artifacts.kotlinModels);
     logger.success(`Generated ${paths.kotlinModels}`);
   }
 }

@@ -176,7 +176,9 @@ ReactNativeView(moduleName: "ExpoRNApp")
 
 ## Plugin Options
 
-You can pass plugin options through the second item in the `plugins` tuple in `app.json`:
+For Expo projects, prefer a [`brownfield.config.json`](/docs/api-reference/configuration#expo-projects) file so the same settings drive both `expo prebuild` and Brownfield CLI commands.
+
+You can still pass plugin options through the second item in the `plugins` tuple in `app.json` when you do **not** use a Brownfield config file:
 
 ```json
 {
@@ -186,13 +188,11 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
       {
         "ios": {
           "frameworkName": "MyBrownfieldLib",
-          "bundleIdentifier": "com.example.app.brownfield",
-          ...
+          "bundleIdentifier": "com.example.app.brownfield"
         },
         "android": {
           "moduleName": "mybrownfieldlib",
-          "packageName": "com.example.mybrownfieldlib",
-          ...
+          "packageName": "com.example.mybrownfieldlib"
         }
       }
     ]
@@ -200,10 +200,22 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
 }
 ```
 
+:::warning
+If you use `brownfield.config.js`, `brownfield.config.json`, or `package.json#brownfield`, do not pass plugin options in `app.json`. Prebuild throws an error when both sources are used.
+:::
+
+When using a Brownfield config file, register the plugin without options:
+
+```json
+{
+  "plugins": ["@callstack/react-native-brownfield"]
+}
+```
+
 ### iOS
 
 - `frameworkName` (`string`, default: `"BrownfieldLib"`)
-  - Name of the generated framework. This is also used as the XCFramework name.
+  - Name of the generated framework. This is also used as the XCFramework name. In `brownfield.config.*`, use `ios.scheme` instead.
 - `bundleIdentifier` (`string`, default: app bundle identifier + `.brownfield`)
   - Bundle identifier assigned to the generated framework.
 - `buildSettings` (`Record<string, string | boolean | number>`, optional)
@@ -229,9 +241,9 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
   - Package name used for the Android library module.
 - `minSdkVersion` (`number`, default: `24`)
   - Minimum Android SDK supported by the library.
-- `targetSdkVersion` (`number`, default: `35`)
-  - Target Android SDK version for the library.
-- `compileSdkVersion` (`number`, default: `35`)
+- `targetSdkVersion` (`number`, default: inherited from the generated Expo app project when available)
+  - Target Android SDK version used to build the library.
+- `compileSdkVersion` (`number`, default: inherited from the generated Expo app project when available)
   - Compile Android SDK version used to build the library.
 - `groupId` (`string`, default: package name)
   - Maven group ID used when publishing the AAR.
@@ -239,3 +251,5 @@ You can pass plugin options through the second item in the `plugins` tuple in `a
   - Maven artifact ID used when publishing the AAR.
 - `version` (`string`, default: `"0.0.1-SNAPSHOT"`)
   - Maven version used when publishing the AAR.
+- `useLocalGradlePlugin` (`boolean`, default: `false`)
+  - Load the Brownfield Gradle plugin from `@callstack/react-native-brownfield/gradle-plugin/brownfield` in `node_modules` via `includeBuild` instead of adding the Maven classpath dependency. In `brownfield.config.*`, use `android.expo.useLocalGradlePlugin` instead. Useful when patching the plugin locally or working with an unreleased version. See [Load the Plugin from Node Modules](/docs/getting-started/android#advanced-load-the-plugin-from-node-modules) for details.

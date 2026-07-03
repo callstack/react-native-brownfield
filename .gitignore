@@ -32,6 +32,9 @@ local.properties
 *.iml
 *.hprof
 **/.cxx/
+.android_ccache/
+.android_ccache.conf
+.ios_ccache/
 *.keystore
 !debug.keystore
 .kotlin/

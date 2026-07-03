@@ -4,7 +4,6 @@ import path from 'node:path';
 import {
   getBuildOptions,
   mergeFrameworks,
-  type BuildFlags as AppleBuildFlags,
 } from '@rock-js/platform-apple-helpers';
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
 import {
@@ -18,7 +17,9 @@ import {
 import { Command, Option } from 'commander';
 
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
+import { findProjectRoot } from '../utils/paths.js';
 import { getProjectInfo } from '../utils/project.js';
+import { supportsPrebuiltExpo } from '../utils/supportsPrebuiltExpo.js';
 import { supportsPrebuiltRNCore } from '../utils/supportsPrebuiltRNCore.js';
 import {
   actionRunner,
@@ -30,7 +31,11 @@ import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNa
 import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
 import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
+import type { PackageIosOptions } from '../../types.js';
 import { createLocalSpmPackage } from '../utils/createLocalSpmPackage.js';
+import { emitExpoSupportXcframeworks } from '../utils/emitExpoSupportXcframeworks.js';
+import { mergeBrownfieldConfigWithOptions } from '../../config.js';
+import { removeCodeSignatureArtifacts } from '../utils/normalizeCopiedXcframework.js';
 
 /** Help text for `--use-prebuilt-rn-core` (keep in sync with docs/docs/docs/getting-started/ios.mdx, "React Native Prebuilts" section). */
 const USE_PREBUILT_RN_CORE_HELP =
@@ -39,7 +44,14 @@ const USE_PREBUILT_RN_CORE_HELP =
   'Pass true or false to force either behavior. Use the flag without a value as shorthand for true (same as `--use-prebuilt-rn-core true`). ' +
   'See the Brownfield iOS guide for details: https://oss.callstack.com/react-native-brownfield/docs/getting-started/ios#react-native-prebuilts';
 
-export function parseUsePrebuiltRnCoreArgument(
+/** Help text for `--use-prebuilt-expo`. */
+const USE_PREBUILT_EXPO_HELP =
+  'Whether the Xcode build for packaging should use prebuilt Expo support XCFrameworks. ' +
+  'If you omit this flag, Brownfield follows version-aware defaults for supported Expo projects. ' +
+  'Pass true or false to force either behavior. Use the flag without a value as shorthand for true (same as `--use-prebuilt-expo true`).';
+
+function parseBooleanOptionArgument(
+  flagName: string,
   value: string | boolean
 ): boolean {
   if (typeof value === 'boolean') {
@@ -53,8 +65,20 @@ export function parseUsePrebuiltRnCoreArgument(
     return false;
   }
   throw new RockError(
-    `Invalid value for --use-prebuilt-rn-core: expected true or false, received "${value}"`
+    `Invalid value for ${flagName}: expected true or false, received "${value}"`
   );
+}
+
+export function parseUsePrebuiltRnCoreArgument(
+  value: string | boolean
+): boolean {
+  return parseBooleanOptionArgument('--use-prebuilt-rn-core', value);
+}
+
+export function parseUsePrebuiltExpoArgument(
+  value: string | boolean
+): boolean {
+  return parseBooleanOptionArgument('--use-prebuilt-expo', value);
 }
 
 function getPackagedFrameworkResolutionFailureMessage({
@@ -68,13 +92,6 @@ function getPackagedFrameworkResolutionFailureMessage({
     ? `found multiple bundled framework candidates (${candidates?.join(', ') ?? 'none'}); pass --scheme explicitly`
     : 'could not resolve the packaged framework output automatically; pass --scheme explicitly';
 }
-
-type PackageIosCliFlags = AppleBuildFlags & {
-  /** Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults). */
-  usePrebuiltRnCore?: boolean;
-  /** When set, generate a local Swift Package Manager manifest next to the packaged XCFramework outputs. */
-  addSpmPackage?: boolean;
-};
 
 export const packageIosCommand = curryOptions(
   new Command('package:ios').description('Build iOS XCFramework'),
@@ -95,20 +112,36 @@ export const packageIosCommand = curryOptions(
       .argParser(parseUsePrebuiltRnCoreArgument)
   )
   .addOption(
+    new Option('--use-prebuilt-expo [bool]', USE_PREBUILT_EXPO_HELP)
+      .preset(true)
+      .argParser(parseUsePrebuiltExpoArgument)
+  )
+  .addOption(
     new Option(
       '--add-spm-package',
       'Generate a local Swift Package Manager manifest next to the packaged XCFramework outputs'
     )
   )
   .action(
-    actionRunner(async (options: PackageIosCliFlags) => {
-      const { projectRoot, platformConfig, userConfig } = getProjectInfo('ios');
+    actionRunner(async (cliOptions: PackageIosOptions) => {
+      const options = mergeBrownfieldConfigWithOptions(cliOptions, 'ios');
+      const projectRoot = findProjectRoot();
+
+      await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
+
+      const { platformConfig, userConfig } = getProjectInfo('ios');
 
       const prebuiltRNCoreSupport = supportsPrebuiltRNCore({ projectRoot });
+      const prebuiltExpoSupport = supportsPrebuiltExpo({ projectRoot });
 
       // version-aware default when the flag is omitted (see ios.mdx "React Native Prebuilts")
       options.usePrebuiltRnCore ??= prebuiltRNCoreSupport.supported
         ? prebuiltRNCoreSupport.enabledByDefault
+        : false;
+
+        // version-aware default when the flag is omitted
+      options.usePrebuiltExpo ??= prebuiltExpoSupport.supported
+        ? prebuiltExpoSupport.enabledByDefault
         : false;
 
       if (prebuiltRNCoreSupport) {
@@ -130,7 +163,9 @@ export const packageIosCommand = curryOptions(
         throw new RockError(prebuiltRNCoreSupport.reason);
       }
 
-      await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
+      if (options.usePrebuiltExpo && !prebuiltExpoSupport.supported) {
+        throw new RockError(prebuiltExpoSupport.reason);
+      }
 
       if (!userConfig.project.ios) {
         throw new Error('iOS project not found.');
@@ -186,6 +221,12 @@ export const packageIosCommand = curryOptions(
         platformConfig
       );
 
+      emitExpoSupportXcframeworks({
+        projectRoot,
+        packageDir,
+        usePrebuiltExpo: options.usePrebuiltExpo,
+      });
+
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
       const { frameworkName, resolution, candidates } =
         resolvePackagedFrameworkName({
@@ -196,10 +237,12 @@ export const packageIosCommand = curryOptions(
 
       if (!frameworkName && options.addSpmPackage) {
         throw new RockError(
-          `Cannot generate local SPM package: ${getPackagedFrameworkResolutionFailureMessage({
-            resolution,
-            candidates,
-          })}`
+          `Cannot generate local SPM package: ${getPackagedFrameworkResolutionFailureMessage(
+            {
+              resolution,
+              candidates,
+            }
+          )}`
         );
       }
 
@@ -231,10 +274,12 @@ export const packageIosCommand = curryOptions(
         }
       } else if (configuration.includes('Debug')) {
         logger.warn(
-          `Skipping Debug simulator JS bundle copy: ${getPackagedFrameworkResolutionFailureMessage({
-            resolution,
-            candidates,
-          })}`
+          `Skipping Debug simulator JS bundle copy: ${getPackagedFrameworkResolutionFailureMessage(
+            {
+              resolution,
+              candidates,
+            }
+          )}`
         );
       }
 
@@ -242,6 +287,7 @@ export const packageIosCommand = curryOptions(
         packageDir,
         'ReactBrownfield.xcframework'
       );
+
       if (fs.existsSync(reactBrownfieldXcframeworkPath)) {
         // Strip the binary from ReactBrownfield.xcframework to make it interface-only.
         // This avoids duplicate symbols when consumer apps embed both BrownfieldLib
@@ -313,10 +359,13 @@ export const packageIosCommand = curryOptions(
         );
       }
 
+      removeCodeSignatureArtifacts(packageDir);
+
       if (options.addSpmPackage) {
         const { packageManifestPath } = createLocalSpmPackage({
           packageDir,
           frameworkName: frameworkName ?? undefined,
+          usePrebuiltExpo: options.usePrebuiltExpo,
         });
 
         logger.success(
@@ -326,7 +375,7 @@ export const packageIosCommand = curryOptions(
           `Add the local package folder in Xcode: ${colorLink(relativeToCwd(packageDir))}`
         );
         logger.info(
-          "In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder."
+          'In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder.'
         );
       }
     })

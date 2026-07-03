@@ -83,6 +83,52 @@ react {
  val appProject = project(":app")
 ```
 
+### From `node_modules` Source
+
+The Maven dependency is the recommended default because it uses the prebuilt plugin and is faster.
+Use this source-based setup only when you need to patch the Brownfield Gradle Plugin locally. See the [Android integration docs](../../docs/docs/docs/getting-started/android.mdx#advanced-load-the-plugin-from-node-modules) for details.
+
+Add this to the top of `android/settings.gradle.kts`:
+
+```kotlin
+pluginManagement {
+    includeBuild(
+        File(
+            providers.exec {
+                workingDir(rootDir)
+                commandLine("node", "--print", "require.resolve('@callstack/react-native-brownfield/package.json')")
+            }.standardOutput.asText.get().trim()
+        ).parentFile.resolve("gradle-plugin/brownfield")
+    )
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+```
+
+For standard React Native app layouts, this shorter form also works:
+
+```kotlin
+pluginManagement {
+    includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/brownfield")
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+```
+
+Then remove the Maven classpath dependency:
+
+```diff
+- classpath("com.callstack.react:brownfield-gradle-plugin:1.1.0")
+```
+
+Keep using `id("com.callstack.react.brownfield")` in your brownfield Android library module.
+
 ## API Usage
 
 - **About Dependencies**
@@ -152,6 +198,27 @@ reactBrownfield {
 ```
 
 <hr/>
+
+**Flavored Android Builds**
+
+To use product flavors and dimensions in your brownfield module, define them as usual:
+
+```kts
+    flavorDimensions += "env"
+
+    productFlavors {
+        create("prod") {
+            dimension = "env"
+        }
+        create("dev") {
+            dimension = "env"
+        }
+    }
+```
+
+This lets you run tasks like `gradle :brownfieldlib:assembleDevRelease`. However, once you add a flavor and dimension to the brownfield module, you must ensure the same flavor and dimension are defined in the `:app` module (your React Native app). This is required so the `brownfield-gradle-plugin` can correctly look up tasks for JavaScript bundling, Expo resources, and native binaries.
+
+If there is a flavor mismatch, the build will fail. If your `:app` module defines multiple flavors, that is fine. You only need to ensure that every flavor used in the brownfield module also exists in the app module.
 
 ## Tooling
 

@@ -38,6 +38,9 @@ yarn-error.*
 
 app-example
 
+# Detox
+e2e-artifacts/
+
 # generated native folders
 /ios
 /android

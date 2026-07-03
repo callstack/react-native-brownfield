@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
 import { getRandomTheme } from './utils';
@@ -61,7 +62,14 @@ function MessageBubble({ item, color }: { item: Message; color: string }) {
       <Text style={[styles.bubbleLabel, { color }]}>
         {isFromNative ? 'From Native' : 'From RN'}
       </Text>
-      <Text style={styles.bubbleText}>{item.text}</Text>
+      <Text
+        testID={
+          isFromNative ? undefined : brownfieldE2ETestIds.rnPostMessageText
+        }
+        style={styles.bubbleText}
+      >
+        {item.text}
+      </Text>
     </Animated.View>
   );
 }
@@ -119,8 +127,15 @@ export function HomeScreen({
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.primary }]}>
-      <Text style={[styles.text, { color: colors.secondary }]}>
+    <View
+      testID={brownfieldE2ETestIds.rnAppHome}
+      style={[styles.container, { backgroundColor: colors.primary }]}
+    >
+      <Text
+        testID={brownfieldE2ETestIds.rnAppHomeTitle}
+        accessibilityLabel="React Native Screen"
+        style={[styles.text, { color: colors.secondary }]}
+      >
         React Native Screen
       </Text>
 
@@ -135,8 +150,36 @@ export function HomeScreen({
 
       <Counter colors={colors} />
 
+      <View style={styles.nativeNavButtons}>
+        <Button
+          testID={brownfieldE2ETestIds.openNativeSettings}
+          onPress={() =>
+            BrownfieldNavigation.navigateToSettings({
+              id: '123',
+              name: 'John Doe',
+              email: 'john.doe@example.com',
+              flags: ['admin', 'user'],
+              ids: ['123', '456'],
+              avatar: {
+                url: 'https://example.com/avatar.png',
+              },
+            })
+          }
+          color={colors.secondary}
+          title="Open native settings"
+        />
+
+        <Button
+          testID={brownfieldE2ETestIds.openNativeReferrals}
+          onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
+          color={colors.secondary}
+          title="Open native referrals"
+        />
+      </View>
+
       <View style={styles.messageSection}>
         <TouchableOpacity
+          testID={brownfieldE2ETestIds.sendMessageToNative}
           style={[styles.sendButton, { backgroundColor: colors.secondary }]}
           onPress={sendMessage}
           activeOpacity={0.8}
@@ -182,29 +225,6 @@ export function HomeScreen({
           title="Go back"
         />
       </View>
-
-      <Button
-        onPress={() =>
-          BrownfieldNavigation.navigateToSettings({
-            id: '123',
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            flags: ['admin', 'user'],
-            ids: ['123', '456'],
-            avatar: {
-              url: 'https://example.com/avatar.png',
-            },
-          })
-        }
-        color={colors.secondary}
-        title="Open native settings"
-      />
-
-      <Button
-        onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
-        color={colors.secondary}
-        title="Open native referrals"
-      />
     </View>
   );
 }
@@ -229,6 +249,7 @@ const styles = StyleSheet.create({
   },
   messageSection: {
     flex: 1,
+    minHeight: 0,
     width: '100%',
     marginTop: 12,
   },
@@ -245,6 +266,7 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flex: 1,
+    minHeight: 0,
   },
   messageListContent: {
     paddingBottom: 8,
@@ -274,6 +296,12 @@ const styles = StyleSheet.create({
   bubbleText: {
     fontSize: 14,
     color: '#fff',
+  },
+  nativeNavButtons: {
+    width: '100%',
+    gap: 8,
+    marginTop: 8,
+    marginBottom: 4,
   },
   navButtons: {
     flexDirection: 'row',

@@ -8,13 +8,45 @@ inputs:
     default: 'true'
 
   run-yarn-build:
-    description: 'Whether to run yarn build'
+    description: 'Whether to run yarn build (usually false when ./.github/actions/setup already ran)'
+    required: false
+    default: 'false'
+
+  gradle-cache:
+    description: 'Enable Gradle User Home cache restore/save via setup-gradle'
     required: false
     default: 'true'
+
+  android-ccache:
+    description: 'Install, restore, and allow saving Android ccache (native JNI builds only)'
+    required: false
+    default: 'false'
+
+  gradle-workflow-job-context:
+    description: 'Segment Gradle cache per app/project (e.g. vanilla, expo54). Falls back to github.job when empty.'
+    required: false
+    default: ''
+
+  rn-project-path:
+    description: 'Optional RN app path for native ccache key segmentation (e.g. apps/ExpoApp55)'
+    required: false
+    default: ''
+
+outputs:
+  android-ccache-cache-hit:
+    description: 'Whether Android ccache restore matched the primary cache key exactly'
+    value: ${{ steps.android-ccache-restore.outputs.cache-hit }}
+  android-ccache-cache-primary-key:
+    description: 'Primary cache key used for Android ccache restore/save'
+    value: ${{ steps.android-ccache-restore.outputs.cache-primary-key }}
 
 runs:
   using: composite
   steps:
+    - name: '::group:: Gradle & Java'
+      run: echo "::group::Gradle & Java"
+      shell: bash
+
     - name: Validate Gradle Wrapper
       uses: gradle/actions/wrapper-validation@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
 
@@ -23,6 +55,27 @@ runs:
       with:
         distribution: 'zulu'
         java-version: '17'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@6f229686ee4375cc4a86b2514c89bac4930e82c4 # v5
+      with:
+        # Validates all gradle-wrapper.jar files, caches Gradle User Home efficiently,
+        # and captures Build Scan links. Do not combine with actions/cache on ~/.gradle.
+        workflow-job-context: ${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}
+        cache-disabled: ${{ inputs.gradle-cache != 'true' }}
+
+    # ubuntu-latest is x86_64; match the emulator ABI so CI only compiles one JNI arch.
+    - name: Limit native builds to runner emulator ABI
+      run: echo "ORG_GRADLE_PROJECT_reactNativeArchitectures=x86_64" >> "$GITHUB_ENV"
+      shell: bash
+
+    - name: '::endgroup:: Gradle & Java'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Disk space & Android NDK'
+      run: echo "::group::Disk space & Android NDK"
+      shell: bash
 
     - name: Free Disk Space (Ubuntu)
       if: inputs.free-disk-space == 'true'
@@ -33,11 +86,67 @@ runs:
         android: false
         dotnet: true
         haskell: true
-        large-packages: false
+        large-packages: true
         docker-images: true
         swap-storage: false
+
+    - name: Install Android NDK required by Expo
+      run: |
+        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.0.12077973"
+        test -d "$ANDROID_HOME/ndk/27.0.12077973"
+      shell: bash
+
+    - name: '::endgroup:: Disk space & Android NDK'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Android ccache'
+      if: inputs.android-ccache == 'true'
+      run: echo "::group::Android ccache"
+      shell: bash
+
+    - name: Install ccache
+      if: inputs.android-ccache == 'true'
+      run: sudo apt-get update && sudo apt-get install -y ccache
+      shell: bash
+
+    - name: Configure Android ccache
+      if: inputs.android-ccache == 'true'
+      run: |
+        mkdir -p "${GITHUB_WORKSPACE}/.android_ccache"
+        echo "compiler_check = content" > "${GITHUB_WORKSPACE}/.android_ccache.conf"
+        echo "CCACHE_CONFIGPATH=${GITHUB_WORKSPACE}/.android_ccache.conf" >> "$GITHUB_ENV"
+        echo "CCACHE_DIR=${GITHUB_WORKSPACE}/.android_ccache" >> "$GITHUB_ENV"
+        echo "CCACHE_BASEDIR=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
+        echo "CCACHE_COMPRESS=1" >> "$GITHUB_ENV"
+      shell: bash
+
+    - name: Restore Android ccache
+      id: android-ccache-restore
+      if: inputs.android-ccache == 'true'
+      uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+      with:
+        path: .android_ccache
+        key: ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-x86_64-${{ hashFiles('yarn.lock', '**/gradle-wrapper.properties', inputs.rn-project-path != '' && format('{0}/package.json', inputs.rn-project-path) || 'package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-android-ccache-${{ inputs.gradle-workflow-job-context != '' && inputs.gradle-workflow-job-context || github.job }}-
+
+    - name: '::endgroup:: Android ccache'
+      if: inputs.android-ccache == 'true'
+      run: echo "::endgroup::"
+      shell: bash
+
+    - name: '::group:: Build packages'
+      if: inputs.run-yarn-build == 'true'
+      run: echo "::group::Build packages"
+      shell: bash
 
     - name: Build packages
       if: inputs.run-yarn-build == 'true'
       run: yarn build
+      shell: bash
+
+    - name: '::endgroup:: Build packages'
+      if: inputs.run-yarn-build == 'true'
+      run: echo "::endgroup::"
       shell: bash

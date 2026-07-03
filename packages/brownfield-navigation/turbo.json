@@ -1,0 +1,20 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": [
+        "src/**/*",
+        "bob.config.js",
+        "babel.config.js",
+        "tsconfig*.json",
+        "package.json"
+      ],
+      "outputs": ["lib/**"]
+    },
+    "build:brownfield": {
+      "inputs": ["src/**/*"],
+      "outputs": ["lib/**"]
+    }
+  }
+}

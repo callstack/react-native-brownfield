@@ -1,3 +1,4 @@
+import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import { Button, StyleSheet, Text } from 'react-native';
 import { useStore } from '@callstack/brownie';
 
@@ -10,11 +11,16 @@ const Counter = ({ colors }: CounterProps) => {
 
   return (
     <>
-      <Text style={[styles.text, { color: colors.secondary }]}>
+      <Text
+        testID={brownfieldE2ETestIds.counterCount}
+        accessibilityLabel={`Count: ${counter}`}
+        style={[styles.text, { color: colors.secondary }]}
+      >
         Count: {counter}
       </Text>
 
       <Button
+        testID={brownfieldE2ETestIds.counterIncrement}
         onPress={() => setState((prev) => ({ counter: prev.counter + 1 }))}
         color={colors.secondary}
         title="Increment"

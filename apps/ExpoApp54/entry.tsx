@@ -1,12 +1,21 @@
 import { ExpoRoot } from 'expo-router';
+import { useEffect } from 'react';
 import { AppRegistry } from 'react-native';
-import RNApp from './RNApp';
+import {
+  syncBrownfieldE2EModeFromRootProps,
+  type BrownfieldRootProps,
+} from '@callstack/brownfield-example-shared-tests/runtime';
 
-function App() {
+function App(props: BrownfieldRootProps) {
+  useEffect(() => {
+    syncBrownfieldE2EModeFromRootProps(props.brownfieldE2E);
+    return () => syncBrownfieldE2EModeFromRootProps(undefined);
+  }, [props.brownfieldE2E]);
+
   const ctx = require.context('./app');
   return <ExpoRoot context={ctx} />;
 }
 
-AppRegistry.registerComponent('RNApp', () => RNApp);
-// Keep compatibility with Expo's default app key.
+// AppleApp brownfield embeds the module named `RNApp`; mount the full Expo Router tree.
+AppRegistry.registerComponent('RNApp', () => App);
 AppRegistry.registerComponent('main', () => App);

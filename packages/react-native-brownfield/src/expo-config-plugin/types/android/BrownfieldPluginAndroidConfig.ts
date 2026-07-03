@@ -22,13 +22,13 @@ export interface BrownfieldPluginAndroidConfig {
 
   /**
    * Target SDK version for the Android library
-   * @default 35
+   * @default inherited from the generated Expo app project when available
    */
   targetSdkVersion?: number;
 
   /**
    * Compile SDK version for the Android library
-   * @default 35
+   * @default inherited from the generated Expo app project when available
    */
   compileSdkVersion?: number;
 
@@ -49,10 +49,19 @@ export interface BrownfieldPluginAndroidConfig {
    * @default "0.0.1-SNAPSHOT"
    */
   version?: string;
+
+  /**
+   * Load the Brownfield Gradle plugin from node_modules via includeBuild
+   * instead of the Maven classpath dependency.
+   * @default false
+   */
+  useLocalGradlePlugin?: boolean;
 }
 
 /**
  * Android configuration with resolved defaults (all fields required)
  */
-export type ResolvedBrownfieldPluginAndroidConfig =
-  Required<BrownfieldPluginAndroidConfig>;
+export type ResolvedBrownfieldPluginAndroidConfig = Required<
+  Omit<BrownfieldPluginAndroidConfig, 'compileSdkVersion' | 'targetSdkVersion'>
+> &
+  Pick<BrownfieldPluginAndroidConfig, 'compileSdkVersion' | 'targetSdkVersion'>;

@@ -11,6 +11,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
+    "test:packages": "turbo run test --filter='./packages/*'",
     "test:apps": "turbo run test --filter='./apps/*'",
     "dev": "yarn workspaces foreach -Api run dev",
     "ci:version": "changeset version && yarn install --no-immutable && node --experimental-strip-types --no-warnings ./scripts/consolidate-changelog.ts",
@@ -22,27 +23,33 @@
     "brownfield:plugin:release-notes": "node --experimental-strip-types --no-warnings ./scripts/generate-brownfield-gradle-plugin-release-notes.ts",
     "brownfield:plugin:version:check": "node --experimental-strip-types --no-warnings ./scripts/sync-brownfield-gradle-plugin-version.ts --check",
     "brownfield:plugin:version:sync": "node --experimental-strip-types --no-warnings ./scripts/sync-brownfield-gradle-plugin-version.ts",
+    "generate:schema": "yarn workspace @callstack/brownfield-cli generate:schema",
     "generate:store": "node --experimental-strip-types --no-warnings ./scripts/generate-store.ts",
     "skillgym:brownie": "skillgym run skillgym/suites/brownie-suite.ts",
-    "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts"
+    "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts",
+    "ci:local:rnapp:e2e:ios": "bash ./scripts/ci-local-rnapp-ios-e2e.sh",
+    "ci:local:expo54:e2e:ios": "bash ./scripts/ci-local-expo54-ios-e2e.sh",
+    "ci:local:expo55:e2e:ios": "bash ./scripts/ci-local-expo55-ios-e2e.sh",
+    "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh",
+    "ci:local:appleapp:e2e:ios:expo55": "bash ./scripts/ci-local-appleapp-ios-e2e.sh --variant expo55"
   },
   "resolutions": {
     "@types/react": "19.1.1",
     "chromium-edge-launcher": "0.3.0",
-    "glob": "13.0.6"
+    "detox/glob": "npm:7.2.3"
   },
   "packageManager": "yarn@4.12.0",
   "dependencies": {
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.30.0",
-    "@expo/config-plugins": "^54.0.4"
+    "@expo/config-plugins": "^56.0.8"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.4",
     "@commitlint/config-conventional": "^20.4.4",
     "@eslint/compat": "^2.0.1",
     "@eslint/eslintrc": "^3.3.3",
-    "@expo/config-types": "^54.0.10",
+    "@expo/config-types": "^56.0.5",
     "@react-native/eslint-config": "0.82.1",
     "babel-plugin-module-resolver": "5.0.2",
     "eslint": "^9.39.3",

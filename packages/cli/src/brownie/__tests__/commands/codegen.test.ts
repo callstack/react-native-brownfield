@@ -113,6 +113,27 @@ describe('runCodegen', () => {
     expect(mockGenerateSwift).not.toHaveBeenCalled();
   });
 
+  it('throws when legacy and new brownie configs are both provided', async () => {
+    tempDir = createTempPackageJson({
+      brownie: {
+        kotlin: './LegacyGenerated',
+      },
+    });
+    mockCwd.mockReturnValue(tempDir);
+
+    await expect(
+      runCodegen({
+        brownie: {
+          kotlin: './NewGenerated',
+        },
+      })
+    ).rejects.toThrow(
+      'Cannot use both legacy and new Brownie configuration formats simultaneously.'
+    );
+
+    expect(mockDiscoverStores).not.toHaveBeenCalled();
+  });
+
   it('generates swift and kotlin by default when kotlin is configured', async () => {
     tempDir = createTempPackageJson({
       brownie: {
@@ -207,5 +228,30 @@ describe('runCodegen', () => {
     await runCodegen({});
 
     expect(mockGenerateSwift).toHaveBeenCalled();
+  });
+
+  it('generates kotlin files from brownfield.config.json', async () => {
+    tempDir = createTempPackageJson({});
+    fs.writeFileSync(
+      path.join(tempDir, 'brownfield.config.json'),
+      JSON.stringify({
+        brownie: {
+          kotlin: './Generated',
+          kotlinPackageName: 'com.test',
+        },
+      })
+    );
+    mockCwd.mockReturnValue(tempDir);
+
+    await runCodegen({ platform: 'kotlin', projectRoot: tempDir });
+
+    expect(mockGenerateKotlin).toHaveBeenCalledWith({
+      name: 'TestStore',
+      schemaPath: '/path/to/TestStore.brownie.ts',
+      typeName: 'TestStore',
+      outputPath: 'Generated/TestStore.kt',
+      packageName: 'com.test',
+    });
+    expect(mockGenerateSwift).not.toHaveBeenCalled();
   });
 });

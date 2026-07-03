@@ -24,7 +24,6 @@ DerivedData
 
 # Android/IntelliJ
 #
-build/
 .idea
 .gradle
 local.properties
@@ -65,6 +64,7 @@ yarn-error.log
 
 # testing
 /coverage
+/e2e-artifacts
 
 # Yarn
 .yarn/*
@@ -73,10 +73,6 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
-# Brownfield
-android/BrownfieldLib/libsDebug/
-android/BrownfieldLib/libsRelease/
 
 # Benchmarks
 android/gradle-user-home/

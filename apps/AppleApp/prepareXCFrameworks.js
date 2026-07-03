@@ -53,17 +53,6 @@ const targetPackagePath = path.join(__dirname, 'package');
  *
  */
 
-const validNames = [
-  'BrownfieldLib.xcframework',
-  'Brownie.xcframework',
-  'hermesvm.xcframework',
-  'ReactBrownfield.xcframework',
-  'BrownfieldNavigation.xcframework',
-  // below: optional, emitted when RN is packaged with prebuilt iOS pods
-  'React.xcframework',
-  'ReactNativeDependencies.xcframework',
-];
-
 if (fs.existsSync(targetPackagePath)) {
   logger.info(`Removing ${targetPackagePath}\n`);
   fs.rmSync(targetPackagePath, { recursive: true, force: true });
@@ -80,15 +69,17 @@ const preferredArtifactSourcePath = fs.existsSync(spmArtifactsPath)
   : sourcePackagePath;
 
 for (const file of fs.readdirSync(preferredArtifactSourcePath)) {
+  const sourcePath = path.join(preferredArtifactSourcePath, file);
+
   if (
-    !validNames.includes(file) &&
-    !['hermes.xcframework', 'hermesvm.xcframework'].includes(file)
+    !fs.statSync(sourcePath).isDirectory() ||
+    !file.endsWith('.xcframework')
   ) {
     continue;
   }
 
   fs.cpSync(
-    path.join(preferredArtifactSourcePath, file),
+    sourcePath,
     path.join(targetPackagePath, file),
     {
       recursive: true,
@@ -98,10 +89,19 @@ for (const file of fs.readdirSync(preferredArtifactSourcePath)) {
 
 // handle hermesvm.xcframework / hermes.xcframework
 let hermesArtifactFound = false;
-for (const candidateDir of ['hermes.xcframework', 'hermesvm.xcframework']) {
-  if (fs.existsSync(path.join(targetPackagePath, candidateDir))) {
+if (fs.existsSync(path.join(targetPackagePath, 'hermesvm.xcframework'))) {
+  hermesArtifactFound = true;
+}
+
+if (fs.existsSync(path.join(targetPackagePath, 'hermes.xcframework'))) {
+  if (hermesArtifactFound) {
+    fs.rmSync(path.join(targetPackagePath, 'hermes.xcframework'), {
+      recursive: true,
+      force: true,
+    });
+  } else {
     fs.renameSync(
-      path.join(targetPackagePath, candidateDir),
+      path.join(targetPackagePath, 'hermes.xcframework'),
       path.join(targetPackagePath, 'hermesvm.xcframework')
     );
     hermesArtifactFound = true;
@@ -113,7 +113,7 @@ if (!hermesArtifactFound) {
 }
 
 for (const file of fs.readdirSync(targetPackagePath)) {
-  if (!validNames.includes(file)) {
+  if (!file.endsWith('.xcframework')) {
     throw new Error(`Invalid file name: ${file}`);
   }
 

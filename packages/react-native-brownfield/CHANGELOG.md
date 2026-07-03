@@ -1,5 +1,73 @@
 # @callstack/react-native-brownfield
 
+## 3.15.0
+
+### Minor Changes
+
+- [#410](https://github.com/callstack/react-native-brownfield/pull/410) [`03c2496`](https://github.com/callstack/react-native-brownfield/commit/03c2496989fdafdc0863a97f01df9b7f5cd78a55) Thanks [@hurali97](https://github.com/hurali97)! - bump brownfield-gradle-plugin
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.15.0
+
+## 3.14.0
+
+### Minor Changes
+
+- [#360](https://github.com/callstack/react-native-brownfield/pull/360) [`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56) Thanks [@adamTrz](https://github.com/adamTrz)! - Expo SDK 56 support
+
+### Patch Changes
+
+- Updated dependencies [[`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56)]:
+  - @callstack/brownfield-cli@3.14.0
+
+## 3.13.2
+
+### Patch Changes
+
+- [#401](https://github.com/callstack/react-native-brownfield/pull/401) [`c4410f6`](https://github.com/callstack/react-native-brownfield/commit/c4410f6af4c781cf3513ba55d03fa1b1055a443b) Thanks [@artus9033](https://github.com/artus9033)! - fix: brownfield Gradle Plugin not to depend on \*UpdatesResources task from expo-updates if it is absent
+
+- [#398](https://github.com/callstack/react-native-brownfield/pull/398) [`8e90842`](https://github.com/callstack/react-native-brownfield/commit/8e90842291348dcb0542a6787f5cfbb1017532dd) Thanks [@artus9033](https://github.com/artus9033)! - feat: support brownfield unified config file in Expo
+
+- [#402](https://github.com/callstack/react-native-brownfield/pull/402) [`3475c3d`](https://github.com/callstack/react-native-brownfield/commit/3475c3db375988ebd63ce01bfd93f4dbb1a55e8d) Thanks [@artus9033](https://github.com/artus9033)! - feat: support local BGP in Expo config plugin
+
+- Updated dependencies [[`8e90842`](https://github.com/callstack/react-native-brownfield/commit/8e90842291348dcb0542a6787f5cfbb1017532dd), [`3475c3d`](https://github.com/callstack/react-native-brownfield/commit/3475c3db375988ebd63ce01bfd93f4dbb1a55e8d), [`4088c01`](https://github.com/callstack/react-native-brownfield/commit/4088c01a069306565dd3e279d9132f5dbe861d0b)]:
+  - @callstack/brownfield-cli@3.13.2
+
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies [[`89bc23c`](https://github.com/callstack/react-native-brownfield/commit/89bc23c00bb85c036fce6d4ea142fb3ba0846deb)]:
+  - @callstack/brownfield-cli@3.13.1
+
+## 3.13.0
+
+### Minor Changes
+
+- [#359](https://github.com/callstack/react-native-brownfield/pull/359) [`533569b`](https://github.com/callstack/react-native-brownfield/commit/533569b59a4981669dfb738295b505343623bc32) Thanks [@MrMuzyk](https://github.com/MrMuzyk)! - Expose the Brownfield Android Gradle Plugin source from the npm package for opt-in local patching.
+
+- [#339](https://github.com/callstack/react-native-brownfield/pull/339) [`ef835b5`](https://github.com/callstack/react-native-brownfield/commit/ef835b52a130e4cd8770a2db04402cbb066b9c27) Thanks [@Esemesek](https://github.com/Esemesek)! - Added configuration file support for react-native-brownfield packages.
+
+### Patch Changes
+
+- [#391](https://github.com/callstack/react-native-brownfield/pull/391) [`95dbb43`](https://github.com/callstack/react-native-brownfield/commit/95dbb434d4c526b8f75bfd4c54b1d023e349ccf4) Thanks [@adamTrz](https://github.com/adamTrz)! - Fix Expo iOS framework debug bundle packaging so Debug builds load from Metro when it is available and fall back to embedded bundles without dev-server-only runtime code.
+
+- Updated dependencies [[`ef835b5`](https://github.com/callstack/react-native-brownfield/commit/ef835b52a130e4cd8770a2db04402cbb066b9c27)]:
+  - @callstack/brownfield-cli@3.13.0
+
+## 3.12.0
+
+### Minor Changes
+
+- [#237](https://github.com/callstack/react-native-brownfield/pull/237) [`4186cc8`](https://github.com/callstack/react-native-brownfield/commit/4186cc8e2ed2fa7aa41e84cdba7a23f7035ee08d) Thanks [@hurali97](https://github.com/hurali97)! - Bump brownfield-gradle-plugin
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.12.0
+
 ## 3.11.0
 
 ### Minor Changes

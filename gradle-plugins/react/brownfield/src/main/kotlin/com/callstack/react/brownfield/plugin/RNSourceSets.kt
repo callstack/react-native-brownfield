@@ -47,13 +47,15 @@ object RNSourceSets {
 
         // 2. Use the onVariants block to wire RN bundle outputs via the Variant Sources API
         componentsExtension.onVariants { variant ->
+            val variantName = variant.name
             val bundledAssetsVariantName =
                 Utils.getBundledAssetsVariantName(
-                    variantName = variant.name,
+                    variantName = variantName,
                     buildTypeName = variant.buildType,
                     isDebuggable = variant.debuggable,
                 )
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
+            val appProject = getAppProject()
 
             val bundlePathSegments =
                 listOf(
@@ -61,14 +63,18 @@ object RNSourceSets {
                     "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
                     // outputs for RN >= 0.82
                     "react/$bundledAssetsVariantName",
-                    // expo update resources
-                    "create${capitalizedBundledAssetsVariantName}UpdatesResources",
                 )
 
             val appBuildDir = getAppBuildDir()
             bundlePathSegments.forEach { segment ->
                 variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$segment")
                 variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$segment")
+            }
+
+            if (Utils.hasExpoUpdates(appProject, variantName)) {
+                val updateResourcesPathSegment = Utils.getExpoUpdatesResourcesTaskName(variantName)
+                variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$updateResourcesPathSegment")
+                variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$updateResourcesPathSegment")
             }
         }
     }
