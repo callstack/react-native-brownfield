@@ -1,6 +1,10 @@
 import path from 'node:path';
 
-import { type ModProps, type XcodeProject } from '@expo/config-plugins';
+import {
+  type ModProps,
+  type XcodeProject,
+  IOSConfig,
+} from '@expo/config-plugins';
 
 import { Logger } from '../logging';
 import type { ResolvedBrownfieldPluginIosConfig } from '../types';
@@ -181,7 +185,9 @@ export type PbxReferenceLike = { value?: string; comment?: string } | string;
 
 export type PbxNativeTarget = {
   buildPhases?: PbxReferenceLike[];
+  buildConfigurationList?: string;
   name?: string;
+  productReference?: string;
 };
 
 export type PbxResourcesBuildPhase = {
@@ -423,7 +429,7 @@ export function getFrameworkBuildSettings(
 
     // basic settings
     PRODUCT_BUNDLE_IDENTIFIER: `"${bundleIdentifier}"`,
-    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget,
+    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget ?? '15.0',
 
     // Ensure the BrownfieldLib (or equivalent name) is installed at the correct path
     DYLIB_INSTALL_NAME_BASE: '"@rpath"',
@@ -616,4 +622,121 @@ export function copyBundleReactNativePhase(
       );
     }
   }
+}
+
+function resolveAppTargetName(
+  project: XcodeProject,
+  modRequest: ModProps<XcodeProject>
+): string | null {
+  const appTargets = IOSConfig.Target.getNativeTargets(project)
+    .map(([, target]) => {
+      if (
+        !IOSConfig.Target.isTargetOfType(
+          target,
+          IOSConfig.Target.TargetType.APPLICATION
+        )
+      ) {
+        return null;
+      }
+
+      const name = IOSConfig.XcodeUtils.unquote(target.name ?? '').trim();
+
+      return name ?? null;
+    })
+    .filter((name): name is string => !!name);
+
+  // 1) Unambiguous first application-type target
+  if (appTargets.length === 1) {
+    return appTargets[0];
+  } else {
+    Logger.logWarning(
+      'Multiple application targets found in the Xcode project. Falling back to the CNG-derived name from mod compiler.'
+    );
+  }
+
+  // 2) CNG-derived name from mod compiler (`modRequest.projectName`) - only if it exists in the filtered application-type list of Xcode project targets
+  const cngDerivedProjectName = modRequest.projectName;
+  if (cngDerivedProjectName && appTargets.includes(cngDerivedProjectName)) {
+    return cngDerivedProjectName;
+  } else {
+    Logger.logWarning(
+      'CNG-derived name from mod compiler is not set or is not an application target. Falling back to the unfiltered-type target name.'
+    );
+  }
+
+  // 3) PBX "first native target" fallback
+  try {
+    const [, firstAppTarget] = IOSConfig.Target.findFirstNativeTarget(project);
+    const name = IOSConfig.XcodeUtils.unquote(firstAppTarget.name ?? '').trim();
+    return name || null;
+  } catch {
+    Logger.logWarning(
+      'No first native target of any type found in the Xcode project. This was the last resort fallback.'
+    );
+  }
+
+  Logger.logError(
+    `Could not determine the iOS app target name from the Xcode project. Please adjust your Xcode project to have exactly one application target.`
+  );
+
+  return null;
+}
+
+function normalizeXcodeBuildSettingValue(
+  value: string | number | boolean | null | undefined
+): string | null {
+  if (value == null) {
+    return null;
+  }
+
+  const normalized = IOSConfig.XcodeUtils.unquote(String(value)).trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+export function getAppTargetDeploymentTarget(
+  project: Pick<XcodeProject, 'getBuildProperty'>,
+  appTargetName: string | null
+): string | null {
+  if (!appTargetName) {
+    return null;
+  }
+
+  return (
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Release',
+        appTargetName
+      )
+    ) ??
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Debug',
+        appTargetName
+      )
+    )
+  );
+}
+
+export function resolveFrameworkDeploymentTarget(
+  project: XcodeProject,
+  modRequest: ModProps<XcodeProject>,
+  {
+    fallbackDeploymentTarget,
+  }: {
+    fallbackDeploymentTarget?: string;
+  }
+): string {
+  if (fallbackDeploymentTarget != null) {
+    return fallbackDeploymentTarget;
+  }
+
+  const appTargetName = resolveAppTargetName(project, modRequest);
+  const appTargetDeploymentTarget = getAppTargetDeploymentTarget(
+    project,
+    appTargetName
+  );
+
+  return appTargetDeploymentTarget ?? '15.0';
 }

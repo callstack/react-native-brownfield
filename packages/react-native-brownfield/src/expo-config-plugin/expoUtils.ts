@@ -1,3 +1,15 @@
+import type { ExpoConfig } from '@expo/config-types';
+
+export function getExpoInfo(config: ExpoConfig) {
+  const expoMajor = config.sdkVersion
+    ? parseInt(config.sdkVersion.split('.')[0], 10)
+    : -1;
+
+  return {
+    expoMajor,
+  };
+}
+
 export function hasExpoUpdatesInstalled(
   projectRoot: string | undefined
 ): boolean {

@@ -7,13 +7,18 @@ const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
   '# <<< react-native-brownfield Expo SDK 55+ swift defines <<<';
 
-function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
+function ensureExpoDefinesForSDK55AndAbove(
+  podfile: string,
+  expoMajor: number
+): string {
   if (podfile.includes(BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START)) {
     return podfile;
   }
 
+  const defaultDeploymentTarget = expoMajor >= 56 ? '16.4' : '15.1';
   const hook = `
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START}
+    brownfield_ios_deployment_target = podfile_properties['ios.deploymentTarget'] || '${defaultDeploymentTarget}'
     installer.pods_project.targets.each do |target|
       if target.name == 'ReactBrownfield'
         puts "[Brownfield] Adding definition of EXPO_SDK_GTE_55 to target: #{target.name}"
@@ -22,6 +27,7 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
           conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
           conditions = conditions.to_s
           config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_SDK_GTE_55"
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = brownfield_ios_deployment_target
         end
       end
     end
@@ -46,9 +52,14 @@ function ensureExpoDefinesForSDK55AndAbove(podfile: string): string {
  * Modifies the Podfile to include the Brownfield framework target
  * @param podfile The original Podfile content
  * @param frameworkName The name of the framework target to add
+ * @param expoMajor The major version of the Expo SDK
  * @returns The modified Podfile content
  */
-export function modifyPodfile(podfile: string, frameworkName: string): string {
+export function modifyPodfile(
+  podfile: string,
+  frameworkName: string,
+  expoMajor: number
+): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
     Logger.logDebug(
@@ -88,7 +99,10 @@ export function modifyPodfile(podfile: string, frameworkName: string): string {
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
-  modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(modifiedPodfile);
+  modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(
+    modifiedPodfile,
+    expoMajor
+  );
 
   return modifiedPodfile;
 }

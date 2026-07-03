@@ -8,6 +8,7 @@ import {
   addFrameworkTarget,
   addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
+  resolveFrameworkDeploymentTarget,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
 import { injectFmtFixIntoPodfile } from './withFmtFix';
@@ -15,7 +16,7 @@ import { ensureFrameworkHasExpoPlistResource } from './utils/expo-updates';
 import { withIosFrameworkFiles } from './withIosFrameworkFiles';
 import type { ResolvedBrownfieldPluginConfigWithIos } from '../types';
 import { Logger } from '../logging';
-import { hasExpoUpdatesInstalled } from '../expoUtils';
+import { getExpoInfo, hasExpoUpdatesInstalled } from '../expoUtils';
 
 /**
  * iOS Config Plugin for integration with @callstack/react-native-brownfield.
@@ -30,15 +31,23 @@ import { hasExpoUpdatesInstalled } from '../expoUtils';
 export const withBrownfieldIos: ConfigPlugin<
   ResolvedBrownfieldPluginConfigWithIos
 > = (config, props) => {
+  const { expoMajor } = getExpoInfo(config);
+
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
     const hasExpoUpdates = hasExpoUpdatesInstalled(modRequest.projectRoot);
+    const iosProps = {
+      ...props.ios,
+      deploymentTarget: resolveFrameworkDeploymentTarget(project, modRequest, {
+        fallbackDeploymentTarget: props.ios.deploymentTarget,
+      }),
+    };
 
     const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
-      props.ios
+      iosProps
     );
 
     // Ensure Expo.plist is present in the framework resources phase when
@@ -64,7 +73,7 @@ export const withBrownfieldIos: ConfigPlugin<
     // copy the "Bundle React Native code and images" build phase from the main target to the framework target
     copyBundleReactNativePhase(project, frameworkTargetUUID);
 
-    addSourceFilesBuildPhase(project, frameworkTargetUUID, props.ios);
+    addSourceFilesBuildPhase(project, frameworkTargetUUID, iosProps);
 
     return xcodeConfig;
   });
@@ -75,7 +84,8 @@ export const withBrownfieldIos: ConfigPlugin<
 
     const modifiedPodfile = modifyPodfile(
       podfileConfig.modResults.contents,
-      frameworkName
+      frameworkName,
+      expoMajor
     );
     podfileConfig.modResults.contents =
       injectFmtFixIntoPodfile(modifiedPodfile);

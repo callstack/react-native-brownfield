@@ -4,6 +4,7 @@ import { describe, expect, test } from 'vitest';
 
 import {
   packageIosCommand,
+  parseUsePrebuiltExpoArgument,
   parseUsePrebuiltRnCoreArgument,
 } from '../packageIos.js';
 
@@ -15,10 +16,16 @@ function parsePackageIosArgv(argv: string[]) {
         .preset(true)
         .argParser(parseUsePrebuiltRnCoreArgument)
     )
+    .addOption(
+      new Option('--use-prebuilt-expo [bool]', 'test')
+        .preset(true)
+        .argParser(parseUsePrebuiltExpoArgument)
+    )
     .addOption(new Option('--add-spm-package', 'test'));
   program.parse(argv, { from: 'user' });
   return program.opts() as {
     usePrebuiltRnCore?: boolean;
+    usePrebuiltExpo?: boolean;
     addSpmPackage?: boolean;
   };
 }
@@ -69,6 +76,27 @@ describe('--use-prebuilt-rn-core (Commander)', () => {
     ).toBe(true);
     expect(
       parsePackageIosArgv(['--use-prebuilt-rn-core', 'false']).usePrebuiltRnCore
+    ).toBe(false);
+  });
+});
+
+describe('--use-prebuilt-expo (Commander)', () => {
+  test('omits property when flag is absent', () => {
+    expect(parsePackageIosArgv([])).toEqual({});
+  });
+
+  test('bare flag is shorthand for true (preset)', () => {
+    expect(parsePackageIosArgv(['--use-prebuilt-expo']).usePrebuiltExpo).toBe(
+      true
+    );
+  });
+
+  test('explicit true and false', () => {
+    expect(
+      parsePackageIosArgv(['--use-prebuilt-expo', 'true']).usePrebuiltExpo
+    ).toBe(true);
+    expect(
+      parsePackageIosArgv(['--use-prebuilt-expo', 'false']).usePrebuiltExpo
     ).toBe(false);
   });
 });

@@ -1,5 +1,27 @@
 # @callstack/react-native-brownfield
 
+## 3.15.0
+
+### Minor Changes
+
+- [#410](https://github.com/callstack/react-native-brownfield/pull/410) [`03c2496`](https://github.com/callstack/react-native-brownfield/commit/03c2496989fdafdc0863a97f01df9b7f5cd78a55) Thanks [@hurali97](https://github.com/hurali97)! - bump brownfield-gradle-plugin
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@3.15.0
+
+## 3.14.0
+
+### Minor Changes
+
+- [#360](https://github.com/callstack/react-native-brownfield/pull/360) [`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56) Thanks [@adamTrz](https://github.com/adamTrz)! - Expo SDK 56 support
+
+### Patch Changes
+
+- Updated dependencies [[`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56)]:
+  - @callstack/brownfield-cli@3.14.0
+
 ## 3.13.2
 
 ### Patch Changes
