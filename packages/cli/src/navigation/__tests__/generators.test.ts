@@ -24,6 +24,33 @@ const methods: MethodSignature[] = [
   },
 ];
 
+const callbackMethods: MethodSignature[] = [
+  {
+    name: 'navigateToProfile',
+    params: [
+      { name: 'userId', type: 'string', optional: false },
+      {
+        name: 'onDismiss',
+        type: '() => void',
+        optional: false,
+        callback: { params: [], returnType: 'void' },
+      },
+    ],
+    returnType: 'void',
+    isAsync: false,
+  },
+];
+
+const asyncMethods: MethodSignature[] = [
+  {
+    name: 'requestPermission',
+    params: [{ name: 'name', type: 'string', optional: false }],
+    returnType: 'Promise<boolean>',
+    isAsync: true,
+    promiseReturnType: 'boolean',
+  },
+];
+
 const modelMethods: MethodSignature[] = [
   {
     name: 'openSettings',
@@ -194,6 +221,79 @@ describe('navigation code generators', () => {
     expect(kotlinModule).toContain(
       'BrownfieldNavigationManager.getDelegate().openScreen(route, params)'
     );
+  });
+
+  it('generates iOS bindings for methods with callback parameters', () => {
+    const swiftDelegate = generateSwiftDelegate(callbackMethods);
+    const objcImplementation = generateObjCImplementation(callbackMethods);
+
+    expect(swiftDelegate).toContain('import React');
+    expect(swiftDelegate).toContain(
+      '@objc func navigateToProfile(_ userId: String, onDismiss onDismiss: @escaping RCTResponseSenderBlock)'
+    );
+
+    expect(objcImplementation).toContain(
+      '- (void)navigateToProfile:(NSString *)userId onDismiss:(RCTResponseSenderBlock)onDismiss'
+    );
+    expect(objcImplementation).toContain(
+      '[[[BrownfieldNavigationManager shared] getDelegate] navigateToProfile:userId onDismiss:onDismiss];'
+    );
+  });
+
+  it('generates Android bindings for methods with callback parameters', () => {
+    const kotlinPackageName = 'com.callstack.nativebrownfieldnavigation';
+    const kotlinDelegate = generateKotlinDelegate(callbackMethods, kotlinPackageName);
+    const kotlinModule = generateKotlinModule(callbackMethods, kotlinPackageName);
+
+    expect(kotlinDelegate).toContain('import com.facebook.react.bridge.Callback');
+    expect(kotlinDelegate).toContain(
+      'fun navigateToProfile(userId: String, onDismiss: Callback)'
+    );
+
+    expect(kotlinModule).toContain('import com.facebook.react.bridge.Callback');
+    expect(kotlinModule).toContain(
+      'override fun navigateToProfile(userId: String, onDismiss: Callback)'
+    );
+    expect(kotlinModule).toContain(
+      'BrownfieldNavigationManager.getDelegate().navigateToProfile(userId, onDismiss)'
+    );
+  });
+
+  it('generates iOS async bindings that forward to the delegate instead of the not_implemented stub', () => {
+    const swiftDelegate = generateSwiftDelegate(asyncMethods);
+    const objcImplementation = generateObjCImplementation(asyncMethods);
+
+    expect(swiftDelegate).toContain('import React');
+    expect(swiftDelegate).toContain(
+      '@objc func requestPermission(_ name: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock)'
+    );
+
+    expect(objcImplementation).toContain(
+      '- (void)requestPermission:(NSString *)name resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject'
+    );
+    expect(objcImplementation).toContain(
+      '[[[BrownfieldNavigationManager shared] getDelegate] requestPermission:name resolve:resolve reject:reject];'
+    );
+    expect(objcImplementation).not.toContain('not_implemented');
+  });
+
+  it('generates Android async bindings that forward to the delegate instead of the not_implemented stub', () => {
+    const kotlinPackageName = 'com.callstack.nativebrownfieldnavigation';
+    const kotlinDelegate = generateKotlinDelegate(asyncMethods, kotlinPackageName);
+    const kotlinModule = generateKotlinModule(asyncMethods, kotlinPackageName);
+
+    expect(kotlinDelegate).toContain('import com.facebook.react.bridge.Promise');
+    expect(kotlinDelegate).toContain(
+      'fun requestPermission(name: String, promise: Promise)'
+    );
+
+    expect(kotlinModule).toContain(
+      'override fun requestPermission(name: String, promise: Promise)'
+    );
+    expect(kotlinModule).toContain(
+      'BrownfieldNavigationManager.getDelegate().requestPermission(name, promise)'
+    );
+    expect(kotlinModule).not.toContain('not_implemented');
   });
 
   it('maps known model types for Swift delegate signatures', () => {

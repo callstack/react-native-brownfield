@@ -129,6 +129,84 @@ describe('parseNavigationSpec', () => {
     ]);
   });
 
+  it('parses function-typed parameters into a callback signature', () => {
+    const specPath = createTempSpecFile(`
+      export interface BrownfieldNavigationSpec {
+        navigateToProfile(userId: string, onDismiss: (reason?: string) => void): void;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    const parsedSpec = parseNavigationSpec(specPath);
+
+    expect(parsedSpec.methods).toEqual([
+      {
+        name: 'navigateToProfile',
+        params: [
+          { name: 'userId', type: 'string', optional: false },
+          {
+            name: 'onDismiss',
+            type: '(reason?: string) => void',
+            optional: false,
+            callback: {
+              params: [{ name: 'reason', type: 'string', optional: true }],
+              returnType: 'void',
+            },
+          },
+        ],
+        returnType: 'void',
+        isAsync: false,
+      },
+    ]);
+  });
+
+  it('parses Promise-returning methods into promiseReturnType and isAsync', () => {
+    const specPath = createTempSpecFile(`
+      export interface BrownfieldNavigationSpec {
+        requestPermission(name: string): Promise<boolean>;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    const parsedSpec = parseNavigationSpec(specPath);
+
+    expect(parsedSpec.methods).toEqual([
+      {
+        name: 'requestPermission',
+        params: [{ name: 'name', type: 'string', optional: false }],
+        returnType: 'Promise<boolean>',
+        isAsync: true,
+        promiseReturnType: 'boolean',
+      },
+    ]);
+  });
+
+  it('throws when a parameter is typed as a Promise', () => {
+    const specPath = createTempSpecFile(`
+      export interface BrownfieldNavigationSpec {
+        foo(cb: Promise<string>): void;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    expect(() => parseNavigationSpec(specPath)).toThrow(
+      'Unsupported Promise parameter "cb" in method "foo": Promise<T> is only supported as a method return type.'
+    );
+  });
+
+  it('throws when a callback parameter has a non-void return type', () => {
+    const specPath = createTempSpecFile(`
+      export interface BrownfieldNavigationSpec {
+        bar(cb: () => string): void;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    expect(() => parseNavigationSpec(specPath)).toThrow(
+      'Unsupported callback parameter "cb" in method "bar": callback return type "string" is not supported. Use a void callback or model the result as a Promise-returning navigation method.'
+    );
+  });
+
   it('throws when no valid spec interface is present', () => {
     const specPath = createTempSpecFile(`
       export interface NavigationSpec {
