@@ -1,6 +1,7 @@
 import * as rockTools from '@rock-js/tools';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import * as projectUtils from '../project.js';
 import { supportsPrebuiltRNCore } from '../supportsPrebuiltRNCore.js';
 
 vi.mock('@rock-js/tools', async (importOriginal) => {
@@ -11,9 +12,20 @@ vi.mock('@rock-js/tools', async (importOriginal) => {
   };
 });
 
+vi.mock('../project.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof projectUtils>();
+  return {
+    ...actual,
+    getExpoSdkMajor: vi.fn(),
+    isExpoProject: vi.fn(),
+  };
+});
+
 describe('supportsPrebuiltRNCore', () => {
   beforeEach(() => {
     vi.mocked(rockTools.getReactNativeVersion).mockReset();
+    vi.mocked(projectUtils.isExpoProject).mockReset();
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReset();
   });
 
   test('returns supported with opt-in default for vanilla RN 0.83', () => {

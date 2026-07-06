@@ -99,6 +99,13 @@ export function modifyPodfile(
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
+  if (expoMajor < 55) {
+    const versionLabel = expoMajor < 0 ? 'unknown' : expoMajor.toString();
+    throw new SourceModificationError(
+      `Expo SDK ${versionLabel} is not supported. Please use Expo SDK 55 or newer. For older versions, please use the v3.x.x of @callstack/react-native-brownfield.`
+    );
+  }
+
   modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(
     modifiedPodfile,
     expoMajor
