@@ -45,7 +45,7 @@ class VariantTaskProvider(val project: Project) {
         variant.lifecycleTasks.registerPreBuild(explodeAarTask, jsBundleTaskName)
         if (Utils.isExpoProject(project) && Utils.hasExpoUpdates(appProject, variantName)) {
             val updatesResourcesTaskName = Utils.getExpoUpdatesResourcesTaskName(variantName)
-            variant.lifecycleTasks.registerPreBuild(updatesResourcesTaskName)
+            variant.lifecycleTasks.registerPreBuild("${appProject.path}:$updatesResourcesTaskName")
         }
     }
 }
