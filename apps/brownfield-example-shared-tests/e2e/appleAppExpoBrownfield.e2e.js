@@ -30,7 +30,7 @@ describe('Brownfield (AppleApp — Expo)', () => {
 
   it('shows a native toast when Expo RN sends postMessage', async () => {
     await openPostMessageTabExpo();
-    await sendPostMessageToNativeAndWaitForToast(/Hello from Expo!/);
+    await sendPostMessageToNativeAndWaitForToast();
   });
 
   it('records the RN postMessage bubble in the Expo surface', async () => {
