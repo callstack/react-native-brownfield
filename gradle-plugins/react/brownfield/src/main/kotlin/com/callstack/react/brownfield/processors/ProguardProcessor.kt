@@ -11,7 +11,7 @@ class ProguardProcessor(val project: Project) {
         proguardRules: List<File>,
         capitalizedVariantName: String,
         explodeTask: TaskProvider<ExplodeAarTask>,
-        ) {
+    ) {
         val mergeTaskName = "merge${capitalizedVariantName}ConsumerProguardFiles"
         project.tasks.matching { it.name == mergeTaskName }.configureEach { task ->
             task.dependsOn(explodeTask)

@@ -14,7 +14,7 @@ class BundleTaskProvider(private val variantTaskProvider: VariantTaskProvider) {
         variant: LibraryVariant,
     ): TaskProvider<Task> {
         val androidComponent = project.extensions.findByType(LibraryExtension::class.java)
-        // TODO: evaluate if default makes sense
+        // Default to the variant name until a matching build type/flavor refines it.
         var taskName = variant.name
 
         androidComponent?.buildTypes?.forEach {
@@ -29,7 +29,6 @@ class BundleTaskProvider(private val variantTaskProvider: VariantTaskProvider) {
                     return@forEach
                 }
             }
-
         }
         return variantTaskProvider.bundleTaskProvider(project, taskName)
     }
