@@ -1,5 +1,5 @@
 import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { Button, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AnimatedIcon } from '@/components/animated-icon';
@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { checkAndFetchUpdate } from '@/utils/expo-rn-updates';
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -35,7 +36,7 @@ export default function HomeScreen() {
         <ThemedView style={styles.heroSection}>
           <AnimatedIcon />
           <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
+            Welcome to&nbsp;Expo&nbsp;57
           </ThemedText>
         </ThemedView>
 
@@ -55,6 +56,8 @@ export default function HomeScreen() {
           />
         </ThemedView>
 
+        <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
+
         {Platform.OS === 'web' && <WebBadge />}
       </SafeAreaView>
     </ThemedView>
@@ -66,6 +69,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'row',
+    paddingTop: Spacing.three,
   },
   safeArea: {
     flex: 1,
@@ -78,7 +82,6 @@ const styles = StyleSheet.create({
   heroSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
     paddingHorizontal: Spacing.four,
     gap: Spacing.four,
   },

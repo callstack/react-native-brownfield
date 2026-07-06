@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import * as SplashScreen from 'expo-splash-screen';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
@@ -9,14 +8,13 @@ const INITIAL_SCALE_FACTOR = Dimensions.get('screen').height / 90;
 const DURATION = 600;
 
 export function AnimatedSplashOverlay() {
-  const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
 
   if (!visible) return null;
 
   const splashKeyframe = new Keyframe({
     0: {
-      transform: [{ scale: 1 }],
+      transform: [{ scale: INITIAL_SCALE_FACTOR }],
       opacity: 1,
     },
     20: {
@@ -33,9 +31,7 @@ export function AnimatedSplashOverlay() {
     },
   });
 
-  const image = <Image style={styles.image} source={require('@/assets/images/expo-logo.png')} />;
-
-  return animate ? (
+  return (
     <Animated.View
       entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
         'worklet';
@@ -43,19 +39,8 @@ export function AnimatedSplashOverlay() {
           scheduleOnRN(setVisible, false);
         }
       })}
-      style={styles.splashOverlay}>
-      {image}
-    </Animated.View>
-  ) : (
-    <View
-      onLayout={() => {
-        SplashScreen.hideAsync().finally(() => {
-          setAnimate(true);
-        });
-      }}
-      style={styles.splashOverlay}>
-      {image}
-    </View>
+      style={styles.backgroundSolidColor}
+    />
   );
 }
 
@@ -128,6 +113,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   image: {
+    position: 'absolute',
     width: 76,
     height: 71,
   },
@@ -138,11 +124,9 @@ const styles = StyleSheet.create({
     height: 128,
     position: 'absolute',
   },
-  splashOverlay: {
+  backgroundSolidColor: {
     ...StyleSheet.absoluteFill,
     backgroundColor: '#208AEF',
-    alignItems: 'center',
-    justifyContent: 'center',
     zIndex: 1000,
   },
 });

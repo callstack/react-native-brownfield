@@ -25,7 +25,8 @@
     "@callstack/brownfield-example-expo-app-55",
     "@callstack/brownfield-example-expo-app-56",
     "@callstack/brownfield-gradle-plugin-react",
-    "@callstack/brownfield-example-shared-tests"
+    "@callstack/brownfield-example-shared-tests",
+    "@callstack/brownfield-example-expo-app-57"
   ],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true,

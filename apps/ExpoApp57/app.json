@@ -8,7 +8,8 @@
     "scheme": "expoapp57",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp57"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +18,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.callstack.rnbrownfield.demo.expoapp57"
     },
     "web": {
       "output": "static",
@@ -25,6 +27,7 @@
     },
     "plugins": [
       "expo-router",
+      "@callstack/react-native-brownfield",
       [
         "expo-splash-screen",
         {
