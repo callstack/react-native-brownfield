@@ -2,6 +2,19 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 4.0.0
+
+### Major Changes
+
+- [#407](https://github.com/callstack/react-native-brownfield/pull/407) [`dee9559`](https://github.com/callstack/react-native-brownfield/commit/dee9559d6a1a1169c0824542ec8d2ea5ef6475e7) Thanks [@hurali97](https://github.com/hurali97)! - feat: drop support for expo sdk 54
+
+### Patch Changes
+
+- Updated dependencies [[`dee9559`](https://github.com/callstack/react-native-brownfield/commit/dee9559d6a1a1169c0824542ec8d2ea5ef6475e7)]:
+  - @callstack/brownfield-cli@4.0.0
+
+- [#414](https://github.com/callstack/react-native-brownfield/pull/414) [`803f8ca`](https://github.com/callstack/react-native-brownfield/commit/803f8ca488515d7589d3b36e4ebb57d77df1d43d) Thanks [@artus9033](https://github.com/artus9033)! - fix: duplicated JNI libs on cold publish
+
 ## 3.15.0
 
 ### Minor Changes
