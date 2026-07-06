@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 4.0.0
+
+### Major Changes
+
+- [#407](https://github.com/callstack/react-native-brownfield/pull/407) [`dee9559`](https://github.com/callstack/react-native-brownfield/commit/dee9559d6a1a1169c0824542ec8d2ea5ef6475e7) Thanks [@hurali97](https://github.com/hurali97)! - feat: drop support for expo sdk 54
+
 ## 3.15.0
 
 ## 3.14.0
