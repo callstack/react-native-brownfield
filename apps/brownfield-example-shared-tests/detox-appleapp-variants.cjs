@@ -5,7 +5,7 @@ const path = require('node:path');
 /** @typedef {import('detox').DetoxConfig} DetoxConfig */
 
 /**
- * AppleApp Detox / E2E settings per packaged RN host.
+ * AppleApp Detox / E2E settings per packaged RN host (RNApp, ExpoApp55, ExpoApp56).
  *
  * @type {Record<string, {
  *   xcframeworkApp: string,
