@@ -71,7 +71,14 @@ object RNSourceSets {
                 val appBuildDir = getAppBuildDir()
                 sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
                 sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
-                sourceSet.jniLibs.srcDirs("libs${variantName.capitalized()}")
+                if (extension.useStrippedSoFiles) {
+                    val capitalizedVariantName = variantName.capitalized()
+                    val libsDir = project.layout.projectDirectory.dir("libs$capitalizedVariantName")
+                    val copyTaskName = "copy${capitalizedVariantName}LibSources"
+                    sourceSet.jniLibs.srcDir(
+                        project.files(libsDir).builtBy(copyTaskName),
+                    )
+                }
                 if (Utils.hasExpoUpdates(appProject, variant.name)) {
                     val updateResourcesTask = appProject.tasks.named(updateResourcesPathSegment)
                     sourceSet.assets.srcDir(

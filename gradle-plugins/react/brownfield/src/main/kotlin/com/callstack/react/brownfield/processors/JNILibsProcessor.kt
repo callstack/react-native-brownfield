@@ -25,11 +25,9 @@ class JNILibsProcessor(val project: Project) {
         }
 
         val androidExtension = project.extensions.getByName("android") as LibraryExtension
-        val copyTask = copySoLibsTask(variantName)
+        copySoLibsTask(variantName)
 
         mergeJniLibsTask.configure {
-            it.dependsOn(copyTask)
-
             it.doFirst {
                 val projectExt = project.extensions.getByType(Extension::class.java)
                 val existingJNILibs =
