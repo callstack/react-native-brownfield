@@ -13,7 +13,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.configurationcache.extensions.capitalized
 import java.io.File
 
 class VariantTaskProvider(val project: Project) {
@@ -111,11 +110,11 @@ class VariantTaskProvider(val project: Project) {
     ): TaskProvider<MergeClassesTask> {
         val capitalizedVariantName = variantName.capitalized()
         val mergeClassesTaskName = "mergeClasses$capitalizedVariantName"
-        val kotlinCompileTaskName = "compile${capitalizedVariantName}Kotlin"
 
         return project.tasks.register(mergeClassesTaskName, MergeClassesTask::class.java) {
             it.dependsOn(explodeTasks)
-            it.dependsOn(project.tasks.named(kotlinCompileTaskName))
+            it.dependsOn(VariantHelper.getKotlinCompileTask(project, capitalizedVariantName))
+            it.dependsOn(VariantHelper.getJavaCompileTask(project, capitalizedVariantName))
             it.variantName.set(variantName)
             it.inputClassesJars.from(aarLibraries.map { aarLibrary -> aarLibrary.getClassesJarFile() })
             it.outputDir.set(DirectoryManager.getMergeClassDirectory(variantName))

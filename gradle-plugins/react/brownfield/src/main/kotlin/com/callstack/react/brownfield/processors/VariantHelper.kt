@@ -1,6 +1,9 @@
 package com.callstack.react.brownfield.processors
 
 import com.callstack.react.brownfield.utils.capitalized
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskCollection
 
 object VariantHelper {
     fun getAsmTransformTaskName(capitalizedVariantName: String): String {
@@ -38,5 +41,19 @@ object VariantHelper {
 
     fun getExpoUpdatesResourcesTaskName(variantName: String): String {
         return "create${variantName.capitalized()}UpdatesResources"
+    }
+
+    fun getKotlinCompileTask(
+        project: Project,
+        capitalizedVariantName: String,
+    ): TaskCollection<Task> {
+        return project.tasks.matching { it.name == "compile${capitalizedVariantName}Kotlin" }
+    }
+
+    fun getJavaCompileTask(
+        project: Project,
+        capitalizedVariantName: String,
+    ): TaskCollection<Task> {
+        return project.tasks.matching { it.name == "compile${capitalizedVariantName}JavaWithJavac" }
     }
 }
