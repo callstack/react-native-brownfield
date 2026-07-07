@@ -4,7 +4,6 @@ const {
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
-  assertDetoxTextMatches,
   detoxLaunchArgs,
   waitForVisible,
   waitForNativeOverlayVisible,
@@ -260,25 +259,20 @@ async function openPostMessageTabExpo() {
   );
 }
 
-async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
+async function sendPostMessageToNativeAndWaitForToast() {
   await waitForVisible(
     by.id(ids.sendMessageToNative),
     DETOX_TIMING.VISIBILITY_TIMEOUT_MS
   );
-  await element(by.id(ids.sendMessageToNative)).tap();
-  const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
-  const deadline = Date.now() + DETOX_TIMING.POST_MESSAGE_BUBBLE_TIMEOUT_MS;
-  while (Date.now() < deadline) {
-    try {
-      await assertDetoxTextMatches(bubble, rnMessagePattern);
-      break;
-    } catch {
-      await new Promise((resolve) =>
-        setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
-      );
-    }
+  // Tap with sync off — embedded Expo can keep Detox busy while native UI is ready.
+  await device.disableSynchronization();
+  try {
+    await element(by.id(ids.sendMessageToNative)).tap();
+  } finally {
+    await device.enableSynchronization();
   }
-  await assertDetoxTextMatches(bubble, rnMessagePattern);
+  // Assert toast before RN bubble: E2E toast is visible for ~10s and can dismiss
+  // while Fabric/accessibility catches up on the message list.
   await waitForNativeOverlayVisible(
     by.id(ids.appleAppPostMessageToast),
     DETOX_TIMING.TOAST_VISIBILITY_TIMEOUT_MS
