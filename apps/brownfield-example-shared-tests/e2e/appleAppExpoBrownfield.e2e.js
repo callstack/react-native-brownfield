@@ -1,4 +1,4 @@
-const { element, by, expect: detoxExpect } = require('detox');
+const { device, element, by, expect: detoxExpect } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
@@ -15,7 +15,7 @@ const {
 } = require('@callstack/brownfield-example-shared-tests/e2e/appleAppDetoxUtils');
 
 describe('Brownfield (AppleApp — Expo)', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAppleAppReadyExpo();
   });
@@ -35,7 +35,12 @@ describe('Brownfield (AppleApp — Expo)', () => {
 
   it('records the RN postMessage bubble in the Expo surface', async () => {
     await openPostMessageTabExpo();
-    await element(by.id(ids.sendMessageToNative)).tap();
+    await device.disableSynchronization();
+    try {
+      await element(by.id(ids.sendMessageToNative)).tap();
+    } finally {
+      await device.enableSynchronization();
+    }
     const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
     const deadline = Date.now() + 15000;
     while (Date.now() < deadline) {
