@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.processors
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.callstack.react.brownfield.exceptions.TaskNotFound
 import com.callstack.react.brownfield.shared.ExplodeAarTask
+import com.callstack.react.brownfield.shared.MergeClassesTask
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
@@ -12,6 +13,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.configurationcache.extensions.capitalized
 import java.io.File
 
 class VariantTaskProvider(val project: Project) {
@@ -83,7 +85,7 @@ class VariantTaskProvider(val project: Project) {
         preBuildTask.dependsOn(explodeAarTask)
 
         val bundledAssetsVariantName =
-            Utils.getBundledAssetsVariantName(
+            VariantHelper.getBundledAssetsVariantName(
                 variantName = variantName,
                 buildTypeName = buildTypeName,
                 isDebuggable = isVariantDebuggable,
@@ -95,10 +97,28 @@ class VariantTaskProvider(val project: Project) {
         preBuildTask.dependsOn("${appProject.path}:createBundle${capitalizedBundledAssetsVariantName}JsAndAssets")
 
         if (Utils.isExpoProject(project)) {
-            val updatesResourcesTaskName = Utils.getExpoUpdatesResourcesTaskName(variantName)
+            val updatesResourcesTaskName = VariantHelper.getExpoUpdatesResourcesTaskName(variantName)
             if (Utils.hasExpoUpdates(appProject, variantName)) {
                 preBuildTask.dependsOn("${appProject.path}:$updatesResourcesTaskName")
             }
+        }
+    }
+
+    fun mergeClasses(
+        aarLibraries: Collection<AndroidArchiveLibrary>,
+        explodeTasks: TaskProvider<ExplodeAarTask>,
+        variantName: String,
+    ): TaskProvider<MergeClassesTask> {
+        val capitalizedVariantName = variantName.capitalized()
+        val mergeClassesTaskName = "mergeClasses$capitalizedVariantName"
+        val kotlinCompileTaskName = "compile${capitalizedVariantName}Kotlin"
+
+        return project.tasks.register(mergeClassesTaskName, MergeClassesTask::class.java) {
+            it.dependsOn(explodeTasks)
+            it.dependsOn(project.tasks.named(kotlinCompileTaskName))
+            it.variantName.set(variantName)
+            it.inputClassesJars.from(aarLibraries.map { aarLibrary -> aarLibrary.getClassesJarFile() })
+            it.outputDir.set(DirectoryManager.getMergeClassDirectory(variantName))
         }
     }
 }
