@@ -44,6 +44,50 @@ public class RNNavigationDelegate: BrownfieldNavigationDelegate {
         present(ReferralsScreen(userId: userId))
     }
 
+    public func requestNativeConfirmation(
+        _ title: String,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        DispatchQueue.main.async {
+            guard let topController = UIApplication.shared.topMostViewController() else {
+                reject(
+                    "no_view_controller",
+                    "Could not find a view controller to present the confirmation.",
+                    nil
+                )
+                return
+            }
+
+            let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                resolve(true)
+            })
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+                resolve(false)
+            })
+            topController.present(alert, animated: true)
+        }
+    }
+
+    public func showNativeBanner(
+        _ message: String,
+        onDismiss onDismiss: @escaping RCTResponseSenderBlock
+    ) {
+        DispatchQueue.main.async {
+            guard let topController = UIApplication.shared.topMostViewController() else {
+                onDismiss([])
+                return
+            }
+
+            let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Dismiss", style: .default) { _ in
+                onDismiss([])
+            })
+            topController.present(alert, animated: true)
+        }
+    }
+
     private func present<Content: View>(_ view: Content) {
         DispatchQueue.main.async {
             let hostingController = UIHostingController(rootView: view)
