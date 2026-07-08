@@ -57,6 +57,13 @@
           "description": "Compile SDK version for the Android library.",
           "type": "number"
         },
+        "extraProguardRules": {
+          "description": "Extra Proguard rules appended to the default rules.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "groupId": {
           "description": "Maven group ID used when publishing the AAR.",
           "type": "string"
@@ -64,6 +71,10 @@
         "minSdkVersion": {
           "description": "Minimum SDK version for the Android library.",
           "type": "number"
+        },
+        "minifyEnabled": {
+          "description": "Toggle minification for the generated Android library.",
+          "type": "boolean"
         },
         "packageName": {
           "description": "The package name for the Android library module.",
