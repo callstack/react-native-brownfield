@@ -53,9 +53,12 @@ function mapParamToObjC(
   nullable: boolean = false,
   options: ObjCTypeMappingOptions = {}
 ): string {
-  return param.callback
-    ? 'RCTResponseSenderBlock'
-    : mapTsTypeToObjC(param.type, nullable, options);
+  if (param.callback) {
+    return param.optional
+      ? 'RCTResponseSenderBlock _Nullable'
+      : 'RCTResponseSenderBlock';
+  }
+  return mapTsTypeToObjC(param.type, nullable, options);
 }
 
 interface SwiftTypeMappingOptions {
@@ -90,9 +93,12 @@ function mapParamToSwift(
   param: MethodParam,
   options: SwiftTypeMappingOptions = {}
 ): string {
-  return param.callback
-    ? '@escaping RCTResponseSenderBlock'
-    : mapTsTypeToSwift(param.type, param.optional, options);
+  if (param.callback) {
+    return param.optional
+      ? '@escaping RCTResponseSenderBlock?'
+      : '@escaping RCTResponseSenderBlock';
+  }
+  return mapTsTypeToSwift(param.type, param.optional, options);
 }
 
 export function generateSwiftDelegate(

@@ -67,11 +67,22 @@ function parseCallbackSignature(
   };
 }
 
+const RESERVED_ASYNC_PARAM_NAMES = new Set(['promise', 'resolve', 'reject']);
+
 function validateMethodSignature(method: MethodSignature): void {
   for (const param of method.params) {
     if (getPromiseInnerType(param.type)) {
       throw new Error(
         `Unsupported Promise parameter "${param.name}" in method "${method.name}": Promise<T> is only supported as a method return type.`
+      );
+    }
+
+    if (
+      method.isAsync &&
+      RESERVED_ASYNC_PARAM_NAMES.has(param.name)
+    ) {
+      throw new Error(
+        `Reserved parameter name "${param.name}" in async method "${method.name}": this name is used by the generated bridging code. Rename the parameter.`
       );
     }
 

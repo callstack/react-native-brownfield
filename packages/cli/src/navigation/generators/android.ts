@@ -50,9 +50,10 @@ function mapParamToKotlin(
   options: KotlinTypeMappingOptions = {},
   layer: 'delegate' | 'module' = 'delegate'
 ): string {
-  return param.callback
-    ? 'Callback'
-    : mapTsTypeToKotlin(param.type, param.optional, options, layer);
+  if (param.callback) {
+    return param.optional ? 'Callback?' : 'Callback';
+  }
+  return mapTsTypeToKotlin(param.type, param.optional, options, layer);
 }
 
 function prepareKotlinArgs(

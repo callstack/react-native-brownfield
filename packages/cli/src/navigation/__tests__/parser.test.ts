@@ -207,6 +207,63 @@ describe('parseNavigationSpec', () => {
     );
   });
 
+  it('parses optional callback parameters as optional', () => {
+    const specPath = createTempSpecFile(`
+      export interface BrownfieldNavigationSpec {
+        maybeBanner(message: string, onDismiss?: () => void): void;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    const parsedSpec = parseNavigationSpec(specPath);
+
+    expect(parsedSpec.methods).toEqual([
+      {
+        name: 'maybeBanner',
+        params: [
+          { name: 'message', type: 'string', optional: false },
+          {
+            name: 'onDismiss',
+            type: '() => void',
+            optional: true,
+            callback: {
+              params: [],
+              returnType: 'void',
+            },
+          },
+        ],
+        returnType: 'void',
+        isAsync: false,
+      },
+    ]);
+  });
+
+  it('throws when an async method uses a reserved parameter name', () => {
+    const specPath = createTempSpecFile(`
+      export interface BrownfieldNavigationSpec {
+        requestPermission(promise: string): Promise<boolean>;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    expect(() => parseNavigationSpec(specPath)).toThrow(
+      'Reserved parameter name "promise" in async method "requestPermission": this name is used by the generated bridging code. Rename the parameter.'
+    );
+  });
+
+  it('throws when an async method uses "resolve" or "reject" as a parameter name', () => {
+    const specPath = createTempSpecFile(`
+      export interface BrownfieldNavigationSpec {
+        doAsync(resolve: string, reject: string): Promise<boolean>;
+      }
+    `);
+    tempSpecFiles.push(specPath);
+
+    expect(() => parseNavigationSpec(specPath)).toThrow(
+      'Reserved parameter name "resolve" in async method "doAsync": this name is used by the generated bridging code. Rename the parameter.'
+    );
+  });
+
   it('throws when no valid spec interface is present', () => {
     const specPath = createTempSpecFile(`
       export interface NavigationSpec {

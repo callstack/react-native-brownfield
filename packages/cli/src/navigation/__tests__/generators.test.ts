@@ -41,6 +41,23 @@ const callbackMethods: MethodSignature[] = [
   },
 ];
 
+const optionalCallbackMethods: MethodSignature[] = [
+  {
+    name: 'maybeBanner',
+    params: [
+      { name: 'message', type: 'string', optional: false },
+      {
+        name: 'onDismiss',
+        type: '() => void',
+        optional: true,
+        callback: { params: [], returnType: 'void' },
+      },
+    ],
+    returnType: 'void',
+    isAsync: false,
+  },
+];
+
 const asyncMethods: MethodSignature[] = [
   {
     name: 'requestPermission',
@@ -256,6 +273,33 @@ describe('navigation code generators', () => {
     );
     expect(kotlinModule).toContain(
       'BrownfieldNavigationManager.getDelegate().navigateToProfile(userId, onDismiss)'
+    );
+  });
+
+  it('generates nullable/optional callback types for optional callback parameters', () => {
+    const swiftDelegate = generateSwiftDelegate(optionalCallbackMethods);
+    const objcImplementation = generateObjCImplementation(optionalCallbackMethods);
+    const kotlinPackageName = 'com.callstack.nativebrownfieldnavigation';
+    const kotlinDelegate = generateKotlinDelegate(
+      optionalCallbackMethods,
+      kotlinPackageName
+    );
+    const kotlinModule = generateKotlinModule(
+      optionalCallbackMethods,
+      kotlinPackageName
+    );
+
+    expect(swiftDelegate).toContain(
+      '@objc func maybeBanner(_ message: String, onDismiss onDismiss: @escaping RCTResponseSenderBlock?)'
+    );
+    expect(objcImplementation).toContain(
+      '- (void)maybeBanner:(NSString *)message onDismiss:(RCTResponseSenderBlock _Nullable)onDismiss'
+    );
+    expect(kotlinDelegate).toContain(
+      'fun maybeBanner(message: String, onDismiss: Callback?)'
+    );
+    expect(kotlinModule).toContain(
+      'override fun maybeBanner(message: String, onDismiss: Callback?)'
     );
   });
 
