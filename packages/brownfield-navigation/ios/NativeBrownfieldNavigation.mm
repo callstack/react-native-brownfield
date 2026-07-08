@@ -8,8 +8,21 @@
 
 @implementation NativeBrownfieldNavigation
 
-- (void)temporary {
-    NSLog(@"temporary");
+- (void)navigateToSettings:(NSDictionary *)user {
+    UserType *userModel = user == nil ? nil : [UserType fromDictionary:user];
+    [[[BrownfieldNavigationManager shared] getDelegate] navigateToSettings:userModel];
+}
+
+- (void)navigateToReferrals:(NSString *)userId {
+    [[[BrownfieldNavigationManager shared] getDelegate] navigateToReferrals:userId];
+}
+
+- (void)requestNativeConfirmation:(NSString *)title resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    [[[BrownfieldNavigationManager shared] getDelegate] requestNativeConfirmation:title resolve:resolve reject:reject];
+}
+
+- (void)showNativeBanner:(NSString *)message onDismiss:(RCTResponseSenderBlock)onDismiss {
+    [[[BrownfieldNavigationManager shared] getDelegate] showNativeBanner:message onDismiss:onDismiss];
 }
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
