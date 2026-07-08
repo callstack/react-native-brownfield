@@ -8,6 +8,14 @@ type GradleModificationOptions = {
   useLocalGradlePlugin?: boolean;
 };
 
+function formatMissingDimensionStrategies(
+  missingDimensionStrategies: string[]
+): string {
+  return missingDimensionStrategies
+    .map((value) => JSON.stringify(value))
+    .join(', ');
+}
+
 /**
  * Modifies the root build.gradle to add the Brownfield Gradle plugin dependency
  * @param contents The original build.gradle content
@@ -54,6 +62,46 @@ export function modifyRootBuildGradle(
 
   Logger.logDebug('Added Brownfield Gradle plugin to root build.gradle');
   return modifiedContents;
+}
+
+/**
+ * Modifies the app build.gradle to add missingDimensionStrategy arguments
+ * @param contents The original app build.gradle content
+ * @param missingDimensionStrategies The arguments for missingDimensionStrategy
+ * @returns The modified build.gradle content
+ */
+export function modifyAppBuildGradleMissingDimensionStrategy(
+  contents: string,
+  missingDimensionStrategies: string[]
+): string {
+  if (missingDimensionStrategies.length < 2) {
+    return contents;
+  }
+
+  Logger.logDebug('Modifying app build.gradle to add missingDimensionStrategy');
+
+  const defaultConfigRegex = /^([ \t]*defaultConfig\s*\{)/m;
+  const match = contents.match(defaultConfigRegex);
+
+  if (!match) {
+    throw new Error('Could not locate defaultConfig block in app build.gradle');
+  }
+
+  const baseIndent = match[1].match(/^[ \t]*/)?.[0] ?? '';
+  const indentUnit = baseIndent.includes('\t') ? '\t' : '    ';
+  const args = formatMissingDimensionStrategies(missingDimensionStrategies);
+  const missingStrategyLine = `missingDimensionStrategy(${args})`;
+
+  if (contents.includes(missingStrategyLine)) {
+    Logger.logDebug(
+      'missingDimensionStrategy already present with same arguments, skipping'
+    );
+    return contents;
+  }
+
+  const insertion = `\n${baseIndent}${indentUnit}${missingStrategyLine}`;
+
+  return contents.replace(defaultConfigRegex, `$1${insertion}`);
 }
 
 function addLocalGradlePluginIncludeBuild(contents: string): string {

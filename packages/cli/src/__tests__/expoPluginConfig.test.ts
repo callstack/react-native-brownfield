@@ -206,6 +206,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         artifactId: 'brownfieldlib',
         version: '0.0.1-SNAPSHOT',
         useLocalGradlePlugin: false,
+        missingDimensionStrategies: [],
       },
     });
   });
@@ -270,6 +271,7 @@ describe('resolveBrownfieldPluginConfig', () => {
           expo: {
             minSdkVersion: 26,
             version: '2.0.0',
+            missingDimensionStrategies: ['react', 'classic'],
           },
         },
         ios: {
@@ -288,6 +290,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         expo: {
           minSdkVersion: 26,
           version: '2.0.0',
+          missingDimensionStrategies: ['react', 'classic'],
         },
       },
       ios: {
@@ -309,6 +312,7 @@ describe('resolveBrownfieldPluginConfig', () => {
       moduleName: 'mylib',
       minSdkVersion: 26,
       version: '2.0.0',
+      missingDimensionStrategies: ['react', 'classic'],
     });
     expect(resolved.ios).toMatchObject({
       frameworkName: 'MyLib',
@@ -347,5 +351,23 @@ describe('resolveBrownfieldPluginConfig', () => {
     );
 
     expect(resolved.android?.useLocalGradlePlugin).toBe(true);
+  });
+
+  it('maps android.missingDimensionStrategies from legacy app.json plugin props', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: {
+          moduleName: 'mylib',
+          missingDimensionStrategies: ['store', 'play'],
+        },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.missingDimensionStrategies).toEqual([
+      'store',
+      'play',
+    ]);
   });
 });
