@@ -24,6 +24,8 @@ export type BrownfieldPluginProps = {
     artifactId?: string;
     version?: string;
     useLocalGradlePlugin?: boolean;
+    minifyEnabled?: boolean;
+    extraProguardRules?: string[];
   };
 };
 
@@ -37,6 +39,8 @@ export type ResolvedBrownfieldPluginAndroidConfig = {
   artifactId: string;
   version: string;
   useLocalGradlePlugin: boolean;
+  minifyEnabled: boolean;
+  extraProguardRules: string[];
 };
 
 export type ResolvedBrownfieldPluginIosConfig = {
@@ -189,6 +193,8 @@ export function resolveBrownfieldPluginConfig(
           version: effectiveProps.android?.version ?? '0.0.1-SNAPSHOT',
           useLocalGradlePlugin:
             effectiveProps.android?.useLocalGradlePlugin ?? false,
+        minifyEnabled: effectiveProps.android?.minifyEnabled ?? false,
+        extraProguardRules: effectiveProps.android?.extraProguardRules ?? [],
         }
       : null,
   };

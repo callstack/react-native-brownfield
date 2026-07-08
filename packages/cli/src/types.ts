@@ -57,6 +57,16 @@ export type BrownfieldExpoAndroidConfig = {
   packageName?: string;
 
   /**
+   * Toggle minification for the generated Android library.
+   */
+  minifyEnabled?: boolean;
+
+  /**
+   * Extra Proguard rules appended to the default rules.
+   */
+  extraProguardRules?: string[];
+
+  /**
    * Minimum SDK version for the Android library.
    */
   minSdkVersion?: number;
