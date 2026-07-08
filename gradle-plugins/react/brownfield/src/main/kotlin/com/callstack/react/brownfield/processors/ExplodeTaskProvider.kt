@@ -4,6 +4,7 @@ import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.shared.BundleTaskProvider
 import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
+import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -20,6 +21,7 @@ object ExplodeTaskProvider {
         val variantTaskProvider = VariantTaskProvider(project)
         val bundleProvider = BundleTaskProvider(variantTaskProvider)
         val capitalizedVariantName = variant.name.capitalized()
+        val projectExt = project.extensions.getByType(Extension::class.java)
 
         return project.tasks.register(
             "explode${capitalizedVariantName}Aar",
@@ -32,7 +34,7 @@ object ExplodeTaskProvider {
                 var artifactPath = art.file
                 if (art.isExpoPublishDependency != true) {
                     val dependencyProject = project.project(":${art.moduleName}")
-                    val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant)
+                    val bundleTaskProvider = bundleProvider.getBundleTask(dependencyProject, variant, projectExt.missingDimensionStrategies)
                     val taskName = bundleTaskProvider.name
                     dependencyProject.tasks.findByName(taskName)?.let { task.dependsOn(it) }
                     artifactPath = createArtifactFile(bundleTaskProvider.get()).absolutePath

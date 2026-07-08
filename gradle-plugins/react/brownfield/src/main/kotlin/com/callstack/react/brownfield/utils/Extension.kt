@@ -32,4 +32,9 @@ open class Extension {
         set(value) {
             useStrippedSoFiles = value
         }
+
+    /**
+     * List of missing dimension strategies.
+     */
+    var missingDimensionStrategies = listOf<String>()
 }
