@@ -56,4 +56,11 @@ object VariantHelper {
     ): TaskCollection<Task> {
         return project.tasks.matching { it.name == "compile${capitalizedVariantName}JavaWithJavac" }
     }
+
+    fun getAsmTransformTask(
+        project: Project,
+        capitalizedVariantName: String,
+    ): TaskCollection<Task> {
+        return project.tasks.matching { it.name == getAsmTransformTaskName(capitalizedVariantName) }
+    }
 }

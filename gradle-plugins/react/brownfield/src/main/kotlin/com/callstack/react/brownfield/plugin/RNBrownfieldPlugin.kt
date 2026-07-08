@@ -129,6 +129,7 @@ class RNBrownfieldPlugin : Plugin<Project> {
         variantTaskProvider: VariantTaskProvider,
     ) {
         val variantName = variant.name
+        val capitalizedVariantName = variantName.capitalized()
 
         /** =======  EXPLODE AAR  =========*/
         val explodeTask = ExplodeTaskProvider.getTask(variant, project, artifacts)
@@ -143,7 +144,7 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
         /** =======  MERGE CLASSES  =========*/
         val mergeClassesTask = variantTaskProvider.mergeClasses(aarLibraries, explodeTask, variantName)
-        project.tasks.named(VariantHelper.getAsmTransformTaskName(capitalizedVariantName)).configure {
+        VariantHelper.getAsmTransformTask(project, capitalizedVariantName).configureEach {
             it.dependsOn(mergeClassesTask)
         }
 
