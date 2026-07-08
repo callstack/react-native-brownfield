@@ -26,6 +26,7 @@ jobs:
       expo56: ${{ steps.filter.outputs.expo56 }}
       androidapp: ${{ steps.filter.outputs.androidapp }}
       appleapp: ${{ steps.filter.outputs.appleapp }}
+      gradle-plugins: ${{ steps.filter.outputs.gradle-plugins }}
       ci: ${{ steps.filter.outputs.ci }}
     steps:
       - name: Checkout
@@ -52,6 +53,8 @@ jobs:
             appleapp:
               - 'apps/AppleApp/**'
               - 'apps/brownfield-example-shared-tests/**'
+            gradle-plugins:
+              - 'gradle-plugins/**'
             ci:
               - '.github/**'
 
@@ -139,6 +142,7 @@ jobs:
         needs.filter.outputs.expo56 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
@@ -169,6 +173,7 @@ jobs:
         needs.filter.outputs.rnapp == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')

@@ -16,7 +16,7 @@ describe('gradleHelpers', () => {
 }`;
 
     expect(modifyRootBuildGradle(contents)).toContain(
-      'classpath("com.callstack.react:brownfield-gradle-plugin:2.0.0-alpha04")'
+      'classpath("com.callstack.react:brownfield-gradle-plugin:2.0.0-alpha06")'
     );
   });
 

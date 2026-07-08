@@ -11,6 +11,7 @@ import com.callstack.react.brownfield.processors.JNILibsProcessor
 import com.callstack.react.brownfield.processors.ManifestTaskProcessor
 import com.callstack.react.brownfield.processors.ProguardProcessor
 import com.callstack.react.brownfield.processors.ResourceTaskProcessor
+import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
@@ -139,6 +140,12 @@ class RNBrownfieldPlugin : Plugin<Project> {
         )
 
         val aarLibraries = getAarLibraries(artifacts, variantName)
+
+        /** =======  MERGE CLASSES  =========*/
+        val mergeClassesTask = variantTaskProvider.mergeClasses(aarLibraries, explodeTask, variantName)
+        project.tasks.named(VariantHelper.getAsmTransformTaskName(capitalizedVariantName)).configure {
+            it.dependsOn(mergeClassesTask)
+        }
 
         /**
          * Flat IDs to be put into the variant property, required for RClass Transformer

@@ -37,7 +37,7 @@ describe('Brownfield (AppleApp — Vanilla)', () => {
   });
 
   it('shows a native toast when RN sends postMessage', async () => {
-    await sendPostMessageToNativeAndWaitForToast(/Hello from React Native!/);
+    await sendPostMessageToNativeAndWaitForToast();
   });
 
   it('navigates to native settings from the RN surface', async () => {

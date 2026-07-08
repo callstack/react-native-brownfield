@@ -55,15 +55,6 @@ describe('getAppTargetDeploymentTarget', () => {
 
     expect(getAppTargetDeploymentTarget(project, 'ExpoApp56')).toBe('16.4');
   });
-
-  it('falls back to the debug deployment target when release is unavailable', () => {
-    const project = {
-      getBuildProperty: (_prop: string, build?: string) =>
-        build === 'Debug' ? '15.0' : undefined,
-    } as any;
-
-    expect(getAppTargetDeploymentTarget(project, 'ExpoApp54')).toBe('15.0');
-  });
 });
 
 describe('rewriteBundleReactNativePhaseScriptForFrameworkTarget', () => {

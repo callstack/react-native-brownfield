@@ -45,7 +45,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config: createConfig(),
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     expect(readLibraryManifest(androidDir))
@@ -81,7 +80,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config: createConfig(),
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     expect(readLibraryManifest(androidDir))
@@ -123,7 +121,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config,
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     writeAppManifest(
@@ -171,7 +168,6 @@ describe('createAndroidModule', () => {
         },
       }),
       rnVersion: '0.85.3',
-      isExpoPre55: false,
     });
 
     expect(readLibraryBuildGradle(androidDir)).toContain(
@@ -190,7 +186,6 @@ describe('createAndroidModule', () => {
         },
       }),
       rnVersion: '0.85.3',
-      isExpoPre55: false,
     });
 
     expect(readLibraryBuildGradle(androidDir)).toContain(
@@ -223,7 +218,6 @@ HERMES_V1_VERSION_NAME=250829098.0.10
       androidDir,
       config: createConfig(),
       rnVersion: '0.85.3',
-      isExpoPre55: false,
       projectRoot,
     });
 

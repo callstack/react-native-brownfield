@@ -1,8 +1,6 @@
 package com.callstack.react.brownfield.shared
 
-import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
-import com.callstack.react.brownfield.utils.DirectoryManager
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -19,24 +17,10 @@ abstract class ExplodeAarTask : DefaultTask() {
     @get:Input
     abstract val variantName: Property<String>
 
-    @get:Input
-    abstract val minifyEnabled: Property<Boolean>
-
     @TaskAction
     fun run() {
         val artifacts = inputArtifacts.get()
         val resolvedVariantName = variantName.get()
-
-        val variantHelper = VariantHelper()
-        variantHelper.project = project
-
-        // classes-merge
-        variantHelper.classesMergeTaskDoFirst(
-            DirectoryManager.getMergeClassDirectory(
-                resolvedVariantName,
-            ),
-            resolvedVariantName,
-        )
 
         val aarLibraries = mutableListOf<AndroidArchiveLibrary>()
         artifacts.forEach { art ->
@@ -66,9 +50,5 @@ abstract class ExplodeAarTask : DefaultTask() {
                 it.into(zipFolder)
             }
         }
-
-        // classes-merge
-        val mergeClassesOutputDir = DirectoryManager.getMergeClassDirectory(resolvedVariantName)
-        variantHelper.classesMergeTaskDoLast(mergeClassesOutputDir, aarLibraries, mutableListOf(), resolvedVariantName, minifyEnabled.get())
     }
 }

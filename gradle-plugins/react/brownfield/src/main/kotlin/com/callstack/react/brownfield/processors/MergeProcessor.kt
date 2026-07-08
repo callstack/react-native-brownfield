@@ -5,19 +5,12 @@ import org.gradle.api.Project
 import java.io.File
 
 object MergeProcessor {
-    fun mergeClassesJarIntoClasses(
+    fun mergeClassesJarFilesIntoClasses(
         project: Project,
-        androidLibraries: Collection<AndroidArchiveLibrary>,
+        classJarFiles: Collection<File>,
         folderOut: File,
     ) {
-        val allJarFiles: MutableCollection<File> = ArrayList()
-        val filteredLibs = getFilteredAarLibs(androidLibraries)
-        filteredLibs.forEach {
-            allJarFiles.add(it.getClassesJarFile())
-        }
-
-        val filteredAllJarFiles = allJarFiles.filter { it.exists() }
-        filteredAllJarFiles.forEach { jarFile ->
+        classJarFiles.filter { it.exists() }.forEach { jarFile ->
             project.copy {
                 it.from(project.zipTree(jarFile))
                 it.into(folderOut)
@@ -25,28 +18,13 @@ object MergeProcessor {
         }
     }
 
-    fun mergeLibsIntoClasses(
+    fun mergeClassesJarIntoClasses(
         project: Project,
         androidLibraries: Collection<AndroidArchiveLibrary>,
-        jarFiles: Collection<File>,
-        outputDir: File,
+        folderOut: File,
     ) {
-        val allJarFiles: MutableCollection<File> = ArrayList()
-        val filteredLibs = getFilteredAarLibs(androidLibraries)
-        filteredLibs.forEach {
-            allJarFiles.addAll(it.getLocalJars())
-        }
-
-        val filteredJarFiles = jarFiles.filter { it.exists() }
-        filteredJarFiles.forEach { allJarFiles.add(it) }
-
-        allJarFiles.forEach { jarFile ->
-            project.copy {
-                it.from(project.zipTree(jarFile))
-                it.into(outputDir)
-                it.exclude("META-INF/")
-            }
-        }
+        val classesJarFiles = getFilteredAarLibs(androidLibraries).map { it.getClassesJarFile() }
+        mergeClassesJarFilesIntoClasses(project, classesJarFiles, folderOut)
     }
 
     private fun getFilteredAarLibs(androidLibraries: Collection<AndroidArchiveLibrary>): Collection<AndroidArchiveLibrary> {

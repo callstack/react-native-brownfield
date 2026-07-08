@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.plugin
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
+import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
@@ -49,7 +50,7 @@ object RNSourceSets {
         componentsExtension.onVariants { variant ->
             val variantName = variant.name
             val bundledAssetsVariantName =
-                Utils.getBundledAssetsVariantName(
+                VariantHelper.getBundledAssetsVariantName(
                     variantName = variantName,
                     buildTypeName = variant.buildType,
                     isDebuggable = variant.debuggable,
@@ -72,7 +73,7 @@ object RNSourceSets {
             }
 
             if (Utils.hasExpoUpdates(appProject, variantName)) {
-                val updateResourcesPathSegment = Utils.getExpoUpdatesResourcesTaskName(variantName)
+                val updateResourcesPathSegment = VariantHelper.getExpoUpdatesResourcesTaskName(variant.name)
                 variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$updateResourcesPathSegment")
                 variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$updateResourcesPathSegment")
             }

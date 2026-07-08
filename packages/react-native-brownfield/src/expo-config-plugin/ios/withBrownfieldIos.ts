@@ -5,7 +5,6 @@ import {
 } from '@expo/config-plugins';
 
 import {
-  addExpoPre55ShellPatchScriptPhase,
   addFrameworkTarget,
   addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
@@ -32,7 +31,7 @@ import { getExpoInfo, hasExpoUpdatesInstalled } from '../expoUtils';
 export const withBrownfieldIos: ConfigPlugin<
   ResolvedBrownfieldPluginConfigWithIos
 > = (config, props) => {
-  const { isExpoPre55, expoMajor } = getExpoInfo(config);
+  const { expoMajor } = getExpoInfo(config);
 
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
@@ -68,34 +67,11 @@ export const withBrownfieldIos: ConfigPlugin<
 
       copyBundleReactNativePhase(project, frameworkTargetUUID);
 
-      if (isExpoPre55) {
-        addExpoPre55ShellPatchScriptPhase(modRequest, project, {
-          frameworkName: props.ios.frameworkName,
-          frameworkTargetUUID: frameworkTargetUUID,
-        });
-      }
-
       return xcodeConfig;
     }
 
     // copy the "Bundle React Native code and images" build phase from the main target to the framework target
     copyBundleReactNativePhase(project, frameworkTargetUUID);
-
-    // for Expo SDK versions < 55, add a script phase to patch ExpoModulesProvider.swift
-    if (isExpoPre55) {
-      Logger.logDebug(
-        `Adding ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
-      );
-
-      addExpoPre55ShellPatchScriptPhase(modRequest, project, {
-        frameworkName: props.ios.frameworkName,
-        frameworkTargetUUID: frameworkTargetUUID,
-      });
-    } else {
-      Logger.logDebug(
-        `Skipping ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
-      );
-    }
 
     addSourceFilesBuildPhase(project, frameworkTargetUUID, iosProps);
 
