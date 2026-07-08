@@ -274,6 +274,7 @@ HERMES_V1_VERSION_NAME=250829098.0.10
         artifactId: 'brownfieldlib',
         version: '1.0.0',
         useLocalGradlePlugin: false,
+        useLocalMaven: false,
         ...(overrides.android ?? {}),
       },
     };

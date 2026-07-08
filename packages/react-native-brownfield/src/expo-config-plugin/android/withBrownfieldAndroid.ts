@@ -33,7 +33,10 @@ export const withBrownfieldAndroid: ConfigPlugin<
   config = withProjectBuildGradle(config, (gradleConfig) => {
     gradleConfig.modResults.contents = modifyRootBuildGradle(
       gradleConfig.modResults.contents,
-      { useLocalGradlePlugin: androidConfig.useLocalGradlePlugin }
+      {
+        useLocalGradlePlugin: androidConfig.useLocalGradlePlugin,
+        useLocalMaven: androidConfig.useLocalMaven,
+      }
     );
 
     return gradleConfig;

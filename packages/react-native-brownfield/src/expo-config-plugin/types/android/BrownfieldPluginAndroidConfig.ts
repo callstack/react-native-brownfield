@@ -56,6 +56,12 @@ export interface BrownfieldPluginAndroidConfig {
    * @default false
    */
   useLocalGradlePlugin?: boolean;
+
+  /**
+   * Use the local Maven repository for Brownfield dependencies.
+   * @default false
+   */
+  useLocalMaven?: boolean;
 }
 
 /**

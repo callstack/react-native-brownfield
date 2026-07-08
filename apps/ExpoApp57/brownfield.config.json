@@ -2,7 +2,10 @@
   "$schema": "https://oss.callstack.com/react-native-brownfield/schema.json",
   "android": {
     "moduleName": "brownfieldlib",
-    "variant": "release"
+    "variant": "release",
+    "expo": {
+      "useLocalMaven": true
+    }
   },
   "ios": {
     "scheme": "BrownfieldLib",
