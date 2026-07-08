@@ -16,6 +16,23 @@
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --use-prebuilt-rn-core --use-prebuilt-expo --verbose",
     "eas:stg": "EXPO_TOKEN=$EAS_TOKEN eas update --channel production --message 'testing 1st stg channel update' --platform ios --environment staging"
   },
+  "brownfield": {
+    "debug": true,
+    "android": {
+      "expo": {
+        "minifyEnabled": false,
+        "extraProguardRules": [
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore$Companion { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.User { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore$Companion { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.Theme { *; }",
+          "-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }"
+        ]
+      }
+    }
+  },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",
