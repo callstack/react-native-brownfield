@@ -1,0 +1,74 @@
+# Minification
+
+This guide shows how to enable minification for both Expo and bare React Native brownfield modules.
+
+## Expo
+
+Configure minification through the Brownfield config in `package.json` and let `expo prebuild` apply it to the generated module.
+
+Steps:
+
+1. Add a `brownfield` block to `package.json` and enable `android.expo.minifyEnabled`.
+2. Add keep rules in `android.expo.extraProguardRules` for generated Brownie store types, navigation types, and host manager classes you need to keep.
+3. Run `expo prebuild` to regenerate the Android module with the new settings.
+
+Example (see `apps/ExpoApp56`):
+
+```json
+{
+  "brownfield": {
+    "debug": true,
+    "android": {
+      "expo": {
+        "minifyEnabled": true,
+        "extraProguardRules": [
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore$Companion { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.User { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore$Companion { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.Theme { *; }",
+          "-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }"
+        ]
+      }
+    }
+  }
+}
+```
+
+## Bare React Native
+
+For bare React Native, you do not need any Brownfield config. Enable minification in the module itself and add Proguard rules manually.
+
+Steps:
+
+1. In your `brownfieldlib/build.gradle.kts`, enable `isMinifyEnabled = true` in the `release` build type.
+2. Ensure `proguard-rules.pro` keeps the generated Brownie store types, navigation types, and your host manager if you have one.
+
+Example (see `apps/RNApp`):
+
+```kts
+android {
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+}
+```
+
+```
+-keep class com.rnapp.brownfieldlib.BrownfieldStore { *; }
+-keep class com.rnapp.brownfieldlib.BrownfieldStore$Companion { *; }
+-keep class com.rnapp.brownfieldlib.User { *; }
+-keep class com.rnapp.brownfieldlib.SettingsStore { *; }
+-keep class com.rnapp.brownfieldlib.SettingsStore$Companion { *; }
+-keep class com.rnapp.brownfieldlib.Theme { *; }
+-keep class com.rnapp.brownfieldlib.ReactNativeHostManager { *; }
+
+-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }
+```
