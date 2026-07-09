@@ -1,18 +1,31 @@
 package com.callstack.nativebrownfieldnavigation
 
-object BrownfieldNavigationManager {
-  private var navigationDelegate: BrownfieldNavigationDelegate? = null
+import com.facebook.react.BaseReactPackage
+import com.facebook.react.bridge.NativeModule
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.module.model.ReactModuleInfo
+import com.facebook.react.module.model.ReactModuleInfoProvider
+import java.util.HashMap
 
-  fun setDelegate(navigationDelegate: BrownfieldNavigationDelegate) {
-    this.navigationDelegate = navigationDelegate
+class NativeBrownfieldNavigationPackage : BaseReactPackage() {
+  override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
+    return if (name == NativeBrownfieldNavigationModule.NAME) {
+      NativeBrownfieldNavigationModule(reactContext)
+    } else {
+      null
+    }
   }
 
-  fun clearDelegate() {
-    navigationDelegate = null
-  }
-
-  fun getDelegate(): BrownfieldNavigationDelegate {
-    return navigationDelegate
-      ?: throw IllegalStateException("BrownfieldNavigation delegate is not set.")
+  override fun getReactModuleInfoProvider() = ReactModuleInfoProvider {
+    mapOf(
+      NativeBrownfieldNavigationModule.NAME to ReactModuleInfo(
+        name = NativeBrownfieldNavigationModule.NAME,
+        className = NativeBrownfieldNavigationModule.NAME,
+        canOverrideExistingModule = false,
+        needsEagerInit = false,
+        isCxxModule = false,
+        isTurboModule = true
+      )
+    )
   }
 }

@@ -1,18 +1,18 @@
 package com.callstack.nativebrownfieldnavigation
 
-object BrownfieldNavigationManager {
-  private var navigationDelegate: BrownfieldNavigationDelegate? = null
+import android.util.Log
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactMethod
 
-  fun setDelegate(navigationDelegate: BrownfieldNavigationDelegate) {
-    this.navigationDelegate = navigationDelegate
+class NativeBrownfieldNavigationModule(
+  reactContext: ReactApplicationContext
+) : NativeBrownfieldNavigationSpec(reactContext) {
+  @ReactMethod
+  override fun temporary() {
+    Log.d(NAME, "temporary")
   }
 
-  fun clearDelegate() {
-    navigationDelegate = null
-  }
-
-  fun getDelegate(): BrownfieldNavigationDelegate {
-    return navigationDelegate
-      ?: throw IllegalStateException("BrownfieldNavigation delegate is not set.")
+  companion object {
+    const val NAME = "NativeBrownfieldNavigation"
   }
 }

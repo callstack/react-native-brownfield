@@ -1,9 +1,9 @@
-import NativeBrownfieldNavigation from './NativeBrownfieldNavigation';
+import { TurboModuleRegistry, type TurboModule } from 'react-native';
 
-const BrownfieldNavigation = {
-  temporary: () => {
-    NativeBrownfieldNavigation.temporary();
-  },
-};
+export interface Spec extends TurboModule {
+  temporary(): void;
+}
 
-export default BrownfieldNavigation;
+export default TurboModuleRegistry.getEnforcing<Spec>(
+  'NativeBrownfieldNavigation'
+);
