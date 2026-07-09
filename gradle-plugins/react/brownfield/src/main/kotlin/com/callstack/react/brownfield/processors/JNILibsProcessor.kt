@@ -28,7 +28,7 @@ import kotlin.collections.component2
  * with the AAR as they are provided by the Gradle when AAR is
  * consumed by the host App.
  */
-val UN_ALLOWED_LIBS =
+val IGNORE_EMBEDDED_LIBS =
     listOf(
         "libc++_shared.so", "libfbjni.so", "libhermestooling.so",
         "libhermesvm.so", "libimagepipeline.so", "libjsi.so",
@@ -125,8 +125,8 @@ abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
 
     private fun matchesAllowedLib(name: String): Boolean {
         val isCodegenLib = name.startsWith("libreact_codegen_") && name.endsWith(".so")
-        val isUnAllowedLib = UN_ALLOWED_LIBS.any { lib -> name == lib || name.contains(lib) }
-        return name == "libappmodules.so" || isCodegenLib || !isUnAllowedLib
+        val isIgnoredLib = IGNORE_EMBEDDED_LIBS.any { lib -> name == lib || name.contains(lib) }
+        return name == "libappmodules.so" || isCodegenLib || !isIgnoredLib
     }
 
     private fun processNestedLibs(
