@@ -141,11 +141,11 @@ private fun MainScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally // center top bar content
     ) {
-//        Spacer(modifier = Modifier.height(3.dp))
-//
-//        GreetingCard(
-//            name = ReactNativeConstants.APP_NAME,
-//        )
+       Spacer(modifier = Modifier.height(3.dp))
+
+       GreetingCard(
+           name = ReactNativeConstants.APP_NAME,
+       )
 
        PostMessageCard()
 
