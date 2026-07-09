@@ -12,7 +12,7 @@ Steps:
 2. Add keep rules in `android.expo.extraProguardRules` for generated Brownie store types, navigation types, and host manager classes you need to keep.
 3. Run `expo prebuild` to regenerate the Android module with the new settings.
 
-Example (see `apps/ExpoApp56`):
+Example (see [apps/ExpoApp56](https://github.com/callstack/react-native-brownfield/blob/main/apps/ExpoApp56/package.json)):
 
 ```json
 {
@@ -22,13 +22,19 @@ Example (see `apps/ExpoApp56`):
       "expo": {
         "minifyEnabled": true,
         "extraProguardRules": [
-          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore { *; }",
-          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore$Companion { *; }",
-          "-keep class com.callstack.rnbrownfield.demo.expoapp56.User { *; }",
-          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore { *; }",
-          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore$Companion { *; }",
-          "-keep class com.callstack.rnbrownfield.demo.expoapp56.Theme { *; }",
-          "-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }"
+          // If you're using Brownie, add the generated store here
+          "-keep class com.your.expoapp.BrownfieldStore { *; }",
+          "-keep class com.your.expoapp.BrownfieldStore$Companion { *; }",
+          "-keep class com.your.expoapp.User { *; }",
+          "-keep class com.your.expoapp.SettingsStore { *; }",
+          "-keep class com.your.expoapp.SettingsStore$Companion { *; }",
+          "-keep class com.your.expoapp.Theme { *; }",
+
+          // If you're using Brownfield Navigation, add the generated types here
+          "-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }",
+
+          // Any other rule to add
+          //"-keep class ..."
         ]
       }
     }
@@ -45,7 +51,7 @@ Steps:
 1. In your `brownfieldlib/build.gradle.kts`, enable `isMinifyEnabled = true` in the `release` build type.
 2. Ensure `proguard-rules.pro` keeps the generated Brownie store types, navigation types, and your host manager if you have one.
 
-Example (see `apps/RNApp`):
+Example (see [apps/RNApp](https://github.com/callstack/react-native-brownfield/blob/main/apps/RNApp/android/app/proguard-rules.pro)):
 
 ```kts
 android {
@@ -61,14 +67,18 @@ android {
 }
 ```
 
-```
+```json
+// If you're using Brownie, add the generated store here
 -keep class com.rnapp.brownfieldlib.BrownfieldStore { *; }
 -keep class com.rnapp.brownfieldlib.BrownfieldStore$Companion { *; }
 -keep class com.rnapp.brownfieldlib.User { *; }
 -keep class com.rnapp.brownfieldlib.SettingsStore { *; }
 -keep class com.rnapp.brownfieldlib.SettingsStore$Companion { *; }
 -keep class com.rnapp.brownfieldlib.Theme { *; }
--keep class com.rnapp.brownfieldlib.ReactNativeHostManager { *; }
 
+// If you're using Brownfield Navigation, add the generated types here
 -keep class com.callstack.nativebrownfieldnavigation.UserType { *; }
+
+// Any other rule to add
+//"-keep class ..."
 ```
