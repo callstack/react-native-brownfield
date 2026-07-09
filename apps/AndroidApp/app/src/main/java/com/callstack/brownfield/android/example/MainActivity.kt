@@ -113,20 +113,24 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     }
 
     override fun requestNativeConfirmation(title: String, promise: Promise) {
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setPositiveButton("OK") { _, _ -> promise.resolve(true) }
-            .setNegativeButton("Cancel") { _, _ -> promise.resolve(false) }
-            .setCancelable(false)
-            .show()
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setTitle(title)
+                .setPositiveButton("OK") { _, _ -> promise.resolve(true) }
+                .setNegativeButton("Cancel") { _, _ -> promise.resolve(false) }
+                .setCancelable(false)
+                .show()
+        }
     }
 
     override fun showNativeBanner(message: String, onDismiss: Callback) {
-        AlertDialog.Builder(this)
-            .setMessage(message)
-            .setPositiveButton("Dismiss") { _, _ -> onDismiss.invoke() }
-            .setCancelable(false)
-            .show()
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton("Dismiss") { _, _ -> onDismiss.invoke() }
+                .setCancelable(false)
+                .show()
+        }
     }
 }
 
@@ -137,11 +141,11 @@ private fun MainScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally // center top bar content
     ) {
-        Spacer(modifier = Modifier.height(3.dp))
-
-        GreetingCard(
-            name = ReactNativeConstants.APP_NAME,
-        )
+//        Spacer(modifier = Modifier.height(3.dp))
+//
+//        GreetingCard(
+//            name = ReactNativeConstants.APP_NAME,
+//        )
 
        PostMessageCard()
 
