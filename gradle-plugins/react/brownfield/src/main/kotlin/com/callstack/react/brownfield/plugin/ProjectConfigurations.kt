@@ -96,8 +96,9 @@ class ProjectConfigurations(private val project: Project) {
         from: AttributeContainer,
         into: AttributeContainer,
     ) {
-        from.getAttribute(key)?.let {
-            into.attribute(key, it)
+        val value: T? = from.getAttribute(key)
+        if (value != null) {
+            into.attribute(key, value)
         }
     }
 

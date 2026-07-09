@@ -5,6 +5,8 @@ import * as path from 'node:path';
 import type { ResolvedBrownfieldPluginConfigWithAndroid } from '../../types';
 import {
   createAndroidModule,
+  resolveCompileSdkVersionExpression,
+  resolveTargetSdkVersionExpression,
   syncAndroidModuleExpoUpdatesFromAppFiles,
 } from '../withAndroidModuleFiles';
 
@@ -43,7 +45,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config: createConfig(),
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     expect(readLibraryManifest(androidDir))
@@ -79,7 +80,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config: createConfig(),
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     expect(readLibraryManifest(androidDir))
@@ -121,7 +121,6 @@ describe('createAndroidModule', () => {
       androidDir,
       config,
       rnVersion: '0.82.1',
-      isExpoPre55: false,
     });
 
     writeAppManifest(
@@ -158,6 +157,91 @@ describe('createAndroidModule', () => {
     );
   });
 
+  it('inherits compileSdk from the Expo app project when the user did not override it', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          compileSdkVersion: undefined,
+        },
+      }),
+      rnVersion: '0.85.3',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'compileSdk = resolveRootProjectInt("compileSdkVersion")'
+    );
+  });
+
+  it('inherits targetSdk from the Expo app project when the user did not override it', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          targetSdkVersion: undefined,
+        },
+      }),
+      rnVersion: '0.85.3',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'targetSdk = resolveRootProjectInt("targetSdkVersion")'
+    );
+  });
+
+  it('uses api dependencies and the installed React Native Hermes artifact for newer Expo projects', () => {
+    const androidDir = createAndroidDir();
+    const projectRoot = path.dirname(androidDir);
+    const versionPropertiesPath = path.join(
+      projectRoot,
+      'node_modules',
+      'react-native',
+      'sdks',
+      'hermes-engine',
+      'version.properties'
+    );
+
+    fs.mkdirSync(path.dirname(versionPropertiesPath), { recursive: true });
+    fs.writeFileSync(
+      versionPropertiesPath,
+      `HERMES_VERSION_NAME=0.16.0
+HERMES_V1_VERSION_NAME=250829098.0.10
+`,
+      'utf8'
+    );
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.85.3',
+      projectRoot,
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'api("com.facebook.react:react-android:0.85.3")'
+    );
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'api("com.facebook.hermes:hermes-android:250829098.0.10")'
+    );
+    expect(readLibraryBuildGradle(androidDir)).not.toContain('compileOnlyApi');
+  });
+
+  it('keeps explicit SDK overrides when they are provided', () => {
+    const config = createConfig({
+      android: {
+        targetSdkVersion: 37,
+        compileSdkVersion: 38,
+      },
+    });
+
+    expect(resolveCompileSdkVersionExpression(config)).toBe('38');
+    expect(resolveTargetSdkVersionExpression(config)).toBe('37');
+  });
+
   function createAndroidDir(): string {
     const tempDirectory = fs.mkdtempSync(
       path.join(os.tmpdir(), 'react-native-brownfield-android-module-')
@@ -170,10 +254,16 @@ describe('createAndroidModule', () => {
     return androidDir;
   }
 
-  function createConfig(): ResolvedBrownfieldPluginConfigWithAndroid {
+  function createConfig(
+    overrides: {
+      debug?: ResolvedBrownfieldPluginConfigWithAndroid['debug'];
+      ios?: ResolvedBrownfieldPluginConfigWithAndroid['ios'];
+      android?: Partial<ResolvedBrownfieldPluginConfigWithAndroid['android']>;
+    } = {}
+  ): ResolvedBrownfieldPluginConfigWithAndroid {
     return {
-      debug: false,
-      ios: null,
+      debug: overrides.debug ?? false,
+      ios: overrides.ios ?? null,
       android: {
         moduleName: 'brownfieldlib',
         packageName: 'com.example.brownfield',
@@ -184,6 +274,7 @@ describe('createAndroidModule', () => {
         artifactId: 'brownfieldlib',
         version: '1.0.0',
         useLocalGradlePlugin: false,
+        ...(overrides.android ?? {}),
       },
     };
   }
@@ -241,6 +332,13 @@ describe('createAndroidModule', () => {
         'values',
         'strings.xml'
       ),
+      'utf8'
+    );
+  }
+
+  function readLibraryBuildGradle(androidDir: string): string {
+    return fs.readFileSync(
+      path.join(androidDir, 'brownfieldlib', 'build.gradle.kts'),
       'utf8'
     );
   }

@@ -11,6 +11,10 @@
         "package.json"
       ],
       "outputs": ["lib/**"]
+    },
+    "build:brownfield": {
+      "inputs": ["src/**/*"],
+      "outputs": ["lib/**"]
     }
   }
 }

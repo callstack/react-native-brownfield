@@ -25,14 +25,14 @@ test('supports prerelease versions when finding the previous plugin tag', () => 
   const previousTag = findPreviousPluginTag(
     [
       'brownfield-gradle-plugin/v2.0.0-alpha01',
-      'brownfield-gradle-plugin/v2.0.0-alpha03',
+      'brownfield-gradle-plugin/v2.0.0-alpha06',
       'brownfield-gradle-plugin/v2.0.0-beta01',
       'brownfield-gradle-plugin/v2.0.0',
     ],
     '2.0.0-beta01'
   );
 
-  assert.equal(previousTag, 'brownfield-gradle-plugin/v2.0.0-alpha03');
+  assert.equal(previousTag, 'brownfield-gradle-plugin/v2.0.0-alpha06');
 });
 
 test('treats a stable release as newer than its prereleases', () => {

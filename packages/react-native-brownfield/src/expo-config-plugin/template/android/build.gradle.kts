@@ -1,4 +1,3 @@
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 plugins {
@@ -7,6 +6,24 @@ plugins {
     id("com.callstack.react.brownfield")
     `maven-publish`
     id("com.facebook.react")
+}
+
+fun resolveRootProjectInt(name: String): Int {
+    val extraProperties = rootProject.extensions.extraProperties
+    val value =
+        when {
+            extraProperties.has(name) -> extraProperties.get(name)
+            rootProject.findProperty(name) != null -> rootProject.findProperty(name)
+            rootProject.findProperty("android.$name") != null -> rootProject.findProperty("android.$name")
+            else -> error("Unable to resolve root project property '$name' for Brownfield Android packaging.")
+        }
+
+    return when (value) {
+        is Int -> value
+        is Number -> value.toInt()
+        is String -> value.toInt()
+        else -> value.toString().toInt()
+    }
 }
 
 publishing {
@@ -36,6 +53,7 @@ android {
 
     defaultConfig {
         minSdk = {{MIN_SDK_VERSION}}
+        targetSdk = {{TARGET_SDK_VERSION}}
 
         buildConfigField(
             "boolean",

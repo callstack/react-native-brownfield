@@ -1,61 +1,59 @@
 package com.callstack.react.brownfield.processors
 
-import com.callstack.react.brownfield.shared.BaseProject
-import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
-import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.capitalized
-import org.gradle.api.file.ConfigurableFileCollection
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskCollection
 
-class VariantHelper : BaseProject() {
-    private fun getClassPathDirFiles(variantName: String): ConfigurableFileCollection {
-        return project.files(
-            "$buildDir/intermediates/javac/$variantName/compile${variantName.capitalized()}JavaWithJavac/classes",
-        )
+object VariantHelper {
+    fun getAsmTransformTaskName(capitalizedVariantName: String): String {
+        return "transform${capitalizedVariantName}ClassesWithAsm"
     }
 
-    fun classesMergeTaskDoFirst(
-        outputDir: File,
-        variantName: String,
-    ) {
-        val pathsToDelete = mutableListOf<Path>()
-        val javacDir = getClassPathDirFiles(variantName).first()
-        project.fileTree(outputDir).forEach { path ->
-            pathsToDelete.add(
-                Paths.get(outputDir.absolutePath).relativize(Paths.get(path.absolutePath)),
-            )
+    fun getBundledAssetsVariantName(
+        variantName: String?,
+        buildTypeName: String?,
+        isDebuggable: Boolean,
+    ): String {
+        require(!variantName.isNullOrEmpty()) {
+            "getBundledAssetsVariantName: Variant name cannot be empty"
         }
-        outputDir.deleteRecursively()
-        pathsToDelete.forEach { path ->
-            Files.deleteIfExists(Paths.get("$javacDir.absolutePath/$path"))
+
+        require(!buildTypeName.isNullOrEmpty()) {
+            "getBundledAssetsVariantName: Build Type cannot be empty"
+        }
+
+        if (!isDebuggable) {
+            return variantName
+        }
+
+        if (variantName == buildTypeName) {
+            return "release"
+        }
+
+        val capitalizedBuildTypeName = buildTypeName.capitalized()
+        return if (variantName.endsWith(capitalizedBuildTypeName)) {
+            "${variantName.removeSuffix(capitalizedBuildTypeName)}Release"
+        } else {
+            "release"
         }
     }
 
-    fun classesMergeTaskDoLast(
-        outputDir: File,
-        aarLibraries: Collection<AndroidArchiveLibrary>,
-        jarFiles: MutableList<File>,
-        variantName: String,
-        isMinifyEnabled: Boolean,
-    ) {
-        MergeProcessor.mergeClassesJarIntoClasses(project, aarLibraries, outputDir)
-        if (isMinifyEnabled) {
-            MergeProcessor.mergeLibsIntoClasses(project, aarLibraries, jarFiles, outputDir)
-        }
-        val javacDir = getClassPathDirFiles(variantName).first()
-        project.copy { copyTask ->
-            copyTask.from(outputDir)
-            copyTask.into(javacDir)
-            copyTask.exclude("META-INF/")
-        }
+    fun getExpoUpdatesResourcesTaskName(variantName: String): String {
+        return "create${variantName.capitalized()}UpdatesResources"
+    }
 
-        project.copy { copyTask ->
-            copyTask.from("${outputDir.absolutePath}/META-INF")
-            copyTask.into(DirectoryManager.getKotlinMetaDirectory(variantName))
-            copyTask.include("*.kotlin_module")
-        }
+    fun getKotlinCompileTask(
+        project: Project,
+        capitalizedVariantName: String,
+    ): TaskCollection<Task> {
+        return project.tasks.matching { it.name == "compile${capitalizedVariantName}Kotlin" }
+    }
+
+    fun getJavaCompileTask(
+        project: Project,
+        capitalizedVariantName: String,
+    ): TaskCollection<Task> {
+        return project.tasks.matching { it.name == "compile${capitalizedVariantName}JavaWithJavac" }
     }
 }

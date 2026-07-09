@@ -19,6 +19,7 @@ Pod::Spec.new do |spec|
     'DEFINES_MODULE' => 'YES',
     'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES',
     'SWIFT_EMIT_MODULE_INTERFACE' => 'YES',
+    'OTHER_SWIFT_FLAGS' => '-no-verify-emitted-module-interface'
   }
 
   install_modules_dependencies(spec)

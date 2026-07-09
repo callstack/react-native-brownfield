@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.plugin
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
+import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
@@ -49,7 +50,7 @@ object RNSourceSets {
         componentsExtension.onVariants { variant ->
             val variantName = variant.name
             val bundledAssetsVariantName =
-                Utils.getBundledAssetsVariantName(
+                VariantHelper.getBundledAssetsVariantName(
                     variantName = variantName,
                     buildTypeName = variant.buildType,
                     isDebuggable = variant.debuggable,
@@ -66,13 +67,19 @@ object RNSourceSets {
                         // outputs for RN >= 0.82
                         "react/$bundledAssetsVariantName",
                     )
-                val updateResourcesPathSegment = Utils.getExpoUpdatesResourcesTaskName(variant.name)
+                val updateResourcesPathSegment = VariantHelper.getExpoUpdatesResourcesTaskName(variant.name)
 
-                // Add the variant-specific generated asset and resource directories
                 val appBuildDir = getAppBuildDir()
                 sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
                 sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
-                sourceSet.jniLibs.srcDirs("libs${variantName.capitalized()}")
+                if (extension.useStrippedSoFiles) {
+                    val capitalizedVariantName = variantName.capitalized()
+                    val libsDir = project.layout.projectDirectory.dir("libs$capitalizedVariantName")
+                    val copyTaskName = "copy${capitalizedVariantName}LibSources"
+                    sourceSet.jniLibs.srcDir(
+                        project.files(libsDir).builtBy(copyTaskName),
+                    )
+                }
                 if (Utils.hasExpoUpdates(appProject, variant.name)) {
                     val updateResourcesTask = appProject.tasks.named(updateResourcesPathSegment)
                     sourceSet.assets.srcDir(

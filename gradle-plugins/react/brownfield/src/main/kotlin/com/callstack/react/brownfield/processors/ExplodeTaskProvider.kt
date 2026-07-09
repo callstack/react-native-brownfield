@@ -26,7 +26,6 @@ object ExplodeTaskProvider {
             ExplodeAarTask::class.java,
         ) { task ->
             task.variantName.set(variant.name)
-            task.minifyEnabled.set(variant.buildType.isMinifyEnabled)
 
             val finalArtifacts = mutableListOf<UnresolvedArtifactInfo>()
             artifacts.forEach { art ->
