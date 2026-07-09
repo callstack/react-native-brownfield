@@ -20,14 +20,7 @@ import {
   readExpoUpdatesStringResources,
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
-
-function formatMissingDimensionStrategiesList(
-  missingDimensionStrategies: string[]
-): string {
-  return missingDimensionStrategies
-    .map((value) => JSON.stringify(value))
-    .join(', ');
-}
+import { formatMissingDimensionStrategies } from './utils/formatHelpers';
 
 function renderMissingDimensionStrategyBlock(
   missingDimensionStrategies: string[]
@@ -36,7 +29,7 @@ function renderMissingDimensionStrategyBlock(
     return '';
   }
 
-  const args = formatMissingDimensionStrategiesList(missingDimensionStrategies);
+  const args = formatMissingDimensionStrategies(missingDimensionStrategies);
   return `        missingDimensionStrategy(${args})`;
 }
 
@@ -100,7 +93,7 @@ export function createAndroidModule({
   Logger.logDebug(
     `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
   );
-  const missingDimensionStrategiesList = formatMissingDimensionStrategiesList(
+  const missingDimensionStrategiesList = formatMissingDimensionStrategies(
     android.missingDimensionStrategies
   );
   const missingDimensionStrategyBlock = renderMissingDimensionStrategyBlock(

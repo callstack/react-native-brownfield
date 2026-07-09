@@ -271,7 +271,7 @@ describe('resolveBrownfieldPluginConfig', () => {
           expo: {
             minSdkVersion: 26,
             version: '2.0.0',
-            missingDimensionStrategies: ['react', 'classic'],
+            missingDimensionStrategies: ['type', 'alpha'],
           },
         },
         ios: {
@@ -290,7 +290,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         expo: {
           minSdkVersion: 26,
           version: '2.0.0',
-          missingDimensionStrategies: ['react', 'classic'],
+          missingDimensionStrategies: ['type', 'alpha'],
         },
       },
       ios: {
@@ -312,7 +312,7 @@ describe('resolveBrownfieldPluginConfig', () => {
       moduleName: 'mylib',
       minSdkVersion: 26,
       version: '2.0.0',
-      missingDimensionStrategies: ['react', 'classic'],
+      missingDimensionStrategies: ['type', 'alpha'],
     });
     expect(resolved.ios).toMatchObject({
       frameworkName: 'MyLib',
@@ -358,7 +358,7 @@ describe('resolveBrownfieldPluginConfig', () => {
       {
         android: {
           moduleName: 'mylib',
-          missingDimensionStrategies: ['store', 'play'],
+          missingDimensionStrategies: ['type', 'alpha'],
         },
       },
       null,
@@ -366,8 +366,8 @@ describe('resolveBrownfieldPluginConfig', () => {
     );
 
     expect(resolved.android?.missingDimensionStrategies).toEqual([
-      'store',
-      'play',
+      'type',
+      'alpha',
     ]);
   });
 });

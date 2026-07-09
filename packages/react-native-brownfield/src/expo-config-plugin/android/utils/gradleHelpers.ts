@@ -1,5 +1,6 @@
 import { brownfieldGradlePluginDependency } from './constants';
 import { Logger } from '../../logging';
+import { formatMissingDimensionStrategies } from './formatHelpers';
 
 const LOCAL_GRADLE_PLUGIN_INCLUDE_BUILD =
   'includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/brownfield")';
@@ -7,14 +8,6 @@ const LOCAL_GRADLE_PLUGIN_INCLUDE_BUILD =
 type GradleModificationOptions = {
   useLocalGradlePlugin?: boolean;
 };
-
-function formatMissingDimensionStrategies(
-  missingDimensionStrategies: string[]
-): string {
-  return missingDimensionStrategies
-    .map((value) => JSON.stringify(value))
-    .join(', ');
-}
 
 /**
  * Modifies the root build.gradle to add the Brownfield Gradle plugin dependency

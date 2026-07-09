@@ -35,6 +35,9 @@ open class Extension {
 
     /**
      * List of missing dimension strategies.
+     * 
+     * Provide in this format:
+     * listOf("type", "alpha")
      */
     var missingDimensionStrategies = listOf<String>()
 }

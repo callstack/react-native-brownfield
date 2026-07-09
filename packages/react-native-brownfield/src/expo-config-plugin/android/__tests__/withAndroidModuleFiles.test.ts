@@ -214,7 +214,7 @@ describe('createAndroidModule', () => {
       androidDir,
       config: createConfig({
         android: {
-          missingDimensionStrategies: ['react', 'play'],
+          missingDimensionStrategies: ['type', 'alpha'],
         },
       }),
       rnVersion: '0.85.3',
@@ -222,9 +222,9 @@ describe('createAndroidModule', () => {
 
     const buildGradle = readLibraryBuildGradle(androidDir);
     expect(buildGradle).toContain(
-      'missingDimensionStrategies = listOf("react", "play")'
+      'missingDimensionStrategies = listOf("type", "alpha")'
     );
-    expect(buildGradle).toContain('missingDimensionStrategy("react", "play")');
+    expect(buildGradle).toContain('missingDimensionStrategy("type", "alpha")');
   });
 
   it('uses api dependencies and the installed React Native Hermes artifact for newer Expo projects', () => {

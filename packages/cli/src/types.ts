@@ -95,7 +95,7 @@ export type BrownfieldExpoAndroidConfig = {
   useLocalGradlePlugin?: boolean;
 
   /**
-   * Missing dimension strategies as dimension + flavor(s), e.g. "env, alpha".
+   * Missing dimension strategies as dimension + flavor(s), e.g. "type, alpha".
    */
   missingDimensionStrategies?: string[];
 };
