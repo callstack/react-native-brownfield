@@ -22,18 +22,18 @@ export const publishAndroidCommand = curryOptions(
   new Command('publish:android')
     .description('Publish Android package to Maven local')
     .option(
-      '--local-maven',
+      '--use-local-maven',
       'Use local Maven for Brownfield plugin resolution'
     ),
   publishLocalAarOptions
 ).action(
   actionRunner(
-    async (cliOptions: PublishLocalAarFlags & { localMaven?: boolean }) => {
-      const { localMaven, ...restOptions } = cliOptions;
+    async (cliOptions: PublishLocalAarFlags & { useLocalMaven?: boolean }) => {
+      const { useLocalMaven, ...restOptions } = cliOptions;
       const options = mergeBrownfieldConfigWithOptions(
         {
           ...restOptions,
-          ...(localMaven ? { useLocalMaven: true } : {}),
+          ...(useLocalMaven ? { useLocalMaven: true } : {}),
         },
         'android'
       );
