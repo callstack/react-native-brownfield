@@ -46,8 +46,8 @@ public class RNNavigationDelegate: BrownfieldNavigationDelegate {
 
     public func requestNativeConfirmation(
         _ title: String,
-        resolve: @escaping RCTPromiseResolveBlock,
-        reject: @escaping RCTPromiseRejectBlock
+        resolve: @escaping (Any?) -> Void,
+        reject: @escaping (String?, String?, (any Error)?) -> Void
     ) {
         DispatchQueue.main.async {
             guard let topController = UIApplication.shared.topMostViewController() else {
@@ -72,7 +72,7 @@ public class RNNavigationDelegate: BrownfieldNavigationDelegate {
 
     public func showNativeBanner(
         _ message: String,
-        onDismiss onDismiss: @escaping RCTResponseSenderBlock
+        onDismiss onDismiss: @escaping ([Any]?) -> Void
     ) {
         DispatchQueue.main.async {
             guard let topController = UIApplication.shared.topMostViewController() else {

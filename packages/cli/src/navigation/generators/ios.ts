@@ -20,10 +20,6 @@ interface ObjCTypeMappingOptions {
   modelTypeNames?: string[];
 }
 
-function hasCallbackParam(methods: MethodSignature[]): boolean {
-  return methods.some((method) => method.params.some((param) => param.callback));
-}
-
 function mapTsTypeToObjC(
   tsType: string,
   nullable: boolean = false,
@@ -89,14 +85,21 @@ function mapTsTypeToSwift(
   return optional ? 'Any?' : 'Any';
 }
 
+/** ObjC-compatible closures that match RCT typedefs without importing React. */
+const SWIFT_RESPONSE_SENDER_BLOCK = '@escaping ([Any]?) -> Void';
+const SWIFT_OPTIONAL_RESPONSE_SENDER_BLOCK = '(([Any]?) -> Void)?';
+const SWIFT_PROMISE_RESOLVE_BLOCK = '@escaping (Any?) -> Void';
+const SWIFT_PROMISE_REJECT_BLOCK =
+  '@escaping (String?, String?, (any Error)?) -> Void';
+
 function mapParamToSwift(
   param: MethodParam,
   options: SwiftTypeMappingOptions = {}
 ): string {
   if (param.callback) {
     return param.optional
-      ? '@escaping RCTResponseSenderBlock?'
-      : '@escaping RCTResponseSenderBlock';
+      ? SWIFT_OPTIONAL_RESPONSE_SENDER_BLOCK
+      : SWIFT_RESPONSE_SENDER_BLOCK;
   }
   return mapTsTypeToSwift(param.type, param.optional, options);
 }
@@ -105,8 +108,6 @@ export function generateSwiftDelegate(
   methods: MethodSignature[],
   options: SwiftTypeMappingOptions = {}
 ): string {
-  const needsReactImport =
-    methods.some((method) => method.isAsync) || hasCallbackParam(methods);
   const protocolMethods = methods
     .map((method) => {
       const methodParams = method.params.map((param, index) => {
@@ -116,8 +117,8 @@ export function generateSwiftDelegate(
       });
       const promiseParams = method.isAsync
         ? [
-            `${methodParams.length === 0 ? '_ resolve' : 'resolve'}: @escaping RCTPromiseResolveBlock`,
-            'reject: @escaping RCTPromiseRejectBlock',
+            `${methodParams.length === 0 ? '_ resolve' : 'resolve'}: ${SWIFT_PROMISE_RESOLVE_BLOCK}`,
+            `reject: ${SWIFT_PROMISE_REJECT_BLOCK}`,
           ]
         : [];
       const params = [...methodParams, ...promiseParams].join(', ');
@@ -131,7 +132,7 @@ export function generateSwiftDelegate(
     })
     .join('\n');
 
-  return `import Foundation${needsReactImport ? '\nimport React' : ''}
+  return `import Foundation
 
 @objc public protocol BrownfieldNavigationDelegate: AnyObject {
 ${protocolMethods}

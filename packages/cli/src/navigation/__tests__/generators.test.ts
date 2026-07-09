@@ -244,9 +244,9 @@ describe('navigation code generators', () => {
     const swiftDelegate = generateSwiftDelegate(callbackMethods);
     const objcImplementation = generateObjCImplementation(callbackMethods);
 
-    expect(swiftDelegate).toContain('import React');
+    expect(swiftDelegate).not.toContain('import React');
     expect(swiftDelegate).toContain(
-      '@objc func navigateToProfile(_ userId: String, onDismiss onDismiss: @escaping RCTResponseSenderBlock)'
+      '@objc func navigateToProfile(_ userId: String, onDismiss onDismiss: @escaping ([Any]?) -> Void)'
     );
 
     expect(objcImplementation).toContain(
@@ -290,7 +290,7 @@ describe('navigation code generators', () => {
     );
 
     expect(swiftDelegate).toContain(
-      '@objc func maybeBanner(_ message: String, onDismiss onDismiss: @escaping RCTResponseSenderBlock?)'
+      '@objc func maybeBanner(_ message: String, onDismiss onDismiss: (([Any]?) -> Void)?)'
     );
     expect(objcImplementation).toContain(
       '- (void)maybeBanner:(NSString *)message onDismiss:(RCTResponseSenderBlock _Nullable)onDismiss'
@@ -307,9 +307,9 @@ describe('navigation code generators', () => {
     const swiftDelegate = generateSwiftDelegate(asyncMethods);
     const objcImplementation = generateObjCImplementation(asyncMethods);
 
-    expect(swiftDelegate).toContain('import React');
+    expect(swiftDelegate).not.toContain('import React');
     expect(swiftDelegate).toContain(
-      '@objc func requestPermission(_ name: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock)'
+      '@objc func requestPermission(_ name: String, resolve: @escaping (Any?) -> Void, reject: @escaping (String?, String?, (any Error)?) -> Void)'
     );
 
     expect(objcImplementation).toContain(
