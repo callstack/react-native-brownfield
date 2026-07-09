@@ -93,6 +93,11 @@ export type BrownfieldExpoAndroidConfig = {
    * Disabled by default.
    */
   useLocalGradlePlugin?: boolean;
+
+  /**
+   * Missing dimension strategies as dimension + flavor(s), e.g. "type, alpha".
+   */
+  missingDimensionStrategies?: string[];
 };
 
 /**

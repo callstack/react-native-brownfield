@@ -70,8 +70,4 @@ class AndroidArchiveLibrary(
     fun getResDir(): File = File(getExplodedAarRootDir(), "res")
 
     fun getProguardRules(): File = File(getExplodedAarRootDir(), "proguard.txt")
-
-    fun getDataBindingFolder(): File = File(getExplodedAarRootDir(), "data-binding")
-
-    fun getDataBindingLogFolder(): File = File(getExplodedAarRootDir(), "data-binding-base-class-log")
 }

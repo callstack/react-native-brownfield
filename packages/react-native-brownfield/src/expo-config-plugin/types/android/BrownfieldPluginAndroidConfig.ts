@@ -56,6 +56,12 @@ export interface BrownfieldPluginAndroidConfig {
    * @default false
    */
   useLocalGradlePlugin?: boolean;
+
+  /**
+   * Missing dimension strategies as dimension + flavor(s).
+   * @default []
+   */
+  missingDimensionStrategies?: string[];
 }
 
 /**
