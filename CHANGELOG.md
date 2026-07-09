@@ -2,6 +2,19 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 4.1.0
+
+### Minor Changes
+
+- [#367](https://github.com/callstack/react-native-brownfield/pull/367) [`dd1082a`](https://github.com/callstack/react-native-brownfield/commit/dd1082a42c83f2cb8fd7f03df05a6e0a13e8833c) Thanks [@hurali97](https://github.com/hurali97)! - refactor: remove deprecated APIs
+
+### Patch Changes
+
+- Updated dependencies [[`dd1082a`](https://github.com/callstack/react-native-brownfield/commit/dd1082a42c83f2cb8fd7f03df05a6e0a13e8833c)]:
+  - @callstack/brownfield-cli@4.1.0
+
+- [#417](https://github.com/callstack/react-native-brownfield/pull/417) [`28b534e`](https://github.com/callstack/react-native-brownfield/commit/28b534ea3f1bfd298b89049a6733eb23b9f7d9fc) Thanks [@hurali97](https://github.com/hurali97)! - fix: merge classes to contain third party libs classes
+
 ## 4.0.0
 
 ### Major Changes
