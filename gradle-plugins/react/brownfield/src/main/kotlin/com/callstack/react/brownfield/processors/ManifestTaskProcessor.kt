@@ -8,8 +8,8 @@ import org.gradle.api.Project
 
 object ManifestTaskProcessor {
     fun process(
-        variant: LibraryVariant,
         project: Project,
+        variant: LibraryVariant,
         aarLibraries: List<AndroidArchiveLibrary>,
     ) {
         val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
