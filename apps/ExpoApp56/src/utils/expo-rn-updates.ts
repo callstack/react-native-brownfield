@@ -1,5 +1,5 @@
+import { userAlert } from '@callstack/brownfield-example-shared-tests/runtime';
 import * as Updates from 'expo-updates';
-import { Alert } from 'react-native';
 
 export async function checkAndFetchUpdate() {
   try {
@@ -17,9 +17,9 @@ export async function checkAndFetchUpdate() {
         },
       });
     } else {
-      Alert.alert('No update available');
+      userAlert('No update available');
     }
   } catch (error) {
-    Alert.alert('Update check failed', String(error));
+    userAlert('Update check failed', String(error));
   }
 }

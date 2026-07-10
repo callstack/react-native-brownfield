@@ -193,6 +193,40 @@ describe('createAndroidModule', () => {
     );
   });
 
+  it('omits missingDimensionStrategy block when no strategies are defined', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.85.3',
+    });
+
+    const buildGradle = readLibraryBuildGradle(androidDir);
+    expect(buildGradle).toContain('missingDimensionStrategies = listOf()');
+    expect(buildGradle).not.toContain('missingDimensionStrategy(');
+  });
+
+  it('renders missingDimensionStrategies into the generated build.gradle', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          missingDimensionStrategies: ['type', 'alpha'],
+        },
+      }),
+      rnVersion: '0.85.3',
+    });
+
+    const buildGradle = readLibraryBuildGradle(androidDir);
+    expect(buildGradle).toContain(
+      'missingDimensionStrategies = listOf("type", "alpha")'
+    );
+    expect(buildGradle).toContain('missingDimensionStrategy("type", "alpha")');
+  });
+
   it('uses api dependencies and the installed React Native Hermes artifact for newer Expo projects', () => {
     const androidDir = createAndroidDir();
     const projectRoot = path.dirname(androidDir);
@@ -275,6 +309,7 @@ HERMES_V1_VERSION_NAME=250829098.0.10
         version: '1.0.0',
         useLocalGradlePlugin: false,
         useLocalMaven: false,
+        missingDimensionStrategies: [],
         ...(overrides.android ?? {}),
       },
     };

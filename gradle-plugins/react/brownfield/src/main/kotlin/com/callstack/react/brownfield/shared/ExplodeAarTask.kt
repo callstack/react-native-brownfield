@@ -4,10 +4,12 @@ import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
+@CacheableTask
 abstract class ExplodeAarTask : DefaultTask() {
     @get:Internal
     abstract val inputArtifacts: ListProperty<UnresolvedArtifactInfo>

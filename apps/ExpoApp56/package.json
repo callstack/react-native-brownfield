@@ -16,6 +16,17 @@
     "brownfield:package:ios": "brownfield package:ios --scheme BrownfieldLib --configuration Release --use-prebuilt-rn-core --use-prebuilt-expo --verbose",
     "eas:stg": "EXPO_TOKEN=$EAS_TOKEN eas update --channel production --message 'testing 1st stg channel update' --platform ios --environment staging"
   },
+  "brownfield": {
+    "debug": true,
+    "android": {
+      "expo": {
+        "missingDimensionStrategies": [
+          "type",
+          "alpha"
+        ]
+      }
+    }
+  },
   "dependencies": {
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",

@@ -100,6 +100,11 @@ export type BrownfieldExpoAndroidConfig = {
    * Disabled by default.
    */
   useLocalMaven?: boolean;
+
+  /**   
+   * Missing dimension strategies as dimension + flavor(s), e.g. "type, alpha".
+   */
+  missingDimensionStrategies?: string[];
 };
 
 /**

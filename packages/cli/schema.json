@@ -65,6 +65,13 @@
           "description": "Minimum SDK version for the Android library.",
           "type": "number"
         },
+        "missingDimensionStrategies": {
+          "description": "Missing dimension strategies as dimension + flavor(s), e.g. \"type, alpha\".",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "packageName": {
           "description": "The package name for the Android library module.",
           "type": "string"

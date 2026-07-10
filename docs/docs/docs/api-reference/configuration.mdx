@@ -186,8 +186,21 @@ All file-based platform options mirror CLI flags, but they use camelCase propert
 | `android.expo.groupId`              | `string`  | Maven group ID used when publishing the AAR.                                                                                             |
 | `android.expo.artifactId`           | `string`  | Maven artifact ID used when publishing the AAR.                                                                                          |
 | `android.expo.version`              | `string`  | Maven version used when publishing the AAR.                                                                                              |
+| `android.expo.missingDimensionStrategies` | `string[]` | Gradle `missingDimensionStrategy` arguments: dimension name followed by one or more flavors.                                            |
 | `android.expo.useLocalGradlePlugin` | `boolean` | Load the Brownfield Gradle plugin from `node_modules` via `includeBuild` instead of the Maven classpath dependency. Disabled by default. |
 | `android.expo.useLocalMaven`        | `boolean` | Load the Brownfield Gradle plugin published to local maven instead of using from remote. Disabled by default.                                                         |
+
+Example:
+
+```json
+{
+  "android": {
+    "expo": {
+      "missingDimensionStrategies": ["type", "alpha"]
+    }
+  }
+}
+```
 
 ### iOS keys
 

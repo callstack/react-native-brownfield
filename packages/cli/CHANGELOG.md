@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 4.1.0
+
+### Minor Changes
+
+- [#367](https://github.com/callstack/react-native-brownfield/pull/367) [`dd1082a`](https://github.com/callstack/react-native-brownfield/commit/dd1082a42c83f2cb8fd7f03df05a6e0a13e8833c) Thanks [@hurali97](https://github.com/hurali97)! - refactor: remove deprecated APIs
+
 ## 4.0.0
 
 ### Major Changes
