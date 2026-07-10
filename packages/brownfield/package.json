@@ -1,6 +1,6 @@
 {
   "name": "brownfield",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "license": "MIT",
   "author": "Artur Morys-Magiera <artus9033@gmail.com>",
   "bin": "dist/index.js",
