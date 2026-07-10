@@ -24,6 +24,7 @@ export type BrownfieldPluginProps = {
     artifactId?: string;
     version?: string;
     useLocalGradlePlugin?: boolean;
+    useLocalMaven?: boolean;
     missingDimensionStrategies?: string[];
   };
 };
@@ -38,6 +39,7 @@ export type ResolvedBrownfieldPluginAndroidConfig = {
   artifactId: string;
   version: string;
   useLocalGradlePlugin: boolean;
+  useLocalMaven: boolean;
   missingDimensionStrategies: string[];
 };
 
@@ -191,6 +193,7 @@ export function resolveBrownfieldPluginConfig(
           version: effectiveProps.android?.version ?? '0.0.1-SNAPSHOT',
           useLocalGradlePlugin:
             effectiveProps.android?.useLocalGradlePlugin ?? false,
+          useLocalMaven: effectiveProps.android?.useLocalMaven ?? false,
           missingDimensionStrategies:
             effectiveProps.android?.missingDimensionStrategies ?? [],
         }

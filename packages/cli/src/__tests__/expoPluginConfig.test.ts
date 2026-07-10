@@ -206,6 +206,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         artifactId: 'brownfieldlib',
         version: '0.0.1-SNAPSHOT',
         useLocalGradlePlugin: false,
+        useLocalMaven: false,
         missingDimensionStrategies: [],
       },
     });
@@ -351,6 +352,38 @@ describe('resolveBrownfieldPluginConfig', () => {
     );
 
     expect(resolved.android?.useLocalGradlePlugin).toBe(true);
+  });
+
+  it('maps android.expo.useLocalMaven from file config', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      {
+        android: {
+          moduleName: 'mylib',
+          expo: {
+            useLocalMaven: true,
+          },
+        },
+      },
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.useLocalMaven).toBe(true);
+  });
+
+  it('maps android.useLocalMaven from legacy app.json plugin props', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: {
+          moduleName: 'mylib',
+          useLocalMaven: true,
+        },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.useLocalMaven).toBe(true);
   });
 
   it('maps android.missingDimensionStrategies from legacy app.json plugin props', () => {

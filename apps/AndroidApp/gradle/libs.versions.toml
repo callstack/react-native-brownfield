@@ -16,6 +16,7 @@ gson = "2.13.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+brownfieldlib-expo57 = { module = "com.callstack.rnbrownfield.demo.expoapp57:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expo56 = { module = "com.callstack.rnbrownfield.demo.expoapp56:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expo55 = { module = "com.callstack.rnbrownfield.demo.expoapp55:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expobeta = { module = "com.callstack.rnbrownfield.demo.expobeta:brownfieldlib", version.ref = "brownfieldlib" }

@@ -19,12 +19,25 @@ import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNa
 import { mergeBrownfieldConfigWithOptions } from '../../config.js';
 
 export const packageAndroidCommand = curryOptions(
-  new Command('package:android').description('Build Android AAR'),
+  new Command('package:android')
+    .description('Build Android AAR')
+    .option(
+      '--use-local-maven',
+      'Use local Maven for Brownfield plugin resolution'
+    ),
   packageAarOptions
 ).action(
-  actionRunner(async (cliOptions: PackageAarFlags) => {
-    const options = mergeBrownfieldConfigWithOptions(cliOptions, 'android');
-    const projectRoot = findProjectRoot();
+  actionRunner(
+    async (cliOptions: PackageAarFlags & { useLocalMaven?: boolean }) => {
+      const { useLocalMaven, ...restOptions } = cliOptions;
+      const options = mergeBrownfieldConfigWithOptions(
+        {
+          ...restOptions,
+          ...(useLocalMaven ? { useLocalMaven: true } : {}),
+        },
+        'android'
+      );
+      const projectRoot = findProjectRoot();
 
     await runExpoPrebuildIfNeeded({
       projectRoot,

@@ -70,11 +70,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
         val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
         androidComponents.onVariants { variant ->
             configureTasks(variant, artifacts, variantTaskProvider)
-
-            val aarLibraries = getAarLibraries(artifacts, variant.name)
-            ManifestTaskProcessor.process(variant, project, aarLibraries)
-            AssetTaskProcessor.process(variant, aarLibraries)
-            ResourceTaskProcessor.process(variant, aarLibraries)
         }
     }
 
@@ -141,6 +136,10 @@ class RNBrownfieldPlugin : Plugin<Project> {
         )
 
         val aarLibraries = getAarLibraries(artifacts, variantName)
+
+        ManifestTaskProcessor.process(project, variant, aarLibraries)
+        ResourceTaskProcessor.process(project, variant, aarLibraries, explodeTask)
+        AssetTaskProcessor.process(project, variant, aarLibraries, explodeTask)
 
         /** =======  MERGE CLASSES  =========*/
         val mergeClassesTask = variantTaskProvider.mergeClasses(aarLibraries, explodeTask, variantName)

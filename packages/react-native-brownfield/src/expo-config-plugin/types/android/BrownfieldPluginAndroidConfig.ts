@@ -58,7 +58,13 @@ export interface BrownfieldPluginAndroidConfig {
   useLocalGradlePlugin?: boolean;
 
   /**
-   * Missing dimension strategies as dimension + flavor(s).
+   * Use the local Maven repository for Brownfield dependencies.
+   * @default false
+   */
+  useLocalMaven?: boolean;
+
+  /**
+   * Missing dimension strategies as dimension + flavor(s), e.g. "type, alpha".
    * @default []
    */
   missingDimensionStrategies?: string[];
