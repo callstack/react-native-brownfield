@@ -5,20 +5,20 @@ You can find example projects demonstrating the usage of React Native Brownfield
 It contains the following apps:
 
 - `RNApp` - a React Native app that is packaged using React Native Brownfield to an artifact consumed in native apps, in which you can refer to an exemplar usage of the library for packaging a React Native app to a consumable artifact
-- `ExpoApp55` - Expo application using Expo SDK v55
-- `ExpoApp56` - a fresh Expo SDK v56 application wired into the same Brownfield packaging and consumer-app flows as the older Expo examples
-- `AndroidApp` - an Android app consuming the packaged artifact from `RNApp` or `ExpoApp`, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native Android app; this app comes in two flavors:
-  - `expo` - which uses the artifact produced from `ExpoApp`
+- `ExpoApp56` - Expo application using Expo SDK v56
+- `ExpoApp57` - Expo application using Expo SDK v57
+- `AndroidApp` - an Android app consuming the packaged artifact from `RNApp` or an Expo app, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native Android app; this app comes in flavors:
+  - `expo56` / `expo57` - which use the artifacts produced from `ExpoApp56` / `ExpoApp57`
   - `vanilla` - which uses the artifact produced from `RNApp`
 - `AppleApp` - an iOS app consuming packaged XCFrameworks, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native iOS app; the Xcode project has one target per consumed RN app:
   - `Brownfield Apple App (RNApp)` — vanilla; uses the artifact from `RNApp` (scheme **Brownfield Apple App Vanilla**, configuration `Release Vanilla`)
-  - `Brownfield Apple App (ExpoApp55)` — uses the artifact from `ExpoApp55` (scheme **Brownfield Apple App Expo 55**, configuration `Release`)
   - `Brownfield Apple App (ExpoApp56)` — uses the artifact from `ExpoApp56` (scheme **Brownfield Apple App Expo 56**, configuration `Release`)
+  - `Brownfield Apple App (ExpoApp57)` — uses the artifact from `ExpoApp57` (scheme **Brownfield Apple App Expo 57**, configuration `Release`)
 
-  From `apps/AppleApp`, run `yarn build:example:ios-consumer:vanilla`, `yarn build:example:ios-consumer:expo55`, or `yarn build:example:ios-consumer:expo56` to copy XCFrameworks into `package/` and build the matching target. `yarn build:example:ios-consumer:expo` is an alias for `expo56`.
+  From `apps/AppleApp`, run `yarn build:example:ios-consumer:vanilla`, `yarn build:example:ios-consumer:expo56`, or `yarn build:example:ios-consumer:expo57` to copy XCFrameworks into `package/` and build the matching target. `yarn build:example:ios-consumer:expo` is an alias for `expo57`.
 
 ## Additional notes
 
-There are 2 demo apps for Expo: `ExpoApp56` and `ExpoApp55` (post-55 Expo SDK examples).
+There are 2 demo apps for Expo: `ExpoApp56` and `ExpoApp57`.
 
 The ReactBrownfield iOS Pods project (namely `ExpoHostRuntime.swift`) depends on the `EXPO_SDK_GTE_55` compile-time define. This define is added to the project from the Podfile, injected by the Expo config plugin for Expo SDK versions >= 55.

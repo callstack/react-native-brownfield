@@ -231,7 +231,7 @@ async function waitForAppleAppReadyExpo() {
     await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
     return;
   } catch {
-    // Expo 55 does not expose tab IDs; fall back to the visible tab label.
+    // If tab IDs are unavailable, fall back to the visible tab label.
   }
 
   try {

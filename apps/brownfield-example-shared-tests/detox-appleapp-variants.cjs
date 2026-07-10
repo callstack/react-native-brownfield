@@ -5,7 +5,7 @@ const path = require('node:path');
 /** @typedef {import('detox').DetoxConfig} DetoxConfig */
 
 /**
- * AppleApp Detox / E2E settings per packaged RN host (RNApp, ExpoApp55, ExpoApp56).
+ * AppleApp Detox / E2E settings per packaged RN host (RNApp, ExpoApp56, ExpoApp57).
  *
  * @type {Record<string, {
  *   xcframeworkApp: string,
@@ -33,18 +33,6 @@ const appleAppDetoxVariants = {
     e2eTestFile: 'appleAppBrownfield.e2e.js',
     nativeGreetingPattern: /Hello native iOS Vanilla/,
   },
-  expo55: {
-    xcframeworkApp: 'ExpoApp55',
-    scheme: 'Brownfield Apple App Expo 55',
-    configuration: 'Debug Expo',
-    appBinaryName: 'Brownfield Apple App (ExpoApp55)',
-    detoxConfiguration: 'ios.sim.debug.expo55',
-    detoxRcFile: '.detoxrc.expo55.cjs',
-    e2eBuildScript: 'e2e:build:ios:expo55',
-    e2eTestScript: 'e2e:test:ios:expo55',
-    e2eTestFile: 'appleAppExpoBrownfield.e2e.js',
-    nativeGreetingPattern: /Hello native iOS Expo/,
-  },
   expo56: {
     xcframeworkApp: 'ExpoApp56',
     scheme: 'Brownfield Apple App Expo 56',
@@ -57,10 +45,22 @@ const appleAppDetoxVariants = {
     e2eTestFile: 'appleAppExpoBrownfield.e2e.js',
     nativeGreetingPattern: /Hello native iOS Expo/,
   },
+  expo57: {
+    xcframeworkApp: 'ExpoApp57',
+    scheme: 'Brownfield Apple App Expo 57',
+    configuration: 'Debug Expo',
+    appBinaryName: 'Brownfield Apple App (ExpoApp57)',
+    detoxConfiguration: 'ios.sim.debug.expo57',
+    detoxRcFile: '.detoxrc.expo57.cjs',
+    e2eBuildScript: 'e2e:build:ios:expo57',
+    e2eTestScript: 'e2e:test:ios:expo57',
+    e2eTestFile: 'appleAppExpoBrownfield.e2e.js',
+    nativeGreetingPattern: /Hello native iOS Expo/,
+  },
 };
 
 /**
- * @param {string} variant AppleApp road-test variant (`vanilla`, `expo55`, `expo56`).
+ * @param {string} variant AppleApp road-test variant (`vanilla`, `expo56`, `expo57`).
  */
 function getAppleAppDetoxVariant(variant) {
   const config = appleAppDetoxVariants[variant];

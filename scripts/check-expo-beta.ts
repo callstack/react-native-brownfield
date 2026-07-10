@@ -118,18 +118,18 @@ function getExpoTemplateAppDir(): string {
 
 function replaceTemplateAppReferences(contents: string): string {
   return contents
+    .replaceAll('@callstack/brownfield-example-expo-app-57', '@callstack/brownfield-example-expo-app-beta')
     .replaceAll('@callstack/brownfield-example-expo-app-56', '@callstack/brownfield-example-expo-app-beta')
-    .replaceAll('@callstack/brownfield-example-expo-app-55', '@callstack/brownfield-example-expo-app-beta')
+    .replaceAll('com.callstack.rnbrownfield.demo.expoapp57', 'com.callstack.rnbrownfield.demo.expobeta')
     .replaceAll('com.callstack.rnbrownfield.demo.expoapp56', 'com.callstack.rnbrownfield.demo.expobeta')
-    .replaceAll('com.callstack.rnbrownfield.demo.expoapp55', 'com.callstack.rnbrownfield.demo.expobeta')
+    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp57/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
     .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp56/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
-    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
+    .replaceAll('ExpoApp57', 'ExpoAppBeta')
     .replaceAll('ExpoApp56', 'ExpoAppBeta')
-    .replaceAll('ExpoApp55', 'ExpoAppBeta')
+    .replaceAll('expoapp57', 'expoappbeta')
     .replaceAll('expoapp56', 'expoappbeta')
-    .replaceAll('expoapp55', 'expoappbeta')
-    .replaceAll('expoappbeta56', 'expoappbeta')
-    .replaceAll('expoappbeta55', 'expoappbeta');
+    .replaceAll('expoappbeta57', 'expoappbeta')
+    .replaceAll('expoappbeta56', 'expoappbeta');
 }
 
 function generateExpoBetaApp(): void {
@@ -150,10 +150,10 @@ function generateExpoBetaApp(): void {
   if (existsSync(homeScreenPath)) {
     updateFileContents(homeScreenPath, (contents) =>
       contents
+        .replaceAll('Expo\u00a057', 'Expo\u00a0Beta')
         .replaceAll('Expo\u00a056', 'Expo\u00a0Beta')
-        .replaceAll('Expo\u00a055', 'Expo\u00a0Beta')
+        .replaceAll('Expo&nbsp;57', 'Expo&nbsp;Beta')
         .replaceAll('Expo&nbsp;56', 'Expo&nbsp;Beta')
-        .replaceAll('Expo&nbsp;55', 'Expo&nbsp;Beta')
     );
   }
 }

@@ -7,19 +7,18 @@
     "build:example:ios-consumer:expo": "yarn build:example:ios-consumer:expo57",
     "build:example:ios-consumer:expo57": "node prepareXCFrameworks.js --appName ExpoApp57 && yarn internal::build::common -scheme \"Brownfield Apple App Expo 57\" -configuration Release",
     "build:example:ios-consumer:expo56": "node prepareXCFrameworks.js --appName ExpoApp56 && yarn internal::build::common -scheme \"Brownfield Apple App Expo 56\" -configuration Release",
-    "build:example:ios-consumer:expo55": "node prepareXCFrameworks.js --appName ExpoApp55 && yarn internal::build::common -scheme \"Brownfield Apple App Expo 55\" -configuration Release",
     "build:example:ios-consumer:expobeta": "node prepareXCFrameworks.js --appName ExpoAppBeta && yarn internal::build::common -scheme \"Brownfield Apple App Expo Beta\" -configuration Release",
     "build:example:ios-consumer:vanilla": "node prepareXCFrameworks.js --appName RNApp && yarn internal::build::common -scheme \"Brownfield Apple App Vanilla\" -configuration \"Release Vanilla\"",
     "internal::build::common": "xcodebuild -project \"Brownfield Apple App.xcodeproj\" -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build",
     "e2e:build:ios": "detox build --configuration ios.sim.debug",
     "e2e:test:ios": "detox test --configuration ios.sim.debug",
-    "e2e:build:ios:expo55": "detox build --config-path .detoxrc.expo55.cjs --configuration ios.sim.debug.expo55",
-    "e2e:test:ios:expo55": "detox test --config-path .detoxrc.expo55.cjs --configuration ios.sim.debug.expo55",
     "e2e:build:ios:expo56": "detox build --config-path .detoxrc.expo56.cjs --configuration ios.sim.debug.expo56",
     "e2e:test:ios:expo56": "detox test --config-path .detoxrc.expo56.cjs --configuration ios.sim.debug.expo56",
+    "e2e:build:ios:expo57": "detox build --config-path .detoxrc.expo57.cjs --configuration ios.sim.debug.expo57",
+    "e2e:test:ios:expo57": "detox test --config-path .detoxrc.expo57.cjs --configuration ios.sim.debug.expo57",
     "ci:local:e2e:ios": "bash ../../scripts/ci-local-appleapp-ios-e2e.sh",
-    "ci:local:e2e:ios:expo55": "bash ../../scripts/ci-local-appleapp-ios-e2e.sh --variant expo55",
-    "ci:local:e2e:ios:expo56": "bash ../../scripts/ci-local-appleapp-ios-e2e.sh --variant expo56"
+    "ci:local:e2e:ios:expo56": "bash ../../scripts/ci-local-appleapp-ios-e2e.sh --variant expo56",
+    "ci:local:e2e:ios:expo57": "bash ../../scripts/ci-local-appleapp-ios-e2e.sh --variant expo57"
   },
   "devDependencies": {
     "@callstack/brownfield-example-shared-tests": "workspace:^",
