@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,8 @@ import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.nativebrownfieldnavigation.UserType
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
+import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.Promise
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -108,6 +111,27 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
             )
         )
     }
+
+    override fun requestNativeConfirmation(title: String, promise: Promise) {
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setTitle(title)
+                .setPositiveButton("OK") { _, _ -> promise.resolve(true) }
+                .setNegativeButton("Cancel") { _, _ -> promise.resolve(false) }
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    override fun showNativeBanner(message: String, onDismiss: Callback) {
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton("Dismiss") { _, _ -> onDismiss.invoke() }
+                .setCancelable(false)
+                .show()
+        }
+    }
 }
 
 @Composable
@@ -117,11 +141,11 @@ private fun MainScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally // center top bar content
     ) {
-        Spacer(modifier = Modifier.height(3.dp))
+       Spacer(modifier = Modifier.height(3.dp))
 
-        GreetingCard(
-            name = ReactNativeConstants.APP_NAME,
-        )
+       GreetingCard(
+           name = ReactNativeConstants.APP_NAME,
+       )
 
        PostMessageCard()
 
