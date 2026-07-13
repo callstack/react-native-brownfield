@@ -42,6 +42,10 @@ const EXPO_PREVIEW_BROWNFIELD_CONFIG_PATH = path.join(
   EXPO_PREVIEW_APP_DIR,
   'brownfield.config.json'
 );
+const EXPO_PREVIEW_NAVIGATION_SPEC_PATH = path.join(
+  EXPO_PREVIEW_APP_DIR,
+  'brownfield.navigation.ts'
+);
 const EXPO_NPM_REGISTRY_URL = 'https://registry.npmjs.org/expo';
 
 function parseArgs(argv: string[]): CliOptions {
@@ -176,6 +180,29 @@ export function replaceHomeScreenTitle(
     .replaceAll(`Expo&nbsp;${version}`, 'Expo&nbsp;Preview');
 }
 
+const CONSUMER_ROAD_TEST_NAVIGATION_METHODS = `
+  /**
+   * Ask the native host to confirm an action. Resolves with the user's choice.
+   */
+  requestNativeConfirmation(title: string): Promise<boolean>;
+
+  /**
+   * Show a native banner. The native host calls onDismiss when the banner is dismissed.
+   */
+  showNativeBanner(message: string, onDismiss: () => void): void;
+`;
+
+export function ensureConsumerNavigationSpec(contents: string): string {
+  if (contents.includes('requestNativeConfirmation')) {
+    return contents;
+  }
+
+  return contents.replace(
+    '  navigateToReferrals(userId: string): void;\n}',
+    `  navigateToReferrals(userId: string): void;${CONSUMER_ROAD_TEST_NAVIGATION_METHODS}\n}`
+  );
+}
+
 function generateExpoPreviewApp(): void {
   const templateApp = getExpoTemplateApp();
   const replaceReferences = (contents: string) =>
@@ -195,6 +222,10 @@ function generateExpoPreviewApp(): void {
 
   if (existsSync(EXPO_PREVIEW_BROWNFIELD_CONFIG_PATH)) {
     updateFileContents(EXPO_PREVIEW_BROWNFIELD_CONFIG_PATH, replaceReferences);
+  }
+
+  if (existsSync(EXPO_PREVIEW_NAVIGATION_SPEC_PATH)) {
+    updateFileContents(EXPO_PREVIEW_NAVIGATION_SPEC_PATH, ensureConsumerNavigationSpec);
   }
 
   const testPath = path.join(

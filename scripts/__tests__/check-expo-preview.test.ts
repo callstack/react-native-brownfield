@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  ensureConsumerNavigationSpec,
   findLatestPreviewVersion,
   replaceHomeScreenTitle,
   replaceTemplateAppReferences,
@@ -92,6 +93,29 @@ test('rewrites brownfield.config.json for ExpoApp57 template', () => {
 
   assert.match(output, /com\.callstack\.rnbrownfield\.demo\.expoapppreview/);
   assert.doesNotMatch(output, /expoapp57/);
+});
+
+test('adds consumer road-test navigation methods when missing from template', () => {
+  const input = `export interface BrownfieldNavigationSpec {
+  navigateToSettings(user: UserType): void;
+  navigateToReferrals(userId: string): void;
+}`;
+
+  const output = ensureConsumerNavigationSpec(input);
+
+  assert.match(output, /requestNativeConfirmation/);
+  assert.match(output, /showNativeBanner/);
+});
+
+test('does not duplicate consumer road-test navigation methods', () => {
+  const input = `export interface BrownfieldNavigationSpec {
+  navigateToReferrals(userId: string): void;
+  requestNativeConfirmation(title: string): Promise<boolean>;
+}`;
+
+  const output = ensureConsumerNavigationSpec(input);
+
+  assert.equal(output, input);
 });
 
 test('rewrites the home screen title for the latest Expo template version', () => {
