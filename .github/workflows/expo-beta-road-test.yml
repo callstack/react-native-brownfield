@@ -82,9 +82,10 @@ jobs:
       - name: Install Expo beta dependencies
         env:
           DETOX_DISABLE_POSTINSTALL: '1'
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
         run: |
-          cd apps/ExpoAppBeta
-          npx expo install --fix
+          yarn workspace @callstack/brownfield-example-expo-app-beta exec expo install --fix
+          yarn install
 
       - name: Rebuild packages after Expo beta dependency updates
         run: yarn build
@@ -96,6 +97,7 @@ jobs:
           rn-project-path: apps/ExpoAppBeta
           rn-project-maven-path: com/callstack/rnbrownfield/demo/expobeta/brownfieldlib
           restore-turbo-cache: 'false'
+          skip-setup: 'true'
 
   ios:
     name: iOS road test (Expo beta)
@@ -119,9 +121,10 @@ jobs:
       - name: Install Expo beta dependencies
         env:
           DETOX_DISABLE_POSTINSTALL: '1'
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
         run: |
-          cd apps/ExpoAppBeta
-          npx expo install --fix
+          yarn workspace @callstack/brownfield-example-expo-app-beta exec expo install --fix
+          yarn install
 
       - name: Rebuild packages after Expo beta dependency updates
         run: yarn build
@@ -132,6 +135,7 @@ jobs:
           variant: expobeta
           rn-project-path: apps/ExpoAppBeta
           restore-turbo-cache: 'false'
+          skip-setup: 'true'
 
   record-success:
     name: Record tested Expo beta
