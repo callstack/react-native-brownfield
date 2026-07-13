@@ -20,7 +20,7 @@ inputs:
     default: 'true'
 
   skip-setup:
-    description: 'Skip yarn install/build when the caller already prepared the monorepo (e.g. Expo beta workflow)'
+    description: 'Skip yarn install/build when the caller already prepared the monorepo (e.g. Expo preview workflow)'
     required: false
     default: 'false'
 

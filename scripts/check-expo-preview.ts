@@ -32,12 +32,12 @@ export interface ExpoPackageJson {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
-const EXPO_BETA_APP_DIR = path.join(REPO_ROOT, 'apps', 'ExpoAppBeta');
-const EXPO_BETA_PACKAGE_JSON_PATH = path.join(
-  EXPO_BETA_APP_DIR,
+const EXPO_PREVIEW_APP_DIR = path.join(REPO_ROOT, 'apps', 'ExpoAppPreview');
+const EXPO_PREVIEW_PACKAGE_JSON_PATH = path.join(
+  EXPO_PREVIEW_APP_DIR,
   'package.json'
 );
-const EXPO_BETA_APP_JSON_PATH = path.join(EXPO_BETA_APP_DIR, 'app.json');
+const EXPO_PREVIEW_APP_JSON_PATH = path.join(EXPO_PREVIEW_APP_DIR, 'app.json');
 const EXPO_NPM_REGISTRY_URL = 'https://registry.npmjs.org/expo';
 
 function parseArgs(argv: string[]): CliOptions {
@@ -78,7 +78,17 @@ function parseArgs(argv: string[]): CliOptions {
   return options;
 }
 
-export async function fetchLatestExpoCanaryVersion(): Promise<string | null> {
+export function findLatestPreviewVersion(versions: string[]): string | null {
+  const previewVersions = versions
+    .filter((version) => version.includes('-preview'))
+    .sort((left, right) =>
+      left.localeCompare(right, undefined, { numeric: true })
+    );
+
+  return previewVersions.at(-1) ?? null;
+}
+
+export async function fetchLatestExpoPreviewVersion(): Promise<string | null> {
   const response = await fetch(EXPO_NPM_REGISTRY_URL);
 
   if (!response.ok) {
@@ -86,22 +96,10 @@ export async function fetchLatestExpoCanaryVersion(): Promise<string | null> {
   }
 
   const data = (await response.json()) as {
-    'dist-tags'?: Record<string, string>;
     versions?: Record<string, unknown>;
   };
 
-  const canaryTag = data['dist-tags']?.canary;
-  if (canaryTag) {
-    return canaryTag;
-  }
-
-  const versions = Object.keys(data.versions ?? {})
-    .filter((version) => version.includes('canary'))
-    .sort((left, right) =>
-      left.localeCompare(right, undefined, { numeric: true })
-    );
-
-  return versions.at(-1) ?? null;
+  return findLatestPreviewVersion(Object.keys(data.versions ?? {}));
 }
 
 function updateFileContents(
@@ -148,19 +146,19 @@ export function replaceTemplateAppReferences(
   return contents
     .replaceAll(
       `@callstack/brownfield-example-expo-app-${version}`,
-      '@callstack/brownfield-example-expo-app-beta'
+      '@callstack/brownfield-example-expo-app-preview'
     )
     .replaceAll(
       `com.callstack.rnbrownfield.demo.expoapp${version}`,
-      'com.callstack.rnbrownfield.demo.expobeta'
+      'com.callstack.rnbrownfield.demo.expoapppreview'
     )
     .replaceAll(
       `./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp${version}/Generated/`,
-      './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/'
+      './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapppreview/Generated/'
     )
-    .replaceAll(templateName, 'ExpoAppBeta')
-    .replaceAll(`expoapp${version}`, 'expoappbeta')
-    .replaceAll(`expoappbeta${version}`, 'expoappbeta');
+    .replaceAll(templateName, 'ExpoAppPreview')
+    .replaceAll(`expoapp${version}`, 'expoapppreview')
+    .replaceAll(`expoapppreview${version}`, 'expoapppreview');
 }
 
 export function replaceHomeScreenTitle(
@@ -170,11 +168,11 @@ export function replaceHomeScreenTitle(
   const version = templateVersion.toString();
 
   return contents
-    .replaceAll(`Expo\u00a0${version}`, 'Expo\u00a0Beta')
-    .replaceAll(`Expo&nbsp;${version}`, 'Expo&nbsp;Beta');
+    .replaceAll(`Expo\u00a0${version}`, 'Expo\u00a0Preview')
+    .replaceAll(`Expo&nbsp;${version}`, 'Expo&nbsp;Preview');
 }
 
-function generateExpoBetaApp(): void {
+function generateExpoPreviewApp(): void {
   const templateApp = getExpoTemplateApp();
   const replaceReferences = (contents: string) =>
     replaceTemplateAppReferences(
@@ -183,16 +181,16 @@ function generateExpoBetaApp(): void {
       templateApp.name
     );
 
-  rmSync(EXPO_BETA_APP_DIR, { recursive: true, force: true });
-  mkdirSync(path.dirname(EXPO_BETA_APP_DIR), { recursive: true });
-  cpSync(templateApp.path, EXPO_BETA_APP_DIR, { recursive: true });
+  rmSync(EXPO_PREVIEW_APP_DIR, { recursive: true, force: true });
+  mkdirSync(path.dirname(EXPO_PREVIEW_APP_DIR), { recursive: true });
+  cpSync(templateApp.path, EXPO_PREVIEW_APP_DIR, { recursive: true });
 
-  updateFileContents(EXPO_BETA_PACKAGE_JSON_PATH, replaceReferences);
+  updateFileContents(EXPO_PREVIEW_PACKAGE_JSON_PATH, replaceReferences);
 
-  updateFileContents(EXPO_BETA_APP_JSON_PATH, replaceReferences);
+  updateFileContents(EXPO_PREVIEW_APP_JSON_PATH, replaceReferences);
 
   const testPath = path.join(
-    EXPO_BETA_APP_DIR,
+    EXPO_PREVIEW_APP_DIR,
     '__tests__',
     'brownfield.example.test.tsx'
   );
@@ -201,7 +199,7 @@ function generateExpoBetaApp(): void {
   }
 
   const homeScreenPath = path.join(
-    EXPO_BETA_APP_DIR,
+    EXPO_PREVIEW_APP_DIR,
     'src',
     'app',
     'index.tsx'
@@ -213,15 +211,15 @@ function generateExpoBetaApp(): void {
   }
 }
 
-function readExpoBetaPackageJson(): ExpoPackageJson {
+function readExpoPreviewPackageJson(): ExpoPackageJson {
   return JSON.parse(
-    readFileSync(EXPO_BETA_PACKAGE_JSON_PATH, 'utf8')
+    readFileSync(EXPO_PREVIEW_PACKAGE_JSON_PATH, 'utf8')
   ) as ExpoPackageJson;
 }
 
-function writeExpoBetaPackageJson(packageJson: ExpoPackageJson): void {
+function writeExpoPreviewPackageJson(packageJson: ExpoPackageJson): void {
   writeFileSync(
-    EXPO_BETA_PACKAGE_JSON_PATH,
+    EXPO_PREVIEW_PACKAGE_JSON_PATH,
     `${JSON.stringify(packageJson, null, 2)}\n`,
     'utf8'
   );
@@ -233,7 +231,7 @@ export function updateExpoVersion(
 ): boolean {
   if (!packageJson.dependencies?.expo) {
     throw new Error(
-      'Could not locate dependencies.expo in ExpoAppBeta/package.json'
+      'Could not locate dependencies.expo in ExpoAppPreview/package.json'
     );
   }
 
@@ -280,13 +278,13 @@ function appendSummary(
   }
 
   const lines = [
-    '## Expo beta check',
+    '## Expo preview check',
     '',
-    `- Latest Expo beta: ${latestVersion ?? 'not found'}`,
-    `- Last tested Expo beta: ${testedVersion ?? 'none'}`,
+    `- Latest Expo preview: ${latestVersion ?? 'not found'}`,
+    `- Last tested Expo preview: ${testedVersion ?? 'none'}`,
     `- Should run road tests: ${shouldTest ? 'yes' : 'no'}`,
-    `- ExpoAppBeta generated on-the-fly: ${generated ? 'yes' : 'no'}`,
-    `- ExpoAppBeta package.json updated: ${applied ? 'yes' : 'no'}`,
+    `- ExpoAppPreview generated on-the-fly: ${generated ? 'yes' : 'no'}`,
+    `- ExpoAppPreview package.json updated: ${applied ? 'yes' : 'no'}`,
     '',
   ];
 
@@ -296,7 +294,7 @@ function appendSummary(
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const latestVersion =
-    options.expoVersion ?? (await fetchLatestExpoCanaryVersion());
+    options.expoVersion ?? (await fetchLatestExpoPreviewVersion());
 
   if (!latestVersion) {
     appendKeyValueFile(options.githubOutput, {
@@ -312,7 +310,7 @@ async function main(): Promise<void> {
       applied: false,
       generated: false,
     });
-    console.log('No Expo beta release found');
+    console.log('No Expo preview release found');
     return;
   }
 
@@ -321,11 +319,11 @@ async function main(): Promise<void> {
   let generated = false;
 
   if (shouldTest && options.apply) {
-    generateExpoBetaApp();
+    generateExpoPreviewApp();
     generated = true;
-    const packageJson = readExpoBetaPackageJson();
+    const packageJson = readExpoPreviewPackageJson();
     applied = updateExpoVersion(packageJson, latestVersion);
-    writeExpoBetaPackageJson(packageJson);
+    writeExpoPreviewPackageJson(packageJson);
   }
 
   appendKeyValueFile(options.githubOutput, {
@@ -343,10 +341,10 @@ async function main(): Promise<void> {
     generated,
   });
 
-  console.log(`Latest Expo beta: ${latestVersion}`);
-  console.log(`Last tested Expo beta: ${options.testedVersion ?? 'none'}`);
+  console.log(`Latest Expo preview: ${latestVersion}`);
+  console.log(`Last tested Expo preview: ${options.testedVersion ?? 'none'}`);
   console.log(`Should test: ${shouldTest}`);
-  console.log(`Generated ExpoAppBeta: ${generated}`);
+  console.log(`Generated ExpoAppPreview: ${generated}`);
   console.log(`Applied: ${applied}`);
 }
 
