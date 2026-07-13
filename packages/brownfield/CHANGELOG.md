@@ -1,5 +1,12 @@
 # brownfield
 
+## 4.2.0
+
+### Patch Changes
+
+- Updated dependencies [[`39cf6a7`](https://github.com/callstack/react-native-brownfield/commit/39cf6a751c62ee701c96468a5a701c0bdf96463b)]:
+  - @callstack/brownfield-cli@4.2.0
+
 ## 4.1.0
 
 ### Patch Changes

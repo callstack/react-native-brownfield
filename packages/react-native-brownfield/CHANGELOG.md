@@ -1,5 +1,16 @@
 # @callstack/react-native-brownfield
 
+## 4.2.0
+
+### Minor Changes
+
+- [#413](https://github.com/callstack/react-native-brownfield/pull/413) [`39cf6a7`](https://github.com/callstack/react-native-brownfield/commit/39cf6a751c62ee701c96468a5a701c0bdf96463b) Thanks [@hurali97](https://github.com/hurali97)! - feat: add option to use local maven
+
+### Patch Changes
+
+- Updated dependencies [[`39cf6a7`](https://github.com/callstack/react-native-brownfield/commit/39cf6a751c62ee701c96468a5a701c0bdf96463b)]:
+  - @callstack/brownfield-cli@4.2.0
+
 ## 4.1.0
 
 ### Minor Changes
