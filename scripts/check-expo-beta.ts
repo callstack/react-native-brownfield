@@ -1,6 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { cpSync, mkdirSync, rmSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  mkdirSync,
+  rmSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 interface CliOptions {
@@ -26,7 +33,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const EXPO_BETA_APP_DIR = path.join(REPO_ROOT, 'apps', 'ExpoAppBeta');
-const EXPO_BETA_PACKAGE_JSON_PATH = path.join(EXPO_BETA_APP_DIR, 'package.json');
+const EXPO_BETA_PACKAGE_JSON_PATH = path.join(
+  EXPO_BETA_APP_DIR,
+  'package.json'
+);
 const EXPO_BETA_APP_JSON_PATH = path.join(EXPO_BETA_APP_DIR, 'app.json');
 const EXPO_NPM_REGISTRY_URL = 'https://registry.npmjs.org/expo';
 
@@ -87,17 +97,28 @@ export async function fetchLatestExpoCanaryVersion(): Promise<string | null> {
 
   const versions = Object.keys(data.versions ?? {})
     .filter((version) => version.includes('canary'))
-    .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+    .sort((left, right) =>
+      left.localeCompare(right, undefined, { numeric: true })
+    );
 
   return versions.at(-1) ?? null;
 }
 
-function updateFileContents(filePath: string, updater: (contents: string) => string): void {
+function updateFileContents(
+  filePath: string,
+  updater: (contents: string) => string
+): void {
   const contents = readFileSync(filePath, 'utf8');
   writeFileSync(filePath, updater(contents), 'utf8');
 }
 
-function getExpoTemplateAppDir(): string {
+interface ExpoTemplateApp {
+  path: string;
+  version: number;
+  name: string;
+}
+
+function getExpoTemplateApp(): ExpoTemplateApp {
   const appsDir = path.join(REPO_ROOT, 'apps');
   const expoAppCandidates = fs
     .readdirSync(appsDir, { withFileTypes: true })
@@ -105,6 +126,7 @@ function getExpoTemplateAppDir(): string {
     .map((entry) => ({
       path: path.join(appsDir, entry.name),
       version: Number(entry.name.replace('ExpoApp', '')),
+      name: entry.name,
     }))
     .sort((left, right) => right.version - left.version);
 
@@ -113,62 +135,106 @@ function getExpoTemplateAppDir(): string {
     throw new Error('Could not find an Expo template app directory');
   }
 
-  return latestCandidate.path;
+  return latestCandidate;
 }
 
-function replaceTemplateAppReferences(contents: string): string {
+export function replaceTemplateAppReferences(
+  contents: string,
+  templateVersion: number,
+  templateName: string
+): string {
+  const version = templateVersion.toString();
+
   return contents
-    .replaceAll('@callstack/brownfield-example-expo-app-56', '@callstack/brownfield-example-expo-app-beta')
-    .replaceAll('@callstack/brownfield-example-expo-app-55', '@callstack/brownfield-example-expo-app-beta')
-    .replaceAll('com.callstack.rnbrownfield.demo.expoapp56', 'com.callstack.rnbrownfield.demo.expobeta')
-    .replaceAll('com.callstack.rnbrownfield.demo.expoapp55', 'com.callstack.rnbrownfield.demo.expobeta')
-    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp56/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
-    .replaceAll('./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp55/Generated/', './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/')
-    .replaceAll('ExpoApp56', 'ExpoAppBeta')
-    .replaceAll('ExpoApp55', 'ExpoAppBeta')
-    .replaceAll('expoapp56', 'expoappbeta')
-    .replaceAll('expoapp55', 'expoappbeta')
-    .replaceAll('expoappbeta56', 'expoappbeta')
-    .replaceAll('expoappbeta55', 'expoappbeta');
+    .replaceAll(
+      `@callstack/brownfield-example-expo-app-${version}`,
+      '@callstack/brownfield-example-expo-app-beta'
+    )
+    .replaceAll(
+      `com.callstack.rnbrownfield.demo.expoapp${version}`,
+      'com.callstack.rnbrownfield.demo.expobeta'
+    )
+    .replaceAll(
+      `./android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp${version}/Generated/`,
+      './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expobeta/Generated/'
+    )
+    .replaceAll(templateName, 'ExpoAppBeta')
+    .replaceAll(`expoapp${version}`, 'expoappbeta')
+    .replaceAll(`expoappbeta${version}`, 'expoappbeta');
+}
+
+export function replaceHomeScreenTitle(
+  contents: string,
+  templateVersion: number
+): string {
+  const version = templateVersion.toString();
+
+  return contents
+    .replaceAll(`Expo\u00a0${version}`, 'Expo\u00a0Beta')
+    .replaceAll(`Expo&nbsp;${version}`, 'Expo&nbsp;Beta');
 }
 
 function generateExpoBetaApp(): void {
+  const templateApp = getExpoTemplateApp();
+  const replaceReferences = (contents: string) =>
+    replaceTemplateAppReferences(
+      contents,
+      templateApp.version,
+      templateApp.name
+    );
+
   rmSync(EXPO_BETA_APP_DIR, { recursive: true, force: true });
   mkdirSync(path.dirname(EXPO_BETA_APP_DIR), { recursive: true });
-  cpSync(getExpoTemplateAppDir(), EXPO_BETA_APP_DIR, { recursive: true });
+  cpSync(templateApp.path, EXPO_BETA_APP_DIR, { recursive: true });
 
-  updateFileContents(EXPO_BETA_PACKAGE_JSON_PATH, replaceTemplateAppReferences);
+  updateFileContents(EXPO_BETA_PACKAGE_JSON_PATH, replaceReferences);
 
-  updateFileContents(EXPO_BETA_APP_JSON_PATH, replaceTemplateAppReferences);
+  updateFileContents(EXPO_BETA_APP_JSON_PATH, replaceReferences);
 
-  const testPath = path.join(EXPO_BETA_APP_DIR, '__tests__', 'brownfield.example.test.tsx');
+  const testPath = path.join(
+    EXPO_BETA_APP_DIR,
+    '__tests__',
+    'brownfield.example.test.tsx'
+  );
   if (existsSync(testPath)) {
-    updateFileContents(testPath, replaceTemplateAppReferences);
+    updateFileContents(testPath, replaceReferences);
   }
 
-  const homeScreenPath = path.join(EXPO_BETA_APP_DIR, 'src', 'app', 'index.tsx');
+  const homeScreenPath = path.join(
+    EXPO_BETA_APP_DIR,
+    'src',
+    'app',
+    'index.tsx'
+  );
   if (existsSync(homeScreenPath)) {
     updateFileContents(homeScreenPath, (contents) =>
-      contents
-        .replaceAll('Expo\u00a056', 'Expo\u00a0Beta')
-        .replaceAll('Expo\u00a055', 'Expo\u00a0Beta')
-        .replaceAll('Expo&nbsp;56', 'Expo&nbsp;Beta')
-        .replaceAll('Expo&nbsp;55', 'Expo&nbsp;Beta')
+      replaceHomeScreenTitle(contents, templateApp.version)
     );
   }
 }
 
 function readExpoBetaPackageJson(): ExpoPackageJson {
-  return JSON.parse(readFileSync(EXPO_BETA_PACKAGE_JSON_PATH, 'utf8')) as ExpoPackageJson;
+  return JSON.parse(
+    readFileSync(EXPO_BETA_PACKAGE_JSON_PATH, 'utf8')
+  ) as ExpoPackageJson;
 }
 
 function writeExpoBetaPackageJson(packageJson: ExpoPackageJson): void {
-  writeFileSync(EXPO_BETA_PACKAGE_JSON_PATH, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
+  writeFileSync(
+    EXPO_BETA_PACKAGE_JSON_PATH,
+    `${JSON.stringify(packageJson, null, 2)}\n`,
+    'utf8'
+  );
 }
 
-export function updateExpoVersion(packageJson: ExpoPackageJson, expoVersion: string): boolean {
+export function updateExpoVersion(
+  packageJson: ExpoPackageJson,
+  expoVersion: string
+): boolean {
   if (!packageJson.dependencies?.expo) {
-    throw new Error('Could not locate dependencies.expo in ExpoAppBeta/package.json');
+    throw new Error(
+      'Could not locate dependencies.expo in ExpoAppBeta/package.json'
+    );
   }
 
   if (packageJson.dependencies.expo === expoVersion) {
@@ -179,12 +245,17 @@ export function updateExpoVersion(packageJson: ExpoPackageJson, expoVersion: str
   return true;
 }
 
-function appendKeyValueFile(filePath: string | undefined, entries: Record<string, string>): void {
+function appendKeyValueFile(
+  filePath: string | undefined,
+  entries: Record<string, string>
+): void {
   if (!filePath) {
     return;
   }
 
-  const lines = Object.entries(entries).map(([key, value]) => `${key}=${value}`);
+  const lines = Object.entries(entries).map(
+    ([key, value]) => `${key}=${value}`
+  );
   fs.appendFileSync(filePath, `${lines.join('\n')}\n`, 'utf8');
 }
 
@@ -224,7 +295,8 @@ function appendSummary(
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const latestVersion = options.expoVersion ?? (await fetchLatestExpoCanaryVersion());
+  const latestVersion =
+    options.expoVersion ?? (await fetchLatestExpoCanaryVersion());
 
   if (!latestVersion) {
     appendKeyValueFile(options.githubOutput, {
