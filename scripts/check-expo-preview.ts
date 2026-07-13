@@ -38,6 +38,10 @@ const EXPO_PREVIEW_PACKAGE_JSON_PATH = path.join(
   'package.json'
 );
 const EXPO_PREVIEW_APP_JSON_PATH = path.join(EXPO_PREVIEW_APP_DIR, 'app.json');
+const EXPO_PREVIEW_BROWNFIELD_CONFIG_PATH = path.join(
+  EXPO_PREVIEW_APP_DIR,
+  'brownfield.config.json'
+);
 const EXPO_NPM_REGISTRY_URL = 'https://registry.npmjs.org/expo';
 
 function parseArgs(argv: string[]): CliOptions {
@@ -188,6 +192,10 @@ function generateExpoPreviewApp(): void {
   updateFileContents(EXPO_PREVIEW_PACKAGE_JSON_PATH, replaceReferences);
 
   updateFileContents(EXPO_PREVIEW_APP_JSON_PATH, replaceReferences);
+
+  if (existsSync(EXPO_PREVIEW_BROWNFIELD_CONFIG_PATH)) {
+    updateFileContents(EXPO_PREVIEW_BROWNFIELD_CONFIG_PATH, replaceReferences);
+  }
 
   const testPath = path.join(
     EXPO_PREVIEW_APP_DIR,

@@ -75,6 +75,25 @@ test('rewrites Expo template identifiers for ExpoApp57', () => {
   assert.doesNotMatch(output, /ExpoApp57/);
 });
 
+test('rewrites brownfield.config.json for ExpoApp57 template', () => {
+  const input = JSON.stringify(
+    {
+      brownie: {
+        kotlin:
+          './android/brownfieldlib/src/main/java/com/callstack/rnbrownfield/demo/expoapp57/Generated/',
+        kotlinPackageName: 'com.callstack.rnbrownfield.demo.expoapp57',
+      },
+    },
+    null,
+    2
+  );
+
+  const output = replaceTemplateAppReferences(input, 57, 'ExpoApp57');
+
+  assert.match(output, /com\.callstack\.rnbrownfield\.demo\.expoapppreview/);
+  assert.doesNotMatch(output, /expoapp57/);
+});
+
 test('rewrites the home screen title for the latest Expo template version', () => {
   const input = 'Welcome to&nbsp;Expo&nbsp;57';
 
