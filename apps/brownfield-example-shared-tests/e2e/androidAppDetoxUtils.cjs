@@ -1,4 +1,7 @@
 const { element, by } = require('detox');
+const {
+  getAndroidAppDetoxVariant,
+} = require('@callstack/brownfield-example-shared-tests/detox-androidapp-variants.cjs');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
 const {
@@ -15,15 +18,23 @@ const {
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
-const EXPO55_GREETING_NEEDLE = 'Hello native Android (Expo 55)';
 /** Unique copy on the Expo home screen — survives nbsp/emoji quirks in UIAutomator. */
-const EXPO55_RN_SURFACE_NEEDLE = 'GET STARTED';
-const EXPO55_RN_SURFACE_NEEDLES = [
-  EXPO55_RN_SURFACE_NEEDLE,
+const EXPO_RN_SURFACE_NEEDLE = 'GET STARTED';
+const EXPO_RN_SURFACE_NEEDLES = [
+  EXPO_RN_SURFACE_NEEDLE,
   'Welcome to',
   'Try editing',
 ];
 const EXPO_ANDROID_POLL = { keepCurrentActivity: true };
+
+function getActiveExpoAndroidVariant() {
+  const variantKey = process.env.ANDROIDAPP_VARIANT || 'expo55';
+  return getAndroidAppDetoxVariant(variantKey);
+}
+
+function getExpoGreetingNeedle() {
+  return getActiveExpoAndroidVariant().nativeGreetingNeedle;
+}
 
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
 const NATIVE_SHELL_SCROLL_ANCHOR = VANILLA_NATIVE_GREETING;
@@ -60,16 +71,16 @@ async function scrollToEmbeddedRnExpo() {
   }
 
   try {
-    await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 3000, EXPO_ANDROID_POLL);
+    await pollUntilUiAutomatorContainsAny(EXPO_RN_SURFACE_NEEDLES, 3000, EXPO_ANDROID_POLL);
   } catch {
     for (let attempt = 0; attempt < 6; attempt += 1) {
       await scrollAndroidNativeShellUp();
       try {
-        await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 2000, EXPO_ANDROID_POLL);
+        await pollUntilUiAutomatorContainsAny(EXPO_RN_SURFACE_NEEDLES, 2000, EXPO_ANDROID_POLL);
         break;
       } catch {
         if (attempt === 5) {
-          await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 30000, EXPO_ANDROID_POLL);
+          await pollUntilUiAutomatorContainsAny(EXPO_RN_SURFACE_NEEDLES, 30000, EXPO_ANDROID_POLL);
         }
       }
     }
@@ -94,16 +105,16 @@ async function scrollToNativeShellExpo() {
   }
 
   try {
-    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 3000, EXPO_ANDROID_POLL);
+    await pollUntilUiAutomatorContains(getExpoGreetingNeedle(), 3000, EXPO_ANDROID_POLL);
   } catch {
     for (let attempt = 0; attempt < 6; attempt += 1) {
       await scrollAndroidNativeShellDown();
       try {
-        await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 2000, EXPO_ANDROID_POLL);
+        await pollUntilUiAutomatorContains(getExpoGreetingNeedle(), 2000, EXPO_ANDROID_POLL);
         break;
       } catch {
         if (attempt === 5) {
-          await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 15000, EXPO_ANDROID_POLL);
+          await pollUntilUiAutomatorContains(getExpoGreetingNeedle(), 15000, EXPO_ANDROID_POLL);
         }
       }
     }
@@ -157,10 +168,10 @@ async function waitForAndroidAppReadyExpo() {
     await pollUntilUiAutomatorContains('Home', 90000, EXPO_ANDROID_POLL);
   } catch {
     try {
-      await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 90000, EXPO_ANDROID_POLL);
+      await pollUntilUiAutomatorContainsAny(EXPO_RN_SURFACE_NEEDLES, 90000, EXPO_ANDROID_POLL);
     } catch {
       await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 60000, EXPO_ANDROID_POLL);
+      await pollUntilUiAutomatorContainsAny(EXPO_RN_SURFACE_NEEDLES, 60000, EXPO_ANDROID_POLL);
     }
   }
 
@@ -209,7 +220,7 @@ module.exports = {
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
   sendPostMessageToNativeAndWaitForToast,
-  EXPO55_GREETING_NEEDLE,
-  EXPO55_RN_SURFACE_NEEDLE,
-  EXPO55_RN_SURFACE_NEEDLES,
+  getExpoGreetingNeedle,
+  EXPO_RN_SURFACE_NEEDLE,
+  EXPO_RN_SURFACE_NEEDLES,
 };

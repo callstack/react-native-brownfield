@@ -227,6 +227,67 @@ jobs:
           e2e-apk-artifact-name: androidapp-expo55-e2e-apks
           e2e-artifact-name: detox-androidapp-expo55
 
+  android-androidapp-expo56-build:
+    name: Build AndroidApp & Detox APKs (Expo 56)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Build Expo 56 AndroidApp Detox APKs
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo56
+          rn-project-path: apps/ExpoApp56
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp56/brownfieldlib
+          e2e-phase: build
+          e2e-apk-artifact-name: androidapp-expo56-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo56
+
+  android-androidapp-expo56-e2e:
+    name: Detox E2E (AndroidApp - Expo 56)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [filter, build-lint, android-androidapp-expo56-build]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
+      needs.android-androidapp-expo56-build.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run Expo 56 Detox E2E (prebuilt APKs)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo56
+          rn-project-path: apps/ExpoApp56
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp56/brownfieldlib
+          e2e-phase: test
+          e2e-apk-artifact-name: androidapp-expo56-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo56
+
   android-androidapp-vanilla:
     name: Android road test & E2E (AndroidApp - Vanilla)
     runs-on: ubuntu-latest

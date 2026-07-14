@@ -32,7 +32,8 @@
     "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh",
     "ci:local:appleapp:e2e:ios:expo55": "bash ./scripts/ci-local-appleapp-ios-e2e.sh --variant expo55",
     "ci:local:androidapp:e2e:android": "bash ./scripts/ci-local-androidapp-android-e2e.sh",
-    "ci:local:androidapp:e2e:android:expo55": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo55"
+    "ci:local:androidapp:e2e:android:expo55": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo55",
+    "ci:local:androidapp:e2e:android:expo56": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo56"
   },
   "resolutions": {
     "@types/react": "19.1.1",

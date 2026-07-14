@@ -400,6 +400,7 @@ runs:
           cd apps/AndroidApp
           yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
       env:
+        ANDROIDAPP_VARIANT: ${{ inputs.flavor }}
         ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
 
     - name: Save Android ccache (after E2E)
