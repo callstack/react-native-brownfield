@@ -197,10 +197,18 @@ export function ensureConsumerNavigationSpec(contents: string): string {
     return contents;
   }
 
-  return contents.replace(
-    '  navigateToReferrals(userId: string): void;\n}',
-    `  navigateToReferrals(userId: string): void;${CONSUMER_ROAD_TEST_NAVIGATION_METHODS}\n}`
+  const updated = contents.replace(
+    /\n}\s*$/u,
+    `${CONSUMER_ROAD_TEST_NAVIGATION_METHODS}\n}`
   );
+
+  if (updated === contents) {
+    throw new Error(
+      'Could not locate end of BrownfieldNavigationSpec to inject consumer road-test methods'
+    );
+  }
+
+  return updated;
 }
 
 function generateExpoPreviewApp(): void {
