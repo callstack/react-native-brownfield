@@ -1,0 +1,216 @@
+name: Expo preview road test
+run-name: Expo preview road test
+
+on:
+  schedule:
+    - cron: '0 6 */2 * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+
+jobs:
+  prepare:
+    name: Detect Expo preview to test
+    runs-on: ubuntu-latest
+    outputs:
+      latest_version: ${{ steps.finalize.outputs.latest_version }}
+      should_test: ${{ steps.finalize.outputs.should_test }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Detect latest Expo preview
+        id: detect
+        run: node --experimental-strip-types --no-warnings ./scripts/check-expo-preview.ts --github-output "$GITHUB_OUTPUT" --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Check whether this Expo preview was already tested
+        id: tested
+        if: steps.detect.outputs.latest_version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          artifact_id=$(gh api \
+            "/repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired == false) | select(.name == "expo-preview-tested-${{ steps.detect.outputs.latest_version }}") | .id' \
+            | head -n 1)
+
+          if [ -n "$artifact_id" ]; then
+            echo "already_tested=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_tested=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Finalize test decision
+        id: finalize
+        run: |
+          should_test="${{ steps.detect.outputs.should_test }}"
+
+          if [ "${{ steps.tested.outputs.already_tested || 'false' }}" = 'true' ]; then
+            should_test='false'
+          fi
+
+          echo "latest_version=${{ steps.detect.outputs.latest_version }}" >> "$GITHUB_OUTPUT"
+          echo "should_test=${should_test}" >> "$GITHUB_OUTPUT"
+          {
+            echo "- Already tested successfully: ${{ steps.tested.outputs.already_tested || 'false' }}"
+            echo "- Final should run road tests: ${should_test}"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  android:
+    name: Android road test (Expo preview)
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: needs.prepare.outputs.should_test == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Generate and apply Expo preview to ExpoAppPreview
+        run: node --experimental-strip-types --no-warnings ./scripts/check-expo-preview.ts --expo-version "${{ needs.prepare.outputs.latest_version }}" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup monorepo
+        uses: ./.github/actions/setup
+        with:
+          restore-turbo-cache: 'false'
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
+
+      - name: Install Expo preview dependencies
+        env:
+          DETOX_DISABLE_POSTINSTALL: '1'
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
+        run: |
+          yarn workspace @callstack/brownfield-example-expo-app-preview exec expo install --fix
+          yarn install
+
+      - name: Rebuild packages after Expo preview dependency updates
+        run: yarn build
+
+      - name: Run ExpoAppPreview -> AndroidApp road test
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expopreview
+          rn-project-path: apps/ExpoAppPreview
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapppreview/brownfieldlib
+          restore-turbo-cache: 'false'
+          skip-setup: 'true'
+
+  ios:
+    name: iOS road test (Expo preview)
+    runs-on: macos-26
+    needs: prepare
+    if: needs.prepare.outputs.should_test == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Generate and apply Expo preview to ExpoAppPreview
+        run: node --experimental-strip-types --no-warnings ./scripts/check-expo-preview.ts --expo-version "${{ needs.prepare.outputs.latest_version }}" --apply --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup monorepo
+        uses: ./.github/actions/setup
+        with:
+          restore-turbo-cache: 'false'
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
+
+      - name: Install Expo preview dependencies
+        env:
+          DETOX_DISABLE_POSTINSTALL: '1'
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 'false'
+        run: |
+          yarn workspace @callstack/brownfield-example-expo-app-preview exec expo install --fix
+          yarn install
+
+      - name: Rebuild packages after Expo preview dependency updates
+        run: yarn build
+
+      - name: Run ExpoAppPreview -> AppleApp road test
+        uses: ./.github/actions/appleapp-road-test
+        with:
+          variant: expopreview
+          rn-project-path: apps/ExpoAppPreview
+          restore-turbo-cache: 'false'
+          skip-setup: 'true'
+
+  record-success:
+    name: Record tested Expo preview
+    runs-on: ubuntu-latest
+    needs: [prepare, android, ios]
+    if: |
+      needs.prepare.outputs.should_test == 'true' &&
+      needs.android.result == 'success' &&
+      needs.ios.result == 'success'
+    steps:
+      - name: Create Expo preview success marker
+        run: |
+          mkdir -p expo-preview-test-result
+          printf '%s\n' '${{ needs.prepare.outputs.latest_version }}' > expo-preview-test-result/version.txt
+
+      - name: Upload Expo preview success marker
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: expo-preview-tested-${{ needs.prepare.outputs.latest_version }}
+          path: expo-preview-test-result/version.txt
+          retention-days: 90
+
+  create-issue-on-failure:
+    name: Create issue on Expo preview failure
+    runs-on: ubuntu-latest
+    needs: [prepare, android, ios]
+    if: |
+      needs.prepare.outputs.should_test == 'true' &&
+      (needs.android.result == 'failure' || needs.ios.result == 'failure')
+    steps:
+      - name: Create or reuse GitHub issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          issue_title="Expo preview road test failed for ${{ needs.prepare.outputs.latest_version }}"
+          existing_issue_number=$(gh issue list \
+            --search "${issue_title} in:title state:open" \
+            --json number \
+            --jq '.[0].number // ""')
+
+          if [ -n "$existing_issue_number" ]; then
+            gh issue comment "$existing_issue_number" --body $'A new failure was detected.\n\n- Expo preview version: `${{ needs.prepare.outputs.latest_version }}`\n- Android result: `${{ needs.android.result }}`\n- iOS result: `${{ needs.ios.result }}`\n- Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            exit 0
+          fi
+
+          gh issue create \
+            --title "$issue_title" \
+            --body $'The Expo preview road test failed.\n\n- Expo preview version: `${{ needs.prepare.outputs.latest_version }}`\n- Android result: `${{ needs.android.result }}`\n- iOS result: `${{ needs.ios.result }}`\n- Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}' \
+            --label question
+
+  summarize:
+    name: Summarize Expo preview road test
+    runs-on: ubuntu-latest
+    needs: [prepare, android, ios, record-success, create-issue-on-failure]
+    if: always()
+    steps:
+      - name: Write workflow summary
+        run: |
+          {
+            echo "## Expo preview road test results"
+            echo
+            echo "- Expo preview version: ${{ needs.prepare.outputs.latest_version || 'not found' }}"
+            echo "- Android result: ${{ needs.android.result || 'skipped' }}"
+            echo "- iOS result: ${{ needs.ios.result || 'skipped' }}"
+            echo
+            if [ "${{ needs.prepare.outputs.should_test }}" != "true" ]; then
+              echo "No new untested Expo preview required testing."
+            else
+              echo "- Success marker uploaded: ${{ needs.record-success.result == 'success' && 'yes' || 'no' }}"
+              echo "- Issue created/updated on failure: ${{ needs.create-issue-on-failure.result == 'success' && 'yes' || 'no' }}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if road test failed
+        if: |
+          needs.prepare.outputs.should_test == 'true' &&
+          (needs.android.result == 'failure' || needs.ios.result == 'failure')
+        run: exit 1

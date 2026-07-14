@@ -22,13 +22,13 @@ export interface BrownfieldPluginAndroidConfig {
 
   /**
    * Target SDK version for the Android library
-   * @default 35
+   * @default inherited from the generated Expo app project when available
    */
   targetSdkVersion?: number;
 
   /**
    * Compile SDK version for the Android library
-   * @default 35
+   * @default inherited from the generated Expo app project when available
    */
   compileSdkVersion?: number;
 
@@ -56,10 +56,24 @@ export interface BrownfieldPluginAndroidConfig {
    * @default false
    */
   useLocalGradlePlugin?: boolean;
+
+  /**
+   * Use the local Maven repository for Brownfield dependencies.
+   * @default false
+   */
+  useLocalMaven?: boolean;
+
+  /**
+   * Missing dimension strategies as dimension + flavor(s), e.g. "type, alpha".
+   * @default []
+   */
+  missingDimensionStrategies?: string[];
 }
 
 /**
  * Android configuration with resolved defaults (all fields required)
  */
-export type ResolvedBrownfieldPluginAndroidConfig =
-  Required<BrownfieldPluginAndroidConfig>;
+export type ResolvedBrownfieldPluginAndroidConfig = Required<
+  Omit<BrownfieldPluginAndroidConfig, 'compileSdkVersion' | 'targetSdkVersion'>
+> &
+  Pick<BrownfieldPluginAndroidConfig, 'compileSdkVersion' | 'targetSdkVersion'>;

@@ -1,6 +1,6 @@
 package com.callstack.react.brownfield.expo.utils
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Project
 import java.io.File
 
@@ -68,10 +68,7 @@ object LocalMavenUtils {
                 BrownfieldPublishingInfo(
                     groupId = groupId,
                     artifactId = artifactId,
-                    version = (
-                        targetProjectAndroidLibExt.defaultConfig.versionName
-                            ?: targetProject.version.toString()
-                    ),
+                    version = targetProject.version.toString(),
                 )
             )
         }

@@ -24,12 +24,11 @@ jobs:
         with:
           disable-cache: 'true'
 
-
       - name: Build
         run: yarn build
 
       - name: Create Release Pull Request or Publish to NPM
-        uses: changesets/action@e9cc34b540dd3ad1b030c57fd97269e8f6ad905a # v1.4.9
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           version: yarn ci:version
           publish: yarn ci:publish

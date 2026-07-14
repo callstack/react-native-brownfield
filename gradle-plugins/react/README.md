@@ -205,7 +205,7 @@ To use product flavors and dimensions in your brownfield module, define them as 
 
 ```kts
     flavorDimensions += "env"
-    
+
     productFlavors {
         create("prod") {
             dimension = "env"

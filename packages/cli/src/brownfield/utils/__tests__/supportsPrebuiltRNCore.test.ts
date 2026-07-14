@@ -30,7 +30,6 @@ describe('supportsPrebuiltRNCore', () => {
 
   test('returns supported with opt-in default for vanilla RN 0.83', () => {
     vi.mocked(rockTools.getReactNativeVersion).mockReturnValue('0.83.0');
-    vi.mocked(projectUtils.isExpoProject).mockReturnValue(false);
 
     expect(supportsPrebuiltRNCore({ projectRoot: '/project' })).toEqual({
       supported: true,
@@ -40,7 +39,6 @@ describe('supportsPrebuiltRNCore', () => {
 
   test('returns supported with default enabled for vanilla RN >= 0.84', () => {
     vi.mocked(rockTools.getReactNativeVersion).mockReturnValue('0.84.0');
-    vi.mocked(projectUtils.isExpoProject).mockReturnValue(false);
 
     expect(supportsPrebuiltRNCore({ projectRoot: '/project' })).toEqual({
       supported: true,
@@ -50,7 +48,6 @@ describe('supportsPrebuiltRNCore', () => {
 
   test('returns unsupported for vanilla RN < 0.81', () => {
     vi.mocked(rockTools.getReactNativeVersion).mockReturnValue('0.80.0');
-    vi.mocked(projectUtils.isExpoProject).mockReturnValue(false);
 
     const result = supportsPrebuiltRNCore({ projectRoot: '/project' });
 
@@ -62,7 +59,6 @@ describe('supportsPrebuiltRNCore', () => {
 
   test('returns unsupported for unknown react-native version', () => {
     vi.mocked(rockTools.getReactNativeVersion).mockReturnValue('unknown');
-    vi.mocked(projectUtils.isExpoProject).mockReturnValue(false);
 
     const result = supportsPrebuiltRNCore({ projectRoot: '/project' });
 
@@ -74,27 +70,4 @@ describe('supportsPrebuiltRNCore', () => {
     });
   });
 
-  test('returns supported with default enabled for Expo SDK >= 55', () => {
-    vi.mocked(rockTools.getReactNativeVersion).mockReturnValue('0.83.0');
-    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
-    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(55);
-
-    expect(supportsPrebuiltRNCore({ projectRoot: '/project' })).toEqual({
-      supported: true,
-      enabledByDefault: true,
-    });
-  });
-
-  test('returns unsupported for Expo SDK < 55 even when RN is supported', () => {
-    vi.mocked(rockTools.getReactNativeVersion).mockReturnValue('0.83.0');
-    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
-    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(54);
-
-    const result = supportsPrebuiltRNCore({ projectRoot: '/project' });
-
-    expect(result).toEqual({
-      supported: false,
-      reason: expect.stringMatching(/Expo SDK 54.*requires Expo SDK 55 or newer/),
-    });
-  });
 });

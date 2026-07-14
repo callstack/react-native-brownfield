@@ -1,4 +1,4 @@
-const { element, by, expect: detoxExpect } = require('detox');
+const { device, element, by, expect: detoxExpect } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
@@ -9,11 +9,13 @@ const {
 const {
   scrollToNativeShellExpo,
   waitForAppleAppReadyExpo,
+  openHomeTabExpo,
   openPostMessageTabExpo,
+  sendPostMessageToNativeAndWaitForToast,
 } = require('@callstack/brownfield-example-shared-tests/e2e/appleAppDetoxUtils');
 
 describe('Brownfield (AppleApp — Expo)', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await launchBrownfieldAppForDetox({ newInstance: true });
     await waitForAppleAppReadyExpo();
   });
@@ -23,13 +25,22 @@ describe('Brownfield (AppleApp — Expo)', () => {
     const greeting = element(by.id(ids.appleAppGreeting));
     await detoxExpect(greeting).toBeVisible();
     await assertDetoxTextMatches(greeting, /Hello native iOS Expo/);
-    await detoxExpect(element(by.label('Home')).atIndex(0)).toBeVisible();
-    await detoxExpect(element(by.text(/Welcome to\s+Expo\s+55/))).toBeVisible();
+    await openHomeTabExpo();
+  });
+
+  it('shows a native toast when Expo RN sends postMessage', async () => {
+    await openPostMessageTabExpo();
+    await sendPostMessageToNativeAndWaitForToast();
   });
 
   it('records the RN postMessage bubble in the Expo surface', async () => {
     await openPostMessageTabExpo();
-    await element(by.id(ids.sendMessageToNative)).tap();
+    await device.disableSynchronization();
+    try {
+      await element(by.id(ids.sendMessageToNative)).tap();
+    } finally {
+      await device.enableSynchronization();
+    }
     const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
     const deadline = Date.now() + 15000;
     while (Date.now() < deadline) {
