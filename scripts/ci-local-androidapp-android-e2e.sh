@@ -3,8 +3,8 @@
 #
 # Usage (from repo root):
 #   yarn ci:local:androidapp:e2e:android
-#   yarn ci:local:androidapp:e2e:android:expo55
-#   yarn ci:local:androidapp:e2e:android --variant expo55
+#   yarn ci:local:androidapp:e2e:android:expo56
+#   yarn ci:local:androidapp:e2e:android --variant expo56
 #   yarn ci:local:androidapp:e2e:android --skip-install
 #   yarn ci:local:androidapp:e2e:android --rebuild
 #   yarn ci:local:androidapp:e2e:android --test-only
@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]]; do
     --) shift; break ;;
     --variant=*) VARIANT="${1#*=}"; shift ;;
     --variant)
-      VARIANT="${2:?--variant requires a value (vanilla or expo55)}"
+      VARIANT="${2:?--variant requires a value (vanilla, expo55, or expo56)}"
       shift 2
       ;;
     --avd=*) DETOX_AVD="${1#*=}"; shift ;;
@@ -185,7 +185,7 @@ if [[ "${BUILD_ONLY}" == "false" ]]; then
   bash "${REPO_ROOT}/apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh"
 
   echo "==> Detox test (AndroidApp ${VARIANT}, emulator — Metro not required)"
-  (cd "${ANDROID_APP_PATH}" && yarn "${E2E_TEST_SCRIPT}")
+  (cd "${ANDROID_APP_PATH}" && ANDROIDAPP_VARIANT="${VARIANT}" yarn "${E2E_TEST_SCRIPT}")
 fi
 
 echo "==> Done."

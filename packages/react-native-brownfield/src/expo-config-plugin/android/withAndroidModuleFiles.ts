@@ -9,7 +9,6 @@ import type {
 } from '../types';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
-import { getExpoInfo, hasExpoUpdatesInstalled } from '../expoUtils';
 import {
   type AndroidManifestMetaDataEntry,
   type AndroidStringResourceEntry,
@@ -21,6 +20,38 @@ import {
   readExpoUpdatesStringResources,
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
+import { formatMissingDimensionStrategies } from './utils/formatHelpers';
+
+function renderMissingDimensionStrategyBlock(
+  missingDimensionStrategies: string[]
+): string {
+  if (missingDimensionStrategies.length < 2) {
+    return '';
+  }
+
+  const args = formatMissingDimensionStrategies(missingDimensionStrategies);
+  return `        missingDimensionStrategy(${args})`;
+}
+
+export function resolveCompileSdkVersionExpression(
+  config: ResolvedBrownfieldPluginConfigWithAndroid
+): string {
+  if (config.android.compileSdkVersion != null) {
+    return config.android.compileSdkVersion.toString();
+  }
+
+  return 'resolveRootProjectInt("compileSdkVersion")';
+}
+
+export function resolveTargetSdkVersionExpression(
+  config: ResolvedBrownfieldPluginConfigWithAndroid
+): string {
+  if (config.android.targetSdkVersion != null) {
+    return config.android.targetSdkVersion.toString();
+  }
+
+  return 'resolveRootProjectInt("targetSdkVersion")';
+}
 
 /**
  * Creates the Android library module directory structure and files
@@ -29,19 +60,12 @@ export function createAndroidModule({
   androidDir,
   config,
   rnVersion,
-  isExpoPre55,
   projectRoot,
 }: {
   /**
    * Expo app root (used to detect optional dependencies such as expo-updates)
    */
   projectRoot?: string;
-
-  /**
-   * Whether the Expo project is pre-55
-   */
-  isExpoPre55: boolean;
-
   /**
    * The root Android directory path
    */
@@ -59,13 +83,21 @@ export function createAndroidModule({
 }): void {
   const { android } = config;
   const moduleDir = path.join(androidDir, android.moduleName);
-  const hasExpoUpdates = hasExpoUpdatesInstalled(projectRoot);
 
   Logger.logDebug(`Creating Android module in: ${androidDir}`);
 
-  const hermesArtifact = getHermesArtifact(rnVersion);
+  const hermesArtifact = getHermesArtifact(rnVersion, projectRoot);
+  const compileSdkVersionExpression =
+    resolveCompileSdkVersionExpression(config);
+  const targetSdkVersionExpression = resolveTargetSdkVersionExpression(config);
   Logger.logDebug(
     `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
+  );
+  const missingDimensionStrategiesList = formatMissingDimensionStrategies(
+    android.missingDimensionStrategies
+  );
+  const missingDimensionStrategyBlock = renderMissingDimensionStrategyBlock(
+    android.missingDimensionStrategies
   );
 
   // generate module files
@@ -75,12 +107,15 @@ export function createAndroidModule({
       content: renderTemplate('android', 'build.gradle.kts', {
         '{{PACKAGE_NAME}}': android.packageName,
         '{{MIN_SDK_VERSION}}': android.minSdkVersion.toString(),
-        '{{COMPILE_SDK_VERSION}}': android.compileSdkVersion.toString(),
+        '{{TARGET_SDK_VERSION}}': targetSdkVersionExpression,
+        '{{COMPILE_SDK_VERSION}}': compileSdkVersionExpression,
         '{{GROUP_ID}}': android.groupId,
         '{{ARTIFACT_ID}}': android.artifactId,
         '{{ARTIFACT_VERSION}}': android.version,
         '{{RN_VERSION}}': rnVersion,
         '{{HERMES_ARTIFACT}}': `${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`,
+        '{{MISSING_DIMENSION_STRATEGIES}}': missingDimensionStrategiesList,
+        '{{MISSING_DIMENSION_STRATEGY_BLOCK}}': missingDimensionStrategyBlock,
       }),
     },
     {
@@ -89,25 +124,9 @@ export function createAndroidModule({
     },
     {
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
-      content: renderTemplate(
-        'android',
-        isExpoPre55
-          ? 'ReactNativeHostManager.pre55.kt'
-          : 'ReactNativeHostManager.post55.kt',
-        isExpoPre55
-          ? {
-              '{{PACKAGE_NAME}}': android.packageName,
-              '{{EXPO_UPDATES_IMPORTS}}': hasExpoUpdates
-                ? 'import expo.modules.updates.UpdatesController'
-                : '',
-              '{{EXPO_UPDATES_REACT_HOST_BLOCK}}': hasExpoUpdates
-                ? '\n        UpdatesController.setReactHost(reactHost)\n'
-                : '\n',
-            }
-          : {
-              '{{PACKAGE_NAME}}': android.packageName,
-            }
-      ),
+      content: renderTemplate('android', 'ReactNativeHostManager.post55.kt', {
+        '{{PACKAGE_NAME}}': android.packageName,
+      }),
     },
     {
       relativePath: 'consumer-rules.pro',
@@ -260,13 +279,10 @@ export const withAndroidModuleFiles: ConfigPlugin<
         );
       }
 
-      const { isExpoPre55 } = getExpoInfo(config);
-
       createAndroidModule({
         androidDir,
         config: props,
         rnVersion,
-        isExpoPre55,
         projectRoot: dangerousConfig.modRequest.projectRoot,
       });
 

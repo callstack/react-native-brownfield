@@ -10,8 +10,8 @@ const {
   scrollToNativeShellExpo,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
-  EXPO55_GREETING_NEEDLE,
-  EXPO55_RN_SURFACE_NEEDLES,
+  getExpoGreetingNeedle,
+  EXPO_RN_SURFACE_NEEDLES,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
 describe('Brownfield (AndroidApp — Expo)', () => {
@@ -28,11 +28,11 @@ describe('Brownfield (AndroidApp — Expo)', () => {
 
   it('shows the native greeting shell and embedded Expo home', async () => {
     await scrollToNativeShellExpo();
-    await pollUntilUiAutomatorContains(EXPO55_GREETING_NEEDLE, 15000, {
+    await pollUntilUiAutomatorContains(getExpoGreetingNeedle(), 15000, {
       keepCurrentActivity: true,
     });
     await scrollToEmbeddedRnExpo();
-    await pollUntilUiAutomatorContainsAny(EXPO55_RN_SURFACE_NEEDLES, 30000, {
+    await pollUntilUiAutomatorContainsAny(EXPO_RN_SURFACE_NEEDLES, 30000, {
       keepCurrentActivity: true,
     });
   });

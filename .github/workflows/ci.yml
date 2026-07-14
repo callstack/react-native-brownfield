@@ -22,10 +22,11 @@ jobs:
     outputs:
       packages: ${{ steps.filter.outputs.packages }}
       rnapp: ${{ steps.filter.outputs.rnapp }}
-      expo54: ${{ steps.filter.outputs.expo54 }}
       expo55: ${{ steps.filter.outputs.expo55 }}
+      expo56: ${{ steps.filter.outputs.expo56 }}
       androidapp: ${{ steps.filter.outputs.androidapp }}
       appleapp: ${{ steps.filter.outputs.appleapp }}
+      gradle-plugins: ${{ steps.filter.outputs.gradle-plugins }}
       ci: ${{ steps.filter.outputs.ci }}
     steps:
       - name: Checkout
@@ -41,11 +42,11 @@ jobs:
             rnapp:
               - 'apps/RNApp/**'
               - 'apps/brownfield-example-shared-tests/**'
-            expo54:
-              - 'apps/ExpoApp54/**'
-              - 'apps/brownfield-example-shared-tests/**'
             expo55:
               - 'apps/ExpoApp55/**'
+              - 'apps/brownfield-example-shared-tests/**'
+            expo56:
+              - 'apps/ExpoApp56/**'
               - 'apps/brownfield-example-shared-tests/**'
             androidapp:
               - 'apps/AndroidApp/**'
@@ -53,6 +54,8 @@ jobs:
             appleapp:
               - 'apps/AppleApp/**'
               - 'apps/brownfield-example-shared-tests/**'
+            gradle-plugins:
+              - 'gradle-plugins/**'
             ci:
               - '.github/**'
 
@@ -137,17 +140,19 @@ jobs:
     if: |
       always() &&
       (
-        needs.filter.outputs.expo54 == 'true' ||
         needs.filter.outputs.expo55 == 'true' ||
+        needs.filter.outputs.expo56 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
     strategy:
       matrix:
         include:
-          - version: '54'
+          - version: '55'
+          - version: '56'
 
     steps:
       - name: Checkout
@@ -172,6 +177,7 @@ jobs:
         needs.filter.outputs.expo55 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
@@ -201,6 +207,7 @@ jobs:
         needs.filter.outputs.expo55 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
@@ -220,6 +227,67 @@ jobs:
           e2e-apk-artifact-name: androidapp-expo55-e2e-apks
           e2e-artifact-name: detox-androidapp-expo55
 
+  android-androidapp-expo56-build:
+    name: Build AndroidApp & Detox APKs (Expo 56)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Build Expo 56 AndroidApp Detox APKs
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo56
+          rn-project-path: apps/ExpoApp56
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp56/brownfieldlib
+          e2e-phase: build
+          e2e-apk-artifact-name: androidapp-expo56-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo56
+
+  android-androidapp-expo56-e2e:
+    name: Detox E2E (AndroidApp - Expo 56)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [filter, build-lint, android-androidapp-expo56-build]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
+      needs.android-androidapp-expo56-build.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run Expo 56 Detox E2E (prebuilt APKs)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo56
+          rn-project-path: apps/ExpoApp56
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp56/brownfieldlib
+          e2e-phase: test
+          e2e-apk-artifact-name: androidapp-expo56-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo56
+
   android-androidapp-vanilla:
     name: Android road test & E2E (AndroidApp - Vanilla)
     runs-on: ubuntu-latest
@@ -231,6 +299,7 @@ jobs:
         needs.filter.outputs.rnapp == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
@@ -283,8 +352,8 @@ jobs:
     if: |
       always() &&
       (
-        needs.filter.outputs.expo54 == 'true' ||
         needs.filter.outputs.expo55 == 'true' ||
+        needs.filter.outputs.expo56 == 'true' ||
         needs.filter.outputs.appleapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
         needs.filter.outputs.ci == 'true'
@@ -293,9 +362,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - version: '54'
-            run-e2e: 'false'
           - version: '55'
+            run-e2e: 'true'
+          - version: '56'
             run-e2e: 'true'
 
     steps:

@@ -65,6 +65,13 @@
           "description": "Minimum SDK version for the Android library.",
           "type": "number"
         },
+        "missingDimensionStrategies": {
+          "description": "Missing dimension strategies as dimension + flavor(s), e.g. \"type, alpha\".",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "packageName": {
           "description": "The package name for the Android library module.",
           "type": "string"
@@ -75,6 +82,10 @@
         },
         "useLocalGradlePlugin": {
           "description": "When true, load the Brownfield Gradle plugin from `@callstack/react-native-brownfield/gradle-plugin/brownfield` via `includeBuild` instead of adding the Maven classpath dependency. Disabled by default.",
+          "type": "boolean"
+        },
+        "useLocalMaven": {
+          "description": "When true, prefer artifacts from the local Maven repository when resolving the Brownfield plugin dependencies. Disabled by default.",
           "type": "boolean"
         },
         "version": {
@@ -169,6 +180,10 @@
         "target": {
           "description": "Xcode target to use.",
           "type": "string"
+        },
+        "usePrebuiltExpo": {
+          "description": "Set when `--use-prebuilt-expo` is passed; omitted when the flag is absent (Rock applies Expo version defaults).",
+          "type": "boolean"
         },
         "usePrebuiltRnCore": {
           "description": "Set when `--use-prebuilt-rn-core` is passed; omitted when the flag is absent (Rock applies RN version defaults).",

@@ -14,15 +14,6 @@ open class Extension {
     var appProjectName = "app"
 
     /**
-     * List of dynamic libs (.so) files that you wish to bundle with
-     * the aar.
-     *
-     * By default, only `libappmodules.so` and `libreact_codegen_*.so` are
-     * bundled.
-     */
-    var dynamicLibs = listOf<String>()
-
-    /**
      * Whether to use stripped .so files.
      *
      * Default is `true`.
@@ -41,4 +32,12 @@ open class Extension {
         set(value) {
             useStrippedSoFiles = value
         }
+
+    /**
+     * List of missing dimension strategies.
+     *
+     * Provide in this format:
+     * listOf("type", "alpha")
+     */
+    var missingDimensionStrategies = listOf<String>()
 }

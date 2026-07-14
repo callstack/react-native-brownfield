@@ -5,10 +5,10 @@ import {
 } from '@expo/config-plugins';
 
 import {
-  addExpoPre55ShellPatchScriptPhase,
   addFrameworkTarget,
   addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
+  resolveFrameworkDeploymentTarget,
 } from './xcodeHelpers';
 import { modifyPodfile } from './podfileHelpers';
 import { injectFmtFixIntoPodfile } from './withFmtFix';
@@ -31,17 +31,23 @@ import { getExpoInfo, hasExpoUpdatesInstalled } from '../expoUtils';
 export const withBrownfieldIos: ConfigPlugin<
   ResolvedBrownfieldPluginConfigWithIos
 > = (config, props) => {
-  const { isExpoPre55, expoMajor } = getExpoInfo(config);
+  const { expoMajor } = getExpoInfo(config);
 
   // Step 1: modify the Xcode project to add framework target &
   config = withXcodeProject(config, (xcodeConfig) => {
     const { modResults: project, modRequest } = xcodeConfig;
     const hasExpoUpdates = hasExpoUpdatesInstalled(modRequest.projectRoot);
+    const iosProps = {
+      ...props.ios,
+      deploymentTarget: resolveFrameworkDeploymentTarget(project, modRequest, {
+        fallbackDeploymentTarget: props.ios.deploymentTarget,
+      }),
+    };
 
     const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
-      props.ios
+      iosProps
     );
 
     // Ensure Expo.plist is present in the framework resources phase when
@@ -61,36 +67,13 @@ export const withBrownfieldIos: ConfigPlugin<
 
       copyBundleReactNativePhase(project, frameworkTargetUUID);
 
-      if (isExpoPre55) {
-        addExpoPre55ShellPatchScriptPhase(modRequest, project, {
-          frameworkName: props.ios.frameworkName,
-          frameworkTargetUUID: frameworkTargetUUID,
-        });
-      }
-
       return xcodeConfig;
     }
 
     // copy the "Bundle React Native code and images" build phase from the main target to the framework target
     copyBundleReactNativePhase(project, frameworkTargetUUID);
 
-    // for Expo SDK versions < 55, add a script phase to patch ExpoModulesProvider.swift
-    if (isExpoPre55) {
-      Logger.logDebug(
-        `Adding ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
-      );
-
-      addExpoPre55ShellPatchScriptPhase(modRequest, project, {
-        frameworkName: props.ios.frameworkName,
-        frameworkTargetUUID: frameworkTargetUUID,
-      });
-    } else {
-      Logger.logDebug(
-        `Skipping ExpoModulesProvider patch phase for Expo SDK ${config.sdkVersion}`
-      );
-    }
-
-    addSourceFilesBuildPhase(project, frameworkTargetUUID, props.ios);
+    addSourceFilesBuildPhase(project, frameworkTargetUUID, iosProps);
 
     return xcodeConfig;
   });

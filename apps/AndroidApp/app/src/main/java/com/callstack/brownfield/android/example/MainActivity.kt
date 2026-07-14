@@ -1,5 +1,6 @@
 package com.callstack.brownfield.android.example
 
+import com.callstack.brownie.registerStoreIfNeeded
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +20,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -30,8 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,11 +46,10 @@ import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppThe
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.nativebrownfieldnavigation.UserType
-import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
-import com.facebook.react.ReactInstanceEventListener
-import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.Promise
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     private val isDetoxE2E: Boolean
@@ -68,6 +69,11 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
+    override fun onPause() {
+        BrownfieldNavigationManager.clearDelegate()
+        super.onPause()
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (!hasFocus && isDetoxE2E) {
@@ -75,17 +81,29 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
-    override fun onDestroy() {
-        BrownfieldNavigationManager.clearDelegate()
-        super.onDestroy()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
         enableEdgeToEdge()
 
         if (savedInstanceState == null) {
-            showReactNativeLoadedToastWhenReady()
+            ReactNativeHostManager.initialize(application) {
+                if (!isDetoxE2E) {
+                    Toast.makeText(
+                        this,
+                        "React Native has been loaded",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+            registerStoreIfNeeded(
+                storeName = BrownfieldStore.STORE_NAME
+            ) {
+                BrownfieldStore(
+                    counter = 0.0,
+                    user = User(name = "Username")
+                )
+            }
         }
 
         setContent {
@@ -106,29 +124,6 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         }
     }
 
-    private fun showReactNativeLoadedToastWhenReady() {
-        if (isDetoxE2E) {
-            return
-        }
-
-        val reactHost = ReactNativeBrownfield.shared.reactHost
-        reactHost.currentReactContext?.let {
-            Toast.makeText(this, "React Native has been loaded", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        reactHost.addReactInstanceEventListener(object : ReactInstanceEventListener {
-            override fun onReactContextInitialized(context: ReactContext) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "React Native has been loaded",
-                    Toast.LENGTH_LONG
-                ).show()
-                reactHost.removeReactInstanceEventListener(this)
-            }
-        })
-    }
-
     override fun navigateToSettings(user: UserType) {
         startActivity(Intent(this, SettingsActivity::class.java))
     }
@@ -140,6 +135,27 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
                 userId
             )
         )
+    }
+
+    override fun requestNativeConfirmation(title: String, promise: Promise) {
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setTitle(title)
+                .setPositiveButton("OK") { _, _ -> promise.resolve(true) }
+                .setNegativeButton("Cancel") { _, _ -> promise.resolve(false) }
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    override fun showNativeBanner(message: String, onDismiss: Callback) {
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton("Dismiss") { _, _ -> onDismiss.invoke() }
+                .setCancelable(false)
+                .show()
+        }
     }
 }
 

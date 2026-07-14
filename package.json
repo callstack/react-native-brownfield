@@ -15,7 +15,7 @@
     "test:apps": "turbo run test --filter='./apps/*'",
     "dev": "yarn workspaces foreach -Api run dev",
     "ci:version": "changeset version && yarn install --no-immutable && node --experimental-strip-types --no-warnings ./scripts/consolidate-changelog.ts",
-    "ci:publish": "yarn workspaces foreach --no-private -At npm publish && changeset tag",
+    "ci:publish": "changeset publish",
     "brownfield:plugin:publish:local": "bash ./gradle-plugins/publish-to-maven-local.sh --skip-signing",
     "brownfield:plugin:publish:local:signed": "bash ./gradle-plugins/publish-to-maven-local.sh",
     "build:brownfield": "turbo run build:brownfield",
@@ -28,12 +28,12 @@
     "skillgym:brownie": "skillgym run skillgym/suites/brownie-suite.ts",
     "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts",
     "ci:local:rnapp:e2e:ios": "bash ./scripts/ci-local-rnapp-ios-e2e.sh",
-    "ci:local:expo54:e2e:ios": "bash ./scripts/ci-local-expo54-ios-e2e.sh",
     "ci:local:expo55:e2e:ios": "bash ./scripts/ci-local-expo55-ios-e2e.sh",
     "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh",
     "ci:local:appleapp:e2e:ios:expo55": "bash ./scripts/ci-local-appleapp-ios-e2e.sh --variant expo55",
     "ci:local:androidapp:e2e:android": "bash ./scripts/ci-local-androidapp-android-e2e.sh",
-    "ci:local:androidapp:e2e:android:expo55": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo55"
+    "ci:local:androidapp:e2e:android:expo55": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo55",
+    "ci:local:androidapp:e2e:android:expo56": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo56"
   },
   "resolutions": {
     "@types/react": "19.1.1",
@@ -44,14 +44,14 @@
   "dependencies": {
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.30.0",
-    "@expo/config-plugins": "^54.0.4"
+    "@expo/config-plugins": "^56.0.8"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.4",
     "@commitlint/config-conventional": "^20.4.4",
     "@eslint/compat": "^2.0.1",
     "@eslint/eslintrc": "^3.3.3",
-    "@expo/config-types": "^54.0.10",
+    "@expo/config-types": "^56.0.5",
     "@react-native/eslint-config": "0.82.1",
     "babel-plugin-module-resolver": "5.0.2",
     "eslint": "^9.39.3",
