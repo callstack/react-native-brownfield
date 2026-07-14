@@ -2,9 +2,6 @@ name: Expo preview road test
 run-name: Expo preview road test
 
 on:
-  push:
-    branches:
-      - fix/expo-beta-test
   schedule:
     - cron: '0 6 */2 * *'
   workflow_dispatch:
