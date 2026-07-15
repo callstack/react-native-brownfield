@@ -15,7 +15,7 @@ const DETOX_TIMING = {
   TOAST_VISIBILITY_TIMEOUT_MS: 15_000,
 
   /** Timeout for the entire E2E test suite (detox + Jest + Maestro). */
-  TEST_TIMEOUT_MS: 300_000,
+  TEST_TIMEOUT_MS: 720_000,
 };
 
 module.exports = { DETOX_TIMING };

@@ -240,7 +240,7 @@ async function waitForAppleAppReadyExpo() {
       await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
       return;
     } catch {
-      // Some Expo builds render the screen title before the tab labels settle.
+      // Expo 55 does not expose tab IDs; fall back to the visible tab label.
     }
 
     try {
