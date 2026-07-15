@@ -88,7 +88,7 @@ async function waitForNativeOverlayVisible(
         );
       }
     }
-    await waitFor(target()).toBeVisible().withTimeout(10000);
+    await detoxExpect(target()).toBeVisible();
   } finally {
     await device.enableSynchronization();
   }

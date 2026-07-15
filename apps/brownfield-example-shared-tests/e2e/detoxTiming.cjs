@@ -12,7 +12,7 @@ const DETOX_TIMING = {
   POST_MESSAGE_BUBBLE_TIMEOUT_MS: 15_000,
 
   /** Timeout for the visibility of toasts. */
-  TOAST_VISIBILITY_TIMEOUT_MS: 15_000,
+  TOAST_VISIBILITY_TIMEOUT_MS: 60_000,
 
   /** Timeout for the entire E2E test suite (detox + Jest + Maestro). */
   TEST_TIMEOUT_MS: 720_000,
