@@ -191,23 +191,25 @@ async function waitForEmbeddedExpoMatcher(matcher, index = 0) {
 
 async function waitForAppleAppReadyVanilla() {
   const rnHomeMatcher = by.id(ids.rnAppHome);
-  try {
-    await scrollToEmbeddedRnVanilla();
-  } catch {
-    // Continue polling visibility.
-  }
-
-  try {
-    await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
-    return;
-  } catch {
-    // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
-    // cannot safely call reloadReactNative() here. Fall back to scroll-based
-    // recovery when the embedded surface is mounted off-screen.
-  }
 
   await device.disableSynchronization();
+
   try {
+    try {
+      await scrollToEmbeddedRnVanilla();
+    } catch {
+      // Continue polling visibility.
+    }
+
+    try {
+      await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
+      return;
+    } catch {
+      // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
+      // cannot safely call reloadReactNative() here. Fall back to scroll-based
+      // recovery when the embedded surface is mounted off-screen.
+    }
+
     await scrollToEmbeddedRnVanilla();
     await waitFor(element(rnHomeMatcher)).toBeVisible().withTimeout(20_000);
   } finally {
@@ -238,7 +240,7 @@ async function waitForAppleAppReadyExpo() {
       await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
       return;
     } catch {
-      // Expo 55 does not expose tab IDs; fall back to the visible tab label.
+      // Some Expo builds render the screen title before the tab labels settle.
     }
 
     try {
