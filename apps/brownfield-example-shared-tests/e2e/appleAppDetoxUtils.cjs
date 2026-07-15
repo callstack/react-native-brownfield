@@ -217,31 +217,39 @@ async function waitForAppleAppReadyVanilla() {
 
 async function waitForAppleAppReadyExpo() {
   try {
-    await waitForAnyVisible(
-      [EXPO_HOME_TAB_MATCHERS[0], EXPO_HOME_TAB_MATCHERS[1], EXPO_WELCOME_TITLE],
-      10_000
-    );
-    return;
-  } catch {
-    // Continue with scroll-based recovery when the embedded surface starts
-    // outside the initial viewport.
-  }
+    try {
+      await waitForAnyVisible(
+        [
+          EXPO_HOME_TAB_MATCHERS[0],
+          EXPO_HOME_TAB_MATCHERS[1],
+          EXPO_WELCOME_TITLE,
+        ],
+        60_000
+      );
+      return;
+    } catch {
+      // Continue with scroll-based recovery when the embedded surface starts
+      // outside the initial viewport.
+    }
 
-  try {
-    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
-    return;
-  } catch {
-    // Expo 55 does not expose tab IDs; fall back to the visible tab label.
-  }
+    try {
+      await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
+      return;
+    } catch {
+      // Expo 55 does not expose tab IDs; fall back to the visible tab label.
+    }
 
-  try {
-    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
-    return;
-  } catch {
-    // Some Expo builds render the screen title before the tab labels settle.
-  }
+    try {
+      await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
+      return;
+    } catch {
+      // Some Expo builds render the screen title before the tab labels settle.
+    }
 
-  await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE, 0);
+    await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE, 0);
+  } finally {
+    await device.enableSynchronization();
+  }
 }
 
 async function openHomeTabExpo() {
