@@ -216,6 +216,8 @@ async function waitForAppleAppReadyVanilla() {
 }
 
 async function waitForAppleAppReadyExpo() {
+  await device.disableSynchronization();
+
   try {
     try {
       await waitForAnyVisible(
