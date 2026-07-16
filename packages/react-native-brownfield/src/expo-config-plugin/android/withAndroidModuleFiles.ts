@@ -90,6 +90,11 @@ export function createAndroidModule({
   const compileSdkVersionExpression =
     resolveCompileSdkVersionExpression(config);
   const targetSdkVersionExpression = resolveTargetSdkVersionExpression(config);
+  const minifyEnabled =
+    (android as { minifyEnabled?: boolean }).minifyEnabled ?? false;
+  const extraProguardRules =
+    (android as { extraProguardRules?: string[] }).extraProguardRules ?? [];
+  const extraProguardRulesText = extraProguardRules.join('\n');
   Logger.logDebug(
     `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
   );
@@ -114,6 +119,7 @@ export function createAndroidModule({
         '{{ARTIFACT_VERSION}}': android.version,
         '{{RN_VERSION}}': rnVersion,
         '{{HERMES_ARTIFACT}}': `${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`,
+        '{{IS_MINIFY_ENABLED}}': minifyEnabled.toString(),
         '{{MISSING_DIMENSION_STRATEGIES}}': missingDimensionStrategiesList,
         '{{MISSING_DIMENSION_STRATEGY_BLOCK}}': missingDimensionStrategyBlock,
       }),
@@ -134,7 +140,9 @@ export function createAndroidModule({
     },
     {
       relativePath: 'proguard-rules.pro',
-      content: renderTemplate('android', 'proguard-rules.pro', {}),
+      content: renderTemplate('android', 'proguard-rules.pro', {
+        '{{EXTRA_PROGUARD_RULES}}': extraProguardRulesText,
+      }),
     },
   ];
 
