@@ -36,7 +36,7 @@ android {
         create("expo56") {
             dimension = "app"
         }
-        create("expobeta") {
+        create("expopreview") {
             dimension = "app"
         }
         create("vanilla") {
@@ -77,7 +77,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     add("expo57Implementation", libs.brownfieldlib.expo57)
     add("expo56Implementation", libs.brownfieldlib.expo56)
-    add("expobetaImplementation", libs.brownfieldlib.expobeta)
+    add("expopreviewImplementation", libs.brownfieldlib.expopreview)
     add("vanillaImplementation", libs.brownfieldlib.vanilla)
 
     implementation(libs.androidx.fragment.compose)

@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-dontwarn com.google.android.material.R$attr
+-dontwarn com.google.android.material.R$dimen
+-dontwarn com.google.android.material.R$id
+-dontwarn com.google.android.material.R$style
+-dontwarn java.lang.invoke.StringConcatFactory
+
+# Public API consumed from the Brownfield AAR.
+-keep class com.callstack.rnbrownfield.demo.expoapp56.ReactNativeHostManager { *; }
+
+{{EXTRA_PROGUARD_RULES}}

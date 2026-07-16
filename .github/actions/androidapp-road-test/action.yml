@@ -19,6 +19,11 @@ inputs:
     required: false
     default: 'true'
 
+  skip-setup:
+    description: 'Skip yarn install/build when the caller already prepared the monorepo (e.g. Expo preview workflow)'
+    required: false
+    default: 'false'
+
 runs:
   using: composite
   steps:
@@ -29,6 +34,7 @@ runs:
       shell: bash
 
     - name: Setup
+      if: inputs.skip-setup != 'true'
       uses: ./.github/actions/setup
       with:
         restore-turbo-cache: ${{ inputs.restore-turbo-cache }}

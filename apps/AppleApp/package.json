@@ -7,7 +7,7 @@
     "build:example:ios-consumer:expo": "yarn build:example:ios-consumer:expo57",
     "build:example:ios-consumer:expo57": "node prepareXCFrameworks.js --appName ExpoApp57 && yarn internal::build::common -scheme \"Brownfield Apple App Expo 57\" -configuration Release",
     "build:example:ios-consumer:expo56": "node prepareXCFrameworks.js --appName ExpoApp56 && yarn internal::build::common -scheme \"Brownfield Apple App Expo 56\" -configuration Release",
-    "build:example:ios-consumer:expobeta": "node prepareXCFrameworks.js --appName ExpoAppBeta && yarn internal::build::common -scheme \"Brownfield Apple App Expo Beta\" -configuration Release",
+    "build:example:ios-consumer:expopreview": "node prepareXCFrameworks.js --appName ExpoAppPreview && yarn internal::build::common -scheme \"Brownfield Apple App Expo Preview\" -configuration Release",
     "build:example:ios-consumer:vanilla": "node prepareXCFrameworks.js --appName RNApp && yarn internal::build::common -scheme \"Brownfield Apple App Vanilla\" -configuration \"Release Vanilla\"",
     "internal::build::common": "xcodebuild -project \"Brownfield Apple App.xcodeproj\" -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO -derivedDataPath ./build",
     "e2e:build:ios": "detox build --configuration ios.sim.debug",
