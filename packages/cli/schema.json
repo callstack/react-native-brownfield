@@ -58,7 +58,7 @@
           "type": "number"
         },
         "extraProguardRules": {
-          "description": "Extra Proguard rules appended to the default rules.",
+          "description": "Extra Proguard rules appended to the default rules. Each entry must be a non-empty string.",
           "items": {
             "type": "string"
           },

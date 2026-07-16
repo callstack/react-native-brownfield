@@ -363,6 +363,31 @@ describe('resolveBrownfieldPluginConfig', () => {
     ]);
   });
 
+  it('drops empty android.expo.extraProguardRules entries', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      {
+        android: {
+          moduleName: 'mylib',
+          expo: {
+            extraProguardRules: [
+              '   ',
+              '-keep class com.example.Foo { *; }',
+              '',
+              '  -dontwarn com.example.Bar  ',
+            ],
+          },
+        },
+      },
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.extraProguardRules).toEqual([
+      '-keep class com.example.Foo { *; }',
+      '  -dontwarn com.example.Bar  ',
+    ]);
+  });
+
   it('maps android.useLocalGradlePlugin from legacy app.json plugin props', () => {
     const resolved = resolveBrownfieldPluginConfig(
       {

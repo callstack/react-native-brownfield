@@ -156,6 +156,9 @@ export function resolveBrownfieldPluginConfig(
 ): ResolvedBrownfieldPluginConfig {
   const effectiveProps =
     fileConfig !== null ? fileConfigToPluginProps(fileConfig) : pluginProps;
+  const extraProguardRules = (
+    effectiveProps.android?.extraProguardRules ?? []
+  ).filter((rule) => rule.trim().length > 0);
 
   const androidPackage = expoConfig.android?.package;
   /**
@@ -193,8 +196,8 @@ export function resolveBrownfieldPluginConfig(
           version: effectiveProps.android?.version ?? '0.0.1-SNAPSHOT',
           useLocalGradlePlugin:
             effectiveProps.android?.useLocalGradlePlugin ?? false,
-        minifyEnabled: effectiveProps.android?.minifyEnabled ?? false,
-        extraProguardRules: effectiveProps.android?.extraProguardRules ?? [],
+          minifyEnabled: effectiveProps.android?.minifyEnabled ?? false,
+          extraProguardRules,
         }
       : null,
   };
