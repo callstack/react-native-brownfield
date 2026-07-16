@@ -41,7 +41,10 @@ async function configureDetoxForBrownfieldIos() {
  * Sync is disabled only via launchArgs — disableSynchronization() before launchApp()
  * fails because Detox is not connected to the app yet.
  */
-async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
+async function launchBrownfieldAppForDetox({
+  newInstance = true,
+  enableSync = true,
+} = {}) {
   await device.launchApp({
     newInstance,
     launchArgs: {
@@ -50,7 +53,10 @@ async function launchBrownfieldAppForDetox({ newInstance = true } = {}) {
     },
   });
   await configureDetoxForBrownfieldIos();
-  await device.enableSynchronization();
+
+  if (enableSync) {
+    await device.enableSynchronization();
+  }
 }
 
 async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
@@ -63,7 +69,11 @@ async function waitForVisible(matcher, timeoutMs = 20000, index = 0) {
  * Poll native-only / short-lived UI (toasts, popups, pushed native screens) with sync
  * temporarily off. RN Debug can keep sync busy while a native overlay is already visible.
  */
-async function waitForNativeOverlayVisible(matcher, timeoutMs = 20000, index = 0) {
+async function waitForNativeOverlayVisible(
+  matcher,
+  timeoutMs = 20000,
+  index = 0
+) {
   await device.disableSynchronization();
   try {
     const deadline = Date.now() + timeoutMs;
