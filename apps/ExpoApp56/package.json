@@ -20,6 +20,16 @@
     "debug": true,
     "android": {
       "expo": {
+        "minifyEnabled": false,
+        "extraProguardRules": [
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.BrownfieldStore$Companion { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.User { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore$Companion { *; }",
+          "-keep class com.callstack.rnbrownfield.demo.expoapp56.Theme { *; }",
+          "-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }"
+        ],
         "missingDimensionStrategies": [
           "type",
           "alpha"

@@ -24,6 +24,8 @@ export type BrownfieldPluginProps = {
     artifactId?: string;
     version?: string;
     useLocalGradlePlugin?: boolean;
+    minifyEnabled?: boolean;
+    extraProguardRules?: string[];
     useLocalMaven?: boolean;
     missingDimensionStrategies?: string[];
   };
@@ -39,6 +41,8 @@ export type ResolvedBrownfieldPluginAndroidConfig = {
   artifactId: string;
   version: string;
   useLocalGradlePlugin: boolean;
+  minifyEnabled: boolean;
+  extraProguardRules: string[];
   useLocalMaven: boolean;
   missingDimensionStrategies: string[];
 };
@@ -156,6 +160,9 @@ export function resolveBrownfieldPluginConfig(
 ): ResolvedBrownfieldPluginConfig {
   const effectiveProps =
     fileConfig !== null ? fileConfigToPluginProps(fileConfig) : pluginProps;
+  const extraProguardRules = (
+    effectiveProps.android?.extraProguardRules ?? []
+  ).filter((rule) => rule.trim().length > 0);
 
   const androidPackage = expoConfig.android?.package;
   /**
@@ -193,6 +200,8 @@ export function resolveBrownfieldPluginConfig(
           version: effectiveProps.android?.version ?? '0.0.1-SNAPSHOT',
           useLocalGradlePlugin:
             effectiveProps.android?.useLocalGradlePlugin ?? false,
+          minifyEnabled: effectiveProps.android?.minifyEnabled ?? false,
+          extraProguardRules,
           useLocalMaven: effectiveProps.android?.useLocalMaven ?? false,
           missingDimensionStrategies:
             effectiveProps.android?.missingDimensionStrategies ?? [],
