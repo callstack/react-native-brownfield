@@ -1,4 +1,5 @@
 import {
+  withAppBuildGradle,
   withProjectBuildGradle,
   withSettingsGradle,
   withFinalizedMod,
@@ -6,6 +7,7 @@ import {
 } from '@expo/config-plugins';
 
 import {
+  modifyAppBuildGradleMissingDimensionStrategy,
   modifyRootBuildGradle,
   modifySettingsGradle,
 } from './utils/gradleHelpers';
@@ -33,13 +35,27 @@ export const withBrownfieldAndroid: ConfigPlugin<
   config = withProjectBuildGradle(config, (gradleConfig) => {
     gradleConfig.modResults.contents = modifyRootBuildGradle(
       gradleConfig.modResults.contents,
-      { useLocalGradlePlugin: androidConfig.useLocalGradlePlugin }
+      {
+        useLocalGradlePlugin: androidConfig.useLocalGradlePlugin,
+        useLocalMaven: androidConfig.useLocalMaven,
+      }
     );
 
     return gradleConfig;
   });
 
-  // Step 2: modify settings.gradle to include the new module
+  // Step 2: modify app build.gradle to add missingDimensionStrategy
+  config = withAppBuildGradle(config, (gradleConfig) => {
+    gradleConfig.modResults.contents =
+      modifyAppBuildGradleMissingDimensionStrategy(
+        gradleConfig.modResults.contents,
+        androidConfig.missingDimensionStrategies
+      );
+
+    return gradleConfig;
+  });
+
+  // Step 3: modify settings.gradle to include the new module
   config = withSettingsGradle(config, (settingsConfig) => {
     settingsConfig.modResults.contents = modifySettingsGradle(
       settingsConfig.modResults.contents,
@@ -50,10 +66,10 @@ export const withBrownfieldAndroid: ConfigPlugin<
     return settingsConfig;
   });
 
-  // Step 3: create the Android module files using dangerous mod
+  // Step 4: create the Android module files using dangerous mod
   config = withAndroidModuleFiles(config, props);
 
-  // Step 4: sync module metadata after Expo writes all Android files
+  // Step 5: sync module metadata after Expo writes all Android files
   config = withFinalizedMod(config, [
     'android',
     async (finalizedConfig) => {

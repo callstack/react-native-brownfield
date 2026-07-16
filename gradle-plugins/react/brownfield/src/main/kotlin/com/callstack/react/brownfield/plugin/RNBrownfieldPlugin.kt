@@ -1,7 +1,7 @@
 package com.callstack.react.brownfield.plugin
 
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.LibraryVariant
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
 import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
@@ -11,6 +11,7 @@ import com.callstack.react.brownfield.processors.JNILibsProcessor
 import com.callstack.react.brownfield.processors.ManifestTaskProcessor
 import com.callstack.react.brownfield.processors.ProguardProcessor
 import com.callstack.react.brownfield.processors.ResourceTaskProcessor
+import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
@@ -21,6 +22,7 @@ import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
+import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
@@ -65,10 +67,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
         val variantTaskProvider = VariantTaskProvider(project)
 
-        /**
-         * Configure Tasks
-         */
-        project.extensions.getByType(LibraryExtension::class.java).libraryVariants.all { variant ->
+        val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+        androidComponents.onVariants { variant ->
             configureTasks(variant, artifacts, variantTaskProvider)
         }
     }
@@ -124,20 +124,28 @@ class RNBrownfieldPlugin : Plugin<Project> {
         variantTaskProvider: VariantTaskProvider,
     ) {
         val variantName = variant.name
-        val capitalizedVariantName = variantName.replaceFirstChar(Char::titlecase)
+        val capitalizedVariantName = variantName.capitalized()
 
         /** =======  EXPLODE AAR  =========*/
         val explodeTask = ExplodeTaskProvider.getTask(variant, project, artifacts)
 
         /** =======  Pre<Variant>Build  =========*/
         variantTaskProvider.preBuildTaskByVariant(
-            variantName,
-            variant.buildType.name,
-            variant.buildType.isDebuggable,
+            variant,
             explodeTask,
         )
 
         val aarLibraries = getAarLibraries(artifacts, variantName)
+
+        ManifestTaskProcessor.process(project, variant, aarLibraries)
+        ResourceTaskProcessor.process(project, variant, aarLibraries, explodeTask)
+        AssetTaskProcessor.process(project, variant, aarLibraries, explodeTask)
+
+        /** =======  MERGE CLASSES  =========*/
+        val mergeClassesTask = variantTaskProvider.mergeClasses(aarLibraries, explodeTask, variantName)
+        VariantHelper.getAsmTransformTask(project, capitalizedVariantName).configureEach {
+            it.dependsOn(mergeClassesTask)
+        }
 
         /**
          * Flat IDs to be put into the variant property, required for RClass Transformer
@@ -145,27 +153,13 @@ class RNBrownfieldPlugin : Plugin<Project> {
         val packageIDs = aarLibraries.map { it.getPackageName() }
         VariantPackagesProperty.getVariantPackagesProperty().put(variantName, packageIDs)
 
-        /** =======  MANIFEST MERGER  =========*/
-        ManifestTaskProcessor.process(variant, project, aarLibraries)
-
-        /** =======  GENERATE RESOURCES =========*/
-        ResourceTaskProcessor.process(variant, project, aarLibraries)
-
-        /** =======  GENERATE ASSETS ========= */
-        AssetTaskProcessor.process(variant, project, aarLibraries)
-
         /** ===== jniLibsProcessor ===== */
         val jniLibsProcessor = JNILibsProcessor(project)
-        jniLibsProcessor.processJniLibs(aarLibraries, variantName)
+        jniLibsProcessor.processJniLibs(aarLibraries, variant)
 
         /** ===== proguardProcessor ===== */
         val proguardProcessor = ProguardProcessor(project)
         val proguardRules = aarLibraries.map { it.getProguardRules() }
-        proguardProcessor.processConsumerFiles(proguardRules, capitalizedVariantName)
-        proguardProcessor.processGeneratedFiles(proguardRules, capitalizedVariantName)
-
-        /** ===== processDataBinding ===== */
-        val bundleTask = variantTaskProvider.bundleTaskProvider(project, variantName)
-        variantTaskProvider.processDataBinding(bundleTask, aarLibraries, variantName)
+        proguardProcessor.processFiles(proguardRules, variantName.capitalized(), explodeTask)
     }
 }

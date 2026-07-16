@@ -1,2 +1,2 @@
-export const BROWNFIELD_PLUGIN_VERSION = '2.0.0-alpha05';
+export const BROWNFIELD_PLUGIN_VERSION = '2.0.0-alpha08';
 export const brownfieldGradlePluginDependency = `classpath("com.callstack.react:brownfield-gradle-plugin:${BROWNFIELD_PLUGIN_VERSION}")`;

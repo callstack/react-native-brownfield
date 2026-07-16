@@ -1,12 +1,65 @@
-import { brownfieldGradlePluginDependency } from './constants';
+import {
+  BROWNFIELD_PLUGIN_VERSION,
+  brownfieldGradlePluginDependency,
+} from './constants';
 import { Logger } from '../../logging';
+import { formatMissingDimensionStrategies } from './formatHelpers';
 
 const LOCAL_GRADLE_PLUGIN_INCLUDE_BUILD =
   'includeBuild("../node_modules/@callstack/react-native-brownfield/gradle-plugin/brownfield")';
+const LOCAL_MAVEN_REPOSITORY = 'mavenLocal()';
 
 type GradleModificationOptions = {
   useLocalGradlePlugin?: boolean;
+  useLocalMaven?: boolean;
 };
+
+const BUILD_SCRIPT_BLOCK_NAME = 'buildscript';
+const ALL_PROJECTS_BLOCK_NAME = 'allprojects';
+
+function addMavenLocalToBlock(contents: string, blockName: string): string {
+  const blockRepositoriesRegex = new RegExp(
+    `(${blockName}\\s*\\{[\\s\\S]*?repositories\\s*\\{)`,
+    'm'
+  );
+  const mavenLocalRegex = new RegExp(
+    `${blockName}\\s*\\{[\\s\\S]*?repositories\\s*\\{[\\s\\S]*?${LOCAL_MAVEN_REPOSITORY}`,
+    'm'
+  );
+
+  if (!blockRepositoriesRegex.test(contents)) {
+    return contents;
+  }
+
+  if (mavenLocalRegex.test(contents)) {
+    return contents;
+  }
+
+  return contents.replace(
+    blockRepositoriesRegex,
+    `$1\n\t\t${LOCAL_MAVEN_REPOSITORY}`
+  );
+}
+
+function addMavenLocalRepositories(contents: string): string {
+  let modifiedContents = contents;
+
+  const initialContents = modifiedContents;
+  modifiedContents = addMavenLocalToBlock(
+    modifiedContents,
+    BUILD_SCRIPT_BLOCK_NAME
+  );
+  modifiedContents = addMavenLocalToBlock(
+    modifiedContents,
+    ALL_PROJECTS_BLOCK_NAME
+  );
+
+  if (modifiedContents !== initialContents) {
+    Logger.logDebug('Added mavenLocal() to root build.gradle repositories');
+  }
+
+  return modifiedContents;
+}
 
 /**
  * Modifies the root build.gradle to add the Brownfield Gradle plugin dependency
@@ -15,21 +68,30 @@ type GradleModificationOptions = {
  */
 export function modifyRootBuildGradle(
   contents: string,
-  { useLocalGradlePlugin = false }: GradleModificationOptions = {}
+  {
+    useLocalGradlePlugin = false,
+    useLocalMaven = false,
+  }: GradleModificationOptions = {}
 ): string {
+  let updatedContents = contents;
+
+  if (useLocalMaven) {
+    updatedContents = addMavenLocalRepositories(updatedContents);
+  }
+
   if (useLocalGradlePlugin) {
     Logger.logDebug(
       'Skipping Maven Brownfield Gradle plugin classpath because useLocalGradlePlugin is enabled'
     );
-    return contents;
+    return updatedContents;
   }
 
   // check if already added
-  if (contents.includes('brownfield-gradle-plugin')) {
+  if (updatedContents.includes('brownfield-gradle-plugin')) {
     Logger.logDebug(
       'Brownfield Gradle plugin already in root build.gradle, skipping'
     );
-    return contents;
+    return updatedContents;
   }
 
   Logger.logDebug(
@@ -39,21 +101,65 @@ export function modifyRootBuildGradle(
   // find the buildscript dependencies block
   const buildscriptDepsRegex =
     /(buildscript\s*\{[\s\S]*?dependencies\s*\{[\s\S]*?)(})/m;
-  const match = contents.match(buildscriptDepsRegex);
+  const match = updatedContents.match(buildscriptDepsRegex);
 
   if (!match) {
     throw new Error('Could not locate buildscript block in root build.gradle');
   }
 
+  const gradlePluginDependency = useLocalMaven
+    ? `classpath("com.callstack.react:brownfield-gradle-plugin:${BROWNFIELD_PLUGIN_VERSION}-SNAPSHOT")`
+    : brownfieldGradlePluginDependency;
+
   // insert before the closing brace of dependencies
-  const insertion = `\t${brownfieldGradlePluginDependency}\n\t`;
-  const modifiedContents = contents.replace(
+  const insertion = `\t${gradlePluginDependency}\n\t`;
+  const modifiedContents = updatedContents.replace(
     buildscriptDepsRegex,
     `$1${insertion}$2`
   );
 
   Logger.logDebug('Added Brownfield Gradle plugin to root build.gradle');
   return modifiedContents;
+}
+
+/**
+ * Modifies the app build.gradle to add missingDimensionStrategy arguments
+ * @param contents The original app build.gradle content
+ * @param missingDimensionStrategies The arguments for missingDimensionStrategy
+ * @returns The modified build.gradle content
+ */
+export function modifyAppBuildGradleMissingDimensionStrategy(
+  contents: string,
+  missingDimensionStrategies: string[]
+): string {
+  if (missingDimensionStrategies.length < 2) {
+    return contents;
+  }
+
+  Logger.logDebug('Modifying app build.gradle to add missingDimensionStrategy');
+
+  const defaultConfigRegex = /^([ \t]*defaultConfig\s*\{)/m;
+  const match = contents.match(defaultConfigRegex);
+
+  if (!match) {
+    throw new Error('Could not locate defaultConfig block in app build.gradle');
+  }
+
+  const baseIndent = match[1].match(/^[ \t]*/)?.[0] ?? '';
+  const indentUnit = baseIndent.includes('\t') ? '\t' : '    ';
+  const args = formatMissingDimensionStrategies(missingDimensionStrategies);
+  const missingStrategyLine = `missingDimensionStrategy(${args})`;
+
+  if (contents.includes(missingStrategyLine)) {
+    Logger.logDebug(
+      'missingDimensionStrategy already present with same arguments, skipping'
+    );
+    return contents;
+  }
+
+  const insertion = `\n${baseIndent}${indentUnit}${missingStrategyLine}`;
+
+  return contents.replace(defaultConfigRegex, `$1${insertion}`);
 }
 
 function addLocalGradlePluginIncludeBuild(contents: string): string {

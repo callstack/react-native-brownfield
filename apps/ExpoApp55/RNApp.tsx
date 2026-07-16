@@ -1,25 +1,30 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { useEffect } from 'react';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
-import {
-  syncBrownfieldE2EModeFromRootProps,
-  type BrownfieldRootProps,
-} from '@callstack/brownfield-example-shared-tests/runtime';
 import { checkAndFetchUpdate } from './src/utils/expo-rn-updates';
 
 import Counter from './src/components/counter';
 
-type RNAppProps = BrownfieldRootProps;
+type RNAppProps = {
+  nativeOsVersionLabel?: string;
+};
 
-export default function RNApp({
-  nativeOsVersionLabel,
-  brownfieldE2E,
-}: RNAppProps) {
-  useEffect(() => {
-    syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
-    return () => syncBrownfieldE2EModeFromRootProps(undefined);
-  }, [brownfieldE2E]);
+export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
+  const requestNativeConfirmation = async () => {
+    try {
+      await BrownfieldNavigation.requestNativeConfirmation(
+        'Are you sure you want to continue?'
+      );
+    } catch (error) {
+      console.error(`Native confirmation failed: ${error}`, 'native');
+    }
+  };
+
+  const showNativeBanner = () => {
+    BrownfieldNavigation.showNativeBanner('Hello from React Native!', () => {
+      console.log('Native banner dismissed');
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,12 +44,29 @@ export default function RNApp({
 
         <Button
           title="Navigate to Settings"
-          onPress={() => BrownfieldNavigation.navigateToSettings()}
+          onPress={() =>
+            BrownfieldNavigation.navigateToSettings({
+              id: 'expo-user-123',
+              name: 'Expo User',
+              flags: ['expo56'],
+              ids: ['expo-user-123'],
+            })
+          }
         />
         <Button
           title="Navigate to Referrals"
           onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
         />
+                <Button
+          onPress={requestNativeConfirmation}
+          title="Request native confirmation"
+        />
+
+        <Button
+          onPress={showNativeBanner}
+          title="Show native banner"
+        />
+
         <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
       </View>
     </SafeAreaView>

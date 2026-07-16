@@ -20,6 +20,18 @@ import {
   readExpoUpdatesStringResources,
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
+import { formatMissingDimensionStrategies } from './utils/formatHelpers';
+
+function renderMissingDimensionStrategyBlock(
+  missingDimensionStrategies: string[]
+): string {
+  if (missingDimensionStrategies.length < 2) {
+    return '';
+  }
+
+  const args = formatMissingDimensionStrategies(missingDimensionStrategies);
+  return `        missingDimensionStrategy(${args})`;
+}
 
 export function resolveCompileSdkVersionExpression(
   config: ResolvedBrownfieldPluginConfigWithAndroid
@@ -86,6 +98,12 @@ export function createAndroidModule({
   Logger.logDebug(
     `Resolved Hermes artifact: ${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`
   );
+  const missingDimensionStrategiesList = formatMissingDimensionStrategies(
+    android.missingDimensionStrategies
+  );
+  const missingDimensionStrategyBlock = renderMissingDimensionStrategyBlock(
+    android.missingDimensionStrategies
+  );
 
   // generate module files
   const files: RenderedTemplateFile[] = [
@@ -102,6 +120,8 @@ export function createAndroidModule({
         '{{RN_VERSION}}': rnVersion,
         '{{HERMES_ARTIFACT}}': `${hermesArtifact.groupId}:${hermesArtifact.artifactId}:${hermesArtifact.version}`,
         '{{IS_MINIFY_ENABLED}}': minifyEnabled.toString(),
+        '{{MISSING_DIMENSION_STRATEGIES}}': missingDimensionStrategiesList,
+        '{{MISSING_DIMENSION_STRATEGY_BLOCK}}': missingDimensionStrategyBlock,
       }),
     },
     {

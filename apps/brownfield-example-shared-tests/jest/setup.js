@@ -24,6 +24,8 @@ jest.mock('@callstack/brownfield-navigation', () => ({
   default: {
     navigateToSettings: jest.fn(),
     navigateToReferrals: jest.fn(),
+    requestNativeConfirmation: jest.fn(() => Promise.resolve(false)),
+    showNativeBanner: jest.fn(),
   },
 }));
 

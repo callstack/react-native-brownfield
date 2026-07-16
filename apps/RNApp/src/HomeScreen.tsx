@@ -109,22 +109,47 @@ export function HomeScreen({
     return () => sub.remove();
   }, []);
 
+  const addMessage = useCallback(
+    (text: string, from: Message['from'], id?: string) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: id ?? String(++messageCounter),
+          text,
+          from,
+          timestamp: Date.now(),
+        },
+      ]);
+    },
+    []
+  );
+
   const sendMessage = useCallback(() => {
+    const id = String(++messageCounter);
     const msg = {
-      text: `Hello from React Native! (#${++messageCounter})`,
+      text: `Hello from React Native! (#${id})`,
       timestamp: Date.now(),
     };
     ReactNativeBrownfield.postMessage(msg);
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: String(messageCounter),
-        text: msg.text,
-        from: 'rn',
-        timestamp: msg.timestamp,
-      },
-    ]);
-  }, []);
+    addMessage(msg.text, 'rn', id);
+  }, [addMessage]);
+
+  const requestNativeConfirmation = useCallback(async () => {
+    try {
+      const confirmed = await BrownfieldNavigation.requestNativeConfirmation(
+        'Are you sure you want to continue?'
+      );
+      addMessage(`Native confirmation result: ${confirmed}`, 'native');
+    } catch (error) {
+      addMessage(`Native confirmation failed: ${error}`, 'native');
+    }
+  }, [addMessage]);
+
+  const showNativeBanner = useCallback(() => {
+    BrownfieldNavigation.showNativeBanner('Hello from React Native!', () => {
+      addMessage('Native banner dismissed', 'native');
+    });
+  }, [addMessage]);
 
   return (
     <View
@@ -174,6 +199,18 @@ export function HomeScreen({
           onPress={() => BrownfieldNavigation.navigateToReferrals('user-123')}
           color={colors.secondary}
           title="Open native referrals"
+        />
+
+        <Button
+          onPress={requestNativeConfirmation}
+          color={colors.secondary}
+          title="Request native confirmation"
+        />
+
+        <Button
+          onPress={showNativeBanner}
+          color={colors.secondary}
+          title="Show native banner"
         />
       </View>
 

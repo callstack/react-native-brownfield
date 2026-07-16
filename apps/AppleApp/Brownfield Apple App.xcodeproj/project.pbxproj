@@ -29,6 +29,42 @@
 		61591FFA2FF3E41C00BEFE92 /* SDWebImageAVIFCoder.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FF42FF3E41C00BEFE92 /* SDWebImageAVIFCoder.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		61591FFC2FF3E43500BEFE92 /* libavif.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FFB2FF3E43500BEFE92 /* libavif.xcframework */; };
 		61591FFD2FF3E43500BEFE92 /* libavif.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FFB2FF3E43500BEFE92 /* libavif.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DA02FF7C09F00A719EB /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; };
+		618F4DA12FF7C09F00A719EB /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DA22FF7C09F00A719EB /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; };
+		618F4DA32FF7C09F00A719EB /* BrownfieldNavigation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DA42FF7C09F00A719EB /* Brownie.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; };
+		618F4DA52FF7C09F00A719EB /* Brownie.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99B2FB4A61400A5F42B /* Brownie.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DA62FF7C09F00A719EB /* ExpoFileSystem.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDE2FF3D71E00BEFE92 /* ExpoFileSystem.xcframework */; };
+		618F4DA72FF7C09F00A719EB /* ExpoFileSystem.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDE2FF3D71E00BEFE92 /* ExpoFileSystem.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DA82FF7C09F00A719EB /* ExpoFont.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDD2FF3D71E00BEFE92 /* ExpoFont.xcframework */; };
+		618F4DA92FF7C09F00A719EB /* ExpoFont.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDD2FF3D71E00BEFE92 /* ExpoFont.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DAA2FF7C09F00A719EB /* ExpoImage.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE62FF3DD6700BEFE92 /* ExpoImage.xcframework */; };
+		618F4DAB2FF7C09F00A719EB /* ExpoImage.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE62FF3DD6700BEFE92 /* ExpoImage.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DAC2FF7C09F00A719EB /* ExpoModulesCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE32FF3DC2100BEFE92 /* ExpoModulesCore.xcframework */; };
+		618F4DAD2FF7C09F00A719EB /* ExpoModulesCore.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE32FF3DC2100BEFE92 /* ExpoModulesCore.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DAE2FF7C09F00A719EB /* ExpoModulesJSI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */; };
+		618F4DAF2FF7C09F00A719EB /* ExpoModulesJSI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DB02FF7C09F00A719EB /* ExpoModulesWorklets.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE92FF3DEA600BEFE92 /* ExpoModulesWorklets.xcframework */; };
+		618F4DB12FF7C09F00A719EB /* ExpoModulesWorklets.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE92FF3DEA600BEFE92 /* ExpoModulesWorklets.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DB22FF7C09F00A719EB /* hermesvm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; };
+		618F4DB32FF7C09F00A719EB /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DB42FF7C09F00A719EB /* React.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; };
+		618F4DB52FF7C09F00A719EB /* React.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DB62FF7C09F00A719EB /* ReactBrownfield.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; };
+		618F4DB72FF7C09F00A719EB /* ReactBrownfield.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DB82FF7C09F00A719EB /* ReactNativeDependencies.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; };
+		618F4DB92FF7C09F00A719EB /* ReactNativeDependencies.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DC02FF7C09F00A719EB /* libavif.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBB2FF7C09F00A719EB /* libavif.xcframework */; };
+		618F4DC12FF7C09F00A719EB /* libavif.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBB2FF7C09F00A719EB /* libavif.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DC22FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBC2FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework */; };
+		618F4DC32FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBC2FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DC42FF7C09F00A719EB /* SDWebImage.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBD2FF7C09F00A719EB /* SDWebImage.xcframework */; };
+		618F4DC52FF7C09F00A719EB /* SDWebImage.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBD2FF7C09F00A719EB /* SDWebImage.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DC62FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBE2FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework */; };
+		618F4DC72FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBE2FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		618F4DC82FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBF2FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework */; };
+		618F4DC92FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBF2FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		795327712FB4A902008398F3 /* BrownfieldLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; };
 		795327722FB4A902008398F3 /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		795327732FB4A904008398F3 /* BrownfieldNavigation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */; };
@@ -85,9 +121,59 @@
 		7A1B2C3D4E5F60718293A10C /* hermesvm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99C2FB4A61400A5F42B /* hermesvm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7A1B2C3D4E5F60718293A10D /* BrownfieldLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7A1B2C3D4E5F60718293A10E /* React.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B1D99D2FB4A61400A5F42B /* React.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A110 /* ExpoFont.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDD2FF3D71E00BEFE92 /* ExpoFont.xcframework */; };
+		7A1B2C3D4E5F60718293A111 /* SDWebImageSVGCoder.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBC2FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework */; };
+		7A1B2C3D4E5F60718293A112 /* SDWebImage.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBD2FF7C09F00A719EB /* SDWebImage.xcframework */; };
+		7A1B2C3D4E5F60718293A113 /* ExpoModulesCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE32FF3DC2100BEFE92 /* ExpoModulesCore.xcframework */; };
+		7A1B2C3D4E5F60718293A114 /* SDWebImageAVIFCoder.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBF2FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework */; };
+		7A1B2C3D4E5F60718293A115 /* ExpoModulesWorklets.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE92FF3DEA600BEFE92 /* ExpoModulesWorklets.xcframework */; };
+		7A1B2C3D4E5F60718293A116 /* ExpoModulesJSI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */; };
+		7A1B2C3D4E5F60718293A117 /* libavif.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBB2FF7C09F00A719EB /* libavif.xcframework */; };
+		7A1B2C3D4E5F60718293A118 /* SDWebImageWebPCoder.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBE2FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework */; };
+		7A1B2C3D4E5F60718293A119 /* ExpoImage.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE62FF3DD6700BEFE92 /* ExpoImage.xcframework */; };
+		7A1B2C3D4E5F60718293A11A /* ExpoFileSystem.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDE2FF3D71E00BEFE92 /* ExpoFileSystem.xcframework */; };
+		7A1B2C3D4E5F60718293A120 /* ExpoFont.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDD2FF3D71E00BEFE92 /* ExpoFont.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A121 /* SDWebImageSVGCoder.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBC2FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A122 /* SDWebImage.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBD2FF7C09F00A719EB /* SDWebImage.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A123 /* ExpoModulesCore.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE32FF3DC2100BEFE92 /* ExpoModulesCore.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A124 /* SDWebImageAVIFCoder.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBF2FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A125 /* ExpoModulesWorklets.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE92FF3DEA600BEFE92 /* ExpoModulesWorklets.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A126 /* ExpoModulesJSI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDA2FF399EC00BEFE92 /* ExpoModulesJSI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A127 /* libavif.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBB2FF7C09F00A719EB /* libavif.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A128 /* SDWebImageWebPCoder.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 618F4DBE2FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A129 /* ExpoImage.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FE62FF3DD6700BEFE92 /* ExpoImage.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7A1B2C3D4E5F60718293A12A /* ExpoFileSystem.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61591FDE2FF3D71E00BEFE92 /* ExpoFileSystem.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		618F4DBA2FF7C09F00A719EB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				618F4DA52FF7C09F00A719EB /* Brownie.xcframework in Embed Frameworks */,
+				618F4DB72FF7C09F00A719EB /* ReactBrownfield.xcframework in Embed Frameworks */,
+				618F4DA32FF7C09F00A719EB /* BrownfieldNavigation.xcframework in Embed Frameworks */,
+				618F4DA92FF7C09F00A719EB /* ExpoFont.xcframework in Embed Frameworks */,
+				618F4DC32FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework in Embed Frameworks */,
+				618F4DC52FF7C09F00A719EB /* SDWebImage.xcframework in Embed Frameworks */,
+				618F4DAD2FF7C09F00A719EB /* ExpoModulesCore.xcframework in Embed Frameworks */,
+				618F4DC92FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework in Embed Frameworks */,
+				618F4DB32FF7C09F00A719EB /* hermesvm.xcframework in Embed Frameworks */,
+				618F4DB12FF7C09F00A719EB /* ExpoModulesWorklets.xcframework in Embed Frameworks */,
+				618F4DAF2FF7C09F00A719EB /* ExpoModulesJSI.xcframework in Embed Frameworks */,
+				618F4DB52FF7C09F00A719EB /* React.xcframework in Embed Frameworks */,
+				618F4DC12FF7C09F00A719EB /* libavif.xcframework in Embed Frameworks */,
+				618F4DB92FF7C09F00A719EB /* ReactNativeDependencies.xcframework in Embed Frameworks */,
+				618F4DC72FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework in Embed Frameworks */,
+				618F4DAB2FF7C09F00A719EB /* ExpoImage.xcframework in Embed Frameworks */,
+				618F4DA72FF7C09F00A719EB /* ExpoFileSystem.xcframework in Embed Frameworks */,
+				618F4DA12FF7C09F00A719EB /* BrownfieldLib.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		79688AB82FB3EA8400D728BD /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -158,11 +244,22 @@
 			files = (
 				7A1B2C3D4E5F60718293A108 /* Brownie.xcframework in Embed Frameworks */,
 				7A1B2C3D4E5F60718293A109 /* ReactBrownfield.xcframework in Embed Frameworks */,
-				7A1B2C3D4E5F60718293A10A /* ReactNativeDependencies.xcframework in Embed Frameworks */,
 				7A1B2C3D4E5F60718293A10B /* BrownfieldNavigation.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A120 /* ExpoFont.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A121 /* SDWebImageSVGCoder.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A122 /* SDWebImage.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A123 /* ExpoModulesCore.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A124 /* SDWebImageAVIFCoder.xcframework in Embed Frameworks */,
 				7A1B2C3D4E5F60718293A10C /* hermesvm.xcframework in Embed Frameworks */,
-				7A1B2C3D4E5F60718293A10D /* BrownfieldLib.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A125 /* ExpoModulesWorklets.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A126 /* ExpoModulesJSI.xcframework in Embed Frameworks */,
 				7A1B2C3D4E5F60718293A10E /* React.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A127 /* libavif.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A10A /* ReactNativeDependencies.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A128 /* SDWebImageWebPCoder.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A129 /* ExpoImage.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A12A /* ExpoFileSystem.xcframework in Embed Frameworks */,
+				7A1B2C3D4E5F60718293A10D /* BrownfieldLib.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -181,6 +278,12 @@
 		61591FF32FF3E41C00BEFE92 /* SDWebImageWebPCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageWebPCoder.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/SDWebImageWebPCoder/debug/SDWebImageWebPCoder.xcframework"; sourceTree = "<group>"; };
 		61591FF42FF3E41C00BEFE92 /* SDWebImageAVIFCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageAVIFCoder.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/SDWebImageAVIFCoder/debug/SDWebImageAVIFCoder.xcframework"; sourceTree = "<group>"; };
 		61591FFB2FF3E43500BEFE92 /* libavif.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavif.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/libavif/debug/libavif.xcframework"; sourceTree = "<group>"; };
+		617FBE3E2FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp57).app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		618F4DBB2FF7C09F00A719EB /* libavif.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavif.xcframework; path = "../ExpoApp57/node_modules/expo-image/prebuilds/spm-deps/libavif/release/libavif.xcframework"; sourceTree = "<group>"; };
+		618F4DBC2FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageSVGCoder.xcframework; path = "../ExpoApp57/node_modules/expo-image/prebuilds/spm-deps/SDWebImageSVGCoder/release/SDWebImageSVGCoder.xcframework"; sourceTree = "<group>"; };
+		618F4DBD2FF7C09F00A719EB /* SDWebImage.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImage.xcframework; path = "../ExpoApp57/node_modules/expo-image/prebuilds/spm-deps/SDWebImage/release/SDWebImage.xcframework"; sourceTree = "<group>"; };
+		618F4DBE2FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageWebPCoder.xcframework; path = "../ExpoApp57/node_modules/expo-image/prebuilds/spm-deps/SDWebImageWebPCoder/release/SDWebImageWebPCoder.xcframework"; sourceTree = "<group>"; };
+		618F4DBF2FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageAVIFCoder.xcframework; path = "../ExpoApp57/node_modules/expo-image/prebuilds/spm-deps/SDWebImageAVIFCoder/release/SDWebImageAVIFCoder.xcframework"; sourceTree = "<group>"; };
 		793C76A72EEBF938008A2A34 /* Brownfield Apple App (RNApp).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (RNApp).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		79B1D9992FB4A61400A5F42B /* BrownfieldLib.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BrownfieldLib.xcframework; path = package/BrownfieldLib.xcframework; sourceTree = "<group>"; };
 		79B1D99A2FB4A61400A5F42B /* BrownfieldNavigation.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BrownfieldNavigation.xcframework; path = package/BrownfieldNavigation.xcframework; sourceTree = "<group>"; };
@@ -191,39 +294,43 @@
 		79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactNativeDependencies.xcframework; path = package/ReactNativeDependencies.xcframework; sourceTree = "<group>"; };
 		79B8BE9B2FB7273600B94C6F /* Brownfield Apple App (ExpoApp55).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp55).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp56).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp56).app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppBeta).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoAppBeta).app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppPreview).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoAppPreview).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets.xcassets,
-				BrownfieldAppleApp.swift,
-				components/ContentView.swift,
-				components/GreetingCard.swift,
-				components/MaterialCard.swift,
-				components/MessagesView.swift,
-				components/ReferralsScreen.swift,
-				components/SettingsScreen.swift,
-				components/Toast.swift,
-			);
-			target = 7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppBeta) */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		793C76A92EEBF938008A2A34 /* Brownfield Apple App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7A1B2C3D4E5F60718293A203 /* Exceptions for "Brownfield Apple App" folder in "Brownfield Apple App (ExpoAppBeta)" target */,
-			);
 			path = "Brownfield Apple App";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		617FBE122FF7AA9D00348DD8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				618F4DA42FF7C09F00A719EB /* Brownie.xcframework in Frameworks */,
+				618F4DB62FF7C09F00A719EB /* ReactBrownfield.xcframework in Frameworks */,
+				618F4DA22FF7C09F00A719EB /* BrownfieldNavigation.xcframework in Frameworks */,
+				618F4DA82FF7C09F00A719EB /* ExpoFont.xcframework in Frameworks */,
+				618F4DC22FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework in Frameworks */,
+				618F4DC42FF7C09F00A719EB /* SDWebImage.xcframework in Frameworks */,
+				618F4DAC2FF7C09F00A719EB /* ExpoModulesCore.xcframework in Frameworks */,
+				618F4DC82FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework in Frameworks */,
+				618F4DB22FF7C09F00A719EB /* hermesvm.xcframework in Frameworks */,
+				618F4DB02FF7C09F00A719EB /* ExpoModulesWorklets.xcframework in Frameworks */,
+				618F4DAE2FF7C09F00A719EB /* ExpoModulesJSI.xcframework in Frameworks */,
+				618F4DB42FF7C09F00A719EB /* React.xcframework in Frameworks */,
+				618F4DC02FF7C09F00A719EB /* libavif.xcframework in Frameworks */,
+				618F4DB82FF7C09F00A719EB /* ReactNativeDependencies.xcframework in Frameworks */,
+				618F4DC62FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework in Frameworks */,
+				618F4DAA2FF7C09F00A719EB /* ExpoImage.xcframework in Frameworks */,
+				618F4DA62FF7C09F00A719EB /* ExpoFileSystem.xcframework in Frameworks */,
+				618F4DA02FF7C09F00A719EB /* BrownfieldLib.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		793C76A42EEBF938008A2A34 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -282,12 +389,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				7A1B2C3D4E5F60718293A101 /* Brownie.xcframework in Frameworks */,
-				7A1B2C3D4E5F60718293A102 /* BrownfieldNavigation.xcframework in Frameworks */,
-				7A1B2C3D4E5F60718293A103 /* ReactNativeDependencies.xcframework in Frameworks */,
-				7A1B2C3D4E5F60718293A104 /* hermesvm.xcframework in Frameworks */,
 				7A1B2C3D4E5F60718293A105 /* ReactBrownfield.xcframework in Frameworks */,
-				7A1B2C3D4E5F60718293A106 /* BrownfieldLib.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A102 /* BrownfieldNavigation.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A110 /* ExpoFont.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A111 /* SDWebImageSVGCoder.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A112 /* SDWebImage.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A113 /* ExpoModulesCore.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A114 /* SDWebImageAVIFCoder.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A104 /* hermesvm.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A115 /* ExpoModulesWorklets.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A116 /* ExpoModulesJSI.xcframework in Frameworks */,
 				7A1B2C3D4E5F60718293A107 /* React.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A117 /* libavif.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A103 /* ReactNativeDependencies.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A118 /* SDWebImageWebPCoder.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A119 /* ExpoImage.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A11A /* ExpoFileSystem.xcframework in Frameworks */,
+				7A1B2C3D4E5F60718293A106 /* BrownfieldLib.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,9 +417,14 @@
 			children = (
 				61591FFB2FF3E43500BEFE92 /* libavif.xcframework */,
 				61591FF42FF3E41C00BEFE92 /* SDWebImageAVIFCoder.xcframework */,
+				618F4DBD2FF7C09F00A719EB /* SDWebImage.xcframework */,
+				618F4DBF2FF7C09F00A719EB /* SDWebImageAVIFCoder.xcframework */,
 				61591FF22FF3E41C00BEFE92 /* SDWebImageSVGCoder.xcframework */,
 				61591FF32FF3E41C00BEFE92 /* SDWebImageWebPCoder.xcframework */,
 				61591FEF2FF3E3E200BEFE92 /* SDWebImage.xcframework */,
+				618F4DBB2FF7C09F00A719EB /* libavif.xcframework */,
+				618F4DBC2FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework */,
+				618F4DBE2FF7C09F00A719EB /* SDWebImageWebPCoder.xcframework */,
 				61591FE92FF3DEA600BEFE92 /* ExpoModulesWorklets.xcframework */,
 				61591FE62FF3DD6700BEFE92 /* ExpoImage.xcframework */,
 				61591FE32FF3DC2100BEFE92 /* ExpoModulesCore.xcframework */,
@@ -334,7 +457,8 @@
 				793C76A72EEBF938008A2A34 /* Brownfield Apple App (RNApp).app */,
 				79B8BE9B2FB7273600B94C6F /* Brownfield Apple App (ExpoApp55).app */,
 				79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp56).app */,
-				7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppBeta).app */,
+				7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppPreview).app */,
+				617FBE3E2FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57).app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -342,6 +466,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		617FBE102FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 617FBE392FF7AA9D00348DD8 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp57)" */;
+			buildPhases = (
+				617FBE112FF7AA9D00348DD8 /* Sources */,
+				617FBE122FF7AA9D00348DD8 /* Frameworks */,
+				617FBE252FF7AA9D00348DD8 /* Resources */,
+				618F4DBA2FF7C09F00A719EB /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				793C76A92EEBF938008A2A34 /* Brownfield Apple App */,
+			);
+			name = "Brownfield Apple App (ExpoApp57)";
+			packageProductDependencies = (
+			);
+			productName = "Brownfield Apple App";
+			productReference = 617FBE3E2FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57).app */;
+			productType = "com.apple.product-type.application";
+		};
 		793C76A62EEBF938008A2A34 /* Brownfield Apple App (RNApp) */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 793C76B22EEBF939008A2A34 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (RNApp)" */;
@@ -411,9 +558,9 @@
 			productReference = 79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp56).app */;
 			productType = "com.apple.product-type.application";
 		};
-		7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppBeta) */ = {
+		7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppPreview) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoAppBeta)" */;
+			buildConfigurationList = 7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoAppPreview)" */;
 			buildPhases = (
 				7A1B2C3D4E5F60718293A302 /* Sources */,
 				7A1B2C3D4E5F60718293A204 /* Frameworks */,
@@ -427,11 +574,11 @@
 			fileSystemSynchronizedGroups = (
 				793C76A92EEBF938008A2A34 /* Brownfield Apple App */,
 			);
-			name = "Brownfield Apple App (ExpoAppBeta)";
+			name = "Brownfield Apple App (ExpoAppPreview)";
 			packageProductDependencies = (
 			);
 			productName = "Brownfield Apple App";
-			productReference = 7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppBeta).app */;
+			productReference = 7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppPreview).app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -474,12 +621,20 @@
 				793C76A62EEBF938008A2A34 /* Brownfield Apple App (RNApp) */,
 				79B8BE832FB7273600B94C6F /* Brownfield Apple App (ExpoApp55) */,
 				79B8BEB42FB8000000B94C6F /* Brownfield Apple App (ExpoApp56) */,
-				7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppBeta) */,
+				617FBE102FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57) */,
+				7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppPreview) */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		617FBE252FF7AA9D00348DD8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		793C76A52EEBF938008A2A34 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -511,6 +666,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		617FBE112FF7AA9D00348DD8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		793C76A32EEBF938008A2A34 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -542,6 +704,194 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		617FBE3A2FF7AA9D00348DD8 /* Debug Expo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Brownfield-Apple-App-Info.plist";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIViewControllerBasedStatusBarAppearance = "$(USE_EXPO_HOST_STATUS_BAR_APPEARANCE)";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.callstack.brownfield.ios.example.Brownfield-iOS-App";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) USE_EXPO_HOST";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USE_EXPO_HOST_STATUS_BAR_APPEARANCE = NO;
+				XROS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = "Debug Expo";
+		};
+		617FBE3B2FF7AA9D00348DD8 /* Release Expo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Brownfield-Apple-App-Info.plist";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIViewControllerBasedStatusBarAppearance = "$(USE_EXPO_HOST_STATUS_BAR_APPEARANCE)";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.callstack.brownfield.ios.example.Brownfield-iOS-App";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) USE_EXPO_HOST";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USE_EXPO_HOST_STATUS_BAR_APPEARANCE = NO;
+				XROS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = "Release Expo";
+		};
+		617FBE3C2FF7AA9D00348DD8 /* Debug Vanilla */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Brownfield-Apple-App-Info.plist";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIViewControllerBasedStatusBarAppearance = "$(USE_EXPO_HOST_STATUS_BAR_APPEARANCE)";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.callstack.brownfield.ios.example.Brownfield-iOS-App";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USE_EXPO_HOST_STATUS_BAR_APPEARANCE = YES;
+				XROS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = "Debug Vanilla";
+		};
+		617FBE3D2FF7AA9D00348DD8 /* Release Vanilla */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Brownfield-Apple-App-Info.plist";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIViewControllerBasedStatusBarAppearance = "$(USE_EXPO_HOST_STATUS_BAR_APPEARANCE)";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.callstack.brownfield.ios.example.Brownfield-iOS-App";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USE_EXPO_HOST_STATUS_BAR_APPEARANCE = YES;
+				XROS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = "Release Vanilla";
+		};
 		793C76B02EEBF939008A2A34 /* Debug Expo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1533,6 +1883,17 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		617FBE392FF7AA9D00348DD8 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp57)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				617FBE3A2FF7AA9D00348DD8 /* Debug Expo */,
+				617FBE3B2FF7AA9D00348DD8 /* Release Expo */,
+				617FBE3C2FF7AA9D00348DD8 /* Debug Vanilla */,
+				617FBE3D2FF7AA9D00348DD8 /* Release Vanilla */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release Expo";
+		};
 		793C76A22EEBF938008A2A34 /* Build configuration list for PBXProject "Brownfield Apple App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1577,7 +1938,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release Expo";
 		};
-		7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoAppBeta)" */ = {
+		7A1B2C3D4E5F60718293A405 /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoAppPreview)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7A1B2C3D4E5F60718293A501 /* Debug Expo */,

@@ -1,8 +1,9 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.build.gradle.LibraryExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
+import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
@@ -42,14 +43,14 @@ object RNSourceSets {
         // Move the non-variant-specific configuration out of the loop
         androidExtension.sourceSets.named("main") { sourceSet ->
             // This path is not variant-specific, so it's added once here.
-            sourceSet.java.srcDir("${getModuleBuildDir()}/generated/autolinking/src/main/java")
+            sourceSet.java.directories.add("${getModuleBuildDir()}/generated/autolinking/src/main/java")
         }
 
-        // 2. Use the onVariants block to configure each variant
+        // 2. Use the onVariants block to wire RN bundle outputs via the Variant Sources API
         componentsExtension.onVariants { variant ->
             val variantName = variant.name
             val bundledAssetsVariantName =
-                Utils.getBundledAssetsVariantName(
+                VariantHelper.getBundledAssetsVariantName(
                     variantName = variantName,
                     buildTypeName = variant.buildType,
                     isDebuggable = variant.debuggable,
@@ -57,37 +58,24 @@ object RNSourceSets {
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
             val appProject = getAppProject()
 
-            // 3. Lazily configure the 'variant-specific' source set using .named()
-            androidExtension.sourceSets.named(variantName) { sourceSet ->
-                val bundlePathSegments =
-                    listOf(
-                        // outputs for RN <= 0.81
-                        "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
-                        // outputs for RN >= 0.82
-                        "react/$bundledAssetsVariantName",
-                    )
-                val updateResourcesPathSegment = Utils.getExpoUpdatesResourcesTaskName(variant.name)
+            val bundlePathSegments =
+                listOf(
+                    // outputs for RN <= 0.81
+                    "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
+                    // outputs for RN >= 0.82
+                    "react/$bundledAssetsVariantName",
+                )
 
-                val appBuildDir = getAppBuildDir()
-                sourceSet.assets.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/assets/$it" })
-                sourceSet.res.srcDirs(bundlePathSegments.map { "$appBuildDir/generated/res/$it" })
-                if (extension.useStrippedSoFiles) {
-                    val capitalizedVariantName = variantName.capitalized()
-                    val libsDir = project.layout.projectDirectory.dir("libs$capitalizedVariantName")
-                    val copyTaskName = "copy${capitalizedVariantName}LibSources"
-                    sourceSet.jniLibs.srcDir(
-                        project.files(libsDir).builtBy(copyTaskName),
-                    )
-                }
-                if (Utils.hasExpoUpdates(appProject, variant.name)) {
-                    val updateResourcesTask = appProject.tasks.named(updateResourcesPathSegment)
-                    sourceSet.assets.srcDir(
-                        project.files("$appBuildDir/generated/assets/$updateResourcesPathSegment").builtBy(updateResourcesTask),
-                    )
-                    sourceSet.res.srcDir(
-                        project.files("$appBuildDir/generated/res/$updateResourcesPathSegment").builtBy(updateResourcesTask),
-                    )
-                }
+            val appBuildDir = getAppBuildDir()
+            bundlePathSegments.forEach { segment ->
+                variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$segment")
+                variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$segment")
+            }
+
+            if (Utils.hasExpoUpdates(appProject, variantName)) {
+                val updateResourcesPathSegment = VariantHelper.getExpoUpdatesResourcesTaskName(variant.name)
+                variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$updateResourcesPathSegment")
+                variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$updateResourcesPathSegment")
             }
         }
     }

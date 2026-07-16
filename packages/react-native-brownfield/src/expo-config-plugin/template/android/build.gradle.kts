@@ -43,6 +43,10 @@ publishing {
     }
 }
 
+reactBrownfield {
+    missingDimensionStrategies = listOf({{MISSING_DIMENSION_STRATEGIES}})
+}
+
 react {
     autolinkLibrariesWithApp()
 }
@@ -69,6 +73,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+{{MISSING_DIMENSION_STRATEGY_BLOCK}}
     }
 
     buildFeatures {

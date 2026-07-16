@@ -103,6 +103,18 @@ export type BrownfieldExpoAndroidConfig = {
    * Disabled by default.
    */
   useLocalGradlePlugin?: boolean;
+
+  /**
+   * When true, prefer artifacts from the local Maven repository
+   * when resolving the Brownfield plugin dependencies.
+   * Disabled by default.
+   */
+  useLocalMaven?: boolean;
+
+  /**   
+   * Missing dimension strategies as dimension + flavor(s), e.g. "type, alpha".
+   */
+  missingDimensionStrategies?: string[];
 };
 
 /**

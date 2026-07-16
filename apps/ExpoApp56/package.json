@@ -29,6 +29,10 @@
           "-keep class com.callstack.rnbrownfield.demo.expoapp56.SettingsStore$Companion { *; }",
           "-keep class com.callstack.rnbrownfield.demo.expoapp56.Theme { *; }",
           "-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }"
+        ],
+        "missingDimensionStrategies": [
+          "type",
+          "alpha"
         ]
       }
     }
@@ -38,7 +42,6 @@
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
     "expo": "~56.0.8",
-    "expo-build-properties": "~56.0.19",
     "expo-constants": "~56.0.16",
     "expo-device": "~56.0.4",
     "expo-font": "~56.0.5",

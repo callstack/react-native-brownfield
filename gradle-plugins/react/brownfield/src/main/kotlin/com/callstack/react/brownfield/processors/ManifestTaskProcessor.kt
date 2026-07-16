@@ -1,74 +1,38 @@
 package com.callstack.react.brownfield.processors
 
-import com.android.build.gradle.api.LibraryVariant
-import com.android.manifmerger.ManifestMerger2
-import com.android.manifmerger.ManifestProvider
-import com.android.manifmerger.MergingReport
-import com.android.utils.ILogger
-import com.callstack.react.brownfield.shared.GradleILogger
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.LibraryVariant
+import com.callstack.react.brownfield.shared.MergeLibraryManifestTask
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
-import com.callstack.react.brownfield.utils.capitalized
-import org.apache.tools.ant.BuildException
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStreamWriter
 
 object ManifestTaskProcessor {
     fun process(
-        variant: LibraryVariant,
         project: Project,
+        variant: LibraryVariant,
         aarLibraries: List<AndroidArchiveLibrary>,
     ) {
-        val processManifestTask = variant.outputs.first().processManifestProvider.get()
-        val variantName = variant.name
-        processManifestTask.doLast {
-            val buildDir = project.layout.buildDirectory.get()
-            val manifestOutput =
-                project.file(
-                    "$buildDir/intermediates/merged_manifest/$variantName/process${variantName.capitalized()}Manifest/AndroidManifest.xml",
-                )
+        val capitalizedVariantName = variant.name.replaceFirstChar(Char::titlecase)
+        val taskProvider =
+            project.tasks.register(
+                "transform${capitalizedVariantName}BrownfieldMergedManifest",
+                MergeLibraryManifestTask::class.java,
+            ) { task ->
+                task.variantName.set(variant.name)
+                task.namespace.set(variant.namespace)
+                task.manifestPlaceholders.set(variant.manifestPlaceholders)
+                task.aarManifestFiles.from(aarLibraries.map { it.getManifestFile() })
 
-            val inputManifests = aarLibraries.map { it.getManifestFile() }
-            mergeManifests(manifestOutput, inputManifests, manifestOutput, project.logger)
-        }
-    }
+                // The exploded AAR manifests are generated out of band, so keep the transform
+                // ordered after the variant-specific explode task without reaching for old APIs.
+                task.dependsOn("explode${capitalizedVariantName}Aar")
+            }
 
-    private fun mergeManifests(
-        mainManifestFile: File,
-        secondaryManifestFiles: List<File>,
-        outputFile: File,
-        logger: Logger,
-    ) {
-        val iLogger: ILogger = GradleILogger(logger)
-        val mergerInvoker = ManifestMerger2.newMerger(mainManifestFile, iLogger, ManifestMerger2.MergeType.LIBRARY)
-        val manifestProviders = mutableListOf<ManifestProvider>()
-
-        val filteredSecondaryManifests = secondaryManifestFiles.filter { it.exists() }
-        filteredSecondaryManifests.forEach { file ->
-            manifestProviders.add(
-                object : ManifestProvider {
-                    override fun getManifest(): File = file.absoluteFile
-
-                    override fun getName(): String = file.name
-                },
-            )
-        }
-
-        mergerInvoker.addManifestProviders(manifestProviders)
-        val mergingReport: MergingReport = mergerInvoker.merge()
-
-        if (mergingReport.result.isError) {
-            logger.error(mergingReport.reportString)
-            mergingReport.log(iLogger)
-            throw BuildException(mergingReport.reportString)
-        }
-
-        BufferedWriter(OutputStreamWriter(FileOutputStream(outputFile), "UTF-8")).use { writer ->
-            writer.append(mergingReport.getMergedDocument(MergingReport.MergedManifestKind.MERGED))
-            writer.flush()
-        }
+        variant.artifacts
+            .use(taskProvider)
+            .wiredWithFiles(
+                MergeLibraryManifestTask::inputManifest,
+                MergeLibraryManifestTask::outputManifest,
+            ).toTransform(SingleArtifact.MERGED_MANIFEST)
     }
 }
