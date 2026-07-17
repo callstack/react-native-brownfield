@@ -2,6 +2,19 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 4.3.0
+
+### Minor Changes
+
+- [#412](https://github.com/callstack/react-native-brownfield/pull/412) [`627fcbc`](https://github.com/callstack/react-native-brownfield/commit/627fcbce9811ca12773b3caee319ed4cd610123e) Thanks [@Doko-Demo-Doa](https://github.com/Doko-Demo-Doa)! - feat: add support for callback and promise to brownfield navigation
+
+- [#422](https://github.com/callstack/react-native-brownfield/pull/422) [`8894482`](https://github.com/callstack/react-native-brownfield/commit/8894482efb68d745dd1f8e7433b7a67d94440f0a) Thanks [@hurali97](https://github.com/hurali97)! - feat: support proguard/R8 minification
+
+### Patch Changes
+
+- Updated dependencies [[`627fcbc`](https://github.com/callstack/react-native-brownfield/commit/627fcbce9811ca12773b3caee319ed4cd610123e), [`8894482`](https://github.com/callstack/react-native-brownfield/commit/8894482efb68d745dd1f8e7433b7a67d94440f0a)]:
+  - @callstack/brownfield-cli@4.3.0
+
 ## 4.2.0
 
 ### Minor Changes
