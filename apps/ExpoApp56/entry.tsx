@@ -6,6 +6,8 @@ import {
   type BrownfieldRootProps,
 } from '@callstack/brownfield-example-shared-tests/runtime';
 
+import RNApp from './RNApp';
+
 function App(props: BrownfieldRootProps) {
   useEffect(() => {
     syncBrownfieldE2EModeFromRootProps(props.brownfieldE2E);
@@ -17,6 +19,6 @@ function App(props: BrownfieldRootProps) {
 }
 
 // AppleApp brownfield embeds the module named `RNApp`; mount the full Expo Router tree.
-AppRegistry.registerComponent('RNApp', () => App);
+AppRegistry.registerComponent('RNApp', () => RNApp);
 // Keep compatibility with Expo's default app key.
 AppRegistry.registerComponent('main', () => App);
