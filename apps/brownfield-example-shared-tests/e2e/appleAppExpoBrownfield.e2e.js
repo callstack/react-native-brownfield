@@ -16,7 +16,7 @@ const {
 
 describe('Brownfield (AppleApp — Expo)', () => {
   beforeEach(async () => {
-    await launchBrownfieldAppForDetox({ newInstance: true });
+    await launchBrownfieldAppForDetox({ newInstance: true, enableSync: false });
     await waitForAppleAppReadyExpo();
   });
 

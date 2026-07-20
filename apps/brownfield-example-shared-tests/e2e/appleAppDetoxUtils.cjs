@@ -191,23 +191,25 @@ async function waitForEmbeddedExpoMatcher(matcher, index = 0) {
 
 async function waitForAppleAppReadyVanilla() {
   const rnHomeMatcher = by.id(ids.rnAppHome);
-  try {
-    await scrollToEmbeddedRnVanilla();
-  } catch {
-    // Continue polling visibility.
-  }
-
-  try {
-    await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
-    return;
-  } catch {
-    // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
-    // cannot safely call reloadReactNative() here. Fall back to scroll-based
-    // recovery when the embedded surface is mounted off-screen.
-  }
 
   await device.disableSynchronization();
+
   try {
+    try {
+      await scrollToEmbeddedRnVanilla();
+    } catch {
+      // Continue polling visibility.
+    }
+
+    try {
+      await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
+      return;
+    } catch {
+      // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
+      // cannot safely call reloadReactNative() here. Fall back to scroll-based
+      // recovery when the embedded surface is mounted off-screen.
+    }
+
     await scrollToEmbeddedRnVanilla();
     await waitFor(element(rnHomeMatcher)).toBeVisible().withTimeout(20_000);
   } finally {
@@ -216,32 +218,42 @@ async function waitForAppleAppReadyVanilla() {
 }
 
 async function waitForAppleAppReadyExpo() {
-  try {
-    await waitForAnyVisible(
-      [EXPO_HOME_TAB_MATCHERS[0], EXPO_HOME_TAB_MATCHERS[1], EXPO_WELCOME_TITLE],
-      10_000
-    );
-    return;
-  } catch {
-    // Continue with scroll-based recovery when the embedded surface starts
-    // outside the initial viewport.
-  }
+  await device.disableSynchronization();
 
   try {
-    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
-    return;
-  } catch {
-    // If tab IDs are unavailable, fall back to the visible tab label.
-  }
+    try {
+      await waitForAnyVisible(
+        [
+          EXPO_HOME_TAB_MATCHERS[0],
+          EXPO_HOME_TAB_MATCHERS[1],
+          EXPO_WELCOME_TITLE,
+        ],
+        60_000
+      );
+      return;
+    } catch {
+      // Continue with scroll-based recovery when the embedded surface starts
+      // outside the initial viewport.
+    }
 
-  try {
-    await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
-    return;
-  } catch {
-    // Some Expo builds render the screen title before the tab labels settle.
-  }
+    try {
+      await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
+      return;
+    } catch {
+      // Expo 55 does not expose tab IDs; fall back to the visible tab label.
+    }
 
-  await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE, 0);
+    try {
+      await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
+      return;
+    } catch {
+      // Some Expo builds render the screen title before the tab labels settle.
+    }
+
+    await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE, 0);
+  } finally {
+    await device.enableSynchronization();
+  }
 }
 
 async function openHomeTabExpo() {

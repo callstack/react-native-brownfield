@@ -285,8 +285,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   messageSection: {
-    flex: 1,
-    minHeight: 0,
+    flexGrow: 1,
+    flexBasis: 'auto',
     width: '100%',
     marginTop: 12,
   },
@@ -303,7 +303,6 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flex: 1,
-    minHeight: 0,
   },
   messageListContent: {
     paddingBottom: 8,
