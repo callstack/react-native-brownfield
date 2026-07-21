@@ -16,11 +16,11 @@ let initialState = BrownfieldStore(
 
 #if USE_EXPO_HOST
 private let hostAppName = "iOS Expo"
+private let reactNativeModuleName = "main"
 #else
 private let hostAppName = "iOS Vanilla"
+private let reactNativeModuleName = "RNApp"
 #endif
-
-private let reactNativeModuleName = "main"
 
 private func brownfieldPostMessageText(from raw: String) -> String {
     if let data = raw.data(using: .utf8),
