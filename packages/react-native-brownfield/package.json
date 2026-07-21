@@ -92,7 +92,7 @@
     "@callstack/brownfield-cli": "workspace:^"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.6",
+    "@babel/core": "^8.0.0",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
     "@expo/config-plugins": "^56.0.8",
