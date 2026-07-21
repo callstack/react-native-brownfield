@@ -2,6 +2,8 @@ import { SourceModificationError } from '../errors/SourceModificationError';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
 
+const MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION = 56;
+
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START =
   '# >>> react-native-brownfield Expo SDK 55+ swift defines >>>';
 const BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_END =
@@ -99,10 +101,10 @@ export function modifyPodfile(
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
-  if (expoMajor < 55) {
+  if (expoMajor < MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION) {
     const versionLabel = expoMajor < 0 ? 'unknown' : expoMajor.toString();
     throw new SourceModificationError(
-      `Expo SDK ${versionLabel} is not supported. Please use Expo SDK 55 or newer. For older versions, please use the v3.x.x of @callstack/react-native-brownfield.`
+      `Expo SDK ${versionLabel} is not supported. Please use Expo SDK ${MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION} or newer. For older versions, please see the matrix of supported versions: https://oss.callstack.com/react-native-brownfield/docs/getting-started/introduction#expo-version-compatibility`
     );
   }
 

@@ -23,12 +23,12 @@ inputs:
     default: 'false'
 
   gradle-workflow-job-context:
-    description: 'Segment Gradle cache per app/project (e.g. vanilla, expo55). Falls back to github.job when empty.'
+    description: 'Segment Gradle cache per app/project (e.g. vanilla, expo56). Falls back to github.job when empty.'
     required: false
     default: ''
 
   rn-project-path:
-    description: 'Optional RN app path for native ccache key segmentation (e.g. apps/ExpoApp55)'
+    description: 'Optional RN app path for native ccache key segmentation (e.g. apps/ExpoApp56)'
     required: false
     default: ''
 

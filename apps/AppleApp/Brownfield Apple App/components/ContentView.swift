@@ -16,13 +16,11 @@ let initialState = BrownfieldStore(
 
 #if USE_EXPO_HOST
 private let hostAppName = "iOS Expo"
+private let reactNativeModuleName = "main"
 #else
 private let hostAppName = "iOS Vanilla"
-#endif
-
-// The packaged brownfield example surface is registered under `RNApp`
-// for both the plain React Native and Expo example apps.
 private let reactNativeModuleName = "RNApp"
+#endif
 
 private func brownfieldPostMessageText(from raw: String) -> String {
     if let data = raw.data(using: .utf8),

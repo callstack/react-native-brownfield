@@ -28,9 +28,7 @@
     "skillgym:brownie": "skillgym run skillgym/suites/brownie-suite.ts",
     "skillgym:navigation": "skillgym run skillgym/suites/brownfield-navigation-suite.ts",
     "ci:local:rnapp:e2e:ios": "bash ./scripts/ci-local-rnapp-ios-e2e.sh",
-    "ci:local:expo55:e2e:ios": "bash ./scripts/ci-local-expo55-ios-e2e.sh",
-    "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh",
-    "ci:local:appleapp:e2e:ios:expo55": "bash ./scripts/ci-local-appleapp-ios-e2e.sh --variant expo55"
+    "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh"
   },
   "resolutions": {
     "@types/react": "19.1.1",
@@ -50,9 +48,12 @@
     "@eslint/eslintrc": "^3.3.3",
     "@expo/config-types": "^56.0.5",
     "@react-native/eslint-config": "0.82.1",
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
+    "@typescript-eslint/parser": "^8.63.0",
     "babel-plugin-module-resolver": "5.0.2",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jest": "^29.15.4",
     "eslint-plugin-node-import": "^1.2.0",
     "eslint-plugin-prettier": "^5.5.5",
     "lefthook": "^2.1.4",

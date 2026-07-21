@@ -6,7 +6,6 @@
     "build:example:android-consumer:expo": "./gradlew assembleExpo57Release",
     "build:example:android-consumer:expo57": "./gradlew assembleExpo57Release",
     "build:example:android-consumer:expo56": "./gradlew assembleExpo56Release",
-    "build:example:android-consumer:expo55": "./gradlew assembleExpo55Release",
     "build:example:android-consumer:expopreview": "./gradlew assembleExpopreviewRelease",
     "build:example:android-consumer:vanilla": "./gradlew assembleVanillaRelease"
   }

@@ -10,6 +10,22 @@ type RNAppProps = {
 };
 
 export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
+  const requestNativeConfirmation = async () => {
+    try {
+      await BrownfieldNavigation.requestNativeConfirmation(
+        'Are you sure you want to continue?'
+      );
+    } catch (error) {
+      console.error(`Native confirmation failed: ${error}`, 'native');
+    }
+  };
+
+  const showNativeBanner = () => {
+    BrownfieldNavigation.showNativeBanner('Hello from React Native!', () => {
+      console.log('Native banner dismissed');
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Expo React Native Brownfield</Text>
@@ -41,6 +57,16 @@ export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
           title="Navigate to Referrals"
           onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
         />
+                <Button
+          onPress={requestNativeConfirmation}
+          title="Request native confirmation"
+        />
+
+        <Button
+          onPress={showNativeBanner}
+          title="Show native banner"
+        />
+
         <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
       </View>
     </SafeAreaView>

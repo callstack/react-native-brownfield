@@ -4,15 +4,15 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Brownfield Apple App Expo 55.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>1</integer>
-		</dict>
 		<key>Brownfield Apple App Expo 56.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
+		</dict>
+		<key>Brownfield Apple App Expo 57.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
 		</dict>
 		<key>Brownfield Apple App Vanilla.xcscheme</key>
 		<dict>
@@ -27,17 +27,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>79B8BE682FB7270E00B94C6F</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>79B8BE832FB7273600B94C6F</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>79B8BEB42FB8000000B94C6F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>617FBE102FF7AA9D00348DD8</key>
 		<dict>
 			<key>primary</key>
 			<true/>

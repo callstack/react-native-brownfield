@@ -6,7 +6,7 @@ const {
   getAppleAppDetoxVariant,
 } = require('../../brownfield-example-shared-tests/detox-appleapp-variants.cjs');
 
-const variant = getAppleAppDetoxVariant('expo55');
+const variant = getAppleAppDetoxVariant('expo57');
 
 module.exports = createDetoxJestConfig({
   e2eDir: __dirname,
