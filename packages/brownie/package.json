@@ -80,7 +80,7 @@
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
+    "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/runtime": "^7.25.0",
