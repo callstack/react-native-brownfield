@@ -2,6 +2,19 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 5.0.0
+
+### Major Changes
+
+- [#424](https://github.com/callstack/react-native-brownfield/pull/424) [`af2b20c`](https://github.com/callstack/react-native-brownfield/commit/af2b20c8e921f702b4c2ce27bf82cd43cb82d068) Thanks [@hurali97](https://github.com/hurali97)! - feat: drop support for Expo SDK 55
+
+### Patch Changes
+
+- [#434](https://github.com/callstack/react-native-brownfield/pull/434) [`1183202`](https://github.com/callstack/react-native-brownfield/commit/118320245741d337bf9d6202eb27ee60cc7faa47) Thanks [@hurali97](https://github.com/hurali97)! - fix: dependabot alerts
+
+- Updated dependencies [[`1183202`](https://github.com/callstack/react-native-brownfield/commit/118320245741d337bf9d6202eb27ee60cc7faa47)]:
+  - @callstack/brownfield-cli@5.0.0
+
 ## 4.3.0
 
 ### Minor Changes
