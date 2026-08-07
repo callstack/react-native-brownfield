@@ -9,6 +9,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
@@ -49,6 +50,9 @@ abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
 
     @get:Input
     abstract val useStrippedSoFiles: Property<Boolean>
+
+    @get:Input
+    abstract val extraIgnoredLibs: ListProperty<String>
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -125,7 +129,8 @@ abstract class ProcessAndCopyJniLibsTask : DefaultTask() {
 
     private fun matchesAllowedLib(name: String): Boolean {
         val isCodegenLib = name.startsWith("libreact_codegen_") && name.endsWith(".so")
-        val isIgnoredLib = IGNORE_EMBEDDED_LIBS.any { lib -> name == lib || name.contains(lib) }
+        val ignoredLibs = IGNORE_EMBEDDED_LIBS + extraIgnoredLibs.getOrElse(emptyList())
+        val isIgnoredLib = ignoredLibs.any { lib -> name == lib || name.contains(lib) }
         return name == "libappmodules.so" || isCodegenLib || !isIgnoredLib
     }
 
@@ -161,6 +166,7 @@ class JNILibsProcessor(val project: Project) {
         val processJniTask =
             project.tasks.register("processCustomJniLibsFor$capitalizedVariantName", ProcessAndCopyJniLibsTask::class.java) {
                 it.useStrippedSoFiles.set(projectExt.useStrippedSoFiles)
+                it.extraIgnoredLibs.set(projectExt.ignoreEmbeddedLibs)
 
                 val jniDirs =
                     aarLibraries.map { aarLib ->
