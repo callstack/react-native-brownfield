@@ -1,5 +1,16 @@
 # @callstack/react-native-brownfield
 
+## 5.0.1
+
+### Patch Changes
+
+- [#442](https://github.com/callstack/react-native-brownfield/pull/442) [`7898f8a`](https://github.com/callstack/react-native-brownfield/commit/7898f8a4921a725dd4143516a0d187f0605540c2) Thanks [@janicduplessis](https://github.com/janicduplessis)! - feat: allow extending the list of .so files kept out of the AAR
+
+  Adds a `reactBrownfield.ignoreEmbeddedLibs` option so a project can name additional native libraries that should not be embedded, next to the built-in `IGNORE_EMBEDDED_LIBS` list.
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@5.0.1
+
 ## 5.0.0
 
 ### Major Changes
