@@ -42,7 +42,8 @@ open class Extension {
     var missingDimensionStrategies = listOf<String>()
 
     /**
-     * Additional .so file names to keep out of the AAR, on top of [IGNORE_EMBEDDED_LIBS].
+     * Additional .so file names to keep out of the AAR, on top of
+     * [com.callstack.react.brownfield.processors.IGNORE_EMBEDDED_LIBS].
      *
      * Use this for libraries that stay declared as dependencies of the published AAR: the
      * host App resolves those from Maven, so embedding them as well leaves two copies of
