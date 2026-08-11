@@ -21,11 +21,14 @@ import androidx.compose.ui.unit.dp
 import com.callstack.brownfield.android.example.BrownfieldStore
 import com.callstack.brownie.Store
 import com.callstack.brownie.StoreManager
-import com.callstack.brownie.store
-import com.callstack.brownie.subscribe
 
 private fun brownieStore(): Store<BrownfieldStore>? {
-    return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
+    // Use the Class overload — package-level reified `store()` is not reliably visible
+    // when brownie is consumed only via the fat-merged brownfieldlib AAR.
+    return StoreManager.shared.store(
+        BrownfieldStore.STORE_NAME,
+        BrownfieldStore::class.java,
+    )
 }
 
 @Composable
@@ -36,10 +39,16 @@ fun GreetingCard(
 
     DisposableEffect(Unit) {
         val store = brownieStore()
-        val unsubscribe = store?.subscribe(
-            selector = { state -> state.counter.toInt() },
-            onChange = { updatedCounter -> counter = updatedCounter }
-        ) ?: {}
+        var previous: Int? = null
+        // Member subscribe only — selector extension is a package-level helper.
+        val unsubscribe =
+            store?.subscribe { state ->
+                val updatedCounter = state.counter.toInt()
+                if (previous != updatedCounter) {
+                    previous = updatedCounter
+                    counter = updatedCounter
+                }
+            } ?: {}
 
         onDispose {
             unsubscribe()
