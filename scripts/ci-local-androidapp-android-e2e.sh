@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Local-only Detox E2E for apps/AndroidApp (mirrors CI android-androidapp-vanilla).
+# Local-only Detox E2E for apps/AndroidApp (mirrors CI android-androidapp-vanilla / expo56).
 #
 # Usage (from repo root):
 #   yarn ci:local:androidapp:e2e:android
-#   yarn ci:local:androidapp:e2e:android --variant vanilla
+#   yarn ci:local:androidapp:e2e:android:expo56
+#   yarn ci:local:androidapp:e2e:android --variant expo56
 #   yarn ci:local:androidapp:e2e:android --skip-install
 #   yarn ci:local:androidapp:e2e:android --rebuild
 #   yarn ci:local:androidapp:e2e:android --test-only
@@ -29,7 +30,7 @@ while [[ $# -gt 0 ]]; do
     --) shift; break ;;
     --variant=*) VARIANT="${1#*=}"; shift ;;
     --variant)
-      VARIANT="${2:?--variant requires a value (vanilla)}"
+      VARIANT="${2:?--variant requires a value (vanilla or expo56)}"
       shift 2
       ;;
     --avd=*) DETOX_AVD="${1#*=}"; shift ;;
