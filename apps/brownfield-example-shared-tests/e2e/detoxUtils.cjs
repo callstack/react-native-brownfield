@@ -160,7 +160,7 @@ async function pollUntilUiAutomatorContainsAny(
   );
 }
 
-function parseUiAutomatorBounds(boundsAttr) {
+function parseUiAutomatorBounds(boundsAttr, { xRatio = 0.5, yRatio = 0.5 } = {}) {
   const match = boundsAttr.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
   if (!match) {
     return null;
@@ -170,12 +170,15 @@ function parseUiAutomatorBounds(boundsAttr) {
   const right = Number(match[3]);
   const bottom = Number(match[4]);
   return {
-    x: Math.floor((left + right) / 2),
-    y: Math.floor((top + bottom) / 2),
+    x: Math.floor(left + (right - left) * xRatio),
+    y: Math.floor(top + (bottom - top) * yRatio),
   };
 }
 
-function findUiAutomatorNodeCenter(xml, { needle, resourceId } = {}) {
+function findUiAutomatorNodeCenter(
+  xml,
+  { needle, resourceId, xRatio = 0.5, yRatio = 0.5 } = {}
+) {
   const candidates = [];
 
   for (const chunk of xml.split('<node ')) {
@@ -198,7 +201,7 @@ function findUiAutomatorNodeCenter(xml, { needle, resourceId } = {}) {
       continue;
     }
 
-    const center = parseUiAutomatorBounds(boundsMatch[1]);
+    const center = parseUiAutomatorBounds(boundsMatch[1], { xRatio, yRatio });
     if (!center) {
       continue;
     }
@@ -224,7 +227,7 @@ function findUiAutomatorNodeCenter(xml, { needle, resourceId } = {}) {
 }
 
 async function tapUiAutomatorTarget(
-  { needle, resourceId },
+  { needle, resourceId, xRatio = 0.5, yRatio = 0.5 },
   timeoutMs = 30000,
   { keepCurrentActivity = true } = {}
 ) {
@@ -234,7 +237,12 @@ async function tapUiAutomatorTarget(
   while (Date.now() < deadline) {
     try {
       const xml = dumpUiAutomatorHierarchy();
-      const center = findUiAutomatorNodeCenter(xml, { needle, resourceId });
+      const center = findUiAutomatorNodeCenter(xml, {
+        needle,
+        resourceId,
+        xRatio,
+        yRatio,
+      });
       if (center) {
         adbShell(`input tap ${center.x} ${center.y}`);
         await dismissAndroidSystemOverlays();

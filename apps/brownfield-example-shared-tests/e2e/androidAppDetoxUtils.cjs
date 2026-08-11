@@ -1,4 +1,4 @@
-const { element, by } = require('detox');
+const { device, element, by, waitFor } = require('detox');
 const { brownfieldE2ETestIds: ids } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   assertDetoxTextMatches,
@@ -15,18 +15,22 @@ const {
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
 const EXPO56_GREETING_NEEDLE = 'Hello native Android (Expo 56)';
+
 /**
- * Prefer stable testIDs — Expo/Fabric home copy is often missing from UIAutomator text
- * nodes (nbsp / transformed labels), which is what failed CI on text-only needles.
+ * Real Expo home content only — never tab chrome (`Home` / expoHomeTab).
+ * Tab labels stay on-screen while the RN fragment is clipped, which caused false
+ * readiness and then UIAutomator timeouts after scrolling to the native greeting.
  */
-const EXPO56_RN_SURFACE_NEEDLES = [
+const EXPO56_RN_CONTENT_NEEDLES = [
   ids.rnAppHome,
   ids.rnAppHomeTitle,
-  ids.expoHomeTab,
+  'Welcome to Expo',
+  'Fetch Update',
   'GET STARTED',
-  'Welcome to',
+  'get started',
   'Try editing',
 ];
+
 const EXPO_ANDROID_POLL = { keepCurrentActivity: true };
 
 /** Middle-of-screen anchor — avoids status-bar swipes that open the notification shade. */
@@ -54,75 +58,51 @@ async function scrollToEmbeddedRnVanilla() {
   }
 }
 
-async function scrollToEmbeddedRnExpo() {
-  try {
-    const homeTab = element(by.id(ids.expoHomeTab)).atIndex(0);
-    await homeTab.swipe('up', 'slow', 0.75);
-    await homeTab.swipe('up', 'slow', 0.5);
-  } catch {
-    try {
-      const homeTab = element(by.label('Home')).atIndex(0);
-      await homeTab.swipe('up', 'slow', 0.75);
-      await homeTab.swipe('up', 'slow', 0.5);
-    } catch {
-      await scrollToEmbeddedRnVanilla();
-    }
-  }
-
-  try {
-    await pollUntilUiAutomatorContainsAny(EXPO56_RN_SURFACE_NEEDLES, 3000, EXPO_ANDROID_POLL);
-  } catch {
-    for (let attempt = 0; attempt < 6; attempt += 1) {
-      await scrollAndroidNativeShellUp();
-      try {
-        await pollUntilUiAutomatorContainsAny(EXPO56_RN_SURFACE_NEEDLES, 2000, EXPO_ANDROID_POLL);
-        break;
-      } catch {
-        if (attempt === 5) {
-          await pollUntilUiAutomatorContainsAny(EXPO56_RN_SURFACE_NEEDLES, 30000, EXPO_ANDROID_POLL);
-        }
-      }
-    }
-  }
-
-  await dismissAndroidSystemOverlays();
-}
-
 async function scrollToNativeShellVanilla() {
   await scrollNativeShell('down');
 }
 
-async function scrollToNativeShellExpo() {
-  try {
-    await element(by.id(ids.appleAppGreeting)).swipe('down', 'slow', 0.75);
-  } catch {
+/**
+ * Bring the embedded Expo surface on-screen. Uses adb swipes (works while the
+ * fragment is clipped) and Detox by.id once synchronization is enabled.
+ */
+async function scrollToEmbeddedRnExpo() {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
     try {
-      await element(by.id(ids.expoHomeTab)).atIndex(0).swipe('down', 'fast', 0.85);
+      await waitFor(element(by.id(ids.rnAppHome)))
+        .toBeVisible()
+        .withTimeout(2500);
+      await dismissAndroidSystemOverlays();
+      return;
     } catch {
-      try {
-        await element(by.label('Home')).atIndex(0).swipe('down', 'fast', 0.85);
-      } catch {
-        await scrollToNativeShellVanilla();
-      }
+      await scrollAndroidNativeShellUp();
+      await dismissAndroidSystemOverlays();
     }
   }
 
-  try {
-    await pollUntilUiAutomatorContains(EXPO56_GREETING_NEEDLE, 3000, EXPO_ANDROID_POLL);
-  } catch {
-    for (let attempt = 0; attempt < 6; attempt += 1) {
+  await waitFor(element(by.id(ids.rnAppHome)))
+    .toBeVisible()
+    .withTimeout(30000);
+  await dismissAndroidSystemOverlays();
+}
+
+async function scrollToNativeShellExpo() {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      await waitFor(element(by.id(ids.appleAppGreeting)))
+        .toBeVisible()
+        .withTimeout(2500);
+      await dismissAndroidSystemOverlays();
+      return;
+    } catch {
       await scrollAndroidNativeShellDown();
-      try {
-        await pollUntilUiAutomatorContains(EXPO56_GREETING_NEEDLE, 2000, EXPO_ANDROID_POLL);
-        break;
-      } catch {
-        if (attempt === 5) {
-          await pollUntilUiAutomatorContains(EXPO56_GREETING_NEEDLE, 15000, EXPO_ANDROID_POLL);
-        }
-      }
+      await dismissAndroidSystemOverlays();
     }
   }
 
+  await waitFor(element(by.id(ids.appleAppGreeting)))
+    .toBeVisible()
+    .withTimeout(15000);
   await dismissAndroidSystemOverlays();
 }
 
@@ -158,26 +138,28 @@ async function waitForAndroidAppReadyVanilla() {
   await finishAndroidDetoxLaunch();
 }
 
+/**
+ * Sync stays off until Expo home *content* is in the UIAutomator tree.
+ * Do not treat tab chrome as readiness — it remains visible while RN is clipped.
+ */
 async function waitForAndroidAppReadyExpo() {
-  console.log('[e2e] Waiting for Expo RN surface (home testID)...');
+  console.log('[e2e] Waiting for native Expo Android greeting...');
+  await pollUntilUiAutomatorContains(EXPO56_GREETING_NEEDLE, 90000, EXPO_ANDROID_POLL);
 
-  try {
-    await scrollToEmbeddedRnExpo();
-  } catch {
-    // RN surface may already be partially visible.
-  }
-
-  try {
-    await pollUntilUiAutomatorContains(ids.rnAppHome, 90000, EXPO_ANDROID_POLL);
-  } catch {
+  console.log('[e2e] Scrolling until Expo home content is visible...');
+  for (let attempt = 0; attempt < 10; attempt += 1) {
     try {
-      await pollUntilUiAutomatorContainsAny(EXPO56_RN_SURFACE_NEEDLES, 90000, EXPO_ANDROID_POLL);
+      await pollUntilUiAutomatorContainsAny(EXPO56_RN_CONTENT_NEEDLES, 4000, EXPO_ANDROID_POLL);
+      console.log('[e2e] Expo RN surface ready');
+      await finishAndroidDetoxLaunch();
+      return;
     } catch {
-      await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContains(ids.rnAppHome, 60000, EXPO_ANDROID_POLL);
+      await scrollAndroidNativeShellUp();
+      await dismissAndroidSystemOverlays();
     }
   }
 
+  await pollUntilUiAutomatorContainsAny(EXPO56_RN_CONTENT_NEEDLES, 60000, EXPO_ANDROID_POLL);
   console.log('[e2e] Expo RN surface ready');
   await finishAndroidDetoxLaunch();
 }
@@ -185,15 +167,63 @@ async function waitForAndroidAppReadyExpo() {
 async function openPostMessageTabExpo() {
   await scrollToEmbeddedRnExpo();
   await dismissAndroidSystemOverlays();
+
+  // Bottom NativeTabs often fail Espresso's 75% visibility gate while still
+  // present in UIAutomator. Prefer adb taps with sync off (same pattern as iOS
+  // clipped-tab fallback). Bias toward the icon — geometric center hits the
+  // label/gesture zone and does not activate Material bottom nav items.
+  const tabTap = { needle: 'postMessage API', yRatio: 0.3 };
+
+  await device.disableSynchronization();
   try {
-    await tapUiAutomatorTarget({ resourceId: ids.expoPostMessageTab }, 15000, EXPO_ANDROID_POLL);
-  } catch {
-    await tapUiAutomatorTarget({ needle: 'postMessage API' }, 30000, EXPO_ANDROID_POLL);
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      try {
+        await element(by.id(ids.expoPostMessageTab)).tap();
+      } catch {
+        try {
+          await tapUiAutomatorTarget(tabTap, 5000, { keepCurrentActivity: true });
+        } catch {
+          await scrollAndroidNativeShellUp();
+          await dismissAndroidSystemOverlays();
+          continue;
+        }
+      }
+
+      try {
+        await pollUntilUiAutomatorContains('Send message to Native', 5000, {
+          keepCurrentActivity: true,
+        });
+        return;
+      } catch {
+        // Tap landed but did not switch tabs (common when the item is clipped).
+        await scrollAndroidNativeShellUp();
+        await dismissAndroidSystemOverlays();
+      }
+    }
+
+    await tapUiAutomatorTarget(tabTap, 30000, { keepCurrentActivity: true });
+    await pollUntilUiAutomatorContains('Send message to Native', 30000, {
+      keepCurrentActivity: true,
+    });
+  } finally {
+    await device.enableSynchronization();
   }
+}
+
+async function tapSendMessageToNativeExpo() {
   try {
-    await pollUntilUiAutomatorContains(ids.sendMessageToNative, 30000, EXPO_ANDROID_POLL);
+    await element(by.id(ids.sendMessageToNative)).tap();
   } catch {
-    await pollUntilUiAutomatorContains('Send message to Native', 30000, EXPO_ANDROID_POLL);
+    await device.disableSynchronization();
+    try {
+      await tapUiAutomatorTarget(
+        { needle: 'Send message to Native' },
+        30000,
+        { keepCurrentActivity: true }
+      );
+    } finally {
+      await device.enableSynchronization();
+    }
   }
 }
 
@@ -205,7 +235,7 @@ async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
   const toastWatch = waitForNativeOverlayVisible(toastNeedle, 15000, 0, {
     keepCurrentActivity: true,
   });
-  await element(by.id(ids.sendMessageToNative)).tap();
+  await tapSendMessageToNativeExpo();
   if (rnMessagePattern) {
     const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
     const deadline = Date.now() + 15000;
@@ -230,7 +260,10 @@ module.exports = {
   waitForAndroidAppReadyVanilla,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
+  tapSendMessageToNativeExpo,
   sendPostMessageToNativeAndWaitForToast,
   EXPO56_GREETING_NEEDLE,
-  EXPO56_RN_SURFACE_NEEDLES,
+  EXPO56_RN_CONTENT_NEEDLES,
+  // Back-compat alias used by older callers / logs.
+  EXPO56_RN_SURFACE_NEEDLES: EXPO56_RN_CONTENT_NEEDLES,
 };

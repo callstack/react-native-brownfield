@@ -1,17 +1,19 @@
-const {
-  dismissAndroidSystemOverlays,
-  launchBrownfieldAppForDetox,
-  pollUntilUiAutomatorContains,
-  tapUiAutomatorTarget,
-} = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
+const { element, by, expect: detoxExpect, waitFor } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
+const {
+  assertDetoxTextMatches,
+  dismissAndroidSystemOverlays,
+  launchBrownfieldAppForDetox,
+  pollUntilUiAutomatorContains,
+} = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
   scrollToEmbeddedRnExpo,
   scrollToNativeShellExpo,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
+  tapSendMessageToNativeExpo,
   EXPO56_GREETING_NEEDLE,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
@@ -28,29 +30,25 @@ describe('Brownfield (AndroidApp — Expo)', () => {
   });
 
   it('shows the native greeting shell and embedded Expo home', async () => {
+    await scrollToEmbeddedRnExpo();
+    await detoxExpect(element(by.id(ids.rnAppHome))).toBeVisible();
+
     await scrollToNativeShellExpo();
+    await detoxExpect(element(by.id(ids.appleAppGreeting))).toBeVisible();
     await pollUntilUiAutomatorContains(EXPO56_GREETING_NEEDLE, 15000, {
       keepCurrentActivity: true,
     });
+
     await scrollToEmbeddedRnExpo();
-    await pollUntilUiAutomatorContains(ids.rnAppHome, 30000, {
-      keepCurrentActivity: true,
-    });
+    await detoxExpect(element(by.id(ids.rnAppHome))).toBeVisible();
   });
 
   it('records the RN postMessage bubble in the Expo surface', async () => {
     await openPostMessageTabExpo();
-    try {
-      await tapUiAutomatorTarget({ resourceId: ids.sendMessageToNative }, 15000, {
-        keepCurrentActivity: true,
-      });
-    } catch {
-      await tapUiAutomatorTarget({ needle: 'Send message to Native' }, 30000, {
-        keepCurrentActivity: true,
-      });
-    }
-    await pollUntilUiAutomatorContains('Hello from Expo!', 15000, {
-      keepCurrentActivity: true,
-    });
+    await tapSendMessageToNativeExpo();
+
+    const bubble = element(by.id(ids.rnPostMessageText)).atIndex(0);
+    await waitFor(bubble).toBeVisible().withTimeout(15000);
+    await assertDetoxTextMatches(bubble, /Hello from Expo!/);
   });
 });
