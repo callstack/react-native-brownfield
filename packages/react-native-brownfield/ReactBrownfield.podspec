@@ -33,7 +33,7 @@ Pod::Spec.new do |spec|
     'DEFINES_MODULE' => 'YES',
     'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES',
     'SWIFT_EMIT_MODULE_INTERFACE' => 'YES',
-    'OTHER_SWIFT_FLAGS' => "-enable-experimental-feature AccessLevelOnImport"
+    'OTHER_SWIFT_FLAGS' => "-enable-experimental-feature AccessLevelOnImport -no-verify-emitted-module-interface"
   }
 
   if ENV['RCT_USE_PREBUILT_RNCORE'] == '1'

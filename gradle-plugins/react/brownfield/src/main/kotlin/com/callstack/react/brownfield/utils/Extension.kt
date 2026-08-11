@@ -14,15 +14,6 @@ open class Extension {
     var appProjectName = "app"
 
     /**
-     * List of dynamic libs (.so) files that you wish to bundle with
-     * the aar.
-     *
-     * By default, only `libappmodules.so` and `libreact_codegen_*.so` are
-     * bundled.
-     */
-    var dynamicLibs = listOf<String>()
-
-    /**
      * Whether to use stripped .so files.
      *
      * Default is `true`.
@@ -41,4 +32,25 @@ open class Extension {
         set(value) {
             useStrippedSoFiles = value
         }
+
+    /**
+     * List of missing dimension strategies.
+     *
+     * Provide in this format:
+     * listOf("type", "alpha")
+     */
+    var missingDimensionStrategies = listOf<String>()
+
+    /**
+     * Additional .so file names to keep out of the AAR, on top of
+     * [com.callstack.react.brownfield.processors.IGNORE_EMBEDDED_LIBS].
+     *
+     * Use this for libraries that stay declared as dependencies of the published AAR: the
+     * host App resolves those from Maven, so embedding them as well leaves two copies of
+     * the same .so and the host's native library merge fails.
+     *
+     * Provide in this format:
+     * listOf("libdatadog-ndk.so")
+     */
+    var ignoreEmbeddedLibs = listOf<String>()
 }

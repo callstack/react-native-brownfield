@@ -1,5 +1,57 @@
 # @callstack/brownfield-cli
 
+## 5.0.1
+
+## 5.0.0
+
+### Patch Changes
+
+- [#434](https://github.com/callstack/react-native-brownfield/pull/434) [`1183202`](https://github.com/callstack/react-native-brownfield/commit/118320245741d337bf9d6202eb27ee60cc7faa47) Thanks [@hurali97](https://github.com/hurali97)! - fix: dependabot alerts
+
+## 4.3.0
+
+### Minor Changes
+
+- [#412](https://github.com/callstack/react-native-brownfield/pull/412) [`627fcbc`](https://github.com/callstack/react-native-brownfield/commit/627fcbce9811ca12773b3caee319ed4cd610123e) Thanks [@Doko-Demo-Doa](https://github.com/Doko-Demo-Doa)! - feat: add support for callback and promise to brownfield navigation
+
+- [#422](https://github.com/callstack/react-native-brownfield/pull/422) [`8894482`](https://github.com/callstack/react-native-brownfield/commit/8894482efb68d745dd1f8e7433b7a67d94440f0a) Thanks [@hurali97](https://github.com/hurali97)! - feat: support proguard/R8 minification
+
+## 4.2.0
+
+### Minor Changes
+
+- [#413](https://github.com/callstack/react-native-brownfield/pull/413) [`39cf6a7`](https://github.com/callstack/react-native-brownfield/commit/39cf6a751c62ee701c96468a5a701c0bdf96463b) Thanks [@hurali97](https://github.com/hurali97)! - feat: add option to use local maven
+
+## 4.1.0
+
+### Minor Changes
+
+- [#367](https://github.com/callstack/react-native-brownfield/pull/367) [`dd1082a`](https://github.com/callstack/react-native-brownfield/commit/dd1082a42c83f2cb8fd7f03df05a6e0a13e8833c) Thanks [@hurali97](https://github.com/hurali97)! - refactor: remove deprecated APIs
+
+## 4.0.0
+
+### Major Changes
+
+- [#407](https://github.com/callstack/react-native-brownfield/pull/407) [`dee9559`](https://github.com/callstack/react-native-brownfield/commit/dee9559d6a1a1169c0824542ec8d2ea5ef6475e7) Thanks [@hurali97](https://github.com/hurali97)! - feat: drop support for expo sdk 54
+
+## 3.15.0
+
+## 3.14.0
+
+### Minor Changes
+
+- [#360](https://github.com/callstack/react-native-brownfield/pull/360) [`10ff597`](https://github.com/callstack/react-native-brownfield/commit/10ff597c057c04aa093b4e5ae8c5334b169d3d56) Thanks [@adamTrz](https://github.com/adamTrz)! - Expo SDK 56 support
+
+## 3.13.2
+
+### Patch Changes
+
+- [#398](https://github.com/callstack/react-native-brownfield/pull/398) [`8e90842`](https://github.com/callstack/react-native-brownfield/commit/8e90842291348dcb0542a6787f5cfbb1017532dd) Thanks [@artus9033](https://github.com/artus9033)! - feat: support brownfield unified config file in Expo
+
+- [#402](https://github.com/callstack/react-native-brownfield/pull/402) [`3475c3d`](https://github.com/callstack/react-native-brownfield/commit/3475c3db375988ebd63ce01bfd93f4dbb1a55e8d) Thanks [@artus9033](https://github.com/artus9033)! - feat: support local BGP in Expo config plugin
+
+- [#397](https://github.com/callstack/react-native-brownfield/pull/397) [`4088c01`](https://github.com/callstack/react-native-brownfield/commit/4088c01a069306565dd3e279d9132f5dbe861d0b) Thanks [@artus9033](https://github.com/artus9033)! - fix: generate config schema with descriptions, add more descriptions
+
 ## 3.13.1
 
 ### Patch Changes

@@ -10,7 +10,6 @@ import { Logger } from '../logging';
 import type { ResolvedBrownfieldPluginIosConfig } from '../types';
 import { SourceModificationError } from '../errors/SourceModificationError';
 import { getFrameworkSourceFiles } from './withIosFrameworkFiles';
-import { renderTemplate } from '../template/engine';
 
 /**
  * Adds a new Framework target to the Xcode project for Brownfield packaging
@@ -186,7 +185,9 @@ export type PbxReferenceLike = { value?: string; comment?: string } | string;
 
 export type PbxNativeTarget = {
   buildPhases?: PbxReferenceLike[];
+  buildConfigurationList?: string;
   name?: string;
+  productReference?: string;
 };
 
 export type PbxResourcesBuildPhase = {
@@ -428,7 +429,7 @@ export function getFrameworkBuildSettings(
 
     // basic settings
     PRODUCT_BUNDLE_IDENTIFIER: `"${bundleIdentifier}"`,
-    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget,
+    IPHONEOS_DEPLOYMENT_TARGET: deploymentTarget ?? '15.0',
 
     // Ensure the BrownfieldLib (or equivalent name) is installed at the correct path
     DYLIB_INSTALL_NAME_BASE: '"@rpath"',
@@ -681,100 +682,61 @@ function resolveAppTargetName(
   return null;
 }
 
-/**
- * Adds the "Patch ExpoModulesProvider" shell script phase to the framework target.
- * Safe to call on every prebuild: skips creation when the phase is already present.
- */
-export function addExpoPre55ShellPatchScriptPhase(
-  modRequest: ModProps<XcodeProject>,
-  project: XcodeProject,
-  {
-    frameworkName,
-    frameworkTargetUUID,
-  }: {
-    frameworkName: string;
-    frameworkTargetUUID: string;
-  }
-) {
-  const resolvedAppTargetName = resolveAppTargetName(project, modRequest);
-
-  Logger.logInfo(`Resolved iOS app target name: ${resolvedAppTargetName}`);
-
-  if (!resolvedAppTargetName) {
-    throw new SourceModificationError(
-      `Could not determine the iOS app target name from the Xcode project.`
-    );
+function normalizeXcodeBuildSettingValue(
+  value: string | number | boolean | null | undefined
+): string | null {
+  if (value == null) {
+    return null;
   }
 
-  const existingBuildPhases =
-    project.pbxNativeTargetSection()[frameworkTargetUUID]?.buildPhases ?? [];
-  if (
-    existingBuildPhases.some((phase: { comment?: string }) =>
-      hasBuildPhaseComment(phase, 'Patch ExpoModulesProvider')
+  const normalized = IOSConfig.XcodeUtils.unquote(String(value)).trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+export function getAppTargetDeploymentTarget(
+  project: Pick<XcodeProject, 'getBuildProperty'>,
+  appTargetName: string | null
+): string | null {
+  if (!appTargetName) {
+    return null;
+  }
+
+  return (
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Release',
+        appTargetName
+      )
+    ) ??
+    normalizeXcodeBuildSettingValue(
+      project.getBuildProperty(
+        'IPHONEOS_DEPLOYMENT_TARGET',
+        'Debug',
+        appTargetName
+      )
     )
-  ) {
-    return;
-  }
-
-  project.addBuildPhase(
-    [
-      // no associated files
-    ],
-    'PBXShellScriptBuildPhase',
-    'Patch ExpoModulesProvider',
-    frameworkTargetUUID,
-    {
-      shellPath: '/bin/sh',
-      shellScript: renderTemplate('ios', 'patchExpoPre55.sh', {
-        '{{APP_TARGET_NAME}}': resolvedAppTargetName,
-        '{{FRAMEWORK_NAME}}': frameworkName,
-      }),
-    }
   );
 }
 
-/**
- * Makes sure the patch expo modules provider phase is after the expo configure phase,
- * otherwise the patched file would be overwritten by the expo configure phase
- * @param project The Xcode project
- * @param frameworkTargetUUID The UUID of the framework target
- * @returns True if the build phases were modified, false otherwise
- */
-export function ensureExpoPre55ShellPatchScriptPhaseIsOrdered(
+export function resolveFrameworkDeploymentTarget(
   project: XcodeProject,
-  frameworkTargetUUID: string
-) {
-  let modified = false;
-  const nativeTargetSection = project.pbxNativeTargetSection();
-
-  const buildPhases: { value: string; comment?: string }[] =
-    nativeTargetSection[frameworkTargetUUID].buildPhases;
-
-  const expoConfigurePhaseIndex = buildPhases.findIndex(
-    (phase) =>
-      (phase as any)?.comment?.toLowerCase() ===
-      '[Expo] Configure project'.toLowerCase()
-  );
-
-  const patchExpoModulesProviderPhaseIndex = buildPhases.findIndex(
-    (phase) =>
-      (phase as any)?.comment?.toLowerCase() ===
-      'Patch ExpoModulesProvider'.toLowerCase()
-  );
-
-  // ensure patch expo modules provider phase is after expo configure phase
-  if (patchExpoModulesProviderPhaseIndex < expoConfigurePhaseIndex) {
-    const element = buildPhases.splice(
-      patchExpoModulesProviderPhaseIndex,
-      1
-    )[0]; // pop the element at patchExpoModulesProviderPhaseIndex
-    buildPhases.splice(expoConfigurePhaseIndex, 0, element); // insert the element at expoConfigurePhaseIndex ("after")
-    modified = true;
+  modRequest: ModProps<XcodeProject>,
+  {
+    fallbackDeploymentTarget,
+  }: {
+    fallbackDeploymentTarget?: string;
+  }
+): string {
+  if (fallbackDeploymentTarget != null) {
+    return fallbackDeploymentTarget;
   }
 
-  nativeTargetSection[frameworkTargetUUID].buildPhases = buildPhases;
+  const appTargetName = resolveAppTargetName(project, modRequest);
+  const appTargetDeploymentTarget = getAppTargetDeploymentTarget(
+    project,
+    appTargetName
+  );
 
-  project.writeSync();
-
-  return modified;
+  return appTargetDeploymentTarget ?? '15.0';
 }

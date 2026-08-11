@@ -1,5 +1,4 @@
 import { getReactNativeVersion, versionCompare } from '@rock-js/tools';
-
 import { getExpoSdkMajor, isExpoProject } from './project.js';
 
 /** Minimum RN version that can opt in to prebuilts via `--use-prebuilt-rn-core`. */

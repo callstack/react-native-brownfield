@@ -26,7 +26,8 @@ Pod::Spec.new do |spec|
     'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES',
     'SWIFT_EMIT_MODULE_INTERFACE' => 'YES',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
-    'HEADER_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}/boost" "${PODS_ROOT}/RCT-Folly" "${PODS_TARGET_SRCROOT}/cpp"'
+    'HEADER_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}/boost" "${PODS_ROOT}/RCT-Folly" "${PODS_TARGET_SRCROOT}/cpp"',
+    'OTHER_SWIFT_FLAGS' => '-no-verify-emitted-module-interface'
   }
 
   install_modules_dependencies(spec)

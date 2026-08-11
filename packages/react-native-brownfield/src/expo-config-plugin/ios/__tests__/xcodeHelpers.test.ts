@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  getAppTargetDeploymentTarget,
   getFrameworkBuildSettings,
   rewriteBundleReactNativePhaseScriptForFrameworkTarget,
 } from '../xcodeHelpers';
@@ -42,6 +43,17 @@ describe('getFrameworkBuildSettings', () => {
     expect(settings.INSTALL_PATH).toBe('"$(LOCAL_LIBRARY_DIR)/Frameworks"');
     expect(settings.SWIFT_VERSION).toBe('5.10');
     expect(settings.MARKETING_VERSION).toBe('9.9.9');
+  });
+});
+
+describe('getAppTargetDeploymentTarget', () => {
+  it('prefers the release deployment target and strips quotes', () => {
+    const project = {
+      getBuildProperty: (_prop: string, build?: string) =>
+        build === 'Release' ? '"16.4"' : '"16.0"',
+    } as any;
+
+    expect(getAppTargetDeploymentTarget(project, 'ExpoApp56')).toBe('16.4');
   });
 });
 

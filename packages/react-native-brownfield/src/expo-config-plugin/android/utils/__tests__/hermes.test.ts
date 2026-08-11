@@ -1,3 +1,7 @@
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
 import { vi } from 'vitest';
 
 import { getHermesArtifact } from '../hermes';
@@ -11,12 +15,21 @@ vi.mock('../../../logging', () => ({
 }));
 
 describe('getHermesArtifact', () => {
+  const tempDirectories: string[] = [];
+
   afterEach(() => {
     vi.clearAllMocks();
+
+    for (const tempDirectory of tempDirectories.splice(0)) {
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+    }
   });
 
   it('should return correct artifact for RN 0.84.0', () => {
-    const artifact = getHermesArtifact('0.84.0');
+    const projectRoot = createProjectRootWithVersionProperties(
+      'HERMES_VERSION_NAME=0.15.1\n'
+    );
+    const artifact = getHermesArtifact('0.84.0', projectRoot);
     expect(artifact).toEqual({
       groupId: 'com.facebook.hermes',
       artifactId: 'hermes-android',
@@ -25,11 +38,30 @@ describe('getHermesArtifact', () => {
   });
 
   it('should return correct artifact for RN 0.85.0', () => {
-    const artifact = getHermesArtifact('0.85.0');
+    const projectRoot = createProjectRootWithVersionProperties(
+      'HERMES_VERSION_NAME=0.15.1\n'
+    );
+    const artifact = getHermesArtifact('0.85.0', projectRoot);
     expect(artifact).toEqual({
       groupId: 'com.facebook.hermes',
       artifactId: 'hermes-android',
       version: '0.15.1',
+    });
+  });
+
+  it('prefers the installed React Native Hermes version when version.properties is available', () => {
+    const projectRoot = createProjectRootWithVersionProperties(
+      `HERMES_VERSION_NAME=0.16.0
+HERMES_V1_VERSION_NAME=250829098.0.10
+`
+    );
+
+    const artifact = getHermesArtifact('0.85.3', projectRoot);
+
+    expect(artifact).toEqual({
+      groupId: 'com.facebook.hermes',
+      artifactId: 'hermes-android',
+      version: '250829098.0.10',
     });
   });
 
@@ -137,4 +169,24 @@ describe('getHermesArtifact', () => {
       "Unsupported React Native major version '1' in '1.0.0'"
     );
   });
+
+  function createProjectRootWithVersionProperties(contents: string): string {
+    const projectRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'brownfield-rn-')
+    );
+    const versionPropertiesPath = path.join(
+      projectRoot,
+      'node_modules',
+      'react-native',
+      'sdks',
+      'hermes-engine',
+      'version.properties'
+    );
+
+    tempDirectories.push(projectRoot);
+    fs.mkdirSync(path.dirname(versionPropertiesPath), { recursive: true });
+    fs.writeFileSync(versionPropertiesPath, contents, 'utf8');
+
+    return projectRoot;
+  }
 });

@@ -5,7 +5,7 @@ const path = require('node:path');
 /** @typedef {import('detox').DetoxConfig} DetoxConfig */
 
 /**
- * AndroidApp Detox / E2E settings per packaged RN host (RNApp, ExpoApp54, ExpoApp55).
+ * AndroidApp Detox / E2E settings per packaged RN host (RNApp).
  *
  * Release builds load the JS bundle embedded in the brownfield AAR (no Metro).
  *
@@ -33,21 +33,10 @@ const androidAppDetoxVariants = {
     e2eTestFile: 'androidAppBrownfield.e2e.js',
     nativeGreetingPattern: /Hello native Android/,
   },
-  expo55: {
-    rnAppDir: 'ExpoApp55',
-    rnMavenPath: 'com/callstack/rnbrownfield/demo/expoapp55/brownfieldlib',
-    gradleFlavor: 'expo55',
-    detoxConfiguration: 'android.emu.release.expo55',
-    detoxRcFile: '.detoxrc.expo55.cjs',
-    e2eBuildScript: 'e2e:build:android:expo55',
-    e2eTestScript: 'e2e:test:android:expo55',
-    e2eTestFile: 'androidAppExpoBrownfield.e2e.js',
-    nativeGreetingPattern: /Hello native Android \(Expo 55\)/,
-  },
 };
 
 /**
- * @param {string} variant AndroidApp road-test variant (`vanilla`, `expo54`, `expo55`).
+ * @param {string} variant AndroidApp road-test variant (`vanilla`).
  */
 function getAndroidAppDetoxVariant(variant) {
   const config = androidAppDetoxVariants[variant];

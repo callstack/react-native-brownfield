@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Public API consumed from the Brownfield AAR.
+-keep class com.rnapp.brownfieldlib.BrownfieldStore { *; }
+-keep class com.rnapp.brownfieldlib.BrownfieldStore$Companion { *; }
+-keep class com.rnapp.brownfieldlib.User { *; }
+-keep class com.rnapp.brownfieldlib.SettingsStore { *; }
+-keep class com.rnapp.brownfieldlib.SettingsStore$Companion { *; }
+-keep class com.rnapp.brownfieldlib.Theme { *; }
+-keep class com.rnapp.brownfieldlib.ReactNativeHostManager { *; }
+
+# Generated API for brownfield-navigation API consumed from the Brownfield AAR
+-keep class com.callstack.nativebrownfieldnavigation.UserType { *; }

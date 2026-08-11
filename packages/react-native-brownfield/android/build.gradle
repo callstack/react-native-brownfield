@@ -74,6 +74,7 @@ android {
   defaultConfig {
     minSdkVersion getExtOrIntegerDefault("minSdkVersion")
     targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+    consumerProguardFiles "consumer-rules.pro"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
     buildConfigField "boolean", "IS_HERMES_ENABLED", isHermesEnabled().toString()
     buildConfigField "String", "RN_VERSION", "\"$reactNativeVersion\""

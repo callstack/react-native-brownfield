@@ -16,7 +16,9 @@ describe('createLocalSpmPackage', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'create-local-spm-package-'));
+    tempDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'create-local-spm-package-')
+    );
   });
 
   afterEach(() => {
@@ -33,7 +35,9 @@ describe('createLocalSpmPackage', () => {
       frameworkName: 'BrownfieldLib',
     });
 
-    expect(result.packageManifestPath).toBe(path.join(tempDir, 'Package.swift'));
+    expect(result.packageManifestPath).toBe(
+      path.join(tempDir, 'Package.swift')
+    );
 
     const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
 
@@ -44,9 +48,7 @@ describe('createLocalSpmPackage', () => {
       'path: "./spm-artifacts/BrownfieldLib.xcframework"'
     );
     expect(manifest).toContain('binaryTarget(name: "hermesvm"');
-    expect(manifest).toContain(
-      'path: "./spm-artifacts/hermesvm.xcframework"'
-    );
+    expect(manifest).toContain('path: "./spm-artifacts/hermesvm.xcframework"');
     expect(manifest).toContain('binaryTarget(name: "ReactBrownfield"');
     expect(manifest).toContain(
       'path: "./spm-artifacts/ReactBrownfield.xcframework"'
@@ -57,9 +59,9 @@ describe('createLocalSpmPackage', () => {
         path.join(tempDir, 'spm-artifacts', 'BrownfieldLib.xcframework')
       )
     ).toBe(true);
-    expect(
-      fs.existsSync(path.join(tempDir, 'BrownfieldLib.xcframework'))
-    ).toBe(false);
+    expect(fs.existsSync(path.join(tempDir, 'BrownfieldLib.xcframework'))).toBe(
+      false
+    );
 
     const readmePath = path.join(tempDir, 'README.md');
     expect(fs.existsSync(readmePath)).toBe(true);
@@ -112,12 +114,66 @@ describe('createLocalSpmPackage', () => {
 
     expect(manifest).toContain('binaryTarget(name: "React"');
     expect(manifest).toContain('path: "./spm-artifacts/React.xcframework"');
-    expect(manifest).toContain(
-      'binaryTarget(name: "ReactNativeDependencies"'
-    );
+    expect(manifest).toContain('binaryTarget(name: "ReactNativeDependencies"');
     expect(manifest).toContain(
       'path: "./spm-artifacts/ReactNativeDependencies.xcframework"'
     );
+  });
+
+  it('includes Expo support XCFrameworks when those artifacts exist', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+    createXcframework(tempDir, 'ExpoModulesJSI');
+    createXcframework(tempDir, 'ExpoFileSystem');
+    createXcframework(tempDir, 'ExpoFont');
+
+    const result = createLocalSpmPackage({
+      packageDir: tempDir,
+      frameworkName: 'BrownfieldLib',
+    });
+
+    const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
+
+    expect(manifest).toContain('binaryTarget(name: "ExpoModulesJSI"');
+    expect(manifest).toContain('binaryTarget(name: "ExpoFileSystem"');
+    expect(manifest).toContain(
+      'path: "./spm-artifacts/ExpoFileSystem.xcframework"'
+    );
+    expect(manifest).toContain('binaryTarget(name: "ExpoFont"');
+    expect(manifest).toContain('path: "./spm-artifacts/ExpoFont.xcframework"');
+  });
+
+  it('limits Expo support XCFrameworks to ExpoModulesJSI when prebuilt Expo is disabled', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+    createXcframework(tempDir, 'ExpoModulesJSI');
+    createXcframework(tempDir, 'ExpoFileSystem');
+    createXcframework(tempDir, 'ExpoFont');
+
+    const result = createLocalSpmPackage({
+      packageDir: tempDir,
+      frameworkName: 'BrownfieldLib',
+      usePrebuiltExpo: false,
+    });
+
+    const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
+
+    expect(manifest).toContain('binaryTarget(name: "ExpoModulesJSI"');
+    expect(manifest).not.toContain('binaryTarget(name: "ExpoFileSystem"');
+    expect(manifest).not.toContain('binaryTarget(name: "ExpoFont"');
+    expect(
+      fs.existsSync(
+        path.join(tempDir, 'spm-artifacts', 'ExpoModulesJSI.xcframework')
+      )
+    ).toBe(true);
+    expect(
+      fs.existsSync(path.join(tempDir, 'spm-artifacts', 'ExpoFileSystem.xcframework'))
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(tempDir, 'spm-artifacts', 'ExpoFont.xcframework'))
+    ).toBe(false);
   });
 
   it('uses hermes.xcframework when hermesvm.xcframework is not present', () => {

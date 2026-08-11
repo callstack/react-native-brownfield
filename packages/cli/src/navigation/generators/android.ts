@@ -1,4 +1,4 @@
-import type { MethodSignature } from '../types.js';
+import type { MethodParam, MethodSignature } from '../types.js';
 
 const TS_TO_KOTLIN_TYPE: Record<string, string> = {
   string: 'String',
@@ -10,6 +10,13 @@ const TS_TO_KOTLIN_TYPE: Record<string, string> = {
 
 interface KotlinTypeMappingOptions {
   modelTypeNames?: string[];
+}
+
+function buildKotlinImports(imports: string[]): string {
+  if (imports.length === 0) {
+    return '\n';
+  }
+  return `\n${[...new Set(imports)].sort().join('\n')}\n`;
 }
 
 function mapTsTypeToKotlin(
@@ -38,21 +45,67 @@ function mapTsTypeToKotlin(
   return optional ? 'Any?' : 'Any';
 }
 
+function mapParamToKotlin(
+  param: MethodParam,
+  options: KotlinTypeMappingOptions = {},
+  layer: 'delegate' | 'module' = 'delegate'
+): string {
+  if (param.callback) {
+    return param.optional ? 'Callback?' : 'Callback';
+  }
+  return mapTsTypeToKotlin(param.type, param.optional, options, layer);
+}
+
+function prepareKotlinArgs(
+  method: MethodSignature,
+  options: KotlinTypeMappingOptions = {}
+): { preparedParams: string[]; args: string } {
+  const preparedParams: string[] = [];
+  const args = method.params
+    .map((param) => {
+      if (options.modelTypeNames?.includes(param.type)) {
+        const convertedName = `${param.name}Model`;
+        preparedParams.push(
+          `    val ${convertedName} = ${param.name}${
+            param.optional
+              ? `?.let(::to${param.type})`
+              : `.let(::to${param.type})`
+          }`
+        );
+        return convertedName;
+      }
+      return param.name;
+    })
+    .join(', ');
+
+  return { preparedParams, args };
+}
+
 export function generateKotlinDelegate(
   methods: MethodSignature[],
   kotlinPackageName: string,
   options: KotlinTypeMappingOptions = {}
 ): string {
+  const hasAsyncMethod = methods.some((method) => method.isAsync);
+  const hasCallbackParam = methods.some((method) =>
+    method.params.some((param) => param.callback)
+  );
+  const imports = buildKotlinImports([
+    ...(hasCallbackParam ? ['import com.facebook.react.bridge.Callback'] : []),
+    ...(hasAsyncMethod ? ['import com.facebook.react.bridge.Promise'] : []),
+  ]);
+
   const methodSignatures = methods
     .map((method) => {
-      const params = method.params
-        .map(
-          (param) =>
-            `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional, options)}`
-        )
-        .join(', ');
+      const methodParams = method.params.map(
+        (param) => `${param.name}: ${mapParamToKotlin(param, options)}`
+      );
+      const params = [
+        ...methodParams,
+        ...(method.isAsync ? ['promise: Promise'] : []),
+      ].join(', ');
       const returnType =
-        method.returnType === 'void'
+        method.returnType === 'void' || method.isAsync
           ? ''
           : `: ${mapTsTypeToKotlin(method.returnType, false, options, 'delegate')}`;
       return `  fun ${method.name}(${params})${returnType}`;
@@ -60,8 +113,7 @@ export function generateKotlinDelegate(
     .join('\n');
 
   return `package ${kotlinPackageName}
-
-interface BrownfieldNavigationDelegate {
+${imports}interface BrownfieldNavigationDelegate {
 ${methodSignatures}
 }
 `;
@@ -73,6 +125,9 @@ export function generateKotlinModule(
   options: KotlinTypeMappingOptions = {}
 ): string {
   const hasAsyncMethod = methods.some((method) => method.isAsync);
+  const hasCallbackParam = methods.some((method) =>
+    method.params.some((param) => param.callback)
+  );
   const hasObjectType = methods.some(
     (method) =>
       method.returnType.includes('Object') ||
@@ -94,8 +149,8 @@ export function generateKotlinModule(
 
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod${
-    hasAsyncMethod ? '\nimport com.facebook.react.bridge.Promise' : ''
-  }${hasObjectType ? '\nimport com.facebook.react.bridge.ReadableMap' : ''}
+    hasCallbackParam ? '\nimport com.facebook.react.bridge.Callback' : ''
+  }${hasAsyncMethod ? '\nimport com.facebook.react.bridge.Promise' : ''}${hasObjectType ? '\nimport com.facebook.react.bridge.ReadableMap' : ''}
 
 class NativeBrownfieldNavigationModule(
   reactContext: ReactApplicationContext
@@ -115,27 +170,10 @@ function generateSyncKotlinMethod(
 ): string {
   const params = method.params
     .map(
-      (param) =>
-        `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional, options, 'module')}`
+      (param) => `${param.name}: ${mapParamToKotlin(param, options, 'module')}`
     )
     .join(', ');
-  const preparedParams: string[] = [];
-  const args = method.params
-    .map((param) => {
-      if (options.modelTypeNames?.includes(param.type)) {
-        const convertedName = `${param.name}Model`;
-        preparedParams.push(
-          `    val ${convertedName} = ${param.name}${
-            param.optional
-              ? `?.let(::to${param.type})`
-              : `.let(::to${param.type})`
-          }`
-        );
-        return convertedName;
-      }
-      return param.name;
-    })
-    .join(', ');
+  const { preparedParams, args } = prepareKotlinArgs(method, options);
 
   const signature = `  @ReactMethod\n  override fun ${method.name}(${params})${
     method.returnType === 'void'
@@ -161,17 +199,19 @@ function generateAsyncKotlinMethod(
 ): string {
   const paramsWithTypes = method.params
     .map(
-      (param) =>
-        `${param.name}: ${mapTsTypeToKotlin(param.type, param.optional, options, 'module')}`
+      (param) => `${param.name}: ${mapParamToKotlin(param, options, 'module')}`
     )
     .join(', ');
   const params =
     paramsWithTypes.length > 0
       ? `${paramsWithTypes}, promise: Promise`
       : 'promise: Promise';
+  const { preparedParams, args } = prepareKotlinArgs(method, options);
+  const delegateArgs = args.length > 0 ? `${args}, promise` : 'promise';
+  const preparedPrefix = preparedParams.length > 0 ? `${preparedParams.join('\n')}\n` : '';
 
   return `  @ReactMethod
   override fun ${method.name}(${params}) {
-    promise.reject("not_implemented", "${method.name} is not implemented")
+${preparedPrefix}    BrownfieldNavigationManager.getDelegate().${method.name}(${delegateArgs})
   }`;
 }

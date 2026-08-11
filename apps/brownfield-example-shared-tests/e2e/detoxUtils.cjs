@@ -471,7 +471,11 @@ function androidUiAutomatorNeedleForMatcher(matcher) {
  * Sync is disabled only via launchArgs — disableSynchronization() before launchApp()
  * fails because Detox is not connected to the app yet.
  */
-async function launchBrownfieldAppForDetox({ newInstance = true, processTimeoutMs } = {}) {
+async function launchBrownfieldAppForDetox({
+  newInstance = true,
+  enableSync = true,
+  processTimeoutMs,
+} = {}) {
   console.log('[e2e] Launching brownfield app via Detox...');
   await device.launchApp({
     newInstance,
@@ -491,7 +495,10 @@ async function launchBrownfieldAppForDetox({ newInstance = true, processTimeoutM
   }
 
   await configureDetoxForBrownfieldIos();
-  await device.enableSynchronization();
+
+  if (enableSync) {
+    await device.enableSynchronization();
+  }
 }
 
 /** Call after Android readiness polling so Espresso matchers can interact with the app. */

@@ -74,10 +74,6 @@ yarn-error.log
 !.yarn/sdks
 !.yarn/versions
 
-# Brownfield
-android/BrownfieldLib/libs*Debug/
-android/BrownfieldLib/libs*Release/
-
 # Benchmarks
 android/gradle-user-home/
 android/profile-out/

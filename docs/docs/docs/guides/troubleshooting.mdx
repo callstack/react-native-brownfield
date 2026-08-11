@@ -37,3 +37,44 @@ implementation("com.google.android.material:material:1.13.0")
 ## [iOS] `No script URL provided` in Release configuration
 
 If you encounter this error, most likely you have missed a setup step and are missing `ReactNativeBrownfield.shared.bundle = ReactNativeBundle` before your call to `startReactNative`.
+
+## [Android] Defining Missing Dimension Strategies
+
+This maybe required if any third party library has defined product flavors and dimensions. If so, then the consuming modules, in brownfield case, `:app` and `:brownfieldlib` need 
+to define the `missingDimensionStrategy`.
+
+:::info
+This should be only required for bare react native. For Expo, this is already handled by `@callstack/react-native-brownfield` expo config plugin.
+You only need to define `android.expo.missingDimensionStrategies` using the brownfield config.
+:::
+
+#### Step 1:
+```groovy
+// app/build.gradle
+
+android {
+    defaultConfig {
+        ...
+        versionName "1.0"
+        missingDimensionStrategy("type", "alpha")
+    }
+}
+```
+
+#### Step 2:
+```kts
+// brownfieldlib/build.gradle
+
+reactBrownfield {
+    missingDimensionStrategies = listOf("type", "alpha")
+}
+
+android {
+    defaultConfig {
+        ...
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
+        missingDimensionStrategy("type", "alpha")
+    }
+}
+```

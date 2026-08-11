@@ -1,7 +1,19 @@
+export interface CallbackParam {
+  name: string;
+  type: string;
+  optional: boolean;
+}
+
+export interface CallbackSignature {
+  params: CallbackParam[];
+  returnType: string;
+}
+
 export interface MethodParam {
   name: string;
   type: string;
   optional: boolean;
+  callback?: CallbackSignature;
 }
 
 export interface MethodSignature {
@@ -9,6 +21,7 @@ export interface MethodSignature {
   params: MethodParam[];
   returnType: string;
   isAsync: boolean;
+  promiseReturnType?: string;
 }
 
 export interface TypeDeclaration {

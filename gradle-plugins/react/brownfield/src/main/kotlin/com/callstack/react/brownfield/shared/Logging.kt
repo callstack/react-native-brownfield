@@ -5,7 +5,7 @@ import com.callstack.react.brownfield.shared.Constants.PLUGIN_NAME
 object Logging : BaseProject() {
     fun error(
         message: Any,
-        error: Throwable,
+        error: Throwable?,
     ) {
         project.logger.error(getFormattedMessage(message), error)
     }

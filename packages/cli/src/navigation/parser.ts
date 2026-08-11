@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { Project } from 'ts-morph';
 
 import type {
+  CallbackSignature,
   ModelDefinition,
   ModelFieldDefinition,
   MethodParam,
@@ -10,6 +11,7 @@ import type {
   TypeDeclaration,
 } from './types.js';
 import { Node } from 'ts-morph';
+import type { TypeNode } from 'ts-morph';
 
 const SKIP_TYPE_TOKENS = new Set([
   'Array',
@@ -42,6 +44,60 @@ function collectReferencedTypesFromText(typeText: string): string[] {
   return matches.filter((match) => !SKIP_TYPE_TOKENS.has(match));
 }
 
+function getPromiseInnerType(typeText: string): string | undefined {
+  return typeText.startsWith('Promise<') && typeText.endsWith('>')
+    ? typeText.slice(8, -1)
+    : undefined;
+}
+
+function parseCallbackSignature(
+  typeNode: TypeNode | undefined
+): CallbackSignature | undefined {
+  if (!typeNode || !Node.isFunctionTypeNode(typeNode)) {
+    return undefined;
+  }
+
+  return {
+    params: typeNode.getParameters().map((param) => ({
+      name: param.getName(),
+      type: param.getTypeNode()?.getText() ?? 'unknown',
+      optional: param.isOptional(),
+    })),
+    returnType: typeNode.getReturnTypeNode()?.getText() ?? 'void',
+  };
+}
+
+const RESERVED_ASYNC_PARAM_NAMES = new Set(['promise', 'resolve', 'reject']);
+
+function validateMethodSignature(method: MethodSignature): void {
+  for (const param of method.params) {
+    if (getPromiseInnerType(param.type)) {
+      throw new Error(
+        `Unsupported Promise parameter "${param.name}" in method "${method.name}": Promise<T> is only supported as a method return type.`
+      );
+    }
+
+    if (
+      method.isAsync &&
+      RESERVED_ASYNC_PARAM_NAMES.has(param.name)
+    ) {
+      throw new Error(
+        `Reserved parameter name "${param.name}" in async method "${method.name}": this name is used by the generated bridging code. Rename the parameter.`
+      );
+    }
+
+    if (!param.callback) {
+      continue;
+    }
+
+    if (param.callback.returnType !== 'void') {
+      throw new Error(
+        `Unsupported callback parameter "${param.name}" in method "${method.name}": callback return type "${param.callback.returnType}" is not supported. Use a void callback or model the result as a Promise-returning navigation method.`
+      );
+    }
+  }
+}
+
 export function parseNavigationSpec(specPath: string): ParsedNavigationSpec {
   if (!fs.existsSync(specPath)) {
     throw new Error(`Spec file not found: ${specPath}`);
@@ -63,21 +119,32 @@ export function parseNavigationSpec(specPath: string): ParsedNavigationSpec {
     const name = method.getName();
     const params: MethodParam[] = method.getParameters().map((param) => {
       const typeNode = param.getTypeNode();
-      return {
+      const callback = parseCallbackSignature(typeNode);
+      const methodParam: MethodParam = {
         name: param.getName(),
         type: typeNode?.getText() ?? 'unknown',
         optional: param.isOptional(),
       };
+      if (callback) {
+        methodParam.callback = callback;
+      }
+      return methodParam;
     });
     const returnTypeNode = method.getReturnTypeNode();
     const returnType = returnTypeNode?.getText() ?? 'void';
+    const promiseReturnType = getPromiseInnerType(returnType);
 
-    return {
+    const methodSignature: MethodSignature = {
       name,
       params,
       returnType,
-      isAsync: returnType.startsWith('Promise<'),
+      isAsync: Boolean(promiseReturnType),
     };
+    if (promiseReturnType) {
+      methodSignature.promiseReturnType = promiseReturnType;
+    }
+    validateMethodSignature(methodSignature);
+    return methodSignature;
   });
 
   const declarationNodes = [

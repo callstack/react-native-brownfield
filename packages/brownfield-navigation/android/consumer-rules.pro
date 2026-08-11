@@ -1,0 +1,4 @@
+-keep class com.callstack.nativebrownfieldnavigation.NativeBrownfieldNavigationPackage { *; }
+-keep class com.callstack.nativebrownfieldnavigation.NativeBrownfieldNavigationModule { *; }
+-keep interface com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate { *; }
+-keep class com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager { *; }

@@ -206,6 +206,10 @@ describe('resolveBrownfieldPluginConfig', () => {
         artifactId: 'brownfieldlib',
         version: '0.0.1-SNAPSHOT',
         useLocalGradlePlugin: false,
+        minifyEnabled: false,
+        extraProguardRules: [],
+        useLocalMaven: false,
+        missingDimensionStrategies: [],
       },
     });
   });
@@ -270,6 +274,7 @@ describe('resolveBrownfieldPluginConfig', () => {
           expo: {
             minSdkVersion: 26,
             version: '2.0.0',
+            missingDimensionStrategies: ['type', 'alpha'],
           },
         },
         ios: {
@@ -288,6 +293,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         expo: {
           minSdkVersion: 26,
           version: '2.0.0',
+          missingDimensionStrategies: ['type', 'alpha'],
         },
       },
       ios: {
@@ -309,6 +315,9 @@ describe('resolveBrownfieldPluginConfig', () => {
       moduleName: 'mylib',
       minSdkVersion: 26,
       version: '2.0.0',
+      minifyEnabled: false,
+      extraProguardRules: [],
+      missingDimensionStrategies: ['type', 'alpha'],
     });
     expect(resolved.ios).toMatchObject({
       frameworkName: 'MyLib',
@@ -334,6 +343,56 @@ describe('resolveBrownfieldPluginConfig', () => {
     expect(resolved.android?.useLocalGradlePlugin).toBe(true);
   });
 
+  it('maps android.expo.minifyEnabled and extraProguardRules from file config', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      {
+        android: {
+          moduleName: 'mylib',
+          expo: {
+            minifyEnabled: true,
+            extraProguardRules: [
+              '-keep class com.example.Foo { *; }',
+              '-dontwarn com.example.Bar',
+            ],
+          },
+        },
+      },
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.minifyEnabled).toBe(true);
+    expect(resolved.android?.extraProguardRules).toEqual([
+      '-keep class com.example.Foo { *; }',
+      '-dontwarn com.example.Bar',
+    ]);
+  });
+
+  it('drops empty android.expo.extraProguardRules entries', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      {
+        android: {
+          moduleName: 'mylib',
+          expo: {
+            extraProguardRules: [
+              '   ',
+              '-keep class com.example.Foo { *; }',
+              '',
+              '  -dontwarn com.example.Bar  ',
+            ],
+          },
+        },
+      },
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.extraProguardRules).toEqual([
+      '-keep class com.example.Foo { *; }',
+      '  -dontwarn com.example.Bar  ',
+    ]);
+  });
+
   it('maps android.useLocalGradlePlugin from legacy app.json plugin props', () => {
     const resolved = resolveBrownfieldPluginConfig(
       {
@@ -347,5 +406,78 @@ describe('resolveBrownfieldPluginConfig', () => {
     );
 
     expect(resolved.android?.useLocalGradlePlugin).toBe(true);
+  });
+
+  it('maps android minifyEnabled and extraProguardRules from legacy app.json plugin props', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: {
+          moduleName: 'mylib',
+          minifyEnabled: true,
+          extraProguardRules: [
+            '-keep class com.example.Legacy { *; }',
+            '-dontwarn com.example.Legacy',
+          ],
+        },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.minifyEnabled).toBe(true);
+    expect(resolved.android?.extraProguardRules).toEqual([
+      '-keep class com.example.Legacy { *; }',
+      '-dontwarn com.example.Legacy',
+    ]);
+  });
+
+  it('maps android.expo.useLocalMaven from file config', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      {
+        android: {
+          moduleName: 'mylib',
+          expo: {
+            useLocalMaven: true,
+          },
+        },
+      },
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.useLocalMaven).toBe(true);
+  });
+
+  it('maps android.useLocalMaven from legacy app.json plugin props', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: {
+          moduleName: 'mylib',
+          useLocalMaven: true,
+        },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.useLocalMaven).toBe(true);
+  });
+
+  it('maps android.missingDimensionStrategies from legacy app.json plugin props', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: {
+          moduleName: 'mylib',
+          missingDimensionStrategies: ['type', 'alpha'],
+        },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.missingDimensionStrategies).toEqual([
+      'type',
+      'alpha',
+    ]);
   });
 });

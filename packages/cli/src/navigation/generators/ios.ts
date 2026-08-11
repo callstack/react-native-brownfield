@@ -1,4 +1,4 @@
-import type { MethodSignature } from '../types.js';
+import type { MethodParam, MethodSignature } from '../types.js';
 
 const TS_TO_OBJC_TYPE: Record<string, string> = {
   string: 'NSString *',
@@ -44,6 +44,19 @@ function mapTsTypeToObjC(
   return nullable ? 'id _Nullable' : 'id';
 }
 
+function mapParamToObjC(
+  param: MethodParam,
+  nullable: boolean = false,
+  options: ObjCTypeMappingOptions = {}
+): string {
+  if (param.callback) {
+    return param.optional
+      ? 'RCTResponseSenderBlock _Nullable'
+      : 'RCTResponseSenderBlock';
+  }
+  return mapTsTypeToObjC(param.type, nullable, options);
+}
+
 interface SwiftTypeMappingOptions {
   modelTypeNames?: string[];
 }
@@ -72,22 +85,46 @@ function mapTsTypeToSwift(
   return optional ? 'Any?' : 'Any';
 }
 
+/** ObjC-compatible closures that match RCT typedefs without importing React. */
+const SWIFT_RESPONSE_SENDER_BLOCK = '@escaping ([Any]?) -> Void';
+const SWIFT_OPTIONAL_RESPONSE_SENDER_BLOCK = '(([Any]?) -> Void)?';
+const SWIFT_PROMISE_RESOLVE_BLOCK = '@escaping (Any?) -> Void';
+const SWIFT_PROMISE_REJECT_BLOCK =
+  '@escaping (String?, String?, (any Error)?) -> Void';
+
+function mapParamToSwift(
+  param: MethodParam,
+  options: SwiftTypeMappingOptions = {}
+): string {
+  if (param.callback) {
+    return param.optional
+      ? SWIFT_OPTIONAL_RESPONSE_SENDER_BLOCK
+      : SWIFT_RESPONSE_SENDER_BLOCK;
+  }
+  return mapTsTypeToSwift(param.type, param.optional, options);
+}
+
 export function generateSwiftDelegate(
   methods: MethodSignature[],
   options: SwiftTypeMappingOptions = {}
 ): string {
   const protocolMethods = methods
     .map((method) => {
-      const params = method.params
-        .map((param, index) => {
-          const swiftType = mapTsTypeToSwift(param.type, param.optional, options);
-          const label = index === 0 ? '_' : param.name;
-          return `${label} ${param.name}: ${swiftType}`;
-        })
-        .join(', ');
+      const methodParams = method.params.map((param, index) => {
+        const swiftType = mapParamToSwift(param, options);
+        const label = index === 0 ? '_' : param.name;
+        return `${label} ${param.name}: ${swiftType}`;
+      });
+      const promiseParams = method.isAsync
+        ? [
+            `${methodParams.length === 0 ? '_ resolve' : 'resolve'}: ${SWIFT_PROMISE_RESOLVE_BLOCK}`,
+            `reject: ${SWIFT_PROMISE_REJECT_BLOCK}`,
+          ]
+        : [];
+      const params = [...methodParams, ...promiseParams].join(', ');
 
       const returnType =
-        method.returnType === 'void'
+        method.returnType === 'void' || method.isAsync
           ? ''
           : ` -> ${mapTsTypeToSwift(method.returnType, false, options)}`;
 
@@ -142,25 +179,13 @@ ${methodImplementations}
 `;
 }
 
-function generateSyncObjCMethod(
+function prepareObjCArgs(
   method: MethodSignature,
   options: ObjCGenerationOptions
-): string {
-  const { name, params, returnType } = method;
-
-  let signature = `- (${mapTsTypeToObjC(returnType, false, options)})${name}`;
-  if (params.length > 0) {
-    signature += params
-      .map((param, index) => {
-        const prefix = index === 0 ? ':' : ` ${param.name}:`;
-        return `${prefix}(${mapTsTypeToObjC(param.type, param.optional, options)})${param.name}`;
-      })
-      .join('');
-  }
-
+): { preparedParams: string[]; delegateArgs: string[] } {
   const preparedParams: string[] = [];
   const delegateArgs: string[] = [];
-  for (const param of params) {
+  for (const param of method.params) {
     if (options.modelTypeNames?.includes(param.type)) {
       const convertedParamName = `${param.name}Model`;
       preparedParams.push(
@@ -171,7 +196,14 @@ function generateSyncObjCMethod(
       delegateArgs.push(param.name);
     }
   }
+  return { preparedParams, delegateArgs };
+}
 
+function buildObjCDelegateCall(
+  name: string,
+  params: Array<{ name: string; type: string; optional: boolean }>,
+  delegateArgs: string[]
+): string {
   let delegateCall = `[[[BrownfieldNavigationManager shared] getDelegate] ${name}`;
   if (delegateArgs.length > 0) {
     delegateCall += delegateArgs
@@ -183,6 +215,27 @@ function generateSyncObjCMethod(
       .join(' ');
   }
   delegateCall += ']';
+  return delegateCall;
+}
+
+function generateSyncObjCMethod(
+  method: MethodSignature,
+  options: ObjCGenerationOptions
+): string {
+  const { name, params, returnType } = method;
+
+  let signature = `- (${mapTsTypeToObjC(returnType, false, options)})${name}`;
+  if (params.length > 0) {
+    signature += params
+      .map((param, index) => {
+        const prefix = index === 0 ? ':' : ` ${param.name}:`;
+        return `${prefix}(${mapParamToObjC(param, param.optional, options)})${param.name}`;
+      })
+      .join('');
+  }
+
+  const { preparedParams, delegateArgs } = prepareObjCArgs(method, options);
+  const delegateCall = buildObjCDelegateCall(name, params, delegateArgs);
 
   const returnPrefix = returnType === 'void' ? '' : 'return ';
   const preparedLines = preparedParams.map((line) => `    ${line}`).join('\n');
@@ -200,27 +253,33 @@ function generateAsyncObjCMethod(
   const { name, params } = method;
 
   let signature = `- (void)${name}`;
-  const allParams: Array<{ name: string; type: string; optional: boolean }> = [
-    ...params,
+  const promiseParams: Array<{ name: string; type: string; optional: boolean }> = [
     { name: 'resolve', type: 'RCTPromiseResolveBlock', optional: false },
     { name: 'reject', type: 'RCTPromiseRejectBlock', optional: false },
   ];
+  const allParams = [...params, ...promiseParams];
 
   signature += ':';
   signature += allParams
     .map((param, index) => {
-      const prefix = index === 0 ? '' : param.name;
+      const prefix = index === 0 ? '' : `${param.name}:`;
       const type =
         param.type === 'RCTPromiseResolveBlock'
           ? 'RCTPromiseResolveBlock'
           : param.type === 'RCTPromiseRejectBlock'
             ? 'RCTPromiseRejectBlock'
-            : mapTsTypeToObjC(param.type, param.optional, options);
+            : mapParamToObjC(param, param.optional, options);
       return `${prefix}(${type})${param.name}`;
     })
     .join(' ');
 
+  const { preparedParams, delegateArgs } = prepareObjCArgs(method, options);
+  const asyncDelegateArgs = [...delegateArgs, 'resolve', 'reject'];
+  const delegateCall = buildObjCDelegateCall(name, allParams, asyncDelegateArgs);
+  const preparedLines = preparedParams.map((line) => `    ${line}`).join('\n');
+  const bodyPrefix = preparedLines.length > 0 ? `${preparedLines}\n` : '';
+
   return `${signature} {
-    reject(@"not_implemented", @"${name} is not implemented", nil);
+${bodyPrefix}    ${delegateCall};
 }`;
 }
