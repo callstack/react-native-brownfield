@@ -15,10 +15,15 @@ const {
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
 const EXPO56_GREETING_NEEDLE = 'Hello native Android (Expo 56)';
-/** Unique copy on the Expo home screen — survives nbsp/emoji quirks in UIAutomator. */
-const EXPO56_RN_SURFACE_NEEDLE = 'GET STARTED';
+/**
+ * Prefer stable testIDs — Expo/Fabric home copy is often missing from UIAutomator text
+ * nodes (nbsp / transformed labels), which is what failed CI on text-only needles.
+ */
 const EXPO56_RN_SURFACE_NEEDLES = [
-  EXPO56_RN_SURFACE_NEEDLE,
+  ids.rnAppHome,
+  ids.rnAppHomeTitle,
+  ids.expoHomeTab,
+  'GET STARTED',
   'Welcome to',
   'Try editing',
 ];
@@ -51,11 +56,17 @@ async function scrollToEmbeddedRnVanilla() {
 
 async function scrollToEmbeddedRnExpo() {
   try {
-    const homeTab = element(by.label('Home')).atIndex(0);
+    const homeTab = element(by.id(ids.expoHomeTab)).atIndex(0);
     await homeTab.swipe('up', 'slow', 0.75);
     await homeTab.swipe('up', 'slow', 0.5);
   } catch {
-    await scrollToEmbeddedRnVanilla();
+    try {
+      const homeTab = element(by.label('Home')).atIndex(0);
+      await homeTab.swipe('up', 'slow', 0.75);
+      await homeTab.swipe('up', 'slow', 0.5);
+    } catch {
+      await scrollToEmbeddedRnVanilla();
+    }
   }
 
   try {
@@ -86,9 +97,13 @@ async function scrollToNativeShellExpo() {
     await element(by.id(ids.appleAppGreeting)).swipe('down', 'slow', 0.75);
   } catch {
     try {
-      await element(by.label('Home')).atIndex(0).swipe('down', 'fast', 0.85);
+      await element(by.id(ids.expoHomeTab)).atIndex(0).swipe('down', 'fast', 0.85);
     } catch {
-      await scrollToNativeShellVanilla();
+      try {
+        await element(by.label('Home')).atIndex(0).swipe('down', 'fast', 0.85);
+      } catch {
+        await scrollToNativeShellVanilla();
+      }
     }
   }
 
@@ -144,7 +159,7 @@ async function waitForAndroidAppReadyVanilla() {
 }
 
 async function waitForAndroidAppReadyExpo() {
-  console.log('[e2e] Waiting for Expo RN surface (Home tab or welcome title)...');
+  console.log('[e2e] Waiting for Expo RN surface (home testID)...');
 
   try {
     await scrollToEmbeddedRnExpo();
@@ -153,13 +168,13 @@ async function waitForAndroidAppReadyExpo() {
   }
 
   try {
-    await pollUntilUiAutomatorContains('Home', 90000, EXPO_ANDROID_POLL);
+    await pollUntilUiAutomatorContains(ids.rnAppHome, 90000, EXPO_ANDROID_POLL);
   } catch {
     try {
       await pollUntilUiAutomatorContainsAny(EXPO56_RN_SURFACE_NEEDLES, 90000, EXPO_ANDROID_POLL);
     } catch {
       await scrollToEmbeddedRnExpo();
-      await pollUntilUiAutomatorContainsAny(EXPO56_RN_SURFACE_NEEDLES, 60000, EXPO_ANDROID_POLL);
+      await pollUntilUiAutomatorContains(ids.rnAppHome, 60000, EXPO_ANDROID_POLL);
     }
   }
 
@@ -170,8 +185,16 @@ async function waitForAndroidAppReadyExpo() {
 async function openPostMessageTabExpo() {
   await scrollToEmbeddedRnExpo();
   await dismissAndroidSystemOverlays();
-  await tapUiAutomatorTarget({ needle: 'postMessage API' }, 30000, EXPO_ANDROID_POLL);
-  await pollUntilUiAutomatorContains('Send message to Native', 30000, EXPO_ANDROID_POLL);
+  try {
+    await tapUiAutomatorTarget({ resourceId: ids.expoPostMessageTab }, 15000, EXPO_ANDROID_POLL);
+  } catch {
+    await tapUiAutomatorTarget({ needle: 'postMessage API' }, 30000, EXPO_ANDROID_POLL);
+  }
+  try {
+    await pollUntilUiAutomatorContains(ids.sendMessageToNative, 30000, EXPO_ANDROID_POLL);
+  } catch {
+    await pollUntilUiAutomatorContains('Send message to Native', 30000, EXPO_ANDROID_POLL);
+  }
 }
 
 async function sendPostMessageToNativeAndWaitForToast(rnMessagePattern) {
@@ -209,6 +232,5 @@ module.exports = {
   openPostMessageTabExpo,
   sendPostMessageToNativeAndWaitForToast,
   EXPO56_GREETING_NEEDLE,
-  EXPO56_RN_SURFACE_NEEDLE,
   EXPO56_RN_SURFACE_NEEDLES,
 };

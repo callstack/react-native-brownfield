@@ -2,16 +2,17 @@ const {
   dismissAndroidSystemOverlays,
   launchBrownfieldAppForDetox,
   pollUntilUiAutomatorContains,
-  pollUntilUiAutomatorContainsAny,
   tapUiAutomatorTarget,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
+const {
+  brownfieldE2ETestIds: ids,
+} = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
 const {
   scrollToEmbeddedRnExpo,
   scrollToNativeShellExpo,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
   EXPO56_GREETING_NEEDLE,
-  EXPO56_RN_SURFACE_NEEDLES,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
 describe('Brownfield (AndroidApp — Expo)', () => {
@@ -32,16 +33,22 @@ describe('Brownfield (AndroidApp — Expo)', () => {
       keepCurrentActivity: true,
     });
     await scrollToEmbeddedRnExpo();
-    await pollUntilUiAutomatorContainsAny(EXPO56_RN_SURFACE_NEEDLES, 30000, {
+    await pollUntilUiAutomatorContains(ids.rnAppHome, 30000, {
       keepCurrentActivity: true,
     });
   });
 
   it('records the RN postMessage bubble in the Expo surface', async () => {
     await openPostMessageTabExpo();
-    await tapUiAutomatorTarget({ needle: 'Send message to Native' }, 30000, {
-      keepCurrentActivity: true,
-    });
+    try {
+      await tapUiAutomatorTarget({ resourceId: ids.sendMessageToNative }, 15000, {
+        keepCurrentActivity: true,
+      });
+    } catch {
+      await tapUiAutomatorTarget({ needle: 'Send message to Native' }, 30000, {
+        keepCurrentActivity: true,
+      });
+    }
     await pollUntilUiAutomatorContains('Hello from Expo!', 15000, {
       keepCurrentActivity: true,
     });
