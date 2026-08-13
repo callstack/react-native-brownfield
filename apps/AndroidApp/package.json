@@ -12,8 +12,11 @@
     "e2e:test:android": "detox test --configuration android.emu.release",
     "e2e:build:android:expo56": "detox build --config-path ./.detoxrc.expo56.cjs --configuration android.emu.release.expo56",
     "e2e:test:android:expo56": "detox test --config-path ./.detoxrc.expo56.cjs --configuration android.emu.release.expo56",
+    "e2e:build:android:expo57": "detox build --config-path ./.detoxrc.expo57.cjs --configuration android.emu.release.expo57",
+    "e2e:test:android:expo57": "detox test --config-path ./.detoxrc.expo57.cjs --configuration android.emu.release.expo57",
     "ci:local:e2e:android": "bash ../../scripts/ci-local-androidapp-android-e2e.sh",
-    "ci:local:e2e:android:expo56": "bash ../../scripts/ci-local-androidapp-android-e2e.sh --variant expo56"
+    "ci:local:e2e:android:expo56": "bash ../../scripts/ci-local-androidapp-android-e2e.sh --variant expo56",
+    "ci:local:e2e:android:expo57": "bash ../../scripts/ci-local-androidapp-android-e2e.sh --variant expo57"
   },
   "devDependencies": {
     "@callstack/brownfield-example-shared-tests": "workspace:^",

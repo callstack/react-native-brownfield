@@ -14,14 +14,21 @@ const {
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 
 const VANILLA_NATIVE_GREETING = by.text(/Hello native Android/);
-const EXPO56_GREETING_NEEDLE = 'Hello native Android (Expo 56)';
+/** Matches Expo 56 / 57 native shell greeting (`Hello native Android (Expo N)`). */
+const EXPO_ANDROID_GREETING_NEEDLES = [
+  'Hello native Android (Expo 56)',
+  'Hello native Android (Expo 57)',
+  'Hello native Android (Expo',
+];
+/** @deprecated Use EXPO_ANDROID_GREETING_NEEDLES — kept for older callers. */
+const EXPO56_GREETING_NEEDLE = EXPO_ANDROID_GREETING_NEEDLES[0];
 
 /**
  * Real Expo home content only — never tab chrome (`Home` / expoHomeTab).
  * Tab labels stay on-screen while the RN fragment is clipped, which caused false
  * readiness and then UIAutomator timeouts after scrolling to the native greeting.
  */
-const EXPO56_RN_CONTENT_NEEDLES = [
+const EXPO_ANDROID_RN_CONTENT_NEEDLES = [
   ids.rnAppHome,
   ids.rnAppHomeTitle,
   'Welcome to Expo',
@@ -30,6 +37,8 @@ const EXPO56_RN_CONTENT_NEEDLES = [
   'get started',
   'Try editing',
 ];
+/** @deprecated Use EXPO_ANDROID_RN_CONTENT_NEEDLES. */
+const EXPO56_RN_CONTENT_NEEDLES = EXPO_ANDROID_RN_CONTENT_NEEDLES;
 
 const EXPO_ANDROID_POLL = { keepCurrentActivity: true };
 
@@ -144,12 +153,20 @@ async function waitForAndroidAppReadyVanilla() {
  */
 async function waitForAndroidAppReadyExpo() {
   console.log('[e2e] Waiting for native Expo Android greeting...');
-  await pollUntilUiAutomatorContains(EXPO56_GREETING_NEEDLE, 90000, EXPO_ANDROID_POLL);
+  await pollUntilUiAutomatorContainsAny(
+    EXPO_ANDROID_GREETING_NEEDLES,
+    90000,
+    EXPO_ANDROID_POLL
+  );
 
   console.log('[e2e] Scrolling until Expo home content is visible...');
   for (let attempt = 0; attempt < 10; attempt += 1) {
     try {
-      await pollUntilUiAutomatorContainsAny(EXPO56_RN_CONTENT_NEEDLES, 4000, EXPO_ANDROID_POLL);
+      await pollUntilUiAutomatorContainsAny(
+        EXPO_ANDROID_RN_CONTENT_NEEDLES,
+        4000,
+        EXPO_ANDROID_POLL
+      );
       console.log('[e2e] Expo RN surface ready');
       await finishAndroidDetoxLaunch();
       return;
@@ -159,7 +176,11 @@ async function waitForAndroidAppReadyExpo() {
     }
   }
 
-  await pollUntilUiAutomatorContainsAny(EXPO56_RN_CONTENT_NEEDLES, 60000, EXPO_ANDROID_POLL);
+  await pollUntilUiAutomatorContainsAny(
+    EXPO_ANDROID_RN_CONTENT_NEEDLES,
+    60000,
+    EXPO_ANDROID_POLL
+  );
   console.log('[e2e] Expo RN surface ready');
   await finishAndroidDetoxLaunch();
 }
@@ -262,8 +283,10 @@ module.exports = {
   openPostMessageTabExpo,
   tapSendMessageToNativeExpo,
   sendPostMessageToNativeAndWaitForToast,
+  EXPO_ANDROID_GREETING_NEEDLES,
+  EXPO_ANDROID_RN_CONTENT_NEEDLES,
   EXPO56_GREETING_NEEDLE,
   EXPO56_RN_CONTENT_NEEDLES,
   // Back-compat alias used by older callers / logs.
-  EXPO56_RN_SURFACE_NEEDLES: EXPO56_RN_CONTENT_NEEDLES,
+  EXPO56_RN_SURFACE_NEEDLES: EXPO_ANDROID_RN_CONTENT_NEEDLES,
 };

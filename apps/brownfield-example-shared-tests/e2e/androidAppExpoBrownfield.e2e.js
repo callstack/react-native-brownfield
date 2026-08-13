@@ -6,7 +6,7 @@ const {
   assertDetoxTextMatches,
   dismissAndroidSystemOverlays,
   launchBrownfieldAppForDetox,
-  pollUntilUiAutomatorContains,
+  pollUntilUiAutomatorContainsAny,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
   scrollToEmbeddedRnExpo,
@@ -14,7 +14,7 @@ const {
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
   tapSendMessageToNativeExpo,
-  EXPO56_GREETING_NEEDLE,
+  EXPO_ANDROID_GREETING_NEEDLES,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
 describe('Brownfield (AndroidApp — Expo)', () => {
@@ -35,7 +35,7 @@ describe('Brownfield (AndroidApp — Expo)', () => {
 
     await scrollToNativeShellExpo();
     await detoxExpect(element(by.id(ids.appleAppGreeting))).toBeVisible();
-    await pollUntilUiAutomatorContains(EXPO56_GREETING_NEEDLE, 15000, {
+    await pollUntilUiAutomatorContainsAny(EXPO_ANDROID_GREETING_NEEDLES, 15000, {
       keepCurrentActivity: true,
     });
 
