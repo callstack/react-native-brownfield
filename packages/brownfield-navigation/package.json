@@ -5,6 +5,9 @@
   "author": "Hur Ali",
   "description": "Brownfield navigation helpers for React Native",
   "homepage": "https://github.com/callstack/react-native-brownfield",
+  "repository": {
+    "url": "git+https://github.com/callstack/react-native-brownfield.git"
+  },
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "./lib/typescript/commonjs/src/index.d.ts",
