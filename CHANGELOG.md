@@ -2,6 +2,15 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 5.0.2
+
+### Patch Changes
+
+- [#449](https://github.com/callstack/react-native-brownfield/pull/449) [`83657e7`](https://github.com/callstack/react-native-brownfield/commit/83657e7c0d209161561bff39d6e043a154e350d0) Thanks [@hurali97](https://github.com/hurali97)! - Fix npm publishing by upgrading to Changesets v3 (Yarn rewrites `workspace:` ranges on publish) and correcting package `repository` metadata required for npm provenance.
+
+- Updated dependencies [[`83657e7`](https://github.com/callstack/react-native-brownfield/commit/83657e7c0d209161561bff39d6e043a154e350d0)]:
+  - @callstack/brownfield-cli@5.0.2
+
 ## 5.0.1
 
 ### Patch Changes
