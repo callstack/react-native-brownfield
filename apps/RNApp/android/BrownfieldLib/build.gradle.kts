@@ -71,7 +71,7 @@ react {
 
 android {
     namespace = "com.rnapp.brownfieldlib"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
@@ -134,6 +134,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
-    api("com.facebook.react:react-android:0.85.0")
-    api("com.facebook.hermes:hermes-android:250829098.0.10")
+    api("com.facebook.react:react-android:0.87.0")
+    api("com.facebook.hermes:hermes-android:250829098.0.16")
 }
