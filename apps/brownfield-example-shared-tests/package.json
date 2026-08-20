@@ -29,6 +29,7 @@
     "react-test-renderer": ">=18"
   },
   "devDependencies": {
+    "@babel/runtime": "^7.25.0",
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
     "@testing-library/react-native": "^13.3.3",

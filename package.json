@@ -38,8 +38,8 @@
   },
   "packageManager": "yarn@4.12.0",
   "dependencies": {
-    "@changesets/changelog-github": "^0.6.0",
-    "@changesets/cli": "^2.30.0",
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.1",
     "@expo/config-plugins": "^56.0.8"
   },
   "devDependencies": {
