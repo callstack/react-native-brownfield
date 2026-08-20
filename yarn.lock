@@ -2065,6 +2065,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-shared-tests@workspace:apps/brownfield-example-shared-tests"
   dependencies:
+    "@babel/runtime": "npm:^7.25.0"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
     "@testing-library/react-native": "npm:^13.3.3"
