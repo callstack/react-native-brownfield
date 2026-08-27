@@ -46,7 +46,7 @@ class ReactNativeBrownfieldDelegate: RCTDefaultReactNativeFactoryDelegate {
 
 final class ReactNativeHostRuntime {
   public static let shared = ReactNativeHostRuntime()
-  private let jsBundleLoadObserver = JSBundleLoadObserver()
+  let preloadState = ReactHostPreloadState()
   private var delegate = ReactNativeBrownfieldDelegate()
 
   private func configureDevLoadingView() {
@@ -133,6 +133,7 @@ final class ReactNativeHostRuntime {
     }
 
     reactNativeFactory = nil
+    preloadState.reset()
   }
 
   public func view(
@@ -145,7 +146,7 @@ final class ReactNativeHostRuntime {
     return reactNativeFactory?.rootViewFactory.view(
       withModuleName: moduleName,
       initialProperties: initialProps,
-      launchOptions: launchOptions
+      launchOptions: preloadState.launchOptions(overriddenBy: launchOptions)
     )
   }
 
@@ -188,17 +189,38 @@ final class ReactNativeHostRuntime {
   /**
    * Starts React Native with optional callback when bundle is loaded.
    *
-   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
+   * @param onBundleLoaded Optional callback invoked on the main thread after JS bundle is fully loaded.
    */
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
+    // The callback registration is outside of the guard below. An earlier `startReactNative` call
+    // can already have made the factory, and the callback must still run.
+    if let onBundleLoaded {
+      preloadState.jsBundleLoadObserver.observe(onBundleLoaded: onBundleLoaded)
+    }
+
     guard reactNativeFactory == nil else { return }
 
     delegate.dependencyProvider = RCTAppDependencyProvider()
     reactNativeFactory = RCTReactNativeFactory(delegate: delegate)
+  }
+}
 
-    if let onBundleLoaded {
-      jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
-    }
+extension ReactNativeHostRuntime: ReactHostPreloading {
+  var reactNativeFactoryForPreload: AnyObject? {
+    return reactNativeFactory
+  }
+
+  /**
+   * The bare React Native delegate resolves the bundle URL from the override, from Metro, or from
+   * the embedded bundle. No step waits for an asynchronous operation. Thus a preload uses the same
+   * bundle as the first view.
+   */
+  func canPreloadReactNative() -> Bool {
+    return true
+  }
+
+  func prepareDevLoadingView() {
+    configureDevLoadingView()
   }
 }
 #endif
