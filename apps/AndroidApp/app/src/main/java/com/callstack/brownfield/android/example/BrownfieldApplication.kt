@@ -8,7 +8,6 @@ import com.callstack.brownie.StoreManager
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
-import com.facebook.react.ReactNativeHost
 import com.google.gson.Gson
 
 /**
@@ -23,10 +22,6 @@ import com.google.gson.Gson
  * Those helpers are fragile when brownie is consumed only via the fat-merged brownfieldlib AAR.
  */
 class BrownfieldApplication : Application(), ReactApplication {
-    @Suppress("DEPRECATION")
-    override val reactNativeHost: ReactNativeHost
-        get() = ReactNativeHostManager.reactNativeHost
-
     override val reactHost: ReactHost
         get() = ReactNativeBrownfield.shared.reactHost
 

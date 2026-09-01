@@ -5,20 +5,17 @@ import android.content.res.Configuration
 import com.callstack.reactnativebrownfield.OnJSBundleLoaded
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.PackageList
-import com.facebook.react.ReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ExpoReactHostFactory
+import java.util.concurrent.atomic.AtomicBoolean
 
 object ReactNativeHostManager {
-    @Suppress("DEPRECATION")
-    val reactNativeHost: ReactNativeHost
-        get() =
-            throw RuntimeException(
-                "You should not use ReactNativeHost directly in the New Architecture"
-            )
+    private val applicationCreateDispatched = AtomicBoolean()
 
     fun initialize(application: Application, onJSBundleLoaded: OnJSBundleLoaded? = null) {
-        ApplicationLifecycleDispatcher.onApplicationCreate(application)
+        if (applicationCreateDispatched.compareAndSet(false, true)) {
+            ApplicationLifecycleDispatcher.onApplicationCreate(application)
+        }
 
         ReactNativeBrownfield.initialize(application, onJSBundleLoaded) {
             ExpoReactHostFactory.getDefaultReactHost(

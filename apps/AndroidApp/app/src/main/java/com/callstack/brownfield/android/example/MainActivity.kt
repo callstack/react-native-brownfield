@@ -45,13 +45,10 @@ import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppThe
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.nativebrownfieldnavigation.UserType
-import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
-import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactContext
 
 class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     private val isDetoxE2E: Boolean
@@ -90,7 +87,15 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
         enableEdgeToEdge()
 
         if (savedInstanceState == null) {
-            showReactNativeLoadedToastWhenReady()
+            ReactNativeHostManager.initialize(application) {
+                if (!isDetoxE2E) {
+                    Toast.makeText(
+                        this,
+                        "React Native has been loaded",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
 
         setContent {
@@ -109,29 +114,6 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
                 }
             }
         }
-    }
-
-    private fun showReactNativeLoadedToastWhenReady() {
-        if (isDetoxE2E) {
-            return
-        }
-
-        val reactHost = ReactNativeBrownfield.shared.reactHost
-        reactHost.currentReactContext?.let {
-            Toast.makeText(this, "React Native has been loaded", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        reactHost.addReactInstanceEventListener(object : ReactInstanceEventListener {
-            override fun onReactContextInitialized(context: ReactContext) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "React Native has been loaded",
-                    Toast.LENGTH_LONG
-                ).show()
-                reactHost.removeReactInstanceEventListener(this)
-            }
-        })
     }
 
     override fun navigateToSettings(user: UserType) {

@@ -65,6 +65,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             if (!initialized.getAndSet(true)) {
                 loadNativeLibs(application)
                 installAndPreload(reactHost, onJSBundleLoaded)
+            } else {
+                invokeWhenJSBundleLoaded(onJSBundleLoaded)
             }
         }
 
@@ -77,6 +79,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             if (!initialized.getAndSet(true)) {
                 loadNativeLibs(application)
                 installAndPreload(reactHostFactory(), onJSBundleLoaded)
+            } else {
+                invokeWhenJSBundleLoaded(onJSBundleLoaded)
             }
         }
         
@@ -102,6 +106,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                     jsRuntimeFactory = null
                 )
                 installAndPreload(reactHost, onJSBundleLoaded)
+            } else {
+                invokeWhenJSBundleLoaded(onJSBundleLoaded)
             }
         }
 
@@ -133,6 +139,25 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             preloadReactNative {
                 onJSBundleLoaded?.invoke(true)
             }
+        }
+
+        private fun invokeWhenJSBundleLoaded(onJSBundleLoaded: OnJSBundleLoaded?) {
+            if (onJSBundleLoaded == null || !::instance.isInitialized) {
+                return
+            }
+
+            val reactHost = instance.reactHost
+            reactHost.currentReactContext?.let {
+                onJSBundleLoaded.invoke(true)
+                return
+            }
+
+            reactHost.addReactInstanceEventListener(object : ReactInstanceEventListener {
+                override fun onReactContextInitialized(context: ReactContext) {
+                    onJSBundleLoaded.invoke(true)
+                    reactHost.removeReactInstanceEventListener(this)
+                }
+            })
         }
     }
 
