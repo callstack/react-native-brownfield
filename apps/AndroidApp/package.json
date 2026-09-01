@@ -7,6 +7,20 @@
     "build:example:android-consumer:expo57": "./gradlew assembleExpo57Release",
     "build:example:android-consumer:expo56": "./gradlew assembleExpo56Release",
     "build:example:android-consumer:expopreview": "./gradlew assembleExpopreviewRelease",
-    "build:example:android-consumer:vanilla": "./gradlew assembleVanillaRelease"
+    "build:example:android-consumer:vanilla": "./gradlew assembleVanillaRelease",
+    "e2e:build:android": "detox build --configuration android.emu.release",
+    "e2e:test:android": "detox test --configuration android.emu.release",
+    "e2e:build:android:expo56": "detox build --config-path ./.detoxrc.expo56.cjs --configuration android.emu.release.expo56",
+    "e2e:test:android:expo56": "detox test --config-path ./.detoxrc.expo56.cjs --configuration android.emu.release.expo56",
+    "e2e:build:android:expo57": "detox build --config-path ./.detoxrc.expo57.cjs --configuration android.emu.release.expo57",
+    "e2e:test:android:expo57": "detox test --config-path ./.detoxrc.expo57.cjs --configuration android.emu.release.expo57",
+    "ci:local:e2e:android": "bash ../../scripts/ci-local-androidapp-android-e2e.sh",
+    "ci:local:e2e:android:expo56": "bash ../../scripts/ci-local-androidapp-android-e2e.sh --variant expo56",
+    "ci:local:e2e:android:expo57": "bash ../../scripts/ci-local-androidapp-android-e2e.sh --variant expo57"
+  },
+  "devDependencies": {
+    "@callstack/brownfield-example-shared-tests": "workspace:^",
+    "detox": "^20.27.0",
+    "jest": "^29.7.0"
   }
 }

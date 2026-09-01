@@ -130,16 +130,16 @@ The native-only sample apps (`apps/AppleApp`, `apps/AndroidApp`) use their platf
 
 ## E2E tests (Detox)
 
-End-to-end tests use [Detox](https://wix.github.io/Detox/) on the iOS Simulator. Shared specs and helpers live in `apps/brownfield-example-shared-tests/e2e/`; each app wires them through its own `.detoxrc.cjs` and `e2e/jest.config.cjs`.
+End-to-end tests use [Detox](https://wix.github.io/Detox/) on the iOS Simulator and Android emulator. Shared specs and helpers live in `apps/brownfield-example-shared-tests/e2e/`; each app wires them through its own `.detoxrc*.cjs` and `e2e/jest.config*.cjs`.
 
-E2E runs without Metro: the Debug simulator build embeds `main.jsbundle` (`FORCE_BUNDLING=1`) so the app loads JS from the binary, matching CI.
+E2E runs without Metro: release/debug host builds load the JS bundle embedded in the packaged brownfield artifact so the app matches CI.
 
 ### Two integration paths
 
 | Path                                            | What it exercises                                                | Typical flow                                                                                    |
 | ----------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | RN host app (`RNApp`)                           | Brownfield RN app running as the simulator target                | pods → Detox build → Detox test                                                                 |
-| native host app (`AppleApp`)                    | Native host app consuming a packaged `BrownfieldLib` XCFramework | `brownfield:package:ios` → copy XCFrameworks into `AppleApp/package` → Detox build → Detox test |
+| native host app (`AppleApp` / `AndroidApp`)     | Native host consuming a packaged XCFramework / AAR               | package → install into native consumer → Detox build → Detox test                               |
 
 Per-app Detox scripts (run from the app directory):
 
@@ -149,6 +149,9 @@ Per-app Detox scripts (run from the app directory):
 | `AppleApp` (vanilla)      | `yarn e2e:build:ios`        | `yarn e2e:test:ios`        | `appleAppBrownfield.e2e.js`        |
 | `AppleApp` (Expo 56)      | `yarn e2e:build:ios:expo56` | `yarn e2e:test:ios:expo56` | `appleAppExpoBrownfield.e2e.js`    |
 | `AppleApp` (Expo 57)      | `yarn e2e:build:ios:expo57` | `yarn e2e:test:ios:expo57` | `appleAppExpoBrownfield.e2e.js`    |
+| `AndroidApp` (vanilla)    | `yarn e2e:build:android`    | `yarn e2e:test:android`    | `androidAppBrownfield.e2e.js`      |
+| `AndroidApp` (Expo 56)    | `yarn e2e:build:android:expo56` | `yarn e2e:test:android:expo56` | `androidAppExpoBrownfield.e2e.js` |
+| `AndroidApp` (Expo 57)    | `yarn e2e:build:android:expo57` | `yarn e2e:test:android:expo57` | `androidAppExpoBrownfield.e2e.js` |
 
 ### CI
 
@@ -160,13 +163,21 @@ iOS Detox E2E runs in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) via
 | `ios-appleapp-expo` (Expo 56) | Yes | `ExpoApp56` → package → `AppleApp` Detox |
 | `ios-appleapp-expo` (Expo 57) | Yes | `ExpoApp57` → package → `AppleApp` Detox |
 
-On failure, CI uploads `apps/AppleApp/e2e-artifacts/` as a workflow artifact (`detox-appleapp-*-ios-recordings`).
+Android Detox E2E uses [`.github/actions/androidapp-road-test`](.github/actions/androidapp-road-test/action.yml):
 
-Direct host-app E2E is local-only — use the `ci:local:*` scripts below to reproduce CI-like setup on macOS.
+| Job                                      | E2E | Notes                                         |
+| ---------------------------------------- | --- | --------------------------------------------- |
+| `android-androidapp-vanilla`             | Yes | `RNApp` → AAR → `AndroidApp` Detox            |
+| `android-androidapp-expo56-build` / `-e2e` | Yes | `ExpoApp56` → AAR → Detox APKs → emulator   |
+| `android-androidapp-expo57-build` / `-e2e` | Yes | `ExpoApp57` → AAR → Detox APKs → emulator   |
+
+On failure, CI uploads Detox artifacts (`detox-*-ios-recordings` / `detox-androidapp-*-android`).
+
+Direct host-app E2E is local-only — use the `ci:local:*` scripts below to reproduce CI-like setup.
 
 ### Local CI scripts
 
-From the repo root (macOS + Xcode + Simulator required). All wrap `scripts/ci-local-ios-e2e-common.sh` and accept the same flags:
+From the repo root (macOS + Xcode + Simulator required for iOS). All wrap `scripts/ci-local-ios-e2e-common.sh` and accept the same flags:
 
 | Command                                              | Mirrors                          |
 | ---------------------------------------------------- | -------------------------------- |
@@ -176,6 +187,16 @@ From the repo root (macOS + Xcode + Simulator required). All wrap `scripts/ci-lo
 | `yarn ci:local:appleapp:e2e:ios --variant expo57`    | CI `ios-appleapp-expo` (Expo 57) |
 
 From `apps/AppleApp`, you can also use `yarn ci:local:e2e:ios:expo56` / `yarn ci:local:e2e:ios:expo57`.
+
+Android (Android SDK + emulator; defaults to `Pixel_4_API_34`):
+
+| Command                                                 | Mirrors                                      |
+| ------------------------------------------------------- | -------------------------------------------- |
+| `yarn ci:local:androidapp:e2e:android`                  | CI `android-androidapp-vanilla`              |
+| `yarn ci:local:androidapp:e2e:android:expo56`           | CI Expo 56 AndroidApp Detox                  |
+| `yarn ci:local:androidapp:e2e:android:expo57`           | CI Expo 57 AndroidApp Detox                  |
+
+From `apps/AndroidApp`, you can also use `yarn ci:local:e2e:android:expo56` / `yarn ci:local:e2e:android:expo57`.
 
 Common flags (append to any command above):
 

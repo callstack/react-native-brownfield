@@ -15,6 +15,9 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenLocal()
+        maven {
+            url = uri("${rootDir}/node_modules/detox/Detox-android")
+        }
         google()
         mavenCentral()
     }
