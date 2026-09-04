@@ -23,6 +23,7 @@ class RncTransitiveDependencyDiscovererTest {
         embeddedModule.dependencies.add("implementation", "androidx.appcompat:appcompat:1.7.1")
         embeddedModule.dependencies.add("api", "com.facebook.react:hermes-android:0.87.0")
         embeddedModule.dependencies.add("implementation", "com.facebook.react:react-native:+")
+        embeddedModule.dependencies.add("runtimeOnly", "androidx.annotation:annotation:1.9.1")
         embeddedModule.dependencies.add(
             "implementation",
             embeddedModule.dependencies.project(mapOf("path" to siblingProject.path)),
@@ -44,10 +45,15 @@ class RncTransitiveDependencyDiscovererTest {
 
         val discovered = RncTransitiveDependencyDiscoverer(consumer).discover(artifacts)
 
-        assertEquals(1, discovered.size)
+        assertEquals(2, discovered.size)
         assertTrue(
             discovered.contains(
                 DependencyInfo("androidx.appcompat", "appcompat", "1.7.1", "compile", false),
+            ),
+        )
+        assertTrue(
+            discovered.contains(
+                DependencyInfo("androidx.annotation", "annotation", "1.9.1", "compile", false),
             ),
         )
         assertFalse(discovered.contains(DependencyInfo("com.facebook.react", "hermes-android", "0.87.0", "compile", false)))
