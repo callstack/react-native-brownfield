@@ -7,14 +7,9 @@ import com.callstack.react.brownfield.expo.utils.asExpoGradleProjectProjection
 import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.DependencyInfo
 import com.callstack.react.brownfield.shared.Logging
+import com.callstack.react.brownfield.shared.PublishingMetadataInjector
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-import groovy.util.NodeList
 import org.gradle.api.Project
-import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.tasks.GenerateModuleMetadata
 import org.w3c.dom.Node
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
@@ -55,13 +50,14 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             )
         }
 
-        reconfigurePOM(expoTransitiveDependencies)
-        reconfigureGradleModuleJSON(expoTransitiveDependencies)
+        val injector = PublishingMetadataInjector(brownfieldAppProject)
+        injector.reconfigurePOM(expoTransitiveDependencies, ::shouldExcludeDependency)
+        injector.reconfigureGradleModuleJSON(expoTransitiveDependencies, ::shouldExcludeDependency)
 
         return discoverableExpoProjects
     }
 
-    protected fun shouldExcludeDependency(
+    internal fun shouldExcludeDependency(
         groupId: String,
         artifactId: String,
     ): Boolean {
@@ -76,174 +72,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
             }
 
         return (isRootProjectArtifact || isExpoArtifact)
-    }
-
-    /**
-     * Modifies the generated Gradle Module Metadata file to inject Expo transitive dependencies.
-     * @param discoveredExpoTransitiveDependencies Set of DependencyInfo
-     * representing Expo transitive dependencies to add.
-     */
-    @Suppress("LongMethod")
-    protected fun reconfigureGradleModuleJSON(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
-        val removeDependenciesFromModuleFileTask =
-            brownfieldAppProject.tasks.register("removeDependenciesFromModuleFile")
-        removeDependenciesFromModuleFileTask.configure { task ->
-            task.doLast {
-                val moduleBuildDir = brownfieldAppProject.layout.buildDirectory.get()
-
-                File("$moduleBuildDir/publications/mavenAar/module.json").run {
-                    val json = inputStream().use { JsonSlurper().parse(it) as Map<*, *> }
-
-                    discoveredExpoTransitiveDependencies.forEach { dependencyToAdd ->
-                        @Suppress("UNCHECKED_CAST")
-                        (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                            Logging.log(
-                                "Injecting dependency to Gradle module JSON for variant " +
-                                    "'${variant["name"]}': ${dependencyToAdd.groupId}:" +
-                                    "${dependencyToAdd.artifactId}:${dependencyToAdd.version}",
-                            )
-
-                            (variant["dependencies"] as? MutableList<MutableMap<String, Any>>)?.add(
-                                mutableMapOf<String, Any>(
-                                    "group" to dependencyToAdd.groupId,
-                                    "module" to dependencyToAdd.artifactId,
-                                ).apply {
-                                    dependencyToAdd.version?.let { version ->
-                                        put(
-                                            "version",
-                                            mapOf(
-                                                "requires" to version,
-                                            ),
-                                        )
-                                    }
-                                },
-                            )
-                        }
-                    }
-
-                    @Suppress("UNCHECKED_CAST")
-                    (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                        (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
-                            val group = it["group"] as String
-                            val module = it["module"] as String
-
-                            val shouldBeExcluded =
-                                shouldExcludeDependency(
-                                    groupId = group,
-                                    artifactId = module,
-                                )
-
-                            if (shouldBeExcluded) {
-                                Logging.log(
-                                    "Removing excluded dependency from Gradle module JSON: $group:$module",
-                                )
-                            }
-
-                            shouldBeExcluded
-                        }
-
-                        writer().use {
-                            it.write(
-                                JsonOutput.prettyPrint(
-                                    JsonOutput.toJson(
-                                        json,
-                                    ),
-                                ),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        brownfieldAppProject.tasks.withType(GenerateModuleMetadata::class.java)
-            .configureEach {
-                it.finalizedBy(removeDependenciesFromModuleFileTask.get())
-            }
-    }
-
-    /**
-     * Modifies the generated Maven POM file to inject Expo transitive dependencies.
-     * @param discoveredExpoTransitiveDependencies Set of DependencyInfo
-     * representing Expo transitive dependencies to add.
-     */
-    @Suppress("LongMethod")
-    protected fun reconfigurePOM(discoveredExpoTransitiveDependencies: VersionMediatingDependencySet) {
-        brownfieldAppProject.pluginManager.withPlugin("maven-publish") {
-            brownfieldAppProject.extensions.configure(PublishingExtension::class.java) { publishing ->
-                publishing.publications.withType(MavenPublication::class.java)
-                    .configureEach { pub ->
-                        Logging.log(
-                            "Configuring POM for publication '${pub.name}' to include Expo transitive dependencies",
-                        )
-
-                        pub.pom.withXml {
-                            val root = it.asNode()
-
-                            // below: obtains a view of the <dependencies> node(s)
-                            // inside the POM XML; in practice, there should be only one such node
-                            val dependenciesNodeList =
-                                root.get("dependencies") as NodeList
-                            val dependenciesNode =
-                                dependenciesNodeList.first() as groovy.util.Node
-
-                            // below: inject the discovered Expo transitive dependencies
-                            // into the POM's <dependencies> node
-                            discoveredExpoTransitiveDependencies.forEach { dependencyToAdd ->
-                                Logging.log(
-                                    "Injecting dependency to POM: ${dependencyToAdd.groupId}:" +
-                                        "${dependencyToAdd.artifactId}:${dependencyToAdd.version}",
-                                )
-
-                                val childTags =
-                                    mutableMapOf(
-                                        "groupId" to dependencyToAdd.groupId,
-                                        "artifactId" to dependencyToAdd.artifactId,
-                                        "scope" to dependencyToAdd.scope,
-                                        "optional" to dependencyToAdd.optional.toString(),
-                                    )
-
-                                if (dependencyToAdd.version?.isNotBlank() == true) {
-                                    childTags["version"] = dependencyToAdd.version
-                                }
-
-                                dependenciesNode.appendNode("dependency").let { newDepNode ->
-                                    childTags.forEach { (tagName, tagValue) ->
-                                        newDepNode.appendNode(tagName, tagValue)
-                                    }
-                                }
-                            }
-
-                            // below: filter out dependencies that should be excluded
-                            dependenciesNode.children()
-                                .filterIsInstance<groovy.util.Node>()
-                                .filter { dependency ->
-                                    val groupId =
-                                        (dependency["groupId"] as NodeList).text()
-                                    val artifactId =
-                                        (dependency["artifactId"] as NodeList).text()
-
-                                    val shouldBeExcluded =
-                                        shouldExcludeDependency(
-                                            groupId = groupId,
-                                            artifactId = artifactId,
-                                        )
-
-                                    if (shouldBeExcluded) {
-                                        Logging.log(
-                                            "Removing excluded dependency from POM: $groupId:$artifactId",
-                                        )
-                                    }
-
-                                    shouldBeExcluded
-                                }
-                                .forEach { dependency ->
-                                    dependenciesNode.remove(dependency)
-                                }
-                        }
-                    }
-            }
-        }
     }
 
     fun discoverAllExpoTransitiveDependencies(expoProjects: Iterable<ExpoGradleProjectProjection>): VersionMediatingDependencySet {
