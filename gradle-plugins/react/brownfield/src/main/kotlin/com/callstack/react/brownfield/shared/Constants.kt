@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.shared
 
-import com.callstack.react.brownfield.expo.utils.DependencyInfo
 import com.callstack.react.brownfield.utils.StringMatcher
 
 /**

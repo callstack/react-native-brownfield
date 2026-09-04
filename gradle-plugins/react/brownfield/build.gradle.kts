@@ -108,6 +108,12 @@ dependencies {
     implementation(libs.common)
     implementation(libs.asm.commons)
     implementation(libs.versioncompare)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(gradleTestKit())
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.named("detekt").configure {

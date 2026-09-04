@@ -1,13 +1,13 @@
 package com.callstack.react.brownfield.expo
 
 import com.android.utils.forEach
-import com.callstack.react.brownfield.expo.utils.DependencyInfo
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.expo.utils.LocalMavenUtils
-import com.callstack.react.brownfield.expo.utils.VersionMediatingDependencySet
 import com.callstack.react.brownfield.expo.utils.asExpoGradleProjectProjection
 import com.callstack.react.brownfield.shared.Constants
+import com.callstack.react.brownfield.shared.DependencyInfo
 import com.callstack.react.brownfield.shared.Logging
+import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.util.NodeList
