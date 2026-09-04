@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.plugin
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
+import com.callstack.react.brownfield.artifacts.RncTransitiveDependencyDiscoverer
 import com.callstack.react.brownfield.expo.ExpoPublishingHelper
 import com.callstack.react.brownfield.expo.utils.ExpoGradleProjectProjection
 import com.callstack.react.brownfield.processors.AssetTaskProcessor
@@ -17,7 +18,9 @@ import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.Logging
+import com.callstack.react.brownfield.shared.PublishingMetadataInjector
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
+import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
@@ -54,8 +57,9 @@ class RNBrownfieldPlugin : Plugin<Project> {
         }
 
         var expoProjects = listOf<ExpoGradleProjectProjection>()
+        var expoPublishingHelper: ExpoPublishingHelper? = null
         if (this.isExpoProject) {
-            val expoPublishingHelper = ExpoPublishingHelper(brownfieldAppProject = project)
+            expoPublishingHelper = ExpoPublishingHelper(brownfieldAppProject = project)
             expoProjects = expoPublishingHelper.configure()
         }
 
@@ -64,6 +68,39 @@ class RNBrownfieldPlugin : Plugin<Project> {
          */
         val artifactsResolver = ArtifactsResolver(project, isExpoProject)
         val artifacts = artifactsResolver.processDefaultDependencies(expoProjects)
+
+        /**
+         * Discovers and publishes transitive (third-party) dependencies of embedded
+         * native modules into this project's POM/Gradle Module Metadata, so a consuming
+         * native app resolves them automatically. Deferred to afterEvaluate: `extension`
+         * is created eagerly in initializers() above, before the build script's own
+         * `reactBrownfield { }` block has configured it — reading `extension.includeTransitiveDependencies`
+         * any earlier than this would always observe its default `false`.
+         *
+         * See docs/superpowers/specs/2026-09-04-bgp-transitive-dependencies-design.md §4.4.
+         */
+        project.afterEvaluate {
+            val transitiveDeps = VersionMediatingDependencySet()
+
+            if (isExpoProject && expoPublishingHelper != null) {
+                transitiveDeps.addAll(expoPublishingHelper.discoverAllExpoTransitiveDependencies(expoProjects))
+            }
+            if (extension.includeTransitiveDependencies) {
+                transitiveDeps.addAll(RncTransitiveDependencyDiscoverer(project).discover(artifacts))
+            }
+
+            if (isExpoProject || extension.includeTransitiveDependencies) {
+                val embeddedModuleNames = artifacts.map { it.moduleName }.toSet()
+                val removalPredicate: (String, String) -> Boolean = { groupId, artifactId ->
+                    (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
+                        embeddedModuleNames.contains(artifactId)
+                }
+
+                val injector = PublishingMetadataInjector(project)
+                injector.reconfigurePOM(transitiveDeps, removalPredicate)
+                injector.reconfigureGradleModuleJSON(transitiveDeps, removalPredicate)
+            }
+        }
 
         val variantTaskProvider = VariantTaskProvider(project)
 

@@ -7,7 +7,6 @@ import com.callstack.react.brownfield.expo.utils.asExpoGradleProjectProjection
 import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.DependencyInfo
 import com.callstack.react.brownfield.shared.Logging
-import com.callstack.react.brownfield.shared.PublishingMetadataInjector
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
 import org.gradle.api.Project
 import org.w3c.dom.Node
@@ -49,10 +48,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                     "${if (it.optional) "optional" else "required"})",
             )
         }
-
-        val injector = PublishingMetadataInjector(brownfieldAppProject)
-        injector.reconfigurePOM(expoTransitiveDependencies, ::shouldExcludeDependency)
-        injector.reconfigureGradleModuleJSON(expoTransitiveDependencies, ::shouldExcludeDependency)
 
         return discoverableExpoProjects
     }
