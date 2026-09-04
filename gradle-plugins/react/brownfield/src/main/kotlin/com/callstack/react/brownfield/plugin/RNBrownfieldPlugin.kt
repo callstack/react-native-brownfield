@@ -83,22 +83,34 @@ class RNBrownfieldPlugin : Plugin<Project> {
             val transitiveDeps = VersionMediatingDependencySet()
 
             if (isExpoProject && expoPublishingHelper != null) {
-                transitiveDeps.addAll(expoPublishingHelper.discoverAllExpoTransitiveDependencies(expoProjects))
+                val expoTransitiveDeps = expoPublishingHelper.discoverAllExpoTransitiveDependencies(expoProjects)
+                Logging.log("Merged ${expoTransitiveDeps.size} transitive dependencies discovered from Expo")
+                transitiveDeps.addAll(expoTransitiveDeps)
             }
             if (extension.includeTransitiveDependencies) {
-                transitiveDeps.addAll(RncTransitiveDependencyDiscoverer(project).discover(artifacts))
+                val rncTransitiveDeps = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
+                Logging.log("Merged ${rncTransitiveDeps.size} transitive dependencies discovered by the RNC discoverer")
+                transitiveDeps.addAll(rncTransitiveDeps)
             }
 
             if (isExpoProject || extension.includeTransitiveDependencies) {
-                val embeddedModuleNames = artifacts.map { it.moduleName }.toSet()
+                Logging.log(
+                    "Total of ${transitiveDeps.size} unique transitive dependencies merged for POM/module.json injection",
+                )
+
                 val removalPredicate: (String, String) -> Boolean = { groupId, artifactId ->
                     (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
-                        embeddedModuleNames.contains(artifactId)
+                        artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId }
                 }
 
                 val injector = PublishingMetadataInjector(project)
                 injector.reconfigurePOM(transitiveDeps, removalPredicate)
                 injector.reconfigureGradleModuleJSON(transitiveDeps, removalPredicate)
+                Logging.log("PublishingMetadataInjector ran: injected merged transitive dependencies into POM and Gradle Module Metadata")
+            } else {
+                Logging.log(
+                    "PublishingMetadataInjector skipped: project is not an Expo project and includeTransitiveDependencies is disabled",
+                )
             }
         }
 
