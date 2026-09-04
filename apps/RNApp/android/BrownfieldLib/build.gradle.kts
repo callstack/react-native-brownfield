@@ -1,6 +1,3 @@
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -18,22 +15,6 @@ publishing {
             afterEvaluate {
                 from(components.getByName("default"))
             }
-
-            pom {
-                withXml {
-                    /**
-                     * As a result of `from(components.getByName("default"))` all of the project
-                     * dependencies are added to `pom.xml` file. We do not need the react-native
-                     * third party dependencies to be a part of it as we embed those dependencies.
-                     */
-                    val dependenciesNode =
-                        (asNode().get("dependencies") as groovy.util.NodeList).first() as groovy.util.Node
-                    dependenciesNode.children()
-                        .filterIsInstance<groovy.util.Node>()
-                        .filter { (it.get("groupId") as groovy.util.NodeList).text() == rootProject.name }
-                        .forEach { dependenciesNode.remove(it) }
-                }
-            }
         }
     }
 
@@ -42,31 +23,12 @@ publishing {
     }
 }
 
-val moduleBuildDir: Directory = layout.buildDirectory.get()
-
-/**
- * As a result of `from(components.getByName("default"))` all of the project
- * dependencies are added to `module.json` file. We do not need the react-native
- * third party dependencies to be a part of it as we embed those dependencies.
- */
-tasks.register("removeDependenciesFromModuleFile") {
-    doLast {
-        file("$moduleBuildDir/publications/mavenAar/module.json").run {
-            val json = inputStream().use { JsonSlurper().parse(it) as Map<String, Any> }
-            (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll { it["group"] == rootProject.name }
-            }
-            writer().use { it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json))) }
-        }
-    }
-}
-
-tasks.named("generateMetadataFileForMavenAarPublication") {
-    finalizedBy("removeDependenciesFromModuleFile")
-}
-
 react {
     autolinkLibrariesWithApp()
+}
+
+reactBrownfield {
+    includeTransitiveDependencies = true
 }
 
 android {
