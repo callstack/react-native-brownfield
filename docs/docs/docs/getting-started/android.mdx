@@ -282,6 +282,8 @@ plugins {
 
 Add publishing configuration:
 
+Skip this task-registration block entirely if you plan to use the `includeTransitiveDependencies` option described below.
+
 ```kotlin
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
@@ -312,8 +314,6 @@ publishing {
         mavenLocal()
     }
 }
-
-Skip this task-registration block entirely if you plan to use the `includeTransitiveDependencies` option described below.
 
 val moduleBuildDir: Directory = layout.buildDirectory.get()
 
