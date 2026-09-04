@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@callstack/brownfield-example-shared": "workspace:^",
+    "@callstack/brownfield-example-shared-tests": "workspace:^",
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
@@ -34,7 +35,6 @@
     "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
-    "@callstack/brownfield-example-shared-tests": "workspace:^",
     "@react-native-community/cli": "20.2.0",
     "@react-native-community/cli-platform-android": "20.2.0",
     "@react-native-community/cli-platform-ios": "20.2.0",
