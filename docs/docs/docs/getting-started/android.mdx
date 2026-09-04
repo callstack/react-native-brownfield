@@ -313,6 +313,8 @@ publishing {
     }
 }
 
+Skip this task-registration block entirely if you plan to use the `includeTransitiveDependencies` option described below.
+
 val moduleBuildDir: Directory = layout.buildDirectory.get()
 
 tasks.register("removeDependenciesFromModuleFile") {
@@ -331,6 +333,18 @@ tasks.named("generateMetadataFileForMavenAarPublication") {
    finalizedBy("removeDependenciesFromModuleFile")
 }
 ```
+
+> **Transitive dependencies:** the snippet above strips embedded-module entries from the generated POM by hand. If you don't need your embedded modules' own third-party dependencies to be resolvable by the app consuming this AAR, this manual snippet is all you need — skip the rest of this note.
+>
+> If you *do* want that (e.g. your embedded native modules pull in AndroidX libraries the consuming app should get automatically via Maven), set `includeTransitiveDependencies = true` in this module's `reactBrownfield { }` block instead of hand-rolling the JSON-manipulation task below — the plugin now performs the equivalent removal *and* injects your modules' real dependencies for you:
+>
+> ```kotlin
+> reactBrownfield {
+>     includeTransitiveDependencies = true
+> }
+> ```
+>
+> Do **not** combine this option with a hand-written `tasks.register("removeDependenciesFromModuleFile")` in the same module — the plugin registers a task with that exact name once the option is enabled, and Gradle throws `task 'removeDependenciesFromModuleFile' already exists` if both are present.
 
 ## 7. Create a Brownfield Configuration
 
