@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class VersionMediatingDependencySetTest {
-
     @Test
     fun `keeps the higher version when the same coordinate is added twice`() {
         val set = VersionMediatingDependencySet()

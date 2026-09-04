@@ -110,6 +110,7 @@ dependencies {
     implementation(libs.versioncompare)
     testImplementation(libs.junit.jupiter)
     testImplementation(gradleTestKit())
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {
