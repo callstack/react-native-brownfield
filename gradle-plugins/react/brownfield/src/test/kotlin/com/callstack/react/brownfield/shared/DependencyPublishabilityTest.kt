@@ -5,7 +5,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class DependencyPublishabilityTest {
-
     @Test
     fun `rejects a fully dynamic version`() {
         val dep = DependencyInfo("com.facebook.react", "react-native", "+", "compile", false)
