@@ -4,6 +4,29 @@ import UIKit
 internal import Expo
 #endif
 
+/**
+ * JS bundle timings from React Native's performance logger.
+ *
+ * - `loadMs` is `RCTPLScriptDownload` (Metro HTTP in Debug, file read in Release).
+ * - `executeMs` is `RCTPLScriptExecution`.
+ * - `instanceInitMs` is `RCTPLReactInstanceInit` (Hermes/instance bring-up until download starts).
+ *
+ * A field is `nil` when the tag never completed (failed load, logger missing, or
+ * bridgeless React Native below 0.87).
+ */
+@objc public class JSBundleTimings: NSObject {
+  @objc public let loadMs: NSNumber?
+  @objc public let executeMs: NSNumber?
+  @objc public let instanceInitMs: NSNumber?
+
+  @objc public init(loadMs: NSNumber?, executeMs: NSNumber?, instanceInitMs: NSNumber?) {
+    self.loadMs = loadMs
+    self.executeMs = executeMs
+    self.instanceInitMs = instanceInitMs
+    super.init()
+  }
+}
+
 @objc public class ReactNativeBrownfield: NSObject {
   public static let shared = ReactNativeBrownfield()
 
@@ -193,10 +216,10 @@ internal import Expo
    * Starts React Native with optional callback when bundle is loaded.
    *
    * @param onBundleLoaded Optional callback invoked on the main thread after the JS bundle is
-   *   fully loaded. It runs in the next turn of the main run loop when the bundle is already
-   *   loaded. A new callback replaces the callback that waits.
+   *   fully loaded. It receives `JSBundleTimings`. It runs in the next turn of the main run loop
+   *   when the bundle is already loaded. A new callback replaces the callback that waits.
    */
-  @objc public func startReactNative(onBundleLoaded: (() -> Void)?) {
+  @objc public func startReactNative(onBundleLoaded: ((JSBundleTimings) -> Void)?) {
     #if canImport(Expo)
     ExpoHostRuntime.shared.startReactNative(onBundleLoaded: onBundleLoaded)
     #else
@@ -220,7 +243,7 @@ internal import Expo
   @objc public func startReactNative(
     launchOptions: [AnyHashable: Any]?,
     preloadBundle: Bool,
-    onBundleLoaded: (() -> Void)?
+    onBundleLoaded: ((JSBundleTimings) -> Void)?
   ) {
     #if canImport(Expo)
     ExpoHostRuntime.shared.startReactNative(

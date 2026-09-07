@@ -115,7 +115,7 @@ extension ReactHostPreloading {
   func startReactNative(
     launchOptions: [AnyHashable: Any]?,
     preloadBundle: Bool,
-    onBundleLoaded: (() -> Void)?
+    onBundleLoaded: ((JSBundleTimings) -> Void)?
   ) {
     preloadState.storeLaunchOptions(launchOptions)
 

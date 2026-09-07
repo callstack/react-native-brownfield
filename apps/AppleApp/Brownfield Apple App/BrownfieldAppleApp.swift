@@ -143,8 +143,10 @@ struct BrownfieldAppleApp: App {
 
         // `preloadBundle: true` starts the React Host now, and React Native then reads the
         // bundle URL on the JavaScript thread. Thus this call is the last operation.
-        ReactNativeBrownfield.shared.startReactNative(launchOptions: nil, preloadBundle: true) {
-            print("React Native has been loaded")
+        ReactNativeBrownfield.shared.startReactNative(launchOptions: nil, preloadBundle: true) { timings in
+            print(
+                "React Native has been loaded loadMs=\(String(describing: timings.loadMs)) executeMs=\(String(describing: timings.executeMs))"
+            )
         }
     }
 

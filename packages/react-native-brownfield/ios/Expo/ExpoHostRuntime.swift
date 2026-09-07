@@ -37,7 +37,7 @@ final class ExpoHostRuntime {
    *
    * @param onBundleLoaded Optional callback invoked on the main thread after JS bundle is fully loaded.
    */
-  public func startReactNative(onBundleLoaded: (() -> Void)?) {
+  public func startReactNative(onBundleLoaded: ((JSBundleTimings) -> Void)?) {
     // The callback registration is outside of the guard below. An earlier `startReactNative` call
     // can already have made the factory, and the callback must still run.
     if let onBundleLoaded {

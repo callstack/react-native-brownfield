@@ -48,9 +48,19 @@ Starts React Native, produces an instance of React Native. You can use it to ini
 | ---------------- | -------- | --------------- | ------------------------------------------------------------------------------- |
 | `launchOptions`  | No       | `NSDictionary`  | The launch options for the React Host. Usually you get them from `AppDelegate`. |
 | `preloadBundle`  | No       | `BOOL`          | `YES` loads the JavaScript bundle now, and not with the first React Native view. |
-| `onBundleLoaded` | No       | `void(^)(void)` | Callback invoked on the main thread after JS bundle is fully loaded.            |
+| `onBundleLoaded` | No       | `void(^)(JSBundleTimings *)` | Callback invoked on the main thread after JS bundle is fully loaded. Receives `JSBundleTimings`. |
 
-Brownfield calls `onBundleLoaded` one time, on the main thread. If React Native already loaded the bundle, the callback runs in the next turn of the main run loop. A new callback replaces the callback that waits.
+Brownfield calls `onBundleLoaded` one time, on the main thread, with a `JSBundleTimings` object. If React Native already loaded the bundle, the callback runs in the next turn of the main run loop and still receives the timings of that session. A new callback replaces the callback that waits.
+
+`JSBundleTimings` fields come from React Native's performance logger:
+
+| Field            | Source                     | Meaning                                                                 |
+| ---------------- | -------------------------- | ----------------------------------------------------------------------- |
+| `loadMs`         | `RCTPLScriptDownload`      | Metro HTTP in Debug, file read in Release.                              |
+| `executeMs`      | `RCTPLScriptExecution`     | Time to evaluate the bundle. Do not add this to `instanceInitMs`.       |
+| `instanceInitMs` | `RCTPLReactInstanceInit`   | Hermes/instance bring-up until download starts.                         |
+
+Each field is an optional `NSNumber` in milliseconds. A field is `nil` when the tag never completed: a failed load, a missing logger, or bridgeless React Native below 0.87. Android `onBundleLoaded` is unchanged.
 
 Without `preloadBundle`, React Native loads and evaluates the JavaScript bundle when it creates the first React Native view. With `preloadBundle:YES`, this call creates and starts the React Host, and React Native then evaluates the bundle on the JavaScript thread, in parallel with the remainder of your app launch. On Android, `ReactNativeBrownfield.initialize` does the same operation. See [Preload the JavaScript bundle](/docs/getting-started/ios#preload-the-javascript-bundle).
 
@@ -63,16 +73,16 @@ Only the call that creates the React Host reads the launch options. Brownfield k
 ```
 
 ```objc
-[[ReactNativeBrownfield shared] startReactNative:^(void){
-    NSLog(@"React Native started");
+[[ReactNativeBrownfield shared] startReactNative:^(JSBundleTimings *timings){
+    NSLog(@"React Native started loadMs=%@ executeMs=%@", timings.loadMs, timings.executeMs);
 }];
 ```
 
 ```objc
 [[ReactNativeBrownfield shared] startReactNativeWithLaunchOptions:launchOptions
                                                     preloadBundle:YES
-                                                   onBundleLoaded:^(void){
-    NSLog(@"React Native bundle loaded");
+                                                   onBundleLoaded:^(JSBundleTimings *timings){
+    NSLog(@"React Native bundle loaded loadMs=%@ executeMs=%@", timings.loadMs, timings.executeMs);
 }];
 ```
 

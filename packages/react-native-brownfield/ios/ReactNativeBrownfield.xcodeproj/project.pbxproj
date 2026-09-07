@@ -17,6 +17,7 @@
 		79FEE77E2FB499E400E407DE /* ReactNativeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE77C2FB499E400E407DE /* ReactNativeViewController.swift */; };
 		79FEE7802FB499EC00E407DE /* ReactNativeHostRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE77F2FB499EC00E407DE /* ReactNativeHostRuntime.swift */; };
 		79FEE7822FB499F300E407DE /* ExpoHostRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE7812FB499F300E407DE /* ExpoHostRuntime.swift */; };
+		79FEE7852FB500A100E407DE /* JSBundleTimingObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 79FEE7842FB500A100E407DE /* JSBundleTimingObserver.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +45,8 @@
 		79FEE77C2FB499E400E407DE /* ReactNativeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactNativeViewController.swift; sourceTree = "<group>"; };
 		79FEE77F2FB499EC00E407DE /* ReactNativeHostRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactNativeHostRuntime.swift; sourceTree = "<group>"; };
 		79FEE7812FB499F300E407DE /* ExpoHostRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpoHostRuntime.swift; sourceTree = "<group>"; };
+		79FEE7832FB500A100E407DE /* JSBundleTimingObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSBundleTimingObserver.h; sourceTree = "<group>"; };
+		79FEE7842FB500A100E407DE /* JSBundleTimingObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JSBundleTimingObserver.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +69,8 @@
 				696CB22A230EF910000207AF /* Products */,
 				79FEE76D2FB499C700E407DE /* BrownfieldBundlePathResolver.swift */,
 				79FEE76E2FB499C700E407DE /* JSBundleLoadObserver.swift */,
+				79FEE7832FB500A100E407DE /* JSBundleTimingObserver.h */,
+				79FEE7842FB500A100E407DE /* JSBundleTimingObserver.m */,
 				79FEE76F2FB499C700E407DE /* Notification+Brownfield.swift */,
 				79FEE7702FB499C700E407DE /* ReactNativeBrownfield.swift */,
 				79FEE7712FB499C700E407DE /* ReactNativeBrownfieldModule.h */,
@@ -171,6 +176,7 @@
 				79FEE7822FB499F300E407DE /* ExpoHostRuntime.swift in Sources */,
 				79FEE7772FB499C700E407DE /* ReactNativeBrownfieldModule.swift in Sources */,
 				79FEE7782FB499C700E407DE /* JSBundleLoadObserver.swift in Sources */,
+				79FEE7852FB500A100E407DE /* JSBundleTimingObserver.m in Sources */,
 				79FEE7792FB499C700E407DE /* ReactNativeBrownfield.swift in Sources */,
 				79FEE77D2FB499E400E407DE /* ReactNativeView.swift in Sources */,
 				79FEE77E2FB499E400E407DE /* ReactNativeViewController.swift in Sources */,

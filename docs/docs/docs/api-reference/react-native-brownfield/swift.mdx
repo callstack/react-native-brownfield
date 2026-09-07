@@ -48,9 +48,19 @@ Starts React Native. You can use it to initialize React Native in your app.
 | ---------------- | -------- | --------------------- | ------------------------------------------------------------------------------- |
 | `launchOptions`  | No       | `[AnyHashable: Any]?` | The launch options for the React Host. Usually you get them from `AppDelegate`. |
 | `preloadBundle`  | No       | `Bool`                | `true` loads the JavaScript bundle now, and not with the first React Native view. |
-| `onBundleLoaded` | No       | `(() -> Void)?`       | Callback invoked on the main thread after JS bundle is fully loaded.            |
+| `onBundleLoaded` | No       | `((JSBundleTimings) -> Void)?` | Callback invoked on the main thread after JS bundle is fully loaded. Receives `JSBundleTimings`. |
 
-Brownfield calls `onBundleLoaded` one time, on the main thread. If React Native already loaded the bundle, the callback runs in the next turn of the main run loop. A new callback replaces the callback that waits.
+Brownfield calls `onBundleLoaded` one time, on the main thread, with a `JSBundleTimings` object. If React Native already loaded the bundle, the callback runs in the next turn of the main run loop and still receives the timings of that session. A new callback replaces the callback that waits.
+
+`JSBundleTimings` fields come from React Native's performance logger:
+
+| Field            | Source                     | Meaning                                                                 |
+| ---------------- | -------------------------- | ----------------------------------------------------------------------- |
+| `loadMs`         | `RCTPLScriptDownload`      | Metro HTTP in Debug, file read in Release.                              |
+| `executeMs`      | `RCTPLScriptExecution`     | Time to evaluate the bundle. Do not add this to `instanceInitMs`.       |
+| `instanceInitMs` | `RCTPLReactInstanceInit`   | Hermes/instance bring-up until download starts.                         |
+
+Each field is an optional `NSNumber` in milliseconds. A field is `nil` when the tag never completed: a failed load, a missing logger, or bridgeless React Native below 0.87. Android `onBundleLoaded` is unchanged.
 
 Without `preloadBundle`, React Native loads and evaluates the JavaScript bundle when it creates the first React Native view. With `preloadBundle: true`, this call creates and starts the React Host, and React Native then evaluates the bundle on the JavaScript thread, in parallel with the remainder of your app launch. On Android, `ReactNativeBrownfield.initialize` does the same operation. See [Preload the JavaScript bundle](/docs/getting-started/ios#preload-the-javascript-bundle).
 
@@ -63,14 +73,14 @@ ReactNativeBrownfield.shared.startReactNative()
 ```
 
 ```swift
-ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
-  print("React Native started")
+ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: { timings in
+  print("React Native started loadMs=\(String(describing: timings.loadMs)) executeMs=\(String(describing: timings.executeMs))")
 })
 ```
 
 ```swift
-ReactNativeBrownfield.shared.startReactNative(launchOptions: launchOptions, preloadBundle: true) {
-  print("React Native bundle loaded")
+ReactNativeBrownfield.shared.startReactNative(launchOptions: launchOptions, preloadBundle: true) { timings in
+  print("React Native bundle loaded loadMs=\(String(describing: timings.loadMs)) executeMs=\(String(describing: timings.executeMs))")
 }
 ```
 
@@ -186,8 +196,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    ReactNativeBrownfield.shared.startReactNative {
-      print("React Native bundle loaded")
+    ReactNativeBrownfield.shared.startReactNative { timings in
+      print("React Native bundle loaded loadMs=\(String(describing: timings.loadMs))")
     }
     return true
   }
@@ -218,8 +228,8 @@ import ReactBrownfield
 @main
 struct MyApp: App {
   init() {
-    ReactNativeBrownfield.shared.startReactNative {
-      print("React Native bundle loaded")
+    ReactNativeBrownfield.shared.startReactNative { timings in
+      print("React Native bundle loaded loadMs=\(String(describing: timings.loadMs))")
     }
   }
 

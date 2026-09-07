@@ -24,7 +24,7 @@ let initialState = BrownfieldStore(
 struct MyApp: App {
   init() {
     // Start React Native
-    ReactNativeBrownfield.shared.startReactNative {
+    ReactNativeBrownfield.shared.startReactNative { _ in
       print("React Native loaded")
     }
 
