@@ -202,6 +202,19 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         moduleName: String,
         reactDelegate: ReactDelegateWrapper? = null,
         launchOptions: Bundle? = null,
+    ): FrameLayout = createView(activity, moduleName, reactDelegate, launchOptions, activity)
+
+    /**
+     * Use the owner of the view when embedding React Native inside a fragment or
+     * another container whose lifetime is shorter than the activity.
+     * The four-argument overload retains its original JVM signature.
+     */
+    fun createView(
+        activity: FragmentActivity?,
+        moduleName: String,
+        reactDelegate: ReactDelegateWrapper?,
+        launchOptions: Bundle?,
+        lifecycleOwner: LifecycleOwner?,
     ): FrameLayout {
         val reactHost = shared.reactHost
         val resolvedDelegate =
@@ -215,12 +228,17 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
 
         // Register back press callback
-        activity?.onBackPressedDispatcher?.addCallback(backPressedCallback)
+        if (lifecycleOwner != null) {
+            activity?.onBackPressedDispatcher?.addCallback(lifecycleOwner, backPressedCallback)
+        }
         // invoked on the last RN screen exit
         resolvedDelegate.setHardwareBackHandler {
             backPressedCallback.isEnabled = false
-            activity?.onBackPressedDispatcher?.onBackPressed()
-            backPressedCallback.isEnabled = true
+            try {
+                activity?.onBackPressedDispatcher?.onBackPressed()
+            } finally {
+                backPressedCallback.isEnabled = true
+            }
         }
 
         /**
@@ -230,7 +248,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
          * In such a case, we set the lifeCycle observer.
          */
         if (reactDelegate == null) {
-            activity?.lifecycle?.addObserver(getLifeCycleObserver(resolvedDelegate))
+            lifecycleOwner?.lifecycle?.addObserver(getLifeCycleObserver(resolvedDelegate))
         }
 
         resolvedDelegate.loadApp()
