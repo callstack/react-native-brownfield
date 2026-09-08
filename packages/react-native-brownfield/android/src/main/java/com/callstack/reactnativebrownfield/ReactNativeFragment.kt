@@ -54,7 +54,9 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
         return ReactNativeBrownfield.shared.createView(
             activity,
             moduleName,
-            this.reactDelegate as ReactDelegateWrapper
+            this.reactDelegate as ReactDelegateWrapper,
+            launchOptions = null,
+            lifecycleOwner = viewLifecycleOwner
         )
     }
 
