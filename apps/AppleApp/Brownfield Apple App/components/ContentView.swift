@@ -1,7 +1,6 @@
 import Brownie
 import ReactBrownfield
 import SwiftUI
-import UIKit
 
 struct ChatMessage: Identifiable {
     let id: Int
@@ -16,10 +15,8 @@ let initialState = BrownfieldStore(
 
 #if USE_EXPO_HOST
 private let hostAppName = "iOS Expo"
-private let reactNativeModuleName = "main"
 #else
 private let hostAppName = "iOS Vanilla"
-private let reactNativeModuleName = "RNApp"
 #endif
 
 private func brownfieldPostMessageText(from raw: String) -> String {
@@ -30,14 +27,6 @@ private func brownfieldPostMessageText(from raw: String) -> String {
         return text
     }
     return raw
-}
-
-private var brownfieldInitialProperties: [String: Any] {
-    [
-        "nativeOsVersionLabel":
-            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)",
-        "brownfieldE2E": ProcessInfo.processInfo.arguments.contains("-DetoxE2E"),
-    ]
 }
 
 struct ContentView: View {
@@ -52,16 +41,12 @@ struct ContentView: View {
                     VStack(spacing: 16) {
                         GreetingCard(name: hostAppName)
 
-                        MessagesView()
+                        NavigationLink(destination: RNAppScreen()) {
+                            Text("Open React Native")
+                        }
+                        .buttonStyle(.borderedProminent)
 
-                        ReactNativeView(
-                            moduleName: reactNativeModuleName,
-                            initialProperties: brownfieldInitialProperties
-                        )
-                        .navigationBarHidden(true)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .background(Color(UIColor.systemBackground))
-                        .frame(minHeight: 520)
+                        MessagesView()
                     }
                     .frame(maxWidth: .infinity)
                     .padding(16)

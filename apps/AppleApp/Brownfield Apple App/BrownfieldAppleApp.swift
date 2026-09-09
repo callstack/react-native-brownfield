@@ -8,7 +8,6 @@ import BrownfieldNavigation
 class AppDelegate: NSObject, UIApplicationDelegate {
     var window: UIWindow?
     private let navigationDelegate = RNNavigationDelegate()
-
     func registerNavigationDelegate() {
         BrownfieldNavigationManager.shared.setDelegate(
             navigationDelegate: navigationDelegate
@@ -143,11 +142,11 @@ struct BrownfieldAppleApp: App {
 
         // `preloadBundle: true` starts the React Host now, and React Native then reads the
         // bundle URL on the JavaScript thread. Thus this call is the last operation.
-        ReactNativeBrownfield.shared.startReactNative(launchOptions: nil, preloadBundle: true) { timings in
-            print(
-                "React Native has been loaded loadMs=\(String(describing: timings.loadMs)) executeMs=\(String(describing: timings.executeMs))"
-            )
-        }
+        ReactNativeBrownfield.shared.startReactNative(
+            launchOptions: nil,
+            preloadBundle: true,
+            onBundleLoaded: BrownfieldMetricsLogger.logStartup
+        )
     }
 
     var body: some Scene {
@@ -181,5 +180,41 @@ private struct RootContentView: View {
         @unknown default:
             appDelegate.clearNavigationDelegate()
         }
+    }
+}
+
+// Console reporting is available in both Debug and Release. Unavailable samples
+// stay explicit instead of being rendered as zero FPS or zero load time.
+enum BrownfieldMetricsLogger {
+    static func logStartup(_ timings: JSBundleTimings) {
+        print("[AppleApp][startup] jsBundleLoadTime=\(number(timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(number(timings.jsBundleEvaluationTime))")
+         for interval in timings.timeline {
+             let tag = interval["tag"] as? String ?? "unknown"
+             print("[AppleApp][startup][\(tag)] startMs=\(number(interval["startMs"] as? NSNumber)) stopMs=\(number(interval["stopMs"] as? NSNumber))")
+         }
+    }
+
+    static func logDisplay(_ metrics: BrownfieldDisplayMetrics) {
+        let label = "[AppleApp][\(metrics.moduleName)][ Display Event ]"
+        if let initial = metrics.initialDisplay {
+            logInterval(initial, label: "\(label)[TTID]")
+        }
+        if let full = metrics.fullDisplay {
+            logInterval(full, label: "\(label)[TTFD]")
+        }
+    }
+
+    private static func logInterval(_ interval: BrownfieldDisplayInterval, label: String) {
+        print("\(label) duration=\(String(format: "%.2f", interval.duration)) JS={\(thread(interval.jsThread))} UI={\(thread(interval.uiThread))}")
+    }
+
+    private static func thread(_ metrics: BrownfieldThreadMetrics) -> String {
+        // busyRatio describes time beyond frame deadlines, not CPU utilization.
+        "fps=\(number(metrics.fps)) busyRatio=\(number(metrics.busyRatio)) sampledMs=\(String(format: "%.2f", metrics.sampledMs)) frames=\(metrics.frameCount)"
+    }
+
+    private static func number(_ value: NSNumber?) -> String {
+        guard let value else { return "unavailable" }
+        return String(format: "%.2f", value.doubleValue)
     }
 }

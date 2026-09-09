@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
 
@@ -9,6 +9,18 @@ export interface MessageEvent {
 }
 
 const ReactNativeBrownfield = {
+  /**
+   * Finish this iOS presentation's full-display measurement after data and UI are ready.
+   * Pass the `brownfieldPresentationID` injected into the root component's props.
+   * Native must opt in with `waitForFullDisplay: true`. Repeated/stale IDs are ignored.
+   * @platform ios
+   */
+  markFullyDisplayed: (presentationID: string): void => {
+    if (Platform.OS === 'ios') {
+      NativeModules.BrownfieldPerformance.markFullyDisplayed(presentationID);
+    }
+  },
+
   /**
    * Pop to the native screen.
    * @param animated - Whether to animate the transition (iOS only).

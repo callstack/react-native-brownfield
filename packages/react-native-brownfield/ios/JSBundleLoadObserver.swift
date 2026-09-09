@@ -91,9 +91,9 @@ final class JSBundleLoadObserver {
    */
   private static func snapshotTimings() -> JSBundleTimings {
     JSBundleTimings(
-      loadMs: JSBundleTimingObserver.loadMs,
-      executeMs: JSBundleTimingObserver.executeMs,
-      instanceInitMs: JSBundleTimingObserver.instanceInitMs
+      jsBundleLoadTime: JSBundleTimingObserver.jsBundleLoadTime,
+      jsBundleEvaluationTime: JSBundleTimingObserver.jsBundleEvaluationTime,
+      timeline: JSBundleTimingObserver.timeline
     )
   }
 

@@ -7,22 +7,28 @@ internal import Expo
 /**
  * JS bundle timings from React Native's performance logger.
  *
- * - `loadMs` is `RCTPLScriptDownload` (Metro HTTP in Debug, file read in Release).
- * - `executeMs` is `RCTPLScriptExecution`.
- * - `instanceInitMs` is `RCTPLReactInstanceInit` (Hermes/instance bring-up until download starts).
+ * - `jsBundleLoadTime` is `RCTPLScriptDownload` (Metro HTTP in Debug, file read in Release).
+ * - `jsBundleEvaluationTime` is `RCTPLScriptExecution`.
  *
- * A field is `nil` when the tag never completed (failed load, logger missing, or
+ * A tag field is `nil` when the tag never completed (failed load, logger missing, or
  * bridgeless React Native below 0.87).
  */
 @objc public class JSBundleTimings: NSObject {
-  @objc public let loadMs: NSNumber?
-  @objc public let executeMs: NSNumber?
-  @objc public let instanceInitMs: NSNumber?
+  @objc public let jsBundleLoadTime: NSNumber?
+  @objc public let jsBundleEvaluationTime: NSNumber?
+  @objc public let timeline: [[String: Any]]
 
-  @objc public init(loadMs: NSNumber?, executeMs: NSNumber?, instanceInitMs: NSNumber?) {
-    self.loadMs = loadMs
-    self.executeMs = executeMs
-    self.instanceInitMs = instanceInitMs
+  @objc public init(jsBundleLoadTime: NSNumber?, jsBundleEvaluationTime: NSNumber?) {
+    self.timeline = []
+    self.jsBundleLoadTime = jsBundleLoadTime
+    self.jsBundleEvaluationTime = jsBundleEvaluationTime
+    super.init()
+  }
+
+  @objc public init(jsBundleLoadTime: NSNumber?, jsBundleEvaluationTime: NSNumber?, timeline: [[String: Any]]) {
+    self.jsBundleLoadTime = jsBundleLoadTime
+    self.jsBundleEvaluationTime = jsBundleEvaluationTime
+    self.timeline = timeline
     super.init()
   }
 }
@@ -123,6 +129,7 @@ internal import Expo
    * Stops React Native.
    */
   @objc public func stopReactNative() {
+    NotificationCenter.default.post(name: Notification.Name("BrownfieldPerformanceStop"), object: nil)
     #if canImport(Expo)
     ExpoHostRuntime.shared.stopReactNative()
     #else
@@ -135,19 +142,45 @@ internal import Expo
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
+    view(moduleName: moduleName, initialProps: initialProps, launchOptions: launchOptions,
+         waitForFullDisplay: false, onMetrics: nil)
+  }
+
+  /// Creates a measured presentation. The completion receives one immutable snapshot on main.
+  /// Opt in to wait for JS `markFullyDisplayed(brownfieldPresentationID)`.
+  /// Thread sampling requires both collectThreadMetrics and an onMetrics callback.
+  @objc public func view(
+    moduleName: String,
+    initialProps: [AnyHashable: Any]?,
+    launchOptions: [AnyHashable: Any]? = nil,
+    waitForFullDisplay: Bool = false,
+    collectThreadMetrics: Bool = false,
+    onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
+  ) -> UIView? {
+    let session = BrownfieldDisplaySession(moduleName: moduleName,
+      waitForFullDisplay: waitForFullDisplay, collectThreadMetrics: collectThreadMetrics,
+      callback: onMetrics)
+    return makeView(moduleName: moduleName, initialProps: initialProps,
+                    launchOptions: launchOptions, session: session, controllerAppearance: false)
+  }
+
+  internal func makeView(moduleName: String, initialProps: [AnyHashable: Any]?,
+                        launchOptions: [AnyHashable: Any]?, session: BrownfieldDisplaySession,
+                        controllerAppearance: Bool) -> UIView? {
+    var props = initialProps ?? [:]
+    props["brownfieldPresentationID"] = session.id
     #if canImport(Expo)
-    ExpoHostRuntime.shared.view(
-      moduleName: moduleName,
-      initialProps: initialProps,
-      launchOptions: launchOptions
-    )
+    let root = ExpoHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
+                                           launchOptions: launchOptions)
     #else
-    ReactNativeHostRuntime.shared.view(
-      moduleName: moduleName,
-      initialProps: initialProps,
-      launchOptions: launchOptions
-    )
+    let root = ReactNativeHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
+                                                  launchOptions: launchOptions)
     #endif
+    guard let root else { session.cancel(); return nil }
+    let probe = BrownfieldAppearanceProbe(session: session)
+    probe.usesControllerAppearance = controllerAppearance
+    root.addSubview(probe)
+    return root
   }
 
   /**

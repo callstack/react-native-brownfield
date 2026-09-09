@@ -13,9 +13,11 @@ FOUNDATION_EXPORT NSNotificationName const JSBundleTimingDidLoadNotification;
  */
 @interface JSBundleTimingObserver : NSObject
 
-@property (class, nonatomic, readonly, nullable) NSNumber *loadMs;
-@property (class, nonatomic, readonly, nullable) NSNumber *executeMs;
-@property (class, nonatomic, readonly, nullable) NSNumber *instanceInitMs;
+@property (class, nonatomic, readonly, nullable) NSNumber *jsBundleLoadTime;
+@property (class, nonatomic, readonly, nullable) NSNumber *jsBundleEvaluationTime;
+
+// Completed startup intervals, in monotonic milliseconds.
+@property (class, nonatomic, readonly) NSArray<NSDictionary<NSString *, id> *> *timeline;
 
 + (void)reset;
 

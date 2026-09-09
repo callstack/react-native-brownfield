@@ -31,7 +31,7 @@ EOF
 
 cat > "$test_dir/React/RCTPLTag.h" <<'EOF'
 #pragma once
-typedef NS_ENUM(NSUInteger, RCTPLTag) { RCTPLScriptDownload, RCTPLScriptExecution, RCTPLReactInstanceInit };
+typedef NS_ENUM(NSUInteger, RCTPLTag) { RCTPLScriptDownload, RCTPLScriptExecution };
 EOF
 
 cat > "$test_dir/main.m" <<'EOF'
@@ -61,12 +61,12 @@ int main(void) {
   @autoreleasepool {
     RCTBridgeProxy *bridge = [RCTBridgeProxy alloc];
     RCTPerformanceLogger *logger = [RCTPerformanceLogger new];
-    logger.values = @[@100, @125, @200, @209, @50, @75];
+    logger.values = @[@100, @125, @200, @209];
     bridge.performanceLogger = logger;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"RCTInstanceDidLoadBundle" object:nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"RCTJavaScriptDidLoadNotification" object:nil userInfo:@{@"bridge": bridge}];
-    BOOL passed = [JSBundleTimingObserver.loadMs isEqual:@25] && [JSBundleTimingObserver.executeMs isEqual:@9];
-    NSLog(@"%@: NSProxy timing capture load=%@ execute=%@", passed ? @"PASS" : @"FAIL", JSBundleTimingObserver.loadMs, JSBundleTimingObserver.executeMs);
+    BOOL passed = [JSBundleTimingObserver.jsBundleLoadTime isEqual:@25] && [JSBundleTimingObserver.jsBundleEvaluationTime isEqual:@9];
+    NSLog(@"%@: NSProxy timing capture load=%@ execute=%@", passed ? @"PASS" : @"FAIL", JSBundleTimingObserver.jsBundleLoadTime, JSBundleTimingObserver.jsBundleEvaluationTime);
     return passed ? 0 : 1;
   }
 }

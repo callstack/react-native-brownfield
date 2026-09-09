@@ -7,6 +7,11 @@ internal import EXUpdates
 @objc public class ReactNativeViewController: UIViewController {
   private var moduleName: String
   private var initialProperties: [String: Any]?
+  private var waitForFullDisplay = false
+  private var collectThreadMetrics = false
+  private var onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
+  private var displaySession: BrownfieldDisplaySession?
+  private var isVisible = false
 
 #if canImport(EXUpdates)
   private let expoUpdatesDelegate = ReactNativeExpoUpdatesDelegate()
@@ -23,12 +28,26 @@ internal import EXUpdates
     super.init(nibName: nil, bundle: nil)
   }
 
+  @objc public convenience init(moduleName: String, initialProperties: [String: Any]? = nil,
+                                waitForFullDisplay: Bool = false,
+                                collectThreadMetrics: Bool = false,
+                                onMetrics: ((BrownfieldDisplayMetrics) -> Void)?) {
+    self.init(moduleName: moduleName, initialProperties: initialProperties)
+    self.waitForFullDisplay = waitForFullDisplay
+    self.collectThreadMetrics = collectThreadMetrics
+    self.onMetrics = onMetrics
+  }
+
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
   public override func viewDidLoad() {
     super.viewDidLoad()
+    displaySession = BrownfieldDisplaySession(moduleName: moduleName,
+      waitForFullDisplay: waitForFullDisplay, collectThreadMetrics: collectThreadMetrics,
+      callback: onMetrics)
+    onMetrics = nil
 #if canImport(EXUpdates)
     expoUpdatesDelegate.onDidStart = { [weak self] in
       self?.renderReactNativeView()
@@ -56,7 +75,23 @@ internal import EXUpdates
     }
   }
 
+  public override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    isVisible = true
+    // Expo Updates may not have created the RN root yet.
+    if view.subviews.contains(where: { $0 is BrownfieldAppearanceProbe }) {
+      displaySession?.appeared()
+    }
+  }
+
+  public override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    isVisible = false
+    displaySession?.cancel()
+  }
+
   deinit {
+    displaySession?.cancel()
     NotificationCenter.default.removeObserver(self)
   }
 
@@ -83,12 +118,16 @@ internal import EXUpdates
     
     DispatchQueue.main.async { [weak self] in
       guard let self else { return }
-      guard let reactView = ReactNativeBrownfield.shared.view(
+      guard let session = self.displaySession else { return }
+      guard let reactView = ReactNativeBrownfield.shared.makeView(
         moduleName: self.moduleName,
         initialProps: self.initialProperties,
-        launchOptions: nil
+        launchOptions: nil,
+        session: session,
+        controllerAppearance: true
       ) else { return }
       self.view = reactView
+      if self.isVisible { session.appeared() }
     }
   }
 }

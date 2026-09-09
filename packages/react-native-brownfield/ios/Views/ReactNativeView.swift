@@ -6,11 +6,17 @@ import SwiftUI
 struct ReactNativeViewRepresentable: UIViewControllerRepresentable {
   var moduleName: String
   var initialProperties: [String: Any] = [:]
+  var waitForFullDisplay = false
+  var collectThreadMetrics = false
+  var onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
 
   func makeUIViewController(context: Context) -> UIViewController {
     return ReactNativeViewController(
       moduleName: moduleName,
-      initialProperties: initialProperties
+      initialProperties: initialProperties,
+      waitForFullDisplay: waitForFullDisplay,
+      collectThreadMetrics: collectThreadMetrics,
+      onMetrics: onMetrics
     )
   }
 
@@ -26,16 +32,28 @@ public struct ReactNativeView: View {
   @Environment(\.dismiss) var dismiss
   var moduleName: String
   var initialProperties: [String: Any] = [:]
+  var waitForFullDisplay = false
+  var collectThreadMetrics = false
+  var onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
 
-  public init(moduleName: String, initialProperties: [String : Any] = [:]) {
+  public init(moduleName: String, initialProperties: [String : Any] = [:],
+              waitForFullDisplay: Bool = false,
+              collectThreadMetrics: Bool = false,
+              onMetrics: ((BrownfieldDisplayMetrics) -> Void)? = nil) {
     self.moduleName = moduleName
     self.initialProperties = initialProperties
+    self.waitForFullDisplay = waitForFullDisplay
+    self.collectThreadMetrics = collectThreadMetrics
+    self.onMetrics = onMetrics
   }
 
   public var body: some View {
     ReactNativeViewRepresentable(
       moduleName: moduleName,
-      initialProperties: initialProperties
+      initialProperties: initialProperties,
+      waitForFullDisplay: waitForFullDisplay,
+      collectThreadMetrics: collectThreadMetrics,
+      onMetrics: onMetrics
     )
     .ignoresSafeArea(.all)
     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name.popToNative))

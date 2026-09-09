@@ -54,11 +54,10 @@ Brownfield calls `onBundleLoaded` one time, on the main thread, with a `JSBundle
 
 `JSBundleTimings` fields come from React Native's performance logger:
 
-| Field            | Source                     | Meaning                                                                 |
-| ---------------- | -------------------------- | ----------------------------------------------------------------------- |
-| `loadMs`         | `RCTPLScriptDownload`      | Metro HTTP in Debug, file read in Release.                              |
-| `executeMs`      | `RCTPLScriptExecution`     | Time to evaluate the bundle. Do not add this to `instanceInitMs`.       |
-| `instanceInitMs` | `RCTPLReactInstanceInit`   | Hermes/instance bring-up until download starts.                         |
+| Field       | Source                 | Meaning                                    |
+| ----------- | ---------------------- | ------------------------------------------ |
+| `jsBundleLoadTime`       | `RCTPLScriptDownload`  | Metro HTTP in Debug, file read in Release. |
+| `jsBundleEvaluationTime` | `RCTPLScriptExecution` | Time to evaluate the bundle.               |
 
 Each field is an optional `NSNumber` in milliseconds. A field is `nil` when the tag never completed: a failed load, a missing logger, or bridgeless React Native below 0.87. Android `onBundleLoaded` is unchanged.
 
@@ -74,7 +73,7 @@ Only the call that creates the React Host reads the launch options. Brownfield k
 
 ```objc
 [[ReactNativeBrownfield shared] startReactNative:^(JSBundleTimings *timings){
-    NSLog(@"React Native started loadMs=%@ executeMs=%@", timings.loadMs, timings.executeMs);
+    NSLog(@"React Native started jsBundleLoadTime=%@ jsBundleEvaluationTime=%@", timings.jsBundleLoadTime, timings.jsBundleEvaluationTime);
 }];
 ```
 
@@ -82,7 +81,7 @@ Only the call that creates the React Host reads the launch options. Brownfield k
 [[ReactNativeBrownfield shared] startReactNativeWithLaunchOptions:launchOptions
                                                     preloadBundle:YES
                                                    onBundleLoaded:^(JSBundleTimings *timings){
-    NSLog(@"React Native bundle loaded loadMs=%@ executeMs=%@", timings.loadMs, timings.executeMs);
+    NSLog(@"React Native bundle loaded jsBundleLoadTime=%@ jsBundleEvaluationTime=%@", timings.jsBundleLoadTime, timings.jsBundleEvaluationTime);
 }];
 ```
 

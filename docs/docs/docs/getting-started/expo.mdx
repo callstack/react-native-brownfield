@@ -127,7 +127,7 @@ struct IosApp: App {
         ReactNativeBrownfield.shared.ensureExpoModulesProvider()
 
         ReactNativeBrownfield.shared.startReactNative { timings in
-            print("React Native has been loaded loadMs=\(String(describing: timings.loadMs)) executeMs=\(String(describing: timings.executeMs))")
+            print("React Native has been loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(String(describing: timings.jsBundleEvaluationTime))")
         }
     }
 

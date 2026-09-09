@@ -86,6 +86,13 @@ export function HomeScreen({
   const flatListRef = useRef<FlatList<Message>>(null);
 
   useEffect(() => {
+    const { brownfieldPresentationID } = route.params;
+    if (brownfieldPresentationID) {
+      ReactNativeBrownfield.markFullyDisplayed(brownfieldPresentationID);
+    }
+  }, [route.params]);
+
+  useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       const isFirstRoute = !navigation.canGoBack();
       ReactNativeBrownfield.setNativeBackGestureAndButtonEnabled(isFirstRoute);

@@ -6,9 +6,9 @@
 #import <React/RCTPLTag.h>
 #import <objc/runtime.h>
 
-static NSNumber *sLoadMs;
-static NSNumber *sExecuteMs;
-static NSNumber *sInstanceInitMs;
+static NSNumber *sJSBundleLoadTime;
+static NSNumber *sJSBundleEvaluationTime;
+static NSArray *sTimeline;
 
 static NSString *const kRCTInstanceDidLoadBundleNotification = @"RCTInstanceDidLoadBundle";
 
@@ -27,37 +27,34 @@ static NSNumber *JSBundleTimingNumberOrNil(NSArray<NSNumber *> *values, RCTPLTag
   return start > 0 && stop >= start ? @(stop - start) : nil;
 }
 
-static void JSBundleTimingClearSnapshot(void)
+static void JSBundleTimingClearTagSnapshot(void)
 {
-  sLoadMs = nil;
-  sExecuteMs = nil;
-  sInstanceInitMs = nil;
+  sJSBundleLoadTime = nil;
+  sJSBundleEvaluationTime = nil;
+  sTimeline = @[];
 }
 
 @implementation JSBundleTimingObserver
 
-+ (NSNumber *)loadMs
++ (NSNumber *)jsBundleLoadTime
 {
-  return sLoadMs;
+  return sJSBundleLoadTime;
 }
 
-+ (NSNumber *)executeMs
++ (NSNumber *)jsBundleEvaluationTime
 {
-  return sExecuteMs;
+  return sJSBundleEvaluationTime;
 }
 
-+ (NSNumber *)instanceInitMs
-{
-  return sInstanceInitMs;
-}
++ (NSArray *)timeline { return sTimeline ?: @[]; }
 
 + (void)reset
 {
   if ([NSThread isMainThread]) {
-    JSBundleTimingClearSnapshot();
+    JSBundleTimingClearTagSnapshot();
   } else {
     dispatch_async(dispatch_get_main_queue(), ^{
-      JSBundleTimingClearSnapshot();
+      [self reset];
     });
   }
 }
@@ -83,14 +80,24 @@ static void JSBundleTimingClearSnapshot(void)
 {
   RCTPerformanceLogger *logger = [self performanceLoggerFromNotification:notification];
   if (logger == nil) {
-    JSBundleTimingClearSnapshot();
+    JSBundleTimingClearTagSnapshot();
     return;
   }
 
   NSArray<NSNumber *> *values = [logger valuesForTags];
-  sLoadMs = JSBundleTimingNumberOrNil(values, RCTPLScriptDownload);
-  sExecuteMs = JSBundleTimingNumberOrNil(values, RCTPLScriptExecution);
-  sInstanceInitMs = JSBundleTimingNumberOrNil(values, RCTPLReactInstanceInit);
+  sJSBundleLoadTime = JSBundleTimingNumberOrNil(values, RCTPLScriptDownload);
+  sJSBundleEvaluationTime = JSBundleTimingNumberOrNil(values, RCTPLScriptExecution);
+  // These intervals can overlap. Preserve endpoints instead of adding durations.
+  RCTPLTag tags[] = {RCTPLScriptDownload, RCTPLScriptExecution};
+  NSArray *names = @[@"RCTPLScriptDownload", @"RCTPLScriptExecution"];
+  NSMutableArray *timeline = [NSMutableArray new];
+  for (NSUInteger i = 0; i < 2; i++) {
+    NSUInteger index = (NSUInteger)tags[i] * 2;
+    if (JSBundleTimingNumberOrNil(values, tags[i]) != nil) {
+      [timeline addObject:@{@"tag": names[i], @"startMs": values[index], @"stopMs": values[index + 1]}];
+    }
+  }
+  sTimeline = [timeline sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"startMs" ascending:YES]]];
 }
 
 @end

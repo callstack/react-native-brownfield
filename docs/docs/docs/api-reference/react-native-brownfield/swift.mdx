@@ -54,11 +54,10 @@ Brownfield calls `onBundleLoaded` one time, on the main thread, with a `JSBundle
 
 `JSBundleTimings` fields come from React Native's performance logger:
 
-| Field            | Source                     | Meaning                                                                 |
-| ---------------- | -------------------------- | ----------------------------------------------------------------------- |
-| `loadMs`         | `RCTPLScriptDownload`      | Metro HTTP in Debug, file read in Release.                              |
-| `executeMs`      | `RCTPLScriptExecution`     | Time to evaluate the bundle. Do not add this to `instanceInitMs`.       |
-| `instanceInitMs` | `RCTPLReactInstanceInit`   | Hermes/instance bring-up until download starts.                         |
+| Field       | Source                 | Meaning                                    |
+| ----------- | ---------------------- | ------------------------------------------ |
+| `jsBundleLoadTime`       | `RCTPLScriptDownload`  | Metro HTTP in Debug, file read in Release. |
+| `jsBundleEvaluationTime` | `RCTPLScriptExecution` | Time to evaluate the bundle.               |
 
 Each field is an optional `NSNumber` in milliseconds. A field is `nil` when the tag never completed: a failed load, a missing logger, or bridgeless React Native below 0.87. Android `onBundleLoaded` is unchanged.
 
@@ -74,13 +73,13 @@ ReactNativeBrownfield.shared.startReactNative()
 
 ```swift
 ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: { timings in
-  print("React Native started loadMs=\(String(describing: timings.loadMs)) executeMs=\(String(describing: timings.executeMs))")
+  print("React Native started jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(String(describing: timings.jsBundleEvaluationTime))")
 })
 ```
 
 ```swift
 ReactNativeBrownfield.shared.startReactNative(launchOptions: launchOptions, preloadBundle: true) { timings in
-  print("React Native bundle loaded loadMs=\(String(describing: timings.loadMs)) executeMs=\(String(describing: timings.executeMs))")
+  print("React Native bundle loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(String(describing: timings.jsBundleEvaluationTime))")
 }
 ```
 
@@ -197,7 +196,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     ReactNativeBrownfield.shared.startReactNative { timings in
-      print("React Native bundle loaded loadMs=\(String(describing: timings.loadMs))")
+      print("React Native bundle loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime))")
     }
     return true
   }
@@ -229,7 +228,7 @@ import ReactBrownfield
 struct MyApp: App {
   init() {
     ReactNativeBrownfield.shared.startReactNative { timings in
-      print("React Native bundle loaded loadMs=\(String(describing: timings.loadMs))")
+      print("React Native bundle loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime))")
     }
   }
 
