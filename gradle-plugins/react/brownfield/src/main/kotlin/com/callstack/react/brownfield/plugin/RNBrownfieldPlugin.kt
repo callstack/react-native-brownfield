@@ -76,8 +76,6 @@ class RNBrownfieldPlugin : Plugin<Project> {
          * is created eagerly in initializers() above, before the build script's own
          * `reactBrownfield { }` block has configured it — reading `extension.includeTransitiveDependencies`
          * any earlier than this would always observe its default `false`.
-         *
-         * See docs/superpowers/specs/2026-09-04-bgp-transitive-dependencies-design.md §4.4.
          */
         project.afterEvaluate {
             val transitiveDeps = VersionMediatingDependencySet()

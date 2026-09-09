@@ -8,6 +8,7 @@ import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.DependencyInfo
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
+import com.callstack.react.brownfield.shared.collectPublishableGradleDependencies
 import org.gradle.api.Project
 import org.w3c.dom.Node
 import java.io.File
@@ -191,24 +192,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
         pkgProject: Project,
         dependencies: VersionMediatingDependencySet,
     ) {
-        /**
-         * Not accounting for variant specific configurations as Expo packages are not
-         * using it. Should we face any issues/needs to account for it, we can do it here.
-         */
-        listOf("implementation", "api", "runtimeOnly").forEach {
-            val configuration = pkgProject.configurations.findByName(it)
-            configuration?.dependencies?.forEach { dep ->
-                if (dep.group != null) {
-                    dependencies.add(
-                        DependencyInfo.fromGradleDep(
-                            groupId = dep.group!!,
-                            artifactId = dep.name,
-                            version = dep.version,
-                        ),
-                    )
-                }
-            }
-        }
+        dependencies.addAll(collectPublishableGradleDependencies(pkgProject))
     }
 
     /**

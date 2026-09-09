@@ -14,7 +14,7 @@ import java.io.File
  * Gradle Module Metadata (`module.json`) for every `MavenPublication` on [project], and
  * removes any existing entry (from the base publication or previously injected) that
  * [shouldExclude] matches. Used identically by the Expo and RNC-CLI transitive-dependency
- * paths — see docs/superpowers/specs/2026-09-04-bgp-transitive-dependencies-design.md §4.1/§4.3.
+ * paths.
  */
 class PublishingMetadataInjector(private val project: Project) {
     @Suppress("LongMethod")

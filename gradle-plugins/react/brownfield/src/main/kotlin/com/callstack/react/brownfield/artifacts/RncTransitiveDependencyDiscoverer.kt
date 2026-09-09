@@ -1,22 +1,19 @@
 package com.callstack.react.brownfield.artifacts
 
-import com.callstack.react.brownfield.shared.DependencyInfo
+import com.callstack.react.brownfield.shared.Logging
+import com.callstack.react.brownfield.shared.TRANSITIVE_DEPENDENCY_CONFIG_NAMES
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
-import com.callstack.react.brownfield.shared.isPublishableCoordinate
+import com.callstack.react.brownfield.shared.collectPublishableGradleDependencies
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 
 /**
  * Discovers the real third-party (non-project) dependencies of the native module projects
  * embedded into the fat AAR, for publication into the AAR's own POM/module metadata.
  * Mirrors ExpoPublishingHelper.appendExpoTransitiveDependenciesFromGradle for the RNC-CLI
- * ("vanilla") path — see docs/superpowers/specs/2026-09-04-bgp-transitive-dependencies-design.md §4.2.
+ * ("vanilla") path.
  */
 class RncTransitiveDependencyDiscoverer(private val project: Project) {
-    private val configNames = listOf("implementation", "api", "runtimeOnly")
-
     fun discover(artifacts: List<UnresolvedArtifactInfo>): VersionMediatingDependencySet {
         val discovered = VersionMediatingDependencySet()
 
@@ -31,31 +28,23 @@ class RncTransitiveDependencyDiscoverer(private val project: Project) {
         artifact: UnresolvedArtifactInfo,
         discovered: VersionMediatingDependencySet,
     ) {
-        val moduleProject = project.rootProject.findProject(":${artifact.moduleName}") ?: return
-        configNames.forEach { configName ->
-            val configuration = moduleProject.configurations.findByName(configName) ?: return@forEach
-            collectFromConfiguration(configuration, discovered)
+        val moduleProject = project.rootProject.findProject(":${artifact.moduleName}")
+        if (moduleProject == null) {
+            Logging.log(
+                "WARNING: Could not discover transitive dependencies for embedded module " +
+                    "'${artifact.moduleName}' - no Gradle project found at " +
+                    "':${artifact.moduleName}' in the root project",
+            )
+            return
         }
-    }
 
-    private fun collectFromConfiguration(
-        configuration: Configuration,
-        discovered: VersionMediatingDependencySet,
-    ) {
-        configuration.dependencies.forEach { dependency ->
-            if (dependency is DefaultProjectDependency) return@forEach
-            val group = dependency.group ?: return@forEach
-
-            val info = DependencyInfo.fromGradleDep(group, dependency.name, dependency.version)
-            if (!isPublishableCoordinate(info)) return@forEach
-            if (isAlreadyDeclaredByConsumer(group, dependency.name)) return@forEach
-
-            discovered.add(info)
-        }
+        collectPublishableGradleDependencies(moduleProject)
+            .filterNot { isAlreadyDeclaredByConsumer(it.groupId, it.artifactId) }
+            .forEach { discovered.add(it) }
     }
 
     /**
-     * Injection-time dedup only (spec §4.3(B)) — NOT the removal predicate passed to
+     * Injection-time dedup only — NOT the removal predicate passed to
      * PublishingMetadataInjector. Prevents double-declaring a coordinate the consumer
      * project (e.g. BrownfieldLib) already declares explicitly itself.
      */
@@ -63,7 +52,7 @@ class RncTransitiveDependencyDiscoverer(private val project: Project) {
         groupId: String,
         artifactId: String,
     ): Boolean {
-        return configNames.any { configName ->
+        return TRANSITIVE_DEPENDENCY_CONFIG_NAMES.any { configName ->
             project.configurations.findByName(configName)?.dependencies?.any {
                 it.group == groupId && it.name == artifactId
             } ?: false
