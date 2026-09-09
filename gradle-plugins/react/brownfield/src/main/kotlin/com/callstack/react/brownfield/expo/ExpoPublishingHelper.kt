@@ -195,7 +195,7 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
          * Not accounting for variant specific configurations as Expo packages are not
          * using it. Should we face any issues/needs to account for it, we can do it here.
          */
-        listOf("implementation", "api", "runtime").forEach {
+        listOf("implementation", "api", "runtimeOnly").forEach {
             val configuration = pkgProject.configurations.findByName(it)
             configuration?.dependencies?.forEach { dep ->
                 if (dep.group != null) {
