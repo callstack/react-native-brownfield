@@ -51,8 +51,6 @@ stored timings.
 
 ### What startup metrics do not measure
 
-- `jsBundleLoadTime` is not only network or file I/O. It covers React Native's complete
-  bundle-loading interval.
 - `jsBundleEvaluationTime` covers synchronous bundle evaluation. It does not wait for later
   effects, requests, asynchronous work, or a screen to become ready.
 - These metrics do not start at native app launch and do not represent the time

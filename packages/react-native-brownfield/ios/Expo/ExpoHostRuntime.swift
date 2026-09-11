@@ -15,6 +15,17 @@ final class ExpoHostRuntime {
   private var delegate = ExpoHostRuntimeDelegate()
   private var reactNativeFactory: RCTReactNativeFactory?
   private var expoDelegate: ExpoAppDelegate?
+  #if canImport(EXUpdates)
+  private let updatesStartup = ExpoUpdatesStartup()
+  #endif
+
+  func prepareReactNative(_ completion: @escaping () -> Void) {
+    #if canImport(EXUpdates)
+    updatesStartup.prepareReactNative(completion)
+    #else
+    completion()
+    #endif
+  }
 
   private func configureDevLoadingView(with bundleURL: URL? = nil) {
     #if DEBUG
@@ -73,6 +84,9 @@ final class ExpoHostRuntime {
     reactNativeFactory = nil
     expoDelegate = nil
     preloadState.reset()
+    #if canImport(EXUpdates)
+    updatesStartup.cancelPendingRequests()
+    #endif
   }
 
   /**
@@ -169,6 +183,33 @@ final class ExpoHostRuntime {
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]?
   ) -> UIView? {
+    // Return a container while Updates selects its launch asset. This also supports the
+    // public view API, which does not go through ReactNativeViewController.
+    let container = UIView()
+    var immediateView: UIView?
+    var preparing = true
+    prepareReactNative { [weak self, weak container] in
+      guard let self, preparing || container != nil else { return }
+      let root = self.createView(moduleName: moduleName, initialProps: initialProps,
+                                 launchOptions: launchOptions)
+      if preparing {
+        immediateView = root
+      } else if let container, let root {
+        root.frame = container.bounds
+        root.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        container.addSubview(root)
+      }
+    }
+    preparing = false
+    return immediateView ?? container
+  }
+
+  private func createView(
+    moduleName: String,
+    initialProps: [AnyHashable: Any]?,
+    launchOptions: [AnyHashable: Any]?
+  ) -> UIView? {
+    startReactNative()
     let bundleURL = delegate.bundleURL()
     configureDevLoadingView(with: bundleURL)
 
@@ -201,8 +242,8 @@ extension ExpoHostRuntime: ReactHostPreloading {
 
   /**
    * expo-dev-launcher finds the Metro URL only after the user selects an app in the launcher. This
-   * is a Debug behavior. In Release the class is in the binary, but it does nothing. Thus this
-   * check is also only in Debug.
+   * is a Debug behavior. Packaged apps opting into an embedded bundle or an explicit URL
+   * can preload without the launcher. In Release the launcher does nothing.
    *
    * The check reads the class name, because this pod has no dependency on expo-dev-launcher.
    * `EXDevLauncherController` is the name in expo-dev-launcher 56 and 57. If a later version
@@ -213,7 +254,8 @@ extension ExpoHostRuntime: ReactHostPreloading {
    */
   func canPreloadReactNative() -> Bool {
     #if DEBUG
-    if NSClassFromString("EXDevLauncherController") != nil {
+    if !preferEmbeddedBundleInDebug && bundleURLOverride?() == nil,
+      NSClassFromString("EXDevLauncherController") != nil {
       return false
     }
     #endif
@@ -251,8 +293,8 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
       }
 
       #if canImport(EXUpdates)
-      if !isDebug,
-        AppController.isInitialized(),
+      if AppController.isInitialized(),
+        AppController.sharedInstance.isActiveController,
         let launchAssetURL = AppController.sharedInstance.launchAssetUrl()
       {
         return launchAssetURL
@@ -286,20 +328,18 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
    *
    * The override wins over every other step, thus an override makes the URL stable.
    *
-   * expo-updates selects the launch asset while `AppController` starts. `ReactNativeViewController`
-   * starts `AppController`. Before this operation is complete, `launchAssetUrl()` is nil, and
-   * `bundleURL()` gives the embedded bundle. A host from that time keeps the embedded bundle, and
-   * Expo never applies the update. Thus the URL is stable only after `launchAssetUrl()` has a
-   * value. The class can be in the binary while the app does not use it, thus this check reads the
-   * state and not the class.
+   * The shared runtime waits for Updates before preloading or creating views. Inactive
+   * controllers use the normal bundle resolver and do not need an Updates launch asset.
    */
   var isBundleURLStable: Bool {
     if bundleURLOverride?() != nil {
       return true
     }
 
-    #if canImport(EXUpdates) && !DEBUG
-    return AppController.isInitialized() && AppController.sharedInstance.launchAssetUrl() != nil
+    #if canImport(EXUpdates)
+    guard AppController.isInitialized() else { return false }
+    return !AppController.sharedInstance.isActiveController
+      || AppController.sharedInstance.launchAssetUrl() != nil
     #else
     return true
     #endif

@@ -4,12 +4,23 @@ import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import { checkAndFetchUpdate } from './src/utils/expo-rn-updates';
 
 import Counter from './src/components/counter';
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+import { useEffect } from 'react';
 
 type RNAppProps = {
   nativeOsVersionLabel?: string;
+  brownfieldPresentationID?: string;
 };
 
-export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
+export default function RNApp({ nativeOsVersionLabel, brownfieldPresentationID }: RNAppProps) {
+  useEffect(() => {
+    if (brownfieldPresentationID) {
+      setTimeout(() => {
+        ReactNativeBrownfield.markFullyDisplayed(brownfieldPresentationID);
+      }, 500);
+    }
+  }, [brownfieldPresentationID]);
+  
   const requestNativeConfirmation = async () => {
     try {
       await BrownfieldNavigation.requestNativeConfirmation(
@@ -68,6 +79,7 @@ export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
         />
 
         <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
+        <Button title="Pop To Native" onPress={() => ReactNativeBrownfield.popToNative(true)} />
       </View>
     </SafeAreaView>
   );

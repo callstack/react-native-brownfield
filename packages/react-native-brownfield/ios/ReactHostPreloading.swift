@@ -103,10 +103,14 @@ protocol ReactHostPreloading: AnyObject {
    */
   func canPreloadReactNative() -> Bool
 
+  func prepareReactNative(_ completion: @escaping () -> Void)
+
   func prepareDevLoadingView()
 }
 
 extension ReactHostPreloading {
+  func prepareReactNative(_ completion: @escaping () -> Void) { completion() }
+
   /**
    * The implementation of
    * `ReactNativeBrownfield.startReactNative(launchOptions:preloadBundle:onBundleLoaded:)`, which
@@ -131,10 +135,10 @@ extension ReactHostPreloading {
     preloadState.requestPreload()
 
     if Thread.isMainThread {
-      createReactHost()
+      prepareReactNative { [weak self] in self?.createReactHost() }
     } else {
       DispatchQueue.main.async { [weak self] in
-        self?.createReactHost()
+        self?.prepareReactNative { [weak self] in self?.createReactHost() }
       }
     }
   }

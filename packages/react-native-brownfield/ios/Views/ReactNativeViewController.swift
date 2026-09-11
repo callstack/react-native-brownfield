@@ -1,8 +1,5 @@
 import UIKit
 internal import React
-#if canImport(EXUpdates)
-internal import EXUpdates
-#endif
 
 @objc public class ReactNativeViewController: UIViewController {
   private var moduleName: String
@@ -13,18 +10,10 @@ internal import EXUpdates
   private var displaySession: BrownfieldDisplaySession?
   private var isVisible = false
 
-#if canImport(EXUpdates)
-  private let expoUpdatesDelegate = ReactNativeExpoUpdatesDelegate()
-#endif
-    
 
   @objc public init(moduleName: String, initialProperties: [String: Any]? = nil) {
     self.moduleName = moduleName
     self.initialProperties = initialProperties
-#if canImport(EXUpdates)
-    AppController.sharedInstance.delegate = expoUpdatesDelegate
-    AppController.sharedInstance.start()
-#endif
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -48,16 +37,9 @@ internal import EXUpdates
       waitForFullDisplay: waitForFullDisplay, collectThreadMetrics: collectThreadMetrics,
       callback: onMetrics)
     onMetrics = nil
-#if canImport(EXUpdates)
-    expoUpdatesDelegate.onDidStart = { [weak self] in
-      self?.renderReactNativeView()
-    }
-#endif
 
     if !moduleName.isEmpty {
-#if !canImport(EXUpdates)
       renderReactNativeView()
-#endif
         
       NotificationCenter.default.addObserver(
         self,
@@ -131,26 +113,3 @@ internal import EXUpdates
     }
   }
 }
-
-#if canImport(EXUpdates)
-private final class ReactNativeExpoUpdatesDelegate: NSObject, AppControllerDelegate {
-  private var didStartSuccessfully = false
-  var onDidStart: (() -> Void)? {
-    didSet {
-      if didStartSuccessfully {
-        onDidStart?()
-      }
-    }
-  }
-
-  func appController(_ appController: any EXUpdates.AppControllerInterface, didStartWithSuccess success: Bool) {
-    guard success else {
-      NSLog("%@", "Expo Updates failed to start React Native.")
-      return
-    }
-
-    didStartSuccessfully = true
-    onDidStart?()
-  }
-}
-#endif
