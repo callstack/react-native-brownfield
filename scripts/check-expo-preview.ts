@@ -198,7 +198,7 @@ export function ensureConsumerNavigationSpec(contents: string): string {
   }
 
   const updated = contents.replace(
-    /\n}\s*$/u,
+    /\n\}\s*$/u,
     `${CONSUMER_ROAD_TEST_NAVIGATION_METHODS}\n}`
   );
 
