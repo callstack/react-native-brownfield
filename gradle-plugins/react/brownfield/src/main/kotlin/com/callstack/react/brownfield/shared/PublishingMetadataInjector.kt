@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.shared
 
+import com.callstack.react.brownfield.utils.capitalized
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.util.NodeList
@@ -7,7 +8,6 @@ import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
-import java.io.File
 
 /**
  * Injects a resolved set of transitive dependencies into the generated Maven POM and
@@ -22,14 +22,18 @@ class PublishingMetadataInjector(private val project: Project) {
         dependencies: VersionMediatingDependencySet,
         shouldExclude: (groupId: String, artifactId: String) -> Boolean,
     ) {
-        val removeDependenciesFromModuleFileTask =
-            project.tasks.register("removeDependenciesFromModuleFile")
-        removeDependenciesFromModuleFileTask.configure { task ->
-            task.doLast {
-                val moduleBuildDir = project.layout.buildDirectory.get()
+        // One injector task per GenerateModuleMetadata task, deriving the actual module.json
+        // location from that task's own `outputFile` — not a hardcoded "mavenAar" path — so
+        // this works regardless of what a consumer names their publication(s).
+        project.tasks.withType(GenerateModuleMetadata::class.java).configureEach { metadataTask ->
+            val removeDependenciesFromModuleFileTask =
+                project.tasks.register("removeDependenciesFromModuleFile${metadataTask.name.capitalized()}")
+            removeDependenciesFromModuleFileTask.configure { task ->
+                task.doLast {
+                    val moduleFile = metadataTask.outputFile.get().asFile
+                    if (!moduleFile.exists()) return@doLast
 
-                File("$moduleBuildDir/publications/mavenAar/module.json").run {
-                    val json = inputStream().use { JsonSlurper().parse(it) as Map<*, *> }
+                    val json = moduleFile.inputStream().use { JsonSlurper().parse(it) as Map<*, *> }
 
                     dependencies.forEach { dependencyToAdd ->
                         @Suppress("UNCHECKED_CAST")
@@ -54,19 +58,16 @@ class PublishingMetadataInjector(private val project: Project) {
                             val module = it["module"] as String
                             shouldExclude(group, module)
                         }
+                    }
 
-                        writer().use {
-                            it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json)))
-                        }
+                    moduleFile.writer().use {
+                        it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json)))
                     }
                 }
             }
-        }
 
-        project.tasks.withType(GenerateModuleMetadata::class.java)
-            .configureEach {
-                it.finalizedBy(removeDependenciesFromModuleFileTask.get())
-            }
+            metadataTask.finalizedBy(removeDependenciesFromModuleFileTask)
+        }
     }
 
     @Suppress("LongMethod")

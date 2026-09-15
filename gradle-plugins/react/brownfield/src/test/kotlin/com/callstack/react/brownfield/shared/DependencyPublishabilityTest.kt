@@ -34,4 +34,34 @@ class DependencyPublishabilityTest {
         val dep = DependencyInfo("androidx.appcompat", "appcompat", "1.7.1", "compile", false)
         assertTrue(isPublishableCoordinate(dep))
     }
+
+    @Test
+    fun `rejects latest_release`() {
+        val dep = DependencyInfo("androidx.core", "core-ktx", "latest.release", "compile", false)
+        assertFalse(isPublishableCoordinate(dep))
+    }
+
+    @Test
+    fun `rejects latest_integration`() {
+        val dep = DependencyInfo("androidx.core", "core-ktx", "latest.integration", "compile", false)
+        assertFalse(isPublishableCoordinate(dep))
+    }
+
+    @Test
+    fun `rejects a closed Maven version range`() {
+        val dep = DependencyInfo("androidx.core", "core-ktx", "[1.0,2.0]", "compile", false)
+        assertFalse(isPublishableCoordinate(dep))
+    }
+
+    @Test
+    fun `rejects a half-open Maven version range`() {
+        val dep = DependencyInfo("androidx.core", "core-ktx", "[1.0,2.0)", "compile", false)
+        assertFalse(isPublishableCoordinate(dep))
+    }
+
+    @Test
+    fun `rejects an unbounded Maven version range`() {
+        val dep = DependencyInfo("androidx.core", "core-ktx", "[1.0,)", "compile", false)
+        assertFalse(isPublishableCoordinate(dep))
+    }
 }

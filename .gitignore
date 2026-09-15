@@ -93,5 +93,6 @@ packages/react-native-brownfield/ios/swiftpm/.build/
 
 # internal process artifacts (should never be part of the PR diff)
 .superpowers/
+docs/superpowers/
 
 .cursor

@@ -79,16 +79,26 @@ class RNBrownfieldPlugin : Plugin<Project> {
          */
         project.afterEvaluate {
             val transitiveDeps = VersionMediatingDependencySet()
+            var rncSupersededCoordinates: Set<Pair<String, String>> = emptySet()
 
             if (isExpoProject && expoPublishingHelper != null) {
                 val expoTransitiveDeps = expoPublishingHelper.discoverAllExpoTransitiveDependencies(expoProjects)
                 Logging.log("Merged ${expoTransitiveDeps.size} transitive dependencies discovered from Expo")
+                expoTransitiveDeps.forEach {
+                    Logging.log(
+                        "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
+                            "${if (it.optional) "optional" else "required"})",
+                    )
+                }
                 transitiveDeps.addAll(expoTransitiveDeps)
             }
             if (extension.includeTransitiveDependencies) {
-                val rncTransitiveDeps = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
-                Logging.log("Merged ${rncTransitiveDeps.size} transitive dependencies discovered by the RNC discoverer")
-                transitiveDeps.addAll(rncTransitiveDeps)
+                val rncDiscovery = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
+                Logging.log(
+                    "Merged ${rncDiscovery.dependencies.size} transitive dependencies discovered by the RNC discoverer",
+                )
+                transitiveDeps.addAll(rncDiscovery.dependencies)
+                rncSupersededCoordinates = rncDiscovery.supersededCoordinates
             }
 
             if (isExpoProject || extension.includeTransitiveDependencies) {
@@ -98,7 +108,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
                 val removalPredicate: (String, String) -> Boolean = { groupId, artifactId ->
                     (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
-                        artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId }
+                        artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId } ||
+                        rncSupersededCoordinates.contains(groupId to artifactId)
                 }
 
                 val injector = PublishingMetadataInjector(project)

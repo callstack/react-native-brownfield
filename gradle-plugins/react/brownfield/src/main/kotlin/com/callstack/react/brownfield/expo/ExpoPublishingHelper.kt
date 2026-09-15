@@ -24,6 +24,13 @@ fun Node.getChildNodeByName(nodeName: String): Node? {
 }
 
 open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
+    /**
+     * Only discovers *which* Expo projects are publishable — does not resolve their transitive
+     * dependencies. This runs eagerly during `apply()`, before any project's `afterEvaluate`
+     * has fired, so `discoverAllExpoTransitiveDependencies` isn't safe to call yet here (Expo
+     * package projects may not have finished configuring their own dependencies). The actual
+     * dependency discovery — and its logging — happens once, later, from `afterEvaluate`.
+     */
     fun configure(): List<ExpoGradleProjectProjection> {
         val discoverableExpoProjects = getDiscoverableExpoProjects()
 
@@ -33,22 +40,6 @@ open class ExpoPublishingHelper(val brownfieldAppProject: Project) {
                     ", ",
                 ) { it.name },
         )
-
-        val expoTransitiveDependencies =
-            discoverAllExpoTransitiveDependencies(
-                expoProjects = discoverableExpoProjects,
-            )
-
-        Logging.log(
-            "Collected a total of ${expoTransitiveDependencies.size} unique Expo transitive " +
-                "dependencies for brownfield app project publishing",
-        )
-        expoTransitiveDependencies.forEach {
-            Logging.log(
-                "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
-                    "${if (it.optional) "optional" else "required"})",
-            )
-        }
 
         return discoverableExpoProjects
     }

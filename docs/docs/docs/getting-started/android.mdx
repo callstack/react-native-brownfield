@@ -346,7 +346,7 @@ tasks.named("generateMetadataFileForMavenAarPublication") {
 > }
 > ```
 >
-> Do **not** combine this option with a hand-written `tasks.register("removeDependenciesFromModuleFile")` in the same module — the plugin registers a task with that exact name once the option is enabled, and Gradle throws `task 'removeDependenciesFromModuleFile' already exists` if both are present.
+> Do **not** combine this option with the hand-written `tasks.register("removeDependenciesFromModuleFile")` block above in the same module — the plugin already performs that same removal (plus dependency injection) for every publication once the option is enabled, so keeping both means two tasks race to rewrite the same generated `module.json`, corrupting whichever one runs last.
 
 ## 7. Create a Brownfield Configuration
 

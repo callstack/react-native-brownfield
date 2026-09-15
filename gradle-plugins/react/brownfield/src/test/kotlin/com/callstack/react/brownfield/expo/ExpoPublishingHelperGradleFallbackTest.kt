@@ -5,6 +5,7 @@ import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ExpoPublishingHelperGradleFallbackTest {
@@ -36,6 +37,11 @@ class ExpoPublishingHelperGradleFallbackTest {
                 DependencyInfo("androidx.annotation", "annotation", "1.9.1", "compile", false),
             ),
             "expected the runtimeOnly dependency to be discovered via the Gradle fallback path",
+        )
+        assertEquals(
+            "runtime",
+            discovered.first { it.groupId == "androidx.annotation" }.scope,
+            "runtimeOnly dependencies should be published under Maven's runtime scope, not compile",
         )
     }
 }

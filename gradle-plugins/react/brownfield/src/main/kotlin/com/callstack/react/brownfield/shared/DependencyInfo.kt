@@ -12,12 +12,13 @@ data class DependencyInfo(
             groupId: String,
             artifactId: String,
             version: String?,
+            scope: String = "compile",
         ): DependencyInfo {
             return DependencyInfo(
                 groupId = groupId,
                 artifactId = artifactId,
                 version = version,
-                scope = "compile",
+                scope = scope,
                 optional = false,
             )
         }
