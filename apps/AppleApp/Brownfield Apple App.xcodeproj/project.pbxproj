@@ -242,11 +242,11 @@
 		61591FE32FF3DC2100BEFE92 /* ExpoModulesCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ExpoModulesCore.xcframework; path = package/ExpoModulesCore.xcframework; sourceTree = "<group>"; };
 		61591FE62FF3DD6700BEFE92 /* ExpoImage.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ExpoImage.xcframework; path = package/ExpoImage.xcframework; sourceTree = "<group>"; };
 		61591FE92FF3DEA600BEFE92 /* ExpoModulesWorklets.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ExpoModulesWorklets.xcframework; path = package/ExpoModulesWorklets.xcframework; sourceTree = "<group>"; };
-		61591FEF2FF3E3E200BEFE92 /* SDWebImage.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImage.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/SDWebImage/debug/SDWebImage.xcframework"; sourceTree = "<group>"; };
-		61591FF22FF3E41C00BEFE92 /* SDWebImageSVGCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageSVGCoder.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/SDWebImageSVGCoder/debug/SDWebImageSVGCoder.xcframework"; sourceTree = "<group>"; };
-		61591FF32FF3E41C00BEFE92 /* SDWebImageWebPCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageWebPCoder.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/SDWebImageWebPCoder/debug/SDWebImageWebPCoder.xcframework"; sourceTree = "<group>"; };
-		61591FF42FF3E41C00BEFE92 /* SDWebImageAVIFCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageAVIFCoder.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/SDWebImageAVIFCoder/debug/SDWebImageAVIFCoder.xcframework"; sourceTree = "<group>"; };
-		61591FFB2FF3E43500BEFE92 /* libavif.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavif.xcframework; path = "../ExpoApp56/node_modules/expo-image/prebuilds/spm-deps/libavif/debug/libavif.xcframework"; sourceTree = "<group>"; };
+		61591FEF2FF3E3E200BEFE92 /* SDWebImage.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImage.xcframework; path = "../ExpoApp58/node_modules/expo-image/prebuilds/spm-deps/SDWebImage/debug/SDWebImage.xcframework"; sourceTree = "<group>"; };
+		61591FF22FF3E41C00BEFE92 /* SDWebImageSVGCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageSVGCoder.xcframework; path = "../ExpoApp58/node_modules/expo-image/prebuilds/spm-deps/SDWebImageSVGCoder/debug/SDWebImageSVGCoder.xcframework"; sourceTree = "<group>"; };
+		61591FF32FF3E41C00BEFE92 /* SDWebImageWebPCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageWebPCoder.xcframework; path = "../ExpoApp58/node_modules/expo-image/prebuilds/spm-deps/SDWebImageWebPCoder/debug/SDWebImageWebPCoder.xcframework"; sourceTree = "<group>"; };
+		61591FF42FF3E41C00BEFE92 /* SDWebImageAVIFCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageAVIFCoder.xcframework; path = "../ExpoApp58/node_modules/expo-image/prebuilds/spm-deps/SDWebImageAVIFCoder/debug/SDWebImageAVIFCoder.xcframework"; sourceTree = "<group>"; };
+		61591FFB2FF3E43500BEFE92 /* libavif.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavif.xcframework; path = "../ExpoApp58/node_modules/expo-image/prebuilds/spm-deps/libavif/debug/libavif.xcframework"; sourceTree = "<group>"; };
 		617FBE3E2FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp57).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		618F4DBB2FF7C09F00A719EB /* libavif.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavif.xcframework; path = "../ExpoApp57/node_modules/expo-image/prebuilds/spm-deps/libavif/release/libavif.xcframework"; sourceTree = "<group>"; };
 		618F4DBC2FF7C09F00A719EB /* SDWebImageSVGCoder.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImageSVGCoder.xcframework; path = "../ExpoApp57/node_modules/expo-image/prebuilds/spm-deps/SDWebImageSVGCoder/release/SDWebImageSVGCoder.xcframework"; sourceTree = "<group>"; };
@@ -261,7 +261,7 @@
 		79B1D99D2FB4A61400A5F42B /* React.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = React.xcframework; path = package/React.xcframework; sourceTree = "<group>"; };
 		79B1D99E2FB4A61400A5F42B /* ReactBrownfield.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactBrownfield.xcframework; path = package/ReactBrownfield.xcframework; sourceTree = "<group>"; };
 		79B1D99F2FB4A61400A5F42B /* ReactNativeDependencies.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactNativeDependencies.xcframework; path = package/ReactNativeDependencies.xcframework; sourceTree = "<group>"; };
-		79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp56).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp56).app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp58).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoApp58).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppPreview).app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brownfield Apple App (ExpoAppPreview).app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -409,7 +409,7 @@
 			isa = PBXGroup;
 			children = (
 				793C76A72EEBF938008A2A34 /* Brownfield Apple App (RNApp).app */,
-				79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp56).app */,
+				79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp58).app */,
 				7A1B2C3D4E5F60718293A202 /* Brownfield Apple App (ExpoAppPreview).app */,
 				617FBE3E2FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57).app */,
 			);
@@ -465,9 +465,9 @@
 			productReference = 793C76A72EEBF938008A2A34 /* Brownfield Apple App (RNApp).app */;
 			productType = "com.apple.product-type.application";
 		};
-		79B8BEB42FB8000000B94C6F /* Brownfield Apple App (ExpoApp56) */ = {
+		79B8BEB42FB8000000B94C6F /* Brownfield Apple App (ExpoApp58) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 79B8BEB92FB8000000B94C6F /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp56)" */;
+			buildConfigurationList = 79B8BEB92FB8000000B94C6F /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp58)" */;
 			buildPhases = (
 				79B8BEB12FB8000000B94C6F /* Sources */,
 				79B8BEAF2FB8000000B94C6F /* Frameworks */,
@@ -481,11 +481,11 @@
 			fileSystemSynchronizedGroups = (
 				793C76A92EEBF938008A2A34 /* Brownfield Apple App */,
 			);
-			name = "Brownfield Apple App (ExpoApp56)";
+			name = "Brownfield Apple App (ExpoApp58)";
 			packageProductDependencies = (
 			);
 			productName = "Brownfield Apple App";
-			productReference = 79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp56).app */;
+			productReference = 79B8BEB22FB8000000B94C6F /* Brownfield Apple App (ExpoApp58).app */;
 			productType = "com.apple.product-type.application";
 		};
 		7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppPreview) */ = {
@@ -549,7 +549,7 @@
 			projectRoot = "";
 			targets = (
 				793C76A62EEBF938008A2A34 /* Brownfield Apple App (RNApp) */,
-				79B8BEB42FB8000000B94C6F /* Brownfield Apple App (ExpoApp56) */,
+				79B8BEB42FB8000000B94C6F /* Brownfield Apple App (ExpoApp58) */,
 				617FBE102FF7AA9D00348DD8 /* Brownfield Apple App (ExpoApp57) */,
 				7A1B2C3D4E5F60718293A301 /* Brownfield Apple App (ExpoAppPreview) */,
 			);
@@ -1643,7 +1643,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release Expo";
 		};
-		79B8BEB92FB8000000B94C6F /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp56)" */ = {
+		79B8BEB92FB8000000B94C6F /* Build configuration list for PBXNativeTarget "Brownfield Apple App (ExpoApp58)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				79B8BEB52FB8000000B94C6F /* Debug Expo */,

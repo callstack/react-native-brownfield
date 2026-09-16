@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "ExpoApp56",
-    "slug": "ExpoApp56",
+    "name": "ExpoApp58",
+    "slug": "ExpoApp58",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expoapp56",
+    "scheme": "expoapp58",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp56"
+      "bundleIdentifier": "com.callstack.rnbrownfield.demo.expoapp58"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +19,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.callstack.rnbrownfield.demo.expoapp56"
+      "package": "com.callstack.rnbrownfield.demo.expoapp58"
     },
     "web": {
       "output": "static",

@@ -5,7 +5,7 @@ const {
   getAppleAppDetoxVariant,
 } = require('../brownfield-example-shared-tests/detox-appleapp-variants.cjs');
 
-const variant = getAppleAppDetoxVariant('expo56');
+const variant = getAppleAppDetoxVariant('expo58');
 
 /** @type {import('detox').DetoxConfig} */
 module.exports = createAppleAppIosSimDebugDetoxConfig({
@@ -13,5 +13,5 @@ module.exports = createAppleAppIosSimDebugDetoxConfig({
   configuration: variant.configuration,
   appBinaryName: variant.appBinaryName,
   detoxConfiguration: variant.detoxConfiguration,
-  jestConfigPath: 'e2e/jest.config.expo56.cjs',
+  jestConfigPath: 'e2e/jest.config.expo58.cjs',
 });

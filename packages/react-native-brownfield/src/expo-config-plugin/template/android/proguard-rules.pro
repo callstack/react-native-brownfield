@@ -26,6 +26,6 @@
 -dontwarn java.lang.invoke.StringConcatFactory
 
 # Public API consumed from the Brownfield AAR.
--keep class com.callstack.rnbrownfield.demo.expoapp56.ReactNativeHostManager { *; }
+-keep class com.callstack.rnbrownfield.demo.expoapp58.ReactNativeHostManager { *; }
 
 {{EXTRA_PROGUARD_RULES}}

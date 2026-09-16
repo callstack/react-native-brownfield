@@ -3,8 +3,8 @@
 #
 # Usage (from repo root):
 #   yarn ci:local:appleapp:e2e:ios
-#   yarn ci:local:appleapp:e2e:ios --variant expo56
 #   yarn ci:local:appleapp:e2e:ios --variant expo57
+#   yarn ci:local:appleapp:e2e:ios --variant expo58
 #   yarn ci:local:appleapp:e2e:ios --clean-ios
 #   yarn ci:local:appleapp:e2e:ios --skip-install
 #   yarn ci:local:appleapp:e2e:ios --rebuild
@@ -14,7 +14,7 @@
 #
 # Local runs auto-run `pod install` on exit to restore Brownfield pod Debug settings (vanilla RN host).
 # From apps/AppleApp: yarn ci:local:e2e:ios [--flags]
-#   yarn ci:local:e2e:ios:expo56 / yarn ci:local:e2e:ios:expo57
+#   yarn ci:local:e2e:ios:expo57 / yarn ci:local:e2e:ios:expo58
 #
 set -euo pipefail
 
@@ -29,7 +29,7 @@ while [[ $# -gt 0 ]]; do
     --) shift; break ;;
     --variant=*) VARIANT="${1#*=}"; shift ;;
     --variant)
-      VARIANT="${2:?--variant requires a value (vanilla, expo56, or expo57)}"
+      VARIANT="${2:?--variant requires a value (vanilla, expo57, or expo58)}"
       shift 2
       ;;
     -h|--help)

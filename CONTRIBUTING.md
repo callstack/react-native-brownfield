@@ -29,7 +29,7 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `lint` - runs linting on all JS/TS source files in the monorepo _[Turbo]_
 - `gradle-plugin:lint` - runs linting on the Brownfield Gradle plugin source code
 - `typecheck` - runs TypeScript type checking on all TS source files in the monorepo _[Turbo]_
-- `test:apps` - runs Jest for the React Native example apps under `apps/` (Expo 56, plain RN) _[Turbo]_
+- `test:apps` - runs Jest for the React Native example apps under `apps/` (Expo 58, plain RN) _[Turbo]_
 - `build` - runs all `build*` tasks in the Turbo repo - see below for more details _[Turbo]_
 - `dev` - runs all `dev` tasks in all workspaces
 - `brownfield:plugin:publish:local` - publishes the Brownfield Gradle plugin to your local Maven repository for testing purposes
@@ -37,12 +37,12 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `build:docs` - builds the documentation site (`docs/`) _[Turbo]_
 - `build:example:android-rn` - builds the example React Native app for Android (`apps/RNApp/android`)
 - `build:example:ios-rn` - builds the example React Native app for iOS (`apps/RNApp/ios`)
-- `build:example:android-consumer:expo56` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 56 RN app (`apps/ExpoApp56`) artifact
+- `build:example:android-consumer:expo58` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 58 RN app (`apps/ExpoApp58`) artifact
 - `build:example:android-consumer:expo57` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 57 RN app (`apps/ExpoApp57`) artifact
 - `build:example:android-consumer:expo` - alias for `build:example:android-consumer:expo57`
 - `build:example:android-consumer:vanilla` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
 - `build:example:ios-consumer:expo` - alias for `build:example:ios-consumer:expo57`
-- `build:example:ios-consumer:expo56` - builds the `Brownfield Apple App (ExpoApp56)` target via scheme **Brownfield Apple App Expo 56** (`Release`)
+- `build:example:ios-consumer:expo58` - builds the `Brownfield Apple App (ExpoApp58)` target via scheme **Brownfield Apple App Expo 58** (`Release`)
 - `build:example:ios-consumer:expo57` - builds the `Brownfield Apple App (ExpoApp57)` target via scheme **Brownfield Apple App Expo 57** (`Release`)
 - `build:example:ios-consumer:vanilla` - builds the `Brownfield Apple App (RNApp)` target via scheme **Brownfield Apple App Vanilla** (`Release Vanilla`)
 
@@ -63,23 +63,23 @@ To package an application for brownfield, you can run `yarn brownfield:package:i
 There are 2 brownfield host apps.
 
 > [!IMPORTANT]
-> Each of the scripts below requires you to **first** package the consumed RN application with `yarn brownfield:package:ios`, e.g. `cd apps/ExpoApp56 && yarn brownfield:package:ios`.
+> Each of the scripts below requires you to **first** package the consumed RN application with `yarn brownfield:package:ios`, e.g. `cd apps/ExpoApp58 && yarn brownfield:package:ios`.
 
 - `apps/AndroidApp` - for Android
-  - `build:example:android-consumer:expo56` - consumes Expo 56
+  - `build:example:android-consumer:expo58` - consumes Expo 58
   - `build:example:android-consumer:expo57` (or `expo`) - consumes Expo 57
   - `build:example:android-consumer:vanilla` - consumes the vanilla `RNApp`
 - `apps/AppleApp` - for Apple (one Xcode target per consumed RN app, each with its own shared scheme)
-  - `build:example:ios-consumer:expo56` — target `Brownfield Apple App (ExpoApp56)`, scheme **Brownfield Apple App Expo 56**
+  - `build:example:ios-consumer:expo58` — target `Brownfield Apple App (ExpoApp58)`, scheme **Brownfield Apple App Expo 58**
   - `build:example:ios-consumer:expo57` (or `expo`) — target `Brownfield Apple App (ExpoApp57)`, scheme **Brownfield Apple App Expo 57**
   - `build:example:ios-consumer:vanilla` — target `Brownfield Apple App (RNApp)`, scheme **Brownfield Apple App Vanilla**
 
-For iOS, these scripts validate the legacy direct-XCFramework integration path. Each script uses the previously packaged artifacts from the respective directory (`apps/RNApp`, `apps/ExpoApp56`, or `apps/ExpoApp57`), invokes `prepareXCFrameworks.js` to copy XCFrameworks into `apps/AppleApp/package`, then runs `xcodebuild` against the matching scheme. The Xcode project reads fixed paths under `package/` (for example `package/BrownfieldLib.xcframework`).
+For iOS, these scripts validate the legacy direct-XCFramework integration path. Each script uses the previously packaged artifacts from the respective directory (`apps/RNApp`, `apps/ExpoApp58`, or `apps/ExpoApp57`), invokes `prepareXCFrameworks.js` to copy XCFrameworks into `apps/AppleApp/package`, then runs `xcodebuild` against the matching scheme. The Xcode project reads fixed paths under `package/` (for example `package/BrownfieldLib.xcframework`).
 
 | Yarn script                          | RN app      | Xcode target                       | Scheme                       | Configuration     |
 | ------------------------------------ | ----------- | ---------------------------------- | ---------------------------- | ----------------- |
 | `build:example:ios-consumer:vanilla` | `RNApp`     | `Brownfield Apple App (RNApp)`     | Brownfield Apple App Vanilla | `Release Vanilla` |
-| `build:example:ios-consumer:expo56`  | `ExpoApp56` | `Brownfield Apple App (ExpoApp56)` | Brownfield Apple App Expo 56 | `Release`         |
+| `build:example:ios-consumer:expo58`  | `ExpoApp58` | `Brownfield Apple App (ExpoApp58)` | Brownfield Apple App Expo 58 | `Release`         |
 | `build:example:ios-consumer:expo57`  | `ExpoApp57` | `Brownfield Apple App (ExpoApp57)` | Brownfield Apple App Expo 57 | `Release`         |
 
 > [!IMPORTANT]
@@ -91,16 +91,16 @@ The local Swift Package Manager flow is separate from `prepareXCFrameworks.js`. 
 
 1. Package the producer app with `--add-spm-package`, for example:
    - `cd apps/RNApp && yarn exec brownfield package:ios --scheme BrownfieldLib --configuration Release --add-spm-package`
-   - `cd apps/ExpoApp56 && yarn exec brownfield package:ios --scheme BrownfieldLib --configuration Release --add-spm-package`
+   - `cd apps/ExpoApp58 && yarn exec brownfield package:ios --scheme BrownfieldLib --configuration Release --add-spm-package`
    - `cd apps/ExpoApp57 && yarn exec brownfield package:ios --scheme BrownfieldLib --configuration Release --add-spm-package`
 2. Open `apps/AppleApp/Brownfield Apple App.xcodeproj`.
 3. Select the host scheme you want to validate:
    - `Brownfield Apple App Vanilla`
-   - `Brownfield Apple App Expo 56`
+   - `Brownfield Apple App Expo 58`
    - `Brownfield Apple App Expo 57`
 4. In Xcode, go to `Package Dependencies`, click `+`, choose `Add Local...`, and select the generated package folder:
    - `apps/RNApp/ios/.brownfield/package/build`
-   - `apps/ExpoApp56/ios/.brownfield/package/build`
+   - `apps/ExpoApp58/ios/.brownfield/package/build`
    - `apps/ExpoApp57/ios/.brownfield/package/build`
 5. Add the `BrownfieldLib` product to the matching AppleApp target.
 6. Remove old direct `package/*.xcframework` references from that target if you are switching from the legacy direct-XCFramework path.
@@ -122,9 +122,9 @@ Per example app (run from the repo root):
 | Command                                                         | App                               |
 | --------------------------------------------------------------- | --------------------------------- |
 | `yarn workspace @callstack/brownfield-example-rn-app test`      | Plain React Native (`apps/RNApp`) |
-| `yarn workspace @callstack/brownfield-example-expo-app-56 test` | Expo SDK 56 (`apps/ExpoApp56`)    |
+| `yarn workspace @callstack/brownfield-example-expo-app-58 test` | Expo SDK 58 (`apps/ExpoApp58`)    |
 
-Package-level scripts (`yarn test` inside `apps/RNApp` or `apps/ExpoApp56`) invoke Jest with each app’s `jest.config.js`.
+Package-level scripts (`yarn test` inside `apps/RNApp` or `apps/ExpoApp58`) invoke Jest with each app’s `jest.config.js`.
 
 The native-only sample apps (`apps/AppleApp`, `apps/AndroidApp`) use their platform test runners (Xcode / Gradle), not Jest.
 
@@ -147,7 +147,7 @@ Per-app Detox scripts (run from the app directory):
 | ------------------------- | --------------------------- | -------------------------- | ---------------------------------- |
 | `RNApp`                   | `yarn e2e:build:ios`        | `yarn e2e:test:ios`        | `rnAppBrownfield.e2e.js`           |
 | `AppleApp` (vanilla)      | `yarn e2e:build:ios`        | `yarn e2e:test:ios`        | `appleAppBrownfield.e2e.js`        |
-| `AppleApp` (Expo 56)      | `yarn e2e:build:ios:expo56` | `yarn e2e:test:ios:expo56` | `appleAppExpoBrownfield.e2e.js`    |
+| `AppleApp` (Expo 58)      | `yarn e2e:build:ios:expo58` | `yarn e2e:test:ios:expo58` | `appleAppExpoBrownfield.e2e.js`    |
 | `AppleApp` (Expo 57)      | `yarn e2e:build:ios:expo57` | `yarn e2e:test:ios:expo57` | `appleAppExpoBrownfield.e2e.js`    |
 
 ### CI
@@ -157,7 +157,7 @@ iOS Detox E2E runs in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) via
 | Job                           | E2E | Notes                                    |
 | ----------------------------- | --- | ---------------------------------------- |
 | `ios-appleapp-vanilla`        | Yes | `RNApp` → package → `AppleApp` Detox     |
-| `ios-appleapp-expo` (Expo 56) | Yes | `ExpoApp56` → package → `AppleApp` Detox |
+| `ios-appleapp-expo` (Expo 58) | Yes | `ExpoApp58` → package → `AppleApp` Detox |
 | `ios-appleapp-expo` (Expo 57) | Yes | `ExpoApp57` → package → `AppleApp` Detox |
 
 On failure, CI uploads `apps/AppleApp/e2e-artifacts/` as a workflow artifact (`detox-appleapp-*-ios-recordings`).
@@ -172,10 +172,10 @@ From the repo root (macOS + Xcode + Simulator required). All wrap `scripts/ci-lo
 | ---------------------------------------------------- | -------------------------------- |
 | `yarn ci:local:rnapp:e2e:ios`                        | RN host app E2E (`apps/RNApp`)   |
 | `yarn ci:local:appleapp:e2e:ios`                     | CI `ios-appleapp-vanilla`        |
-| `yarn ci:local:appleapp:e2e:ios --variant expo56`    | CI `ios-appleapp-expo` (Expo 56) |
+| `yarn ci:local:appleapp:e2e:ios --variant expo58`    | CI `ios-appleapp-expo` (Expo 58) |
 | `yarn ci:local:appleapp:e2e:ios --variant expo57`    | CI `ios-appleapp-expo` (Expo 57) |
 
-From `apps/AppleApp`, you can also use `yarn ci:local:e2e:ios:expo56` / `yarn ci:local:e2e:ios:expo57`.
+From `apps/AppleApp`, you can also use `yarn ci:local:e2e:ios:expo58` / `yarn ci:local:e2e:ios:expo57`.
 
 Common flags (append to any command above):
 

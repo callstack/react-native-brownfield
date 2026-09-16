@@ -22,7 +22,7 @@ jobs:
     outputs:
       packages: ${{ steps.filter.outputs.packages }}
       rnapp: ${{ steps.filter.outputs.rnapp }}
-      expo56: ${{ steps.filter.outputs.expo56 }}
+      expo58: ${{ steps.filter.outputs.expo58 }}
       expo57: ${{ steps.filter.outputs.expo57 }}
       androidapp: ${{ steps.filter.outputs.androidapp }}
       appleapp: ${{ steps.filter.outputs.appleapp }}
@@ -42,8 +42,8 @@ jobs:
             rnapp:
               - 'apps/RNApp/**'
               - 'apps/brownfield-example-shared-tests/**'
-            expo56:
-              - 'apps/ExpoApp56/**'
+            expo58:
+              - 'apps/ExpoApp58/**'
               - 'apps/brownfield-example-shared-tests/**'
             expo57:
               - 'apps/ExpoApp57/**'
@@ -138,7 +138,7 @@ jobs:
     if: |
       always() &&
       (
-        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.expo58 == 'true' ||
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
@@ -149,7 +149,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - version: '56'
+          - version: '58'
           - version: '57'
 
     steps:
@@ -224,7 +224,7 @@ jobs:
     if: |
       always() &&
       (
-        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.expo58 == 'true' ||
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.appleapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
@@ -234,7 +234,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - version: '56'
+          - version: '58'
             run-e2e: 'true'
           - version: '57'
             run-e2e: 'true'
