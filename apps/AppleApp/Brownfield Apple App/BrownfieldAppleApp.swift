@@ -135,15 +135,17 @@ struct BrownfieldAppleApp: App {
     init() {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
         ReactNativeBrownfield.shared.preferEmbeddedBundleInDebug = true
-        ReactNativeBrownfield.shared.startReactNative {
-            print("React Native has been loaded")
-        }
-
         #if USE_EXPO_HOST
             ReactNativeBrownfield.shared.ensureExpoModulesProvider()
         #endif
 
-       BrownfieldStore.register(initialState)
+        BrownfieldStore.register(initialState)
+
+        // `preloadBundle: true` starts the React Host now, and React Native then reads the
+        // bundle URL on the JavaScript thread. Thus this call is the last operation.
+        ReactNativeBrownfield.shared.startReactNative(launchOptions: nil, preloadBundle: true) {
+            print("React Native has been loaded")
+        }
     }
 
     var body: some Scene {

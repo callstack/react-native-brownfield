@@ -1,5 +1,19 @@
 # @callstack/react-native-brownfield
 
+## 5.1.0
+
+### Minor Changes
+
+- [#450](https://github.com/callstack/react-native-brownfield/pull/450) [`4846a05`](https://github.com/callstack/react-native-brownfield/commit/4846a055eb06f8c8dea08b33d0bb0d1b2a2f2f86) Thanks [@borisyankov](https://github.com/borisyankov)! - Add `preloadBundle` to `startReactNative` on iOS. Without a preload, `startReactNative` only makes the factory, and React Native loads the JavaScript bundle when it creates the first React Native view. `startReactNative(launchOptions:preloadBundle:onBundleLoaded:)` moves that work to the app launch: the call starts the React Host, and React Native evaluates the bundle on the JavaScript thread, in parallel with the remainder of the app launch. On Android, `ReactNativeBrownfield.initialize` does the same operation. This shape of `startReactNative` also takes the launch options for the React Host.
+
+  `onBundleLoaded` now runs on the main thread, and not on the JavaScript thread. A callback that you add after React Native loaded the bundle runs in the next turn of the main run loop.
+
+### Patch Changes
+
+- [#381](https://github.com/callstack/react-native-brownfield/pull/381) [`b8e8da5`](https://github.com/callstack/react-native-brownfield/commit/b8e8da50fbf20058c5c2745981c7deb5cb33061a) Thanks [@alpharius-ck](https://github.com/alpharius-ck)! - e2e tests for android
+- Updated dependencies []:
+  - @callstack/brownfield-cli@5.1.0
+
 ## 5.0.2
 
 ### Patch Changes

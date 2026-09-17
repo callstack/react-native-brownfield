@@ -217,7 +217,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
         ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
             print("React Native bundle loaded")
-        }, launchOptions: launchOptions)
+        })
 
         window = UIWindow(frame: UIScreen.main.bounds)
 
@@ -231,6 +231,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 ```
+
+### Preload the JavaScript bundle
+
+This `startReactNative` call only prepares the runtime. React Native creates and starts the host in `viewWithModuleName:`. Thus React Native loads and evaluates the bundle only when it creates the first React Native screen. React Native also calls `onBundleLoaded` at that time.
+
+To do this work at the app launch, give `preloadBundle: true` to `startReactNative`. On Android, `ReactNativeBrownfield.initialize` does the same operation. This shape of `startReactNative` also takes the launch options:
+
+```swift
+ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+ReactNativeBrownfield.shared.startReactNative(launchOptions: launchOptions, preloadBundle: true) {
+    print("React Native bundle loaded")
+}
+```
+
+A preload creates and starts the React Host in the `startReactNative` call. React Native then reads the bundle URL and evaluates the bundle on the JavaScript thread, in parallel with the remainder of your app launch. Thus `startReactNative` must be the last operation: `bundle`, `bundlePath`, `bundleURLOverride` and every other option must have the final value before the call. An option that you set after the call comes too late, and the JavaScript thread can read it at the same time.
+
+The call itself makes the host and the module registry on the caller's thread. This work is smaller than a bundle evaluation, but it is not free. If you preload React Native in your app's launch critical section, then it impacts your app's launch time. In exchange, the first React Native screen appears faster.
+
+For the rules of `onBundleLoaded` and of the launch options, see [`startReactNative`](/docs/api-reference/react-native-brownfield/swift#startreactnative).
 
 ## 9. Run Your App
 

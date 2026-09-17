@@ -124,10 +124,11 @@ struct IosApp: App {
 
     init() {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+        ReactNativeBrownfield.shared.ensureExpoModulesProvider()
+
         ReactNativeBrownfield.shared.startReactNative {
             print("React Native has been loaded")
         }
-        ReactNativeBrownfield.shared.ensureExpoModulesProvider()
     }
 
     var body: some Scene {
@@ -137,6 +138,11 @@ struct IosApp: App {
     }
 }
 ```
+
+To load the JavaScript bundle at the app launch, give `preloadBundle: true` to [`startReactNative`](/docs/api-reference/react-native-brownfield/swift#startreactnative). A preload starts the React Host in that call, and React Native then reads the bundle URL on the JavaScript thread. Thus `startReactNative` must be the last operation. Set `bundle`, `ensureExpoModulesProvider` and every other option before it.
+
+> [!Note]
+> The React Host keeps the first bundle that it evaluates, thus a preload waits until the bundle URL is stable. While Expo can still select a different bundle, `startReactNative` only prepares the runtime, and the first React Native screen loads the bundle. This occurs in a Debug build with `expo-dev-client`, until the user selects an app in the launcher. This also occurs with `expo-updates` in a Release build, until Expo selects the update. Brownfield keeps the launch options of the call, and the first React Native screen uses them. If you set `bundleURLOverride`, the bundle URL cannot change, and a preload always loads the bundle.
 
 If you package the framework in **Debug** and want to run it without Metro, enable the embedded bundle explicitly before calling `startReactNative`:
 
