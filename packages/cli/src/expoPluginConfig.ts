@@ -35,7 +35,7 @@ export type ResolvedBrownfieldPluginAndroidConfig = {
   moduleName: string;
   packageName: string;
   minSdkVersion: number;
-  targetSdkVersion: number;
+  targetSdkVersion?: number;
   compileSdkVersion: number;
   groupId: string;
   artifactId: string;
@@ -62,6 +62,7 @@ export type ResolvedBrownfieldPluginConfig = {
 };
 
 type BrownfieldExpoConfig = {
+  sdkVersion?: string;
   ios?: {
     bundleIdentifier?: string;
   };
@@ -69,6 +70,13 @@ type BrownfieldExpoConfig = {
     package?: string;
   };
 };
+
+const EXPO_SDK_COMPILE_SDK_37_FROM_MAJOR = 58;
+
+function getDefaultCompileSdkVersion(sdkVersion: string | undefined): number {
+  const expoMajor = sdkVersion ? parseInt(sdkVersion.split('.')[0], 10) : -1;
+  return expoMajor >= EXPO_SDK_COMPILE_SDK_37_FROM_MAJOR ? 37 : 35;
+}
 
 const CONFIG_FILE_PLUGIN_OVERLAP_ERROR =
   'Brownfield configuration is defined in both a brownfield config file and app.json plugin options. ' +
@@ -193,8 +201,9 @@ export function resolveBrownfieldPluginConfig(
           moduleName: androidModuleName,
           packageName: effectiveProps.android?.packageName ?? androidPackage,
           minSdkVersion: effectiveProps.android?.minSdkVersion ?? 24,
-          targetSdkVersion: effectiveProps.android?.targetSdkVersion ?? 35,
-          compileSdkVersion: effectiveProps.android?.compileSdkVersion ?? 35,
+          compileSdkVersion:
+            effectiveProps.android?.compileSdkVersion ??
+            getDefaultCompileSdkVersion(expoConfig.sdkVersion),
           groupId: effectiveProps.android?.groupId ?? androidPackage,
           artifactId: effectiveProps.android?.artifactId ?? androidModuleName,
           version: effectiveProps.android?.version ?? '0.0.1-SNAPSHOT',
@@ -205,6 +214,9 @@ export function resolveBrownfieldPluginConfig(
           useLocalMaven: effectiveProps.android?.useLocalMaven ?? false,
           missingDimensionStrategies:
             effectiveProps.android?.missingDimensionStrategies ?? [],
+          ...(effectiveProps.android?.targetSdkVersion != null
+            ? { targetSdkVersion: effectiveProps.android.targetSdkVersion }
+            : {}),
         }
       : null,
   };

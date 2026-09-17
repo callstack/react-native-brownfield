@@ -56,8 +56,7 @@ android {
     compileSdk = {{COMPILE_SDK_VERSION}}
 
     defaultConfig {
-        minSdk = {{MIN_SDK_VERSION}}
-        targetSdk = {{TARGET_SDK_VERSION}}
+        minSdk = {{MIN_SDK_VERSION}}{{TARGET_SDK_BLOCK}}
 
         buildConfigField(
             "boolean",

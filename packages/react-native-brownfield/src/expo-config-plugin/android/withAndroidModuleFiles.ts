@@ -9,6 +9,7 @@ import type {
 } from '../types';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
+import { getExpoInfo } from '../expoUtils';
 import {
   type AndroidManifestMetaDataEntry,
   type AndroidStringResourceEntry,
@@ -21,6 +22,12 @@ import {
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
 import { formatMissingDimensionStrategies } from './utils/formatHelpers';
+
+/**
+ * Expo SDK 58+ Android library modules should not set `targetSdk`.
+ * Keep emitting it for older SDKs that still require the field.
+ */
+export const EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR = 58;
 
 function renderMissingDimensionStrategyBlock(
   missingDimensionStrategies: string[]
@@ -53,6 +60,17 @@ export function resolveTargetSdkVersionExpression(
   return 'resolveRootProjectInt("targetSdkVersion")';
 }
 
+export function renderTargetSdkBlock(
+  config: ResolvedBrownfieldPluginConfigWithAndroid,
+  expoMajor: number
+): string {
+  if (expoMajor >= EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR) {
+    return '';
+  }
+
+  return `\n        targetSdk = ${resolveTargetSdkVersionExpression(config)}`;
+}
+
 /**
  * Creates the Android library module directory structure and files
  */
@@ -61,6 +79,7 @@ export function createAndroidModule({
   config,
   rnVersion,
   projectRoot,
+  expoMajor = EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR,
 }: {
   /**
    * Expo app root (used to detect optional dependencies such as expo-updates)
@@ -77,6 +96,11 @@ export function createAndroidModule({
   rnVersion: string;
 
   /**
+   * Expo SDK major version used to gate Android library `targetSdk`.
+   */
+  expoMajor?: number;
+
+  /**
    * The resolved Brownfield plugin configuration
    */
   config: ResolvedBrownfieldPluginConfigWithAndroid;
@@ -89,7 +113,7 @@ export function createAndroidModule({
   const hermesArtifact = getHermesArtifact(rnVersion, projectRoot);
   const compileSdkVersionExpression =
     resolveCompileSdkVersionExpression(config);
-  const targetSdkVersionExpression = resolveTargetSdkVersionExpression(config);
+  const targetSdkBlock = renderTargetSdkBlock(config, expoMajor);
   const minifyEnabled =
     (android as { minifyEnabled?: boolean }).minifyEnabled ?? false;
   const extraProguardRules =
@@ -112,7 +136,7 @@ export function createAndroidModule({
       content: renderTemplate('android', 'build.gradle.kts', {
         '{{PACKAGE_NAME}}': android.packageName,
         '{{MIN_SDK_VERSION}}': android.minSdkVersion.toString(),
-        '{{TARGET_SDK_VERSION}}': targetSdkVersionExpression,
+        '{{TARGET_SDK_BLOCK}}': targetSdkBlock,
         '{{COMPILE_SDK_VERSION}}': compileSdkVersionExpression,
         '{{GROUP_ID}}': android.groupId,
         '{{ARTIFACT_ID}}': android.artifactId,
@@ -292,6 +316,7 @@ export const withAndroidModuleFiles: ConfigPlugin<
         config: props,
         rnVersion,
         projectRoot: dangerousConfig.modRequest.projectRoot,
+        expoMajor: getExpoInfo(dangerousConfig).expoMajor,
       });
 
       return dangerousConfig;

@@ -173,9 +173,10 @@ describe('createAndroidModule', () => {
     expect(readLibraryBuildGradle(androidDir)).toContain(
       'compileSdk = resolveRootProjectInt("compileSdkVersion")'
     );
+    expect(readLibraryBuildGradle(androidDir)).not.toContain('targetSdk');
   });
 
-  it('inherits targetSdk from the Expo app project when the user did not override it', () => {
+  it('emits targetSdk for Expo SDK versions below 58 when inherited from the app project', () => {
     const androidDir = createAndroidDir();
 
     createAndroidModule({
@@ -185,12 +186,47 @@ describe('createAndroidModule', () => {
           targetSdkVersion: undefined,
         },
       }),
-      rnVersion: '0.85.3',
+      rnVersion: '0.81.0',
+      expoMajor: 57,
     });
 
     expect(readLibraryBuildGradle(androidDir)).toContain(
       'targetSdk = resolveRootProjectInt("targetSdkVersion")'
     );
+  });
+
+  it('emits an explicit targetSdk override on Expo SDK versions below 58', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          targetSdkVersion: 37,
+        },
+      }),
+      rnVersion: '0.81.0',
+      expoMajor: 57,
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain('targetSdk = 37');
+  });
+
+  it('ignores targetSdk overrides on Expo SDK 58 and later', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          targetSdkVersion: 37,
+        },
+      }),
+      rnVersion: '0.85.3',
+      expoMajor: 58,
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).not.toContain('targetSdk');
   });
 
   it('omits missingDimensionStrategy block when no strategies are defined', () => {

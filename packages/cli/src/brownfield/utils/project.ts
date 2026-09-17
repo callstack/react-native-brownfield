@@ -55,7 +55,13 @@ export function getExpoConfigIfIsExpo(projectRoot: string) {
   const hasAppConfig = hasExpoAppConfig(projectRoot);
 
   try {
-    return getConfig(projectRoot, { skipSDKVersionRequirement: true });
+    return getConfig(projectRoot, {
+      skipSDKVersionRequirement: true,
+      // Only app.json/app.config metadata is needed here. Evaluating plugins
+      // can fail for packages that are listed as plugins but are not loadable
+      // as Node modules (for example expo-image on Expo SDK 58).
+      skipPlugins: true,
+    });
   } catch (error) {
     if (hasAppConfig) {
       throw error;
