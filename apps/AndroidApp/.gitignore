@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Detox E2E artifacts (logcat, screenshots, failure diagnostics)
+/e2e-artifacts
