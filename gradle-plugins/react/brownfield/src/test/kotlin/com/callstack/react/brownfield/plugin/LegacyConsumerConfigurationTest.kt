@@ -9,14 +9,11 @@ import java.io.File
 import kotlin.test.assertFalse
 
 /**
- * Guards the pre-migration consumer shape that no in-repo app exercises any more: a project that
- * still hand-registers `removeDependenciesFromModuleFile` exactly as the published setup docs
- * (`docs/docs/docs/getting-started/android.mdx`) instruct. The plugin applies before that script
- * body runs, so if it ever claims that name again, this configuration fails outright — which is
- * a hard build break for every consumer who hasn't migrated.
+ * Guards the pre-migration consumer shape no in-repo app has any more: one that still hand-registers
+ * `removeDependenciesFromModuleFile` as the setup docs instruct. If the plugin ever claims that name
+ * again, configuration fails outright for every consumer who hasn't migrated.
  *
- * Needs a real Android SDK because the plugin requires `com.android.library`; skipped when none
- * is present so the unit-test suite stays runnable on a plain JVM.
+ * Skipped without an Android SDK, since the plugin requires `com.android.library`.
  */
 class LegacyConsumerConfigurationTest {
     @Test
@@ -39,10 +36,8 @@ class LegacyConsumerConfigurationTest {
                 .forwardOutput()
                 .build()
 
-        // GradleRunner.build() already fails on any configuration failure, so reaching this line
-        // means the fixture configured. This assertion narrows what a failure *here* means: a
-        // duplicate-task-name error specifically, rather than any unrelated fixture breakage
-        // (AGP upgrade, SDK, repository resolution) which build() would have surfaced above.
+        // build() already failed above on any unrelated fixture breakage; this narrows a failure
+        // here to the duplicate-task-name case specifically.
         assertFalse(
             result.output.contains("as a task with that name already exists"),
             "build output reports a duplicate task name; the plugin most likely claimed " +
@@ -69,9 +64,8 @@ class LegacyConsumerConfigurationTest {
             """.trimIndent(),
         )
         File(projectDir, "local.properties").writeText("sdk.dir=$androidSdk\n")
-        // The plugin's ArtifactsResolver reads the app module's `implementation` configuration to
-        // find embedded native modules. An empty stub is enough here: this test is about the task
-        // container, not about discovery.
+        // ArtifactsResolver looks for an `app` project; an empty stub is enough, this test is about
+        // the task container, not discovery.
         File(projectDir, "app").mkdirs()
         File(projectDir, "app/build.gradle.kts").writeText("")
 

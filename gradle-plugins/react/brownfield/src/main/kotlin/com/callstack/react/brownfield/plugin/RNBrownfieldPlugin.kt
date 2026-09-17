@@ -71,33 +71,14 @@ class RNBrownfieldPlugin : Plugin<Project> {
         val artifactsResolver = ArtifactsResolver(project, isExpoProject)
         val artifacts = artifactsResolver.processDefaultDependencies(expoProjects)
 
-        /**
-         * Registers the POM/Gradle Module Metadata injection hooks eagerly, during
-         * configuration — not inside afterEvaluate — per Gradle's guidance against
-         * registering tasks from within afterEvaluate. Only supplying the actual dependency
-         * set to it (below) needs to wait for afterEvaluate.
-         */
+        // Registered eagerly: Gradle disallows registering tasks from afterEvaluate. Only the
+        // dependency set supplied below has to wait.
         val injector = PublishingMetadataInjector(project)
 
-        /**
-         * Discovers and publishes transitive (third-party) dependencies of embedded
-         * native modules into this project's POM/Gradle Module Metadata, so a consuming
-         * native app resolves them automatically.
-         *
-         * Deferred to `taskGraph.whenReady` — NOT `afterEvaluate`. `afterEvaluate` on this
-         * project only guarantees *this* project has finished configuring; it says nothing
-         * about whether an embedded native module project (e.g. `:react-native-screens`) has
-         * been evaluated yet, and Gradle does not guarantee sibling projects are configured
-         * in any particular order. Confirmed empirically: discovery silently found zero
-         * dependencies for every embedded module in this repo's own demo app when run from
-         * afterEvaluate, because those modules' `implementation`/`api`/`runtimeOnly`
-         * configurations hadn't been populated yet at that point.
-         * `taskGraph.whenReady` only fires once the whole build's task graph is resolved,
-         * which requires every project whose output this one's tasks depend on (including
-         * every embedded module — their compiled output is bundled into this AAR) to already
-         * be configured, and still fires before any task executes, so there's no risk of
-         * running after PublishingMetadataInjector's hooks have already fired.
-         */
+        // whenReady, not afterEvaluate: afterEvaluate guarantees only that *this* project is
+        // configured, not the embedded module projects we read dependencies from — theirs were
+        // empirically still empty at that point. whenReady fires once the whole task graph is
+        // resolved (so every embedded module is configured) but before any task runs.
         project.gradle.taskGraph.whenReady {
             configureTransitiveDependencyInjection(project, injector, expoPublishingHelper, expoProjects, artifacts)
         }
@@ -136,12 +117,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
             }
             transitiveDeps.addAll(expoTransitiveDeps)
         }
-        // Expo projects get transitive-dependency discovery unconditionally, via the Expo path
-        // above — that's the pre-existing, working mechanism this PR isn't meant to change.
-        // The RNC discoverer must never also run there: it has no Expo awareness (it doesn't
-        // filter by the Expo blacklist), and Expo's own discovery already covers every embedded
-        // module — not just Expo's own packages — so running both is both redundant and a
-        // source of exactly the coordinate-leak bug this comment is next to.
+        // Never on Expo: the path above already covers every embedded module there, and the RNC
+        // discoverer doesn't filter by the Expo blacklist, so running both leaks Expo coordinates.
         if (!isExpoProject && extension.experimentalIncludeTransitiveDependencies) {
             val rncDiscovery = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
             Logging.log(
@@ -152,12 +129,9 @@ class RNBrownfieldPlugin : Plugin<Project> {
         }
 
         if (isExpoProject || extension.experimentalIncludeTransitiveDependencies) {
-            // Coordinates that must never appear in the published metadata at all — Expo's own
-            // module coordinates (embedded, not externally resolvable via Maven), the
-            // consumer's own root project name, and embedded modules' own coordinates. Distinct
-            // from "superseded": those ARE meant to be (re-)injected, just replacing a stale
-            // pre-existing entry, so they must not be filtered out of `transitiveDeps` here —
-            // only unconditionally-wrong coordinates like these are.
+            // Coordinates that must never be published: they're embedded in the AAR, not
+            // resolvable from Maven. Distinct from "superseded" coordinates, which ARE re-injected
+            // (replacing a stale entry) and so must not be dropped here.
             val hardExcludePredicate: (String, String) -> Boolean = { groupId, artifactId ->
                 (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
                     artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId }
@@ -175,12 +149,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
             injector.configure(transitiveDeps, removalPredicate)
             Logging.log("PublishingMetadataInjector ran: injected merged transitive dependencies into POM and Gradle Module Metadata")
 
-            // Informational only. Upgraders who followed the old setup docs still have their own
-            // hand-written task; it is redundant now but harmless (it only strips entries whose
-            // group is the root project name, which this plugin never injects), so this must not
-            // fail the build — throwing here would recreate the very upgrade break the namespaced
-            // task name above exists to remove. `names` is used rather than findByName() so this
-            // doesn't realize a task from taskGraph.whenReady.
+            // Informational only — throwing would recreate the upgrade break that the namespaced
+            // task name exists to prevent. `names` avoids realizing the task from whenReady.
             if (project.tasks.names.contains(Constants.LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME)) {
                 Logging.log(
                     "NOTE: this project still registers a hand-written " +

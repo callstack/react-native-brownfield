@@ -27,8 +27,6 @@ react {
     autolinkLibrariesWithApp()
 }
 
-// experimentalIncludeTransitiveDependencies defaults to true — no need to set it explicitly.
-
 android {
     namespace = "com.rnapp.brownfieldlib"
     compileSdk = 37
@@ -88,10 +86,8 @@ android {
 }
 
 dependencies {
-    // Deliberately NOT hand-declaring androidx.core/appcompat/material here, even though
-    // react-native-screens (embedded below) needs them: experimentalIncludeTransitiveDependencies
-    // defaults to true, so the plugin's own discovery supplies these into the published POM.
-    // Keeping them hand-declared would silently mask a broken discoverer.
+    // react-native-screens' androidx deps are deliberately not declared here — the plugin
+    // discovers them. Hand-declaring would mask a broken discoverer.
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")

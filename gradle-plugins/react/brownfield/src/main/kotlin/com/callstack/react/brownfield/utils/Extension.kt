@@ -55,16 +55,13 @@ open class Extension {
     var ignoreEmbeddedLibs = listOf<String>()
 
     /**
-     * Whether to discover and publish the transitive (third-party) dependencies of
-     * embedded native modules into the generated POM and Gradle Module Metadata, so a
-     * consuming native app resolves them automatically via Maven/Gradle instead of having
-     * to declare them by hand.
+     * Whether to publish embedded native modules' third-party dependencies into the generated POM
+     * and Gradle Module Metadata, so consuming apps resolve them instead of declaring them by hand.
      *
-     * Experimental: this is a new discovery/mediation mechanism and its behavior may still
-     * change based on real-world usage. Default is `true`. Expo projects already get
-     * equivalent behavior unconditionally; this option only affects non-Expo (RNC CLI)
-     * projects. Set to `false` to opt out and fall back to hand-declaring these dependencies
-     * yourself (see the troubleshooting guide).
+     * Experimental; behavior may still change. Applies to non-Expo (RNC CLI) projects only — Expo
+     * gets this unconditionally. Set to `false` to hand-declare them instead.
+     *
+     * Default is `true`.
      */
     var experimentalIncludeTransitiveDependencies = true
 }

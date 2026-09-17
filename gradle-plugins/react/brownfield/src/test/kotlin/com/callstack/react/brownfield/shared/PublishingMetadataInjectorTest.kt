@@ -28,9 +28,8 @@ class PublishingMetadataInjectorTaskRegistrationTest {
 
     @Test
     fun `a not-yet-migrated consumer can still register the legacy task after the plugin has run`() {
-        // Reproduces the upgrade path end to end at the task-container level: the plugin registers
-        // its task during apply(), then the consumer's own build script body runs and registers the
-        // task the setup docs told them to. This must not throw.
+        // The upgrade path at the task-container level: plugin registers during apply(), then the
+        // consumer's script body registers the task the docs told them to. Must not throw.
         val project = ProjectBuilder.builder().build()
 
         PublishingMetadataInjector(project)
@@ -73,9 +72,8 @@ class MutatePomDependenciesNodeTest {
 
     @Test
     fun `injects into a POM that has no dependencies element at all`() {
-        // A publication with no dependencies generates <project/> with no <dependencies> child.
-        // Must go through resolveOrCreateDependenciesNode — inlining the fallback here instead
-        // would make this test pass even with the production path reverted to first().
+        // Must call resolveOrCreateDependenciesNode — inlining the fallback here would make this
+        // pass even with the production path reverted to first().
         val root = XmlParser().parseText("<project/>")
         val toInject = VersionMediatingDependencySet()
         toInject.add(DependencyInfo("androidx.core", "core-ktx", "1.17.0", "compile", false))
@@ -139,10 +137,8 @@ class MutatePomDependenciesNodeTest {
 
     @Test
     fun `a superseded stale entry is replaced by the mediated version, not left duplicated or missing`() {
-        // Regression test: a consumer already hand-declares appcompat 1.6.0 directly (as the
-        // pre-upgrade workaround), and an embedded module needs 1.7.1. The discoverer mediates
-        // this and marks the coordinate "superseded" so shouldExclude matches it — but the
-        // mediated 1.7.1 entry must still end up in the POM exactly once, not zero times.
+        // Consumer hand-declares 1.6.0, embedded module needs 1.7.1, so the coordinate is
+        // superseded and shouldExclude matches it. The mediated 1.7.1 must survive exactly once.
         val dependenciesNode =
             dependenciesNodeFrom(
                 """

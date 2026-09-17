@@ -10,15 +10,11 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
 
 /**
- * Mutates [dependenciesNode] (a POM's `<dependencies>` element): removes any existing
- * `<dependency>` child matching [shouldExclude], then appends one new `<dependency>` node per
- * entry in [dependencies].
+ * Removes every `<dependency>` matching [shouldExclude] from [dependenciesNode], then appends one
+ * per entry in [dependencies].
  *
- * Order matters: removal must run *before* appending. [shouldExclude] matches by coordinate
- * only, so if it ran after appending, it couldn't distinguish a stale pre-existing entry (e.g.
- * a consumer's own hand-declared dependency being superseded by a higher, mediated version)
- * from the entry just appended for that same coordinate — it would delete both, leaving the
- * dependency missing from the POM entirely instead of correctly replaced.
+ * Removal must run before appending: [shouldExclude] matches on coordinate alone, so afterwards it
+ * couldn't tell a stale superseded entry from the one just appended for it, and would drop both.
  */
 internal fun mutatePomDependenciesNode(
     dependenciesNode: Node,
@@ -58,23 +54,17 @@ internal fun mutatePomDependenciesNode(
 }
 
 /**
- * The POM's `<dependencies>` element, created if it isn't there.
- *
- * A publication with no dependencies at all generates a POM with no `<dependencies>` element,
- * and `NodeList.first()` throws `NoSuchElementException` on it. Extracted rather than inlined
- * into [PublishingMetadataInjector.registerPomInjector] so a test can exercise this exact code
- * instead of reimplementing it — a test that duplicates the fallback passes even when the
- * production path is reverted to `first()`.
+ * The POM's `<dependencies>` element, created if absent — a publication with no dependencies has
+ * none, and `first()` throws on it. Extracted so tests exercise this code rather than
+ * reimplementing the fallback and passing regardless of what production does.
  */
 internal fun resolveOrCreateDependenciesNode(root: Node): Node =
     (root.get("dependencies") as NodeList).firstOrNull() as? Node
         ?: root.appendNode("dependencies")
 
 /**
- * Mutates each variant's `dependencies` list inside a parsed Gradle Module Metadata
- * (`module.json`) map: removes any existing entry matching [shouldExclude], then appends one
- * new entry per entry in [dependencies]. Same removal-before-append ordering requirement as
- * [mutatePomDependenciesNode], and for the same reason.
+ * The `module.json` equivalent of [mutatePomDependenciesNode], applied to every variant's
+ * `dependencies` list. Same removal-before-append requirement, for the same reason.
  */
 internal fun mutateModuleJsonVariants(
     json: Map<*, *>,
@@ -93,35 +83,13 @@ internal fun mutateModuleJsonVariants(
     dependencies.forEach { dependencyToAdd ->
         @Suppress("UNCHECKED_CAST")
         (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-            // NOTE: every dependency is added to every variant, including `java-api` ones, so a
-            // `runtime`-scoped dependency ends up compile-visible to Gradle consumers (Gradle
-            // Module Metadata wins over the POM for them). Deliberately left as-is, and a future
-            // fix must NOT be keyed on `DependencyInfo.scope`.
-            //
-            // `scope == "runtime"` means two different things depending on which discovery path
-            // produced the entry:
-            //
-            //   Expo POM discovery  -> upstream declared it as `implementation` (Gradle emits
-            //   (appendExpoTransitive-    Maven `runtime` scope for `implementation` when it
-            //    DependenciesFromMavenPOM) generates a POM)
-            //   RNC discovery       -> declared on the `runtimeOnly` configuration
-            //   (collectPublishableGradleDependencies)
-            //
-            // Measured across the 14 upstream Expo POMs in
-            // apps/ExpoApp56/node_modules/*/local-maven-repo/**/*.pom: 73 `<scope>runtime</scope>`
-            // vs 11 `<scope>compile</scope>`. Every one of those 73 is an ordinary
-            // `implementation` dependency, not `runtimeOnly` — e.g. expo.modules.webbrowser-56.0.5
-            // lists androidx.browser:browser, androidx.core:core-ktx and kotlin-stdlib-jdk7 all as
-            // `runtime`. So a predicate like `scope == "runtime" && usage == "java-api"` is
-            // semantically WRONG on the Expo path, not merely too aggressive: it would strip
-            // ordinary api-visible dependencies (react-android and appcompat among them — 22 of 45
-            // entries in the Expo api variant) while affecting 0 of 11 on the RNC path it targets.
-            //
-            // A correct follow-up keys on provenance rather than the scope string: add a dedicated
-            // field to DependencyInfo (e.g. `fromRuntimeOnlyConfiguration: Boolean = false`) set
-            // only by collectPublishableGradleDependencies for the `runtimeOnly` configuration, and
-            // filter api variants on that. Deliberately not implemented here — it changes published
-            // Expo metadata and belongs in its own PR where that blast radius can be assessed.
+            // Known gap: every dependency lands in every variant, so runtime-scoped ones are
+            // compile-visible to Gradle consumers. A fix must key on provenance, NOT on
+            // `scope`, which means different things per path: on the Expo path "runtime" is what
+            // Gradle emits for `implementation` (73 of 84 deps across the upstream Expo POMs), on
+            // the RNC path it means `runtimeOnly`. Filtering on it would strip react-android and
+            // appcompat from Expo consumers. Needs a `fromRuntimeOnlyConfiguration` flag on
+            // DependencyInfo, and its own PR.
             (variant["dependencies"] as? MutableList<MutableMap<String, Any>>)?.add(
                 mutableMapOf<String, Any>(
                     "group" to dependencyToAdd.groupId,
@@ -137,19 +105,13 @@ internal fun mutateModuleJsonVariants(
 }
 
 /**
- * Injects a resolved set of transitive dependencies into the generated Maven POM and
- * Gradle Module Metadata (`module.json`) for every `MavenPublication` on [project], and
- * removes any existing entry (from the base publication or previously injected) that
- * the configured exclusion predicate matches. Used identically by the Expo and RNC-CLI
- * transitive-dependency paths.
+ * Injects transitive dependencies into the generated Maven POM and Gradle Module Metadata for
+ * every `MavenPublication` on [project], removing any existing entry the exclusion predicate
+ * matches. Used identically by the Expo and RNC-CLI paths.
  *
- * The module.json injector task(s) and the POM `withXml` hook are both wired up here,
- * eagerly, as soon as this class is constructed — not deferred to `afterEvaluate`, per
- * Gradle's own guidance against registering tasks from within `afterEvaluate`. The actual
- * dependency set isn't known until `afterEvaluate` (it depends on the consuming project's
- * own extension configuration and on other projects' resolved dependencies), so [configure]
- * only *supplies* that value to what's already registered; it doesn't register anything new.
- * Until [configure] is called, injection stays disabled and these hooks are no-ops.
+ * Hooks are registered eagerly on construction, since Gradle disallows registering tasks from
+ * `afterEvaluate`. The dependency set isn't known until then, so [configure] supplies it later;
+ * until it's called, injection is disabled and the hooks are no-ops.
  */
 class PublishingMetadataInjector(private val project: Project) {
     private var dependencies = VersionMediatingDependencySet()
@@ -172,21 +134,10 @@ class PublishingMetadataInjector(private val project: Project) {
     }
 
     private fun registerModuleJsonInjectors() {
-        // A single task, registered once here (not one-per-publication registered lazily from
-        // inside a GenerateModuleMetadata configureEach callback — that crashes with
-        // "DefaultTaskContainer#register(String) ... cannot be executed in the current context"
-        // when Gradle happens to realize a GenerateModuleMetadata task while resolving some
-        // other task's dependencies, e.g. mergeClasses<Variant>, rather than during plain
-        // configuration). This task instead walks every GenerateModuleMetadata task's own
-        // `outputFile` at execution time — by then all such tasks are fully realized, so this
-        // is safe — which is also what keeps it publication-name agnostic (no hardcoded
-        // "mavenAar" path).
-        //
-        // The name is namespaced on purpose: this runs during apply(), before the consumer's
-        // own build script body, and the setup docs tell consumers to register a task called
-        // `removeDependenciesFromModuleFile` themselves. Claiming that name here would break
-        // every not-yet-migrated consumer with "Cannot add task '...' as a task with that name
-        // already exists". See Constants.MODULE_METADATA_POST_PROCESS_TASK_NAME.
+        // One task, not one per publication registered from a GenerateModuleMetadata
+        // configureEach — that crashes with "DefaultTaskContainer#register(String) ... cannot be
+        // executed in the current context". Walking each task's outputFile at execution time also
+        // avoids hardcoding a publication name. Name is namespaced: see Constants.
         val removeDependenciesFromModuleFileTask =
             project.tasks.register(Constants.MODULE_METADATA_POST_PROCESS_TASK_NAME)
         removeDependenciesFromModuleFileTask.configure { task ->
@@ -205,8 +156,7 @@ class PublishingMetadataInjector(private val project: Project) {
             }
         }
 
-        // Wiring an already-registered task as a finalizer via a lazy reference is safe to do
-        // from configureEach (unlike registering a *new* task there, see above).
+        // Finalizing with an already-registered task is safe here, unlike registering one.
         project.tasks.withType(GenerateModuleMetadata::class.java).configureEach { metadataTask ->
             metadataTask.finalizedBy(removeDependenciesFromModuleFileTask)
         }

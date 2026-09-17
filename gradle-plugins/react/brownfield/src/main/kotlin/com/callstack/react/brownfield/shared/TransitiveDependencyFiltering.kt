@@ -1,21 +1,13 @@
 package com.callstack.react.brownfield.shared
 
 /**
- * Drops any coordinate matching [hardExcludePredicate] from [transitiveDeps] in place, returning
- * it for chaining.
+ * Drops coordinates matching [hardExcludePredicate] — ones that are embedded in the AAR and so
+ * would never resolve from Maven. A discovery path can surface these without knowing it: the RNC
+ * discoverer has no Expo awareness, so an embedded module depending on an Expo module coordinate
+ * would otherwise be published as an ordinary dependency.
  *
- * This exists because a discovery path can find a coordinate that must never be published as an
- * external dependency, without knowing that itself. In particular, `RncTransitiveDependencyDiscoverer`
- * has no awareness of the Expo blacklist: an embedded non-Expo module can legitimately declare a
- * dependency on one of Expo's own module coordinates (e.g. `host.exp.exponent:expo.modules.device`),
- * and that coordinate would otherwise get published as a regular Maven dependency — one that
- * doesn't actually resolve anywhere, since Expo's own modules are embedded, not published
- * standalone artifacts.
- *
- * Deliberately distinct from "superseded" coordinates (a stale pre-existing entry being replaced
- * by a higher, mediated version): those must still survive this filter and be (re-)injected, so
- * [hardExcludePredicate] must never include the supersede check — only unconditional exclusions
- * (Expo blacklist, root-project self-reference, embedded modules' own coordinates).
+ * [hardExcludePredicate] must never include superseded coordinates — those are meant to be
+ * re-injected with the mediated version, and dropping them here removes them entirely.
  */
 internal fun dropHardExcludedDependencies(
     transitiveDeps: VersionMediatingDependencySet,

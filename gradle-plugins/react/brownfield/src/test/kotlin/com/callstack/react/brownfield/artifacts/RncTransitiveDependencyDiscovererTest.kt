@@ -43,9 +43,8 @@ class RncTransitiveDependencyDiscovererTest {
 
     @Test
     fun `a versionless consumer declaration still supersedes, so the coordinate is not duplicated`() {
-        // Declared via a BOM/platform, so `.version` is null. Previously this returned null from
-        // the version-only lookup, the coordinate was never marked superseded, and the base
-        // publication's own entry survived alongside the injected one — two entries, one coordinate.
+        // Declared via BOM/platform, so `.version` is null. A version-only lookup returns null
+        // here, never marks the coordinate superseded, and leaves two entries for it in the POM.
         val root = ProjectBuilder.builder().build()
         val consumer = ProjectBuilder.builder().withParent(root).withName("BrownfieldLib").build()
         val embeddedModule = ProjectBuilder.builder().withParent(root).withName("react-native-fake-module").build()

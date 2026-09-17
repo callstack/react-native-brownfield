@@ -8,10 +8,8 @@ import kotlin.test.assertTrue
 class TransitiveDependencyFilteringTest {
     @Test
     fun `drops a hard-excluded coordinate the RNC discoverer found, even though it has no Expo awareness`() {
-        // Regression test: RncTransitiveDependencyDiscoverer has no concept of the Expo
-        // blacklist, so an embedded non-Expo module legitimately depending on one of Expo's own
-        // module coordinates (e.g. host.exp.exponent:expo.modules.device) would otherwise get
-        // published as an external Maven dependency that doesn't actually resolve anywhere.
+        // The RNC discoverer has no Expo blacklist, so an embedded module depending on an Expo
+        // coordinate would otherwise be published as a Maven dependency that resolves nowhere.
         val transitiveDeps = VersionMediatingDependencySet()
         transitiveDeps.add(DependencyInfo("androidx.core", "core-ktx", "1.17.0", "compile", false))
         transitiveDeps.add(DependencyInfo("host.exp.exponent", "expo.modules.device", "56.0.4", "compile", false))

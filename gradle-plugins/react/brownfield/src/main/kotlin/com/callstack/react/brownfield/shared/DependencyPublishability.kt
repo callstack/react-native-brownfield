@@ -7,13 +7,9 @@ private val VERSION_RANGE_REGEX = Regex("^[\\[(].*,.*[\\])]$")
 private val DYNAMIC_VERSION_KEYWORDS = setOf("latest.release", "latest.integration", "latest", "release")
 
 /**
- * Whether [dependency] is safe to publish as-is in a POM/Gradle Module Metadata dependency
- * entry. Rejects dynamic versions (`+` wildcards, `latest.release`/`latest.integration`,
- * Maven-style ranges) and missing/blank versions — all of these produce either a
- * non-reproducible resolution for consumers or (for a blank version) a `<dependency>` node
- * with no version at all, which is exactly the shape of problem the pre-existing
- * `kotlin-build-tools-impl` entry in [Constants.BROWNFIELD_EXPO_TRANSITIVE_DEPS_ARTIFACTS_BLACKLIST]
- * exists to work around on the Expo side.
+ * Whether [dependency] is safe to publish as-is. Rejects dynamic versions (`+`, `latest.*`, ranges)
+ * and blank ones: the former resolve non-reproducibly for consumers, the latter emit a
+ * `<dependency>` with no version at all.
  */
 fun isPublishableCoordinate(dependency: DependencyInfo): Boolean {
     val version = dependency.version

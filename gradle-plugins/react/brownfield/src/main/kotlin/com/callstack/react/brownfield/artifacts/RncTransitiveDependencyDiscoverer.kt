@@ -13,12 +13,9 @@ import org.gradle.api.artifacts.Dependency
  * Result of [RncTransitiveDependencyDiscoverer.discover].
  *
  * @param dependencies The mediated set of third-party dependencies to inject.
- * @param supersededCoordinates Coordinates the consumer project (e.g. BrownfieldLib) already
- * declares itself, where at least one embedded module required the same coordinate. The
- * caller must exclude these from the base publication's own pre-existing POM/module.json
- * entries — [dependencies] already carries the correctly mediated (never-lower) version for
- * them, so keeping the old entry around as well would either duplicate it or shadow the
- * mediated version.
+ * @param supersededCoordinates Coordinates the consumer declares itself that an embedded module
+ * also needs. The caller must drop their pre-existing POM/module.json entries: [dependencies]
+ * already carries the mediated (never-lower) version, so keeping both duplicates or shadows it.
  */
 data class RncTransitiveDependencyDiscoveryResult(
     val dependencies: VersionMediatingDependencySet,
@@ -26,10 +23,9 @@ data class RncTransitiveDependencyDiscoveryResult(
 )
 
 /**
- * Discovers the real third-party (non-project) dependencies of the native module projects
- * embedded into the fat AAR, for publication into the AAR's own POM/module metadata.
- * Mirrors ExpoPublishingHelper.appendExpoTransitiveDependenciesFromGradle for the RNC-CLI
- * ("vanilla") path.
+ * Discovers third-party dependencies of the native modules embedded into the fat AAR, for
+ * publication into its POM/module metadata. The RNC-CLI counterpart to
+ * `ExpoPublishingHelper.appendExpoTransitiveDependenciesFromGradle`.
  */
 class RncTransitiveDependencyDiscoverer(private val project: Project) {
     fun discover(artifacts: List<UnresolvedArtifactInfo>): RncTransitiveDependencyDiscoveryResult {
@@ -62,16 +58,12 @@ class RncTransitiveDependencyDiscoverer(private val project: Project) {
             val consumerDeclaration = consumerDeclaredDependency(moduleDependency.groupId, moduleDependency.artifactId)
 
             if (consumerDeclaration != null) {
-                // Mark superseded whenever the consumer declares this coordinate at all — including
-                // when it declares it without a version (BOM/platform). The consumer's pre-existing
-                // POM/module.json entry must be *replaced* by the mediated one, never left alongside
-                // it, or the same coordinate appears twice in the published metadata.
+                // Supersede on the declaration existing, not on it having a version: a versionless
+                // one (BOM/platform) still leaves a stale entry that must be replaced, not doubled.
                 supersededCoordinates.add(moduleDependency.groupId to moduleDependency.artifactId)
 
-                // Only let the consumer's own version take part in mediation when it is publishable.
-                // A dynamic/range/absent version must never win and end up in published metadata:
-                // module-side versions are validated by collectPublishableGradleDependencies, so
-                // without this check the consumer side would be the one unguarded hole.
+                // Module-side versions are already validated upstream; this is the consumer-side
+                // equivalent, keeping a dynamic version from winning mediation and being published.
                 val consumerVersioned = moduleDependency.copy(version = consumerDeclaration.version)
                 if (isPublishableCoordinate(consumerVersioned)) {
                     discovered.add(consumerVersioned)
@@ -83,19 +75,13 @@ class RncTransitiveDependencyDiscoverer(private val project: Project) {
     }
 
     /**
-     * The consumer's own declaration of this coordinate, or null if it doesn't declare it.
+     * The consumer's own declaration of this coordinate, or null if it doesn't declare it. Returns
+     * the [Dependency], not its version, so "declared without a version" stays distinguishable from
+     * "not declared" — collapsing the two leaks duplicate POM entries.
      *
-     * Deliberately returns the [Dependency] rather than its version: that is what makes
-     * "declared, but without a version" (BOM/`platform()`) distinguishable from "not declared",
-     * which in turn decides whether the coordinate needs superseding. Collapsing this to a
-     * nullable version string loses that distinction and leaks duplicate POM entries.
-     *
-     * Note this silently narrows a dynamic consumer declaration. If the consumer declares
-     * `androidx.appcompat:appcompat:1.+` and an embedded module declares `1.0.0`, the consumer's
-     * `1.+` is excluded from mediation (it is not publishable) but the coordinate is still
-     * superseded, so the POM publishes `1.0.0` — possibly lower than what `1.+` would have
-     * resolved to at build time. That is intended: a published `<version>1.+</version>` is broken
-     * for downstream consumers, so a concrete-but-lower version is the better failure mode.
+     * Note this narrows a dynamic declaration: consumer `appcompat:1.+` against module `1.0.0`
+     * publishes `1.0.0`, possibly lower than `1.+` would have resolved to. Intended — a published
+     * `1.+` is broken for downstream consumers.
      */
     private fun consumerDeclaredDependency(
         groupId: String,
