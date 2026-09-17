@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.expo
 
-import com.callstack.react.brownfield.shared.DependencyInfo
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -32,10 +31,11 @@ class ExpoPublishingHelperGradleFallbackTest {
         val discovered = VersionMediatingDependencySet()
         helper.exposedAppend(expoPkgProject, discovered)
 
+        // Coordinate-only check: VersionMediatingDependencySet keys on groupId/artifactId, so
+        // passing a scope here would be inert and would read as contradicting the scope
+        // assertion below.
         assertTrue(
-            discovered.contains(
-                DependencyInfo("androidx.annotation", "annotation", "1.9.1", "compile", false),
-            ),
+            discovered.any { it.groupId == "androidx.annotation" && it.artifactId == "annotation" },
             "expected the runtimeOnly dependency to be discovered via the Gradle fallback path",
         )
         assertEquals(

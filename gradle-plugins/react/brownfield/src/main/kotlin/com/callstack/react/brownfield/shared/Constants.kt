@@ -39,6 +39,21 @@ object Constants {
 
     const val INTERMEDIATES_TEMP_DIR = PLUGIN_NAME
 
+    /**
+     * Name of the plugin-owned task that post-processes generated Gradle Module Metadata.
+     *
+     * Deliberately namespaced. The published setup docs instruct consumers to hand-register a
+     * task called `removeDependenciesFromModuleFile` in their own build script; the plugin
+     * registers its task during `apply()`, i.e. before the consumer's script body runs, so
+     * reusing that name makes every not-yet-migrated consumer fail to configure with
+     * "Cannot add task '...' as a task with that name already exists". Never rename this back
+     * to the bare name.
+     */
+    const val MODULE_METADATA_POST_PROCESS_TASK_NAME = "brownfieldRemoveDependenciesFromModuleFile"
+
+    /** The name the setup docs tell consumers to register themselves; must stay free for them. */
+    const val LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME = "removeDependenciesFromModuleFile"
+
     val BROWNFIELD_EXPO_TRANSITIVE_DEPS_WHITELISTED_MODULES_FOR_DISCOVERY =
         setOf("expo-modules-core", "expo-constants", "expo", "expo-updates")
     val BROWNFIELD_EXPO_TRANSITIVE_DEPS_ARTIFACTS_BLACKLIST =

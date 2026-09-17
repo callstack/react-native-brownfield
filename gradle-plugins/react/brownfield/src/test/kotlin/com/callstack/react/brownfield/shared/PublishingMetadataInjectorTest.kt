@@ -2,9 +2,44 @@ package com.callstack.react.brownfield.shared
 
 import groovy.util.NodeList
 import groovy.xml.XmlParser
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+
+class PublishingMetadataInjectorTaskRegistrationTest {
+    @Test
+    fun `does not claim the task name the setup docs tell consumers to register`() {
+        val project = ProjectBuilder.builder().build()
+
+        PublishingMetadataInjector(project)
+
+        assertNull(
+            project.tasks.findByName(Constants.LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME),
+            "the plugin must leave this name free: the published setup docs tell every bare-RN " +
+                "consumer to register it themselves, and the plugin applies before their script body",
+        )
+        assertNotNull(
+            project.tasks.findByName(Constants.MODULE_METADATA_POST_PROCESS_TASK_NAME),
+        )
+    }
+
+    @Test
+    fun `a not-yet-migrated consumer can still register the legacy task after the plugin has run`() {
+        // Reproduces the upgrade path end to end at the task-container level: the plugin registers
+        // its task during apply(), then the consumer's own build script body runs and registers the
+        // task the setup docs told them to. This must not throw.
+        val project = ProjectBuilder.builder().build()
+
+        PublishingMetadataInjector(project)
+        project.tasks.register(Constants.LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME)
+
+        assertNotNull(project.tasks.findByName(Constants.LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME))
+        assertNotNull(project.tasks.findByName(Constants.MODULE_METADATA_POST_PROCESS_TASK_NAME))
+    }
+}
 
 class MutatePomDependenciesNodeTest {
     private fun dependenciesNodeFrom(xml: String): groovy.util.Node {
@@ -33,6 +68,48 @@ class MutatePomDependenciesNodeTest {
 
         mutatePomDependenciesNode(dependenciesNode, toInject) { _, _ -> false }
 
+        assertEquals(listOf("1.17.0"), versionsFor(dependenciesNode, "androidx.core", "core-ktx"))
+    }
+
+    @Test
+    fun `injects into a POM that has no dependencies element at all`() {
+        // A publication with no dependencies generates <project/> with no <dependencies> child.
+        // Must go through resolveOrCreateDependenciesNode — inlining the fallback here instead
+        // would make this test pass even with the production path reverted to first().
+        val root = XmlParser().parseText("<project/>")
+        val toInject = VersionMediatingDependencySet()
+        toInject.add(DependencyInfo("androidx.core", "core-ktx", "1.17.0", "compile", false))
+
+        val dependenciesNode = resolveOrCreateDependenciesNode(root)
+        mutatePomDependenciesNode(dependenciesNode, toInject) { _, _ -> false }
+
+        assertEquals(listOf("1.17.0"), versionsFor(dependenciesNode, "androidx.core", "core-ktx"))
+    }
+
+    @Test
+    fun `reuses the existing dependencies element instead of appending a second one`() {
+        val root =
+            XmlParser().parseText(
+                """
+                <project>
+                  <dependencies>
+                    <dependency>
+                      <groupId>androidx.core</groupId>
+                      <artifactId>core-ktx</artifactId>
+                      <version>1.17.0</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """.trimIndent(),
+            )
+
+        val dependenciesNode = resolveOrCreateDependenciesNode(root)
+
+        assertEquals(
+            1,
+            (root.get("dependencies") as NodeList).size,
+            "a POM that already has <dependencies> must not gain a second one",
+        )
         assertEquals(listOf("1.17.0"), versionsFor(dependenciesNode, "androidx.core", "core-ktx"))
     }
 

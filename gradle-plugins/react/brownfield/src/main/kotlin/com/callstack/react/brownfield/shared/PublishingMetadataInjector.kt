@@ -58,6 +58,19 @@ internal fun mutatePomDependenciesNode(
 }
 
 /**
+ * The POM's `<dependencies>` element, created if it isn't there.
+ *
+ * A publication with no dependencies at all generates a POM with no `<dependencies>` element,
+ * and `NodeList.first()` throws `NoSuchElementException` on it. Extracted rather than inlined
+ * into [PublishingMetadataInjector.registerPomInjector] so a test can exercise this exact code
+ * instead of reimplementing it — a test that duplicates the fallback passes even when the
+ * production path is reverted to `first()`.
+ */
+internal fun resolveOrCreateDependenciesNode(root: Node): Node =
+    (root.get("dependencies") as NodeList).firstOrNull() as? Node
+        ?: root.appendNode("dependencies")
+
+/**
  * Mutates each variant's `dependencies` list inside a parsed Gradle Module Metadata
  * (`module.json`) map: removes any existing entry matching [shouldExclude], then appends one
  * new entry per entry in [dependencies]. Same removal-before-append ordering requirement as
@@ -80,6 +93,35 @@ internal fun mutateModuleJsonVariants(
     dependencies.forEach { dependencyToAdd ->
         @Suppress("UNCHECKED_CAST")
         (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
+            // NOTE: every dependency is added to every variant, including `java-api` ones, so a
+            // `runtime`-scoped dependency ends up compile-visible to Gradle consumers (Gradle
+            // Module Metadata wins over the POM for them). Deliberately left as-is, and a future
+            // fix must NOT be keyed on `DependencyInfo.scope`.
+            //
+            // `scope == "runtime"` means two different things depending on which discovery path
+            // produced the entry:
+            //
+            //   Expo POM discovery  -> upstream declared it as `implementation` (Gradle emits
+            //   (appendExpoTransitive-    Maven `runtime` scope for `implementation` when it
+            //    DependenciesFromMavenPOM) generates a POM)
+            //   RNC discovery       -> declared on the `runtimeOnly` configuration
+            //   (collectPublishableGradleDependencies)
+            //
+            // Measured across the 14 upstream Expo POMs in
+            // apps/ExpoApp56/node_modules/*/local-maven-repo/**/*.pom: 73 `<scope>runtime</scope>`
+            // vs 11 `<scope>compile</scope>`. Every one of those 73 is an ordinary
+            // `implementation` dependency, not `runtimeOnly` — e.g. expo.modules.webbrowser-56.0.5
+            // lists androidx.browser:browser, androidx.core:core-ktx and kotlin-stdlib-jdk7 all as
+            // `runtime`. So a predicate like `scope == "runtime" && usage == "java-api"` is
+            // semantically WRONG on the Expo path, not merely too aggressive: it would strip
+            // ordinary api-visible dependencies (react-android and appcompat among them — 22 of 45
+            // entries in the Expo api variant) while affecting 0 of 11 on the RNC path it targets.
+            //
+            // A correct follow-up keys on provenance rather than the scope string: add a dedicated
+            // field to DependencyInfo (e.g. `fromRuntimeOnlyConfiguration: Boolean = false`) set
+            // only by collectPublishableGradleDependencies for the `runtimeOnly` configuration, and
+            // filter api variants on that. Deliberately not implemented here — it changes published
+            // Expo metadata and belongs in its own PR where that blast radius can be assessed.
             (variant["dependencies"] as? MutableList<MutableMap<String, Any>>)?.add(
                 mutableMapOf<String, Any>(
                     "group" to dependencyToAdd.groupId,
@@ -139,7 +181,14 @@ class PublishingMetadataInjector(private val project: Project) {
         // `outputFile` at execution time — by then all such tasks are fully realized, so this
         // is safe — which is also what keeps it publication-name agnostic (no hardcoded
         // "mavenAar" path).
-        val removeDependenciesFromModuleFileTask = project.tasks.register("removeDependenciesFromModuleFile")
+        //
+        // The name is namespaced on purpose: this runs during apply(), before the consumer's
+        // own build script body, and the setup docs tell consumers to register a task called
+        // `removeDependenciesFromModuleFile` themselves. Claiming that name here would break
+        // every not-yet-migrated consumer with "Cannot add task '...' as a task with that name
+        // already exists". See Constants.MODULE_METADATA_POST_PROCESS_TASK_NAME.
+        val removeDependenciesFromModuleFileTask =
+            project.tasks.register(Constants.MODULE_METADATA_POST_PROCESS_TASK_NAME)
         removeDependenciesFromModuleFileTask.configure { task ->
             task.onlyIf { enabled }
             task.doLast {
@@ -172,8 +221,7 @@ class PublishingMetadataInjector(private val project: Project) {
                             if (!enabled) return@withXml
 
                             val root = it.asNode()
-                            val dependenciesNodeList = root.get("dependencies") as NodeList
-                            val dependenciesNode = dependenciesNodeList.first() as Node
+                            val dependenciesNode = resolveOrCreateDependenciesNode(root)
                             mutatePomDependenciesNode(dependenciesNode, dependencies, shouldExclude)
                         }
                     }

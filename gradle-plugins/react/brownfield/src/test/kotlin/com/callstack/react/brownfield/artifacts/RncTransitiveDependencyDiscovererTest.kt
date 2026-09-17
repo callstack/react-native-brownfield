@@ -21,6 +21,51 @@ class RncTransitiveDependencyDiscovererTest {
         )
 
     @Test
+    fun `a dynamic consumer-declared version never becomes a mediation candidate`() {
+        // Module-side versions are validated by collectPublishableGradleDependencies; the
+        // consumer side must be validated too, or `1.+` can win mediation and be published.
+        val root = ProjectBuilder.builder().build()
+        val consumer = ProjectBuilder.builder().withParent(root).withName("BrownfieldLib").build()
+        val embeddedModule = ProjectBuilder.builder().withParent(root).withName("react-native-fake-module").build()
+
+        embeddedModule.configurations.create("implementation")
+        embeddedModule.dependencies.add("implementation", "androidx.appcompat:appcompat:1.0.0")
+
+        consumer.configurations.create("implementation")
+        consumer.dependencies.add("implementation", "androidx.appcompat:appcompat:1.+")
+
+        val result = RncTransitiveDependencyDiscoverer(consumer).discover(defaultArtifacts(root))
+
+        val appcompat = result.dependencies.first { it.groupId == "androidx.appcompat" }
+        assertEquals("1.0.0", appcompat.version, "the dynamic consumer version must not win mediation")
+        assertFalse(result.dependencies.any { it.version == "1.+" }, "'1.+' must never reach the published set")
+    }
+
+    @Test
+    fun `a versionless consumer declaration still supersedes, so the coordinate is not duplicated`() {
+        // Declared via a BOM/platform, so `.version` is null. Previously this returned null from
+        // the version-only lookup, the coordinate was never marked superseded, and the base
+        // publication's own entry survived alongside the injected one — two entries, one coordinate.
+        val root = ProjectBuilder.builder().build()
+        val consumer = ProjectBuilder.builder().withParent(root).withName("BrownfieldLib").build()
+        val embeddedModule = ProjectBuilder.builder().withParent(root).withName("react-native-fake-module").build()
+
+        embeddedModule.configurations.create("implementation")
+        embeddedModule.dependencies.add("implementation", "androidx.appcompat:appcompat:1.7.1")
+
+        consumer.configurations.create("implementation")
+        consumer.dependencies.add("implementation", "androidx.appcompat:appcompat")
+
+        val result = RncTransitiveDependencyDiscoverer(consumer).discover(defaultArtifacts(root))
+
+        assertTrue(
+            result.supersededCoordinates.contains("androidx.appcompat" to "appcompat"),
+            "a declared-but-versionless coordinate must still be superseded",
+        )
+        assertEquals("1.7.1", result.dependencies.first { it.groupId == "androidx.appcompat" }.version)
+    }
+
+    @Test
     fun `discovers a module's direct external dependencies, skipping project deps and non-publishable coordinates`() {
         val root = ProjectBuilder.builder().build()
         val consumer = ProjectBuilder.builder().withParent(root).withName("BrownfieldLib").build()

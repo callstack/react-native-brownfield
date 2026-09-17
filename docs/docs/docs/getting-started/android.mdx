@@ -346,7 +346,7 @@ tasks.named("generateMetadataFileForMavenAarPublication") {
 > }
 > ```
 >
-> Do **not** combine the hand-written `tasks.register("removeDependenciesFromModuleFile")` block above with `experimentalIncludeTransitiveDependencies = true` (the default) in the same module — the plugin already performs that same removal (plus dependency injection) for every publication whenever the option is enabled, so keeping both means two tasks race to rewrite the same generated `module.json`, corrupting whichever one runs last.
+> If you are upgrading an existing app that already has the hand-written `tasks.register("removeDependenciesFromModuleFile")` block above, you can leave it in place — the plugin's own task is named differently (`brownfieldRemoveDependenciesFromModuleFile`) and the two do not conflict. It is redundant once `experimentalIncludeTransitiveDependencies` is enabled (the plugin performs the same removal), so you can delete it whenever convenient.
 
 ## 7. Create a Brownfield Configuration
 

@@ -16,6 +16,8 @@ Installed third-party packages like `react-native-screens` or others may rely on
 
 For Expo apps, this works out of the box unconditionally.
 
+Upgrading an existing app requires no changes on your side — in particular, you do not need to remove the hand-written `tasks.register("removeDependenciesFromModuleFile")` block if you have one, since the plugin's own task is named differently and the two do not conflict. Be aware of two behaviour changes once this is enabled: dependencies your embedded modules need will start appearing in the published POM, and a version you pinned yourself may be **raised** (never lowered) if an embedded module requires a higher one.
+
 If you've set `experimentalIncludeTransitiveDependencies = false` (e.g. to opt out while this is still experimental), use one of the options below instead.
 
 #### Option 1:

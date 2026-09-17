@@ -16,6 +16,7 @@ import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.processors.VariantPackagesProperty
 import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
+import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.shared.PublishingMetadataInjector
@@ -173,6 +174,22 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
             injector.configure(transitiveDeps, removalPredicate)
             Logging.log("PublishingMetadataInjector ran: injected merged transitive dependencies into POM and Gradle Module Metadata")
+
+            // Informational only. Upgraders who followed the old setup docs still have their own
+            // hand-written task; it is redundant now but harmless (it only strips entries whose
+            // group is the root project name, which this plugin never injects), so this must not
+            // fail the build — throwing here would recreate the very upgrade break the namespaced
+            // task name above exists to remove. `names` is used rather than findByName() so this
+            // doesn't realize a task from taskGraph.whenReady.
+            if (project.tasks.names.contains(Constants.LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME)) {
+                Logging.log(
+                    "NOTE: this project still registers a hand-written " +
+                        "'${Constants.LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME}' task. The plugin now performs " +
+                        "that removal itself (plus transitive-dependency injection) via " +
+                        "'${Constants.MODULE_METADATA_POST_PROCESS_TASK_NAME}'. The hand-written task is " +
+                        "redundant and can be deleted; leaving it in place is harmless.",
+                )
+            }
         } else {
             Logging.log(
                 "PublishingMetadataInjector skipped: project is not an Expo project and " +
