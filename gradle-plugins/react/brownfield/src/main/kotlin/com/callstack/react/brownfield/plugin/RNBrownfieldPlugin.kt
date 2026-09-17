@@ -21,6 +21,7 @@ import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.shared.PublishingMetadataInjector
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
+import com.callstack.react.brownfield.shared.dropHardExcludedDependencies
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
@@ -134,7 +135,13 @@ class RNBrownfieldPlugin : Plugin<Project> {
             }
             transitiveDeps.addAll(expoTransitiveDeps)
         }
-        if (extension.experimentalIncludeTransitiveDependencies) {
+        // Expo projects get transitive-dependency discovery unconditionally, via the Expo path
+        // above — that's the pre-existing, working mechanism this PR isn't meant to change.
+        // The RNC discoverer must never also run there: it has no Expo awareness (it doesn't
+        // filter by the Expo blacklist), and Expo's own discovery already covers every embedded
+        // module — not just Expo's own packages — so running both is both redundant and a
+        // source of exactly the coordinate-leak bug this comment is next to.
+        if (!isExpoProject && extension.experimentalIncludeTransitiveDependencies) {
             val rncDiscovery = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
             Logging.log(
                 "Merged ${rncDiscovery.dependencies.size} transitive dependencies discovered by the RNC discoverer",
@@ -144,14 +151,24 @@ class RNBrownfieldPlugin : Plugin<Project> {
         }
 
         if (isExpoProject || extension.experimentalIncludeTransitiveDependencies) {
+            // Coordinates that must never appear in the published metadata at all — Expo's own
+            // module coordinates (embedded, not externally resolvable via Maven), the
+            // consumer's own root project name, and embedded modules' own coordinates. Distinct
+            // from "superseded": those ARE meant to be (re-)injected, just replacing a stale
+            // pre-existing entry, so they must not be filtered out of `transitiveDeps` here —
+            // only unconditionally-wrong coordinates like these are.
+            val hardExcludePredicate: (String, String) -> Boolean = { groupId, artifactId ->
+                (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
+                    artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId }
+            }
+            dropHardExcludedDependencies(transitiveDeps, hardExcludePredicate)
+
             Logging.log(
                 "Total of ${transitiveDeps.size} unique transitive dependencies merged for POM/module.json injection",
             )
 
             val removalPredicate: (String, String) -> Boolean = { groupId, artifactId ->
-                (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
-                    artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId } ||
-                    rncSupersededCoordinates.contains(groupId to artifactId)
+                hardExcludePredicate(groupId, artifactId) || rncSupersededCoordinates.contains(groupId to artifactId)
             }
 
             injector.configure(transitiveDeps, removalPredicate)
