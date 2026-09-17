@@ -2,11 +2,97 @@ package com.callstack.react.brownfield.shared
 
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import groovy.util.Node
 import groovy.util.NodeList
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
+
+/**
+ * Mutates [dependenciesNode] (a POM's `<dependencies>` element): removes any existing
+ * `<dependency>` child matching [shouldExclude], then appends one new `<dependency>` node per
+ * entry in [dependencies].
+ *
+ * Order matters: removal must run *before* appending. [shouldExclude] matches by coordinate
+ * only, so if it ran after appending, it couldn't distinguish a stale pre-existing entry (e.g.
+ * a consumer's own hand-declared dependency being superseded by a higher, mediated version)
+ * from the entry just appended for that same coordinate — it would delete both, leaving the
+ * dependency missing from the POM entirely instead of correctly replaced.
+ */
+internal fun mutatePomDependenciesNode(
+    dependenciesNode: Node,
+    dependencies: VersionMediatingDependencySet,
+    shouldExclude: (groupId: String, artifactId: String) -> Boolean,
+) {
+    dependenciesNode.children()
+        .filterIsInstance<Node>()
+        .filter { dependency ->
+            val groupId = (dependency["groupId"] as NodeList).text()
+            val artifactId = (dependency["artifactId"] as NodeList).text()
+            shouldExclude(groupId, artifactId)
+        }
+        .forEach { dependency ->
+            dependenciesNode.remove(dependency)
+        }
+
+    dependencies.forEach { dependencyToAdd ->
+        val childTags =
+            mutableMapOf(
+                "groupId" to dependencyToAdd.groupId,
+                "artifactId" to dependencyToAdd.artifactId,
+                "scope" to dependencyToAdd.scope,
+                "optional" to dependencyToAdd.optional.toString(),
+            )
+
+        if (dependencyToAdd.version?.isNotBlank() == true) {
+            childTags["version"] = dependencyToAdd.version
+        }
+
+        dependenciesNode.appendNode("dependency").let { newDepNode ->
+            childTags.forEach { (tagName, tagValue) ->
+                newDepNode.appendNode(tagName, tagValue)
+            }
+        }
+    }
+}
+
+/**
+ * Mutates each variant's `dependencies` list inside a parsed Gradle Module Metadata
+ * (`module.json`) map: removes any existing entry matching [shouldExclude], then appends one
+ * new entry per entry in [dependencies]. Same removal-before-append ordering requirement as
+ * [mutatePomDependenciesNode], and for the same reason.
+ */
+internal fun mutateModuleJsonVariants(
+    json: Map<*, *>,
+    dependencies: VersionMediatingDependencySet,
+    shouldExclude: (groupId: String, artifactId: String) -> Boolean,
+) {
+    @Suppress("UNCHECKED_CAST")
+    (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
+        (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
+            val group = it["group"] as String
+            val module = it["module"] as String
+            shouldExclude(group, module)
+        }
+    }
+
+    dependencies.forEach { dependencyToAdd ->
+        @Suppress("UNCHECKED_CAST")
+        (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
+            (variant["dependencies"] as? MutableList<MutableMap<String, Any>>)?.add(
+                mutableMapOf<String, Any>(
+                    "group" to dependencyToAdd.groupId,
+                    "module" to dependencyToAdd.artifactId,
+                ).apply {
+                    dependencyToAdd.version?.let { version ->
+                        put("version", mapOf("requires" to version))
+                    }
+                },
+            )
+        }
+    }
+}
 
 /**
  * Injects a resolved set of transitive dependencies into the generated Maven POM and
@@ -43,7 +129,6 @@ class PublishingMetadataInjector(private val project: Project) {
         this.enabled = true
     }
 
-    @Suppress("LongMethod")
     private fun registerModuleJsonInjectors() {
         // A single task, registered once here (not one-per-publication registered lazily from
         // inside a GenerateModuleMetadata configureEach callback — that crashes with
@@ -63,32 +148,7 @@ class PublishingMetadataInjector(private val project: Project) {
                     if (!moduleFile.exists()) return@forEach
 
                     val json = moduleFile.inputStream().use { JsonSlurper().parse(it) as Map<*, *> }
-
-                    dependencies.forEach { dependencyToAdd ->
-                        @Suppress("UNCHECKED_CAST")
-                        (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                            (variant["dependencies"] as? MutableList<MutableMap<String, Any>>)?.add(
-                                mutableMapOf<String, Any>(
-                                    "group" to dependencyToAdd.groupId,
-                                    "module" to dependencyToAdd.artifactId,
-                                ).apply {
-                                    dependencyToAdd.version?.let { version ->
-                                        put("version", mapOf("requires" to version))
-                                    }
-                                },
-                            )
-                        }
-                    }
-
-                    @Suppress("UNCHECKED_CAST")
-                    (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                        (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll {
-                            val group = it["group"] as String
-                            val module = it["module"] as String
-                            shouldExclude(group, module)
-                        }
-                    }
-
+                    mutateModuleJsonVariants(json, dependencies, shouldExclude)
                     moduleFile.writer().use {
                         it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json)))
                     }
@@ -103,7 +163,6 @@ class PublishingMetadataInjector(private val project: Project) {
         }
     }
 
-    @Suppress("LongMethod")
     private fun registerPomInjector() {
         project.pluginManager.withPlugin("maven-publish") {
             project.extensions.configure(PublishingExtension::class.java) { publishing ->
@@ -114,38 +173,8 @@ class PublishingMetadataInjector(private val project: Project) {
 
                             val root = it.asNode()
                             val dependenciesNodeList = root.get("dependencies") as NodeList
-                            val dependenciesNode = dependenciesNodeList.first() as groovy.util.Node
-
-                            dependencies.forEach { dependencyToAdd ->
-                                val childTags =
-                                    mutableMapOf(
-                                        "groupId" to dependencyToAdd.groupId,
-                                        "artifactId" to dependencyToAdd.artifactId,
-                                        "scope" to dependencyToAdd.scope,
-                                        "optional" to dependencyToAdd.optional.toString(),
-                                    )
-
-                                if (dependencyToAdd.version?.isNotBlank() == true) {
-                                    childTags["version"] = dependencyToAdd.version
-                                }
-
-                                dependenciesNode.appendNode("dependency").let { newDepNode ->
-                                    childTags.forEach { (tagName, tagValue) ->
-                                        newDepNode.appendNode(tagName, tagValue)
-                                    }
-                                }
-                            }
-
-                            dependenciesNode.children()
-                                .filterIsInstance<groovy.util.Node>()
-                                .filter { dependency ->
-                                    val groupId = (dependency["groupId"] as NodeList).text()
-                                    val artifactId = (dependency["artifactId"] as NodeList).text()
-                                    shouldExclude(groupId, artifactId)
-                                }
-                                .forEach { dependency ->
-                                    dependenciesNode.remove(dependency)
-                                }
+                            val dependenciesNode = dependenciesNodeList.first() as Node
+                            mutatePomDependenciesNode(dependenciesNode, dependencies, shouldExclude)
                         }
                     }
             }
