@@ -12,11 +12,11 @@ The brownfield Gradle plugin adds both directories to the source sets, potential
 
 ## [Android] Transitive dependencies not being auto resolved
 
-Installed third-party packages like `react-native-screens` or others may rely on transitive dependencies in their `build.gradle` file. These dependencies are not auto resolved by `brownfield-gradle-plugin` by default in bare React Native apps.
+Installed third-party packages like `react-native-screens` or others may rely on transitive dependencies in their `build.gradle` file. For bare React Native apps, `brownfield-gradle-plugin` auto resolves these by default via the (experimental) `experimentalIncludeTransitiveDependencies` option — see [Configure Maven Publishing](/docs/getting-started/android#6-configure-maven-publishing) for details.
 
-For Expo apps, this should work out of the box.
+For Expo apps, this works out of the box unconditionally.
 
-To make it work with bare React Native apps, set `includeTransitiveDependencies = true` in your brownfield module's `reactBrownfield { }` block — see [Configure Maven Publishing](/docs/getting-started/android#6-configure-maven-publishing) for details. This is the recommended fix; the options below are for projects that intentionally leave the option disabled.
+If you've set `experimentalIncludeTransitiveDependencies = false` (e.g. to opt out while this is still experimental), use one of the options below instead.
 
 #### Option 1:
 

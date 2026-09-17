@@ -70,57 +70,34 @@ class RNBrownfieldPlugin : Plugin<Project> {
         val artifacts = artifactsResolver.processDefaultDependencies(expoProjects)
 
         /**
+         * Registers the POM/Gradle Module Metadata injection hooks eagerly, during
+         * configuration — not inside afterEvaluate — per Gradle's guidance against
+         * registering tasks from within afterEvaluate. Only supplying the actual dependency
+         * set to it (below) needs to wait for afterEvaluate.
+         */
+        val injector = PublishingMetadataInjector(project)
+
+        /**
          * Discovers and publishes transitive (third-party) dependencies of embedded
          * native modules into this project's POM/Gradle Module Metadata, so a consuming
-         * native app resolves them automatically. Deferred to afterEvaluate: `extension`
-         * is created eagerly in initializers() above, before the build script's own
-         * `reactBrownfield { }` block has configured it — reading `extension.includeTransitiveDependencies`
-         * any earlier than this would always observe its default `false`.
+         * native app resolves them automatically.
+         *
+         * Deferred to `taskGraph.whenReady` — NOT `afterEvaluate`. `afterEvaluate` on this
+         * project only guarantees *this* project has finished configuring; it says nothing
+         * about whether an embedded native module project (e.g. `:react-native-screens`) has
+         * been evaluated yet, and Gradle does not guarantee sibling projects are configured
+         * in any particular order. Confirmed empirically: discovery silently found zero
+         * dependencies for every embedded module in this repo's own demo app when run from
+         * afterEvaluate, because those modules' `implementation`/`api`/`runtimeOnly`
+         * configurations hadn't been populated yet at that point.
+         * `taskGraph.whenReady` only fires once the whole build's task graph is resolved,
+         * which requires every project whose output this one's tasks depend on (including
+         * every embedded module — their compiled output is bundled into this AAR) to already
+         * be configured, and still fires before any task executes, so there's no risk of
+         * running after PublishingMetadataInjector's hooks have already fired.
          */
-        project.afterEvaluate {
-            val transitiveDeps = VersionMediatingDependencySet()
-            var rncSupersededCoordinates: Set<Pair<String, String>> = emptySet()
-
-            if (isExpoProject && expoPublishingHelper != null) {
-                val expoTransitiveDeps = expoPublishingHelper.discoverAllExpoTransitiveDependencies(expoProjects)
-                Logging.log("Merged ${expoTransitiveDeps.size} transitive dependencies discovered from Expo")
-                expoTransitiveDeps.forEach {
-                    Logging.log(
-                        "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
-                            "${if (it.optional) "optional" else "required"})",
-                    )
-                }
-                transitiveDeps.addAll(expoTransitiveDeps)
-            }
-            if (extension.includeTransitiveDependencies) {
-                val rncDiscovery = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
-                Logging.log(
-                    "Merged ${rncDiscovery.dependencies.size} transitive dependencies discovered by the RNC discoverer",
-                )
-                transitiveDeps.addAll(rncDiscovery.dependencies)
-                rncSupersededCoordinates = rncDiscovery.supersededCoordinates
-            }
-
-            if (isExpoProject || extension.includeTransitiveDependencies) {
-                Logging.log(
-                    "Total of ${transitiveDeps.size} unique transitive dependencies merged for POM/module.json injection",
-                )
-
-                val removalPredicate: (String, String) -> Boolean = { groupId, artifactId ->
-                    (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
-                        artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId } ||
-                        rncSupersededCoordinates.contains(groupId to artifactId)
-                }
-
-                val injector = PublishingMetadataInjector(project)
-                injector.reconfigurePOM(transitiveDeps, removalPredicate)
-                injector.reconfigureGradleModuleJSON(transitiveDeps, removalPredicate)
-                Logging.log("PublishingMetadataInjector ran: injected merged transitive dependencies into POM and Gradle Module Metadata")
-            } else {
-                Logging.log(
-                    "PublishingMetadataInjector skipped: project is not an Expo project and includeTransitiveDependencies is disabled",
-                )
-            }
+        project.gradle.taskGraph.whenReady {
+            configureTransitiveDependencyInjection(project, injector, expoPublishingHelper, expoProjects, artifacts)
         }
 
         val variantTaskProvider = VariantTaskProvider(project)
@@ -133,6 +110,58 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
     companion object {
         const val EXPO_PROJECT_LOCATOR = ":expo"
+    }
+
+    @Suppress("LongMethod")
+    private fun configureTransitiveDependencyInjection(
+        project: Project,
+        injector: PublishingMetadataInjector,
+        expoPublishingHelper: ExpoPublishingHelper?,
+        expoProjects: List<ExpoGradleProjectProjection>,
+        artifacts: List<UnresolvedArtifactInfo>,
+    ) {
+        val transitiveDeps = VersionMediatingDependencySet()
+        var rncSupersededCoordinates: Set<Pair<String, String>> = emptySet()
+
+        if (isExpoProject && expoPublishingHelper != null) {
+            val expoTransitiveDeps = expoPublishingHelper.discoverAllExpoTransitiveDependencies(expoProjects)
+            Logging.log("Merged ${expoTransitiveDeps.size} transitive dependencies discovered from Expo")
+            expoTransitiveDeps.forEach {
+                Logging.log(
+                    "(*) dependency ${it.groupId}:${it.artifactId}:${it.version} (scope: ${it.scope}, " +
+                        "${if (it.optional) "optional" else "required"})",
+                )
+            }
+            transitiveDeps.addAll(expoTransitiveDeps)
+        }
+        if (extension.experimentalIncludeTransitiveDependencies) {
+            val rncDiscovery = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
+            Logging.log(
+                "Merged ${rncDiscovery.dependencies.size} transitive dependencies discovered by the RNC discoverer",
+            )
+            transitiveDeps.addAll(rncDiscovery.dependencies)
+            rncSupersededCoordinates = rncDiscovery.supersededCoordinates
+        }
+
+        if (isExpoProject || extension.experimentalIncludeTransitiveDependencies) {
+            Logging.log(
+                "Total of ${transitiveDeps.size} unique transitive dependencies merged for POM/module.json injection",
+            )
+
+            val removalPredicate: (String, String) -> Boolean = { groupId, artifactId ->
+                (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
+                    artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId } ||
+                    rncSupersededCoordinates.contains(groupId to artifactId)
+            }
+
+            injector.configure(transitiveDeps, removalPredicate)
+            Logging.log("PublishingMetadataInjector ran: injected merged transitive dependencies into POM and Gradle Module Metadata")
+        } else {
+            Logging.log(
+                "PublishingMetadataInjector skipped: project is not an Expo project and " +
+                    "experimentalIncludeTransitiveDependencies is disabled",
+            )
+        }
     }
 
     private fun initializers() {

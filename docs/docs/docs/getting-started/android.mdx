@@ -314,7 +314,7 @@ publishing {
 }
 ```
 
-Skip this task-registration block entirely if you plan to use the `includeTransitiveDependencies` option described below.
+Skip this task-registration block entirely — `experimentalIncludeTransitiveDependencies` (described below) is enabled by default and already does this for you.
 
 ```kotlin
 val moduleBuildDir: Directory = layout.buildDirectory.get()
@@ -336,17 +336,17 @@ tasks.named("generateMetadataFileForMavenAarPublication") {
 }
 ```
 
-> **Transitive dependencies:** the task-registration block above strips embedded-module entries from the generated POM by hand. If you don't need your embedded modules' own third-party dependencies to be resolvable by the app consuming this AAR, that manual block is all you need — skip the rest of this note.
+> **Transitive dependencies:** by default, the plugin discovers your embedded native modules' own third-party dependencies (e.g. AndroidX libraries pulled in by `react-native-screens`) and publishes them into this AAR's POM/Gradle Module Metadata, so the app consuming this AAR resolves them automatically via Maven — no manual step needed.
 >
-> If you *do* want that (e.g. your embedded native modules pull in AndroidX libraries the consuming app should get automatically via Maven), set `includeTransitiveDependencies = true` in this module's `reactBrownfield { }` block instead of hand-rolling the JSON-manipulation task above — the plugin now performs the equivalent removal *and* injects your modules' real dependencies for you:
+> If you'd rather hand-declare these yourself instead (e.g. while this is still experimental), set `experimentalIncludeTransitiveDependencies = false` in this module's `reactBrownfield { }` block and use the task-registration block above:
 >
 > ```kotlin
 > reactBrownfield {
->     includeTransitiveDependencies = true
+>     experimentalIncludeTransitiveDependencies = false
 > }
 > ```
 >
-> Do **not** combine this option with the hand-written `tasks.register("removeDependenciesFromModuleFile")` block above in the same module — the plugin already performs that same removal (plus dependency injection) for every publication once the option is enabled, so keeping both means two tasks race to rewrite the same generated `module.json`, corrupting whichever one runs last.
+> Do **not** combine the hand-written `tasks.register("removeDependenciesFromModuleFile")` block above with `experimentalIncludeTransitiveDependencies = true` (the default) in the same module — the plugin already performs that same removal (plus dependency injection) for every publication whenever the option is enabled, so keeping both means two tasks race to rewrite the same generated `module.json`, corrupting whichever one runs last.
 
 ## 7. Create a Brownfield Configuration
 

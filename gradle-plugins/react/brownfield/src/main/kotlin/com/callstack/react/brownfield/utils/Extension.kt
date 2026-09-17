@@ -60,8 +60,11 @@ open class Extension {
      * consuming native app resolves them automatically via Maven/Gradle instead of having
      * to declare them by hand.
      *
-     * Default is `false`. Expo projects already get equivalent behavior unconditionally;
-     * this option only affects non-Expo (RNC CLI) projects.
+     * Experimental: this is a new discovery/mediation mechanism and its behavior may still
+     * change based on real-world usage. Default is `true`. Expo projects already get
+     * equivalent behavior unconditionally; this option only affects non-Expo (RNC CLI)
+     * projects. Set to `false` to opt out and fall back to hand-declaring these dependencies
+     * yourself (see the troubleshooting guide).
      */
-    var includeTransitiveDependencies = false
+    var experimentalIncludeTransitiveDependencies = true
 }
