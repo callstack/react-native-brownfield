@@ -1,4 +1,4 @@
-package com.callstack.react.brownfield.expo.utils
+package com.callstack.react.brownfield.shared
 
 import io.github.g00fy2.versioncompare.Version
 

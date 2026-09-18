@@ -143,6 +143,7 @@ jobs:
         needs.filter.outputs.expo56 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
@@ -172,6 +173,7 @@ jobs:
         needs.filter.outputs.expo56 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
@@ -202,6 +204,7 @@ jobs:
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
@@ -231,6 +234,7 @@ jobs:
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
