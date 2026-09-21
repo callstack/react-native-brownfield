@@ -1,6 +1,6 @@
 export { default as App } from './App';
+export { default as Counter } from './components/counter';
 export { HomeScreen } from './HomeScreen';
-export { default as Counter } from './components/Counter';
 export {
   NativeOsVersionLabelContext,
   useNativeOsVersionLabel,

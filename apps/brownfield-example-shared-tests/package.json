@@ -39,6 +39,8 @@
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.1.1",
+    "react": "19.2.3",
+    "react-native": "0.87.0",
     "typescript": "5.9.3"
   }
 }
