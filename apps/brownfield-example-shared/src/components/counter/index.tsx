@@ -1,6 +1,6 @@
 import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
-import { Button, StyleSheet, Text } from 'react-native';
 import { useStore } from '@callstack/brownie';
+import { Button, StyleSheet, Text } from 'react-native';
 
 type CounterProps = {
   colors: { primary: string; secondary: string };
