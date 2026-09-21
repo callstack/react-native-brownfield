@@ -6,6 +6,7 @@ agp = "8.5.2"
 common = "31.2.2" # do not bump it for now, as it throws an error for incompatible AGP used
 asm-commons = "9.7"
 versioncompare = "1.5.0"
+junit = "5.11.4"
 
 [plugins]
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinJvm" }
@@ -17,3 +18,4 @@ agp = { module = "com.android.tools.build:gradle", name = "agp", version.ref = "
 common = { module = "com.android.tools:common", version.ref = "common" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm-commons" }
 versioncompare = { module = "io.github.g00fy2:versioncompare", version.ref = "versioncompare" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }

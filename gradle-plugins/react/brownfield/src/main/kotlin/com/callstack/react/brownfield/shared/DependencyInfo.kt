@@ -1,10 +1,4 @@
-package com.callstack.react.brownfield.expo.utils
-
-data class BrownfieldPublishingInfo(
-    val groupId: String,
-    val artifactId: String,
-    val version: String,
-)
+package com.callstack.react.brownfield.shared
 
 data class DependencyInfo(
     val groupId: String,
@@ -18,12 +12,13 @@ data class DependencyInfo(
             groupId: String,
             artifactId: String,
             version: String?,
+            scope: String = "compile",
         ): DependencyInfo {
             return DependencyInfo(
                 groupId = groupId,
                 artifactId = artifactId,
                 version = version,
-                scope = "compile",
+                scope = scope,
                 optional = false,
             )
         }
