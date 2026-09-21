@@ -19,7 +19,7 @@ repositories {
 
 android {
     namespace = "com.callstack.rnbrownfield.demo.rockapp"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
@@ -69,8 +69,14 @@ publishing {
 }
 
 dependencies {
-    api("com.facebook.react:react-android:0.85.0")
-    api("com.facebook.hermes:hermes-android:0.14.0")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("com.google.android.material:material:1.13.0")
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    api("com.facebook.react:react-android:0.87.0")
+    api("com.facebook.hermes:hermes-android:250829098.0.16")
 }
 
 val moduleBuildDir: Directory = layout.buildDirectory.get()

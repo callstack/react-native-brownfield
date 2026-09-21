@@ -1,7 +1,7 @@
 import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import ReactNativeBrownfield, {
-  type MessageEvent,
+  MessageEvent,
 } from '@callstack/react-native-brownfield';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -11,10 +11,11 @@ import {
   FlatList,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
-import Counter from './components/Counter';
+import Counter from './components/counter';
 import { useNativeOsVersionLabel } from './nativeHostContext';
 import type { RootStackParamList } from './navigation/RootStack';
 import { getRandomTheme } from './utils';
@@ -220,9 +221,12 @@ export function HomeScreen({
           testID={brownfieldE2ETestIds.sendMessageToNative}
           style={[styles.sendButton, { backgroundColor: colors.secondary }]}
           onPress={sendMessage}
-          color={colors.secondary}
-          title="Send message to Native"
-        />
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.sendButtonText, { color: colors.primary }]}>
+            Send message to Native
+          </Text>
+        </TouchableOpacity>
 
         <FlatList
           data={messages}
@@ -267,12 +271,9 @@ export function HomeScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  contentContainer: {
-    flexGrow: 1,
+    alignItems: 'center',
     padding: 20,
     paddingTop: 48,
-    alignContent: 'center',
   },
   text: {
     fontSize: 26,
@@ -290,6 +291,17 @@ const styles = StyleSheet.create({
     flexBasis: 'auto',
     width: '100%',
     marginTop: 12,
+  },
+  sendButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sendButtonText: {
+    fontWeight: '700',
+    fontSize: 15,
   },
   messageList: {
     flex: 1,
@@ -332,11 +344,6 @@ const styles = StyleSheet.create({
   navButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 8,
-    justifyContent: 'center',
-  },
-  settingsButtons: {
-    gap: 8,
     marginTop: 8,
   },
 });
