@@ -2,6 +2,7 @@ package com.callstack.reactnativebrownfield
 
 import android.app.Application
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
@@ -20,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 fun interface OnJSBundleLoaded {
-    operator fun invoke(initialized: Boolean)
+    operator fun invoke(timings: JSBundleTimings)
 }
 
 fun interface OnMessageListener {
@@ -34,6 +35,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         private lateinit var instance: ReactNativeBrownfield
         private val initialized = AtomicBoolean()
         private val nativeLibsLoaded = AtomicBoolean()
+        private lateinit var applicationContext: Application
 
         @JvmStatic
         val shared: ReactNativeBrownfield get() = instance
@@ -62,7 +64,9 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             reactHost: ReactHost,
             onJSBundleLoaded: OnJSBundleLoaded? = null
         ) {
+            applicationContext = application
             if (!initialized.getAndSet(true)) {
+                AndroidJSBundleTimingObserver.install()
                 loadNativeLibs(application)
                 installAndPreload(reactHost, onJSBundleLoaded)
             } else {
@@ -76,14 +80,16 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             onJSBundleLoaded: OnJSBundleLoaded? = null,
             reactHostFactory: () -> ReactHost
         ) {
+            applicationContext = application
             if (!initialized.getAndSet(true)) {
+                AndroidJSBundleTimingObserver.install()
                 loadNativeLibs(application)
                 installAndPreload(reactHostFactory(), onJSBundleLoaded)
             } else {
                 invokeWhenJSBundleLoaded(onJSBundleLoaded)
             }
         }
-        
+
         @JvmStatic
         @JvmOverloads
         fun initialize(
@@ -91,7 +97,9 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             options: HashMap<String, Any>,
             onJSBundleLoaded: OnJSBundleLoaded? = null
         ) {
+            applicationContext = application
             if (!initialized.getAndSet(true)) {
+                AndroidJSBundleTimingObserver.install()
                 loadNativeLibs(application)
                 val reactHost = getDefaultReactHost(
                     context = application,
@@ -123,11 +131,11 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             initialize(application, options, onJSBundleLoaded)
         }
 
-        private fun preloadReactNative(callback: ((Boolean) -> Unit)) {
+        private fun preloadReactNative(generation: Int) {
             shared.reactHost.addReactInstanceEventListener(object :
                 ReactInstanceEventListener {
                 override fun onReactContextInitialized(context: ReactContext) {
-                    callback(true)
+                    AndroidJSBundleTimingObserver.contextInitialized(context, generation)
                     shared.reactHost.removeReactInstanceEventListener(this)
                 }
             })
@@ -135,10 +143,12 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
 
         private fun installAndPreload(reactHost: ReactHost, onJSBundleLoaded: OnJSBundleLoaded?) {
+            AndroidJSBundleTimingObserver.install()
+            val generation = AndroidJSBundleTimingObserver.beginGeneration()
             instance = ReactNativeBrownfield(reactHost)
-            preloadReactNative {
-                onJSBundleLoaded?.invoke(true)
-            }
+            reactHost.installBrownfieldPerformanceStop()
+            AndroidJSBundleTimingObserver.subscribe(onJSBundleLoaded)
+            preloadReactNative(generation)
         }
 
         private fun invokeWhenJSBundleLoaded(onJSBundleLoaded: OnJSBundleLoaded?) {
@@ -146,18 +156,21 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                 return
             }
 
-            val reactHost = instance.reactHost
-            reactHost.currentReactContext?.let {
-                onJSBundleLoaded.invoke(true)
-                return
-            }
+            AndroidJSBundleTimingObserver.subscribe(onJSBundleLoaded)
+        }
 
-            reactHost.addReactInstanceEventListener(object : ReactInstanceEventListener {
-                override fun onReactContextInitialized(context: ReactContext) {
-                    onJSBundleLoaded.invoke(true)
-                    reactHost.removeReactInstanceEventListener(this)
-                }
-            })
+        internal fun currentReactContext(): ReactContext? =
+            if (::instance.isInitialized) instance.reactHost.currentReactContext else null
+
+        internal fun displayFrameIntervalNanos(): Long {
+            if (!::applicationContext.isInitialized) return 1_000_000_000L / 60
+            @Suppress("DEPRECATION")
+            val refreshRate = applicationContext
+                .getSystemService(WindowManager::class.java)
+                ?.defaultDisplay
+                ?.refreshRate
+                ?.takeIf { it > 0f } ?: 60f
+            return (1_000_000_000.0 / refreshRate).toLong()
         }
     }
 
@@ -203,9 +216,43 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         reactDelegate: ReactDelegateWrapper? = null,
         launchOptions: Bundle? = null,
     ): FrameLayout {
+        return createViewInternal(activity, moduleName, reactDelegate, launchOptions, null, false)
+    }
+
+    @JvmOverloads
+    fun createView(
+        activity: FragmentActivity?,
+        moduleName: String,
+        reactDelegate: ReactDelegateWrapper? = null,
+        launchOptions: Bundle? = null,
+        waitForFullDisplay: Boolean,
+        collectThreadMetrics: Boolean = false,
+        onMetrics: OnDisplayMetrics? = null,
+    ): FrameLayout {
+        val session = BrownfieldDisplaySession(
+            moduleName, waitForFullDisplay, collectThreadMetrics, onMetrics
+        )
+        val props = Bundle(launchOptions ?: Bundle()).apply {
+            putString("brownfieldPresentationID", session.id)
+        }
+        return createViewInternal(activity, moduleName, reactDelegate, props, session, false)
+    }
+
+    internal fun createViewInternal(
+        activity: FragmentActivity?,
+        moduleName: String,
+        reactDelegate: ReactDelegateWrapper?,
+        launchOptions: Bundle?,
+        session: BrownfieldDisplaySession?,
+        requiresResume: Boolean,
+    ): FrameLayout {
         val reactHost = shared.reactHost
-        val resolvedDelegate =
-            reactDelegate ?: ReactDelegateWrapper(activity, reactHost, moduleName, launchOptions)
+        val resolvedDelegate = when {
+            reactDelegate == null -> ReactDelegateWrapper(activity, reactHost, moduleName, launchOptions)
+            session != null && reactDelegate.brownfieldLaunchOptions !== launchOptions ->
+                reactDelegate.withLaunchOptions(launchOptions)
+            else -> reactDelegate
+        }
 
         val backPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -230,24 +277,29 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
          * In such a case, we set the lifeCycle observer.
          */
         if (reactDelegate == null) {
-            activity?.lifecycle?.addObserver(getLifeCycleObserver(resolvedDelegate))
+            activity?.lifecycle?.addObserver(getLifeCycleObserver(resolvedDelegate, session))
         }
 
         resolvedDelegate.loadApp()
-        return resolvedDelegate.reactRootView!!
+        return resolvedDelegate.reactRootView!!.also { session?.bind(it, requiresResume) }
     }
 
-    private fun getLifeCycleObserver(reactDelegate: ReactDelegateWrapper): DefaultLifecycleObserver {
+    private fun getLifeCycleObserver(
+        reactDelegate: ReactDelegateWrapper,
+        session: BrownfieldDisplaySession?
+    ): DefaultLifecycleObserver {
         return object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 reactDelegate.onReactHostResume()
             }
 
             override fun onPause(owner: LifecycleOwner) {
+                session?.cancel()
                 reactDelegate.onHostPause()
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
+                session?.cancel()
                 reactDelegate.onHostDestroy()
                 owner.lifecycle.removeObserver(this) // Cleanup to avoid leaks
             }

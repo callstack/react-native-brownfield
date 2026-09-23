@@ -1,4 +1,4 @@
-# iOS performance metrics
+# Performance metrics
 
 React Native Brownfield can measure:
 
@@ -7,7 +7,7 @@ React Native Brownfield can measure:
   (TTFD).
 - JavaScript and UI thread responsiveness while a screen is being presented.
 
-The metrics are available in Debug and Release builds on iOS. Durations are in
+The metrics are available in Debug and Release builds on Android and iOS. Durations are in
 milliseconds.
 
 ## Available metrics
@@ -45,9 +45,24 @@ ReactNativeBrownfield.shared.startReactNative(
 }
 ```
 
+On Android, pass `OnJSBundleLoaded` to `initialize`:
+
+```kotlin
+ReactNativeBrownfield.initialize(application, packages) { timings ->
+  Log.d("Brownfield", "Bundle evaluation: ${timings.jsBundleEvaluationTime} ms")
+}
+```
+
 The callback runs once on the main thread after a successful bundle load. If the
 bundle fails to load, it is not called. Calling `stopReactNative()` clears the
 stored timings.
+
+On Android, `DOWNLOAD_START`/`DOWNLOAD_END` describe only a successful Metro
+download. Embedded assets and local files report `jsBundleLoadTime = null`.
+Evaluation completion is queued behind the managed React context's bundle work.
+React Native uses a fixed evaluation instance key, so Android supports one
+managed runtime and attributes the process-wide download markers to it. Host
+destruction or reload clears the cached generation.
 
 ### What startup metrics do not measure
 
@@ -58,7 +73,8 @@ stored timings.
 - Debug and Release load different bundle sources. Compare results only under
   equivalent build and bundle conditions.
 
-`jsBundleLoadTime` and `jsBundleEvaluationTime` are optional. `nil` means React Native did not provide a
+`jsBundleLoadTime` and `jsBundleEvaluationTime` are optional. `nil` on iOS or
+`null` on Android means React Native did not provide a
 completed measurement; it does not mean zero. The timeline omits unavailable or
 incomplete intervals. Its timestamps are monotonic values for comparing entries
 within the same result, not wall-clock dates.
@@ -88,6 +104,21 @@ let controller = ReactNativeViewController(
 navigationController?.pushViewController(controller, animated: true)
 ```
 
+On Android the same metrics are available for raw views and Fragment factories:
+
+```kotlin
+val view = ReactNativeBrownfield.shared.createView(
+  activity = this,
+  moduleName = "Catalog",
+  launchOptions = Bundle(),
+  waitForFullDisplay = true,
+  collectThreadMetrics = true
+) { metrics ->
+  Log.d("Brownfield", "TTID: ${metrics.initialDisplay?.duration} ms")
+  Log.d("Brownfield", "TTFD: ${metrics.fullDisplay?.duration} ms")
+}
+```
+
 The same `waitForFullDisplay`, `collectThreadMetrics`, and `onMetrics` arguments
 are available on `ReactNativeBrownfield.shared.view(...)` and SwiftUI
 `ReactNativeView(...)`.
@@ -107,6 +138,11 @@ TTID does not guarantee that useful React Native content has rendered. It can en
 while a loading state is visible, and it does not measure physical pixel delivery.
 It also excludes any time before the controller's `viewDidLoad`, such as the delay
 between a user tap and controller creation.
+
+On Android, a raw view starts at `createView` entry and ends on the main thread
+after root attachment. A Fragment starts in `onCreateView` and ends after both
+root attachment and Fragment resume. It does not wait for the first React content
+draw or an animation to finish.
 
 ### Time to full display (TTFD)
 
@@ -143,6 +179,10 @@ export function CatalogScreen({ brownfieldPresentationID, dataLoaded }: Props) {
 Choose a consistent readiness condition, such as required data and important
 images being rendered. The library cannot decide when your screen is useful.
 Only the first accepted marker completes the measurement.
+
+Android Fragment flags are stored in `arguments`, so they survive restoration.
+The callback is not serialized; set `fragment.onMetrics` again before
+`onCreateView` when restoring a Fragment.
 
 TTFD includes TTID. Do not add them together. `TTFD - TTID` is the additional
 time between initial appearance and your readiness point.
@@ -182,7 +222,7 @@ only the time after TTID.
   thread, so unrelated work can affect the result.
 - Sampling adds a small amount of work. Keep the setting consistent when comparing
   runs.
-- Unsupported or not-yet-started samplers report `nil` FPS/busy ratio and zero
+- Unsupported or not-yet-started samplers report `nil`/`null` FPS and busy ratio and zero
   coverage. Short samples are noisy.
 
 Use low FPS or a high busy ratio as a signal to profile the affected thread, not

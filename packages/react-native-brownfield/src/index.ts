@@ -10,13 +10,13 @@ export interface MessageEvent {
 
 const ReactNativeBrownfield = {
   /**
-   * Finish this iOS presentation's full-display measurement after data and UI are ready.
+   * Finish this presentation's full-display measurement after data and UI are ready.
    * Pass the `brownfieldPresentationID` injected into the root component's props.
    * Native must opt in with `waitForFullDisplay: true`. Repeated/stale IDs are ignored.
-   * @platform ios
+   * @platform android, ios
    */
   markFullyDisplayed: (presentationID: string): void => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || Platform.OS === 'android') {
       NativeModules.BrownfieldPerformance.markFullyDisplayed(presentationID);
     }
   },

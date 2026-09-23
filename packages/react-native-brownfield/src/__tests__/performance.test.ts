@@ -28,9 +28,11 @@ describe('markFullyDisplayed', () => {
     );
   });
 
-  it('does not access a native performance API on Android', () => {
+  it('forwards the presentation ID to the Android module', () => {
     native.Platform.OS = 'android';
     ReactNativeBrownfield.markFullyDisplayed('presentation-123');
-    expect(native.markFullyDisplayed).not.toHaveBeenCalled();
+    expect(native.markFullyDisplayed).toHaveBeenCalledExactlyOnceWith(
+      'presentation-123'
+    );
   });
 });

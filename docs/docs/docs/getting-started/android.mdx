@@ -244,6 +244,11 @@ object ReactNativeHostManager {
 
 :::warning Important
 The `ReactNativeBrownfield::initialize(Application, ReactHost, OnJSBundleLoaded? = null)` function variant is deprecated and shouldn't be used any more. It will be removed in a future release.
+
+`OnJSBundleLoaded` receives `JSBundleTimings` on the main thread. Its nullable
+`jsBundleLoadTime`, `jsBundleEvaluationTime`, and sorted `timeline` fields describe
+completed startup intervals. This replaces the Boolean callback argument used by
+earlier releases.
 This version is unsafe because passing a pre-constructed `ReactHost` can trigger `SoLoader` (e.g., via `ExpoReactHostFactory`) before native libraries are fully loaded, leading to potential runtime crashes.
 :::
 

@@ -60,7 +60,7 @@ A function used to initialize a React Native Brownfield singleton. Keep in mind 
 | reactHost        | Exclusively\* | `ReactHost`            | An instance of [ReactHost](https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactHost.kt). |
 | packages         | Exclusively\* | `List<ReactPackage>`   | List of your React Native Native modules.                                                                                                                        |
 | options          | Exclusively\* | `HashMap<String, Any>` | Map of initial options. **Options listed below.**                                                                                                                |
-| onJSBundleLoaded | Exclusively\* | `OnJSBundleLoaded`     | Callback invoked after JS bundle is fully loaded.                                                                                                                |
+| onJSBundleLoaded | No            | `OnJSBundleLoaded`     | Main-thread callback invoked after JS bundle evaluation with `JSBundleTimings`.                                                                                  |
 
 > `*` - From the marked fields, exactly one must be specified, excluding the others. See examples below.
 
@@ -103,8 +103,8 @@ ReactNativeBrownfield.initialize(this, mReactNativeHost);
 
 // OR
 
-ReactNativeBrownfield.initialize(this, mReactNativeHost, initialized -> {
-  // JS bundle loaded
+ReactNativeBrownfield.initialize(this, mReactNativeHost, timings -> {
+  Log.d("Brownfield", String.valueOf(timings.getJsBundleEvaluationTime()));
 });
 ```
 
@@ -115,7 +115,7 @@ ReactNativeBrownfield.initialize(this, packages);
 
 // OR
 
-ReactNativeBrownfield.initialize(this, packages, initialized -> {
+ReactNativeBrownfield.initialize(this, packages, timings -> {
   // JS bundle loaded
 });
 ```
@@ -130,7 +130,7 @@ ReactNativeBrownfield.initialize(this, options);
 
 // OR
 
-ReactNativeBrownfield.initialize(this, options, initialized -> {
+ReactNativeBrownfield.initialize(this, options, timings -> {
   // JS bundle loaded
 });
 ```
@@ -167,6 +167,9 @@ Creates a React Native view with a given module name. It automatically uses an i
 | moduleName    | Yes      | `String`               | Name of React Native component registered to `AppRegistry`.                                                                                      |
 | launchOptions | No       | `Bundle`               | Initial properties to be passed to React Native component.                                                                                       |
 | reactDelegate | No       | `ReactDelegateWrapper` | Optional custom delegate. If passed, the `activity` argument is ignored.                                                                         |
+| waitForFullDisplay | No | `boolean` | Wait for JavaScript to mark the injected `brownfieldPresentationID`. |
+| collectThreadMetrics | No | `boolean` | Collect JS/UI callback cadence and busy estimates. |
+| onMetrics | No | `OnDisplayMetrics` | One main-thread callback for the completed presentation. |
 
 Returns: `FrameLayout` - A view containing the React Native component.
 
@@ -182,6 +185,10 @@ FrameLayout reactView = ReactNativeBrownfield.getShared().createView(
 );
 container.addView(reactView);
 ```
+
+`OnJSBundleLoaded` now receives `JSBundleTimings` instead of the former Boolean.
+Replace `initialized ->` callbacks with `timings ->` and read the nullable bundle
+load/evaluation fields. See `PERFORMANCE.md` for metric boundaries and availability.
 
 ```java
 // With initial properties
@@ -276,6 +283,9 @@ Creates a Fragment with `ReactNativeActivity`, you can use it as a parameter in 
 | ------------ | -------- | ----------------------------------------------------- | ----------------------------------------------------------- |
 | moduleName   | Yes      | `String`                                              | Name of React Native component registered to `AppRegistry`. |
 | initialProps | No       | `Bundle` \|\| `HashMap<String, *>` \|\| `ReadableMap` | Initial properties to be passed to React Native component.  |
+| waitForFullDisplay | No | `boolean` | Wait for the JavaScript readiness marker. |
+| collectThreadMetrics | No | `boolean` | Collect JS/UI responsiveness snapshots. |
+| onMetrics | No | `OnDisplayMetrics` | Completion callback; call `setOnMetrics` again after restoration. |
 
 **Examples:**
 
@@ -288,6 +298,13 @@ Bundle bundle = new Bundle();
 bundle.putInt("score", 12);
 
 ReactNativeFragment.createReactNativeFragment("ReactNative", bundle);
+```
+
+```java
+ReactNativeFragment measured = ReactNativeFragment.createReactNativeFragment(
+  "ReactNative", bundle, true, true,
+  metrics -> Log.d("Brownfield", String.valueOf(metrics.getFullDisplay().getDuration()))
+);
 ```
 
 ```java
