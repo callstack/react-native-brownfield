@@ -1,6 +1,32 @@
 'use strict';
 
 const { resolveAndroidDetoxDevice } = require('./detox-android-emulator-device.cjs');
+const { getDetoxArtifactsConfig } = require('./detox-artifacts-config.cjs');
+
+/**
+ * Shared Detox artifacts, minus video.
+ *
+ * The shared helper enables video for iOS simulators, where Detox records
+ * host-side via `simctl io recordVideo`. On Android it would record with
+ * `adb shell screenrecord`, writing into the emulator userdata partition —
+ * the partition androidapp-road-test already documents as ENOSPC-prone
+ * ("Do not set disk-size — a large userdata partition fails when the runner
+ * is low on disk after Gradle/NDK builds"). Logcat, screenshots and the
+ * UI hierarchy give us what we need without that risk.
+ *
+ * @returns {import('detox').DetoxArtifactsConfig}
+ */
+function buildAndroidArtifactsConfig() {
+  const shared = getDetoxArtifactsConfig();
+
+  return {
+    ...shared,
+    plugins: {
+      ...shared.plugins,
+      video: { enabled: false },
+    },
+  };
+}
 
 /**
  * Detox Android emulator release config for AndroidApp (native Gradle consumer).
@@ -41,6 +67,7 @@ function createAndroidAppEmulatorReleaseDetoxConfig({
         setupTimeout: 300000,
       },
     },
+    artifacts: buildAndroidArtifactsConfig(),
     behavior: {
       cleanup: {
         // CI owns emulator lifecycle via android-emulator-runner.
