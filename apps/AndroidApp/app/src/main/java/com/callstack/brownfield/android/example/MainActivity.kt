@@ -37,6 +37,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
 import androidx.fragment.compose.AndroidFragment
 import com.callstack.brownfield.android.example.components.GreetingCard
 import com.callstack.brownfield.android.example.components.PostMessageCard
@@ -45,6 +47,7 @@ import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppThe
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.nativebrownfieldnavigation.UserType
+import com.callstack.reactnativebrownfield.OnDisplayMetrics
 import com.callstack.reactnativebrownfield.ReactNativeFragment
 import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 import com.facebook.react.bridge.Callback
@@ -83,11 +86,12 @@ class MainActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportFragmentManager.fragmentFactory = ReactNativeFragmentFactory()
         super.onCreate(null)
         enableEdgeToEdge()
 
         if (savedInstanceState == null) {
-            ReactNativeHostManager.initialize(application) {
+            ReactNativeHostManager.initialize(application) { _ ->
                 if (!isDetoxE2E) {
                     Toast.makeText(
                         this,
@@ -214,6 +218,14 @@ fun ReactNativeView(
                 ReactNativeFragmentArgNames.ARG_MODULE_NAME,
                 ReactNativeConstants.MAIN_MODULE_NAME
             )
+            putBoolean(
+                ReactNativeFragmentArgNames.ARG_WAIT_FOR_FULL_DISPLAY,
+                ReactNativeConstants.WAIT_FOR_FULL_DISPLAY
+            )
+            putBoolean(
+                ReactNativeFragmentArgNames.ARG_COLLECT_THREAD_METRICS,
+                true
+            )
             putBundle(
                 ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS,
                 Bundle().apply {
@@ -224,8 +236,22 @@ fun ReactNativeView(
                     putBoolean("brownfieldE2E", brownfieldE2E)
                 }
             )
+        },
+        onUpdate = { fragment ->
+            fragment.onMetrics = OnDisplayMetrics(BrownfieldMetricsLogger::logDisplay)
         }
     )
+}
+
+private class ReactNativeFragmentFactory : FragmentFactory() {
+    override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+        if (className == ReactNativeFragment::class.java.name) {
+            return ReactNativeFragment().apply {
+                onMetrics = OnDisplayMetrics(BrownfieldMetricsLogger::logDisplay)
+            }
+        }
+        return super.instantiate(classLoader, className)
+    }
 }
 
 @Preview(showBackground = true)

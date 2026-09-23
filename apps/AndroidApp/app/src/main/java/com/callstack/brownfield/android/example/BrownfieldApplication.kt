@@ -28,7 +28,7 @@ class BrownfieldApplication : Application(), ReactApplication {
     override fun onCreate() {
         super.onCreate()
 
-        ReactNativeHostManager.initialize(this)
+        ReactNativeHostManager.initialize(this, BrownfieldMetricsLogger::logStartup)
 
         StoreManager.shared.registerIfAbsent(BrownfieldStore.STORE_NAME) {
             Store(
