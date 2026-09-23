@@ -15,6 +15,8 @@ struct ReferralsScreen: View {
             Text(userId)
                 .font(.body.monospaced())
                 .textSelection(.enabled)
+            
+            ReactNativeScreenLink(moduleName: "RNB")
 
             Button("Share referral link") {
                 // Placeholder action for the sample app.

@@ -253,7 +253,8 @@ export function HomeScreen({
         <Button
           onPress={() => {
             if (navigation.canGoBack()) {
-              navigation.goBack();
+              ReactNativeBrownfield.popToNative(true);
+              // navigation.goBack();
             } else {
               ReactNativeBrownfield.popToNative(true);
             }

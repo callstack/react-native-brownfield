@@ -18,6 +18,8 @@ export const brownfieldE2ETestIds = {
   appleAppGreeting: 'brownfield-e2e-appleapp-greeting',
   appleAppPostMessageSend: 'brownfield-e2e-appleapp-post-message-send',
   appleAppPostMessageToast: 'brownfield-e2e-appleapp-post-message-toast',
+  /** Native shell button that opens the RN bundle as its own screen (AppleApp / AndroidApp). */
+  appleAppOpenReactNativeScreen: 'brownfield-e2e-appleapp-open-react-native-screen',
   appleAppNativeSettings: 'brownfield-e2e-appleapp-native-settings',
   appleAppNativeReferrals: 'brownfield-e2e-appleapp-native-referrals',
 } as const;

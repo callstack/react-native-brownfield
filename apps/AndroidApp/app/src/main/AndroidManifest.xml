@@ -15,6 +15,11 @@
         android:theme="@style/Theme.AndroidBrownfieldApp"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ReactNativeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AndroidBrownfieldApp"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
             android:name=".ReferralsActivity"
             android:exported="false"
             android:theme="@style/Theme.AndroidBrownfieldApp" />

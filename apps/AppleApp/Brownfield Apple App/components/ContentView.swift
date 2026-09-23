@@ -14,14 +14,6 @@ let initialState = BrownfieldStore(
     user: User(name: "Username")
 )
 
-#if USE_EXPO_HOST
-private let hostAppName = "iOS Expo"
-private let reactNativeModuleName = "main"
-#else
-private let hostAppName = "iOS Vanilla"
-private let reactNativeModuleName = "RNApp"
-#endif
-
 private func brownfieldPostMessageText(from raw: String) -> String {
     if let data = raw.data(using: .utf8),
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -30,14 +22,6 @@ private func brownfieldPostMessageText(from raw: String) -> String {
         return text
     }
     return raw
-}
-
-private var brownfieldInitialProperties: [String: Any] {
-    [
-        "nativeOsVersionLabel":
-            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)",
-        "brownfieldE2E": ProcessInfo.processInfo.arguments.contains("-DetoxE2E"),
-    ]
 }
 
 struct ContentView: View {
@@ -50,18 +34,11 @@ struct ContentView: View {
             ZStack {
                 ScrollView {
                     VStack(spacing: 16) {
-                        GreetingCard(name: hostAppName)
+                        GreetingCard(name: BrownfieldHost.appName)
 
                         MessagesView()
 
-                        ReactNativeView(
-                            moduleName: reactNativeModuleName,
-                            initialProperties: brownfieldInitialProperties
-                        )
-                        .navigationBarHidden(true)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .background(Color(UIColor.systemBackground))
-                        .frame(minHeight: 520)
+                        ReactNativeScreenLink()
                     }
                     .frame(maxWidth: .infinity)
                     .padding(16)

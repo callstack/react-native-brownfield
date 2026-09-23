@@ -5,6 +5,7 @@ object E2eTestIds {
     const val nativeAppGreeting = "brownfield-e2e-appleapp-greeting"
     const val nativeAppPostMessageSend = "brownfield-e2e-appleapp-post-message-send"
     const val nativeAppPostMessageToast = "brownfield-e2e-appleapp-post-message-toast"
+    const val nativeAppOpenReactNativeScreen = "brownfield-e2e-appleapp-open-react-native-screen"
     const val nativeAppNativeSettings = "brownfield-e2e-appleapp-native-settings"
     const val nativeAppNativeReferrals = "brownfield-e2e-appleapp-native-referrals"
 }

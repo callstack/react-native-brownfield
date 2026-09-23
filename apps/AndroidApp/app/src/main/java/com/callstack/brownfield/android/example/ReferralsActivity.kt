@@ -29,6 +29,7 @@ class ReferralsActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val userId = intent.getStringExtra(EXTRA_USER_ID).orEmpty()
+        val brownfieldE2E = intent.getStringExtra("DetoxE2E") == "YES"
 
         setContent {
             AndroidBrownfieldAppTheme {
@@ -62,6 +63,19 @@ class ReferralsActivity : ComponentActivity() {
                             text = "userId: $userId",
                             style = MaterialTheme.typography.bodyLarge
                         )
+                        Button(
+                            onClick = {
+                                startActivity(
+                                    ReactNativeActivity.createIntent(
+                                        this@ReferralsActivity,
+                                        detoxE2E = brownfieldE2E,
+                                        moduleName = "RNB",
+                                    )
+                                )
+                            }
+                        ) {
+                            Text("Open React Native screen")
+                        }
                         Button(onClick = { finish() }) {
                             Text("Go back")
                         }

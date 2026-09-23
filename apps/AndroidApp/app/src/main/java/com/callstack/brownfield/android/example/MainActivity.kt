@@ -3,14 +3,12 @@ package com.callstack.brownfield.android.example
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,22 +30,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.compose.AndroidFragment
+import com.callstack.brownfield.android.example.components.EspressoTagAnchor
 import com.callstack.brownfield.android.example.components.GreetingCard
+import com.callstack.brownfield.android.example.components.MaterialCard
 import com.callstack.brownfield.android.example.components.PostMessageCard
 import com.callstack.brownfield.android.example.components.PostMessageToast
 import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
 import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
 import com.callstack.nativebrownfieldnavigation.UserType
-import com.callstack.reactnativebrownfield.ReactNativeFragment
-import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
 
@@ -180,13 +178,7 @@ private fun MainScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(1.dp))
 
-            ReactNativeView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(520.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-            )
+            ReactNativeScreenLink()
         }
 
         postMessageToastText?.let { message ->
@@ -198,34 +190,56 @@ private fun MainScreen(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Entry point to [ReactNativeActivity], the React Native screen.
+ *
+ * The Detox flag is forwarded so the RN surface keeps running in E2E mode — the activity is a
+ * separate task-stack entry and does not inherit the launch intent's extras.
+ */
 @Composable
-fun ReactNativeView(
-    modifier: Modifier = Modifier
-) {
-    val activity = LocalContext.current as? Activity
-    val brownfieldE2E = remember(activity) {
-        activity?.intent?.getStringExtra("DetoxE2E") == "YES"
+private fun ReactNativeScreenLink(moduleName: String = ReactNativeConstants.MAIN_MODULE_NAME) {
+    val context = LocalContext.current
+    val brownfieldE2E = remember(context) {
+        (context as? Activity)?.intent?.getStringExtra("DetoxE2E") == "YES"
     }
 
-    AndroidFragment<ReactNativeFragment>(
-        modifier = modifier,
-        arguments = Bundle().apply {
-            putString(
-                ReactNativeFragmentArgNames.ARG_MODULE_NAME,
-                ReactNativeConstants.MAIN_MODULE_NAME
+    MaterialCard {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                "React Native screen",
+                style = MaterialTheme.typography.titleMedium,
             )
-            putBundle(
-                ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS,
-                Bundle().apply {
-                    putString(
-                        "nativeOsVersionLabel",
-                        "Android ${Build.VERSION.RELEASE}"
+
+            Text(
+                "Opens the React Native bundle as a separate native screen.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+            )
+
+            Button(
+                onClick = {
+                    context.startActivity(
+                        ReactNativeActivity.createIntent(
+                            context,
+                            detoxE2E = brownfieldE2E,
+                            moduleName = moduleName,
+                        )
                     )
-                    putBoolean("brownfieldE2E", brownfieldE2E)
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                EspressoTagAnchor(E2eTestIds.nativeAppOpenReactNativeScreen) {
+                    Text("Open React Native screen")
                 }
-            )
+            }
         }
-    )
+    }
 }
 
 @Preview(showBackground = true)
