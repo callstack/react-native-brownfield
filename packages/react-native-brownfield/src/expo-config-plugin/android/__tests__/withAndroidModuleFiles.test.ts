@@ -188,9 +188,31 @@ describe('createAndroidModule', () => {
       rnVersion: '0.85.3',
     });
 
-    expect(readLibraryBuildGradle(androidDir)).toContain(
-      'targetSdk = resolveRootProjectInt("targetSdkVersion")'
+    const buildGradle = readLibraryBuildGradle(androidDir);
+    expect(buildGradle).toMatch(
+      /testOptions \{\s*targetSdk = resolveRootProjectInt\("targetSdkVersion"\)\s*\}/
     );
+    expect(buildGradle).toMatch(
+      /lint \{\s*targetSdk = resolveRootProjectInt\("targetSdkVersion"\)\s*\}/
+    );
+  });
+
+  it('does not set targetSdk in defaultConfig, which AGP 9 removed for libraries', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.85.3',
+    });
+
+    const buildGradle = readLibraryBuildGradle(androidDir);
+    const defaultConfigBlock = buildGradle.slice(
+      buildGradle.indexOf('defaultConfig {'),
+      buildGradle.indexOf('buildFeatures {')
+    );
+    expect(defaultConfigBlock).toContain('minSdk =');
+    expect(defaultConfigBlock).not.toContain('targetSdk');
   });
 
   it('omits missingDimensionStrategy block when no strategies are defined', () => {

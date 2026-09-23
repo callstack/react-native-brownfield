@@ -57,7 +57,6 @@ android {
 
     defaultConfig {
         minSdk = {{MIN_SDK_VERSION}}
-        targetSdk = {{TARGET_SDK_VERSION}}
 
         buildConfigField(
             "boolean",
@@ -79,6 +78,14 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+
+    // AGP 9 removed `defaultConfig.targetSdk` for libraries; it only ever applied to tests and lint
+    testOptions {
+        targetSdk = {{TARGET_SDK_VERSION}}
+    }
+    lint {
+        targetSdk = {{TARGET_SDK_VERSION}}
     }
 
     buildTypes {

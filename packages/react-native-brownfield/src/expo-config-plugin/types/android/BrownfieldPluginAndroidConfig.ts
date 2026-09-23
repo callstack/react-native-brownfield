@@ -21,7 +21,7 @@ export interface BrownfieldPluginAndroidConfig {
   minSdkVersion?: number;
 
   /**
-   * Target SDK version for the Android library
+   * Target SDK version for the Android library's tests and lint (`testOptions` / `lint`)
    * @default inherited from the generated Expo app project when available
    */
   targetSdkVersion?: number;
