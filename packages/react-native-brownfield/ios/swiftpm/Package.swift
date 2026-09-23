@@ -12,10 +12,6 @@ let package = Package(
       name: "BrownfieldBundleSupport",
       targets: ["BrownfieldBundleSupport"]
     ),
-    .library(
-      name: "BrownfieldNavigationSupport",
-      targets: ["BrownfieldNavigationSupport"]
-    ),
   ],
   targets: [
     .target(
@@ -26,15 +22,6 @@ let package = Package(
       name: "BrownfieldBundleSupportTests",
       dependencies: ["BrownfieldBundleSupport"],
       path: "Tests/BrownfieldBundleSupportTests"
-    ),
-    .target(
-      name: "BrownfieldNavigationSupport",
-      path: "Sources/BrownfieldNavigationSupport"
-    ),
-    .testTarget(
-      name: "BrownfieldNavigationSupportTests",
-      dependencies: ["BrownfieldNavigationSupport"],
-      path: "Tests/BrownfieldNavigationSupportTests"
     ),
   ]
 )
