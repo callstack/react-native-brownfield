@@ -2,6 +2,24 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@5.1.1
+
+- [#458](https://github.com/callstack/react-native-brownfield/pull/458) [`bf976fd`](https://github.com/callstack/react-native-brownfield/commit/bf976fdebc1abb228c03213c9a1b41d9967d0909) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - Bump the Brownfield Gradle Plugin version injected by the Expo config plugin to `2.0.0-alpha09`.
+
+- [#462](https://github.com/callstack/react-native-brownfield/pull/462) [`2f7d5da`](https://github.com/callstack/react-native-brownfield/commit/2f7d5daf661808fdfdd1caae89236dbdfec3f62e) Thanks [@likevy](https://github.com/likevy)! - fixes [#457](https://github.com/callstack/react-native-brownfield/issues/457), android back callbacks survived RN fragment view destruction, retaining delegates and intercepting back presses after re-entry
+
+- [#470](https://github.com/callstack/react-native-brownfield/pull/470) [`09162c2`](https://github.com/callstack/react-native-brownfield/commit/09162c27bd8455b67bc0e2890a4ffe8dae5b9eae) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - Fix `popToNative()` on iOS closing every React Native screen instead of only the topmost one.
+  `popToNative()` is delivered as an app-wide notification, so every live React Native surface acted on it — including surfaces buried under other screens, and each surface acted twice when hosted by SwiftUI. In a stack such as RN → native → RN, a single call tore down the whole navigation stack, taking native screens with it.
+  A React Native surface now acts only when it is the topmost one on screen, and only once per host.
+  Two consequences worth knowing about:
+  - When no React Native surface is on screen — for example one hidden behind a full-screen native modal — `popToNative()` is now a no-op instead of popping the hidden screen. It logs when this happens.
+  - `popToNative()` no longer dismisses a modally presented native screen that merely _contains_ a React Native surface. Only a surface that owns a navigation stack entry pops.
+
 ## 5.1.0
 
 ### Minor Changes
