@@ -171,6 +171,8 @@ jobs:
       - name: Create or reuse GitHub issue
         env:
           GH_TOKEN: ${{ github.token }}
+          # No checkout in this job, so gh can't infer the repo from git
+          GH_REPO: ${{ github.repository }}
         run: |
           issue_title="Expo preview road test failed for ${{ needs.prepare.outputs.latest_version }}"
           existing_issue_number=$(gh issue list \
