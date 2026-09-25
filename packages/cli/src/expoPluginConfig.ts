@@ -35,8 +35,10 @@ export type ResolvedBrownfieldPluginAndroidConfig = {
   moduleName: string;
   packageName: string;
   minSdkVersion: number;
-  targetSdkVersion: number;
-  compileSdkVersion: number;
+  /** When unset, the generated library inherits the value from the Expo app's root Gradle project */
+  targetSdkVersion?: number;
+  /** When unset, the generated library inherits the value from the Expo app's root Gradle project */
+  compileSdkVersion?: number;
   groupId: string;
   artifactId: string;
   version: string;
@@ -193,8 +195,8 @@ export function resolveBrownfieldPluginConfig(
           moduleName: androidModuleName,
           packageName: effectiveProps.android?.packageName ?? androidPackage,
           minSdkVersion: effectiveProps.android?.minSdkVersion ?? 24,
-          targetSdkVersion: effectiveProps.android?.targetSdkVersion ?? 35,
-          compileSdkVersion: effectiveProps.android?.compileSdkVersion ?? 35,
+          targetSdkVersion: effectiveProps.android?.targetSdkVersion,
+          compileSdkVersion: effectiveProps.android?.compileSdkVersion,
           groupId: effectiveProps.android?.groupId ?? androidPackage,
           artifactId: effectiveProps.android?.artifactId ?? androidModuleName,
           version: effectiveProps.android?.version ?? '0.0.1-SNAPSHOT',

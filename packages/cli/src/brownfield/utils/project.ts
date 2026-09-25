@@ -1,4 +1,5 @@
 import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import type {
   AndroidProjectConfig,
@@ -11,7 +12,7 @@ import cliConfigImport from '@react-native-community/cli-config';
 
 import { findProjectRoot, makeRelativeProjectConfigPaths } from './paths.js';
 import {
-  getConfig,
+  getConfig as bundledGetConfig,
   type ProjectConfig as ExpoProjectConfig,
 } from '@expo/config';
 
@@ -47,12 +48,40 @@ function projectDependsOnExpo(projectRoot: string): boolean {
 }
 
 /**
+ * Resolves `getConfig` from the project's own `expo/config`, falling back to the bundled `@expo/config`.
+ * Config plugins must resolve with the same `@expo/config-plugins` as `expo prebuild`: older resolvers
+ * go through the package `exports` map, so they miss `app.plugin.js` in SDK 58 packages such as
+ * `expo-image` and load the package's runtime entry as a plugin instead
+ * @param projectRoot The project root path
+ * @returns The `getConfig` function to use for this project
+ */
+export function resolveExpoGetConfig(
+  projectRoot: string
+): typeof bundledGetConfig {
+  try {
+    const projectRequire = createRequire(path.join(projectRoot, 'package.json'));
+    const { getConfig } = projectRequire('expo/config') as {
+      getConfig?: typeof bundledGetConfig;
+    };
+
+    if (typeof getConfig === 'function') {
+      return getConfig;
+    }
+  } catch {
+    // the project doesn't have `expo` installed
+  }
+
+  return bundledGetConfig;
+}
+
+/**
  * Gets the Expo config if the project is an Expo project
  * @param projectRoot The project root path
  * @returns The Expo config if the project is an Expo project, null otherwise
  */
 export function getExpoConfigIfIsExpo(projectRoot: string) {
   const hasAppConfig = hasExpoAppConfig(projectRoot);
+  const getConfig = resolveExpoGetConfig(projectRoot);
 
   try {
     return getConfig(projectRoot, { skipSDKVersionRequirement: true });
