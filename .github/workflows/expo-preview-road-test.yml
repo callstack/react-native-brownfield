@@ -162,7 +162,9 @@ jobs:
     name: Create issue on Expo preview failure
     runs-on: ubuntu-latest
     needs: [prepare, android, ios]
+    # Without a status function GitHub prepends `success() &&`, which skips this job whenever a road test fails
     if: |
+      !cancelled() &&
       needs.prepare.outputs.should_test == 'true' &&
       (needs.android.result == 'failure' || needs.ios.result == 'failure')
     steps:
