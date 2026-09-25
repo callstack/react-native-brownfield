@@ -263,6 +263,22 @@ jobs:
           e2e-apk-artifact-name: androidapp-expo57-e2e-apks
           e2e-artifact-name: detox-androidapp-expo57
 
+  android-androidapp-rock:
+    name: Android road test (RNApp & AndroidApp - Rock)
+    runs-on: ubuntu-latest
+    needs: build-lint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run RockApp -> AndroidApp road test (Rock)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: rock
+          rn-project-path: apps/RockApp
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/rockapp/brownfieldlib
+
   android-androidapp-vanilla:
     name: Android road test & E2E (AndroidApp - Vanilla)
     runs-on: ubuntu-latest
@@ -353,3 +369,18 @@ jobs:
           rn-project-path: apps/ExpoApp${{ matrix.version }}
           run-e2e: ${{ matrix.run-e2e }}
           e2e-artifact-name: detox-appleapp-expo${{ matrix.version }}
+
+  ios-appleapp-rock:
+    name: iOS road test (RNApp & AppleApp - Rock)
+    runs-on: macos-26
+    needs: build-lint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run RNApp -> AppleApp road test (Rock)
+        uses: ./.github/actions/appleapp-road-test
+        with:
+          variant: rock
+          rn-project-path: apps/RockApp

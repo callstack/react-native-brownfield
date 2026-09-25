@@ -20,6 +20,7 @@ brownfieldlib-expo57 = { module = "com.callstack.rnbrownfield.demo.expoapp57:bro
 brownfieldlib-expo56 = { module = "com.callstack.rnbrownfield.demo.expoapp56:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-expopreview = { module = "com.callstack.rnbrownfield.demo.expoapppreview:brownfieldlib", version.ref = "brownfieldlib" }
 brownfieldlib-vanilla = { module = "com.rnapp:brownfieldlib", version.ref = "brownfieldlib" }
+brownfieldlib-rock = { module = "com.callstack.rnbrownfield.demo.rockapp:brownfieldlib", version.ref = "brownfieldlib" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

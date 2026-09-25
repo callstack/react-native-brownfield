@@ -45,6 +45,7 @@ We use [changesets](https://github.com/changesets/changesets) to make it easier 
 - `build:example:ios-consumer:expo56` - builds the `Brownfield Apple App (ExpoApp56)` target via scheme **Brownfield Apple App Expo 56** (`Release`)
 - `build:example:ios-consumer:expo57` - builds the `Brownfield Apple App (ExpoApp57)` target via scheme **Brownfield Apple App Expo 57** (`Release`)
 - `build:example:ios-consumer:vanilla` - builds the `Brownfield Apple App (RNApp)` target via scheme **Brownfield Apple App Vanilla** (`Release Vanilla`)
+- `build:example:ios-consumer:rock` - builds the `Brownfield Apple App (Rock)` target via scheme **Brownfield Apple App Vanilla** (`Release Rock`)
 
 ## Running demo apps
 
@@ -123,6 +124,7 @@ Per example app (run from the repo root):
 | --------------------------------------------------------------- | --------------------------------- |
 | `yarn workspace @callstack/brownfield-example-rn-app test`      | Plain React Native (`apps/RNApp`) |
 | `yarn workspace @callstack/brownfield-example-expo-app-56 test` | Expo SDK 56 (`apps/ExpoApp56`)    |
+| `yarn workspace @callstack/brownfield-example-rock-app test`    | Rock (`apps/RockApp`)             |
 
 Package-level scripts (`yarn test` inside `apps/RNApp` or `apps/ExpoApp56`) invoke Jest with each app’s `jest.config.js`.
 
