@@ -103,6 +103,10 @@ repositories {
     google()
 }
 
+// AGP for GradleRunner.withPluginClasspath(), which only sees runtime dependencies, so TestKit
+// projects can still apply com.android.library
+val testKitPluginClasspath: Configuration by configurations.creating
+
 dependencies {
     // AGP is provided by the consuming app's build. Declaring it as `implementation` puts it on the
     // app's buildscript classpath, where it wins version resolution and forces this AGP (and its minimum
@@ -116,6 +120,11 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(gradleTestKit())
     testImplementation(kotlin("test"))
+    testKitPluginClasspath(libs.agp)
+}
+
+tasks.pluginUnderTestMetadata {
+    pluginClasspath.from(testKitPluginClasspath)
 }
 
 tasks.test {
