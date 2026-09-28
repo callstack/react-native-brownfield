@@ -62,9 +62,12 @@ export function resolveTargetSdkVersionExpression(
 
 export function renderTargetSdkBlock(
   config: ResolvedBrownfieldPluginConfigWithAndroid,
-  expoMajor: number
+  expoMajor?: number
 ): string {
-  if (expoMajor >= EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR) {
+  if (
+    expoMajor !== undefined &&
+    expoMajor >= EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR
+  ) {
     return '';
   }
 
@@ -79,7 +82,7 @@ export function createAndroidModule({
   config,
   rnVersion,
   projectRoot,
-  expoMajor = EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR,
+  expoMajor,
 }: {
   /**
    * Expo app root (used to detect optional dependencies such as expo-updates)
@@ -165,6 +168,7 @@ export function createAndroidModule({
     {
       relativePath: 'proguard-rules.pro',
       content: renderTemplate('android', 'proguard-rules.pro', {
+        '{{PACKAGE_NAME}}': android.packageName,
         '{{EXTRA_PROGUARD_RULES}}': extraProguardRulesText,
       }),
     },

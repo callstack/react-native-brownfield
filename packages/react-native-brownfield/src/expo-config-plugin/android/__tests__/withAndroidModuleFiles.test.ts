@@ -173,7 +173,52 @@ describe('createAndroidModule', () => {
     expect(readLibraryBuildGradle(androidDir)).toContain(
       'compileSdk = resolveRootProjectInt("compileSdkVersion")'
     );
-    expect(readLibraryBuildGradle(androidDir)).not.toContain('targetSdk');
+    expect(readLibraryBuildGradle(androidDir)).toContain('targetSdk = 35');
+  });
+
+  it('keeps targetSdk when the optional Expo SDK version is omitted', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: { targetSdkVersion: undefined },
+      }),
+      rnVersion: '0.81.0',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'targetSdk = resolveRootProjectInt("targetSdkVersion")'
+    );
+  });
+
+  it('keeps the generated host manager under the configured package name', () => {
+    const androidDir = createAndroidDir();
+    const packageName = 'org.example.customhost';
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({ android: { packageName } }),
+      rnVersion: '0.81.0',
+    });
+
+    const proguardRules = fs.readFileSync(
+      path.join(androidDir, 'brownfieldlib', 'proguard-rules.pro'),
+      'utf8'
+    );
+    expect(proguardRules).toContain(
+      `-keep class ${packageName}.ReactNativeHostManager { *; }`
+    );
+    expect(proguardRules).not.toContain('{{PACKAGE_NAME}}');
+    expect(
+      fs.existsSync(
+        path.join(
+          androidDir,
+          'brownfieldlib',
+          'src/main/java/org/example/customhost/ReactNativeHostManager.kt'
+        )
+      )
+    ).toBe(true);
   });
 
   it('emits targetSdk for Expo SDK versions below 58 when inherited from the app project', () => {
