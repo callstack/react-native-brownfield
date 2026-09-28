@@ -1,4 +1,4 @@
-# @callstack/brownfield-example-expo-app-56
+# @callstack/brownfield-example-expo-app-58
 
 ## 1.0.2
 

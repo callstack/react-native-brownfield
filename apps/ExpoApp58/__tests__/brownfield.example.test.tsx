@@ -7,6 +7,6 @@ import {
   runExpoRnAppSuite,
 } from '@callstack/brownfield-example-shared-tests';
 
-runPostMessageTabSuite('ExpoApp56', PostMessageTab);
-runCounterSuite('ExpoApp56', Counter);
-runExpoRnAppSuite('ExpoApp56', RNApp);
+runPostMessageTabSuite('ExpoApp58', PostMessageTab);
+runCounterSuite('ExpoApp58', Counter);
+runExpoRnAppSuite('ExpoApp58', RNApp);

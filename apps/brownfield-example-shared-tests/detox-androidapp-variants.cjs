@@ -33,16 +33,16 @@ const androidAppDetoxVariants = {
     e2eTestFile: 'androidAppBrownfield.e2e.js',
     nativeGreetingPattern: /Hello native Android/,
   },
-  expo56: {
-    rnAppDir: 'ExpoApp56',
-    rnMavenPath: 'com/callstack/rnbrownfield/demo/expoapp56/brownfieldlib',
-    gradleFlavor: 'expo56',
-    detoxConfiguration: 'android.emu.release.expo56',
-    detoxRcFile: '.detoxrc.expo56.cjs',
-    e2eBuildScript: 'e2e:build:android:expo56',
-    e2eTestScript: 'e2e:test:android:expo56',
+  expo58: {
+    rnAppDir: 'ExpoApp58',
+    rnMavenPath: 'com/callstack/rnbrownfield/demo/expoapp58/brownfieldlib',
+    gradleFlavor: 'expo58',
+    detoxConfiguration: 'android.emu.release.expo58',
+    detoxRcFile: '.detoxrc.expo58.cjs',
+    e2eBuildScript: 'e2e:build:android:expo58',
+    e2eTestScript: 'e2e:test:android:expo58',
     e2eTestFile: 'androidAppExpoBrownfield.e2e.js',
-    nativeGreetingPattern: /Hello native Android \(Expo 56\)/,
+    nativeGreetingPattern: /Hello native Android \(Expo 58\)/,
   },
   expo57: {
     rnAppDir: 'ExpoApp57',
@@ -58,7 +58,7 @@ const androidAppDetoxVariants = {
 };
 
 /**
- * @param {string} variant AndroidApp road-test variant (`vanilla`, `expo56`, `expo57`).
+ * @param {string} variant AndroidApp road-test variant (`vanilla`, `expo58`, `expo57`).
  */
 function getAndroidAppDetoxVariant(variant) {
   const config = androidAppDetoxVariants[variant];

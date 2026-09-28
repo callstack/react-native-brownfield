@@ -43,9 +43,9 @@ export default function HomeScreen() {
             type="title"
             style={styles.title}
             testID={brownfieldE2ETestIds.rnAppHomeTitle}
-            accessibilityLabel="Welcome to Expo 56"
+            accessibilityLabel="Welcome to Expo 58"
           >
-            Welcome to Expo 56
+            Welcome to Expo 58
           </ThemedText>
         </ThemedView>
 

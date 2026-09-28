@@ -48,7 +48,7 @@ export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
             BrownfieldNavigation.navigateToSettings({
               id: 'expo-user-123',
               name: 'Expo User',
-              flags: ['expo56'],
+              flags: ['expo58'],
               ids: ['expo-user-123'],
             })
           }

@@ -53,7 +53,7 @@ describe('getAppTargetDeploymentTarget', () => {
         build === 'Release' ? '"16.4"' : '"16.0"',
     } as any;
 
-    expect(getAppTargetDeploymentTarget(project, 'ExpoApp56')).toBe('16.4');
+    expect(getAppTargetDeploymentTarget(project, 'ExpoApp58')).toBe('16.4');
   });
 });
 

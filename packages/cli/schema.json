@@ -54,7 +54,7 @@
           "type": "string"
         },
         "compileSdkVersion": {
-          "description": "Compile SDK version for the Android library.",
+          "description": "Compile SDK version for the Android library. Defaults to 37 on Expo SDK 58 and later, otherwise 35.",
           "type": "number"
         },
         "extraProguardRules": {
@@ -88,7 +88,7 @@
           "type": "string"
         },
         "targetSdkVersion": {
-          "description": "Target SDK version for the Android library.",
+          "description": "Target SDK version for the Android library. Used on Expo SDK versions below 58; ignored on 58 and later.",
           "type": "number"
         },
         "useLocalGradlePlugin": {
