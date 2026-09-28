@@ -27,6 +27,7 @@ jobs:
       androidapp: ${{ steps.filter.outputs.androidapp }}
       appleapp: ${{ steps.filter.outputs.appleapp }}
       gradle-plugins: ${{ steps.filter.outputs.gradle-plugins }}
+      scripts: ${{ steps.filter.outputs.scripts }}
       ci: ${{ steps.filter.outputs.ci }}
     steps:
       - name: Checkout
@@ -50,11 +51,14 @@ jobs:
               - 'apps/brownfield-example-shared-tests/**'
             androidapp:
               - 'apps/AndroidApp/**'
+              - 'apps/brownfield-example-shared-tests/**'
             appleapp:
               - 'apps/AppleApp/**'
               - 'apps/brownfield-example-shared-tests/**'
             gradle-plugins:
               - 'gradle-plugins/**'
+            scripts:
+              - 'scripts/**'
             ci:
               - '.github/**'
 
@@ -80,7 +84,10 @@ jobs:
     name: Build, lint, typecheck & Jest
     runs-on: ubuntu-latest
     needs: filter
-    if: needs.filter.outputs.packages == 'true' || needs.filter.outputs.ci == 'true'
+    if: |
+      needs.filter.outputs.packages == 'true' ||
+      needs.filter.outputs.scripts == 'true' ||
+      needs.filter.outputs.ci == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
@@ -102,6 +109,9 @@ jobs:
 
       - name: Run packages' tests (Jest & vitest)
         run: yarn test:packages
+
+      - name: Run repo script tests (node:test)
+        run: yarn test:scripts
 
       - name: Test Brownfield CLI (version)
         run: |
@@ -131,14 +141,75 @@ jobs:
           cd packages/react-native-brownfield
           yarn test
 
-  android-androidapp-expo:
-    name: Android road test (AndroidApp - Expo ${{ matrix.version }})
+  android-androidapp-expo58-build:
+    name: Build AndroidApp & Detox APKs (Expo 58)
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     needs: [filter, build-lint]
     if: |
       always() &&
       (
         needs.filter.outputs.expo58 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Build Expo 58 AndroidApp Detox APKs
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo58
+          rn-project-path: apps/ExpoApp58
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp58/brownfieldlib
+          e2e-phase: build
+          e2e-apk-artifact-name: androidapp-expo58-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo58
+
+  android-androidapp-expo58-e2e:
+    name: Detox E2E (AndroidApp - Expo 58)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [filter, build-lint, android-androidapp-expo58-build]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo58 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
+      needs.android-androidapp-expo58-build.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run Expo 58 Detox E2E (prebuilt APKs)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo58
+          rn-project-path: apps/ExpoApp58
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp58/brownfieldlib
+          e2e-phase: test
+          e2e-apk-artifact-name: androidapp-expo58-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo58
+
+  android-androidapp-expo57-build:
+    name: Build AndroidApp & Detox APKs (Expo 57)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
@@ -156,16 +227,51 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AndroidApp road test (Expo ${{ matrix.version }})
+      - name: Build Expo 57 AndroidApp Detox APKs
         uses: ./.github/actions/androidapp-road-test
         with:
-          flavor: expo${{ matrix.version }}
-          rn-project-path: apps/ExpoApp${{ matrix.version }}
-          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp${{ matrix.version }}/brownfieldlib
+          flavor: expo57
+          rn-project-path: apps/ExpoApp57
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp57/brownfieldlib
+          e2e-phase: build
+          e2e-apk-artifact-name: androidapp-expo57-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo57
+
+  android-androidapp-expo57-e2e:
+    name: Detox E2E (AndroidApp - Expo 57)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [filter, build-lint, android-androidapp-expo57-build]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.expo57 == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
+      needs.android-androidapp-expo57-build.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Run Expo 57 Detox E2E (prebuilt APKs)
+        uses: ./.github/actions/androidapp-road-test
+        with:
+          flavor: expo57
+          rn-project-path: apps/ExpoApp57
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp57/brownfieldlib
+          e2e-phase: test
+          e2e-apk-artifact-name: androidapp-expo57-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo57
 
   android-androidapp-vanilla:
-    name: Android road test (AndroidApp - Vanilla)
+    name: Android road test & E2E (AndroidApp - Vanilla)
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     needs: [filter, build-lint]
     if: |
       always() &&
@@ -182,12 +288,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AndroidApp road test (Vanilla)
+      - name: Run RNApp -> AndroidApp road test & Detox E2E (Vanilla)
         uses: ./.github/actions/androidapp-road-test
         with:
           flavor: vanilla
           rn-project-path: apps/RNApp
           rn-project-maven-path: com/rnapp/brownfieldlib
+          run-e2e: 'true'
+          e2e-artifact-name: detox-androidapp-vanilla
 
   ios-appleapp-vanilla:
     name: iOS road test & E2E (AppleApp - Vanilla)

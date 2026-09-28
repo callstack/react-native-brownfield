@@ -192,13 +192,48 @@ internal import Expo
   /**
    * Starts React Native with optional callback when bundle is loaded.
    *
-   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
+   * @param onBundleLoaded Optional callback invoked on the main thread after the JS bundle is
+   *   fully loaded. It runs in the next turn of the main run loop when the bundle is already
+   *   loaded. A new callback replaces the callback that waits.
    */
   @objc public func startReactNative(onBundleLoaded: (() -> Void)?) {
     #if canImport(Expo)
     ExpoHostRuntime.shared.startReactNative(onBundleLoaded: onBundleLoaded)
     #else
     ReactNativeHostRuntime.shared.startReactNative(onBundleLoaded: onBundleLoaded)
+    #endif
+  }
+
+  /**
+   * Starts React Native, and optionally loads the JavaScript bundle immediately. Without a
+   * preload, React Native loads the bundle when it creates the first React Native view. On
+   * Android, `ReactNativeBrownfield.initialize` does the same operation.
+   *
+   * @param launchOptions The launch options for the React Host. Only the call that creates the
+   *   host reads these options. This method keeps the options. A view that creates the host later
+   *   uses them, also if this method cannot create the host. Options that you give to `view` win
+   *   over these options.
+   * @param preloadBundle `true` loads and evaluates the JavaScript bundle now. A preload adds
+   *   work to the section of the caller, but the first React Native screen appears faster.
+   * @param onBundleLoaded An optional callback, with the rules of `startReactNative`.
+   */
+  @objc public func startReactNative(
+    launchOptions: [AnyHashable: Any]?,
+    preloadBundle: Bool,
+    onBundleLoaded: (() -> Void)?
+  ) {
+    #if canImport(Expo)
+    ExpoHostRuntime.shared.startReactNative(
+      launchOptions: launchOptions,
+      preloadBundle: preloadBundle,
+      onBundleLoaded: onBundleLoaded
+    )
+    #else
+    ReactNativeHostRuntime.shared.startReactNative(
+      launchOptions: launchOptions,
+      preloadBundle: preloadBundle,
+      onBundleLoaded: onBundleLoaded
+    )
     #endif
   }
 

@@ -1,6 +1,3 @@
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -18,22 +15,6 @@ publishing {
             afterEvaluate {
                 from(components.getByName("default"))
             }
-
-            pom {
-                withXml {
-                    /**
-                     * As a result of `from(components.getByName("default"))` all of the project
-                     * dependencies are added to `pom.xml` file. We do not need the react-native
-                     * third party dependencies to be a part of it as we embed those dependencies.
-                     */
-                    val dependenciesNode =
-                        (asNode().get("dependencies") as groovy.util.NodeList).first() as groovy.util.Node
-                    dependenciesNode.children()
-                        .filterIsInstance<groovy.util.Node>()
-                        .filter { (it.get("groupId") as groovy.util.NodeList).text() == rootProject.name }
-                        .forEach { dependenciesNode.remove(it) }
-                }
-            }
         }
     }
 
@@ -42,36 +23,13 @@ publishing {
     }
 }
 
-val moduleBuildDir: Directory = layout.buildDirectory.get()
-
-/**
- * As a result of `from(components.getByName("default"))` all of the project
- * dependencies are added to `module.json` file. We do not need the react-native
- * third party dependencies to be a part of it as we embed those dependencies.
- */
-tasks.register("removeDependenciesFromModuleFile") {
-    doLast {
-        file("$moduleBuildDir/publications/mavenAar/module.json").run {
-            val json = inputStream().use { JsonSlurper().parse(it) as Map<String, Any> }
-            (json["variants"] as? List<MutableMap<String, Any>>)?.forEach { variant ->
-                (variant["dependencies"] as? MutableList<Map<String, Any>>)?.removeAll { it["group"] == rootProject.name }
-            }
-            writer().use { it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json))) }
-        }
-    }
-}
-
-tasks.named("generateMetadataFileForMavenAarPublication") {
-    finalizedBy("removeDependenciesFromModuleFile")
-}
-
 react {
     autolinkLibrariesWithApp()
 }
 
 android {
     namespace = "com.rnapp.brownfieldlib"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
@@ -128,12 +86,11 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.17.0")
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("com.google.android.material:material:1.13.0")
+    // react-native-screens' androidx deps are deliberately not declared here — the plugin
+    // discovers them. Hand-declaring would mask a broken discoverer.
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
-    api("com.facebook.react:react-android:0.85.0")
-    api("com.facebook.hermes:hermes-android:250829098.0.10")
+    api("com.facebook.react:react-android:0.87.0")
+    api("com.facebook.hermes:hermes-android:250829098.0.16")
 }

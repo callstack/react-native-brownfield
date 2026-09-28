@@ -12,11 +12,13 @@ The brownfield Gradle plugin adds both directories to the source sets, potential
 
 ## [Android] Transitive dependencies not being auto resolved
 
-Installed third-party packages like `react-native-screens` or others may rely on transitive dependencies in their `build.gradle` file. These dependencies are not auto resolved by `brownfield-gradle-plugin`. This is an intended behavior in bare React Native apps.
+Installed third-party packages like `react-native-screens` or others may rely on transitive dependencies in their `build.gradle` file. For bare React Native apps, `brownfield-gradle-plugin` auto resolves these by default via the (experimental) `experimentalIncludeTransitiveDependencies` option — see [Configure Maven Publishing](/docs/getting-started/android#6-configure-maven-publishing) for details.
 
-For Expo apps, this should work out of the box.
+For Expo apps, this works out of the box unconditionally.
 
-To make it work with bare React Native Apps, you have two options:
+Upgrading an existing app requires no changes on your side — in particular, you do not need to remove the hand-written `tasks.register("removeDependenciesFromModuleFile")` block if you have one, since the plugin's own task is named differently and the two do not conflict. Be aware of two behaviour changes once this is enabled: dependencies your embedded modules need will start appearing in the published POM, and a version you pinned yourself may be **raised** (never lowered) if an embedded module requires a higher one.
+
+If you've set `experimentalIncludeTransitiveDependencies = false` (e.g. to opt out while this is still experimental), use one of the options below instead.
 
 #### Option 1:
 

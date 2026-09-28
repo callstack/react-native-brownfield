@@ -1,0 +1,3 @@
+# quicktype model types (created by `brownfield navigation:codegen`)
+ios/BrownfieldNavigationModels.swift
+android/src/main/java/com/callstack/nativebrownfieldnavigation/BrownfieldNavigationModels.kt

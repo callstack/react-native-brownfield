@@ -44,9 +44,17 @@ ReactNativeBrownfield.shared
 
 Starts React Native. You can use it to initialize React Native in your app.
 
-| Param            | Required | Type            | Description                                       |
-| ---------------- | -------- | --------------- | ------------------------------------------------- |
-| `onBundleLoaded` | No       | `(() -> Void)?` | Callback invoked after JS bundle is fully loaded. |
+| Param            | Required | Type                  | Description                                                                     |
+| ---------------- | -------- | --------------------- | ------------------------------------------------------------------------------- |
+| `launchOptions`  | No       | `[AnyHashable: Any]?` | The launch options for the React Host. Usually you get them from `AppDelegate`. |
+| `preloadBundle`  | No       | `Bool`                | `true` loads the JavaScript bundle now, and not with the first React Native view. |
+| `onBundleLoaded` | No       | `(() -> Void)?`       | Callback invoked on the main thread after JS bundle is fully loaded.            |
+
+Brownfield calls `onBundleLoaded` one time, on the main thread. If React Native already loaded the bundle, the callback runs in the next turn of the main run loop. A new callback replaces the callback that waits.
+
+Without `preloadBundle`, React Native loads and evaluates the JavaScript bundle when it creates the first React Native view. With `preloadBundle: true`, this call creates and starts the React Host, and React Native then evaluates the bundle on the JavaScript thread, in parallel with the remainder of your app launch. On Android, `ReactNativeBrownfield.initialize` does the same operation. See [Preload the JavaScript bundle](/docs/getting-started/ios#preload-the-javascript-bundle).
+
+Only the call that creates the React Host reads the launch options. Brownfield keeps the options, also if it cannot create the host now. A view that creates the host later uses them. Options that you give to `view` win over these options.
 
 **Examples:**
 
@@ -59,6 +67,15 @@ ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
   print("React Native started")
 })
 ```
+
+```swift
+ReactNativeBrownfield.shared.startReactNative(launchOptions: launchOptions, preloadBundle: true) {
+  print("React Native bundle loaded")
+}
+```
+
+> [!Note]
+> With Expo, `preloadBundle` can only prepare the runtime, because Expo can select the bundle after the app starts. See [Expo Integration](/docs/getting-started/expo#xcframework-present-rn-ui).
 
 ##### `stopReactNative`
 

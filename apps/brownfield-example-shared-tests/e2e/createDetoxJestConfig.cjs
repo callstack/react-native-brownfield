@@ -8,7 +8,7 @@ const { DETOX_TIMING } = require('./detoxTiming.cjs');
  *
  * @param {{ e2eDir: string, testMatch: string[] }} options
  */
-function createDetoxJestConfig({ e2eDir, testMatch }) {
+function createDetoxJestConfig({ e2eDir, testMatch, testTimeout }) {
   const appRoot = path.join(e2eDir, '..');
   const sharedTestsRoot = path.join(
     e2eDir,
@@ -21,7 +21,7 @@ function createDetoxJestConfig({ e2eDir, testMatch }) {
     roots: [appRoot, sharedTestsRoot],
     // Shared E2E files live under brownfield-example-shared-tests; resolve host-app deps (detox) from here.
     modulePaths: [path.join(appRoot, 'node_modules')],
-    testTimeout: DETOX_TIMING.TEST_TIMEOUT_MS,
+    testTimeout: testTimeout ?? DETOX_TIMING.TEST_TIMEOUT_MS,
     verbose: true,
     reporters: ['detox/runners/jest/reporter'],
     globalSetup: 'detox/runners/jest/globalSetup',

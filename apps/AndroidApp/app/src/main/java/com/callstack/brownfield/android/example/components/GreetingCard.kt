@@ -16,15 +16,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import com.callstack.brownfield.android.example.E2eTestIds
 import androidx.compose.ui.unit.dp
 import com.callstack.brownfield.android.example.BrownfieldStore
 import com.callstack.brownie.Store
 import com.callstack.brownie.StoreManager
-import com.callstack.brownie.store
-import com.callstack.brownie.subscribe
 
 private fun brownieStore(): Store<BrownfieldStore>? {
-    return StoreManager.shared.store(BrownfieldStore.STORE_NAME)
+    // Use the Class overload — package-level reified `store()` is not reliably visible
+    // when brownie is consumed only via the fat-merged brownfieldlib AAR.
+    return StoreManager.shared.store(
+        BrownfieldStore.STORE_NAME,
+        BrownfieldStore::class.java,
+    )
 }
 
 @Composable
@@ -35,10 +39,16 @@ fun GreetingCard(
 
     DisposableEffect(Unit) {
         val store = brownieStore()
-        val unsubscribe = store?.subscribe(
-            selector = { state -> state.counter.toInt() },
-            onChange = { updatedCounter -> counter = updatedCounter }
-        ) ?: {}
+        var previous: Int? = null
+        // Member subscribe only — selector extension is a package-level helper.
+        val unsubscribe =
+            store?.subscribe { state ->
+                val updatedCounter = state.counter.toInt()
+                if (previous != updatedCounter) {
+                    previous = updatedCounter
+                    counter = updatedCounter
+                }
+            } ?: {}
 
         onDispose {
             unsubscribe()
@@ -46,31 +56,36 @@ fun GreetingCard(
     }
 
     MaterialCard {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        EspressoTagAnchor(
+            tag = E2eTestIds.nativeAppGreeting,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(
-                text = "Hello native $name 👋",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Hello native $name 👋",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                )
 
-            Text(
-                text = "You clicked the button $counter time${if (counter == 1) "" else "s"}",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium
-            )
+                Text(
+                    text = "You clicked the button $counter time${if (counter == 1) "" else "s"}",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
-            Button(onClick = {
-                brownieStore()?.set { state ->
-                    state.copy(counter = state.counter + 1)
+                Button(onClick = {
+                    brownieStore()?.set { state ->
+                        state.copy(counter = state.counter + 1)
+                    }
+                }) {
+                    Text("Increment counter")
                 }
-            }) {
-                Text("Increment counter")
             }
         }
     }

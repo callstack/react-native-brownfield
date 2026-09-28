@@ -54,7 +54,9 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
         return ReactNativeBrownfield.shared.createView(
             activity,
             moduleName,
-            this.reactDelegate as ReactDelegateWrapper
+            this.reactDelegate as ReactDelegateWrapper,
+            launchOptions = null,
+            lifecycleOwner = viewLifecycleOwner
         )
     }
 
@@ -66,6 +68,26 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
             super.onResume()
         } catch (_: ClassCastException) {
             (this.reactDelegate as ReactDelegateWrapper).onReactHostResume()
+        }
+    }
+
+    override fun onPause() {
+        try {
+            super.onPause()
+        } catch (error: AssertionError) {
+            if (
+                error.message?.contains(
+                    "Pausing an activity that is not the current activity"
+                ) == true
+            ) {
+                Log.w(
+                    "ReactNativeFragment",
+                    "Ignoring stale onHostPause for ${activity?.javaClass?.simpleName}",
+                    error
+                )
+                return
+            }
+            throw error
         }
     }
 

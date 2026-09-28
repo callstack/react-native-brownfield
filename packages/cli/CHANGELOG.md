@@ -1,5 +1,15 @@
 # @callstack/brownfield-cli
 
+## 5.1.1
+
+## 5.1.0
+
+## 5.0.2
+
+### Patch Changes
+
+- [#449](https://github.com/callstack/react-native-brownfield/pull/449) [`83657e7`](https://github.com/callstack/react-native-brownfield/commit/83657e7c0d209161561bff39d6e043a154e350d0) Thanks [@hurali97](https://github.com/hurali97)! - Fix npm publishing by upgrading to Changesets v3 (Yarn rewrites `workspace:` ranges on publish) and correcting package `repository` metadata required for npm provenance.
+
 ## 5.0.1
 
 ## 5.0.0

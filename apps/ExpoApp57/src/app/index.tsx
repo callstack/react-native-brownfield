@@ -1,6 +1,7 @@
 import * as Device from 'expo-device';
 import { Button, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 
 import { AnimatedIcon } from '@/components/animated-icon';
 import { HintRow } from '@/components/hint-row';
@@ -31,11 +32,19 @@ function getDevMenuHint() {
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView
+      testID={brownfieldE2ETestIds.rnAppHome}
+      style={styles.container}
+    >
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.heroSection}>
           <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
+          <ThemedText
+            type="title"
+            style={styles.title}
+            testID={brownfieldE2ETestIds.rnAppHomeTitle}
+            accessibilityLabel="Welcome to Expo 57"
+          >
             Welcome to&nbsp;Expo&nbsp;57
           </ThemedText>
         </ThemedView>

@@ -53,4 +53,15 @@ open class Extension {
      * listOf("libdatadog-ndk.so")
      */
     var ignoreEmbeddedLibs = listOf<String>()
+
+    /**
+     * Whether to publish embedded native modules' third-party dependencies into the generated POM
+     * and Gradle Module Metadata, so consuming apps resolve them instead of declaring them by hand.
+     *
+     * Experimental; behavior may still change. Applies to non-Expo (RNC CLI) projects only — Expo
+     * gets this unconditionally. Set to `false` to hand-declare them instead.
+     *
+     * Default is `true`.
+     */
+    var experimentalIncludeTransitiveDependencies = true
 }

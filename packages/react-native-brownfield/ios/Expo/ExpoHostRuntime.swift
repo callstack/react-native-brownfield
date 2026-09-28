@@ -11,7 +11,7 @@ internal import EXUpdates
 final class ExpoHostRuntime {
   static let shared = ExpoHostRuntime()
 
-  private let jsBundleLoadObserver = JSBundleLoadObserver()
+  let preloadState = ReactHostPreloadState()
   private var delegate = ExpoHostRuntimeDelegate()
   private var reactNativeFactory: RCTReactNativeFactory?
   private var expoDelegate: ExpoAppDelegate?
@@ -35,9 +35,15 @@ final class ExpoHostRuntime {
   /**
    * Starts React Native with optional callback when bundle is loaded.
    *
-   * @param onBundleLoaded Optional callback invoked after JS bundle is fully loaded.
+   * @param onBundleLoaded Optional callback invoked on the main thread after JS bundle is fully loaded.
    */
   public func startReactNative(onBundleLoaded: (() -> Void)?) {
+    // The callback registration is outside of the guard below. An earlier `startReactNative` call
+    // can already have made the factory, and the callback must still run.
+    if let onBundleLoaded {
+      preloadState.jsBundleLoadObserver.observe(onBundleLoaded: onBundleLoaded)
+    }
+
     guard reactNativeFactory == nil else { return }
 
     let appDelegate = ExpoAppDelegate()
@@ -50,10 +56,6 @@ final class ExpoHostRuntime {
     appDelegate.bindReactNativeFactory(reactNativeFactory)
     #endif
     expoDelegate = appDelegate
-
-    if let onBundleLoaded {
-      jsBundleLoadObserver.observeOnce(onBundleLoaded: onBundleLoaded)
-    }
   }
 
   /**
@@ -70,6 +72,7 @@ final class ExpoHostRuntime {
     }
     reactNativeFactory = nil
     expoDelegate = nil
+    preloadState.reset()
   }
 
   /**
@@ -169,6 +172,8 @@ final class ExpoHostRuntime {
     let bundleURL = delegate.bundleURL()
     configureDevLoadingView(with: bundleURL)
 
+    let resolvedLaunchOptions = preloadState.launchOptions(overriddenBy: launchOptions)
+
     // below: https://github.com/expo/expo/commit/2013760c46cde1404872d181a691da72fbf207a4
     // has moved the recreateRootView method to ExpoReactNativeFactory
     #if EXPO_SDK_GTE_55  // this define comes from the Brownfield Expo config plugin
@@ -176,16 +181,48 @@ final class ExpoHostRuntime {
       withBundleURL: bundleURL,
       moduleName: moduleName,
       initialProps: initialProps,
-      launchOptions: launchOptions
+      launchOptions: resolvedLaunchOptions
     )
     #else
     return expoDelegate?.recreateRootView(
       withBundleURL: bundleURL,
       moduleName: moduleName,
       initialProps: initialProps,
-      launchOptions: launchOptions
+      launchOptions: resolvedLaunchOptions
     )
     #endif
+  }
+}
+
+extension ExpoHostRuntime: ReactHostPreloading {
+  var reactNativeFactoryForPreload: AnyObject? {
+    return reactNativeFactory
+  }
+
+  /**
+   * expo-dev-launcher finds the Metro URL only after the user selects an app in the launcher. This
+   * is a Debug behavior. In Release the class is in the binary, but it does nothing. Thus this
+   * check is also only in Debug.
+   *
+   * The check reads the class name, because this pod has no dependency on expo-dev-launcher.
+   * `EXDevLauncherController` is the name in expo-dev-launcher 56 and 57. If a later version
+   * changes the name, this method gives `true`, and a preload can keep a bundle of the launcher
+   * screen. Examine the name again when you add a new Expo SDK.
+   *
+   * `ExpoHostRuntimeDelegate.isBundleURLStable` covers the other conditions.
+   */
+  func canPreloadReactNative() -> Bool {
+    #if DEBUG
+    if NSClassFromString("EXDevLauncherController") != nil {
+      return false
+    }
+    #endif
+
+    return delegate.isBundleURLStable
+  }
+
+  func prepareDevLoadingView() {
+    configureDevLoadingView()
   }
 }
 
@@ -241,6 +278,31 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
       assertionFailure("Invalid bundlePath '\(bundlePath)': \(error)")
       return nil
     }
+  }
+
+  /**
+   * `true` if `bundleURL()` gives now the same result as a later resolution. This property follows
+   * the steps of `bundleURL()`, and it must change together with them.
+   *
+   * The override wins over every other step, thus an override makes the URL stable.
+   *
+   * expo-updates selects the launch asset while `AppController` starts. `ReactNativeViewController`
+   * starts `AppController`. Before this operation is complete, `launchAssetUrl()` is nil, and
+   * `bundleURL()` gives the embedded bundle. A host from that time keeps the embedded bundle, and
+   * Expo never applies the update. Thus the URL is stable only after `launchAssetUrl()` has a
+   * value. The class can be in the binary while the app does not use it, thus this check reads the
+   * state and not the class.
+   */
+  var isBundleURLStable: Bool {
+    if bundleURLOverride?() != nil {
+      return true
+    }
+
+    #if canImport(EXUpdates) && !DEBUG
+    return AppController.isInitialized() && AppController.sharedInstance.launchAssetUrl() != nil
+    #else
+    return true
+    #endif
   }
 }
 #endif
