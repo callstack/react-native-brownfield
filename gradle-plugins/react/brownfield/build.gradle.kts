@@ -104,10 +104,15 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.agp)
-    implementation(libs.common)
+    // AGP is provided by the consuming app's build. Declaring it as `implementation` puts it on the
+    // app's buildscript classpath, where it wins version resolution and forces this AGP (and its minimum
+    // Gradle version) onto the app
+    compileOnly(libs.agp)
+    compileOnly(libs.common)
     implementation(libs.asm.commons)
     implementation(libs.versioncompare)
+    testImplementation(libs.agp)
+    testImplementation(libs.common)
     testImplementation(libs.junit.jupiter)
     testImplementation(gradleTestKit())
     testImplementation(kotlin("test"))
