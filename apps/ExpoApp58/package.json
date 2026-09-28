@@ -21,6 +21,7 @@
     "android": {
       "expo": {
         "minifyEnabled": false,
+        "useLocalMaven": true,
         "extraProguardRules": [
           "-keep class com.callstack.rnbrownfield.demo.expoapp58.BrownfieldStore { *; }",
           "-keep class com.callstack.rnbrownfield.demo.expoapp58.BrownfieldStore$Companion { *; }",

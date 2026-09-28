@@ -7,17 +7,17 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-@CacheableTask
+@UntrackedTask(because = "Copies classes into Java and Kotlin compilation directories owned by other tasks")
 abstract class MergeClassesTask : DefaultTask() {
     @get:Classpath
     abstract val inputClassesJars: ConfigurableFileCollection
