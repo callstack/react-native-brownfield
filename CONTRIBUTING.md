@@ -150,7 +150,7 @@ Per-app Detox scripts (run from the app directory):
 | `AppleApp` (Expo 58)      | `yarn e2e:build:ios:expo58` | `yarn e2e:test:ios:expo58` | `appleAppExpoBrownfield.e2e.js`    |
 | `AppleApp` (Expo 57)      | `yarn e2e:build:ios:expo57` | `yarn e2e:test:ios:expo57` | `appleAppExpoBrownfield.e2e.js`    |
 | `AndroidApp` (vanilla)    | `yarn e2e:build:android`    | `yarn e2e:test:android`    | `androidAppBrownfield.e2e.js`      |
-| `AndroidApp` (Expo 56)    | `yarn e2e:build:android:expo56` | `yarn e2e:test:android:expo56` | `androidAppExpoBrownfield.e2e.js` |
+| `AndroidApp` (Expo 58)    | `yarn e2e:build:android:expo58` | `yarn e2e:test:android:expo58` | `androidAppExpoBrownfield.e2e.js` |
 | `AndroidApp` (Expo 57)    | `yarn e2e:build:android:expo57` | `yarn e2e:test:android:expo57` | `androidAppExpoBrownfield.e2e.js` |
 
 ### CI
@@ -168,7 +168,7 @@ Android Detox E2E uses [`.github/actions/androidapp-road-test`](.github/actions/
 | Job                                      | E2E | Notes                                         |
 | ---------------------------------------- | --- | --------------------------------------------- |
 | `android-androidapp-vanilla`             | Yes | `RNApp` → AAR → `AndroidApp` Detox            |
-| `android-androidapp-expo56-build` / `-e2e` | Yes | `ExpoApp56` → AAR → Detox APKs → emulator   |
+| `android-androidapp-expo58-build` / `-e2e` | Yes | `ExpoApp58` → AAR → Detox APKs → emulator   |
 | `android-androidapp-expo57-build` / `-e2e` | Yes | `ExpoApp57` → AAR → Detox APKs → emulator   |
 
 On failure, CI uploads Detox artifacts (`detox-*-ios-recordings` / `detox-androidapp-*-android`).
@@ -193,10 +193,10 @@ Android (Android SDK + emulator; defaults to `Pixel_4_API_34`):
 | Command                                                 | Mirrors                                      |
 | ------------------------------------------------------- | -------------------------------------------- |
 | `yarn ci:local:androidapp:e2e:android`                  | CI `android-androidapp-vanilla`              |
-| `yarn ci:local:androidapp:e2e:android:expo56`           | CI Expo 56 AndroidApp Detox                  |
+| `yarn ci:local:androidapp:e2e:android:expo58`           | CI Expo 58 AndroidApp Detox                  |
 | `yarn ci:local:androidapp:e2e:android:expo57`           | CI Expo 57 AndroidApp Detox                  |
 
-From `apps/AndroidApp`, you can also use `yarn ci:local:e2e:android:expo56` / `yarn ci:local:e2e:android:expo57`.
+From `apps/AndroidApp`, you can also use `yarn ci:local:e2e:android:expo58` / `yarn ci:local:e2e:android:expo57`.
 
 Common flags (append to any command above):
 

@@ -10,7 +10,7 @@ const {
 
 test('writes artifacts where CI uploads from, matching the iOS convention', () => {
   const config = createAndroidAppEmulatorReleaseDetoxConfig({
-    gradleFlavor: 'expo56',
+    gradleFlavor: 'expo58',
   });
 
   assert.equal(config.artifacts.rootDir, 'e2e-artifacts');
@@ -19,7 +19,7 @@ test('writes artifacts where CI uploads from, matching the iOS convention', () =
 
 test('captures logcat only for failed tests', () => {
   const config = createAndroidAppEmulatorReleaseDetoxConfig({
-    gradleFlavor: 'expo56',
+    gradleFlavor: 'expo58',
   });
 
   // Detox shorthand: record the log plugin, keep it only for failing tests.
@@ -28,7 +28,7 @@ test('captures logcat only for failed tests', () => {
 
 test('captures a screenshot when a test finishes failing', () => {
   const config = createAndroidAppEmulatorReleaseDetoxConfig({
-    gradleFlavor: 'expo56',
+    gradleFlavor: 'expo58',
   });
 
   assert.equal(
@@ -40,7 +40,7 @@ test('captures a screenshot when a test finishes failing', () => {
 
 test('keeps video off on Android', () => {
   const config = createAndroidAppEmulatorReleaseDetoxConfig({
-    gradleFlavor: 'expo56',
+    gradleFlavor: 'expo58',
   });
 
   // The shared helper enables video for iOS simulators (simctl, host-side).
@@ -54,7 +54,7 @@ test('keeps video off on Android', () => {
 
 test('inherits the remaining shared artifact plugins', () => {
   const config = createAndroidAppEmulatorReleaseDetoxConfig({
-    gradleFlavor: 'expo56',
+    gradleFlavor: 'expo58',
   });
 
   assert.equal(
@@ -65,16 +65,16 @@ test('inherits the remaining shared artifact plugins', () => {
 
 test('keeps the existing app and device wiring intact', () => {
   const config = createAndroidAppEmulatorReleaseDetoxConfig({
-    gradleFlavor: 'expo56',
-    detoxConfiguration: 'android.emu.release.expo56',
-    jestConfigPath: 'e2e/jest.config.expo56.cjs',
+    gradleFlavor: 'expo58',
+    detoxConfiguration: 'android.emu.release.expo58',
+    jestConfigPath: 'e2e/jest.config.expo58.cjs',
   });
 
   assert.equal(
     config.apps['android.release'].binaryPath,
-    'app/build/outputs/apk/expo56/release/app-expo56-release.apk'
+    'app/build/outputs/apk/expo58/release/app-expo58-release.apk'
   );
   assert.equal(config.apps['android.release'].launchTimeout, 300000);
   assert.equal(config.behavior.cleanup.shutdownDevice, false);
-  assert.ok(config.configurations['android.emu.release.expo56']);
+  assert.ok(config.configurations['android.emu.release.expo58']);
 });
