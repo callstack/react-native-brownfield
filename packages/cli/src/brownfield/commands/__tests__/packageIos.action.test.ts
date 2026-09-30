@@ -199,6 +199,7 @@ describe('package:ios action --add-spm-package', () => {
       productsPath: '/repo/ios/.brownfield/build/Build/Products',
       configuration: 'Release',
       frameworkName: 'BrownfieldLib',
+      sdks: ['iphoneos', 'iphonesimulator'],
     });
     expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith({
       packageDir: '/repo/ios/.brownfield/package/build',

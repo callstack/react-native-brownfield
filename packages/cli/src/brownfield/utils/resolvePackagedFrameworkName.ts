@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { ALL_APPLE_SDKS, type AppleSdk } from './destinationSdks.js';
+
 type Resolution = 'explicit' | 'detected' | 'not_found' | 'ambiguous';
 
 export interface ResolvePackagedFrameworkNameResult {
@@ -13,6 +15,8 @@ interface ResolvePackagedFrameworkNameOptions {
   explicitScheme?: string;
   productsPath: string;
   configuration: string;
+  /** Slices the build produced; defaults to both. */
+  sdks?: AppleSdk[];
 }
 
 function collectFrameworkCandidates(configurationProductsPath: string): string[] {
@@ -61,6 +65,7 @@ export function resolvePackagedFrameworkName({
   explicitScheme,
   productsPath,
   configuration,
+  sdks = ALL_APPLE_SDKS,
 }: ResolvePackagedFrameworkNameOptions): ResolvePackagedFrameworkNameResult {
   if (explicitScheme) {
     return {
@@ -69,11 +74,17 @@ export function resolvePackagedFrameworkName({
     };
   }
 
-  const configurationProductsPath = path.join(
-    productsPath,
-    `${configuration}-iphoneos`
-  );
-  const candidates = collectFrameworkCandidates(configurationProductsPath);
+  // the JS bundle is emitted per slice, so scan every slice that was built rather
+  // than assuming the device one exists (`--destination simulator` skips it)
+  const candidates = [
+    ...new Set(
+      sdks.flatMap((sdk) =>
+        collectFrameworkCandidates(
+          path.join(productsPath, `${configuration}-${sdk}`)
+        )
+      )
+    ),
+  ].sort();
 
   if (candidates.length === 1) {
     return {
