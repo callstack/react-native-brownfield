@@ -20,6 +20,7 @@ vi.mock('../project.js', async (importOriginal) => {
   return {
     ...actual,
     getExpoSdkMajor: vi.fn(),
+    getExpoIosUsePrecompiledModules: vi.fn(),
     isExpoProject: vi.fn(),
   };
 });
@@ -78,6 +79,9 @@ describe('emitExpoSupportXcframeworks', () => {
     fs.mkdirSync(projectRoot, { recursive: true });
     fs.mkdirSync(packageDir, { recursive: true });
     vi.clearAllMocks();
+    vi.mocked(projectUtils.getExpoIosUsePrecompiledModules).mockReturnValue(
+      undefined
+    );
   });
 
   afterEach(() => {
@@ -240,5 +244,73 @@ describe('emitExpoSupportXcframeworks', () => {
 
     expect(fs.readdirSync(packageDir)).toEqual([]);
     expect(childProcess.execFileSync).not.toHaveBeenCalled();
+  });
+
+  it('names both remedies and the usePrecompiledModules cause when prebuilts are missing', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+    vi.mocked(projectUtils.getExpoIosUsePrecompiledModules).mockReturnValue(
+      false
+    );
+
+    createAllRequiredExpoSupportXcframeworks(projectRoot);
+    fs.rmSync(path.join(projectRoot, 'ios', 'Pods', 'ExpoFont'), {
+      recursive: true,
+      force: true,
+    });
+
+    const run = () =>
+      emitExpoSupportXcframeworks({
+        projectRoot,
+        packageDir,
+        usePrebuiltExpo: true,
+        usePrebuiltExpoExplicit: true,
+      });
+    expect(run).toThrow(/--use-prebuilt-expo false/);
+    expect(run).toThrow(/pod install/);
+    expect(run).toThrow(/ios\.usePrecompiledModules to false/);
+  });
+
+  it('degrades to source builds instead of throwing when usePrebuiltExpo was inferred', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+
+    createSignedMockXcframework(
+      path.join(projectRoot, 'node_modules', 'expo-modules-jsi', 'apple', 'Products'),
+      'ExpoModulesJSI'
+    );
+    const onDegradeToSource = vi.fn();
+
+    expect(
+      emitExpoSupportXcframeworks({
+        projectRoot,
+        packageDir,
+        usePrebuiltExpo: true,
+        usePrebuiltExpoExplicit: false,
+        onDegradeToSource,
+      })
+    ).toBe(true);
+
+    expect(onDegradeToSource).toHaveBeenCalledTimes(1);
+    expect(fs.readdirSync(packageDir)).toEqual(['ExpoModulesJSI.xcframework']);
+  });
+
+  it('still throws when usePrebuiltExpo was explicit and prebuilts are missing', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+
+    createSignedMockXcframework(
+      path.join(projectRoot, 'node_modules', 'expo-modules-jsi', 'apple', 'Products'),
+      'ExpoModulesJSI'
+    );
+
+    expect(() =>
+      emitExpoSupportXcframeworks({
+        projectRoot,
+        packageDir,
+        usePrebuiltExpo: true,
+        usePrebuiltExpoExplicit: true,
+      })
+    ).toThrow(/Expected Expo SDK 56\+ XCFramework not found/);
   });
 });

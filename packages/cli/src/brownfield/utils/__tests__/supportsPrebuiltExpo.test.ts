@@ -8,6 +8,7 @@ vi.mock('../project.js', async (importOriginal) => {
   return {
     ...actual,
     getExpoSdkMajor: vi.fn(),
+    getExpoIosUsePrecompiledModules: vi.fn(),
     isExpoProject: vi.fn(),
   };
 });
@@ -16,6 +17,7 @@ describe('supportsPrebuiltExpo', () => {
   beforeEach(() => {
     vi.mocked(projectUtils.isExpoProject).mockReset();
     vi.mocked(projectUtils.getExpoSdkMajor).mockReset();
+    vi.mocked(projectUtils.getExpoIosUsePrecompiledModules).mockReset();
   });
 
   test('returns supported with opt-in default for non-Expo projects', () => {
@@ -59,5 +61,33 @@ describe('supportsPrebuiltExpo', () => {
       supported: false,
       reason: expect.stringMatching(/Expo SDK unknown/),
     });
+  });
+
+  test('returns unsupported when ios.usePrecompiledModules is false', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+    vi.mocked(projectUtils.getExpoIosUsePrecompiledModules).mockReturnValue(
+      false
+    );
+
+    expect(supportsPrebuiltExpo({ projectRoot: '/project' })).toEqual({
+      supported: false,
+      reason: expect.stringMatching(/ios\.usePrecompiledModules/),
+    });
+  });
+
+  test('stays supported when ios.usePrecompiledModules is true or unset', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+
+    for (const value of [true, undefined]) {
+      vi.mocked(projectUtils.getExpoIosUsePrecompiledModules).mockReturnValue(
+        value
+      );
+      expect(supportsPrebuiltExpo({ projectRoot: '/project' })).toEqual({
+        supported: true,
+        enabledByDefault: true,
+      });
+    }
   });
 });
