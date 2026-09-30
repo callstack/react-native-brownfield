@@ -2,10 +2,11 @@
 kotlinJvm = "2.2.21"
 ktlint = "12.1.1"
 detekt = "1.23.7"
-# Compile against the oldest supported AGP: AGP is compileOnly, so the app provides it at runtime,
-# and a plugin built against AGP 9 fails on AGP 8 apps (e.g. Expo 57) with NoClassDefFoundError
-agp = "8.5.2"
-common = "31.2.2" # do not bump it for now, as it throws an error for incompatible AGP used
+# The AGP the plugin compiles against: deliberately the OLDEST supported version, so the
+# compiler rejects any accidental use of a newer AGP API. Newer AGP is covered by the
+# TestKit matrix in build.gradle.kts. Keep in sync with MIN_AGP in RNBrownfieldPlugin.kt.
+agp = "8.12.0"
+common = "31.12.0"
 asm-commons = "9.7"
 versioncompare = "1.5.0"
 junit = "5.11.4"

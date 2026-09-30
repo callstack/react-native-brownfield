@@ -108,9 +108,9 @@ repositories {
 val testKitPluginClasspath: Configuration by configurations.creating
 
 dependencies {
-    // AGP is provided by the consuming app's build. Declaring it as `implementation` puts it on the
-    // app's buildscript classpath, where it wins version resolution and forces this AGP (and its minimum
-    // Gradle version) onto the app
+    // AGP is provided by the consuming build's buildscript classpath. Keeping it
+    // compileOnly stops the published module from pinning AGP (and therefore the
+    // minimum Gradle version) for every app that applies this plugin.
     compileOnly(libs.agp)
     compileOnly(libs.common)
     implementation(libs.asm.commons)
@@ -127,8 +127,59 @@ tasks.pluginUnderTestMetadata {
     pluginClasspath.from(testKitPluginClasspath)
 }
 
+/**
+ * AGP versions the plugin is tested against, oldest first.
+ *
+ * The first entry is the floor, and it is the same number as `agp` in `gradle/libs.versions.toml`
+ * (what the plugin compiles against) and `RNBrownfieldPlugin.MIN_AGP` (what the apply-time gate
+ * enforces). The compiler covers "we accidentally used an API newer than the floor"; this matrix
+ * covers the other direction — "we used something a newer AGP has since removed or changed".
+ */
+val agpMatrix = listOf(libs.versions.agp.get(), "9.2.1")
+
+/**
+ * An AGP below the matrix floor. Not supported, and not built against — it exists only so a test can
+ * prove `RNBrownfieldPlugin.MIN_AGP` actually rejects it instead of letting the consumer fail later
+ * with an unattributable `NoSuchMethodError`.
+ */
+val belowFloorAgp = "8.9.0"
+
+// A TestKit-ready AGP classpath per version above, keyed by version.
+val agpClasspaths =
+    (agpMatrix + belowFloorAgp).associateWith { agpVersion ->
+        val suffix = agpVersion.replace('.', '_')
+        val scope = configurations.dependencyScope("testkitAgp$suffix")
+        dependencies.add(scope.name, "com.android.tools.build:gradle:$agpVersion")
+        configurations.resolvable("testkitAgp${suffix}Classpath") {
+            extendsFrom(scope.get())
+        }
+    }
+
+// `withPluginClasspath()` builds the TestKit fixture classpath from the plugin's runtime
+// classpath, which no longer carries AGP now that it is compileOnly. The fixtures apply
+// `com.android.library`, so hand the floor AGP back to them here — test-only, so nothing
+// reaches the published module.
+tasks.named<PluginUnderTestMetadata>("pluginUnderTestMetadata") {
+    pluginClasspath.from(agpClasspaths.getValue(agpMatrix.first()))
+}
+
 tasks.test {
     useJUnitPlatform()
+
+    // Tests that want a specific AGP build their own TestKit classpath from these, via
+    // `withPluginClasspath(files)` instead of the no-arg `withPluginClasspath()`.
+    val mainSourceSet = sourceSets.main.get()
+    systemProperty("agp.matrix.versions", agpMatrix.joinToString(","))
+    systemProperty("agp.belowFloor.version", belowFloorAgp)
+    agpClasspaths.forEach { (agpVersion, agpClasspath) ->
+        val pluginClasspath = files(mainSourceSet.output, mainSourceSet.runtimeClasspath, agpClasspath)
+        inputs.files(pluginClasspath).withPropertyName("agpMatrix-$agpVersion").withNormalizer(ClasspathNormalizer::class)
+        jvmArgumentProviders.add(
+            CommandLineArgumentProvider {
+                listOf("-Dagp.classpath.$agpVersion=${pluginClasspath.joinToString(File.pathSeparator)}")
+            },
+        )
+    }
 }
 
 tasks.named("detekt").configure {
