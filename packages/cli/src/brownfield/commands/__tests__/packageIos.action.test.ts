@@ -257,11 +257,14 @@ describe('package:ios action --add-spm-package', () => {
       'Release',
     ]);
 
-    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith({
-      projectRoot: '/repo',
-      packageDir: '/repo/ios/.brownfield/package/build',
-      usePrebuiltExpo: false,
-    });
+    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectRoot: '/repo',
+        packageDir: '/repo/ios/.brownfield/package/build',
+        usePrebuiltExpo: false,
+        usePrebuiltExpoExplicit: true,
+      })
+    );
     expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith({
       packageDir: '/repo/ios/.brownfield/package/build',
       frameworkName: 'BrownfieldLib',
@@ -311,6 +314,37 @@ describe('package:ios action --add-spm-package', () => {
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
 
+  test('marks an explicit --use-prebuilt-expo true as explicit', async () => {
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'true',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usePrebuiltExpo: true,
+        usePrebuiltExpoExplicit: true,
+      })
+    );
+  });
+
+  test('passes SPM generation the degraded value when Expo prebuilts are missing', async () => {
+    mockEmitExpoSupportXcframeworks.mockImplementation(
+      ({ onDegradeToSource }: { onDegradeToSource?: () => void }) => {
+        onDegradeToSource?.();
+        return true;
+      }
+    );
+
+    await invokePackageIosAction(['--add-spm-package', '--configuration', 'Release']);
+
+    expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith(
+      expect.objectContaining({ usePrebuiltExpo: false })
+    );
+  });
+
   test('runs Expo framework emission before local SPM package creation for Expo SDK 56+', async () => {
     mockEmitExpoSupportXcframeworks.mockReturnValue(true);
 
@@ -320,11 +354,15 @@ describe('package:ios action --add-spm-package', () => {
       'Release',
     ]);
 
-    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith({
-      projectRoot: '/repo',
-      packageDir: '/repo/ios/.brownfield/package/build',
-      usePrebuiltExpo: true,
-    });
+    // omitted flag => value is version-inferred, not explicit
+    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectRoot: '/repo',
+        packageDir: '/repo/ios/.brownfield/package/build',
+        usePrebuiltExpo: true,
+        usePrebuiltExpoExplicit: false,
+      })
+    );
     expect(
       mockEmitExpoSupportXcframeworks.mock.invocationCallOrder[0]
     ).toBeLessThan(mockCreateLocalSpmPackage.mock.invocationCallOrder[0] ?? 0);

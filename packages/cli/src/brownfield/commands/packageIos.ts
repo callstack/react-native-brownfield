@@ -126,6 +126,11 @@ export const packageIosCommand = curryOptions(
   .action(
     actionRunner(async (cliOptions: PackageIosOptions) => {
       const options = mergeBrownfieldConfigWithOptions(cliOptions, 'ios');
+      // captured before the version-aware default below, so that a value from
+      // brownfield.config.json counts as explicit
+      const usePrebuiltExpoExplicit = isUsePrebuiltExpoExplicit(
+        options.usePrebuiltExpo
+      );
       const projectRoot = findProjectRoot();
 
       await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
@@ -309,6 +314,11 @@ export const packageIosCommand = curryOptions(
         projectRoot,
         packageDir,
         usePrebuiltExpo: options.usePrebuiltExpo,
+        usePrebuiltExpoExplicit,
+        // keep the generated SPM manifest consistent with the emitted XCFrameworks
+        onDegradeToSource: () => {
+          options.usePrebuiltExpo = false;
+        },
       });
 
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
@@ -462,8 +472,19 @@ export const packageIosCommand = curryOptions(
           'In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder.'
         );
       }
+
+      // The dependency prints its own "Success" before the post-build steps above,
+      // so log a final line marking the true end of the run.
+      logger.success(
+        `package:ios finished. Artifacts are in ${colorLink(relativeToCwd(packageDir))}`
+      );
     })
   );
+
+/** Whether `--use-prebuilt-expo` was chosen (CLI or brownfield.config.json) rather than inferred. */
+export function isUsePrebuiltExpoExplicit(value: boolean | undefined) {
+  return value !== undefined;
+}
 
 export const packageIosExample = new ExampleUsage(
   'package:ios --scheme BrownfieldLib --configuration Release',
