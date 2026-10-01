@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.artifacts.ArtifactsResolver
@@ -41,6 +42,7 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         verifyAndroidPluginApplied(project)
+        verifyAgpVersion(project)
 
         this.project = project
         initializers()
@@ -92,6 +94,13 @@ class RNBrownfieldPlugin : Plugin<Project> {
     }
 
     companion object {
+        /**
+         * Oldest AGP the plugin supports. This is one number that must hold in three places: the
+         * `agp` version the plugin compiles against in `gradle/libs.versions.toml`, the floor of the
+         * TestKit AGP matrix in `build.gradle.kts`, and this gate. Raise all three together.
+         */
+        val MIN_AGP = AndroidPluginVersion(8, 12)
+
         const val EXPO_PROJECT_LOCATOR = ":expo"
     }
 
@@ -187,6 +196,28 @@ class RNBrownfieldPlugin : Plugin<Project> {
             throw ProjectConfigurationException(
                 "$PROJECT_ID must be applied to an android library project",
                 Throwable("Apply $PROJECT_ID"),
+            )
+        }
+    }
+
+    /**
+     * Fails fast on AGP versions older than the plugin supports.
+     *
+     * The plugin compiles against [MIN_AGP] (see `agp` in `gradle/libs.versions.toml`), so anything
+     * at or above it is guaranteed to have every AGP symbol the plugin references. Below it, the
+     * consumer would instead hit a `NoClassDefFoundError`/`NoSuchMethodError` somewhere deep in
+     * configuration, with nothing pointing back at this plugin.
+     */
+    private fun verifyAgpVersion(project: Project) {
+        val current =
+            project.extensions
+                .getByType(LibraryAndroidComponentsExtension::class.java)
+                .pluginVersion
+        if (current < MIN_AGP) {
+            throw ProjectConfigurationException(
+                "$PROJECT_ID requires Android Gradle Plugin $MIN_AGP or newer, " +
+                    "but this project resolved AGP $current",
+                Throwable("Upgrade the Android Gradle Plugin to $MIN_AGP or newer"),
             )
         }
     }
