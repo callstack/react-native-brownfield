@@ -111,6 +111,46 @@ describe('addFrameworkTarget', () => {
       'Info.plist',
     ]);
   });
+
+  it('detects previously added targets stored with quoted names', () => {
+    // xcode@3.x addTarget stores names/comments quoted and the parser keeps
+    // the quotes on re-parse, so pbxTargetByName misses them. Without the
+    // quoted-name fallback this run would create a duplicate target.
+    const project = {
+      pbxTargetByName: () => undefined,
+      addTarget: vi.fn(),
+      hash: {
+        project: {
+          objects: {
+            PBXNativeTarget: {
+              FRAMEWORK_UUID: {
+                isa: 'PBXNativeTarget',
+                name: '"BrownfieldLib"',
+                productReference: 'PRODUCT_REF',
+              },
+            },
+          },
+        },
+      },
+      pbxNativeTargetSection: () => ({
+        FRAMEWORK_UUID: {
+          isa: 'PBXNativeTarget',
+          name: '"BrownfieldLib"',
+          productReference: 'PRODUCT_REF',
+        },
+      }),
+    } as any;
+
+    const result = addFrameworkTarget(project, modRequest, baseOptions, {
+      useExpoHost: false,
+    });
+
+    expect(project.addTarget).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      frameworkTargetUUID: 'FRAMEWORK_UUID',
+      targetAlreadyExists: true,
+    });
+  });
 });
 
 describe('addSourceFilesBuildPhase', () => {
@@ -139,6 +179,39 @@ describe('addSourceFilesBuildPhase', () => {
     // Only the Swift sources are added; Info.plist is filtered out.
     expect(project.calls).toHaveLength(1);
     expect(project.calls[0][0]).toEqual(['BrownfieldLib.swift']);
+  });
+
+  it('skips adding a duplicate sources phase when the target already has one', () => {
+    const project = {
+      calls: [] as unknown[][],
+      hash: {
+        project: {
+          objects: {
+            PBXNativeTarget: {
+              FRAMEWORK_UUID: {
+                isa: 'PBXNativeTarget',
+                name: '"BrownfieldLib"',
+                buildPhases: [
+                  {
+                    value: 'SOURCES_PHASE_UUID',
+                    comment: 'BrownfieldLib',
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      addBuildPhase(...args: unknown[]) {
+        (this as any).calls.push(args);
+      },
+    } as any;
+
+    addSourceFilesBuildPhase(project, 'FRAMEWORK_UUID', baseOptions, {
+      useExpoHost: false,
+    });
+
+    expect(project.calls).toHaveLength(0);
   });
 
   it('renders Expo-hosted source files when no brownfield options are given', async () => {

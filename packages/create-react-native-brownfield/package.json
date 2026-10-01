@@ -4,7 +4,6 @@
   "license": "MIT",
   "author": "Callstack",
   "bin": "dist/main.js",
-  "type": "module",
   "homepage": "https://github.com/callstack/react-native-brownfield",
   "repository": {
     "url": "git+https://github.com/callstack/react-native-brownfield.git"

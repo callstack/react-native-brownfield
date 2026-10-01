@@ -68,9 +68,10 @@ function findProjectRoot(startDir: string): string {
 }
 
 function resolveUserConfig(projectRoot: string): UserConfig {
+  // Do not pass selectedPlatform: it restricts detection to a single platform
+  // and would leave project.android undefined.
   return cliConfig({
     projectRoot,
-    selectedPlatform: 'ios',
   }) as UserConfig;
 }
 
@@ -281,7 +282,8 @@ export async function scaffoldBrownfieldInRncCliProject(
     resolvedIosConfig.ios,
     { useExpoHost: false }
   );
-  project.writeSync();
+  // xcode@3.x writeSync() returns the serialized project but does not write it.
+  fs.writeFileSync(pbxprojPath, project.writeSync());
 
   const podfilePath = path.join(iosDir, 'Podfile');
   const podfile = readFileIfExists(podfilePath);

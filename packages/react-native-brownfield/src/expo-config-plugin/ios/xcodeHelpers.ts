@@ -12,6 +12,43 @@ import { SourceModificationError } from '../errors/SourceModificationError';
 import { getFrameworkSourceFiles } from './withIosFrameworkFiles';
 
 /**
+ * xcode@3.x addTarget() stores target names/comments quoted (e.g. name =
+ * "BrownfieldLib"), and the pbxproj parser keeps the quote characters on
+ * re-parse. That makes pbxTargetByName() (comment-based, unquoted) miss
+ * targets we previously wrote, so a second run would create a duplicate
+ * target. Match by unquoting the stored name as a fallback.
+ */
+function findFrameworkTargetByQuotedName(
+  project: XcodeProject,
+  frameworkName: string
+): ReturnType<XcodeProject['pbxTargetByName']> {
+  const nativeTargets = getRawProjectObjects(project).PBXNativeTarget as
+    | Record<string, PbxNativeTarget & { isa?: string }>
+    | undefined;
+
+  for (const [key, target] of Object.entries(nativeTargets ?? {})) {
+    if (key.endsWith('_comment') || target?.isa !== 'PBXNativeTarget') {
+      continue;
+    }
+    const name = unquotePbxString(target.name);
+    if (name === frameworkName) {
+      return target as any;
+    }
+  }
+
+  return null;
+}
+
+function unquotePbxString(value: string | undefined): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+  return value.startsWith('"') && value.endsWith('"')
+    ? value.slice(1, -1)
+    : value;
+}
+
+/**
  * Adds a new Framework target to the Xcode project for Brownfield packaging
  * @throws If target creation fails
  * @param project The Xcode project to modify
@@ -31,7 +68,9 @@ export function addFrameworkTarget(
   const { frameworkName, bundleIdentifier } = options;
 
   // check if target already exists
-  const existingTarget = project.pbxTargetByName(frameworkName);
+  const existingTarget =
+    project.pbxTargetByName(frameworkName) ??
+    findFrameworkTargetByQuotedName(project, frameworkName);
   if (existingTarget) {
     Logger.logDebug(
       `Framework target "${frameworkName}" already exists, skipping creation`
@@ -176,6 +215,26 @@ export function addSourceFilesBuildPhase(
   const sourceFiles = filePaths.filter(
     (filePath) => !filePath.endsWith('.plist')
   );
+
+  // Idempotency: skip when the target already has a sources phase with this
+  // comment, so re-running scaffolding does not duplicate the build phase.
+  const nativeTargets = getRawProjectObjects(project).PBXNativeTarget as
+    | Record<string, PbxNativeTarget>
+    | undefined;
+  const targetBuildPhases =
+    nativeTargets?.[frameworkTargetUUID]?.buildPhases ?? [];
+  const alreadyHasSourcePhase = targetBuildPhases.some((phase) =>
+    hasBuildPhaseComment(
+      { comment: typeof phase === 'string' ? undefined : phase.comment },
+      options.frameworkName
+    )
+  );
+  if (alreadyHasSourcePhase) {
+    Logger.logDebug(
+      `Sources build phase "${options.frameworkName}" already present on target ${frameworkTargetUUID}, skipping`
+    );
+    return;
+  }
 
   project.addBuildPhase(
     sourceFiles,
@@ -618,6 +677,13 @@ export function copyBundleReactNativePhase(
           shellScript: frameworkShellScript,
         }
       );
+
+      // xcode's pbxShellScriptBuildPhaseObj only escapes quotes, leaving real
+      // newlines in the shellScript value — that produces an invalid pbxproj
+      // once the project is written. Encode both fields the same way the
+      // update path above does.
+      addedPhase.buildPhase.shellPath = encodePbxString(frameworkShellPath);
+      addedPhase.buildPhase.shellScript = encodePbxString(frameworkShellScript);
 
       if (existingPhase.showEnvVarsInLog !== undefined) {
         addedPhase.buildPhase.showEnvVarsInLog = existingPhase.showEnvVarsInLog;
