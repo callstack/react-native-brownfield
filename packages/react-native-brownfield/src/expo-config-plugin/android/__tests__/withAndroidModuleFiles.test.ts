@@ -221,6 +221,44 @@ describe('createAndroidModule', () => {
     ).toBe(true);
   });
 
+  it('renders the vanilla host manager without Expo imports for the vanilla template variant', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.81.0',
+      templateVariant: 'vanilla',
+    });
+
+    const hostManager = readLibraryHostManager(androidDir);
+    expect(hostManager).toContain('package com.example.brownfield');
+    expect(hostManager).toContain(
+      'ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)'
+    );
+    expect(hostManager).toContain('loadReactNative(application)');
+    expect(hostManager).not.toContain('{{PACKAGE_NAME}}');
+
+    // Expo-only wiring must not leak into the RN CLI variant.
+    expect(hostManager).not.toContain('expo.modules');
+    expect(hostManager).not.toContain('ExpoReactHostFactory');
+    expect(hostManager).not.toContain('ApplicationLifecycleDispatcher');
+  });
+
+  it('renders the Expo host manager by default when no template variant is given', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.81.0',
+    });
+
+    const hostManager = readLibraryHostManager(androidDir);
+    expect(hostManager).toContain('import expo.modules.ExpoReactHostFactory');
+    expect(hostManager).not.toContain('loadReactNative(application)');
+  });
+
   it('emits targetSdk for Expo SDK versions below 58 when inherited from the app project', () => {
     const androidDir = createAndroidDir();
 
@@ -456,6 +494,17 @@ HERMES_V1_VERSION_NAME=250829098.0.10
   function readLibraryBuildGradle(androidDir: string): string {
     return fs.readFileSync(
       path.join(androidDir, 'brownfieldlib', 'build.gradle.kts'),
+      'utf8'
+    );
+  }
+
+  function readLibraryHostManager(androidDir: string): string {
+    return fs.readFileSync(
+      path.join(
+        androidDir,
+        'brownfieldlib',
+        'src/main/java/com/example/brownfield/ReactNativeHostManager.kt'
+      ),
       'utf8'
     );
   }

@@ -1,6 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('../withIosFrameworkFiles', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('../withIosFrameworkFiles')>();
+  return {
+    ...actual,
+    getFrameworkSourceFiles: vi.fn(actual.getFrameworkSourceFiles),
+  };
+});
 
 import {
+  addFrameworkTarget,
+  addSourceFilesBuildPhase,
   getAppTargetDeploymentTarget,
   getFrameworkBuildSettings,
   rewriteBundleReactNativePhaseScriptForFrameworkTarget,
@@ -43,6 +54,107 @@ describe('getFrameworkBuildSettings', () => {
     expect(settings.INSTALL_PATH).toBe('"$(LOCAL_LIBRARY_DIR)/Frameworks"');
     expect(settings.SWIFT_VERSION).toBe('5.10');
     expect(settings.MARKETING_VERSION).toBe('9.9.9');
+  });
+});
+
+describe('addFrameworkTarget', () => {
+  function createProjectStub() {
+    const addedGroups: { filePaths: string[] }[] = [];
+    return {
+      addedGroups,
+      pbxTargetByName: () => undefined,
+      addTarget: () => ({
+        uuid: 'FRAMEWORK_UUID',
+        pbxNativeTarget: { buildConfigurationList: 'CONFIG_LIST' },
+      }),
+      pbxXCConfigurationList: () => ({
+        CONFIG_LIST: {
+          buildConfigurations: [
+            { comment: 'Debug', value: 'DEBUG_CONFIG' },
+            { comment: 'Release', value: 'RELEASE_CONFIG' },
+          ],
+        },
+      }),
+      pbxXCBuildConfigurationSection: () => ({
+        DEBUG_CONFIG: { buildSettings: {} },
+        RELEASE_CONFIG: { buildSettings: {} },
+      }),
+      updateBuildProperty: () => undefined,
+      addPbxGroup: (filePaths: string[]) => {
+        addedGroups.push({ filePaths });
+        return { uuid: 'GROUP_UUID' };
+      },
+      getFirstProject: () => ({ firstProject: { mainGroup: 'MAIN_GROUP' } }),
+      addToPbxGroup: () => undefined,
+    } as any;
+  }
+
+  const modRequest = {
+    platformProjectRoot: '/app/ios',
+    projectRoot: '/app',
+  } as any;
+
+  it('forwards the useExpoHost option to the framework source file group', async () => {
+    const { getFrameworkSourceFiles } =
+      await import('../withIosFrameworkFiles');
+    const project = createProjectStub();
+
+    addFrameworkTarget(project, modRequest, baseOptions, {
+      useExpoHost: false,
+    });
+
+    expect(getFrameworkSourceFiles).toHaveBeenCalledWith(baseOptions, {
+      useExpoHost: false,
+    });
+    expect(project.addedGroups[0]?.filePaths).toEqual([
+      'BrownfieldLib.swift',
+      'Info.plist',
+    ]);
+  });
+});
+
+describe('addSourceFilesBuildPhase', () => {
+  function createProjectStub() {
+    const calls: unknown[][] = [];
+    return {
+      calls,
+      addBuildPhase(...args: unknown[]) {
+        calls.push(args);
+      },
+    } as any;
+  }
+
+  it('passes the useExpoHost option through to the rendered source files', async () => {
+    const { getFrameworkSourceFiles } =
+      await import('../withIosFrameworkFiles');
+    const project = createProjectStub();
+
+    addSourceFilesBuildPhase(project, 'FRAMEWORK_UUID', baseOptions, {
+      useExpoHost: false,
+    });
+
+    expect(getFrameworkSourceFiles).toHaveBeenCalledWith(baseOptions, {
+      useExpoHost: false,
+    });
+    // Only the Swift sources are added; Info.plist is filtered out.
+    expect(project.calls).toHaveLength(1);
+    expect(project.calls[0][0]).toEqual(['BrownfieldLib.swift']);
+  });
+
+  it('renders Expo-hosted source files when no brownfield options are given', async () => {
+    const { getFrameworkSourceFiles } =
+      await import('../withIosFrameworkFiles');
+    const project = createProjectStub();
+
+    addSourceFilesBuildPhase(project, 'FRAMEWORK_UUID', baseOptions);
+
+    // The undefined options defer to getFrameworkSourceFiles' Expo default.
+    expect(getFrameworkSourceFiles).toHaveBeenCalledWith(
+      baseOptions,
+      undefined
+    );
+    expect(project.calls).toHaveLength(1);
+    expect(project.calls[0][0]).toEqual(['BrownfieldLib.swift']);
   });
 });
 
