@@ -14,6 +14,8 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORKDIR="${SMOKE_WORKDIR:-$(mktemp -d "${TMPDIR:-/tmp}/brownfield-scaffold-smoke.XXXXXX")}"
 APP_NAME="BFSmoke"
+# Android project subdirectory of the generated app (RN CLI template layout).
+GRADLE_DIR="android"
 
 echo "::group::Create RN CLI app"
 mkdir -p "$WORKDIR"
@@ -42,17 +44,23 @@ npm install --no-audit --no-fund
 echo "::endgroup::"
 
 echo "::group::Verify scaffold output"
-test -f android/brownfieldlib/build.gradle.kts || { echo "missing brownfieldlib/build.gradle.kts"; exit 1; }
+# Keep in sync with PUBLISHED_BROWNFIELD_PLUGIN_VERSION in
+# packages/react-native-brownfield/src/expo-config-plugin/android/utils/constants.ts.
+# Asserted verbatim (not just the plugin artifact name) so a drift between the
+# constant and what is actually resolvable from Maven Central fails here
+# instead of in a user's build.
+PUBLISHED_PLUGIN_VERSION="2.0.0-alpha09"
+test -f "$GRADLE_DIR/brownfieldlib/build.gradle.kts" || { echo "missing brownfieldlib/build.gradle.kts"; exit 1; }
 test -f brownfield.config.json || { echo "missing brownfield.config.json"; exit 1; }
-grep -q "brownfield-gradle-plugin" android/build.gradle || { echo "root build.gradle lacks the Brownfield Gradle plugin classpath"; exit 1; }
-grep -q "include ':brownfieldlib'" android/settings.gradle || { echo "settings.gradle lacks ':brownfieldlib'"; exit 1; }
+grep -qF "brownfield-gradle-plugin:$PUBLISHED_PLUGIN_VERSION" "$GRADLE_DIR/build.gradle" || { echo "root build.gradle lacks the Brownfield Gradle plugin classpath pinned to $PUBLISHED_PLUGIN_VERSION"; exit 1; }
+grep -q "include ':brownfieldlib'" "$GRADLE_DIR/settings.gradle" || { echo "settings.gradle lacks ':brownfieldlib'"; exit 1; }
 echo "::endgroup::"
 
 echo "::group::Assemble Android packaging module"
 # The freshly generated app pins its own ndkVersion in buildscript ext; install
 # it if missing (CI runners carry a different preinstalled set). No-op locally
 # when the NDK is already present.
-NDK_VERSION="$(sed -nE 's/.*ndkVersion = "([^"]+)".*/\1/p' android/build.gradle | head -1)"
+NDK_VERSION="$(sed -nE 's/.*ndkVersion = "([^"]+)".*/\1/p' "$GRADLE_DIR/build.gradle" | head -1)"
 SDKMANAGER="${ANDROID_HOME:-}/cmdline-tools/latest/bin/sdkmanager"
 if [ -n "$NDK_VERSION" ] && [ -n "${ANDROID_HOME:-}" ] && [ ! -d "$ANDROID_HOME/ndk/$NDK_VERSION" ]; then
   if [ -x "$SDKMANAGER" ]; then
@@ -60,8 +68,11 @@ if [ -n "$NDK_VERSION" ] && [ -n "${ANDROID_HOME:-}" ] && [ ! -d "$ANDROID_HOME/
     "$SDKMANAGER" --install "ndk;$NDK_VERSION"
   fi
 fi
-./android/gradlew -p android :brownfieldlib:assembleRelease --no-daemon
-test -n "$(find android/brownfieldlib/build/outputs/aar -name '*.aar' 2>/dev/null)" || { echo "no AAR produced"; exit 1; }
+# `-p "$GRADLE_DIR"` sets the project dir; the `./$GRADLE_DIR/gradlew` prefix is
+# the wrapper's location relative to the app root (we stay in the app root, so
+# the two "android" occurrences are not a typo).
+"./$GRADLE_DIR/gradlew" -p "$GRADLE_DIR" :brownfieldlib:assembleRelease --no-daemon
+test -n "$(find "$GRADLE_DIR/brownfieldlib/build/outputs/aar" -name '*.aar' 2>/dev/null)" || { echo "no AAR produced"; exit 1; }
 echo "::endgroup::"
 
 echo "Scaffold smoke PASSED"

@@ -224,7 +224,13 @@ export function writeBrownfieldFileConfig(
     return null;
   }
 
-  const content = JSON.stringify(createBrownfieldFileConfig(names), null, 2);
+  // Trailing newline, same as writePackageJson: the idempotency guard below
+  // compares bytes, so the written content must be exactly what a
+  // newline-normalizing toolchain (editorconfig, prettier, git text eol)
+  // leaves on disk. Content + '\n' is both the written bytes and the
+  // comparison value, so the guard cannot be broken by an external normalizer.
+  const content =
+    JSON.stringify(createBrownfieldFileConfig(names), null, 2) + '\n';
   const prev = fs.existsSync(configPath)
     ? fs.readFileSync(configPath, 'utf8')
     : null;

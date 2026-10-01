@@ -31,6 +31,18 @@ const cliSchema = cliRequire('./schema.json');
 const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
 const validateConfig = ajv.compile(cliSchema);
 
+// The scaffold derives the range from this package's own version, so pinning a
+// literal (e.g. '^5.1.1') would fail on every release bump. Assert the caret
+// shape plus the derivation itself, using an expected value read straight from
+// package.json (independent of the code under test, so this is not tautological).
+const CARET_VERSION_RANGE = /^\^\d+\.\d+\.\d+/;
+const ownPackageVersion = (
+  JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf8')
+  ) as { version: string }
+).version;
+const expectedVersionRange = `^${ownPackageVersion}`;
+
 describe('scaffold project.json file helpers', () => {
   let projectRoot: string;
 
@@ -65,7 +77,14 @@ describe('scaffold project.json file helpers', () => {
       addBrownfieldDependencies(projectRoot);
 
       const pkg = readPackageJson();
-      expect(pkg.dependencies[BROWNFIELD_RUNTIME_PACKAGE_NAME]).toBe('^5.1.1');
+      expect(pkg.dependencies[BROWNFIELD_RUNTIME_PACKAGE_NAME]).toMatch(
+        CARET_VERSION_RANGE
+      );
+      // Still pins the real invariant: the range is derived from this
+      // package's own version, so it survives release bumps.
+      expect(pkg.dependencies[BROWNFIELD_RUNTIME_PACKAGE_NAME]).toBe(
+        expectedVersionRange
+      );
       expect(pkg.dependencies.react).toBe('19.2.3');
     });
 
@@ -75,7 +94,14 @@ describe('scaffold project.json file helpers', () => {
       addBrownfieldDependencies(projectRoot);
 
       const pkg = readPackageJson();
-      expect(pkg.dependencies[BROWNFIELD_CLI_PACKAGE_NAME]).toBe('^5.1.1');
+      // Same derived range as the runtime package: the two are released
+      // together (fixed changeset group), so they must stay in lockstep.
+      expect(pkg.dependencies[BROWNFIELD_CLI_PACKAGE_NAME]).toMatch(
+        CARET_VERSION_RANGE
+      );
+      expect(pkg.dependencies[BROWNFIELD_CLI_PACKAGE_NAME]).toBe(
+        pkg.dependencies[BROWNFIELD_RUNTIME_PACKAGE_NAME]
+      );
     });
 
     it('leaves existing versions untouched', () => {
@@ -225,6 +251,11 @@ describe('scaffold project.json file helpers', () => {
 
       expect(target).toBe(configPath);
       const first = fs.readFileSync(configPath, 'utf8');
+      // POSIX text-file convention (and what writePackageJson already does):
+      // external newline-normalizing tooling (editorconfig, prettier, git
+      // text eol) would otherwise rewrite the file and break the byte-equality
+      // idempotency guard below.
+      expect(first.endsWith('\n')).toBe(true);
       expect(JSON.parse(first)).toEqual(
         createBrownfieldFileConfig({
           iosFrameworkName: 'BrownfieldLib',

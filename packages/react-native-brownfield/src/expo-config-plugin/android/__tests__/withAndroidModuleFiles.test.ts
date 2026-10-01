@@ -176,6 +176,28 @@ describe('createAndroidModule', () => {
     expect(readLibraryBuildGradle(androidDir)).toContain('targetSdk = 35');
   });
 
+  it('inherits compileSdk from the app project on the vanilla variant used by the RN CLI scaffold', () => {
+    const androidDir = createAndroidDir();
+
+    // The RN CLI scaffold (scaffold/index.ts) passes compileSdkVersion:
+    // undefined on purpose, so the shared template must fall back to the
+    // app's own rootProject.ext value instead of a hardcoded level.
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          compileSdkVersion: undefined,
+        },
+      }),
+      rnVersion: '0.87.1',
+      templateVariant: 'vanilla',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'compileSdk = resolveRootProjectInt("compileSdkVersion")'
+    );
+  });
+
   it('keeps targetSdk when the optional Expo SDK version is omitted', () => {
     const androidDir = createAndroidDir();
 
