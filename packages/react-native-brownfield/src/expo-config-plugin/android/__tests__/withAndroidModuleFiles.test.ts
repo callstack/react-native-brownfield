@@ -259,6 +259,32 @@ describe('createAndroidModule', () => {
     expect(hostManager).not.toContain('loadReactNative(application)');
   });
 
+  it('omits targetSdk for the vanilla template variant (AGP 9 rejects the field)', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.87.1',
+      templateVariant: 'vanilla',
+    });
+
+    // AGP 9 + RN 0.87 fails compilation with "Unresolved reference 'targetSdk'".
+    expect(readLibraryBuildGradle(androidDir)).not.toContain('targetSdk');
+  });
+
+  it('still emits targetSdk on the Expo variant when no Expo SDK major is given', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.87.1',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain('targetSdk = 35');
+  });
+
   it('emits targetSdk for Expo SDK versions below 58 when inherited from the app project', () => {
     const androidDir = createAndroidDir();
 

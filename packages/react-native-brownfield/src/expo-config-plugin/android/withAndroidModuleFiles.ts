@@ -62,8 +62,15 @@ export function resolveTargetSdkVersionExpression(
 
 export function renderTargetSdkBlock(
   config: ResolvedBrownfieldPluginConfigWithAndroid,
-  expoMajor?: number
+  expoMajor?: number,
+  templateVariant: 'expo' | 'vanilla' = 'expo'
 ): string {
+  // RN CLI (vanilla) projects target AGP 9, where library modules must not
+  // set `targetSdk` (compilation fails with "Unresolved reference 'targetSdk'").
+  if (templateVariant === 'vanilla') {
+    return '';
+  }
+
   if (
     expoMajor !== undefined &&
     expoMajor >= EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR
@@ -127,7 +134,11 @@ export function createAndroidModule({
   const hermesArtifact = getHermesArtifact(rnVersion, projectRoot);
   const compileSdkVersionExpression =
     resolveCompileSdkVersionExpression(config);
-  const targetSdkBlock = renderTargetSdkBlock(config, expoMajor);
+  const targetSdkBlock = renderTargetSdkBlock(
+    config,
+    expoMajor,
+    templateVariant
+  );
   const minifyEnabled =
     (android as { minifyEnabled?: boolean }).minifyEnabled ?? false;
   const extraProguardRules =

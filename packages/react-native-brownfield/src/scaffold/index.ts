@@ -228,15 +228,19 @@ export async function scaffoldBrownfieldInRncCliProject(
       android: {
         moduleName: androidModuleName,
         packageName: androidPackageName,
-        // Defaults aligned with the Expo plugin defaults for RN CLI projects.
-        // RN CLI config does not reliably expose SDK levels today, so there
-        // is no cheap derivation available here.
-        // TODO: derive from the app's rootProject.ext SDK values (the shared
-        // build.gradle.kts template already falls back to
-        // rootProject.ext.compileSdkVersion/targetSdkVersion) or expose flags.
+        // minSdk has no rootProject fallback in the shared build.gradle.kts
+        // template (it renders a literal), so keep the Expo plugin default.
+        // RN CLI rootProject.ext.minSdkVersion is 24 on current templates
+        // anyway; the generated build.gradle.kts stays readable.
         minSdkVersion: 24,
-        targetSdkVersion: 35,
-        compileSdkVersion: 35,
+        // compile/target SDK are intentionally not hardcoded: leaving them
+        // unset makes the shared template fall back to
+        // resolveRootProjectInt("compileSdkVersion"/"targetSdkVersion"), i.e.
+        // the app's own rootProject.ext values (RN 0.87 needs compileSdk 37+;
+        // AGP 9 rejects library `targetSdk` entirely — see
+        // renderTargetSdkBlock). Proven against a real RN 0.87.1 app.
+        targetSdkVersion: undefined,
+        compileSdkVersion: undefined,
         groupId: androidPackageName,
         artifactId: androidModuleName,
         version: '0.0.1-SNAPSHOT',
