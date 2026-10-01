@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import type { UserConfig } from '@react-native-community/cli-types';
@@ -55,11 +56,13 @@ export type BrownfieldScaffoldOptions = {
 
 function findProjectRoot(startDir: string): string {
   let currentDir = startDir;
-  while (currentDir !== '/') {
+  while (true) {
     if (fs.existsSync(path.join(currentDir, 'package.json'))) {
       return currentDir;
     }
-    currentDir = path.dirname(currentDir);
+    const parent = path.dirname(currentDir);
+    if (parent === currentDir) break;
+    currentDir = parent;
   }
   throw new Error('Could not find project root (no package.json found)');
 }
@@ -129,10 +132,19 @@ function resolveIosAppBundleId(pbxproj: any): string | null {
 }
 
 function resolveReactNativeVersion(projectRoot: string): string {
-  const rnPkgPath = require.resolve('react-native/package.json', {
+  // The shipped build is CommonJS, where bare `require` works. If this module
+  // is ever loaded as true ESM, bare `require` is undefined; fall back to an
+  // explicit `createRequire`. Anchored at cwd (not `import.meta.url`) because
+  // Babel keeps `import.meta` verbatim in the CJS output, which is a parse
+  // SyntaxError there.
+  const localRequire: NodeRequire =
+    typeof require === 'undefined'
+      ? createRequire(path.join(process.cwd(), 'noop.js'))
+      : require;
+  const rnPkgPath = localRequire.resolve('react-native/package.json', {
     paths: [projectRoot],
   });
-  const rnPkg = require(rnPkgPath);
+  const rnPkg = localRequire(rnPkgPath);
   if (!rnPkg?.version) {
     throw new Error('Could not resolve react-native version from package.json');
   }
