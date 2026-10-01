@@ -28,6 +28,11 @@ import {
   copyBundleReactNativePhase,
 } from '../expo-config-plugin/ios/xcodeHelpers';
 import { createIosFramework } from '../expo-config-plugin/ios/withIosFrameworkFiles';
+import {
+  addBrownfieldDependencies,
+  addBrownfieldPackageScripts,
+  writeBrownfieldFileConfig,
+} from './projectFiles';
 
 // ESM/CJS interop shim: `@react-native-community/cli-config` ships CJS whose
 // default export is the function itself, but depending on how this module is
@@ -344,10 +349,29 @@ export async function scaffoldBrownfieldInRncCliProject(
 
     currentStep = 'ios-sources';
     createIosFramework(iosDir, resolvedIosConfig, { useExpoHost: false });
+
+    // --- App package wiring: Brownfield deps + package:* scripts ---
+    // The scaffolded Kotlin host imports com.callstack.reactnativebrownfield.*,
+    // so the JS/runtime package must be an app dependency for native builds to
+    // resolve it. Idempotent: existing version specs are left untouched.
+    currentStep = 'package-dependencies';
+    addBrownfieldDependencies(projectRoot);
+
+    currentStep = 'package-scripts';
+    addBrownfieldPackageScripts(projectRoot);
+
+    // --- brownfield.config.json: packaging settings for `brownfield package:*` ---
+    // Deterministic content derived from the scaffolded names, so re-runs
+    // produce identical bytes (overwrite == no-op).
+    currentStep = 'brownfield-config';
+    writeBrownfieldFileConfig(projectRoot, {
+      iosFrameworkName,
+      androidModuleName,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     Logger.logInfo(
-      'Scaffolding failed mid-way; fix-forward: re-running the CLI is idempotent for completed steps (gradle settings, Podfile, xcodeproj target detection) — inspect partial changes with git diff.'
+      'Scaffolding failed mid-way; fix-forward: re-running the CLI is idempotent for completed steps (gradle settings, Podfile, xcodeproj target detection, package.json deps/scripts, brownfield.config.json) — inspect partial changes with git diff.'
     );
     throw new Error(
       `Brownfield scaffolding failed during step "${currentStep}": ${message}`,
