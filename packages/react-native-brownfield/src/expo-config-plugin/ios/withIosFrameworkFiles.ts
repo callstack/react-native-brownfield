@@ -21,6 +21,9 @@ export function getFrameworkSourceFiles(
     /**
      * Whether the packaged framework is expected to use the Expo host.
      * This influences template selection for the generated framework sources.
+     * Note: expresses the same Expo-vs-vanilla axis as `templateVariant` in
+     * the Android helper (withAndroidModuleFiles.createAndroidModule), with
+     * opposite polarity: `false` here === 'vanilla' there.
      */
     useExpoHost?: boolean;
   }

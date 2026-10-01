@@ -78,10 +78,11 @@ export function modifyPodfile(
   // Vanilla means the caller passed no Expo SDK version at all (undefined).
   // Negative values mean "Expo detected but unknown version" and must still
   // hit the unsupported-version error path below, not the vanilla path.
-  const useExpoHost = typeof expoMajor === 'number';
   const frameworkTargetBlock = renderTemplate(
     'ios',
-    useExpoHost ? 'PodfileTargetBlock.rb' : 'PodfileTargetBlock.vanilla.rb',
+    typeof expoMajor === 'number'
+      ? 'PodfileTargetBlock.rb'
+      : 'PodfileTargetBlock.vanilla.rb',
     {
       '{{FRAMEWORK_NAME}}': frameworkName,
     }
@@ -112,13 +113,14 @@ export function modifyPodfile(
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
   // Vanilla projects (expoMajor === undefined) get no Expo-only hooks.
-  if (!useExpoHost) {
+  // Early-returning here lets TypeScript narrow `expoMajor` to `number`
+  // for the rest of the function (no casts needed below).
+  if (typeof expoMajor !== 'number') {
     return modifiedPodfile;
   }
 
-  if ((expoMajor as number) < MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION) {
-    const versionLabel =
-      (expoMajor as number) < 0 ? 'unknown' : String(expoMajor);
+  if (expoMajor < MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION) {
+    const versionLabel = expoMajor < 0 ? 'unknown' : String(expoMajor);
     throw new SourceModificationError(
       `Expo SDK ${versionLabel} is not supported. Please use Expo SDK ${MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION} or newer. For older versions, please see the matrix of supported versions: https://oss.callstack.com/react-native-brownfield/docs/getting-started/introduction#expo-version-compatibility`
     );
@@ -126,7 +128,7 @@ export function modifyPodfile(
 
   modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(
     modifiedPodfile,
-    expoMajor as number
+    expoMajor
   );
 
   return modifiedPodfile;

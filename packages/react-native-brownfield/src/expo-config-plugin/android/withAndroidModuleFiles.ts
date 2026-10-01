@@ -93,6 +93,9 @@ export function createAndroidModule({
   /**
    * Source template flavor. 'vanilla' is used by the RN CLI scaffold for
    * non-Expo projects; Expo keeps the default 'expo' variant.
+   * Note: expresses the same Expo-vs-vanilla axis as `useExpoHost` in the
+   * iOS helpers (withIosFrameworkFiles/xcodeHelpers), with opposite
+   * polarity: 'vanilla' here === `useExpoHost: false` there.
    */
   templateVariant?: 'expo' | 'vanilla';
 

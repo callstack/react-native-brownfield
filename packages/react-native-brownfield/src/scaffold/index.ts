@@ -1,7 +1,12 @@
+// Emitted as a triple-slash reference into the generated scaffold .d.ts, so
+// consumers (e.g. create-react-native-brownfield) resolve the untyped `xcode`
+// import through this single declaration instead of duplicating xcode.d.ts.
+/// <reference path="./xcode.d.ts" />
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
+import type { ModProps, XcodeProject } from '@expo/config-plugins';
 import type { UserConfig } from '@react-native-community/cli-types';
 import cliConfigImport from '@react-native-community/cli-config';
 import xcode from 'xcode';
@@ -24,6 +29,11 @@ import {
 } from '../expo-config-plugin/ios/xcodeHelpers';
 import { createIosFramework } from '../expo-config-plugin/ios/withIosFrameworkFiles';
 
+// ESM/CJS interop shim: `@react-native-community/cli-config` ships CJS whose
+// default export is the function itself, but depending on how this module is
+// loaded (bundler/ESM interop) the import may be the module namespace object
+// with the function on `.default`. Unwrap to the callable either way —
+// do not remove, otherwise the scaffold crashes with "cliConfig is not a function".
 const cliConfig: typeof cliConfigImport =
   typeof cliConfigImport === 'function'
     ? cliConfigImport
@@ -187,112 +197,161 @@ export async function scaffoldBrownfieldInRncCliProject(
     );
   }
 
-  // --- Android: root build.gradle + settings.gradle + module files ---
-  const rootBuildGradlePath = path.join(androidDir, 'build.gradle');
-  const rootBuildGradle = readFileIfExists(rootBuildGradlePath);
-  if (!rootBuildGradle) {
-    throw new Error(`Missing ${rootBuildGradlePath}`);
+  // Tracks the current mutation phase so a mid-way failure can name the step
+  // that failed and point users at fix-forward guidance (see catch below).
+  let currentStep = 'preconditions';
+
+  try {
+    currentStep = 'android-gradle';
+    // --- Android: root build.gradle + settings.gradle ---
+    const rootBuildGradlePath = path.join(androidDir, 'build.gradle');
+    const rootBuildGradle = readFileIfExists(rootBuildGradlePath);
+    if (!rootBuildGradle) {
+      throw new Error(`Missing ${rootBuildGradlePath}`);
+    }
+    writeFileIfChanged(
+      rootBuildGradlePath,
+      modifyRootBuildGradle(rootBuildGradle)
+    );
+
+    const settingsGradlePath = path.join(androidDir, 'settings.gradle');
+    const settingsGradle = readFileIfExists(settingsGradlePath);
+    if (!settingsGradle) {
+      throw new Error(`Missing ${settingsGradlePath}`);
+    }
+    writeFileIfChanged(
+      settingsGradlePath,
+      modifySettingsGradle(settingsGradle, androidModuleName)
+    );
+
+    const resolvedAndroidConfig: ResolvedBrownfieldPluginConfigWithAndroid = {
+      android: {
+        moduleName: androidModuleName,
+        packageName: androidPackageName,
+        // Defaults aligned with the Expo plugin defaults for RN CLI projects.
+        // RN CLI config does not reliably expose SDK levels today, so there
+        // is no cheap derivation available here.
+        // TODO: derive from the app's rootProject.ext SDK values (the shared
+        // build.gradle.kts template already falls back to
+        // rootProject.ext.compileSdkVersion/targetSdkVersion) or expose flags.
+        minSdkVersion: 24,
+        targetSdkVersion: 35,
+        compileSdkVersion: 35,
+        groupId: androidPackageName,
+        artifactId: androidModuleName,
+        version: '0.0.1-SNAPSHOT',
+        // Fields added to the resolved config after the original draft was
+        // written (BGP local-plugin wiring + flavor dimensions, #448/#458).
+        // Defaults match the Expo plugin defaults for RN CLI projects.
+        useLocalGradlePlugin: false,
+        useLocalMaven: false,
+        missingDimensionStrategies: [],
+      },
+      ios: null,
+      debug: options.debug ?? false,
+    };
+
+    currentStep = 'android-module';
+    createAndroidModule({
+      androidDir,
+      config: resolvedAndroidConfig,
+      rnVersion,
+      // 'vanilla' = non-Expo host (same axis as `useExpoHost: false` below).
+      templateVariant: 'vanilla',
+    });
+
+    // --- iOS: xcodeproj + Podfile + framework source files ---
+    currentStep = 'ios-project';
+    const xcodeprojPath = firstXcodeprojPath(iosDir);
+    const pbxprojPath = path.join(xcodeprojPath, 'project.pbxproj');
+    if (!fs.existsSync(pbxprojPath)) {
+      throw new Error(`Missing ${pbxprojPath}`);
+    }
+
+    const project = xcode.project(pbxprojPath);
+    project.parseSync();
+
+    const appBundleId = resolveIosAppBundleId(project);
+    const brownfieldBundleId = appBundleId
+      ? `${appBundleId}.brownfield`
+      : `com.brownfield.${iosFrameworkName.toLowerCase()}`;
+
+    const resolvedIosConfig: ResolvedBrownfieldPluginConfigWithIos = {
+      ios: {
+        frameworkName: iosFrameworkName,
+        bundleIdentifier: brownfieldBundleId,
+        buildSettings: {},
+        // Defaults aligned with the Expo plugin defaults (Expo's fallback
+        // when no deployment target can be derived; see
+        // resolveFrameworkDeploymentTarget). RN CLI config does not expose
+        // an iOS deployment target directly.
+        // TODO: derive from the Podfile `platform :ios` line or RN's
+        // min_ios_version_supported, or expose a flag.
+        deploymentTarget: '15.0',
+        // Standard CFBundleShortVersionString for the generated framework
+        // (matches the Expo plugin default); unrelated to package versioning.
+        frameworkVersion: '1',
+      },
+      android: null,
+      debug: options.debug ?? false,
+    };
+
+    // Contract: downstream helpers (xcodeHelpers.addFrameworkTarget /
+    // resolveAppTargetName) only read `platformProjectRoot` (framework group
+    // location) and `projectName` (app-target-name fallback), but the shared
+    // Expo-path signatures require a full ModProps, so we provide every field
+    // with scaffold-appropriate values (no mods are run here, so `introspect`
+    // is false and `nextMod` is omitted).
+    const modRequest: ModProps<XcodeProject> = {
+      projectRoot,
+      platformProjectRoot: iosDir,
+      modName: 'react-native-brownfield-scaffold',
+      platform: 'ios',
+      introspect: false,
+      projectName: path.basename(xcodeprojPath, '.xcodeproj'),
+    };
+
+    const { frameworkTargetUUID } = addFrameworkTarget(
+      project,
+      modRequest,
+      resolvedIosConfig.ios,
+      { useExpoHost: false }
+    );
+
+    copyBundleReactNativePhase(project, frameworkTargetUUID);
+    addSourceFilesBuildPhase(
+      project,
+      frameworkTargetUUID,
+      resolvedIosConfig.ios,
+      { useExpoHost: false }
+    );
+    // xcode@3.x writeSync() returns the serialized project but does not write it.
+    // This is the riskiest write: a failure here leaves a partially mutated
+    // pbxproj on disk (the in-memory changes are lost, not half-written).
+    fs.writeFileSync(pbxprojPath, project.writeSync());
+
+    currentStep = 'ios-podfile';
+    const podfilePath = path.join(iosDir, 'Podfile');
+    const podfile = readFileIfExists(podfilePath);
+    if (!podfile) {
+      throw new Error(`Missing ${podfilePath}`);
+    }
+    writeFileIfChanged(podfilePath, modifyPodfile(podfile, iosFrameworkName));
+
+    currentStep = 'ios-sources';
+    createIosFramework(iosDir, resolvedIosConfig, { useExpoHost: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    Logger.logInfo(
+      'Scaffolding failed mid-way; fix-forward: re-running the CLI is idempotent for completed steps (gradle settings, Podfile, xcodeproj target detection) — inspect partial changes with git diff.'
+    );
+    throw new Error(
+      `Brownfield scaffolding failed during step "${currentStep}": ${message}`,
+      {
+        cause: error,
+      }
+    );
   }
-  writeFileIfChanged(
-    rootBuildGradlePath,
-    modifyRootBuildGradle(rootBuildGradle)
-  );
-
-  const settingsGradlePath = path.join(androidDir, 'settings.gradle');
-  const settingsGradle = readFileIfExists(settingsGradlePath);
-  if (!settingsGradle) {
-    throw new Error(`Missing ${settingsGradlePath}`);
-  }
-  writeFileIfChanged(
-    settingsGradlePath,
-    modifySettingsGradle(settingsGradle, androidModuleName)
-  );
-
-  const resolvedAndroidConfig: ResolvedBrownfieldPluginConfigWithAndroid = {
-    android: {
-      moduleName: androidModuleName,
-      packageName: androidPackageName,
-      minSdkVersion: 24,
-      targetSdkVersion: 35,
-      compileSdkVersion: 35,
-      groupId: androidPackageName,
-      artifactId: androidModuleName,
-      version: '0.0.1-SNAPSHOT',
-      // Fields added to the resolved config after the original draft was
-      // written (BGP local-plugin wiring + flavor dimensions, #448/#458).
-      // Defaults match the Expo plugin defaults for RN CLI projects.
-      useLocalGradlePlugin: false,
-      useLocalMaven: false,
-      missingDimensionStrategies: [],
-    },
-    ios: null,
-    debug: options.debug ?? false,
-  };
-
-  createAndroidModule({
-    androidDir,
-    config: resolvedAndroidConfig,
-    rnVersion,
-    templateVariant: 'vanilla',
-  });
-
-  // --- iOS: xcodeproj + Podfile + framework source files ---
-  const xcodeprojPath = firstXcodeprojPath(iosDir);
-  const pbxprojPath = path.join(xcodeprojPath, 'project.pbxproj');
-  if (!fs.existsSync(pbxprojPath)) {
-    throw new Error(`Missing ${pbxprojPath}`);
-  }
-
-  const project = xcode.project(pbxprojPath);
-  project.parseSync();
-
-  const appBundleId = resolveIosAppBundleId(project);
-  const brownfieldBundleId = appBundleId
-    ? `${appBundleId}.brownfield`
-    : `com.brownfield.${iosFrameworkName.toLowerCase()}`;
-
-  const resolvedIosConfig: ResolvedBrownfieldPluginConfigWithIos = {
-    ios: {
-      frameworkName: iosFrameworkName,
-      bundleIdentifier: brownfieldBundleId,
-      buildSettings: {},
-      deploymentTarget: '15.0',
-      frameworkVersion: '1',
-    },
-    android: null,
-    debug: options.debug ?? false,
-  };
-
-  const modRequest = {
-    platformProjectRoot: iosDir,
-    projectName: path.basename(xcodeprojPath, '.xcodeproj'),
-  } as any;
-
-  const { frameworkTargetUUID } = addFrameworkTarget(
-    project,
-    modRequest,
-    resolvedIosConfig.ios,
-    { useExpoHost: false }
-  );
-
-  copyBundleReactNativePhase(project, frameworkTargetUUID);
-  addSourceFilesBuildPhase(
-    project,
-    frameworkTargetUUID,
-    resolvedIosConfig.ios,
-    { useExpoHost: false }
-  );
-  // xcode@3.x writeSync() returns the serialized project but does not write it.
-  fs.writeFileSync(pbxprojPath, project.writeSync());
-
-  const podfilePath = path.join(iosDir, 'Podfile');
-  const podfile = readFileIfExists(podfilePath);
-  if (!podfile) {
-    throw new Error(`Missing ${podfilePath}`);
-  }
-  writeFileIfChanged(podfilePath, modifyPodfile(podfile, iosFrameworkName));
-
-  createIosFramework(iosDir, resolvedIosConfig, { useExpoHost: false });
 
   Logger.logInfo('Brownfield scaffolding complete.');
 }
