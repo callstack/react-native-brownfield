@@ -190,7 +190,17 @@ export async function scaffoldBrownfieldInRncCliProject(
   const androidDir = path.isAbsolute(android.sourceDir)
     ? android.sourceDir
     : path.join(projectRoot, android.sourceDir || 'android');
-  const iosDir = path.join(projectRoot, 'ios');
+  // Honour the CLI-resolved iOS source directory (symmetry with Android
+  // above): a project that sets project.ios.sourceDir to a custom relative
+  // path makes the Community CLI resolve it to an absolute directory, and
+  // hard-coding <root>/ios would then miss the .xcodeproj or mutate the
+  // wrong directory. Note: an absolute sourceDir authored by the user is
+  // already rejected upstream (cli-config-apple joins it onto the project
+  // root), so the isAbsolute branch mainly guards the resolved value.
+  const iosSourceDir = ios.sourceDir;
+  const iosDir = path.isAbsolute(iosSourceDir)
+    ? iosSourceDir
+    : path.join(projectRoot, iosSourceDir || 'ios');
 
   const rnVersion = resolveReactNativeVersion(projectRoot);
 

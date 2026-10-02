@@ -57,6 +57,13 @@ describe('getFrameworkSourceFiles', () => {
       'class InternalClassForBundle {}'
     );
 
+    // The native host app imports only the generated framework and then calls
+    // ReactNativeBrownfield.shared, so the framework must re-export the
+    // library's public API (same as the manual guide's interface file).
+    expect(frameworkInterface?.content).toContain(
+      '@_exported import ReactBrownfield'
+    );
+
     // Vanilla frameworks cannot resolve an Expo bundle, so neither the
     // identifier lookups nor the Expo modules provider may be emitted.
     expect(frameworkInterface?.content).not.toContain(
@@ -64,7 +71,6 @@ describe('getFrameworkSourceFiles', () => {
     );
     expect(frameworkInterface?.content).not.toContain('{{BUNDLE_IDENTIFIER}}');
     expect(frameworkInterface?.content).not.toContain('Bundle(identifier:');
-    expect(frameworkInterface?.content).not.toContain('ReactBrownfield');
     expect(frameworkInterface?.content).not.toContain('ExpoModulesProvider');
   });
 
