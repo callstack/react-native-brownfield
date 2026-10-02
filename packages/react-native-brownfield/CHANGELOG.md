@@ -1,5 +1,19 @@
 # @callstack/react-native-brownfield
 
+## 5.2.0
+
+### Minor Changes
+
+- [#467](https://github.com/callstack/react-native-brownfield/pull/467) [`31c3939`](https://github.com/callstack/react-native-brownfield/commit/31c39399aad0efb098876d35a4fbbe80835d5dba) Thanks [@hurali97](https://github.com/hurali97)! - agp v9 compliance
+
+- [#467](https://github.com/callstack/react-native-brownfield/pull/467) [`31c3939`](https://github.com/callstack/react-native-brownfield/commit/31c39399aad0efb098876d35a4fbbe80835d5dba) Thanks [@hurali97](https://github.com/hurali97)! - add expo sdk 58
+
+### Patch Changes
+
+- [#477](https://github.com/callstack/react-native-brownfield/pull/477) [`9e57d43`](https://github.com/callstack/react-native-brownfield/commit/9e57d4384f93459526a41084ee82355dd43f4ed9) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - fix: publish dependencies of community libraries (e.g. react-native-screens, lottie-react-native) embedded in Expo brownfield AARs; the published POM now lists them, previously host apps could crash with NoClassDefFoundError
+- Updated dependencies [[`31c3939`](https://github.com/callstack/react-native-brownfield/commit/31c39399aad0efb098876d35a4fbbe80835d5dba)]:
+  - @callstack/brownfield-cli@5.2.0
+
 ## 5.1.1
 
 ### Patch Changes
