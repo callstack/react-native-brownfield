@@ -1,8 +1,13 @@
 import { Platform } from 'react-native';
 
 import ReactNativeBrownfieldModule from './NativeReactNativeBrownfieldModule';
-export { scaffoldBrownfieldInRncCliProject } from './scaffold';
-export type { BrownfieldScaffoldOptions } from './scaffold';
+
+// NOTE: the scaffold API is intentionally NOT re-exported here. This module is
+// the package's `react-native`/`source` entry point, so anything reachable from
+// it is traversed by Metro when an app imports the package. The scaffold pulls
+// in node:fs, node:path, xcode and the Community CLI, which cannot bundle.
+// Node-side consumers import it from the dedicated subpath instead:
+// `@callstack/react-native-brownfield/scaffold`.
 
 export type { BrownfieldConfig } from '@callstack/brownfield-cli/types';
 
