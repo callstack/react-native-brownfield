@@ -54,13 +54,15 @@ function ensureExpoDefinesForSDK55AndAbove(
  * Modifies the Podfile to include the Brownfield framework target
  * @param podfile The original Podfile content
  * @param frameworkName The name of the framework target to add
- * @param expoMajor The major version of the Expo SDK
+ * @param expoMajor The major version of the Expo SDK. Omit for vanilla
+ * (non-Expo) projects: the vanilla target block is inserted and no
+ * Expo-only hooks are applied.
  * @returns The modified Podfile content
  */
 export function modifyPodfile(
   podfile: string,
   frameworkName: string,
-  expoMajor: number
+  expoMajor?: number
 ): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
@@ -73,9 +75,18 @@ export function modifyPodfile(
   Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
 
   // insert the framework target after the main target's "do"
-  const frameworkTargetBlock = renderTemplate('ios', 'PodfileTargetBlock.rb', {
-    '{{FRAMEWORK_NAME}}': frameworkName,
-  });
+  // Vanilla means the caller passed no Expo SDK version at all (undefined).
+  // Negative values mean "Expo detected but unknown version" and must still
+  // hit the unsupported-version error path below, not the vanilla path.
+  const frameworkTargetBlock = renderTemplate(
+    'ios',
+    typeof expoMajor === 'number'
+      ? 'PodfileTargetBlock.rb'
+      : 'PodfileTargetBlock.vanilla.rb',
+    {
+      '{{FRAMEWORK_NAME}}': frameworkName,
+    }
+  );
 
   // find insertion point after the first target's content begins, before the end of the target block
   const mainTargetMatch = podfile.match(
@@ -101,8 +112,15 @@ export function modifyPodfile(
 
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
+  // Vanilla projects (expoMajor === undefined) get no Expo-only hooks.
+  // Early-returning here lets TypeScript narrow `expoMajor` to `number`
+  // for the rest of the function (no casts needed below).
+  if (typeof expoMajor !== 'number') {
+    return modifiedPodfile;
+  }
+
   if (expoMajor < MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION) {
-    const versionLabel = expoMajor < 0 ? 'unknown' : expoMajor.toString();
+    const versionLabel = expoMajor < 0 ? 'unknown' : String(expoMajor);
     throw new SourceModificationError(
       `Expo SDK ${versionLabel} is not supported. Please use Expo SDK ${MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION} or newer. For older versions, please see the matrix of supported versions: https://oss.callstack.com/react-native-brownfield/docs/getting-started/introduction#expo-version-compatibility`
     );

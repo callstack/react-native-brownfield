@@ -1,0 +1,96 @@
+import { PackageManagerTabs } from '@theme';
+
+# React Native CLI Integration
+
+This guide walks you through packaging a **React Native Community CLI** app (non-Expo) as an **XCFramework** or an **AAR**.
+
+If you use Expo, see [Expo Integration](/docs/getting-started/expo) instead — the Expo config plugin does this setup for you on every prebuild.
+
+## Automated Setup
+
+Run this command from the root of your React Native project:
+
+```bash
+npx create-react-native-brownfield@latest
+```
+
+With a different package manager:
+
+```bash
+yarn create react-native-brownfield
+```
+
+```bash
+pnpm create react-native-brownfield
+```
+
+The command wires up everything the [Brownfield CLI](/docs/cli/brownfield) needs to produce your artifacts, so you don't have to configure the packaging targets by hand.
+
+### What it changes
+
+| Area | Change |
+| --- | --- |
+| `android/build.gradle` | Adds the `brownfield-gradle-plugin` classpath, pinned to the published version |
+| `android/settings.gradle` | Includes the new Android library module |
+| `android/<androidModuleName>/` | New packaging module with `build.gradle.kts`, autolinking setup, and a `ReactNativeHostManager.kt` written for a non-Expo host |
+| `ios/<project>.xcodeproj` | New framework target with the **Bundle React Native code and images** phase copied from your app target |
+| `ios/Podfile` | Nested `target '<iosFrameworkName>'` block with `inherit! :complete` |
+| `ios/<iosFrameworkName>/` | Framework sources (`<iosFrameworkName>.swift`, `Info.plist`) |
+| `package.json` | Adds `@callstack/react-native-brownfield` and `@callstack/brownfield-cli` dependencies and the `package:ios` / `package:android` scripts |
+| `brownfield.config.json` | Generated packaging settings: iOS scheme and configuration, Android module name and variant |
+
+### Options
+
+| Flag | Default | Purpose |
+| --- | --- | --- |
+| `--path <path>` | `.` | Project root to scaffold into |
+| `--ios-framework-name <name>` | `BrownfieldLib` | iOS framework target name (also the framework directory name) |
+| `--android-module-name <name>` | `brownfieldlib` | Android library module name |
+| `--debug` | `false` | Verbose logging |
+
+:::note `brownfield init` is not available yet
+The same setup will eventually be exposed as an `init` subcommand of `@callstack/brownfield-cli`. Until then, `create-react-native-brownfield` is the command to run.
+:::
+
+### Re-running the command
+
+The command is **idempotent** — run it as many times as you like. It detects work it already did, so it does not duplicate targets, build phases, Podfile blocks, dependencies, or scripts. It overwrites `brownfield.config.json` with content derived from your framework and module names, so an unchanged re-run leaves the file byte-identical.
+
+It does edit files you own, so review the result with `git diff` before committing. Existing dependency versions and existing `package:*` scripts are never overwritten.
+
+:::tip If a run fails halfway
+Re-run it after fixing the cause. Completed steps are detected and skipped, so you do not need to revert anything — inspect the partial state with `git diff`.
+:::
+
+### Prerequisites
+
+- A React Native Community CLI project (Expo projects use the [config plugin](/docs/getting-started/expo) instead)
+- Node.js 20 or newer
+- CocoaPods and Xcode for iOS, Android SDK for Android
+
+## Package Your App
+
+After the setup command, install dependencies and run the packaging scripts it added:
+
+<PackageManagerTabs command="install" />
+
+<PackageManagerTabs command="run package:ios" />
+
+<PackageManagerTabs command="run package:android" />
+
+`package:ios` writes the XCFramework to `ios/.brownfield/package/build/`; `package:android` builds the Fat-AAR. Both read their settings from `brownfield.config.json`, so no flags are needed. See [Configuration files](/docs/api-reference/configuration) to customize them.
+
+## Integrate With Your Native App
+
+Embedding the artifact in your native app is a manual step, and the guides below cover it in detail — including the packaging setup itself, if you prefer to configure it by hand instead of running the command:
+
+- [**iOS Integration**](/docs/getting-started/ios) — package as XCFramework and integrate into your iOS app. If you ran the automated setup, steps 1, 3, 4 and 5 are already done for you (framework target with the required build settings, bundle script, framework interface, and configuration file). Step 2 is done except for the optional static-linking snippet — check whether your `Podfile` needs it before you `pod install`. Then continue from step 6, **Create the XCFramework**.
+- [**Android Integration**](/docs/getting-started/android) — package as AAR and integrate into your Android app. If you ran the automated setup, steps 1–7 are already done (library module, Gradle plugin, React Native dependencies, host manager, build config fields, Maven publishing, and configuration file). Continue from step 8, **Create the AAR**.
+
+Both guides also describe the manual alternative in full, so you can use them to check the generated wiring or to customize it beyond what the command offers.
+
+## Next Steps
+
+- [iOS API Reference](/docs/api-reference/react-native-brownfield/swift)
+- [Android API Reference](/docs/api-reference/react-native-brownfield/kotlin)
+- [Guidelines](/docs/guides/guidelines)

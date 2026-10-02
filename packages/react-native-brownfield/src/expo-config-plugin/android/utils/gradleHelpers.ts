@@ -1,6 +1,6 @@
 import {
   BROWNFIELD_PLUGIN_VERSION,
-  brownfieldGradlePluginDependency,
+  brownfieldGradlePluginClasspath,
 } from './constants';
 import { Logger } from '../../logging';
 import { formatMissingDimensionStrategies } from './formatHelpers';
@@ -12,6 +12,12 @@ const LOCAL_MAVEN_REPOSITORY = 'mavenLocal()';
 type GradleModificationOptions = {
   useLocalGradlePlugin?: boolean;
   useLocalMaven?: boolean;
+  /**
+   * Explicit brownfield-gradle-plugin version for the emitted classpath.
+   * Defaults to BROWNFIELD_PLUGIN_VERSION (Expo plugin behavior, unchanged);
+   * the RN CLI scaffold passes a Maven-Central-published version instead.
+   */
+  pluginVersion?: string;
 };
 
 const BUILD_SCRIPT_BLOCK_NAME = 'buildscript';
@@ -71,6 +77,7 @@ export function modifyRootBuildGradle(
   {
     useLocalGradlePlugin = false,
     useLocalMaven = false,
+    pluginVersion,
   }: GradleModificationOptions = {}
 ): string {
   let updatedContents = contents;
@@ -108,8 +115,8 @@ export function modifyRootBuildGradle(
   }
 
   const gradlePluginDependency = useLocalMaven
-    ? `classpath("com.callstack.react:brownfield-gradle-plugin:${BROWNFIELD_PLUGIN_VERSION}-SNAPSHOT")`
-    : brownfieldGradlePluginDependency;
+    ? brownfieldGradlePluginClasspath(`${BROWNFIELD_PLUGIN_VERSION}-SNAPSHOT`)
+    : brownfieldGradlePluginClasspath(pluginVersion);
 
   // insert before the closing brace of dependencies
   const insertion = `\t${gradlePluginDependency}\n\t`;

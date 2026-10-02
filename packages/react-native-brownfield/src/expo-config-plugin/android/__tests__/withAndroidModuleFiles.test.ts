@@ -176,6 +176,28 @@ describe('createAndroidModule', () => {
     expect(readLibraryBuildGradle(androidDir)).toContain('targetSdk = 35');
   });
 
+  it('inherits compileSdk from the app project on the vanilla variant used by the RN CLI scaffold', () => {
+    const androidDir = createAndroidDir();
+
+    // The RN CLI scaffold (scaffold/index.ts) passes compileSdkVersion:
+    // undefined on purpose, so the shared template must fall back to the
+    // app's own rootProject.ext value instead of a hardcoded level.
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          compileSdkVersion: undefined,
+        },
+      }),
+      rnVersion: '0.87.1',
+      templateVariant: 'vanilla',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      'compileSdk = resolveRootProjectInt("compileSdkVersion")'
+    );
+  });
+
   it('keeps targetSdk when the optional Expo SDK version is omitted', () => {
     const androidDir = createAndroidDir();
 
@@ -219,6 +241,70 @@ describe('createAndroidModule', () => {
         )
       )
     ).toBe(true);
+  });
+
+  it('renders the vanilla host manager without Expo imports for the vanilla template variant', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.81.0',
+      templateVariant: 'vanilla',
+    });
+
+    const hostManager = readLibraryHostManager(androidDir);
+    expect(hostManager).toContain('package com.example.brownfield');
+    expect(hostManager).toContain(
+      'ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)'
+    );
+    expect(hostManager).toContain('loadReactNative(application)');
+    expect(hostManager).not.toContain('{{PACKAGE_NAME}}');
+
+    // Expo-only wiring must not leak into the RN CLI variant.
+    expect(hostManager).not.toContain('expo.modules');
+    expect(hostManager).not.toContain('ExpoReactHostFactory');
+    expect(hostManager).not.toContain('ApplicationLifecycleDispatcher');
+  });
+
+  it('renders the Expo host manager by default when no template variant is given', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.81.0',
+    });
+
+    const hostManager = readLibraryHostManager(androidDir);
+    expect(hostManager).toContain('import expo.modules.ExpoReactHostFactory');
+    expect(hostManager).not.toContain('loadReactNative(application)');
+  });
+
+  it('omits targetSdk for the vanilla template variant (AGP 9 rejects the field)', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.87.1',
+      templateVariant: 'vanilla',
+    });
+
+    // AGP 9 + RN 0.87 fails compilation with "Unresolved reference 'targetSdk'".
+    expect(readLibraryBuildGradle(androidDir)).not.toContain('targetSdk');
+  });
+
+  it('still emits targetSdk on the Expo variant when no Expo SDK major is given', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.87.1',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain('targetSdk = 35');
   });
 
   it('emits targetSdk for Expo SDK versions below 58 when inherited from the app project', () => {
@@ -456,6 +542,17 @@ HERMES_V1_VERSION_NAME=250829098.0.10
   function readLibraryBuildGradle(androidDir: string): string {
     return fs.readFileSync(
       path.join(androidDir, 'brownfieldlib', 'build.gradle.kts'),
+      'utf8'
+    );
+  }
+
+  function readLibraryHostManager(androidDir: string): string {
+    return fs.readFileSync(
+      path.join(
+        androidDir,
+        'brownfieldlib',
+        'src/main/java/com/example/brownfield/ReactNativeHostManager.kt'
+      ),
       'utf8'
     );
   }
