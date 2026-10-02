@@ -1,4 +1,5 @@
 import * as Device from 'expo-device';
+import LottieView from 'lottie-react-native';
 import { Button, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
@@ -37,6 +38,12 @@ export default function HomeScreen() {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
+        {/* Community library with its own Android dependency: the host crashes if it's missing from the POM. */}
+        <LottieView
+          source={{ v: '5.7.4', fr: 30, ip: 0, op: 1, w: 1, h: 1, layers: [] }}
+          style={{ position: 'absolute', width: 1, height: 1 }}
+        />
+
         <ThemedView style={styles.heroSection}>
           <AnimatedIcon />
           <ThemedText
