@@ -16,7 +16,7 @@ Do not use for regular releases. Those only need a changeset; CI publishes them.
 - Never run `npm publish` (without `--dry-run`) unless the maintainer has explicitly said to publish that exact package and version. Publishing is irreversible: npm never accepts the same version twice.
 - The maintainer runs `npm login` and completes two-factor authentication. Never ask for, read, store, or type OTPs, passwords, or npm tokens.
 - Never commit `package.tgz` or any other packed tarball. Delete it after publishing.
-- Do not merge the PR that adds the package before the manual publish succeeded.
+- Do not merge the PR that adds the package before the manual publish succeeded and its trusted publisher is configured.
 
 ## Pre-flight Checks
 
@@ -40,7 +40,7 @@ If a check fails, stop and tell the maintainer what to fix. Do not fix version n
 3. Walk the maintainer through the steps in `CONTRIBUTING.md`, running the build, pack and inspection commands when asked.
 4. Before the publish step, show the exact command, package name and version, and wait for an explicit go-ahead.
 5. The maintainer runs `npm publish` in their own interactive terminal. Your shell is non-interactive, so npm can't wait for the browser approval and fails with `EOTP` without publishing. Do not suggest `--otp`, because the code would end up in the conversation.
-6. After the publish, poll `npm view <package-name> versions` until the real version replaces the `0.0.0-stage` placeholder (it took about two minutes the first time). Then delete the tarball and remind the maintainer to configure the trusted publisher once the PR is merged.
+6. After the publish, poll `npm view <package-name> versions` until the real version replaces the `0.0.0-stage` placeholder (it took about two minutes the first time). Then delete the tarball and walk the maintainer through the trusted publisher setup in `CONTRIBUTING.md` before the PR is merged. The maintainer fills in the npmjs.com form. If they share screenshots of an existing package's card or of the form, compare each field with `CONTRIBUTING.md` before they click **Set up connection**, since the connection can't be edited afterwards.
 
 ## Output Contract
 

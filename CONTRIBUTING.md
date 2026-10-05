@@ -39,9 +39,9 @@ CI has no npm token. It publishes through [npm trusted publishing](https://docs.
 A trusted publisher can only be configured for a package that already exists on npm. A brand-new package therefore needs one manual publish by a maintainer. After that, CI publishes it like every other package.
 
 > [!IMPORTANT]
-> Publish the new package manually before merging the PR that adds it. If the PR is merged first, the release workflow will try to publish a package npm has never seen, with no trusted publisher configured for it, and the release fails.
+> Publish the new package manually and configure its trusted publisher before merging the PR that adds it. Otherwise the next release tries to publish a package that CI has no permission for, and the release fails.
 
-The order is: manual publish, merge the PR, configure the trusted publisher, then let the next version PR publish the package.
+The order is: manual publish, configure the trusted publisher, merge the PR, then let the next version PR publish the package.
 
 1. Use an npm account (personal or a Callstack one) with two-factor authentication enabled.
 2. Ask a Callstack npm org admin to add your npm username to the `@callstack` org. npm sends the invitation by email; accept it. The default `developer` role is enough to publish a new package under the scope.
@@ -105,17 +105,20 @@ Example: `@callstack/create-react-native-brownfield` lives in `packages/create-r
 
 ### Configuring the trusted publisher
 
-Do this once per package, after its first manual publish:
+Do this once per package, right after its first manual publish. The other packages in the repo already have the same connection, so you can compare with any of them (for example `https://www.npmjs.com/package/@callstack/brownfield-navigation/access`).
 
-1. On npmjs.com, open the package and go to **Settings**, then **Trusted Publisher**. <!-- TODO: confirm during first manual publish -->
-2. Choose **GitHub Actions** and fill in:
-   - Organization or user: `callstack`
-   - Repository: `react-native-brownfield`
-   - Workflow filename: `release.yml` (the filename only, not the path)
-   - Environment: leave empty, the release workflow doesn't use one
-3. Save.
+1. Open the settings page of the new package: `https://www.npmjs.com/package/<package-name>/access`. Make sure it is the new package and not an existing one. Adding the same connection to a package that already has it fails with "a trusted publisher configuration that a token could also match already exists for this package".
+2. Under **Trusted Publisher**, select **GitHub Actions** and fill in the form:
+   - **Label**: leave empty.
+   - **Organization or user**: `callstack`
+   - **Repository**: `react-native-brownfield`. This is the GitHub repository that publishes, not the npm package name.
+   - **Workflow filename**: `release.yml`
+   - **Environment name**: leave empty. The release workflow doesn't use one.
+   - **Allowed actions**: check **Allow npm publish**, leave **Allow npm dist-tag** unchecked. `npm stage publish` is always allowed.
 
-Once a CI release has published the package successfully, set its publishing access to "Require two-factor authentication and disallow tokens", as npm recommends.
+   The provider and required fields can't be edited after saving. To fix a typo, delete the connection and create a new one.
+3. Click **Set up connection**. The card should show `callstack/react-native-brownfield`, `release.yml` and the permissions **npm publish** and **npm stage publish**.
+4. Under **Publishing access**, select **Require two-factor authentication and disallow bypass 2fa tokens (recommended)** and click **Update Package Settings**. Trusted publishing keeps working with this option.
 
 ## Scripts
 
