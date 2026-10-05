@@ -30,7 +30,7 @@ The command wires up everything the [Brownfield CLI](/docs/cli/brownfield) needs
 
 | Area | Change |
 | --- | --- |
-| `android/build.gradle` | Adds the `brownfield-gradle-plugin` classpath, pinned to the published version |
+| `android/build.gradle` | Adds the `brownfield-gradle-plugin` classpath |
 | `android/settings.gradle` | Includes the new Android library module |
 | `android/<androidModuleName>/` | New packaging module with `build.gradle.kts`, autolinking setup, and a `ReactNativeHostManager.kt` written for a non-Expo host |
 | `ios/<project>.xcodeproj` | New framework target with the **Bundle React Native code and images** phase copied from your app target |

@@ -20,22 +20,6 @@ describe('gradleHelpers', () => {
     );
   });
 
-  it('emits an explicit pluginVersion when provided (RN CLI scaffold path)', () => {
-    // The scaffold must pin a Maven Central-published version; the default
-    // (above) tracks the in-development plugin and is for the Expo path.
-    const contents = `buildscript {
-  dependencies {
-    classpath('com.android.tools.build:gradle')
-  }
-}`;
-
-    expect(
-      modifyRootBuildGradle(contents, { pluginVersion: '2.0.0-alpha09' })
-    ).toContain(
-      'classpath("com.callstack.react:brownfield-gradle-plugin:2.0.0-alpha09")'
-    );
-  });
-
   it('adds the Brownfield module include without mutating pluginManagement', () => {
     const contents = `pluginManagement {
   includeBuild("../node_modules/@react-native/gradle-plugin")

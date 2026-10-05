@@ -27,7 +27,7 @@ pnpm create react-native-brownfield
 The command mutates your project in place:
 
 - **Android**
-  - `android/build.gradle` — adds the `com.callstack.react:brownfield-gradle-plugin` classpath, pinned to the latest version published on Maven Central
+  - `android/build.gradle` — adds the `com.callstack.react:brownfield-gradle-plugin` classpath
   - `android/settings.gradle` — includes the new library module
   - `android/<androidModuleName>/` — creates the packaging module: `build.gradle.kts` (Brownfield plugin, autolinking, RN dependencies, build config fields, `maven-publish`) and a `ReactNativeHostManager.kt` written for a non-Expo host
 - **iOS**

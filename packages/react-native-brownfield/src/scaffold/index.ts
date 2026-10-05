@@ -20,7 +20,6 @@ import {
   modifyRootBuildGradle,
   modifySettingsGradle,
 } from '../expo-config-plugin/android/utils/gradleHelpers';
-import { PUBLISHED_BROWNFIELD_PLUGIN_VERSION } from '../expo-config-plugin/android/utils/constants';
 import { createAndroidModule } from '../expo-config-plugin/android/withAndroidModuleFiles';
 import { modifyPodfile } from '../expo-config-plugin/ios/podfileHelpers';
 import {
@@ -227,12 +226,7 @@ export async function scaffoldBrownfieldInRncCliProject(
     }
     writeFileIfChanged(
       rootBuildGradlePath,
-      // Pin the Maven Central-published plugin version: a scaffolded RN CLI
-      // app resolves this classpath from Central only, so the in-development
-      // BROWNFIELD_PLUGIN_VERSION (often unreleased) would 404 the build.
-      modifyRootBuildGradle(rootBuildGradle, {
-        pluginVersion: PUBLISHED_BROWNFIELD_PLUGIN_VERSION,
-      })
+      modifyRootBuildGradle(rootBuildGradle)
     );
 
     const settingsGradlePath = path.join(androidDir, 'settings.gradle');

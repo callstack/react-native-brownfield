@@ -44,15 +44,13 @@ npm install --no-audit --no-fund
 echo "::endgroup::"
 
 echo "::group::Verify scaffold output"
-# Keep in sync with PUBLISHED_BROWNFIELD_PLUGIN_VERSION in
-# packages/react-native-brownfield/src/expo-config-plugin/android/utils/constants.ts.
-# Asserted verbatim (not just the plugin artifact name) so a drift between the
-# constant and what is actually resolvable from Maven Central fails here
-# instead of in a user's build.
-PUBLISHED_PLUGIN_VERSION="2.0.0-alpha09"
+# Read the expected plugin version from the same constant the scaffold emits.
+PLUGIN_VERSION="$(sed -nE "s/^export const BROWNFIELD_PLUGIN_VERSION = '([^']+)';/\1/p" \
+  "$REPO_ROOT/packages/react-native-brownfield/src/expo-config-plugin/android/utils/constants.ts")"
+test -n "$PLUGIN_VERSION" || { echo "could not read BROWNFIELD_PLUGIN_VERSION"; exit 1; }
 test -f "$GRADLE_DIR/brownfieldlib/build.gradle.kts" || { echo "missing brownfieldlib/build.gradle.kts"; exit 1; }
 test -f brownfield.config.json || { echo "missing brownfield.config.json"; exit 1; }
-grep -qF "brownfield-gradle-plugin:$PUBLISHED_PLUGIN_VERSION" "$GRADLE_DIR/build.gradle" || { echo "root build.gradle lacks the Brownfield Gradle plugin classpath pinned to $PUBLISHED_PLUGIN_VERSION"; exit 1; }
+grep -qF "brownfield-gradle-plugin:$PLUGIN_VERSION" "$GRADLE_DIR/build.gradle" || { echo "root build.gradle lacks the Brownfield Gradle plugin classpath for $PLUGIN_VERSION"; exit 1; }
 grep -q "include ':brownfieldlib'" "$GRADLE_DIR/settings.gradle" || { echo "settings.gradle lacks ':brownfieldlib'"; exit 1; }
 echo "::endgroup::"
 
