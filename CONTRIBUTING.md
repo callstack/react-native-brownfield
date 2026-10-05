@@ -44,13 +44,15 @@ A trusted publisher can only be configured for a package that already exists on 
 The order is: manual publish, merge the PR, configure the trusted publisher, then let the next version PR publish the package.
 
 1. Use an npm account (personal or a Callstack one) with two-factor authentication enabled.
-2. Ask a Callstack npm org admin to add your npm username to the `@callstack` org with publish rights.
+2. Ask a Callstack npm org admin to add your npm username to the `@callstack` org. npm sends the invitation by email; accept it. The default `developer` role is enough to publish a new package under the scope.
 3. Log in and check the account:
 
    ```sh
    npm login
    npm whoami
    ```
+
+   `npm login` prints a URL instead of asking for a password. Finish the login, including two-factor authentication, in the browser.
 
 4. Prepare the package on the PR branch:
    - Set `version` in its `package.json` to the version the rest of the fixed group uses (see `packages/react-native-brownfield/package.json`).
@@ -85,19 +87,21 @@ The order is: manual publish, merge the PR, configure the trusted publisher, the
    npm publish packages/<dir>/package.tgz
    ```
 
-   npm asks you to complete two-factor authentication, either in the browser or with a one-time password. <!-- TODO: confirm during first manual publish -->
+   Run this in an interactive terminal. npm prints an authentication URL and waits with "Press ENTER to open in the browser". Approve the publish there and npm finishes on its own. In a non-interactive shell, such as a command run by an AI agent, npm can't wait and fails with `EOTP`. Nothing is published in that case, so run the command again in a regular terminal.
 
    A published version can't be published again, even after unpublishing. Double-check the version before running this.
 
 9. Check that the version is live:
 
    ```sh
-   npm view <package-name> version
+   npm view <package-name> versions
    ```
+
+   npm reports "Your package is being processed and may take a few minutes to become available". Until processing ends, the registry only lists a `0.0.0-stage` placeholder. The real version showed up after about two minutes the first time we did this.
 
 10. Delete `package.tgz`. Never commit it.
 
-Example: `@callstack/create-react-native-brownfield` lives in `packages/create-react-native-brownfield` and its first manual publish is `5.1.1`.
+Example: `@callstack/create-react-native-brownfield` lives in `packages/create-react-native-brownfield` and was first published by hand as `5.1.1`.
 
 ### Configuring the trusted publisher
 

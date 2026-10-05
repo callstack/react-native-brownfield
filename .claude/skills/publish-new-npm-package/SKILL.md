@@ -39,7 +39,8 @@ If a check fails, stop and tell the maintainer what to fix. Do not fix version n
 2. Run the pre-flight checks.
 3. Walk the maintainer through the steps in `CONTRIBUTING.md`, running the build, pack and inspection commands when asked.
 4. Before the publish step, show the exact command, package name and version, and wait for an explicit go-ahead.
-5. After the publish, run `npm view <package-name> version`, delete the tarball, and remind the maintainer to configure the trusted publisher once the PR is merged.
+5. The maintainer runs `npm publish` in their own interactive terminal. Your shell is non-interactive, so npm can't wait for the browser approval and fails with `EOTP` without publishing. Do not suggest `--otp`, because the code would end up in the conversation.
+6. After the publish, poll `npm view <package-name> versions` until the real version replaces the `0.0.0-stage` placeholder (it took about two minutes the first time). Then delete the tarball and remind the maintainer to configure the trusted publisher once the PR is merged.
 
 ## Output Contract
 
