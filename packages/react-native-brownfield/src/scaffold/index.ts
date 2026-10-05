@@ -1,5 +1,5 @@
 // Emitted as a triple-slash reference into the generated scaffold .d.ts, so
-// consumers (e.g. create-react-native-brownfield) resolve the untyped `xcode`
+// consumers (e.g. @callstack/create-react-native-brownfield) resolve the untyped `xcode`
 // import through this single declaration instead of duplicating xcode.d.ts.
 /// <reference path="./xcode.d.ts" />
 import fs from 'node:fs';

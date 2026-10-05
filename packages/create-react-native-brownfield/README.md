@@ -1,4 +1,4 @@
-# create-react-native-brownfield
+# @callstack/create-react-native-brownfield
 
 Scaffolds [React Native Brownfield](https://oss.callstack.com/react-native-brownfield/) packaging targets into an **existing** React Native Community CLI project (non-Expo), so that `brownfield package:ios` and `brownfield package:android` work with no manual setup.
 
@@ -9,17 +9,17 @@ For Expo projects, use the [Expo config plugin](https://oss.callstack.com/react-
 From the root of your React Native project:
 
 ```bash
-npx create-react-native-brownfield@latest
+npm create @callstack/react-native-brownfield@latest
 ```
 
 Or with your package manager's `create` alias:
 
 ```bash
-yarn create react-native-brownfield
+yarn create @callstack/react-native-brownfield
 ```
 
 ```bash
-pnpm create react-native-brownfield
+pnpm create @callstack/react-native-brownfield
 ```
 
 ## What it does

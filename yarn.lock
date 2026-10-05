@@ -2127,6 +2127,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@callstack/create-react-native-brownfield@workspace:packages/create-react-native-brownfield":
+  version: 0.0.0-use.local
+  resolution: "@callstack/create-react-native-brownfield@workspace:packages/create-react-native-brownfield"
+  dependencies:
+    "@callstack/react-native-brownfield": "workspace:^"
+    "@types/node": "npm:^25.5.0"
+    commander: "npm:^14.0.3"
+    eslint: "npm:^9.39.3"
+    globals: "npm:^17.3.0"
+    typescript: "npm:5.9.3"
+  bin:
+    create-react-native-brownfield: dist/main.js
+  languageName: unknown
+  linkType: soft
+
 "@callstack/react-native-brownfield@workspace:^, @callstack/react-native-brownfield@workspace:packages/react-native-brownfield":
   version: 0.0.0-use.local
   resolution: "@callstack/react-native-brownfield@workspace:packages/react-native-brownfield"
@@ -10410,21 +10425,6 @@ __metadata:
   checksum: 10/847b4764451672b4174be4d5c6d7d63442ec3aa5f3de52af924e4d996d87d7801c18e125504f25232fc75840f6625b3ac85860fac6ce799b5efae7bdcaf4a2b7
   languageName: node
   linkType: hard
-
-"create-react-native-brownfield@workspace:packages/create-react-native-brownfield":
-  version: 0.0.0-use.local
-  resolution: "create-react-native-brownfield@workspace:packages/create-react-native-brownfield"
-  dependencies:
-    "@callstack/react-native-brownfield": "workspace:^"
-    "@types/node": "npm:^25.5.0"
-    commander: "npm:^14.0.3"
-    eslint: "npm:^9.39.3"
-    globals: "npm:^17.3.0"
-    typescript: "npm:5.9.3"
-  bin:
-    create-react-native-brownfield: dist/main.js
-  languageName: unknown
-  linkType: soft
 
 "create-require@npm:^1.1.0":
   version: 1.1.1

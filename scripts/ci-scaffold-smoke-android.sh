@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Scaffold smoke: run the built create-react-native-brownfield CLI against a
+# Scaffold smoke: run the built @callstack/create-react-native-brownfield CLI against a
 # fresh `@react-native-community/cli init` app and build the generated Android
 # packaging module (Android only — no pods/xcodebuild, to stay cheap).
 # Catches pbxproj/gradle/Kotlin-template mistakes that unit tests cannot.

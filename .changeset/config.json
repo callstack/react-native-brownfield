@@ -12,7 +12,7 @@
       "@callstack/brownie",
       "@callstack/brownfield-cli",
       "@callstack/react-native-brownfield",
-      "create-react-native-brownfield"
+      "@callstack/create-react-native-brownfield"
     ]
   ],
   "linked": [],
