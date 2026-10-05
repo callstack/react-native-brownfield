@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 5.2.0
+
+### Minor Changes
+
+- [#467](https://github.com/callstack/react-native-brownfield/pull/467) [`31c3939`](https://github.com/callstack/react-native-brownfield/commit/31c39399aad0efb098876d35a4fbbe80835d5dba) Thanks [@hurali97](https://github.com/hurali97)! - add expo sdk 58
+
 ## 5.1.1
 
 ## 5.1.0
