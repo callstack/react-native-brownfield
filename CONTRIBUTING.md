@@ -22,7 +22,96 @@ If you need to intentionally commit those files (for an explicit update), bypass
 
 ## Publishing to npm
 
-We use [changesets](https://github.com/changesets/changesets) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+We use [changesets](https://github.com/changesets/changesets) to version and publish packages. Contributors only add a changeset to their PR. CI does the rest.
+
+The release workflow (`.github/workflows/release.yml`) runs on every push to `main`:
+
+1. A PR with a changeset is merged to `main`.
+2. The workflow builds the packages, runs `yarn ci:version` (which bumps versions, updates changelogs and refreshes the lockfile), and opens or updates a PR titled `chore(release): version packages` with the result.
+3. Merging the version PR runs the workflow again, and this time `yarn ci:publish` (`changeset publish`) publishes the new versions to npm.
+
+The packages listed in the `fixed` group in `.changeset/config.json` always share one version. A changeset for any of them bumps all of them.
+
+CI has no npm token. It publishes through [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), which uses the workflow's OIDC identity (`id-token: write`). Provenance is generated automatically. Trusted publishing requires npm CLI 11.5.1 or later and Node 22.14.0 or later on the runner.
+
+### Publishing a new package for the first time
+
+A trusted publisher can only be configured for a package that already exists on npm. A brand-new package therefore needs one manual publish by a maintainer. After that, CI publishes it like every other package.
+
+> [!IMPORTANT]
+> Publish the new package manually before merging the PR that adds it. If the PR is merged first, the release workflow will try to publish a package npm has never seen, with no trusted publisher configured for it, and the release fails.
+
+The order is: manual publish, merge the PR, configure the trusted publisher, then let the next version PR publish the package.
+
+1. Use an npm account (personal or a Callstack one) with two-factor authentication enabled.
+2. Ask a Callstack npm org admin to add your npm username to the `@callstack` org with publish rights.
+3. Log in and check the account:
+
+   ```sh
+   npm login
+   npm whoami
+   ```
+
+4. Prepare the package on the PR branch:
+   - Set `version` in its `package.json` to the version the rest of the fixed group uses (see `packages/react-native-brownfield/package.json`).
+   - Add the package name to the `fixed` group in `.changeset/config.json`.
+   - Make sure `publishConfig.access` is `public`.
+5. Build all packages from the repository root:
+
+   ```sh
+   yarn build
+   ```
+
+6. Pack the package. Use `yarn` here, not `npm`: dependencies between workspace packages use `workspace:^`, and `npm publish` run inside the package folder would publish that range literally. `yarn pack` replaces it with real versions.
+
+   ```sh
+   yarn workspace <package-name> pack
+   ```
+
+   This writes `package.tgz` into the package folder.
+
+7. Inspect the tarball before publishing. Check the file list, and check that `package/package.json` inside it has no `workspace:` ranges:
+
+   ```sh
+   tar -tzf packages/<dir>/package.tgz
+   tar -xzOf packages/<dir>/package.tgz package/package.json | grep workspace:
+   ```
+
+   The second command should print nothing. Optionally, run `npm publish packages/<dir>/package.tgz --dry-run`.
+
+8. Publish the tarball:
+
+   ```sh
+   npm publish packages/<dir>/package.tgz
+   ```
+
+   npm asks you to complete two-factor authentication, either in the browser or with a one-time password. <!-- TODO: confirm during first manual publish -->
+
+   A published version can't be published again, even after unpublishing. Double-check the version before running this.
+
+9. Check that the version is live:
+
+   ```sh
+   npm view <package-name> version
+   ```
+
+10. Delete `package.tgz`. Never commit it.
+
+Example: `@callstack/create-react-native-brownfield` lives in `packages/create-react-native-brownfield` and its first manual publish is `5.1.1`.
+
+### Configuring the trusted publisher
+
+Do this once per package, after its first manual publish:
+
+1. On npmjs.com, open the package and go to **Settings**, then **Trusted Publisher**. <!-- TODO: confirm during first manual publish -->
+2. Choose **GitHub Actions** and fill in:
+   - Organization or user: `callstack`
+   - Repository: `react-native-brownfield`
+   - Workflow filename: `release.yml` (the filename only, not the path)
+   - Environment: leave empty, the release workflow doesn't use one
+3. Save.
+
+Once a CI release has published the package successfully, set its publishing access to "Require two-factor authentication and disallow tokens", as npm recommends.
 
 ## Scripts
 
