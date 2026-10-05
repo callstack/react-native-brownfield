@@ -62,8 +62,15 @@ export function resolveTargetSdkVersionExpression(
 
 export function renderTargetSdkBlock(
   config: ResolvedBrownfieldPluginConfigWithAndroid,
-  expoMajor?: number
+  expoMajor?: number,
+  templateVariant: 'expo' | 'vanilla' = 'expo'
 ): string {
+  // RN CLI (vanilla) projects target AGP 9, where library modules must not
+  // set `targetSdk` (compilation fails with "Unresolved reference 'targetSdk'").
+  if (templateVariant === 'vanilla') {
+    return '';
+  }
+
   if (
     expoMajor !== undefined &&
     expoMajor >= EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR
@@ -83,11 +90,22 @@ export function createAndroidModule({
   rnVersion,
   projectRoot,
   expoMajor,
+  templateVariant = 'expo',
 }: {
   /**
    * Expo app root (used to detect optional dependencies such as expo-updates)
    */
   projectRoot?: string;
+
+  /**
+   * Source template flavor. 'vanilla' is used by the RN CLI scaffold for
+   * non-Expo projects; Expo keeps the default 'expo' variant.
+   * Note: expresses the same Expo-vs-vanilla axis as `useExpoHost` in the
+   * iOS helpers (withIosFrameworkFiles/xcodeHelpers), with opposite
+   * polarity: 'vanilla' here === `useExpoHost: false` there.
+   */
+  templateVariant?: 'expo' | 'vanilla';
+
   /**
    * The root Android directory path
    */
@@ -116,7 +134,11 @@ export function createAndroidModule({
   const hermesArtifact = getHermesArtifact(rnVersion, projectRoot);
   const compileSdkVersionExpression =
     resolveCompileSdkVersionExpression(config);
-  const targetSdkBlock = renderTargetSdkBlock(config, expoMajor);
+  const targetSdkBlock = renderTargetSdkBlock(
+    config,
+    expoMajor,
+    templateVariant
+  );
   const minifyEnabled =
     (android as { minifyEnabled?: boolean }).minifyEnabled ?? false;
   const extraProguardRules =
@@ -157,9 +179,15 @@ export function createAndroidModule({
     },
     {
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
-      content: renderTemplate('android', 'ReactNativeHostManager.post55.kt', {
-        '{{PACKAGE_NAME}}': android.packageName,
-      }),
+      content: renderTemplate(
+        'android',
+        templateVariant === 'vanilla'
+          ? 'ReactNativeHostManager.vanilla.kt'
+          : 'ReactNativeHostManager.post55.kt',
+        {
+          '{{PACKAGE_NAME}}': android.packageName,
+        }
+      ),
     },
     {
       relativePath: 'consumer-rules.pro',

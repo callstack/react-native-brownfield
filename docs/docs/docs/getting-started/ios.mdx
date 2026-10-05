@@ -4,6 +4,10 @@ import { PackageManagerTabs } from '@theme';
 
 This guide walks you through packaging your React Native app as an **XCFramework** and integrating it into your native iOS app.
 
+:::tip Community CLI apps can skip steps 1-5
+For a React Native Community CLI app, `npm create @callstack/react-native-brownfield@latest` creates the framework target and its build settings, updates the `Podfile`, copies the bundle script, writes the framework interface and generates `brownfield.config.json`. See [React Native CLI Integration](/docs/getting-started/rnc-cli), then check the [static linking requirement](#static-linking-requirement) in step 2 before you run `pod install`, and continue from step 6.
+:::
+
 ## Prerequisites
 
 - React Native app with `@callstack/react-native-brownfield` installed

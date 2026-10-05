@@ -2128,6 +2128,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@callstack/create-react-native-brownfield@workspace:packages/create-react-native-brownfield":
+  version: 0.0.0-use.local
+  resolution: "@callstack/create-react-native-brownfield@workspace:packages/create-react-native-brownfield"
+  dependencies:
+    "@callstack/react-native-brownfield": "workspace:^"
+    "@types/node": "npm:^25.5.0"
+    commander: "npm:^14.0.3"
+    eslint: "npm:^9.39.3"
+    globals: "npm:^17.3.0"
+    typescript: "npm:5.9.3"
+  bin:
+    create-react-native-brownfield: dist/main.js
+  languageName: unknown
+  linkType: soft
+
 "@callstack/react-native-brownfield@workspace:^, @callstack/react-native-brownfield@workspace:packages/react-native-brownfield":
   version: 0.0.0-use.local
   resolution: "@callstack/react-native-brownfield@workspace:packages/react-native-brownfield"
@@ -2137,6 +2152,8 @@ __metadata:
     "@babel/runtime": "npm:^7.25.0"
     "@callstack/brownfield-cli": "workspace:^"
     "@expo/config-plugins": "npm:^56.0.8"
+    "@react-native-community/cli-config": "npm:^20.0.0"
+    "@react-native-community/cli-types": "npm:^20.0.0"
     "@react-native/babel-preset": "npm:0.83.2"
     "@types/jest": "npm:^30.0.0"
     "@types/react": "npm:^19.1.1"
@@ -2150,6 +2167,7 @@ __metadata:
     react-native-builder-bob: "npm:^0.41.0"
     typescript: "npm:5.9.3"
     vitest: "npm:^4.1.4"
+    xcode: "npm:^3.0.1"
   peerDependencies:
     "@expo/config-plugins": ">=54 <100"
   bin:

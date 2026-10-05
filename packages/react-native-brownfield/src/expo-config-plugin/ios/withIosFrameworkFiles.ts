@@ -16,14 +16,28 @@ import { renderTemplate } from '../template/engine';
  * @returns The list of framework source files
  */
 export function getFrameworkSourceFiles(
-  ios: ResolvedBrownfieldPluginConfigWithIos['ios']
+  ios: ResolvedBrownfieldPluginConfigWithIos['ios'],
+  options?: {
+    /**
+     * Whether the packaged framework is expected to use the Expo host.
+     * This influences template selection for the generated framework sources.
+     * Note: expresses the same Expo-vs-vanilla axis as `templateVariant` in
+     * the Android helper (withAndroidModuleFiles.createAndroidModule), with
+     * opposite polarity: `false` here === 'vanilla' there.
+     */
+    useExpoHost?: boolean;
+  }
 ): RenderedTemplateFile[] {
+  const useExpoHost = options?.useExpoHost ?? true;
+
   return [
     {
       relativePath: `${ios.frameworkName}.swift`,
-      content: renderTemplate('ios', 'FrameworkInterface.swift', {
-        '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
-      }),
+      content: useExpoHost
+        ? renderTemplate('ios', 'FrameworkInterface.swift', {
+            '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
+          })
+        : renderTemplate('ios', 'FrameworkInterface.vanilla.swift', {}),
     },
     {
       relativePath: 'Info.plist',
@@ -41,7 +55,8 @@ export function getFrameworkSourceFiles(
  */
 export function createIosFramework(
   iosDir: string,
-  config: ResolvedBrownfieldPluginConfigWithIos
+  config: ResolvedBrownfieldPluginConfigWithIos,
+  options?: Parameters<typeof getFrameworkSourceFiles>[1]
 ) {
   const { ios } = config;
   const frameworkDir = path.join(iosDir, ios.frameworkName);
@@ -61,7 +76,7 @@ export function createIosFramework(
   }
 
   // write files
-  for (const file of getFrameworkSourceFiles(ios)) {
+  for (const file of getFrameworkSourceFiles(ios, options)) {
     const filePath = path.join(frameworkDir, file.relativePath);
 
     fs.writeFileSync(filePath, file.content, 'utf8');

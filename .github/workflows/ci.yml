@@ -117,6 +117,32 @@ jobs:
         run: |
           yarn workspace @callstack/react-native-brownfield brownfield --version
 
+  scaffold-smoke-android:
+    name: Scaffold smoke (RNC CLI app - Android)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      needs.filter.outputs.packages == 'true' &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Prepare Android
+        uses: ./.github/actions/prepare-android
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Scaffold a fresh RN CLI app and assemble the packaging module
+        run: bash ./scripts/ci-scaffold-smoke-android.sh
+
   ios-native-tests:
     name: iOS native tests
     runs-on: macos-26

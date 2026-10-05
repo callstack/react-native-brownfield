@@ -11,7 +11,8 @@
       "@callstack/brownfield-navigation",
       "@callstack/brownie",
       "@callstack/brownfield-cli",
-      "@callstack/react-native-brownfield"
+      "@callstack/react-native-brownfield",
+      "@callstack/create-react-native-brownfield"
     ]
   ],
   "linked": [],
