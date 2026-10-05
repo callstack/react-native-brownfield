@@ -1,6 +1,6 @@
 {
   "name": "@callstack/create-react-native-brownfield",
-  "version": "5.1.1",
+  "version": "5.2.0",
   "license": "MIT",
   "author": "Callstack",
   "bin": "dist/main.js",
