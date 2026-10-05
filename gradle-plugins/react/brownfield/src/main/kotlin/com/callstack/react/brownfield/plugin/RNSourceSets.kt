@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.plugin
 
+import com.android.build.api.dsl.AndroidSourceSet
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
@@ -41,7 +42,11 @@ object RNSourceSets {
         val componentsExtension = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
 
         // Move the non-variant-specific configuration out of the loop
-        androidExtension.sourceSets.named("main") { sourceSet ->
+        // The parameter is typed as the `AndroidSourceSet` supertype on purpose. AGP 9 narrows
+        // this container to `AndroidLibrarySourceSet`, and letting Kotlin infer that bakes the
+        // AGP 9-only type into the lambda's `execute` signature, which blows up with
+        // NoClassDefFoundError on AGP 8 consumers. `AndroidSourceSet` is identical in both.
+        androidExtension.sourceSets.named("main") { sourceSet: AndroidSourceSet ->
             // This path is not variant-specific, so it's added once here.
             sourceSet.java.directories.add("${getModuleBuildDir()}/generated/autolinking/src/main/java")
         }

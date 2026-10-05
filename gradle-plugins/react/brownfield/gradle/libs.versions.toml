@@ -2,8 +2,11 @@
 kotlinJvm = "2.2.21"
 ktlint = "12.1.1"
 detekt = "1.23.7"
-agp = "9.2.1"
-common = "32.2.0"
+# The AGP the plugin compiles against: deliberately the OLDEST supported version, so the
+# compiler rejects any accidental use of a newer AGP API. Newer AGP is covered by the
+# TestKit matrix in build.gradle.kts. Keep in sync with MIN_AGP in RNBrownfieldPlugin.kt.
+agp = "8.12.0"
+common = "31.12.0"
 asm-commons = "9.7"
 versioncompare = "1.5.0"
 junit = "5.11.4"

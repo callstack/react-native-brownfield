@@ -1905,6 +1905,7 @@ __metadata:
     expo-system-ui: "npm:~57.0.0"
     expo-updates: "npm:^57.0.6"
     expo-web-browser: "npm:~57.0.0"
+    lottie-react-native: "npm:~7.3.8"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
     react-native: "npm:0.86.0"
@@ -16167,6 +16168,23 @@ __metadata:
   bin:
     loose-envify: cli.js
   checksum: 10/6517e24e0cad87ec9888f500c5b5947032cdfe6ef65e1c1936a0c48a524b81e65542c9c3edc91c97d5bddc806ee2a985dbc79be89215d613b1de5db6d1cfe6f4
+  languageName: node
+  linkType: hard
+
+"lottie-react-native@npm:~7.3.8":
+  version: 7.3.8
+  resolution: "lottie-react-native@npm:7.3.8"
+  peerDependencies:
+    "@lottiefiles/dotlottie-react": ^0.13.5
+    react: "*"
+    react-native: ">=0.46"
+    react-native-windows: ">=0.63.x"
+  peerDependenciesMeta:
+    "@lottiefiles/dotlottie-react":
+      optional: true
+    react-native-windows:
+      optional: true
+  checksum: 10/050154a675de4aeff10d629ca48743806818ebe4c79d041e0983ff278a59e2d59f4e88b559a6d681e49d7d82b253ad969909d9cde9a887bc22c8a2ebf05c2538
   languageName: node
   linkType: hard
 

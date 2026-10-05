@@ -243,11 +243,6 @@ jobs:
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
-    strategy:
-      matrix:
-        include:
-          - version: '58'
-          - version: '57'
 
     steps:
       - name: Checkout
