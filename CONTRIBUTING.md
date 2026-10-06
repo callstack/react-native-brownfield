@@ -26,7 +26,7 @@ Run the checks for the area you touched before opening a PR. CI runs the same on
 
 | If you changed | Run |
 | --- | --- |
-| TS/JS in `packages/` | `yarn lint`, `yarn typecheck` and `yarn test:packages`. The pre-commit hook already runs lint and typecheck on staged JS/TS files. |
+| TS/JS in `packages/` | `yarn build`, `yarn lint`, `yarn typecheck` and `yarn test:packages`. The pre-commit hook already runs lint and typecheck on staged JS/TS files. |
 | `scripts/` | `yarn test:scripts` |
 | JS in the example apps under `apps/` | `yarn test:apps` |
 | The `BrownfieldConfig` type | `yarn generate:schema`. The pre-commit hook regenerates `packages/cli/schema.json` and stages it. |
@@ -147,7 +147,7 @@ Root scripts run from the repository root with `yarn <script>`. Scripts marked _
 - `lint` - runs `lint` in all workspaces _[Turbo]_
 - `typecheck` - runs `typecheck` in all workspaces _[Turbo]_
 - `test:packages` - runs `test` in the workspaces under `packages/` _[Turbo]_
-- `test:apps` - runs Jest in the example apps under `apps/` _[Turbo]_
+- `test:apps` - runs `test` in the workspaces under `apps/`, including the Node test suite in `apps/brownfield-example-shared-tests` _[Turbo]_
 - `test:scripts` - runs the Node test runner on `scripts/__tests__/**/*.test.ts`
 
 ### Brownfield Gradle plugin

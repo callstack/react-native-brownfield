@@ -29,7 +29,7 @@ Run these yourself before the maintainer publishes, and report the results:
 | Version matches the fixed group | compare `version` in `packages/<dir>/package.json` with `packages/react-native-brownfield/package.json` | Same version |
 | In the fixed group | `.changeset/config.json` | Package name listed under `fixed` |
 | Public access | `publishConfig.access` in the package's `package.json` | `public` |
-| Tarball clean | after `yarn workspace <package-name> pack`, `tar -xzOf packages/<dir>/package.tgz package/package.json` | No `workspace:` ranges |
+| Tarball clean | after `yarn build` at the repository root and `yarn workspace <package-name> pack`, `tar -xzOf packages/<dir>/package.tgz package/package.json` | No `workspace:` ranges, and `tar -tzf packages/<dir>/package.tgz` lists the files that `main` and `bin` point to |
 
 If a check fails, stop and tell the maintainer what to fix. Do not fix version numbers or the fixed group without asking.
 
