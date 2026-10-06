@@ -91,7 +91,7 @@
     "@rock-js/platform-android": "^0.14.0",
     "@rock-js/platform-apple-helpers": "^0.14.0",
     "@rock-js/plugin-brownfield-android": "^0.14.0",
-    "@rock-js/plugin-brownfield-ios": "^0.14.0",
+    "@rock-js/plugin-brownfield-ios": "patch:@rock-js/plugin-brownfield-ios@npm%3A0.14.0#~/.yarn/patches/@rock-js-plugin-brownfield-ios-npm-0.14.0-0152061a4e.patch",
     "@rock-js/tools": "^0.14.0",
     "ajv": "^8.20.0",
     "commander": "^14.0.3",
