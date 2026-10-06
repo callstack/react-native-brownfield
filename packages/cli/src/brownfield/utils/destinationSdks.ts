@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { RockError } from '@rock-js/tools';
+
 /** Xcode SDK a build product directory belongs to (`Release-iphoneos`, `Release-iphonesimulator`). */
 export type AppleSdk = 'iphoneos' | 'iphonesimulator';
 
@@ -79,6 +81,10 @@ interface CollectFrameworkPathsOptions {
  * actually built. Slices with no build product on disk are dropped, so a
  * `--destination simulator` run merges the simulator slice alone instead of failing
  * on a missing `-iphoneos` directory.
+ *
+ * Throws when no slice has a build product: passing an empty list to
+ * `mergeFrameworks` would surface as xcodebuild's opaque
+ * "at least one framework or library must be specified".
  */
 export function collectFrameworkPaths({
   productsPath,
@@ -87,18 +93,30 @@ export function collectFrameworkPaths({
   frameworkName,
   productSubDir,
 }: CollectFrameworkPathsOptions): string[] {
-  return sdks
-    .map((sdk) =>
-      path.join(
-        productsPath,
-        `${configuration}-${sdk}`,
-        ...(productSubDir ? [productSubDir] : [])
-      )
+  const searchedDirectories = sdks.map((sdk) =>
+    path.join(
+      productsPath,
+      `${configuration}-${sdk}`,
+      ...(productSubDir ? [productSubDir] : [])
     )
+  );
+
+  const frameworkPaths = searchedDirectories
     .filter((directoryPath) =>
       hasFrameworkBuildProduct(directoryPath, frameworkName)
     )
     .map((directoryPath) =>
       path.join(directoryPath, `${frameworkName}.framework`)
     );
+
+  if (frameworkPaths.length === 0) {
+    throw new RockError(
+      `Could not find a build product for ${frameworkName} in the ${configuration} configuration. ` +
+        `Looked for ${frameworkName}.framework or lib${frameworkName}.a in:\n` +
+        searchedDirectories.map((dir) => `  - ${dir}`).join('\n') +
+        `\nIf the build produced an .app instead of a framework, the wrong scheme was built; pass --scheme with your brownfield framework scheme.`
+    );
+  }
+
+  return frameworkPaths;
 }

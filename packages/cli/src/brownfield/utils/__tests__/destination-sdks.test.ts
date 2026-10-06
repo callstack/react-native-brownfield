@@ -114,6 +114,21 @@ describe('collectFrameworkPaths', () => {
     ).toEqual([path.join(productsDir, 'BrownfieldLib.framework')]);
   });
 
+  it('throws a descriptive error when no slice has a build product', () => {
+    fs.mkdirSync(path.join(tempDir, 'Debug-iphonesimulator'), {
+      recursive: true,
+    });
+
+    expect(() =>
+      collectFrameworkPaths({
+        productsPath: tempDir,
+        configuration: 'Debug',
+        sdks: ['iphonesimulator'],
+        frameworkName: 'mastodonreactnative',
+      })
+    ).toThrowError(/Could not find a build product for mastodonreactnative/);
+  });
+
   it('resolves nested pod products', () => {
     const brownie = createFramework('iphonesimulator', 'Brownie', 'Brownie');
 
