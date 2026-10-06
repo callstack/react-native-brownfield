@@ -8,6 +8,7 @@ Start with [`CONTRIBUTING.md`](CONTRIBUTING.md). It covers setup, scripts, tests
 - Packages live in `packages/`, example and host apps in `apps/`, and the Android Gradle plugin in `gradle-plugins/`.
 - Every PR that changes a published package needs a changeset (`yarn changeset`). CI handles versioning and npm publishing.
 - Commit messages follow Conventional Commits. A `commitlint` hook checks them.
+- Before opening a PR, run the checks for the area you changed. They are listed in "Verifying a change" in `CONTRIBUTING.md`.
 
 ## Skills
 
