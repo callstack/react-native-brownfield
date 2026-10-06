@@ -20,6 +20,20 @@ If you need to intentionally commit those files (for an explicit update), bypass
 
 `SKIP_BROWNFIELD_NAVIGATION_CHECK=1 git commit -m "..."`
 
+### Verifying a change
+
+Run the checks for the area you touched before opening a PR. CI runs the same ones, so this catches most failures locally.
+
+| If you changed | Run |
+| --- | --- |
+| TS/JS in `packages/` | `yarn lint`, `yarn typecheck` and `yarn test:packages`. The pre-commit hook already runs lint and typecheck on staged JS/TS files. |
+| `scripts/` | `yarn test:scripts` |
+| JS in the example apps under `apps/` | `yarn test:apps` |
+| The `BrownfieldConfig` type | `yarn generate:schema`. The pre-commit hook regenerates `packages/cli/schema.json` and stages it. |
+| The Brownfield Gradle plugin (`gradle-plugins/react/brownfield`) | From that directory: `./gradlew detekt ktlintCheck test`, which is what CI runs. `yarn gradle-plugin:lint` also runs detekt, but its `ktlintFormat` rewrites files. |
+| Native iOS or Android code in a package | Build the affected example with its `build:example:*` script (see [Workspace scripts](#workspace-scripts)), then run the matching E2E with the [Local CI scripts](#local-ci-scripts). |
+| Anything in a published package | Add a changeset with `yarn changeset`. CI fails the PR without one (`changeset status`). |
+
 ## Publishing to npm
 
 We use [changesets](https://github.com/changesets/changesets) to version and publish packages. Contributors only add a changeset to their PR. CI does the rest.
