@@ -32,7 +32,7 @@ The release workflow (`.github/workflows/release.yml`) runs on every push to `ma
 
 The packages listed in the `fixed` group in `.changeset/config.json` always share one version. A changeset for any of them bumps all of them.
 
-CI has no npm token. It publishes through [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), which uses the workflow's OIDC identity (`id-token: write`). Provenance is generated automatically. Trusted publishing requires npm CLI 11.5.1 or later and Node 22.14.0 or later on the runner.
+CI has no npm token. It publishes through [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), which uses the workflow's OIDC identity (`id-token: write`). Trusted publishing requires npm CLI 11.5.1 or later and Node 22.14.0 or later on the runner. To confirm a release went through CI, check that `npm view <package-name>@<version> _npmUser` shows `GitHub Actions`.
 
 ### Publishing a new package for the first time
 
