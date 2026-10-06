@@ -122,25 +122,72 @@ Do this once per package, right after its first manual publish. The other packag
 
 ## Scripts
 
-- `lint` - runs linting on all JS/TS source files in the monorepo _[Turbo]_
-- `gradle-plugin:lint` - runs linting on the Brownfield Gradle plugin source code
-- `typecheck` - runs TypeScript type checking on all TS source files in the monorepo _[Turbo]_
-- `test:apps` - runs Jest for the React Native example apps under `apps/` (Expo 58, plain RN) _[Turbo]_
-- `build` - runs all `build*` tasks in the Turbo repo - see below for more details _[Turbo]_
-- `dev` - runs all `dev` tasks in all workspaces
-- `brownfield:plugin:publish:local` - publishes the Brownfield Gradle plugin to your local Maven repository for testing purposes
-- `build:brownfield` - builds the React Native Brownfield package (`packages/react-native-brownfield`) _[Turbo]_
-- `build:docs` - builds the documentation site (`docs/`) _[Turbo]_
-- `build:example:android-rn` - builds the example React Native app for Android (`apps/RNApp/android`)
-- `build:example:ios-rn` - builds the example React Native app for iOS (`apps/RNApp/ios`)
-- `build:example:android-consumer:expo58` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 58 RN app (`apps/ExpoApp58`) artifact
-- `build:example:android-consumer:expo57` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the Expo 57 RN app (`apps/ExpoApp57`) artifact
+Root scripts run from the repository root with `yarn <script>`. Scripts marked _[Turbo]_ call `turbo run`, which runs the task of the same name in every workspace that defines it.
+
+### Build, lint and test
+
+- `build` - runs `build` in all workspaces, building dependencies first _[Turbo]_
+- `build:brownfield` - runs `build:brownfield` in the packages under `packages/` that define it _[Turbo]_
+- `build:docs` - runs `build:docs` in the documentation site (`docs/`) _[Turbo]_
+- `dev` - runs `dev` in all workspaces in parallel (`yarn workspaces foreach`)
+- `lint` - runs `lint` in all workspaces _[Turbo]_
+- `typecheck` - runs `typecheck` in all workspaces _[Turbo]_
+- `test:packages` - runs `test` in the workspaces under `packages/` _[Turbo]_
+- `test:apps` - runs Jest in the example apps under `apps/` _[Turbo]_
+- `test:scripts` - runs the Node test runner on `scripts/__tests__/**/*.test.ts`
+
+### Brownfield Gradle plugin
+
+- `brownfield:plugin:publish:local` - builds the plugin in `gradle-plugins/react/brownfield` and publishes a snapshot to your local Maven repository, without signing
+- `brownfield:plugin:publish:local:signed` - same as above, but signed and without the snapshot flag
+- `brownfield:plugin:version:check` - fails if the plugin version in `gradle-plugins/react/brownfield/gradle.properties` doesn't match the copies in the JS package and the example apps
+- `brownfield:plugin:version:sync` - writes that version into those copies
+- `brownfield:plugin:release-notes` - generates release notes for the plugin from git history. Requires `--version` and `--output`; `--ref` is optional.
+
+### Code generation
+
+- `generate:schema` - regenerates `packages/cli/schema.json` from the `BrownfieldConfig` type (runs `generate:schema` in `@callstack/brownfield-cli`)
+- `generate:store` - points to `scripts/generate-store.ts`, which doesn't exist in the repository, so the script currently fails
+
+### Release and CI
+
+- `ci:version` - used by the release workflow. See [Publishing to npm](#publishing-to-npm).
+- `ci:publish` - used by the release workflow. See [Publishing to npm](#publishing-to-npm).
+- `ci:local:*` - reproduce the CI E2E jobs locally. See [Local CI scripts](#local-ci-scripts).
+
+### Skill evaluations
+
+- `skillgym:brownie` - runs the SkillGym suite in `skillgym/suites/brownie-suite.ts`
+- `skillgym:navigation` - runs the SkillGym suite in `skillgym/suites/brownfield-navigation-suite.ts`
+
+### Workspace scripts
+
+These live in a workspace, not in the root `package.json`. Run them with `yarn workspace <name> <script>` from the root, or with `yarn <script>` from the workspace directory.
+
+`apps/RNApp` (`@callstack/brownfield-example-rn-app`):
+
+- `build:example:android-rn` - builds the Android app (`react-native build-android`)
+- `build:example:ios-rn` - builds the iOS app (`react-native build-ios`)
+
+`apps/AndroidApp` (`@callstack/brownfield-example-android-app`), one Gradle flavor per consumed RN app:
+
+- `build:example:android-consumer:vanilla` - consumes `apps/RNApp` (`assembleVanillaRelease`)
+- `build:example:android-consumer:expo58` - consumes `apps/ExpoApp58` (`assembleExpo58Release`)
+- `build:example:android-consumer:expo57` - consumes `apps/ExpoApp57` (`assembleExpo57Release`)
 - `build:example:android-consumer:expo` - alias for `build:example:android-consumer:expo57`
-- `build:example:android-consumer:vanilla` - builds the example native Android consumer (`apps/AndroidApp`) app's flavor consuming the vanilla RN app (`apps/RNApp`) artifact
+- `build:example:android-consumer:expopreview` - consumes the Expo preview app (`assembleExpopreviewRelease`)
+
+`apps/AppleApp` (`@callstack/brownfield-example-ios-app`), each copies the XCFrameworks with `prepareXCFrameworks.js` and runs `xcodebuild`:
+
+- `build:example:ios-consumer:vanilla` - consumes `RNApp`, scheme **Brownfield Apple App Vanilla** (`Release Vanilla`)
+- `build:example:ios-consumer:expo58` - consumes `ExpoApp58`, scheme **Brownfield Apple App Expo 58** (`Release`)
+- `build:example:ios-consumer:expo57` - consumes `ExpoApp57`, scheme **Brownfield Apple App Expo 57** (`Release`)
 - `build:example:ios-consumer:expo` - alias for `build:example:ios-consumer:expo57`
-- `build:example:ios-consumer:expo58` - builds the `Brownfield Apple App (ExpoApp58)` target via scheme **Brownfield Apple App Expo 58** (`Release`)
-- `build:example:ios-consumer:expo57` - builds the `Brownfield Apple App (ExpoApp57)` target via scheme **Brownfield Apple App Expo 57** (`Release`)
-- `build:example:ios-consumer:vanilla` - builds the `Brownfield Apple App (RNApp)` target via scheme **Brownfield Apple App Vanilla** (`Release Vanilla`)
+- `build:example:ios-consumer:expopreview` - consumes `ExpoAppPreview`, scheme **Brownfield Apple App Expo Preview** (`Release`)
+
+`gradle-plugins/react` (`@callstack/brownfield-gradle-plugin-react`):
+
+- `gradle-plugin:lint` - runs detekt and `ktlintFormat` on the Brownfield Gradle plugin. `ktlintFormat` rewrites files in place.
 
 ## Running demo apps
 
