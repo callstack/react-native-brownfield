@@ -116,7 +116,7 @@
     "prettier": "^3.8.1",
     "ts-json-schema-generator": "^2.9.0",
     "typescript": "5.9.3",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=20"
