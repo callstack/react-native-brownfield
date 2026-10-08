@@ -1843,7 +1843,7 @@ __metadata:
     "@rock-js/platform-android": "npm:^0.14.0"
     "@rock-js/platform-apple-helpers": "npm:^0.14.0"
     "@rock-js/plugin-brownfield-android": "npm:^0.14.0"
-    "@rock-js/plugin-brownfield-ios": "npm:^0.14.0"
+    "@rock-js/plugin-brownfield-ios": "patch:@rock-js/plugin-brownfield-ios@npm%3A0.14.0#~/.yarn/patches/@rock-js-plugin-brownfield-ios-npm-0.14.0-0152061a4e.patch"
     "@rock-js/tools": "npm:^0.14.0"
     "@types/babel__core": "npm:^7.20.5"
     "@types/babel__preset-env": "npm:^7.10.0"
@@ -6540,7 +6540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rock-js/plugin-brownfield-ios@npm:^0.14.0":
+"@rock-js/plugin-brownfield-ios@npm:0.14.0":
   version: 0.14.0
   resolution: "@rock-js/plugin-brownfield-ios@npm:0.14.0"
   dependencies:
@@ -6550,6 +6550,19 @@ __metadata:
     "@rock-js/tools": "npm:^0.14.0"
     tslib: "npm:^2.3.0"
   checksum: 10/7ec4634d63d7b7913ed08e078dc52546cba08b176de864611cf36548b86ed4d7a67770f26b941816173e3cc5636114bbb1233a43652995ed18d186eebecc1aae
+  languageName: node
+  linkType: hard
+
+"@rock-js/plugin-brownfield-ios@patch:@rock-js/plugin-brownfield-ios@npm%3A0.14.0#~/.yarn/patches/@rock-js-plugin-brownfield-ios-npm-0.14.0-0152061a4e.patch":
+  version: 0.14.0
+  resolution: "@rock-js/plugin-brownfield-ios@patch:@rock-js/plugin-brownfield-ios@npm%3A0.14.0#~/.yarn/patches/@rock-js-plugin-brownfield-ios-npm-0.14.0-0152061a4e.patch::version=0.14.0&hash=45e36f"
+  dependencies:
+    "@react-native-community/cli-config-apple": "npm:^20.0.0"
+    "@react-native-community/cli-types": "npm:^20.0.0"
+    "@rock-js/platform-apple-helpers": "npm:^0.14.0"
+    "@rock-js/tools": "npm:^0.14.0"
+    tslib: "npm:^2.3.0"
+  checksum: 10/7708735acaca21b2a3de53a05086b39372830951ad35e514539b371c71bcaf149b1549baa021cbe4bb570bfd278ed125f9f0d4e409ed796d894cb4dc68d95079
   languageName: node
   linkType: hard
 

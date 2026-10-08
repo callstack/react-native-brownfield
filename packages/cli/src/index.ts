@@ -15,6 +15,13 @@ import navigationCommands, {
   groupName as navigationCommandsGroupName,
 } from './navigation/index.js';
 
+// CocoaPods (spawned by Rock) raises Encoding::CompatibilityError under a non-UTF-8
+// locale. Default to UTF-8 only when the inherited value is missing or non-UTF-8.
+if (!/utf-?8/i.test(process.env.LC_ALL || process.env.LANG || '')) {
+  process.env.LANG = 'en_US.UTF-8';
+  process.env.LC_ALL = 'en_US.UTF-8';
+}
+
 const program = new Command();
 
 program

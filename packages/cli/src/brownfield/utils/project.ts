@@ -81,6 +81,71 @@ export function isExpoProject(projectRoot: string): boolean {
   return hasExpoAppConfig(projectRoot) && projectDependsOnExpo(projectRoot);
 }
 
+type ExpoPluginEntry = string | [string, ...unknown[]] | unknown;
+
+/**
+ * Reads `ios.usePrecompiledModules` from the `expo-build-properties` plugin entry.
+ *
+ * `getExpoConfigIfIsExpo` uses `skipPlugins: true`, which makes `@expo/config`
+ * delete `exp.plugins`, so the plugins array is read from `rootConfig` (the raw
+ * static app.json / app.config.json) instead. `rootConfig` is the raw *static*
+ * config only, so a dynamic config (app.config.js/ts) exposes no plugins that
+ * way; for those we retry once with plugins enabled, which keeps the plugins
+ * array. That retry can throw for plugins that are not loadable as Node modules
+ * (the reason `skipPlugins` is set in the first place), so it is best-effort.
+ *
+ * @returns the explicit boolean value, or `undefined` if it is not set or not resolvable
+ */
+export function getExpoIosUsePrecompiledModules(
+  projectRoot: string
+): boolean | undefined {
+  const config = getExpoConfigIfIsExpo(projectRoot);
+  if (!config) {
+    return undefined;
+  }
+
+  const rootConfig = config.rootConfig as
+    | { plugins?: ExpoPluginEntry[]; expo?: { plugins?: ExpoPluginEntry[] } }
+    | undefined;
+  let plugins =
+    (config.exp as { plugins?: ExpoPluginEntry[] }).plugins ??
+    rootConfig?.expo?.plugins ??
+    rootConfig?.plugins;
+
+  if (!Array.isArray(plugins)) {
+    // Dynamic config: no static plugins array exists. Retry with plugins
+    // enabled, which preserves `exp.plugins`. Best-effort — plugin resolution
+    // can throw, and an unreadable config is treated the same as an unset value.
+    try {
+      plugins = (
+        getConfig(projectRoot, { skipSDKVersionRequirement: true }).exp as {
+          plugins?: ExpoPluginEntry[];
+        }
+      ).plugins;
+    } catch {
+      return undefined;
+    }
+  }
+
+  if (!Array.isArray(plugins)) {
+    return undefined;
+  }
+
+  for (const plugin of plugins) {
+    if (!Array.isArray(plugin) || plugin[0] !== 'expo-build-properties') {
+      continue;
+    }
+    const value = (
+      plugin[1] as { ios?: { usePrecompiledModules?: unknown } } | undefined
+    )?.ios?.usePrecompiledModules;
+    if (typeof value === 'boolean') {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
 export function getExpoSdkMajor(projectRoot: string): number | null {
   const rawExpoVersion = getExpoConfigIfIsExpo(projectRoot)?.exp.sdkVersion;
   if (!rawExpoVersion) {

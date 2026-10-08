@@ -40,6 +40,22 @@ describe('resolvePackagedFrameworkName', () => {
     });
   });
 
+  it('resolves the packaged framework from a simulator-only build', () => {
+    const simulatorProductsPath = path.join(tempDir, 'Release-iphonesimulator');
+    createFramework(simulatorProductsPath, 'BrownfieldLib', true);
+
+    expect(
+      resolvePackagedFrameworkName({
+        productsPath: tempDir,
+        configuration: 'Release',
+        sdks: ['iphonesimulator'],
+      })
+    ).toEqual({
+      frameworkName: 'BrownfieldLib',
+      resolution: 'detected',
+    });
+  });
+
   it('resolves the packaged framework automatically from the device build output', () => {
     const deviceProductsPath = path.join(tempDir, 'Debug-iphoneos');
     createFramework(deviceProductsPath, 'BrownfieldLib', true);
