@@ -20,7 +20,7 @@ function ensureExpoDefinesForSDK55AndAbove(
   const defaultDeploymentTarget = expoMajor >= 56 ? '16.4' : '15.1';
   const hook = `
     ${BROWNFIELD_EXPO_GTE_55_SWIFT_DEFINES_MARKER_START}
-    brownfield_ios_deployment_target = podfile_properties['ios.deploymentTarget'] || '${defaultDeploymentTarget}'
+    brownfield_ios_deployment_target = (defined?(podfile_properties) && podfile_properties['ios.deploymentTarget']) || '${defaultDeploymentTarget}'
     installer.pods_project.targets.each do |target|
       if target.name == 'ReactBrownfield'
         puts "[Brownfield] Adding definition of EXPO_SDK_GTE_55 to target: #{target.name}"
@@ -66,10 +66,19 @@ export function modifyPodfile(
 ): string {
   // check if the framework target is already included
   if (podfile.includes(`target '${frameworkName}'`)) {
-    Logger.logDebug(
-      `Framework target "${frameworkName}" already in Podfile, skipping modification`
+    if (typeof expoMajor !== 'number') {
+      Logger.logDebug(
+        `Framework target "${frameworkName}" already in Podfile, skipping modification`
+      );
+      return podfile;
+    }
+
+    // A React Native CLI app can add Expo after it was scaffolded, so a re-run
+    // switches the existing target to the Expo host.
+    return applyExpoHooks(
+      ensureExpoHostInFrameworkTarget(podfile, frameworkName),
+      expoMajor
     );
-    return podfile;
   }
 
   Logger.logDebug(`Modifying Podfile for framework: ${frameworkName}`);
@@ -113,12 +122,28 @@ export function modifyPodfile(
   Logger.logDebug(`Added framework target "${frameworkName}" to Podfile`);
 
   // Vanilla projects (expoMajor === undefined) get no Expo-only hooks.
-  // Early-returning here lets TypeScript narrow `expoMajor` to `number`
-  // for the rest of the function (no casts needed below).
   if (typeof expoMajor !== 'number') {
     return modifiedPodfile;
   }
 
+  return applyExpoHooks(modifiedPodfile, expoMajor);
+}
+
+function ensureExpoHostInFrameworkTarget(
+  podfile: string,
+  frameworkName: string
+): string {
+  if (podfile.includes('REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST')) {
+    return podfile;
+  }
+
+  return podfile.replace(
+    new RegExp(`^([ \\t]*)(target\\s+'${frameworkName}'\\s+do[ \\t]*\\n)`, 'm'),
+    `$1$2$1  ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'\n`
+  );
+}
+
+function applyExpoHooks(podfile: string, expoMajor: number): string {
   if (expoMajor < MIN_SUPPORTED_EXPO_SDK_MAJOR_VERSION) {
     const versionLabel = expoMajor < 0 ? 'unknown' : String(expoMajor);
     throw new SourceModificationError(
@@ -126,10 +151,5 @@ export function modifyPodfile(
     );
   }
 
-  modifiedPodfile = ensureExpoDefinesForSDK55AndAbove(
-    modifiedPodfile,
-    expoMajor
-  );
-
-  return modifiedPodfile;
+  return ensureExpoDefinesForSDK55AndAbove(podfile, expoMajor);
 }

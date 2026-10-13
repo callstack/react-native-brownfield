@@ -82,7 +82,7 @@ end
 
     // SDK 56+ raises the default deployment target used by the hook.
     expect(modified).toContain(
-      "podfile_properties['ios.deploymentTarget'] || '16.4'"
+      "(defined?(podfile_properties) && podfile_properties['ios.deploymentTarget']) || '16.4'"
     );
   });
 
@@ -100,6 +100,19 @@ end
 
     // The marker contains a `+`, so count occurrences without regex semantics.
     expect(twice.split(EXPO_DEFINES_MARKER)).toHaveLength(2);
+  });
+
+  it('switches an existing vanilla framework target to the Expo host', () => {
+    // A React Native CLI app that adds Expo after it was scaffolded.
+    const vanilla = modifyPodfile(createPodfile(), 'BrownfieldLib');
+    const expo = modifyPodfile(vanilla, 'BrownfieldLib', 58);
+
+    expect(expo).toContain(
+      "  target 'BrownfieldLib' do\n    ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'\n"
+    );
+    expect(expo).toContain(EXPO_DEFINES_MARKER);
+    expect(expo.match(/target 'BrownfieldLib'/g)).toHaveLength(1);
+    expect(modifyPodfile(expo, 'BrownfieldLib', 58)).toBe(expo);
   });
 
   it('throws when the Podfile has no main target to insert after', () => {
