@@ -95,6 +95,8 @@ It switches the framework target in your `Podfile` to the Expo runtime and adds 
 
 Expo SDK 56 and newer require iOS 16.4, so make sure the `platform :ios` line in your `Podfile` and your framework target use at least that version.
 
+Expo's precompiled modules only work with the React Native version your Expo SDK targets. Otherwise Brownfield builds them from source. See [Expo Prebuilts](/docs/getting-started/ios#expo-prebuilts).
+
 In your iOS app, add the Expo XCFrameworks listed in [Add the Framework to Your iOS App](/docs/getting-started/ios#7-add-the-framework-to-your-ios-app). Then call `ensureExpoModulesProvider()` before starting React Native, as shown in [Present RN UI](/docs/getting-started/expo#xcframework-present-rn-ui).
 
 ## Next Steps

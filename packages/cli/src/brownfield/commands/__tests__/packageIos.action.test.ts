@@ -9,6 +9,7 @@ import { copyDebugBundleToSimulatorSlice } from '../../utils/copyDebugBundleToSi
 import { createLocalSpmPackage } from '../../utils/createLocalSpmPackage.js';
 import { emitExpoSupportXcframeworks } from '../../utils/emitExpoSupportXcframeworks.js';
 import { resolvePackagedFrameworkName } from '../../utils/resolvePackagedFrameworkName.js';
+import { isExpoProject } from '../../utils/project.js';
 import { supportsPrebuiltExpo } from '../../utils/supportsPrebuiltExpo.js';
 
 vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
@@ -64,6 +65,7 @@ vi.mock('../../utils/paths.js', () => ({
 }));
 
 vi.mock('../../utils/project.js', () => ({
+  isExpoProject: vi.fn(() => false),
   getProjectInfo: vi.fn(() => ({
     projectRoot: '/repo',
     platformConfig: {},
@@ -84,7 +86,7 @@ vi.mock('../../utils/project.js', () => ({
 vi.mock('../../utils/supportsPrebuiltRNCore.js', () => ({
   supportsPrebuiltRNCore: vi.fn(() => ({
     supported: true,
-    enabledByDefault: false,
+    enabledByDefault: true,
     reason: '',
   })),
 }));
@@ -170,6 +172,7 @@ const mockSupportsPrebuiltExpo = supportsPrebuiltExpo as Mock;
 describe('package:ios action --add-spm-package', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    delete process.env.EXPO_USE_PRECOMPILED_MODULES;
 
     mockResolvePackagedFrameworkName.mockReturnValue({
       frameworkName: 'BrownfieldLib',
@@ -293,5 +296,40 @@ describe('package:ios action --add-spm-package', () => {
     expect(
       mockEmitExpoSupportXcframeworks.mock.invocationCallOrder[0]
     ).toBeLessThan(mockCreateLocalSpmPackage.mock.invocationCallOrder[0] ?? 0);
+  });
+
+  test('turns on precompiled Expo modules and explicit modules when using prebuilt Expo', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'true',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('1');
+    expect(packageIosAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        extraParams: expect.arrayContaining([
+          'SWIFT_ENABLE_EXPLICIT_MODULES=YES',
+        ]),
+      }),
+      expect.anything(),
+      expect.anything()
+    );
+  });
+
+  test('turns off precompiled Expo modules when building Expo from source', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'false',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('0');
   });
 });

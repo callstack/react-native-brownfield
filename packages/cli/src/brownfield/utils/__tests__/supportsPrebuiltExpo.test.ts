@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import * as projectUtils from '../project.js';
 import { supportsPrebuiltExpo } from '../supportsPrebuiltExpo.js';
@@ -58,6 +62,64 @@ describe('supportsPrebuiltExpo', () => {
     expect(result).toEqual({
       supported: false,
       reason: expect.stringMatching(/Expo SDK unknown/),
+    });
+  });
+
+  describe('React Native version', () => {
+    let projectRoot: string;
+
+    function writePackage(name: string, files: Record<string, unknown>) {
+      const dir = path.join(projectRoot, 'node_modules', name);
+      fs.mkdirSync(dir, { recursive: true });
+      for (const [file, content] of Object.entries(files)) {
+        fs.writeFileSync(path.join(dir, file), JSON.stringify(content));
+      }
+    }
+
+    function createProject(expoReactNative: string, appReactNative: string) {
+      projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'brownfield-expo-'));
+      fs.writeFileSync(
+        path.join(projectRoot, 'package.json'),
+        JSON.stringify({ name: 'app' })
+      );
+      writePackage('expo', {
+        'package.json': { name: 'expo', version: '58.0.0' },
+        'bundledNativeModules.json': { 'react-native': expoReactNative },
+      });
+      writePackage('react-native', {
+        'package.json': { name: 'react-native', version: appReactNative },
+        'index.js': 'module.exports = {};',
+      });
+    }
+
+    beforeEach(() => {
+      vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+      vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(58);
+    });
+
+    afterEach(() => {
+      fs.rmSync(projectRoot, { recursive: true, force: true });
+    });
+
+    test('keeps prebuilts on when only the patch or prerelease differs', () => {
+      createProject('0.88.0-rc.4', '0.88.0-rc.1');
+
+      expect(supportsPrebuiltExpo({ projectRoot })).toEqual({
+        supported: true,
+        enabledByDefault: true,
+      });
+    });
+
+    test('turns prebuilts off by default for another React Native minor', () => {
+      createProject('0.88.0-rc.4', '0.87.0');
+
+      expect(supportsPrebuiltExpo({ projectRoot })).toEqual({
+        supported: true,
+        enabledByDefault: false,
+        defaultDisabledReason: expect.stringMatching(
+          /built for React Native 0\.88, but this project uses 0\.87\.0/
+        ),
+      });
     });
   });
 });
