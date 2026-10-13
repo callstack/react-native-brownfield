@@ -77,6 +77,53 @@ Embedding the artifact in your native app is a manual step, and the guides below
 
 Both guides also describe the manual alternative in full, so you can use them to check the generated wiring or to customize it beyond what the command offers.
 
+## Using Expo Modules
+
+You can use Expo modules (installed with `npx install-expo-modules`) in a React Native CLI app. The Brownfield CLI packages them with the rest of your app. It skips `expo prebuild` because your `android/` and `ios/` directories are committed and not generated.
+
+### Android
+
+No extra setup is needed. If your app has product flavors, see [Troubleshooting](/docs/guides/troubleshooting) for setting `missingDimensionStrategy`.
+
+### iOS
+
+Expo modules only register through Brownfield's Expo runtime. In Expo projects, the config plugin turns it on. In a React Native CLI app, you turn it on yourself:
+
+1. In your `Podfile`, turn on the Expo runtime in the framework target and add the Expo SDK define to `ReactBrownfield`:
+
+```ruby
+target '<framework_target_name>' do
+  ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'
+  inherit! :complete
+end
+
+post_install do |installer|
+  # ...
+  installer.pods_project.targets.each do |target|
+    next unless target.name == 'ReactBrownfield'
+
+    target.build_configurations.each do |config|
+      conditions = config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] || '$(inherited)'
+      config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "#{conditions} EXPO_SDK_GTE_55"
+    end
+  end
+end
+```
+
+2. Add this to your framework's public interface file (`<framework_target_name>.swift`), so the generated Expo module list gets linked into the framework:
+
+```swift
+extension ReactNativeBrownfield {
+  public func ensureExpoModulesProvider() {
+    let _ = ExpoModulesProvider()
+  }
+}
+```
+
+3. Run `pod install`, then package as usual. Expo SDK 56 and newer require iOS 16.4, so set at least that deployment target in the `Podfile` and in your framework target.
+
+4. In your iOS app, add the Expo XCFrameworks listed in [Add the Framework to Your iOS App](/docs/getting-started/ios#7-add-the-framework-to-your-ios-app). Then call `ensureExpoModulesProvider()` before starting React Native, as shown in [Present RN UI](/docs/getting-started/expo#xcframework-present-rn-ui).
+
 ## Next Steps
 
 - [iOS API Reference](/docs/api-reference/react-native-brownfield/swift)
