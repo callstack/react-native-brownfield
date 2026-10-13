@@ -124,7 +124,13 @@ export function emitExpoSupportXcframeworks({
       `${frameworkName}.xcframework`
     );
     fs.rmSync(destinationPath, { recursive: true, force: true });
-    fs.cpSync(sourcePath, destinationPath, { recursive: true });
+    // With precompiled Expo, CocoaPods symlinks expo-image's dependencies into
+    // node_modules. Copy what the link points to, so the package is portable
+    // and normalizing it doesn't modify node_modules.
+    fs.cpSync(fs.realpathSync(sourcePath), destinationPath, {
+      recursive: true,
+      verbatimSymlinks: true,
+    });
     normalizeCopiedXcframework(destinationPath);
   }
 
