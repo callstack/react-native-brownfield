@@ -129,6 +129,19 @@ end
     );
   });
 
+  it('recognizes an existing target written with double quotes', () => {
+    const vanilla = modifyPodfile(createPodfile(), 'BrownfieldLib').replace(
+      "target 'BrownfieldLib' do",
+      'target "BrownfieldLib" do'
+    );
+    const expo = modifyPodfile(vanilla, 'BrownfieldLib', 58);
+
+    expect(expo.match(/target ["']BrownfieldLib["']/g)).toHaveLength(1);
+    expect(expo).toContain(
+      "ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'"
+    );
+  });
+
   it('throws instead of silently skipping when the existing target line cannot be found', () => {
     const podfile = `${createPodfile()}\n# target 'BrownfieldLib' is defined elsewhere\n`;
 

@@ -65,7 +65,10 @@ export function modifyPodfile(
   expoMajor?: number
 ): string {
   // check if the framework target is already included
-  if (podfile.includes(`target '${frameworkName}'`)) {
+  if (
+    podfile.includes(`target '${frameworkName}'`) ||
+    podfile.includes(`target "${frameworkName}"`)
+  ) {
     if (typeof expoMajor !== 'number') {
       Logger.logDebug(
         `Framework target "${frameworkName}" already in Podfile, skipping modification`

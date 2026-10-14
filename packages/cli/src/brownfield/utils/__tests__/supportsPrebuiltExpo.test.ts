@@ -5,7 +5,10 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import * as projectUtils from '../project.js';
-import { supportsPrebuiltExpo } from '../supportsPrebuiltExpo.js';
+import {
+  isPrecompiledExpoDisabledByPodfile,
+  supportsPrebuiltExpo,
+} from '../supportsPrebuiltExpo.js';
 
 vi.mock('../project.js', async (importOriginal) => {
   const actual = await importOriginal<typeof projectUtils>();
@@ -121,5 +124,45 @@ describe('supportsPrebuiltExpo', () => {
         ),
       });
     });
+  });
+});
+
+describe('isPrecompiledExpoDisabledByPodfile', () => {
+  let projectRoot: string;
+
+  beforeEach(() => {
+    projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'podfile-properties-'));
+    fs.mkdirSync(path.join(projectRoot, 'ios'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  });
+
+  function writeProperties(content: string) {
+    fs.writeFileSync(
+      path.join(projectRoot, 'ios', 'Podfile.properties.json'),
+      content
+    );
+  }
+
+  test('returns true when the property is the string "false"', () => {
+    writeProperties('{"EXPO_USE_PRECOMPILED_MODULES": "false"}');
+
+    expect(isPrecompiledExpoDisabledByPodfile(projectRoot)).toBe(true);
+  });
+
+  test('returns false when the property is "true"', () => {
+    writeProperties('{"EXPO_USE_PRECOMPILED_MODULES": "true"}');
+
+    expect(isPrecompiledExpoDisabledByPodfile(projectRoot)).toBe(false);
+  });
+
+  test('returns false when the file is missing or invalid', () => {
+    expect(isPrecompiledExpoDisabledByPodfile(projectRoot)).toBe(false);
+
+    writeProperties('not json');
+
+    expect(isPrecompiledExpoDisabledByPodfile(projectRoot)).toBe(false);
   });
 });
