@@ -1,0 +1,23 @@
+buildscript {
+    ext {
+        buildToolsVersion = "37.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 37
+        targetSdkVersion = 36
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.2.0"
+    }
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("com.callstack.react:brownfield-gradle-plugin:2.0.0-alpha08") // check the latest version: https://mvnrepository.com/artifact/com.callstack.react/brownfield-gradle-plugin
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"

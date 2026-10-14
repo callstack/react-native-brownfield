@@ -17,6 +17,9 @@ let initialState = BrownfieldStore(
 #if USE_EXPO_HOST
 private let hostAppName = "iOS Expo"
 private let reactNativeModuleName = "main"
+#elseif USE_ROCK_HOST
+private let hostAppName = "iOS Rock"
+private let reactNativeModuleName = "RockApp"
 #else
 private let hostAppName = "iOS Vanilla"
 private let reactNativeModuleName = "RNApp"
