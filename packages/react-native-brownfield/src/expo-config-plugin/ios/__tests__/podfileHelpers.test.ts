@@ -115,6 +115,28 @@ end
     expect(modifyPodfile(expo, 'BrownfieldLib', 58)).toBe(expo);
   });
 
+  it('switches an existing target with CRLF line endings and a trailing comment', () => {
+    const vanilla = modifyPodfile(createPodfile(), 'BrownfieldLib')
+      .replace(
+        "target 'BrownfieldLib' do",
+        "target 'BrownfieldLib' do # framework"
+      )
+      .replace(/\n/g, '\r\n');
+    const expo = modifyPodfile(vanilla, 'BrownfieldLib', 58);
+
+    expect(expo).toContain(
+      "  target 'BrownfieldLib' do # framework\r\n    ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'\r\n"
+    );
+  });
+
+  it('throws instead of silently skipping when the existing target line cannot be found', () => {
+    const podfile = `${createPodfile()}\n# target 'BrownfieldLib' is defined elsewhere\n`;
+
+    expect(() => modifyPodfile(podfile, 'BrownfieldLib', 58)).toThrow(
+      /Couldn't find the "target 'BrownfieldLib' do" line/
+    );
+  });
+
   it('throws when the Podfile has no main target to insert after', () => {
     expect(() => modifyPodfile('# empty Podfile\n', 'BrownfieldLib')).toThrow(
       /Could not find main target in Podfile/

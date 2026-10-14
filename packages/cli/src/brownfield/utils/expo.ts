@@ -49,6 +49,11 @@ function isGitIgnored(targetPath: string): boolean {
     cwd: path.dirname(targetPath),
     stdio: 'ignore',
   });
+  if (result.status !== 0 && result.status !== 1) {
+    logger.warn(
+      `Couldn't check with git whether ${path.basename(targetPath)}/ is gitignored, so it's treated as committed and expo prebuild is skipped. If this project uses Continuous Native Generation, run \`npx expo prebuild\` before packaging.`
+    );
+  }
   return result.status === 0;
 }
 

@@ -133,13 +133,24 @@ function ensureExpoHostInFrameworkTarget(
   podfile: string,
   frameworkName: string
 ): string {
-  if (podfile.includes('REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST')) {
+  if (/^[ \t]*ENV\['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'\]/m.test(podfile)) {
     return podfile;
   }
 
+  const escapedName = frameworkName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const targetLine = new RegExp(
+    `^([ \\t]*)(target\\s+['"]${escapedName}['"]\\s+do\\b[^\\r\\n]*(\\r?\\n))`,
+    'm'
+  );
+  if (!targetLine.test(podfile)) {
+    throw new SourceModificationError(
+      `Couldn't find the "target '${frameworkName}' do" line in the Podfile to enable the Expo host. Add ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1' inside that target block manually.`
+    );
+  }
+
   return podfile.replace(
-    new RegExp(`^([ \\t]*)(target\\s+'${frameworkName}'\\s+do[ \\t]*\\n)`, 'm'),
-    `$1$2$1  ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'\n`
+    targetLine,
+    `$1$2$1  ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'$3`
   );
 }
 

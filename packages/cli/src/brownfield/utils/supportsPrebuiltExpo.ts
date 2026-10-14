@@ -99,3 +99,24 @@ export function supportsPrebuiltExpo({
     enabledByDefault: true,
   };
 }
+
+/**
+ * Whether the project's Podfile turns Expo's precompiled modules off. Expo
+ * Podfiles force `EXPO_USE_PRECOMPILED_MODULES` to '0' when
+ * `ios/Podfile.properties.json` sets it to "false", whatever the environment says.
+ */
+export function isPrecompiledExpoDisabledByPodfile(
+  projectRoot: string
+): boolean {
+  try {
+    const properties = JSON.parse(
+      fs.readFileSync(
+        path.join(projectRoot, 'ios', 'Podfile.properties.json'),
+        'utf8'
+      )
+    );
+    return properties.EXPO_USE_PRECOMPILED_MODULES === 'false';
+  } catch {
+    return false;
+  }
+}
