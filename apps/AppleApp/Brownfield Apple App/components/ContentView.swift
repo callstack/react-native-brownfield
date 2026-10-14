@@ -35,8 +35,9 @@ struct ContentView: View {
     @State private var postMessageToastText = ""
 
     var body: some View {
-        NavigationView {
-            ZStack {
+        // Toast sits above NavigationView so RN postMessage stays visible on the pushed RN screen.
+        ZStack {
+            NavigationView {
                 ScrollView {
                     VStack(spacing: 16) {
                         GreetingCard(name: hostAppName)
@@ -45,19 +46,20 @@ struct ContentView: View {
                             Text("Open React Native")
                         }
                         .buttonStyle(.borderedProminent)
+                        .accessibilityIdentifier(E2eTestIds.appleAppOpenReactNative)
 
                         MessagesView()
                     }
                     .frame(maxWidth: .infinity)
                     .padding(16)
                 }
+            }
 
-                if showPostMessageToast {
-                    Toast(
-                        message: postMessageToastText,
-                        isShowing: $showPostMessageToast
-                    )
-                }
+            if showPostMessageToast {
+                Toast(
+                    message: postMessageToastText,
+                    isShowing: $showPostMessageToast
+                )
             }
         }
         .onAppear {
