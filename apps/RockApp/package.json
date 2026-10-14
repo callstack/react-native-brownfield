@@ -9,7 +9,7 @@
     "ios": "rock run:ios",
     "android": "rock run:android",
     "package:ios": "rock package:ios --scheme BrownfieldLib --configuration Release",
-    "prepackage:aar": "brownfield codegen && brownfield navigation:codegen brownfield.navigation.ts",
+    "prepackage:aar": "brownfield codegen && yarn codegen:navigation",
     "package:aar": "rock package:aar --variant Release --module-name brownfieldlib",
     "publish-local:aar": "npm run package:aar && rock publish-local:aar --module-name brownfieldlib",
     "brownfield:package:android": "brownfield package:android --module-name brownfieldlib --variant release",
@@ -19,7 +19,7 @@
     "e2e:test:ios": "detox test --configuration ios.sim.debug",
     "ci:local:e2e:ios": "bash ../../scripts/ci-local-rnapp-ios-e2e.sh",
     "codegen": "brownfield codegen",
-    "codegen:navigation": "brownfield navigation:codegen brownfield.navigation.ts"
+    "codegen:navigation": "yarn workspace @callstack/brownfield-example-shared codegen:navigation"
   },
   "dependencies": {
     "@callstack/brownfield-example-shared": "workspace:^",

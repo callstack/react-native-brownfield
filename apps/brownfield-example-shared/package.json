@@ -8,6 +8,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "codegen:navigation": "brownfield navigation:codegen brownfield.navigation.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node -e \"process.exit(0)\""
