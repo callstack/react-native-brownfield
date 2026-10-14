@@ -1,0 +1,46 @@
+import { PackageManagerTabs } from '@theme';
+
+# Expo Modules in React Native CLI Apps
+
+This guide is for React Native Community CLI apps that use Expo modules, such as `expo-image`, installed with `npx install-expo-modules`. Apps without Expo modules don't need any of these steps. Expo apps that use `expo prebuild` should follow [Expo Integration](/docs/getting-started/expo) instead.
+
+Complete [React Native CLI Integration](/docs/getting-started/rnc-cli) first. The Brownfield CLI then packages Expo modules with the rest of your app.
+
+## Android
+
+No extra setup is needed. If your app has product flavors, see [Troubleshooting](/docs/guides/troubleshooting) for setting `missingDimensionStrategy`.
+
+## iOS
+
+On iOS, Expo modules only work when React Native starts through Brownfield's Expo runtime. You set this up once in your React Native project, then update your native iOS app.
+
+### In your React Native project
+
+1. Install Expo modules with `npx install-expo-modules`, if you haven't already. It also raises the `platform :ios` line in `ios/Podfile` to iOS 16.4, which Expo SDK 56 and newer require.
+2. From the project root, run the command from [Automated Setup](/docs/getting-started/rnc-cli#automated-setup). If you ran it before you added Expo, run it again. It only changes what's missing.
+
+   <PackageManagerTabs command="create @callstack/react-native-brownfield@latest" />
+
+   Because your `package.json` depends on `expo`, the command:
+   - adds `ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'` to the framework target in `ios/Podfile`
+   - adds `ensureExpoModulesProvider()` to `ios/<framework_target_name>/<framework_target_name>.swift`
+
+3. Make sure the framework target uses iOS 16.4 or newer. Open `ios/<project>.xcworkspace` in Xcode, select the framework target, and check **Minimum Deployments**. Targets the command creates after Expo is installed already use 16.4.
+4. Package your app:
+
+   <PackageManagerTabs command="run package:ios" />
+
+   Expo's precompiled modules only work with the React Native version your Expo SDK targets. With a different version, Brownfield builds them from source. See [Expo Prebuilts](/docs/getting-started/ios#expo-prebuilts).
+
+### In your native iOS app
+
+1. Add the Expo XCFrameworks from `ios/.brownfield/package/build` along with your framework. [Add the Framework to Your iOS App](/docs/getting-started/ios#7-add-the-framework-to-your-ios-app) lists which ones you need.
+2. Call `ensureExpoModulesProvider()` before you start React Native:
+
+```swift
+ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+ReactNativeBrownfield.shared.ensureExpoModulesProvider()
+ReactNativeBrownfield.shared.startReactNative {
+  print("React Native has been loaded")
+}
+```
