@@ -1,0 +1,171 @@
+package com.callstack.brownfield.android.example
+
+import android.app.Activity
+import android.content.Intent
+import android.content.res.Configuration
+import android.os.Build
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
+import androidx.fragment.compose.AndroidFragment
+import com.callstack.brownfield.android.example.ui.theme.AndroidBrownfieldAppTheme
+import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationDelegate
+import com.callstack.nativebrownfieldnavigation.BrownfieldNavigationManager
+import com.callstack.nativebrownfieldnavigation.UserType
+import com.callstack.reactnativebrownfield.OnDisplayMetrics
+import com.callstack.reactnativebrownfield.ReactNativeFragment
+import com.callstack.reactnativebrownfield.constants.ReactNativeFragmentArgNames
+import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.Promise
+
+/**
+ * Full-screen React Native host, pushed from [MainActivity] (mirrors RNAppScreen on iOS).
+ * Each launch creates a new fragment, so every presentation gets its own display metrics.
+ */
+class ReactNativeActivity : AppCompatActivity(), BrownfieldNavigationDelegate {
+    private val isDetoxE2E: Boolean
+        get() = intent?.getStringExtra("DetoxE2E") == "YES"
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        ReactNativeHostManager.onConfigurationChanged(application, newConfig)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Own Brownfield navigation only while this activity is foregrounded.
+        BrownfieldNavigationManager.setDelegate(this)
+        if (isDetoxE2E) {
+            window.decorView.post { window.decorView.requestFocus() }
+        }
+    }
+
+    override fun onPause() {
+        // Release ownership before another host can become the active delegate.
+        BrownfieldNavigationManager.clearDelegate()
+        super.onPause()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus && isDetoxE2E) {
+            window.decorView.post { window.decorView.requestFocus() }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        supportFragmentManager.fragmentFactory = ReactNativeFragmentFactory()
+        super.onCreate(null)
+        enableEdgeToEdge()
+
+        setContent {
+            AndroidBrownfieldAppTheme {
+                ReactNativeView(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding()
+                        .semantics { testTagsAsResourceId = true }
+                )
+            }
+        }
+    }
+
+    override fun navigateToSettings(user: UserType) {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
+    override fun navigateToReferrals(userId: String) {
+        startActivity(
+            Intent(this, ReferralsActivity::class.java).putExtra(
+                ReferralsActivity.EXTRA_USER_ID,
+                userId
+            )
+        )
+    }
+
+    override fun requestNativeConfirmation(title: String, promise: Promise) {
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setTitle(title)
+                .setPositiveButton("OK") { _, _ -> promise.resolve(true) }
+                .setNegativeButton("Cancel") { _, _ -> promise.resolve(false) }
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    override fun showNativeBanner(message: String, onDismiss: Callback) {
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton("Dismiss") { _, _ -> onDismiss.invoke() }
+                .setCancelable(false)
+                .show()
+        }
+    }
+}
+
+@Composable
+private fun ReactNativeView(
+    modifier: Modifier = Modifier
+) {
+    val activity = LocalContext.current as? Activity
+    val brownfieldE2E = remember(activity) {
+        activity?.intent?.getStringExtra("DetoxE2E") == "YES"
+    }
+
+    AndroidFragment<ReactNativeFragment>(
+        modifier = modifier,
+        arguments = Bundle().apply {
+            putString(
+                ReactNativeFragmentArgNames.ARG_MODULE_NAME,
+                ReactNativeConstants.MAIN_MODULE_NAME
+            )
+            putBoolean(
+                ReactNativeFragmentArgNames.ARG_WAIT_FOR_FULL_DISPLAY,
+                ReactNativeConstants.WAIT_FOR_FULL_DISPLAY
+            )
+            putBoolean(
+                ReactNativeFragmentArgNames.ARG_COLLECT_THREAD_METRICS,
+                true
+            )
+            putBundle(
+                ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS,
+                Bundle().apply {
+                    putString(
+                        "nativeOsVersionLabel",
+                        "Android ${Build.VERSION.RELEASE}"
+                    )
+                    putBoolean("brownfieldE2E", brownfieldE2E)
+                }
+            )
+        },
+        onUpdate = { fragment ->
+            fragment.onMetrics = OnDisplayMetrics(BrownfieldMetricsLogger::logDisplay)
+        }
+    )
+}
+
+private class ReactNativeFragmentFactory : FragmentFactory() {
+    override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+        if (className == ReactNativeFragment::class.java.name) {
+            return ReactNativeFragment().apply {
+                onMetrics = OnDisplayMetrics(BrownfieldMetricsLogger::logDisplay)
+            }
+        }
+        return super.instantiate(classLoader, className)
+    }
+}

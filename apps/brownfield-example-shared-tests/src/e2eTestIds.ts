@@ -16,6 +16,8 @@ export const brownfieldE2ETestIds = {
   rnPostMessageText: 'brownfield-e2e-rn-post-message-text',
   /** AppleApp / AndroidApp native shell (keep in sync with native E2eTestIds). */
   appleAppGreeting: 'brownfield-e2e-appleapp-greeting',
+  /** Native shell button that pushes the full-screen RN host. */
+  appleAppOpenReactNative: 'brownfield-e2e-appleapp-open-react-native',
   appleAppPostMessageSend: 'brownfield-e2e-appleapp-post-message-send',
   appleAppPostMessageToast: 'brownfield-e2e-appleapp-post-message-toast',
   appleAppNativeSettings: 'brownfield-e2e-appleapp-native-settings',
