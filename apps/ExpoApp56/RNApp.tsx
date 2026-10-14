@@ -4,12 +4,19 @@ import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import { checkAndFetchUpdate } from './src/utils/expo-rn-updates';
 
 import Counter from './src/components/counter';
+import { useMarkFullyDisplayed } from './src/hooks/use-mark-fully-displayed';
 
 type RNAppProps = {
   nativeOsVersionLabel?: string;
+  brownfieldPresentationID?: string;
 };
 
-export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
+export default function RNApp({
+  nativeOsVersionLabel,
+  brownfieldPresentationID,
+}: RNAppProps) {
+  useMarkFullyDisplayed(brownfieldPresentationID);
+
   const requestNativeConfirmation = async () => {
     try {
       await BrownfieldNavigation.requestNativeConfirmation(
@@ -57,15 +64,12 @@ export default function RNApp({ nativeOsVersionLabel }: RNAppProps) {
           title="Navigate to Referrals"
           onPress={() => BrownfieldNavigation.navigateToReferrals('123')}
         />
-                <Button
+        <Button
           onPress={requestNativeConfirmation}
           title="Request native confirmation"
         />
 
-        <Button
-          onPress={showNativeBanner}
-          title="Show native banner"
-        />
+        <Button onPress={showNativeBanner} title="Show native banner" />
 
         <Button title="Fetch Update" onPress={checkAndFetchUpdate} />
       </View>

@@ -17,6 +17,7 @@ import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
 import Counter from './components/counter';
 import { useNativeOsVersionLabel } from './nativeHostContext';
+import { useMarkFullyDisplayed } from './hooks/useMarkFullyDisplayed';
 
 interface Message {
   id: string;
@@ -85,12 +86,7 @@ export function HomeScreen({
   const [messages, setMessages] = useState<Message[]>([]);
   const flatListRef = useRef<FlatList<Message>>(null);
 
-  useEffect(() => {
-    const { brownfieldPresentationID } = route.params;
-    if (brownfieldPresentationID) {
-      ReactNativeBrownfield.markFullyDisplayed(brownfieldPresentationID);
-    }
-  }, [route.params]);
+  useMarkFullyDisplayed(route.params?.brownfieldPresentationID);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
