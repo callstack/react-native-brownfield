@@ -9,3 +9,5 @@ Support Expo modules in React Native CLI apps. `brownfield package:*` no longer 
 `--use-prebuilt-expo` now also turns Expo's precompiled modules on or off for `pod install`, and turns on Swift explicit modules so packaging works in projects that still carry the old `SWIFT_ENABLE_EXPLICIT_MODULES = NO` workaround. It defaults to building Expo from source when the app's React Native version doesn't match the one Expo's precompiled modules were built for.
 
 `package:ios` now copies the expo-image dependency XCFrameworks (SDWebImage and libavif) as real files instead of symlinks into `node_modules`, so the package works when moved to another machine.
+
+Re-running `create-react-native-brownfield` after `pod install` no longer adds a second Sources build phase to the framework target, which made the next `pod install` fail.

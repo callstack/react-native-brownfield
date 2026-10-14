@@ -216,19 +216,29 @@ export function addSourceFilesBuildPhase(
     (filePath) => !filePath.endsWith('.plist')
   );
 
-  // Idempotency: skip when the target already has a sources phase with this
-  // comment, so re-running scaffolding does not duplicate the build phase.
-  const nativeTargets = getRawProjectObjects(project).PBXNativeTarget as
+  // Idempotency: skip when the target already has a sources phase, so
+  // re-running scaffolding does not duplicate the build phase. CocoaPods
+  // rewrites the phase's comment to "Sources" on `pod install`, so match by
+  // the phase type as well as by our comment.
+  const rawObjects = getRawProjectObjects(project);
+  const nativeTargets = rawObjects.PBXNativeTarget as
     | Record<string, PbxNativeTarget>
     | undefined;
+  const sourcesPhases = (rawObjects.PBXSourcesBuildPhase ?? {}) as Record<
+    string,
+    unknown
+  >;
   const targetBuildPhases =
     nativeTargets?.[frameworkTargetUUID]?.buildPhases ?? [];
-  const alreadyHasSourcePhase = targetBuildPhases.some((phase) =>
-    hasBuildPhaseComment(
-      { comment: typeof phase === 'string' ? undefined : phase.comment },
-      options.frameworkName
-    )
-  );
+  const alreadyHasSourcePhase = targetBuildPhases.some((phase) => {
+    const phaseUuid = getReferencedUuid(phase);
+    return (
+      hasBuildPhaseComment(
+        { comment: typeof phase === 'string' ? undefined : phase.comment },
+        options.frameworkName
+      ) || Boolean(phaseUuid && sourcesPhases[phaseUuid])
+    );
+  });
   if (alreadyHasSourcePhase) {
     Logger.logDebug(
       `Sources build phase "${options.frameworkName}" already present on target ${frameworkTargetUUID}, skipping`

@@ -214,6 +214,41 @@ describe('addSourceFilesBuildPhase', () => {
     expect(project.calls).toHaveLength(0);
   });
 
+  it('skips adding a sources phase after pod install renamed the existing one', () => {
+    // CocoaPods rewrites the phase comment from the framework name to "Sources".
+    const project = {
+      calls: [] as unknown[][],
+      hash: {
+        project: {
+          objects: {
+            PBXNativeTarget: {
+              FRAMEWORK_UUID: {
+                isa: 'PBXNativeTarget',
+                name: 'BrownfieldLib',
+                buildPhases: [
+                  { value: 'SOURCES_PHASE_UUID', comment: 'Sources' },
+                ],
+              },
+            },
+            PBXSourcesBuildPhase: {
+              SOURCES_PHASE_UUID: { isa: 'PBXSourcesBuildPhase', files: [] },
+              SOURCES_PHASE_UUID_comment: 'Sources',
+            },
+          },
+        },
+      },
+      addBuildPhase(...args: unknown[]) {
+        (this as any).calls.push(args);
+      },
+    } as any;
+
+    addSourceFilesBuildPhase(project, 'FRAMEWORK_UUID', baseOptions, {
+      useExpoHost: false,
+    });
+
+    expect(project.calls).toHaveLength(0);
+  });
+
   it('renders Expo-hosted source files when no brownfield options are given', async () => {
     const { getFrameworkSourceFiles } =
       await import('../withIosFrameworkFiles');
