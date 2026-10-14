@@ -4,13 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
 import type { MessageEvent } from '@callstack/react-native-brownfield';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import type { Message } from '@/components/postMessage/Message';
 import { MessageBubble } from '@/components/postMessage/MessageBubble';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 
 export default function PostMessageTab() {
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
   const flatListRef = useRef<FlatList<Message>>(null);
 
@@ -50,7 +53,17 @@ export default function PostMessageTab() {
   }, []);
 
   return (
-    <ThemedView style={styles.messageSection}>
+    <ThemedView
+      style={[
+        styles.messageSection,
+        {
+          paddingTop: insets.top + Spacing.three,
+          paddingBottom: insets.bottom + BottomTabInset,
+          paddingLeft: insets.left + 20,
+          paddingRight: insets.right + 20,
+        },
+      ]}
+    >
       <TouchableOpacity
         testID={brownfieldE2ETestIds.sendMessageToNative}
         style={styles.sendButton}
@@ -82,8 +95,6 @@ const styles = StyleSheet.create({
   messageSection: {
     flex: 1,
     width: '100%',
-    padding: 12,
-    paddingHorizontal: 20,
   },
   sendButton: {
     paddingVertical: 12,
