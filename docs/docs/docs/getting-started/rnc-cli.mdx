@@ -87,17 +87,38 @@ No extra setup is needed. If your app has product flavors, see [Troubleshooting]
 
 ### iOS
 
-Expo modules only register through Brownfield's Expo runtime. The setup command turns it on when your `package.json` depends on `expo`. If you added Expo after running the setup, run it again:
+On iOS, Expo modules only work when React Native starts through Brownfield's Expo runtime. You set this up once in your React Native project, then update your native iOS app.
 
-<PackageManagerTabs command="create @callstack/react-native-brownfield@latest" />
+#### In your React Native project
 
-It switches the framework target in your `Podfile` to the Expo runtime and adds `ensureExpoModulesProvider()` to `<framework_target_name>.swift`. Then run `pod install` and package as usual.
+1. Install Expo modules with `npx install-expo-modules`, if you haven't already. It also raises the `platform :ios` line in `ios/Podfile` to iOS 16.4, which Expo SDK 56 and newer require.
+2. From the project root, run the command from [Automated Setup](#automated-setup). If you ran it before you added Expo, run it again. It only changes what's missing.
 
-Expo SDK 56 and newer require iOS 16.4, so make sure the `platform :ios` line in your `Podfile` and your framework target use at least that version.
+   <PackageManagerTabs command="create @callstack/react-native-brownfield@latest" />
 
-Expo's precompiled modules only work with the React Native version your Expo SDK targets. Otherwise Brownfield builds them from source. See [Expo Prebuilts](/docs/getting-started/ios#expo-prebuilts).
+   Because your `package.json` depends on `expo`, the command:
+   - adds `ENV['REACT_NATIVE_BROWNFIELD_USE_EXPO_HOST'] = '1'` to the framework target in `ios/Podfile`
+   - adds `ensureExpoModulesProvider()` to `ios/<framework_target_name>/<framework_target_name>.swift`
 
-In your iOS app, add the Expo XCFrameworks listed in [Add the Framework to Your iOS App](/docs/getting-started/ios#7-add-the-framework-to-your-ios-app). Then call `ensureExpoModulesProvider()` before starting React Native, as shown in [Present RN UI](/docs/getting-started/expo#xcframework-present-rn-ui).
+3. Make sure the framework target uses iOS 16.4 or newer. Open `ios/<project>.xcworkspace` in Xcode, select the framework target, and check **Minimum Deployments**. Targets the command creates after Expo is installed already use 16.4.
+4. Package your app:
+
+   <PackageManagerTabs command="run package:ios" />
+
+   Expo's precompiled modules only work with the React Native version your Expo SDK targets. With a different version, Brownfield builds them from source. See [Expo Prebuilts](/docs/getting-started/ios#expo-prebuilts).
+
+#### In your native iOS app
+
+1. Add the Expo XCFrameworks from `ios/.brownfield/package/build` along with your framework. [Add the Framework to Your iOS App](/docs/getting-started/ios#7-add-the-framework-to-your-ios-app) lists which ones you need.
+2. Call `ensureExpoModulesProvider()` before you start React Native:
+
+```swift
+ReactNativeBrownfield.shared.bundle = ReactNativeBundle
+ReactNativeBrownfield.shared.ensureExpoModulesProvider()
+ReactNativeBrownfield.shared.startReactNative {
+  print("React Native has been loaded")
+}
+```
 
 ## Next Steps
 
