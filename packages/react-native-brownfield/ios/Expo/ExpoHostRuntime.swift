@@ -178,10 +178,13 @@ final class ExpoHostRuntime {
     return ExpoAppDelegateSubscriberManager.application(application, willFinishLaunchingWithOptions: launchOptions)
   }
 
+  /// `onRootView` receives the React Native root view, or `nil` when React Native can't create
+  /// it. While Updates selects its launch asset, this happens after `view` returns a container.
   func view(
     moduleName: String,
     initialProps: [AnyHashable: Any]?,
-    launchOptions: [AnyHashable: Any]?
+    launchOptions: [AnyHashable: Any]?,
+    onRootView: ((UIView?) -> Void)? = nil
   ) -> UIView? {
     // Return a container while Updates selects its launch asset. This also supports the
     // public view API, which does not go through ReactNativeViewController.
@@ -199,6 +202,7 @@ final class ExpoHostRuntime {
         root.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         container.addSubview(root)
       }
+      onRootView?(root)
     }
     preparing = false
     return immediateView ?? container

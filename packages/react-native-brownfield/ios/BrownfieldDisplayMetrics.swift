@@ -132,6 +132,8 @@ internal final class BrownfieldDisplaySession {
   private var finished = false
   private var jsScheduled = false
   private var tokens: [NSObjectProtocol] = []
+  /// Set once the appearance probe is inside the React Native root view.
+  var hasRootView = false
 
   init(moduleName: String, waitForFullDisplay: Bool, collectThreadMetrics: Bool = false, callback: ((BrownfieldDisplayMetrics) -> Void)?) {
     precondition(Thread.isMainThread)
@@ -230,7 +232,9 @@ internal final class BrownfieldDisplaySession {
 /// A child probe preserves the RN root view's type, layout, and touch handling.
 internal final class BrownfieldAppearanceProbe: UIView {
   let session: BrownfieldDisplaySession
-  var usesControllerAppearance = false
+  /// Set when a view controller hosts the root. The probe then reports appearance only while
+  /// that controller is visible, for a root that arrives after `viewDidAppear`.
+  var isHostVisible: (() -> Bool)?
   private var hasAttached = false
 
   init(session: BrownfieldDisplaySession) {
@@ -246,7 +250,9 @@ internal final class BrownfieldAppearanceProbe: UIView {
     super.didMoveToWindow()
     if window != nil {
       hasAttached = true
-      if !usesControllerAppearance {
+      if let isHostVisible {
+        if isHostVisible() { session.appeared() }
+      } else {
         DispatchQueue.main.async { [weak self] in
           guard let self, self.window != nil else { return }
           self.session.appeared()

@@ -143,7 +143,7 @@ internal import Expo
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
     makeView(moduleName: moduleName, initialProps: initialProps, launchOptions: launchOptions,
-             session: nil, controllerAppearance: false)
+             session: nil, isHostVisible: nil)
   }
 
   /// Creates a measured presentation. The completion receives one immutable snapshot on main.
@@ -161,30 +161,38 @@ internal import Expo
       waitForFullDisplay: waitForFullDisplay, collectThreadMetrics: collectThreadMetrics,
       callback: onMetrics)
     return makeView(moduleName: moduleName, initialProps: initialProps,
-                    launchOptions: launchOptions, session: session, controllerAppearance: false)
+                    launchOptions: launchOptions, session: session, isHostVisible: nil)
   }
 
   /// Only measured presentations get a session. Without one, `initialProps` pass through as is.
+  /// `isHostVisible` is set by `ReactNativeViewController`, which reports appearance itself.
   internal func makeView(moduleName: String, initialProps: [AnyHashable: Any]?,
                         launchOptions: [AnyHashable: Any]?, session: BrownfieldDisplaySession?,
-                        controllerAppearance: Bool) -> UIView? {
+                        isHostVisible: (() -> Bool)?) -> UIView? {
     var props = initialProps
     if let session {
       props = (props ?? [:]).merging(["brownfieldPresentationID": session.id]) { $1 }
     }
+    // The probe goes into the React Native root, not into a placeholder, so initial display
+    // can't complete before the root exists.
+    let attachProbe: (UIView?) -> Void = { rootView in
+      guard let session else { return }
+      guard let rootView else { session.cancel(); return }
+      let probe = BrownfieldAppearanceProbe(session: session)
+      probe.isHostVisible = isHostVisible
+      session.hasRootView = true
+      rootView.addSubview(probe)
+    }
     #if canImport(Expo)
-    let root = ExpoHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
-                                           launchOptions: launchOptions)
+    let view = ExpoHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
+                                           launchOptions: launchOptions, onRootView: attachProbe)
     #else
-    let root = ReactNativeHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
+    let view = ReactNativeHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
                                                   launchOptions: launchOptions)
+    attachProbe(view)
     #endif
-    guard let root else { session?.cancel(); return nil }
-    guard let session else { return root }
-    let probe = BrownfieldAppearanceProbe(session: session)
-    probe.usesControllerAppearance = controllerAppearance
-    root.addSubview(probe)
-    return root
+    if view == nil { session?.cancel() }
+    return view
   }
 
   /**

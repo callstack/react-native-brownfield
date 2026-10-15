@@ -108,8 +108,8 @@ internal import React
   public override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     isVisible = true
-    // Expo Updates may not have created the RN root yet.
-    if view.subviews.contains(where: { $0 is BrownfieldAppearanceProbe }) {
+    // Expo Updates may not have created the RN root yet. The probe reports it when it arrives.
+    if displaySession?.hasRootView == true {
       displaySession?.appeared()
     }
   }
@@ -229,10 +229,10 @@ internal import React
         initialProps: self.initialProperties,
         launchOptions: nil,
         session: session,
-        controllerAppearance: true
+        isHostVisible: { [weak self] in self?.isVisible == true }
       ) else { return }
       self.view = reactView
-      if self.isVisible { session?.appeared() }
+      if self.isVisible, session?.hasRootView == true { session?.appeared() }
     }
   }
 }
