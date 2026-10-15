@@ -46,11 +46,30 @@ class AndroidArchiveLibrary(
         val regex = Regex("""namespace\s*=?\s*["']([^"']+)["']""")
         val match = regex.find(text)
 
-        val namespace =
-            match?.groupValues?.get(1)
-                ?: error("No namespace found in ${buildFile.path}")
+        return match?.groupValues?.get(1)
+            ?: getNameSpaceFromAndroidManifest(subProj)
+            ?: error(
+                "No namespace found in ${buildFile.path}, and no package attribute found in " +
+                    "AndroidManifest.xml for ${artifact.moduleName}",
+            )
+    }
 
-        return namespace
+    /**
+     * Falls back to the `package` attribute of the dependency's `AndroidManifest.xml` when the
+     * module declares no `namespace` in its `build.gradle`. The Android Gradle plugin itself
+     * derives the namespace this way for such libraries, so they build fine as a regular
+     * dependency but trip up [getNameSpaceFromBuildGradle]'s `build.gradle`-only regex.
+     */
+    private fun getNameSpaceFromAndroidManifest(subProj: Project): String? {
+        val candidateManifests =
+            listOf(
+                File(subProj.projectDir, "src/main/AndroidManifest.xml"),
+                File(subProj.projectDir, "AndroidManifest.xml"),
+            )
+        val manifestFile = candidateManifests.firstOrNull { it.exists() } ?: return null
+
+        val regex = Regex("""package\s*=\s*["']([^"']+)["']""")
+        return regex.find(manifestFile.readText())?.groupValues?.get(1)
     }
 
     fun getManifestFile() = File(getExplodedAarRootDir(), "AndroidManifest.xml")
