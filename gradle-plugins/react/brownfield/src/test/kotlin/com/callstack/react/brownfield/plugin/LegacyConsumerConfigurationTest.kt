@@ -64,10 +64,12 @@ class LegacyConsumerConfigurationTest {
             """.trimIndent(),
         )
         File(projectDir, "local.properties").writeText("sdk.dir=$androidSdk\n")
-        // ArtifactsResolver looks for an `app` project; an empty stub is enough, this test is about
-        // the task container, not discovery.
-        File(projectDir, "app").mkdirs()
-        File(projectDir, "app/build.gradle.kts").writeText("")
+        // ArtifactsResolver looks for an `app` project. It only needs the RN bundle tasks whose
+        // outputs the plugin wires as generated sources; this test is about the task container,
+        // not discovery.
+        val appDir = File(projectDir, "app").apply { mkdirs() }
+        writeRNBundleTaskStubs(appDir)
+        File(appDir, "build.gradle.kts").writeText("apply(from = \"$RN_BUNDLE_TASK_STUBS_SCRIPT\")\n")
 
         // The `tasks.register("removeDependenciesFromModuleFile")` block below is verbatim from
         // the published setup docs. Do not "modernize" it — its whole purpose is to reproduce
