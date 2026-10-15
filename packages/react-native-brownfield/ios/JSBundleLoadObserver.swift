@@ -13,22 +13,27 @@ final class JSBundleLoadObserver {
   private var pendingCallback: ((JSBundleTimings) -> Void)?
   private var didLoadBundle = false
   private var latestTimings: JSBundleTimings?
-  private var observerToken: NSObjectProtocol?
+  private var observerTokens: [NSObjectProtocol] = []
 
   init() {
-    observerToken = NotificationCenter.default.addObserver(
+    observerTokens.append(NotificationCenter.default.addObserver(
       forName: .JSBundleTimingDidLoad,
       object: nil,
       queue: .main
     ) { [weak self] _ in
       self?.bundleDidLoad()
-    }
+    })
+    observerTokens.append(NotificationCenter.default.addObserver(
+      forName: NSNotification.Name("RCTJavaScriptDidFailToLoadNotification"),
+      object: nil,
+      queue: .main
+    ) { [weak self] _ in
+      self?.bundleDidFailToLoad()
+    })
   }
 
   deinit {
-    if let observerToken {
-      NotificationCenter.default.removeObserver(observerToken)
-    }
+    observerTokens.forEach(NotificationCenter.default.removeObserver)
   }
 
   /**
@@ -83,6 +88,16 @@ final class JSBundleLoadObserver {
     if let callback, let timings = latestTimings {
       callback(timings)
     }
+  }
+
+  /**
+   * A failed load, for example a reload in development, replaces the bundle that loaded earlier.
+   * Forget it and its timings, so a new callback waits for the next load. A callback that waits
+   * keeps waiting: it belongs to this session, and runs when a reload succeeds.
+   */
+  private func bundleDidFailToLoad() {
+    didLoadBundle = false
+    latestTimings = nil
   }
 
   /**
