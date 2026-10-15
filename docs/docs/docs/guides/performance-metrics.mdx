@@ -1,0 +1,207 @@
+import { Tabs, Tab } from '@theme';
+
+# Performance Metrics
+
+React Native Brownfield can measure:
+
+- **React Native startup**: how long it takes to load and evaluate the JavaScript bundle.
+- **Screen presentation**: time to initial display (TTID) and time to full display (TTFD).
+- **Thread responsiveness**: JS FPS and UI FPS, plus a busy ratio for each thread, while a screen is presented.
+
+The metrics work in Debug and Release builds on Android and iOS. All durations are in milliseconds.
+
+## Available metrics
+
+| Metric                    | What it means                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `jsBundleLoadTime`        | Time spent getting the JavaScript bundle. In Debug this usually includes Metro and the network transfer. In Release it is the local file read. |
+| `jsBundleEvaluationTime`  | Time spent evaluating the JavaScript bundle, including synchronous top-level JavaScript work.                                         |
+| `timeline`                | Start and stop timestamps for the completed bundle load and evaluation intervals. Use it to see if the intervals overlap.             |
+| `initialDisplay.duration` | Time to initial display (TTID): how long the native presentation takes to appear.                                                    |
+| `fullDisplay.duration`    | Time to full display (TTFD): how long it takes to appear and reach the readiness point that your app defines.                        |
+| `jsThread` / `uiThread`   | Responsiveness snapshots (JS FPS, UI FPS and busy ratio) for the JavaScript thread and the main UI thread during the presentation.    |
+
+:::warning
+Startup and screen presentation have different boundaries. Do not add their durations together to get an end-to-end startup time.
+:::
+
+## Measure React Native startup
+
+Pass a callback when you start React Native. It receives a `JSBundleTimings` object.
+
+<Tabs>
+  <Tab label="iOS">
+  ```swift
+  ReactNativeBrownfield.shared.startReactNative(
+    launchOptions: nil,
+    preloadBundle: true
+  ) { timings in
+    print("Bundle loading: \(timings.jsBundleLoadTime as Any) ms")
+    print("Bundle execution: \(timings.jsBundleEvaluationTime as Any) ms")
+
+    for interval in timings.timeline {
+      print(
+        "\(interval["tag"] ?? "unknown"): " +
+        "\(interval["startMs"] ?? 0)–\(interval["stopMs"] ?? 0) ms"
+      )
+    }
+  }
+  ```
+  </Tab>
+  <Tab label="Android">
+  ```kotlin
+  ReactNativeBrownfield.initialize(application, packages) { timings ->
+    Log.d("Brownfield", "Bundle evaluation: ${timings.jsBundleEvaluationTime} ms")
+  }
+  ```
+  </Tab>
+</Tabs>
+
+The callback runs one time, on the main thread, after the bundle loads. If the bundle fails to load, the callback does not run. `stopReactNative()` clears the stored timings.
+
+`jsBundleLoadTime` and `jsBundleEvaluationTime` are optional. `nil` on iOS or `null` on Android means that React Native did not report a completed measurement. It does not mean zero. The `timeline` leaves out intervals that are not available or not complete. Its timestamps are monotonic values. Use them to compare entries in the same result, not as wall-clock dates.
+
+### Android notes
+
+- `DOWNLOAD_START` and `DOWNLOAD_END` describe only a successful Metro download. Embedded assets and local files report `jsBundleLoadTime = null`.
+- Evaluation completes after the bundle work of the managed React context.
+- React Native uses a fixed evaluation instance key. Thus Android supports one managed runtime and gives the process-wide download markers to it.
+- When the host is destroyed or reloaded, the cached timings are cleared.
+
+### What startup metrics do not measure
+
+- `jsBundleEvaluationTime` covers synchronous bundle evaluation only. It does not wait for effects, requests, other asynchronous work, or a screen to become ready.
+- These metrics do not start at native app launch. They do not show the time until the user sees a screen.
+- Debug and Release load the bundle from different sources. Compare results only with the same build and bundle conditions.
+
+## Measure screen presentation
+
+Turn on metrics when you create a React Native screen:
+
+<Tabs>
+  <Tab label="iOS">
+  ```swift
+  let controller = ReactNativeViewController(
+    moduleName: "Catalog",
+    initialProperties: [:],
+    waitForFullDisplay: true,
+    collectThreadMetrics: true
+  ) { metrics in
+    guard
+      let initial = metrics.initialDisplay,
+      let full = metrics.fullDisplay
+    else { return }
+
+    print("TTID: \(initial.duration) ms")
+    print("TTFD: \(full.duration) ms")
+    print("JS FPS: \(full.jsThread.fps as Any)")
+    print("UI FPS: \(full.uiThread.fps as Any)")
+  }
+
+  navigationController?.pushViewController(controller, animated: true)
+  ```
+
+  `ReactNativeBrownfield.shared.view(...)` and the SwiftUI `ReactNativeView(...)` accept the same `waitForFullDisplay`, `collectThreadMetrics` and `onMetrics` arguments.
+  </Tab>
+  <Tab label="Android">
+  ```kotlin
+  val view = ReactNativeBrownfield.shared.createView(
+    activity = this,
+    moduleName = "Catalog",
+    launchOptions = Bundle(),
+    waitForFullDisplay = true,
+    collectThreadMetrics = true
+  ) { metrics ->
+    Log.d("Brownfield", "TTID: ${metrics.initialDisplay?.duration} ms")
+    Log.d("Brownfield", "TTFD: ${metrics.fullDisplay?.duration} ms")
+    Log.d("Brownfield", "JS FPS: ${metrics.fullDisplay?.jsThread?.fps}")
+    Log.d("Brownfield", "UI FPS: ${metrics.fullDisplay?.uiThread?.fps}")
+  }
+  ```
+
+  `ReactNativeFragment` accepts the same arguments. The flags are stored in the Fragment `arguments`, so they survive restoration. The callback is not serialized. Set `fragment.onMetrics` again before `onCreateView` when you restore a Fragment.
+  </Tab>
+</Tabs>
+
+The callback returns one final result on the main thread. If the presentation is cancelled, the callback does not run. For example, this happens when the controller disappears, the app moves to the background, or React Native stops.
+
+### Time to initial display (TTID)
+
+`initialDisplay.duration` measures the native presentation latency.
+
+| Host                                 | Starts                       | Ends                                                         |
+| ------------------------------------ | ---------------------------- | ------------------------------------------------------------ |
+| iOS `ReactNativeViewController`      | `viewDidLoad`                | The controller has appeared and its React Native root exists |
+| iOS raw view                         | `view(...)` is called        | Just after the root attaches to a window                     |
+| Android raw view                     | `createView` is called       | On the main thread, after the root attaches                  |
+| Android Fragment                     | `onCreateView`               | After the root attaches and the Fragment resumes             |
+
+TTID does not guarantee that useful React Native content has rendered. It can end while a loading state shows, and it does not measure physical pixel delivery. It also excludes the time before the presentation starts, such as the delay between a user tap and the creation of the controller. On Android, it does not wait for the first React content draw or for an animation to finish.
+
+### Time to full display (TTFD)
+
+Set `waitForFullDisplay: true` to measure a readiness point that your app defines. The measurement completes when both conditions are true:
+
+1. The screen has reached initial display.
+2. JavaScript has called `markFullyDisplayed` for that presentation.
+
+The root component receives a `brownfieldPresentationID` prop. Report readiness when the content that your app considers essential is available:
+
+```tsx
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
+import ReactNativeBrownfield from '@callstack/react-native-brownfield';
+
+type Props = {
+  brownfieldPresentationID: string;
+  dataLoaded: boolean;
+};
+
+export function CatalogScreen({ brownfieldPresentationID, dataLoaded }: Props) {
+  useEffect(() => {
+    if (dataLoaded) {
+      ReactNativeBrownfield.markFullyDisplayed(brownfieldPresentationID);
+    }
+  }, [brownfieldPresentationID, dataLoaded]);
+
+  return <View>{/* Render the screen... */}</View>;
+}
+```
+
+Use the same readiness condition every time, for example "the required data and the important images have rendered". The library cannot decide when your screen is useful. Only the first accepted marker completes the measurement. Repeated or stale IDs are ignored.
+
+TTFD includes TTID, so do not add them together. `TTFD - TTID` is the additional time between the initial appearance and your readiness point.
+
+If `waitForFullDisplay` is `false` (the default), `fullDisplay` is equal to `initialDisplay`, and no separate readiness point is measured. If it is `true` and JavaScript never sends the marker, the callback does not run until the presentation is cancelled.
+
+## Measure thread responsiveness (JS FPS and UI FPS)
+
+Set `collectThreadMetrics: true` and provide an `onMetrics` callback. Each display interval then contains a `jsThread` and a `uiThread` snapshot:
+
+| Field        | What it means                                                                                        |
+| ------------ | ---------------------------------------------------------------------------------------------------- |
+| `fps`        | Average display-link callback rate during the sampled window. This is the JS FPS or UI FPS.         |
+| `busyRatio`  | Estimated fraction of sampled time spent past callback deadlines, from `0` to `1`. Lower is better. |
+| `sampledMs`  | How much of the interval was actually observed.                                                      |
+| `frameCount` | Number of display-link callbacks in the sample.                                                      |
+
+Always check `sampledMs` and `frameCount` before you read FPS or busy ratio. For example, if TTFD is 1,000 ms but the JS `sampledMs` is 200 ms, the JS values describe only those 200 ms. JS sampling can start late while React Native starts.
+
+The `initialDisplay` snapshots cover the interval until TTID. The `fullDisplay` snapshots are cumulative from the same start until TTFD. They do not show only the time after TTID.
+
+### What thread metrics do not measure
+
+- `busyRatio` is not CPU utilization.
+- `fps` is the callback cadence. It is not the React render count, the dropped-frame count, or GPU frame delivery.
+- Values are averages. A long smooth interval can hide a short stall.
+- The samplers observe the shared React Native JavaScript thread and the app main thread, so unrelated work can change the result.
+- Sampling adds a small amount of work. Use the same setting when you compare runs.
+- A sampler that is not supported or has not started reports `nil`/`null` FPS and busy ratio, and zero coverage. Short samples are noisy.
+
+Use a low FPS or a high busy ratio as a signal to profile the affected thread, not as proof of the cause of a slowdown.
+
+## Compare results
+
+Compare repeated measurements only when these are the same: React Native version, build configuration, device, bundle source, preload policy, hosting API, thread-metric setting and readiness condition.
+
+These metrics describe specific parts of startup and presentation. To measure the duration from app launch or from a user interaction to useful content, instrument that start point yourself and use TTFD as the end point.

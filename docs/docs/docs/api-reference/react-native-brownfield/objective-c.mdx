@@ -59,7 +59,7 @@ Brownfield calls `onBundleLoaded` one time, on the main thread, with a `JSBundle
 | `jsBundleLoadTime`       | `RCTPLScriptDownload`  | Metro HTTP in Debug, file read in Release. |
 | `jsBundleEvaluationTime` | `RCTPLScriptExecution` | Time to evaluate the bundle.               |
 
-Each field is an optional `NSNumber` in milliseconds. A field is `nil` when the tag never completed: a failed load, a missing logger, or bridgeless React Native below 0.87. Android `onBundleLoaded` is unchanged.
+Each field is an optional `NSNumber` in milliseconds. A field is `nil` when the tag never completed: a failed load, a missing logger, or bridgeless React Native below 0.87. For metric boundaries, see [Performance Metrics](/docs/guides/performance-metrics).
 
 Without `preloadBundle`, React Native loads and evaluates the JavaScript bundle when it creates the first React Native view. With `preloadBundle:YES`, this call creates and starts the React Host, and React Native then evaluates the bundle on the JavaScript thread, in parallel with the remainder of your app launch. On Android, `ReactNativeBrownfield.initialize` does the same operation. See [Preload the JavaScript bundle](/docs/getting-started/ios#preload-the-javascript-bundle).
 
