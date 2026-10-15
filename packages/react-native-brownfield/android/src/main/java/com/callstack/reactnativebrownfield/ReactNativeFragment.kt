@@ -55,19 +55,23 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val waitForFullDisplay = arguments?.getBoolean(
-            ReactNativeFragmentArgNames.ARG_WAIT_FOR_FULL_DISPLAY, false
-        ) ?: false
-        val collectThreadMetrics = arguments?.getBoolean(
-            ReactNativeFragmentArgNames.ARG_COLLECT_THREAD_METRICS, false
-        ) ?: false
-        val session = BrownfieldDisplaySession(
-            moduleName, waitForFullDisplay, collectThreadMetrics, onMetrics
-        )
+        val args = arguments
+        // Only the measured factories set this argument. Plain fragments keep their props as is.
+        val isMeasured = args?.containsKey(ReactNativeFragmentArgNames.ARG_WAIT_FOR_FULL_DISPLAY) == true
+        val session = if (isMeasured) {
+            BrownfieldDisplaySession(
+                moduleName,
+                args!!.getBoolean(ReactNativeFragmentArgNames.ARG_WAIT_FOR_FULL_DISPLAY, false),
+                args.getBoolean(ReactNativeFragmentArgNames.ARG_COLLECT_THREAD_METRICS, false),
+                onMetrics
+            )
+        } else {
+            null
+        }
         displaySession = session
         val launchOptions = Bundle(
-            arguments?.getBundle(ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS) ?: Bundle()
-        ).apply { putString("brownfieldPresentationID", session.id) }
+            args?.getBundle(ReactNativeFragmentArgNames.ARG_LAUNCH_OPTIONS) ?: Bundle()
+        ).apply { session?.let { putString("brownfieldPresentationID", it.id) } }
         this.reactDelegate = ReactDelegateWrapper(
             activity, this.reactHost, moduleName, launchOptions
         )

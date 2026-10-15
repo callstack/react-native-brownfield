@@ -142,8 +142,8 @@ internal import Expo
     initialProps: [AnyHashable: Any]?,
     launchOptions: [AnyHashable: Any]? = nil
   ) -> UIView? {
-    view(moduleName: moduleName, initialProps: initialProps, launchOptions: launchOptions,
-         waitForFullDisplay: false, onMetrics: nil)
+    makeView(moduleName: moduleName, initialProps: initialProps, launchOptions: launchOptions,
+             session: nil, controllerAppearance: false)
   }
 
   /// Creates a measured presentation. The completion receives one immutable snapshot on main.
@@ -164,11 +164,14 @@ internal import Expo
                     launchOptions: launchOptions, session: session, controllerAppearance: false)
   }
 
+  /// Only measured presentations get a session. Without one, `initialProps` pass through as is.
   internal func makeView(moduleName: String, initialProps: [AnyHashable: Any]?,
-                        launchOptions: [AnyHashable: Any]?, session: BrownfieldDisplaySession,
+                        launchOptions: [AnyHashable: Any]?, session: BrownfieldDisplaySession?,
                         controllerAppearance: Bool) -> UIView? {
-    var props = initialProps ?? [:]
-    props["brownfieldPresentationID"] = session.id
+    var props = initialProps
+    if let session {
+      props = (props ?? [:]).merging(["brownfieldPresentationID": session.id]) { $1 }
+    }
     #if canImport(Expo)
     let root = ExpoHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
                                            launchOptions: launchOptions)
@@ -176,7 +179,8 @@ internal import Expo
     let root = ReactNativeHostRuntime.shared.view(moduleName: moduleName, initialProps: props,
                                                   launchOptions: launchOptions)
     #endif
-    guard let root else { session.cancel(); return nil }
+    guard let root else { session?.cancel(); return nil }
+    guard let session else { return root }
     let probe = BrownfieldAppearanceProbe(session: session)
     probe.usesControllerAppearance = controllerAppearance
     root.addSubview(probe)

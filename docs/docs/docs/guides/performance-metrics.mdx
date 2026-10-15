@@ -145,7 +145,7 @@ Set `waitForFullDisplay: true` to measure a readiness point that your app define
 1. The screen has reached initial display.
 2. JavaScript has called `markFullyDisplayed` for that presentation.
 
-The root component receives a `brownfieldPresentationID` prop. Report readiness when the content that your app considers essential is available:
+A measured presentation passes a `brownfieldPresentationID` prop to the root component. Presentations created without the metrics APIs keep their props unchanged and get no such prop. Report readiness when the content that your app considers essential is available:
 
 ```tsx
 import React, { useEffect } from 'react';

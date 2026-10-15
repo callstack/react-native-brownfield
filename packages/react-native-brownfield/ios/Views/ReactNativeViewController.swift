@@ -26,6 +26,7 @@ internal import React
   private var waitForFullDisplay = false
   private var collectThreadMetrics = false
   private var onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
+  private var isMeasured = false
   private var displaySession: BrownfieldDisplaySession?
   private var isVisible = false
 
@@ -44,6 +45,7 @@ internal import React
     self.waitForFullDisplay = waitForFullDisplay
     self.collectThreadMetrics = collectThreadMetrics
     self.onMetrics = onMetrics
+    self.isMeasured = true
   }
 
   required init?(coder: NSCoder) {
@@ -52,9 +54,11 @@ internal import React
 
   public override func viewDidLoad() {
     super.viewDidLoad()
-    displaySession = BrownfieldDisplaySession(moduleName: moduleName,
-      waitForFullDisplay: waitForFullDisplay, collectThreadMetrics: collectThreadMetrics,
-      callback: onMetrics)
+    if isMeasured {
+      displaySession = BrownfieldDisplaySession(moduleName: moduleName,
+        waitForFullDisplay: waitForFullDisplay, collectThreadMetrics: collectThreadMetrics,
+        callback: onMetrics)
+    }
     onMetrics = nil
 
     if !moduleName.isEmpty {
@@ -219,7 +223,7 @@ internal import React
     
     DispatchQueue.main.async { [weak self] in
       guard let self else { return }
-      guard let session = self.displaySession else { return }
+      let session = self.displaySession
       guard let reactView = ReactNativeBrownfield.shared.makeView(
         moduleName: self.moduleName,
         initialProps: self.initialProperties,
@@ -228,7 +232,7 @@ internal import React
         controllerAppearance: true
       ) else { return }
       self.view = reactView
-      if self.isVisible { session.appeared() }
+      if self.isVisible { session?.appeared() }
     }
   }
 }
