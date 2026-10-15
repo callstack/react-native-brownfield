@@ -5,10 +5,10 @@ const {
   assertDetoxTextMatches,
   launchBrownfieldAppForDetox,
   pollUntilUiAutomatorContains,
-  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
   openReactNativeVanilla,
+  tapAndWaitForNativeScreen,
   waitForAndroidAppReadyVanilla,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
@@ -20,18 +20,18 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
 
   it('navigates to native settings from the RN surface', async () => {
     await openReactNativeVanilla();
-    await element(by.id(ids.openNativeSettings)).atIndex(0).tap();
-    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToSettings', 10000, 0, {
-      keepCurrentActivity: true,
-    });
+    await tapAndWaitForNativeScreen(
+      ids.openNativeSettings,
+      'Opened from BrownfieldNavigation.navigateToSettings'
+    );
   });
 
   it('navigates to native referrals from the RN surface', async () => {
     await openReactNativeVanilla();
-    await element(by.id(ids.openNativeReferrals)).atIndex(0).tap();
-    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToReferrals', 10000, 0, {
-      keepCurrentActivity: true,
-    });
+    await tapAndWaitForNativeScreen(
+      ids.openNativeReferrals,
+      'Opened from BrownfieldNavigation.navigateToReferrals'
+    );
   });
 
   it('shows the native greeting shell and opens the RN home', async () => {

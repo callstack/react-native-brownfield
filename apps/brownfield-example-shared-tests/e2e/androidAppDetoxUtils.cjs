@@ -76,6 +76,21 @@ async function openReactNativeVanilla() {
   await openReactNativeAndroid([ids.rnAppHome]);
 }
 
+/**
+ * Tap an RN button that pushes a native activity, then wait for that screen via UIAutomator.
+ * Sync stays off: the press queues ripple view commands that never mount once the RN host
+ * activity pauses, so Detox would wait forever for the Fabric UI manager to become idle.
+ */
+async function tapAndWaitForNativeScreen(testID, needle, timeoutMs = 10000) {
+  await device.disableSynchronization();
+  try {
+    await element(by.id(testID)).atIndex(0).tap();
+    await waitForNativeOverlayVisible(needle, timeoutMs, 0, { keepCurrentActivity: true });
+  } finally {
+    await device.enableSynchronization();
+  }
+}
+
 async function waitForAndroidAppReadyExpo() {
   console.log('[e2e] Waiting for native Expo Android greeting...');
   await pollUntilUiAutomatorContainsAny(
@@ -182,6 +197,7 @@ module.exports = {
   waitForAndroidAppReadyVanilla,
   waitForAndroidAppReadyExpo,
   openReactNativeVanilla,
+  tapAndWaitForNativeScreen,
   openReactNativeExpo,
   openPostMessageTabExpo,
   tapSendMessageToNativeExpo,
