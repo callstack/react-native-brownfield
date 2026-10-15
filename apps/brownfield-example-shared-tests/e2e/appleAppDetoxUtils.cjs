@@ -87,14 +87,17 @@ async function tapExpoTab(matchers) {
 
 const OPEN_REACT_NATIVE_BUTTON = by.id(ids.appleAppOpenReactNative);
 
-/** Native SwiftUI shell is ready once the "Open React Native" button renders. */
+/**
+ * Native SwiftUI shell is ready once the "Open React Native" button renders.
+ *
+ * Leaves synchronization off: the app preloads the JS bundle at launch, and DetoxSync
+ * stays busy on "React Native (bundle load)" until RN content appears. With sync on,
+ * the app never goes idle on the native shell. `openReactNative` turns sync on once
+ * the RN screen is visible.
+ */
 async function waitForAppleAppReady() {
   await device.disableSynchronization();
-  try {
-    await waitForVisible(OPEN_REACT_NATIVE_BUTTON, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
-  } finally {
-    await device.enableSynchronization();
-  }
+  await waitForVisible(OPEN_REACT_NATIVE_BUTTON, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
 }
 
 /** Push RNAppScreen from the native shell and wait until `isReady` resolves. */
