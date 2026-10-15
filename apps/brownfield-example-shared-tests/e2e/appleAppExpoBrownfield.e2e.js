@@ -7,8 +7,7 @@ const {
   launchBrownfieldAppForDetox,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
-  scrollToNativeShellExpo,
-  waitForAppleAppReadyExpo,
+  waitForAppleAppReady,
   openHomeTabExpo,
   openPostMessageTabExpo,
   sendPostMessageToNativeAndWaitForToast,
@@ -17,11 +16,10 @@ const {
 describe('Brownfield (AppleApp — Expo)', () => {
   beforeEach(async () => {
     await launchBrownfieldAppForDetox({ newInstance: true, enableSync: false });
-    await waitForAppleAppReadyExpo();
+    await waitForAppleAppReady();
   });
 
-  it('shows the native greeting shell and embedded Expo home', async () => {
-    await scrollToNativeShellExpo();
+  it('shows the native greeting shell and opens the Expo home', async () => {
     const greeting = element(by.id(ids.appleAppGreeting));
     await detoxExpect(greeting).toBeVisible();
     await assertDetoxTextMatches(greeting, /Hello native iOS Expo/);

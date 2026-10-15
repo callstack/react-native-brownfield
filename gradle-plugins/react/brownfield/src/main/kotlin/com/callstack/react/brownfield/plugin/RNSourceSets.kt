@@ -10,6 +10,7 @@ import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.PathSensitivity
 import java.io.File
 
 object RNSourceSets {
@@ -67,16 +68,35 @@ object RNSourceSets {
                 )
 
             val appBuildDir = getAppBuildDir()
-            bundlePathSegments.forEach { segment ->
-                variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$segment")
-                variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$segment")
+            val pathSegments = bundlePathSegments.toMutableList()
+            if (Utils.hasExpoUpdates(appProject, variantName)) {
+                pathSegments.add(VariantHelper.getExpoUpdatesResourcesTaskName(variant.name))
             }
 
-            if (Utils.hasExpoUpdates(appProject, variantName)) {
-                val updateResourcesPathSegment = VariantHelper.getExpoUpdatesResourcesTaskName(variant.name)
-                variant.sources.assets?.addStaticSourceDirectory("$appBuildDir/generated/assets/$updateResourcesPathSegment")
-                variant.sources.res?.addStaticSourceDirectory("$appBuildDir/generated/res/$updateResourcesPathSegment")
-            }
+            val assetDirs = pathSegments.map { "$appBuildDir/generated/assets/$it" }
+            val resDirs = pathSegments.map { "$appBuildDir/generated/res/$it" }
+            assetDirs.forEach { variant.sources.assets?.addStaticSourceDirectory(it) }
+            resDirs.forEach { variant.sources.res?.addStaticSourceDirectory(it) }
+
+            /**
+             * Static source directories are not tracked as task inputs, so a rebuilt JS bundle
+             * would leave the merge tasks UP-TO-DATE and ship the previous bundle in the AAR.
+             */
+            val capitalizedVariantName = variantName.capitalized()
+            trackAsInputs("merge${capitalizedVariantName}Assets", "reactNativeAssets", assetDirs)
+            trackAsInputs("package${capitalizedVariantName}Resources", "reactNativeRes", resDirs)
+        }
+    }
+
+    private fun trackAsInputs(
+        taskName: String,
+        propertyName: String,
+        dirs: List<String>,
+    ) {
+        project.tasks.matching { it.name == taskName }.configureEach { task ->
+            task.inputs.files(dirs.map { project.fileTree(it) })
+                .withPropertyName(propertyName)
+                .withPathSensitivity(PathSensitivity.RELATIVE)
         }
     }
 
