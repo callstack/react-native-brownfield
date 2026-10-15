@@ -100,12 +100,27 @@ async function waitForAppleAppReady() {
   await waitForVisible(OPEN_REACT_NATIVE_BUTTON, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
 }
 
+/**
+ * Tap the center of a SwiftUI control with a real (XCUITest) touch.
+ *
+ * Detox's element `tap()` injects a synthesized touch at the accessibility activation point.
+ * SwiftUI's NavigationLink ignores it: Detox reports success, but nothing is pushed.
+ * `device.tap` goes through XCUITest, which only accepts whole points in app coordinates.
+ */
+async function tapSwiftUIControl(matcher) {
+  const { frame } = await element(matcher).getAttributes();
+  await device.tap({
+    x: Math.round(frame.x + frame.width / 2),
+    y: Math.round(frame.y + frame.height / 2),
+  });
+}
+
 /** Push RNAppScreen from the native shell and wait until `isReady` resolves. */
 async function openReactNative(isReady) {
   await device.disableSynchronization();
   try {
     await waitForVisible(OPEN_REACT_NATIVE_BUTTON, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
-    await element(OPEN_REACT_NATIVE_BUTTON).tap();
+    await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
     await isReady();
   } finally {
     await device.enableSynchronization();
