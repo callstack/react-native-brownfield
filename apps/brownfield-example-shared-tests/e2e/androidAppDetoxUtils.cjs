@@ -13,12 +13,10 @@ const {
 
 /** Matches Expo 56 / 57 native shell greeting (`Hello native Android (Expo N)`). */
 const EXPO_ANDROID_GREETING_NEEDLES = [
-  'Hello native Android (Expo 56)',
+  'Hello native Android (Expo 58)',
   'Hello native Android (Expo 57)',
   'Hello native Android (Expo',
 ];
-/** @deprecated Use EXPO_ANDROID_GREETING_NEEDLES — kept for older callers. */
-const EXPO56_GREETING_NEEDLE = EXPO_ANDROID_GREETING_NEEDLES[0];
 
 /**
  * Real Expo home content only — never tab chrome (`Home` / expoHomeTab), which can
@@ -33,8 +31,6 @@ const EXPO_ANDROID_RN_CONTENT_NEEDLES = [
   'get started',
   'Try editing',
 ];
-/** @deprecated Use EXPO_ANDROID_RN_CONTENT_NEEDLES. */
-const EXPO56_RN_CONTENT_NEEDLES = EXPO_ANDROID_RN_CONTENT_NEEDLES;
 
 const EXPO_ANDROID_POLL = { keepCurrentActivity: true };
 
@@ -204,8 +200,6 @@ module.exports = {
   sendPostMessageToNativeAndWaitForToast,
   EXPO_ANDROID_GREETING_NEEDLES,
   EXPO_ANDROID_RN_CONTENT_NEEDLES,
-  EXPO56_GREETING_NEEDLE,
-  EXPO56_RN_CONTENT_NEEDLES,
   // Back-compat alias used by older callers / logs.
-  EXPO56_RN_SURFACE_NEEDLES: EXPO_ANDROID_RN_CONTENT_NEEDLES,
+  EXPO58_RN_SURFACE_NEEDLES: EXPO_ANDROID_RN_CONTENT_NEEDLES,
 };

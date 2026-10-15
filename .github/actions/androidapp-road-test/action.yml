@@ -398,7 +398,7 @@ runs:
           echo "==> Starting Detox tests at $(date -u +%H:%M:%S)"
           bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
           cd apps/AndroidApp
-          yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
+          bash apps/brownfield-example-shared-tests/scripts/run-with-android-logcat.sh apps/AndroidApp/e2e-artifacts/logcat-full.txt yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
       env:
         ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
 
@@ -414,5 +414,6 @@ runs:
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: ${{ inputs.e2e-artifact-name }}-${{ inputs.flavor }}-android
-        path: apps/AndroidApp/artifacts
-        if-no-files-found: ignore
+        path: apps/AndroidApp/e2e-artifacts
+        if-no-files-found: warn
+        retention-days: 5

@@ -9,6 +9,7 @@ import type {
 } from '../types';
 import { Logger } from '../logging';
 import { renderTemplate } from '../template/engine';
+import { getExpoInfo } from '../expoUtils';
 import {
   type AndroidManifestMetaDataEntry,
   type AndroidStringResourceEntry,
@@ -21,6 +22,12 @@ import {
 } from './utils/expo-updates';
 import { getHermesArtifact } from './utils/hermes';
 import { formatMissingDimensionStrategies } from './utils/formatHelpers';
+
+/**
+ * Expo SDK 58+ Android library modules should not set `targetSdk`.
+ * Keep emitting it for older SDKs that still require the field.
+ */
+export const EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR = 58;
 
 function renderMissingDimensionStrategyBlock(
   missingDimensionStrategies: string[]
@@ -53,6 +60,27 @@ export function resolveTargetSdkVersionExpression(
   return 'resolveRootProjectInt("targetSdkVersion")';
 }
 
+export function renderTargetSdkBlock(
+  config: ResolvedBrownfieldPluginConfigWithAndroid,
+  expoMajor?: number,
+  templateVariant: 'expo' | 'vanilla' = 'expo'
+): string {
+  // RN CLI (vanilla) projects target AGP 9, where library modules must not
+  // set `targetSdk` (compilation fails with "Unresolved reference 'targetSdk'").
+  if (templateVariant === 'vanilla') {
+    return '';
+  }
+
+  if (
+    expoMajor !== undefined &&
+    expoMajor >= EXPO_SDK_OMIT_TARGET_SDK_FROM_MAJOR
+  ) {
+    return '';
+  }
+
+  return `\n        targetSdk = ${resolveTargetSdkVersionExpression(config)}`;
+}
+
 /**
  * Creates the Android library module directory structure and files
  */
@@ -61,11 +89,23 @@ export function createAndroidModule({
   config,
   rnVersion,
   projectRoot,
+  expoMajor,
+  templateVariant = 'expo',
 }: {
   /**
    * Expo app root (used to detect optional dependencies such as expo-updates)
    */
   projectRoot?: string;
+
+  /**
+   * Source template flavor. 'vanilla' is used by the RN CLI scaffold for
+   * non-Expo projects; Expo keeps the default 'expo' variant.
+   * Note: expresses the same Expo-vs-vanilla axis as `useExpoHost` in the
+   * iOS helpers (withIosFrameworkFiles/xcodeHelpers), with opposite
+   * polarity: 'vanilla' here === `useExpoHost: false` there.
+   */
+  templateVariant?: 'expo' | 'vanilla';
+
   /**
    * The root Android directory path
    */
@@ -75,6 +115,11 @@ export function createAndroidModule({
    * The resolved RN version
    */
   rnVersion: string;
+
+  /**
+   * Expo SDK major version used to gate Android library `targetSdk`.
+   */
+  expoMajor?: number;
 
   /**
    * The resolved Brownfield plugin configuration
@@ -89,7 +134,11 @@ export function createAndroidModule({
   const hermesArtifact = getHermesArtifact(rnVersion, projectRoot);
   const compileSdkVersionExpression =
     resolveCompileSdkVersionExpression(config);
-  const targetSdkVersionExpression = resolveTargetSdkVersionExpression(config);
+  const targetSdkBlock = renderTargetSdkBlock(
+    config,
+    expoMajor,
+    templateVariant
+  );
   const minifyEnabled =
     (android as { minifyEnabled?: boolean }).minifyEnabled ?? false;
   const extraProguardRules =
@@ -112,7 +161,7 @@ export function createAndroidModule({
       content: renderTemplate('android', 'build.gradle.kts', {
         '{{PACKAGE_NAME}}': android.packageName,
         '{{MIN_SDK_VERSION}}': android.minSdkVersion.toString(),
-        '{{TARGET_SDK_VERSION}}': targetSdkVersionExpression,
+        '{{TARGET_SDK_BLOCK}}': targetSdkBlock,
         '{{COMPILE_SDK_VERSION}}': compileSdkVersionExpression,
         '{{GROUP_ID}}': android.groupId,
         '{{ARTIFACT_ID}}': android.artifactId,
@@ -130,9 +179,15 @@ export function createAndroidModule({
     },
     {
       relativePath: `src/main/java/${config.android.packageName.replace(/\./g, '/')}/ReactNativeHostManager.kt`,
-      content: renderTemplate('android', 'ReactNativeHostManager.post55.kt', {
-        '{{PACKAGE_NAME}}': android.packageName,
-      }),
+      content: renderTemplate(
+        'android',
+        templateVariant === 'vanilla'
+          ? 'ReactNativeHostManager.vanilla.kt'
+          : 'ReactNativeHostManager.post55.kt',
+        {
+          '{{PACKAGE_NAME}}': android.packageName,
+        }
+      ),
     },
     {
       relativePath: 'consumer-rules.pro',
@@ -141,6 +196,7 @@ export function createAndroidModule({
     {
       relativePath: 'proguard-rules.pro',
       content: renderTemplate('android', 'proguard-rules.pro', {
+        '{{PACKAGE_NAME}}': android.packageName,
         '{{EXTRA_PROGUARD_RULES}}': extraProguardRulesText,
       }),
     },
@@ -292,6 +348,7 @@ export const withAndroidModuleFiles: ConfigPlugin<
         config: props,
         rnVersion,
         projectRoot: dangerousConfig.modRequest.projectRoot,
+        expoMajor: getExpoInfo(dangerousConfig).expoMajor,
       });
 
       return dangerousConfig;

@@ -1,6 +1,6 @@
 {
   "name": "@callstack/react-native-brownfield",
-  "version": "5.1.0",
+  "version": "5.3.0",
   "license": "MIT",
   "author": "Michal Chudziak <mike.chudziak@callstack.com>",
   "bin": {
@@ -39,6 +39,17 @@
       "require": {
         "types": "./lib/typescript/commonjs/src/expo-config-plugin/app.plugin.d.ts",
         "default": "./lib/commonjs/expo-config-plugin/app.plugin.js"
+      }
+    },
+    "./scaffold": {
+      "source": "./src/scaffold/index.ts",
+      "import": {
+        "types": "./lib/typescript/module/src/scaffold/index.d.ts",
+        "default": "./lib/module/scaffold/index.js"
+      },
+      "require": {
+        "types": "./lib/typescript/commonjs/src/scaffold/index.d.ts",
+        "default": "./lib/commonjs/scaffold/index.js"
       }
     },
     "./package.json": "./package.json"
@@ -89,7 +100,10 @@
     "@expo/config-plugins": ">=54 <100"
   },
   "dependencies": {
-    "@callstack/brownfield-cli": "workspace:^"
+    "@callstack/brownfield-cli": "workspace:^",
+    "@react-native-community/cli-config": "^20.0.0",
+    "@react-native-community/cli-types": "^20.0.0",
+    "xcode": "^3.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.6",

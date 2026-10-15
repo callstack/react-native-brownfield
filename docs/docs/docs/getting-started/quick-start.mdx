@@ -16,6 +16,16 @@ import { PackageManagerTabs } from '@theme';
 
 The React Native Brownfield library is intended to be installed in a **React Native app** that is later consumed as a **framework artifact** by your native iOS or Android app.
 
+:::tip React Native CLI app?
+If your app uses the React Native Community CLI, one command performs this installation **and** sets up the packaging targets:
+
+```bash
+npm create @callstack/react-native-brownfield@latest
+```
+
+See [React Native CLI Integration](/docs/getting-started/rnc-cli) for what it changes and how to re-run it safely. The manual steps below apply to any setup, including Expo (see [Expo Integration](/docs/getting-started/expo)).
+:::
+
 In your React Native project run:
 
 <PackageManagerTabs command="install @callstack/react-native-brownfield" />
@@ -70,6 +80,7 @@ The **Brownfield CLI automates all of this** with simple commands.
 
 Now that you have the library installed, follow the platform-specific guides to package your React Native app and integrate it with your native app:
 
+- [**React Native CLI Integration**](/docs/getting-started/rnc-cli) - Set up packaging targets automatically in a Community CLI app
 - [**iOS Integration**](/docs/getting-started/ios) - Package as XCFramework and integrate with your iOS app
 - [**Android Integration**](/docs/getting-started/android) - Package as AAR and integrate with your Android app
 

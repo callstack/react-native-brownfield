@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
   ensureConsumerNavigationSpec,
@@ -135,4 +138,29 @@ test('fails loudly when expo dependency is missing', () => {
     message:
       /Could not locate dependencies\.expo in ExpoAppPreview\/package\.json/,
   });
+});
+
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../..'
+);
+
+test('importing the module does not run the CLI or reach the network', () => {
+  // main() used to be invoked unconditionally at module scope, so merely
+  // importing this file fetched registry.npmjs.org — and an unhandled
+  // rejection from that fetch failed the whole suite. Importing must be
+  // a pure, offline operation.
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--experimental-strip-types',
+      '--no-warnings',
+      '--eval',
+      "import('./scripts/check-expo-preview.ts').then(() => console.log('IMPORT_ONLY'));",
+    ],
+    { cwd: repoRoot, encoding: 'utf8' }
+  );
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), 'IMPORT_ONLY');
 });

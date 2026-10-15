@@ -76,6 +76,7 @@ class ReactNativeFragment : ReactFragment(), PermissionAwareActivity {
             moduleName,
             this.reactDelegate as ReactDelegateWrapper,
             launchOptions,
+            viewLifecycleOwner,
             session,
             true
         )

@@ -200,7 +200,6 @@ describe('resolveBrownfieldPluginConfig', () => {
         moduleName: 'brownfieldlib',
         packageName: 'com.example.app',
         minSdkVersion: 24,
-        targetSdkVersion: 35,
         compileSdkVersion: 35,
         groupId: 'com.example.app',
         artifactId: 'brownfieldlib',
@@ -228,6 +227,38 @@ describe('resolveBrownfieldPluginConfig', () => {
     expect(resolved.debug).toBe(true);
     expect(resolved.ios?.frameworkName).toBe('CustomLib');
     expect(resolved.android?.moduleName).toBe('customlib');
+  });
+
+  it('defaults compileSdkVersion to 37 on Expo SDK 58 and later', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      null,
+      { ...baseExpoConfig, sdkVersion: '58.0.0' }
+    );
+
+    expect(resolved.android?.compileSdkVersion).toBe(37);
+  });
+
+  it('defaults compileSdkVersion to 35 on Expo SDK versions below 58', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {},
+      null,
+      { ...baseExpoConfig, sdkVersion: '57.0.0' }
+    );
+
+    expect(resolved.android?.compileSdkVersion).toBe(35);
+  });
+
+  it('preserves android.targetSdkVersion from plugin props for Expo SDK versions below 58', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: { targetSdkVersion: 37 },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.targetSdkVersion).toBe(37);
   });
 
   it('strips leading ":" from android.moduleName when resolving from file config', () => {

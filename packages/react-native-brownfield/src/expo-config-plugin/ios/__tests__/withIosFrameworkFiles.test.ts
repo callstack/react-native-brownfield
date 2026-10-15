@@ -27,5 +27,58 @@ describe('getFrameworkSourceFiles', () => {
     expect(frameworkInterface?.content).toContain(
       'Bundle(for: InternalClassForBundle.self)'
     );
+    expect(frameworkInterface?.content).toContain(
+      'extension ReactNativeBrownfield'
+    );
+    expect(frameworkInterface?.content).not.toContain('{{BUNDLE_IDENTIFIER}}');
+  });
+
+  it('renders the Expo interface with the bundle identifier when the Expo host is requested explicitly', () => {
+    const files = getFrameworkSourceFiles(iosConfig, { useExpoHost: true });
+    const frameworkInterface = files.find(
+      (file) => file.relativePath === 'BrownfieldLib.swift'
+    );
+
+    expect(frameworkInterface?.content).toBe(
+      getFrameworkSourceFiles(iosConfig)[0].content
+    );
+  });
+
+  it('renders the vanilla framework interface without bundle identifier lookups for non-Expo hosts', () => {
+    const files = getFrameworkSourceFiles(iosConfig, { useExpoHost: false });
+    const frameworkInterface = files.find(
+      (file) => file.relativePath === 'BrownfieldLib.swift'
+    );
+
+    expect(frameworkInterface?.content).toContain(
+      'public let ReactNativeBundle = Bundle(for: InternalClassForBundle.self)'
+    );
+    expect(frameworkInterface?.content).toContain(
+      'class InternalClassForBundle {}'
+    );
+
+    // The native host app imports only the generated framework and then calls
+    // ReactNativeBrownfield.shared, so the framework must re-export the
+    // library's public API (same as the manual guide's interface file).
+    expect(frameworkInterface?.content).toContain(
+      '@_exported import ReactBrownfield'
+    );
+
+    // Vanilla frameworks cannot resolve an Expo bundle, so neither the
+    // identifier lookups nor the Expo modules provider may be emitted.
+    expect(frameworkInterface?.content).not.toContain(
+      iosConfig.bundleIdentifier
+    );
+    expect(frameworkInterface?.content).not.toContain('{{BUNDLE_IDENTIFIER}}');
+    expect(frameworkInterface?.content).not.toContain('Bundle(identifier:');
+    expect(frameworkInterface?.content).not.toContain('ExpoModulesProvider');
+  });
+
+  it('keeps the Info.plist bundle identifier for vanilla hosts', () => {
+    const files = getFrameworkSourceFiles(iosConfig, { useExpoHost: false });
+    const infoPlist = files.find((file) => file.relativePath === 'Info.plist');
+
+    expect(infoPlist?.content).toContain(iosConfig.bundleIdentifier);
+    expect(infoPlist?.content).not.toContain('{{BUNDLE_IDENTIFIER}}');
   });
 });

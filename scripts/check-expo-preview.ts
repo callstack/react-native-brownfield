@@ -8,7 +8,7 @@ import {
   readFileSync,
   writeFileSync,
 } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 interface CliOptions {
   expoVersion?: string;
@@ -198,7 +198,7 @@ export function ensureConsumerNavigationSpec(contents: string): string {
   }
 
   const updated = contents.replace(
-    /\n}\s*$/u,
+    /\n\}\s*$/u,
     `${CONSUMER_ROAD_TEST_NAVIGATION_METHODS}\n}`
   );
 
@@ -395,4 +395,16 @@ async function main(): Promise<void> {
   console.log(`Applied: ${applied}`);
 }
 
-main();
+const isDirectInvocation =
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+
+// Importing this module (e.g. from the test suite) must not run the CLI —
+// main() fetches the npm registry, and an unhandled rejection from that
+// fetch would fail the importer for reasons unrelated to it.
+if (isDirectInvocation) {
+  main().catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

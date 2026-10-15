@@ -4,6 +4,10 @@ import { PackageManagerTabs, Tabs, Tab } from '@theme';
 
 This guide walks you through packaging your React Native app as an **AAR** and integrating it into your native Android app.
 
+:::tip Community CLI apps can skip steps 1-7
+For a React Native Community CLI app, `npm create @callstack/react-native-brownfield@latest` creates the library module, wires the Gradle plugin and the React Native dependencies, writes the host manager, adds the build config fields and Maven publishing, and generates `brownfield.config.json`. See [React Native CLI Integration](/docs/getting-started/rnc-cli) and continue from step 8.
+:::
+
 ## Prerequisites
 
 - React Native app with `@callstack/react-native-brownfield` installed
@@ -317,7 +321,11 @@ publishing {
         mavenLocal()
     }
 }
+```
 
+Skip this task-registration block entirely — `experimentalIncludeTransitiveDependencies` (described below) is enabled by default and already does this for you.
+
+```kotlin
 val moduleBuildDir: Directory = layout.buildDirectory.get()
 
 tasks.register("removeDependenciesFromModuleFile") {
@@ -336,6 +344,18 @@ tasks.named("generateMetadataFileForMavenAarPublication") {
    finalizedBy("removeDependenciesFromModuleFile")
 }
 ```
+
+> **Transitive dependencies:** by default, the plugin discovers your embedded native modules' own third-party dependencies (e.g. AndroidX libraries pulled in by `react-native-screens`) and publishes them into this AAR's POM/Gradle Module Metadata, so the app consuming this AAR resolves them automatically via Maven — no manual step needed.
+>
+> If you'd rather hand-declare these yourself instead (e.g. while this is still experimental), set `experimentalIncludeTransitiveDependencies = false` in this module's `reactBrownfield { }` block and use the task-registration block above:
+>
+> ```kotlin
+> reactBrownfield {
+>     experimentalIncludeTransitiveDependencies = false
+> }
+> ```
+>
+> If you are upgrading an existing app that already has the hand-written `tasks.register("removeDependenciesFromModuleFile")` block above, you can leave it in place — the plugin's own task is named differently (`brownfieldRemoveDependenciesFromModuleFile`) and the two do not conflict. It is redundant once `experimentalIncludeTransitiveDependencies` is enabled (the plugin performs the same removal), so you can delete it whenever convenient.
 
 ## 7. Create a Brownfield Configuration
 

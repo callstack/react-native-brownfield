@@ -22,11 +22,12 @@ jobs:
     outputs:
       packages: ${{ steps.filter.outputs.packages }}
       rnapp: ${{ steps.filter.outputs.rnapp }}
-      expo56: ${{ steps.filter.outputs.expo56 }}
+      expo58: ${{ steps.filter.outputs.expo58 }}
       expo57: ${{ steps.filter.outputs.expo57 }}
       androidapp: ${{ steps.filter.outputs.androidapp }}
       appleapp: ${{ steps.filter.outputs.appleapp }}
       gradle-plugins: ${{ steps.filter.outputs.gradle-plugins }}
+      scripts: ${{ steps.filter.outputs.scripts }}
       ci: ${{ steps.filter.outputs.ci }}
     steps:
       - name: Checkout
@@ -42,8 +43,8 @@ jobs:
             rnapp:
               - 'apps/RNApp/**'
               - 'apps/brownfield-example-shared-tests/**'
-            expo56:
-              - 'apps/ExpoApp56/**'
+            expo58:
+              - 'apps/ExpoApp58/**'
               - 'apps/brownfield-example-shared-tests/**'
             expo57:
               - 'apps/ExpoApp57/**'
@@ -56,6 +57,8 @@ jobs:
               - 'apps/brownfield-example-shared-tests/**'
             gradle-plugins:
               - 'gradle-plugins/**'
+            scripts:
+              - 'scripts/**'
             ci:
               - '.github/**'
 
@@ -81,7 +84,10 @@ jobs:
     name: Build, lint, typecheck & Jest
     runs-on: ubuntu-latest
     needs: filter
-    if: needs.filter.outputs.packages == 'true' || needs.filter.outputs.ci == 'true'
+    if: |
+      needs.filter.outputs.packages == 'true' ||
+      needs.filter.outputs.scripts == 'true' ||
+      needs.filter.outputs.ci == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
@@ -104,9 +110,38 @@ jobs:
       - name: Run packages' tests (Jest & vitest)
         run: yarn test:packages
 
+      - name: Run repo script tests (node:test)
+        run: yarn test:scripts
+
       - name: Test Brownfield CLI (version)
         run: |
           yarn workspace @callstack/react-native-brownfield brownfield --version
+
+  scaffold-smoke-android:
+    name: Scaffold smoke (RNC CLI app - Android)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      needs.filter.outputs.packages == 'true' &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Prepare Android
+        uses: ./.github/actions/prepare-android
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Scaffold a fresh RN CLI app and assemble the packaging module
+        run: bash ./scripts/ci-scaffold-smoke-android.sh
 
   ios-native-tests:
     name: iOS native tests
@@ -132,17 +167,18 @@ jobs:
           cd packages/react-native-brownfield
           yarn test
 
-  android-androidapp-expo56-build:
-    name: Build AndroidApp & Detox APKs (Expo 56)
+  android-androidapp-expo58-build:
+    name: Build AndroidApp & Detox APKs (Expo 58)
     runs-on: ubuntu-latest
     timeout-minutes: 120
     needs: [filter, build-lint]
     if: |
       always() &&
       (
-        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.expo58 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
@@ -151,45 +187,46 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Build Expo 56 AndroidApp Detox APKs
+      - name: Build Expo 58 AndroidApp Detox APKs
         uses: ./.github/actions/androidapp-road-test
         with:
-          flavor: expo56
-          rn-project-path: apps/ExpoApp56
-          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp56/brownfieldlib
+          flavor: expo58
+          rn-project-path: apps/ExpoApp58
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp58/brownfieldlib
           e2e-phase: build
-          e2e-apk-artifact-name: androidapp-expo56-e2e-apks
-          e2e-artifact-name: detox-androidapp-expo56
+          e2e-apk-artifact-name: androidapp-expo58-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo58
 
-  android-androidapp-expo56-e2e:
-    name: Detox E2E (AndroidApp - Expo 56)
+  android-androidapp-expo58-e2e:
+    name: Detox E2E (AndroidApp - Expo 58)
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    needs: [filter, build-lint, android-androidapp-expo56-build]
+    needs: [filter, build-lint, android-androidapp-expo58-build]
     if: |
       always() &&
       (
-        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.expo58 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
-      needs.android-androidapp-expo56-build.result == 'success'
+      needs.android-androidapp-expo58-build.result == 'success'
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run Expo 56 Detox E2E (prebuilt APKs)
+      - name: Run Expo 58 Detox E2E (prebuilt APKs)
         uses: ./.github/actions/androidapp-road-test
         with:
-          flavor: expo56
-          rn-project-path: apps/ExpoApp56
-          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp56/brownfieldlib
+          flavor: expo58
+          rn-project-path: apps/ExpoApp58
+          rn-project-maven-path: com/callstack/rnbrownfield/demo/expoapp58/brownfieldlib
           e2e-phase: test
-          e2e-apk-artifact-name: androidapp-expo56-e2e-apks
-          e2e-artifact-name: detox-androidapp-expo56
+          e2e-apk-artifact-name: androidapp-expo58-e2e-apks
+          e2e-artifact-name: detox-androidapp-expo58
 
   android-androidapp-expo57-build:
     name: Build AndroidApp & Detox APKs (Expo 57)
@@ -202,6 +239,7 @@ jobs:
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
@@ -231,6 +269,7 @@ jobs:
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.androidapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
         needs.filter.outputs.ci == 'true'
       ) &&
       (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped') &&
@@ -314,7 +353,7 @@ jobs:
     if: |
       always() &&
       (
-        needs.filter.outputs.expo56 == 'true' ||
+        needs.filter.outputs.expo58 == 'true' ||
         needs.filter.outputs.expo57 == 'true' ||
         needs.filter.outputs.appleapp == 'true' ||
         needs.filter.outputs.packages == 'true' ||
@@ -324,7 +363,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - version: '56'
+          - version: '58'
             run-e2e: 'true'
           - version: '57'
             run-e2e: 'true'

@@ -56,7 +56,7 @@ export default function RNApp({
             BrownfieldNavigation.navigateToSettings({
               id: 'expo-user-123',
               name: 'Expo User',
-              flags: ['expo56'],
+              flags: ['expo57'],
               ids: ['expo-user-123'],
             })
           }

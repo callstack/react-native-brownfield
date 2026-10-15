@@ -11,11 +11,13 @@ import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+@UntrackedTask(because = "Copies classes into Java and Kotlin compilation directories owned by other tasks")
 abstract class MergeClassesTask : DefaultTask() {
     @get:Classpath
     abstract val inputClassesJars: ConfigurableFileCollection

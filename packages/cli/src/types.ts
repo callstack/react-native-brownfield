@@ -73,11 +73,13 @@ export type BrownfieldExpoAndroidConfig = {
 
   /**
    * Target SDK version for the Android library.
+   * Used on Expo SDK versions below 58; ignored on 58 and later.
    */
   targetSdkVersion?: number;
 
   /**
    * Compile SDK version for the Android library.
+   * Defaults to 37 on Expo SDK 58 and later, otherwise 35.
    */
   compileSdkVersion?: number;
 

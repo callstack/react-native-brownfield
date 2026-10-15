@@ -1,6 +1,5 @@
 package com.callstack.react.brownfield.shared
 
-import com.callstack.react.brownfield.expo.utils.DependencyInfo
 import com.callstack.react.brownfield.utils.StringMatcher
 
 /**
@@ -39,6 +38,18 @@ object Constants {
     const val PLUGIN_NAME = "react-brownfield"
 
     const val INTERMEDIATES_TEMP_DIR = PLUGIN_NAME
+
+    /**
+     * Plugin-owned task that post-processes generated Gradle Module Metadata.
+     *
+     * Never rename to the bare [LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME]: the plugin registers
+     * during `apply()`, before the consumer's script body, so claiming that name breaks every
+     * consumer still following the setup docs with "a task with that name already exists".
+     */
+    const val MODULE_METADATA_POST_PROCESS_TASK_NAME = "brownfieldRemoveDependenciesFromModuleFile"
+
+    /** The name the setup docs tell consumers to register themselves; must stay free for them. */
+    const val LEGACY_CONSUMER_MODULE_METADATA_TASK_NAME = "removeDependenciesFromModuleFile"
 
     val BROWNFIELD_EXPO_TRANSITIVE_DEPS_WHITELISTED_MODULES_FOR_DISCOVERY =
         setOf("expo-modules-core", "expo-constants", "expo", "expo-updates")

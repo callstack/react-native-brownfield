@@ -215,8 +215,23 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         moduleName: String,
         reactDelegate: ReactDelegateWrapper? = null,
         launchOptions: Bundle? = null,
+    ): FrameLayout = createView(activity, moduleName, reactDelegate, launchOptions, activity)
+
+    /**
+     * Use the owner of the view when embedding React Native inside a fragment or
+     * another container whose lifetime is shorter than the activity.
+     * The four-argument overload retains its original JVM signature.
+     */
+    fun createView(
+        activity: FragmentActivity?,
+        moduleName: String,
+        reactDelegate: ReactDelegateWrapper?,
+        launchOptions: Bundle?,
+        lifecycleOwner: LifecycleOwner?,
     ): FrameLayout {
-        return createViewInternal(activity, moduleName, reactDelegate, launchOptions, null, false)
+        return createViewInternal(
+            activity, moduleName, reactDelegate, launchOptions, lifecycleOwner, null, false
+        )
     }
 
     @JvmOverloads
@@ -235,7 +250,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         val props = Bundle(launchOptions ?: Bundle()).apply {
             putString("brownfieldPresentationID", session.id)
         }
-        return createViewInternal(activity, moduleName, reactDelegate, props, session, false)
+        return createViewInternal(activity, moduleName, reactDelegate, props, activity, session, false)
     }
 
     internal fun createViewInternal(
@@ -243,6 +258,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         moduleName: String,
         reactDelegate: ReactDelegateWrapper?,
         launchOptions: Bundle?,
+        lifecycleOwner: LifecycleOwner?,
         session: BrownfieldDisplaySession?,
         requiresResume: Boolean,
     ): FrameLayout {
@@ -262,12 +278,17 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
         }
 
         // Register back press callback
-        activity?.onBackPressedDispatcher?.addCallback(backPressedCallback)
+        if (lifecycleOwner != null) {
+            activity?.onBackPressedDispatcher?.addCallback(lifecycleOwner, backPressedCallback)
+        }
         // invoked on the last RN screen exit
         resolvedDelegate.setHardwareBackHandler {
             backPressedCallback.isEnabled = false
-            activity?.onBackPressedDispatcher?.onBackPressed()
-            backPressedCallback.isEnabled = true
+            try {
+                activity?.onBackPressedDispatcher?.onBackPressed()
+            } finally {
+                backPressedCallback.isEnabled = true
+            }
         }
 
         /**
@@ -277,7 +298,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
          * In such a case, we set the lifeCycle observer.
          */
         if (reactDelegate == null) {
-            activity?.lifecycle?.addObserver(getLifeCycleObserver(resolvedDelegate, session))
+            lifecycleOwner?.lifecycle?.addObserver(getLifeCycleObserver(resolvedDelegate, session))
         }
 
         resolvedDelegate.loadApp()

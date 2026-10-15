@@ -13,6 +13,7 @@
     "build": "turbo run build",
     "test:packages": "turbo run test --filter='./packages/*'",
     "test:apps": "turbo run test --filter='./apps/*'",
+    "test:scripts": "node --experimental-strip-types --no-warnings --test 'scripts/__tests__/**/*.test.ts'",
     "dev": "yarn workspaces foreach -Api run dev",
     "ci:version": "changeset version && yarn install --no-immutable && node --experimental-strip-types --no-warnings ./scripts/consolidate-changelog.ts",
     "ci:publish": "changeset publish",
@@ -30,7 +31,7 @@
     "ci:local:rnapp:e2e:ios": "bash ./scripts/ci-local-rnapp-ios-e2e.sh",
     "ci:local:appleapp:e2e:ios": "bash ./scripts/ci-local-appleapp-ios-e2e.sh",
     "ci:local:androidapp:e2e:android": "bash ./scripts/ci-local-androidapp-android-e2e.sh",
-    "ci:local:androidapp:e2e:android:expo56": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo56",
+    "ci:local:androidapp:e2e:android:expo58": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo58",
     "ci:local:androidapp:e2e:android:expo57": "bash ./scripts/ci-local-androidapp-android-e2e.sh --variant expo57"
   },
   "resolutions": {
