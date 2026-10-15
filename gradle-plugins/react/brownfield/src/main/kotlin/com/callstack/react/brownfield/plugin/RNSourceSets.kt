@@ -3,15 +3,17 @@ package com.callstack.react.brownfield.plugin
 import com.android.build.api.dsl.AndroidSourceSet
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.SourceDirectories
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.processors.VariantHelper
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.Utils
 import com.callstack.react.brownfield.utils.capitalized
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.PathSensitivity
 import java.io.File
 
 object RNSourceSets {
@@ -64,45 +66,67 @@ object RNSourceSets {
             val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
             val appProject = getAppProject()
 
-            val bundlePathSegments =
-                listOf(
-                    // outputs for RN <= 0.81
-                    "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets",
-                    // outputs for RN >= 0.82
-                    "react/$bundledAssetsVariantName",
-                )
-
-            val appBuildDir = getAppBuildDir()
-            val pathSegments = bundlePathSegments.toMutableList()
-            if (Utils.hasExpoUpdates(appProject, variantName)) {
-                pathSegments.add(VariantHelper.getExpoUpdatesResourcesTaskName(variant.name))
-            }
-
-            val assetDirs = pathSegments.map { "$appBuildDir/generated/assets/$it" }
-            val resDirs = pathSegments.map { "$appBuildDir/generated/res/$it" }
-            assetDirs.forEach { variant.sources.assets?.addStaticSourceDirectory(it) }
-            resDirs.forEach { variant.sources.res?.addStaticSourceDirectory(it) }
+            val jsBundleTaskName = "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets"
 
             /**
-             * Static source directories are not tracked as task inputs, so a rebuilt JS bundle
-             * would leave the merge tasks UP-TO-DATE and ship the previous bundle in the AAR.
+             * Wire the bundle task's own `jsBundleDir`/`resourcesDir` outputs as *generated*
+             * source directories
              */
-            val capitalizedVariantName = variantName.capitalized()
-            trackAsInputs("merge${capitalizedVariantName}Assets", "reactNativeAssets", assetDirs)
-            trackAsInputs("package${capitalizedVariantName}Resources", "reactNativeRes", resDirs)
+            wireGeneratedSourceDirectory(appProject, jsBundleTaskName, "getJsBundleDir", variant.sources.assets)
+            wireGeneratedSourceDirectory(appProject, jsBundleTaskName, "getResourcesDir", variant.sources.res)
+
+            if (Utils.hasExpoUpdates(appProject, variantName)) {
+                /**
+                 * expo-updates registers `create<Variant>UpdatesResources` as
+                 * `ExpoUpdatesPlugin.CreateUpdatesResourcesTask`, with a single
+                 * `assetDir: DirectoryProperty` output (no `res` output exists for this task).
+                 */
+                val updatesResourcesTaskName = VariantHelper.getExpoUpdatesResourcesTaskName(variant.name)
+                wireGeneratedSourceDirectory(appProject, updatesResourcesTaskName, "getAssetDir", variant.sources.assets)
+            }
         }
     }
 
-    private fun trackAsInputs(
+    /**
+     * Wires `taskName`'s `getterName` output (expected to be a `DirectoryProperty`) as a
+     * generated source directory for `sources`.
+     *
+     * Resolving the task by name (rather than importing its class) keeps this plugin from
+     * depending on RNGP's/expo-updates' internal task types. If the task, or its expected output
+     * property, isn't there, this fails the build immediately with a clear message instead of
+     * silently producing an empty/stale source directory.
+     */
+    private fun wireGeneratedSourceDirectory(
+        appProject: Project,
         taskName: String,
-        propertyName: String,
-        dirs: List<String>,
+        getterName: String,
+        sources: SourceDirectories?,
     ) {
-        project.tasks.matching { it.name == taskName }.configureEach { task ->
-            task.inputs.files(dirs.map { project.fileTree(it) })
-                .withPropertyName(propertyName)
-                .withPathSensitivity(PathSensitivity.RELATIVE)
+        if (sources == null) return
+
+        val task =
+            appProject.tasks.findByName(taskName)
+                ?: throw GradleException(
+                    "brownfield: expected task '$taskName' was not found in project " +
+                        "'${appProject.path}'. Check that the plugin producing it is applied there.",
+                )
+
+        val getter =
+            runCatching { task.javaClass.getMethod(getterName) }.getOrElse {
+                throw GradleException(
+                    "brownfield: task '$taskName' (${task.javaClass.name}) does not expose " +
+                        "'$getterName()'. The plugin that registers it most likely changed its " +
+                        "API; the brownfield Gradle plugin needs updating to match.",
+                    it,
+                )
+            }
+
+        check(DirectoryProperty::class.java.isAssignableFrom(getter.returnType)) {
+            "brownfield: '$taskName.$getterName()' no longer returns a DirectoryProperty."
         }
+
+        val taskProvider = appProject.tasks.named(taskName)
+        sources.addGeneratedSourceDirectory(taskProvider) { t -> getter.invoke(t) as DirectoryProperty }
     }
 
     private fun getLibraryNameSpace(): String {
