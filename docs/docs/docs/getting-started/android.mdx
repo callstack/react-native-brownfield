@@ -236,11 +236,12 @@ import android.app.Application
 import com.callstack.reactnativebrownfield.OnJSBundleLoaded
 import com.callstack.reactnativebrownfield.ReactNativeBrownfield
 import com.facebook.react.PackageList
-import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 
 object ReactNativeHostManager {
     fun initialize(application: Application, onJSBundleLoaded: OnJSBundleLoaded? = null) {
         val packageList = PackageList(application).packages
+        // initialize() loads the native libs and feature flags; a preceding
+        // loadReactNative would override the flags twice and crash.
         ReactNativeBrownfield.initialize(application, packageList, onJSBundleLoaded)
     }
 }

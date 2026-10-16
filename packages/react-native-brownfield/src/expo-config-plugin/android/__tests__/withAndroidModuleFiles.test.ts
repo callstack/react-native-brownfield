@@ -255,10 +255,13 @@ describe('createAndroidModule', () => {
 
     const hostManager = readLibraryHostManager(androidDir);
     expect(hostManager).toContain('package com.example.brownfield');
+    // Host via factory + no loadReactNative: both would load the feature
+    // flags twice and crash on startup (issue #492).
     expect(hostManager).toContain(
-      'ReactNativeBrownfield.initialize(application, reactHost, onJSBundleLoaded)'
+      'ReactNativeBrownfield.initialize(application, onJSBundleLoaded)'
     );
-    expect(hostManager).toContain('loadReactNative(application)');
+    expect(hostManager).toContain('setEdgeToEdgeFeatureFlagOn()');
+    expect(hostManager).not.toContain('ReactNativeApplicationEntryPoint');
     expect(hostManager).not.toContain('{{PACKAGE_NAME}}');
 
     // Expo-only wiring must not leak into the RN CLI variant.
