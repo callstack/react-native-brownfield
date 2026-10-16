@@ -1,5 +1,17 @@
 # @callstack/react-native-brownfield
 
+## 6.0.0
+
+### Major Changes
+
+- [#494](https://github.com/callstack/react-native-brownfield/pull/494) [`d28810c`](https://github.com/callstack/react-native-brownfield/commit/d28810caa32f727d56915d8e8d9276a82560b231) Thanks [@hurali97](https://github.com/hurali97)! - Add Android startup, TTID/TTFD, and JS/UI responsiveness metrics. Android's
+  `OnJSBundleLoaded` callback now receives `JSBundleTimings` instead of a Boolean.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@6.0.0
+
 ## 5.3.0
 
 ### Minor Changes
