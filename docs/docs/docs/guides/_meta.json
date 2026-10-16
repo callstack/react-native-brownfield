@@ -2,6 +2,7 @@
   "guidelines",
   "minification",
   "expo-modules",
+  "performance-metrics",
   "troubleshooting",
   {
     "type": "dir",

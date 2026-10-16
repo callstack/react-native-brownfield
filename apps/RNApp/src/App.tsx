@@ -11,9 +11,15 @@ import { HomeScreen } from './HomeScreen';
 import { NativeOsVersionLabelContext } from './nativeHostContext';
 import { Stack } from './navigation/RootStack';
 
-type AppProps = BrownfieldRootProps;
+type AppProps = BrownfieldRootProps & {
+  brownfieldPresentationID?: string;
+};
 
-export default function App({ nativeOsVersionLabel, brownfieldE2E }: AppProps) {
+export default function App({
+  nativeOsVersionLabel,
+  brownfieldE2E,
+  brownfieldPresentationID,
+}: AppProps) {
   useEffect(() => {
     syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
     return () => syncBrownfieldE2EModeFromRootProps(undefined);
@@ -23,7 +29,11 @@ export default function App({ nativeOsVersionLabel, brownfieldE2E }: AppProps) {
     <NativeOsVersionLabelContext.Provider value={nativeOsVersionLabel}>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen
+            name="Home"
+            initialParams={{ brownfieldPresentationID }}
+            component={HomeScreen}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </NativeOsVersionLabelContext.Provider>

@@ -16,5 +16,7 @@ class ReactNativeFragmentArgNames private constructor() :
 
         // re-export constants from ReactFragment to enable access
         const val ARG_LAUNCH_OPTIONS: String = "arg_launch_options"
+        const val ARG_WAIT_FOR_FULL_DISPLAY = "arg_wait_for_full_display"
+        const val ARG_COLLECT_THREAD_METRICS = "arg_collect_thread_metrics"
     }
 }

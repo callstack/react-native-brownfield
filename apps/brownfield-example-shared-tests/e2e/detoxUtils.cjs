@@ -274,26 +274,6 @@ async function pollUntilUiAutomatorResourceId(
   return pollUntilUiAutomatorContains(resourceId, timeoutMs, options);
 }
 
-/** Scroll the native shell upward so the embedded RN fragment moves into view. */
-async function scrollAndroidNativeShellUp() {
-  const { width, height } = getAndroidDisplaySize();
-  const x = Math.floor(width / 2);
-  const yStart = Math.floor(height * 0.78);
-  const yEnd = Math.floor(height * 0.32);
-  adbShell(`input swipe ${x} ${yStart} ${x} ${yEnd} 400`);
-  await dismissAndroidSystemOverlays();
-}
-
-/** Scroll the native shell downward so the greeting card moves back into view. */
-async function scrollAndroidNativeShellDown() {
-  const { width, height } = getAndroidDisplaySize();
-  const x = Math.floor(width / 2);
-  const yStart = Math.floor(height * 0.32);
-  const yEnd = Math.floor(height * 0.78);
-  adbShell(`input swipe ${x} ${yStart} ${x} ${yEnd} 400`);
-  await dismissAndroidSystemOverlays();
-}
-
 /**
  * Collapse the notification shade via adb.
  * Safe after launchApp and after scroll gestures — never press Back here (that can
@@ -310,7 +290,22 @@ async function dismissAndroidSystemOverlays() {
   adbShell('settings put global heads_up_notifications_enabled 0');
 }
 
-/** Bring MainActivity to the foreground so Espresso can obtain window focus. */
+/** Component of the resumed activity, e.g. `com.example/.MainActivity`, or null. */
+function androidResumedActivityComponent() {
+  try {
+    const out = adbExecOut('shell dumpsys activity activities');
+    const match = out.match(/ResumedActivity\s*[:=]\s*ActivityRecord\{\S+ \S+ (\S+)/);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Bring MainActivity to the foreground so Espresso can obtain window focus.
+ * No-op while another app activity (RN host, Settings, Referrals) is resumed —
+ * reordering MainActivity to the front would hide the screen under test.
+ */
 async function ensureAndroidAppWindowFocus() {
   if (device.getPlatform() !== 'android') {
     return;
@@ -319,13 +314,21 @@ async function ensureAndroidAppWindowFocus() {
   if (!isAndroidAppProcessRunning()) {
     return;
   }
+  const resumed = androidResumedActivityComponent();
+  if (
+    resumed?.startsWith(`${ANDROID_BROWNFIELD_PACKAGE}/`) &&
+    !resumed.endsWith('.MainActivity')
+  ) {
+    return;
+  }
   const launchExtras =
     '--es DetoxE2E YES --es BrownfieldPreferEmbeddedBundleInDebug YES';
   adbShell(
     `am start -W -n ${ANDROID_BROWNFIELD_MAIN_COMPONENT} --activity-single-top --activity-reorder-to-front ${launchExtras}`
   );
   const { width, height } = getAndroidDisplaySize();
-  adbShell(`input tap ${Math.floor(width / 2)} ${Math.floor(height * 0.52)}`);
+  // Tap below the native shell content — mid-screen now holds the postMessage card.
+  adbShell(`input tap ${Math.floor(width / 2)} ${Math.floor(height * 0.75)}`);
   await new Promise((resolve) => setTimeout(resolve, 500));
 }
 
@@ -570,8 +573,6 @@ module.exports = {
   pollUntilUiAutomatorContainsAny,
   pollUntilUiAutomatorResourceId,
   tapUiAutomatorTarget,
-  scrollAndroidNativeShellUp,
-  scrollAndroidNativeShellDown,
   configureDetoxForBrownfieldAndroid,
   configureDetoxForBrownfieldIos,
   launchBrownfieldAppForDetox,

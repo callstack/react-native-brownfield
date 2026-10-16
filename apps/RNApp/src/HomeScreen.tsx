@@ -17,6 +17,7 @@ import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
 import Counter from './components/counter';
 import { useNativeOsVersionLabel } from './nativeHostContext';
+import { useMarkFullyDisplayed } from './hooks/useMarkFullyDisplayed';
 
 interface Message {
   id: string;
@@ -84,6 +85,8 @@ export function HomeScreen({
   const colors = route.params?.theme ? route.params.theme : getRandomTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const flatListRef = useRef<FlatList<Message>>(null);
+
+  useMarkFullyDisplayed(route.params?.brownfieldPresentationID);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {

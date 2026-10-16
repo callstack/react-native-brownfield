@@ -17,6 +17,7 @@ class ReactNativeBrownfieldPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext): MutableList<NativeModule> {
         val modules = ArrayList<NativeModule>()
         modules.add(ReactNativeBrownfieldModule(reactContext))
+        modules.add(BrownfieldPerformanceModule(reactContext))
         return modules
     }
 }

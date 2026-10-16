@@ -13,6 +13,7 @@ const brownfieldE2ETestIds = {
   counterIncrement: 'brownfield-e2e-counter-increment',
   rnPostMessageText: 'brownfield-e2e-rn-post-message-text',
   appleAppGreeting: 'brownfield-e2e-appleapp-greeting',
+  appleAppOpenReactNative: 'brownfield-e2e-appleapp-open-react-native',
   appleAppPostMessageSend: 'brownfield-e2e-appleapp-post-message-send',
   appleAppPostMessageToast: 'brownfield-e2e-appleapp-post-message-toast',
   appleAppNativeSettings: 'brownfield-e2e-appleapp-native-settings',

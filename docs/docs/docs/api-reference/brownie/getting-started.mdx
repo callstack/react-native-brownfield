@@ -114,7 +114,7 @@ let initialState = AppStore(counter: 0)
 @main
 struct MyApp: App {
   init() {
-    ReactNativeBrownfield.shared.startReactNative {
+    ReactNativeBrownfield.shared.startReactNative { _ in
       print("React Native loaded")
     }
 
