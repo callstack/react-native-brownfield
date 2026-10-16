@@ -1,6 +1,12 @@
 -keep class com.callstack.reactnativebrownfield.ReactNativeBrownfield { *; }
 -keep class com.callstack.reactnativebrownfield.ReactNativeBrownfield$Companion { *; }
 -keep interface com.callstack.reactnativebrownfield.OnJSBundleLoaded { *; }
+-keep interface com.callstack.reactnativebrownfield.OnDisplayMetrics { *; }
+-keep class com.callstack.reactnativebrownfield.JSBundleTimings { *; }
+-keep class com.callstack.reactnativebrownfield.BrownfieldDisplayMetrics { *; }
+-keep class com.callstack.reactnativebrownfield.BrownfieldDisplayInterval { *; }
+-keep class com.callstack.reactnativebrownfield.BrownfieldThreadMetrics { *; }
+-keep class com.callstack.reactnativebrownfield.BrownfieldPerformanceModule { *; }
 -keep interface com.callstack.reactnativebrownfield.OnMessageListener { *; }
 -keep class com.callstack.reactnativebrownfield.ReactNativeFragment { *; }
 -keep class com.callstack.reactnativebrownfield.ReactNativeFragment$Companion { *; }

@@ -1,6 +1,7 @@
 [
   "guidelines",
   "minification",
+  "performance-metrics",
   "troubleshooting",
   {
     "type": "dir",

@@ -126,8 +126,8 @@ struct IosApp: App {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
         ReactNativeBrownfield.shared.ensureExpoModulesProvider()
 
-        ReactNativeBrownfield.shared.startReactNative {
-            print("React Native has been loaded")
+        ReactNativeBrownfield.shared.startReactNative { timings in
+            print("React Native has been loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(String(describing: timings.jsBundleEvaluationTime))")
         }
     }
 

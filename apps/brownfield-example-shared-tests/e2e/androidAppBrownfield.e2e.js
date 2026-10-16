@@ -5,11 +5,10 @@ const {
   assertDetoxTextMatches,
   launchBrownfieldAppForDetox,
   pollUntilUiAutomatorContains,
-  waitForNativeOverlayVisible,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
-  scrollToEmbeddedRnVanilla,
-  scrollToNativeShellVanilla,
+  openReactNativeVanilla,
+  tapAndWaitForNativeScreen,
   waitForAndroidAppReadyVanilla,
 } = require('@callstack/brownfield-example-shared-tests/e2e/androidAppDetoxUtils');
 
@@ -20,31 +19,33 @@ describe('Brownfield (AndroidApp — Vanilla)', () => {
   });
 
   it('navigates to native settings from the RN surface', async () => {
-    await scrollToEmbeddedRnVanilla();
-    await element(by.id(ids.openNativeSettings)).atIndex(0).tap();
-    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToSettings', 10000, 0, {
-      keepCurrentActivity: true,
-    });
+    await openReactNativeVanilla();
+    await tapAndWaitForNativeScreen(
+      ids.openNativeSettings,
+      'Opened from BrownfieldNavigation.navigateToSettings'
+    );
   });
 
   it('navigates to native referrals from the RN surface', async () => {
-    await scrollToEmbeddedRnVanilla();
-    await element(by.id(ids.openNativeReferrals)).atIndex(0).tap();
-    await waitForNativeOverlayVisible('Opened from BrownfieldNavigation.navigateToReferrals', 10000, 0, {
-      keepCurrentActivity: true,
-    });
+    await openReactNativeVanilla();
+    await tapAndWaitForNativeScreen(
+      ids.openNativeReferrals,
+      'Opened from BrownfieldNavigation.navigateToReferrals'
+    );
   });
 
-  it('shows the native greeting shell and embedded RN home', async () => {
-    await scrollToNativeShellVanilla();
+  it('shows the native greeting shell and opens the RN home', async () => {
     await detoxExpect(element(by.id(ids.appleAppGreeting))).toBeVisible();
+    await detoxExpect(element(by.id(ids.appleAppOpenReactNative))).toBeVisible();
+    await openReactNativeVanilla();
     await detoxExpect(element(by.id(ids.rnAppHome))).toBeVisible();
     const title = element(by.id(ids.rnAppHomeTitle));
     await detoxExpect(title).toBeVisible();
     await assertDetoxTextMatches(title, /React Native Screen/);
   });
 
-  it('increments the embedded RN shared-store counter', async () => {
+  it('increments the RN shared-store counter', async () => {
+    await openReactNativeVanilla();
     const count = element(by.id(ids.counterCount)).atIndex(0);
     await detoxExpect(count).toBeVisible();
     await assertDetoxTextMatches(count, /Count:\s*0/);

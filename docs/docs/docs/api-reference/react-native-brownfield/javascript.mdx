@@ -137,6 +137,32 @@ function MyComponent() {
 }
 ```
 
+### markFullyDisplayed
+
+Marks the current presentation as fully displayed. This ends the time to full display (TTFD) measurement. The native host must create the screen with `waitForFullDisplay: true`. Repeated or stale IDs are ignored.
+
+```ts
+ReactNativeBrownfield.markFullyDisplayed(presentationID: string);
+```
+
+**Parameters:**
+
+| Param          | Type     | Description                                                  |
+| -------------- | -------- | ------------------------------------------------------------ |
+| presentationID | `string` | The `brownfieldPresentationID` prop of the root component    |
+
+**Example:**
+
+```tsx
+useEffect(() => {
+  if (dataLoaded) {
+    ReactNativeBrownfield.markFullyDisplayed(brownfieldPresentationID);
+  }
+}, [brownfieldPresentationID, dataLoaded]);
+```
+
+For details, see [Performance Metrics](/docs/guides/performance-metrics).
+
 :::note
 These methods work only with native components provided by this library.
 :::

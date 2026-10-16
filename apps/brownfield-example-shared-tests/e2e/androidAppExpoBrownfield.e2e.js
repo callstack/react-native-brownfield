@@ -9,8 +9,7 @@ const {
   pollUntilUiAutomatorContainsAny,
 } = require('@callstack/brownfield-example-shared-tests/e2e/detoxUtils');
 const {
-  scrollToEmbeddedRnExpo,
-  scrollToNativeShellExpo,
+  openReactNativeExpo,
   waitForAndroidAppReadyExpo,
   openPostMessageTabExpo,
   tapSendMessageToNativeExpo,
@@ -29,17 +28,14 @@ describe('Brownfield (AndroidApp — Expo)', () => {
     await dismissAndroidSystemOverlays();
   });
 
-  it('shows the native greeting shell and embedded Expo home', async () => {
-    await scrollToEmbeddedRnExpo();
-    await detoxExpect(element(by.id(ids.rnAppHome))).toBeVisible();
-
-    await scrollToNativeShellExpo();
+  // Runs first: later tests share this launch and stay on the RN screen.
+  it('shows the native greeting shell and opens the Expo home', async () => {
     await detoxExpect(element(by.id(ids.appleAppGreeting))).toBeVisible();
     await pollUntilUiAutomatorContainsAny(EXPO_ANDROID_GREETING_NEEDLES, 15000, {
       keepCurrentActivity: true,
     });
 
-    await scrollToEmbeddedRnExpo();
+    await openReactNativeExpo();
     await detoxExpect(element(by.id(ids.rnAppHome))).toBeVisible();
   });
 

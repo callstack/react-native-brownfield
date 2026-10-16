@@ -1,7 +1,6 @@
 import Brownie
 import ReactBrownfield
 import SwiftUI
-import UIKit
 
 struct ChatMessage: Identifiable {
     let id: Int
@@ -16,10 +15,8 @@ let initialState = BrownfieldStore(
 
 #if USE_EXPO_HOST
 private let hostAppName = "iOS Expo"
-private let reactNativeModuleName = "main"
 #else
 private let hostAppName = "iOS Vanilla"
-private let reactNativeModuleName = "RNApp"
 #endif
 
 private func brownfieldPostMessageText(from raw: String) -> String {
@@ -32,47 +29,37 @@ private func brownfieldPostMessageText(from raw: String) -> String {
     return raw
 }
 
-private var brownfieldInitialProperties: [String: Any] {
-    [
-        "nativeOsVersionLabel":
-            "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)",
-        "brownfieldE2E": ProcessInfo.processInfo.arguments.contains("-DetoxE2E"),
-    ]
-}
-
 struct ContentView: View {
     @State private var messageObserver: NSObjectProtocol?
     @State private var showPostMessageToast = false
     @State private var postMessageToastText = ""
 
     var body: some View {
-        NavigationView {
-            ZStack {
+        // Toast sits above NavigationView so RN postMessage stays visible on the pushed RN screen.
+        ZStack {
+            NavigationView {
                 ScrollView {
                     VStack(spacing: 16) {
                         GreetingCard(name: hostAppName)
 
-                        MessagesView()
+                        NavigationLink(destination: RNAppScreen()) {
+                            Text("Open React Native")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .accessibilityIdentifier(E2eTestIds.appleAppOpenReactNative)
 
-                        ReactNativeView(
-                            moduleName: reactNativeModuleName,
-                            initialProperties: brownfieldInitialProperties
-                        )
-                        .navigationBarHidden(true)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .background(Color(UIColor.systemBackground))
-                        .frame(minHeight: 520)
+                        MessagesView()
                     }
                     .frame(maxWidth: .infinity)
                     .padding(16)
                 }
+            }
 
-                if showPostMessageToast {
-                    Toast(
-                        message: postMessageToastText,
-                        isShowing: $showPostMessageToast
-                    )
-                }
+            if showPostMessageToast {
+                Toast(
+                    message: postMessageToastText,
+                    isShowing: $showPostMessageToast
+                )
             }
         }
         .onAppear {

@@ -102,9 +102,10 @@ class AgpCompatibilityMatrixTest {
         File(projectDir, "local.properties").writeText("sdk.dir=$androidSdk\n")
         // Stands in for the RN app project. It has to be a real `com.android.application` because
         // the brownfield plugin wires into AGP's own app-side tasks; the extra registrations cover
-        // the tasks the React Native Gradle plugin would otherwise contribute. Empty registrations
-        // are enough: this test is about AGP API compatibility, not about what those tasks produce.
-        File(projectDir, "app").mkdirs()
+        // the tasks the React Native Gradle plugin would otherwise contribute. The bundle tasks need
+        // their `jsBundleDir`/`resourcesDir` outputs, which the plugin wires as generated sources;
+        // the rest can stay empty, since this test is about AGP API compatibility.
+        writeRNBundleTaskStubs(File(projectDir, "app").apply { mkdirs() })
         File(projectDir, "app/build.gradle.kts").writeText(
             """
             plugins {
@@ -116,11 +117,8 @@ class AgpCompatibilityMatrixTest {
                 compileSdk = 34
             }
 
-            listOf(
-                "generateAutolinkingPackageList",
-                "createBundleDebugJsAndAssets",
-                "createBundleReleaseJsAndAssets",
-            ).forEach { name -> tasks.register(name) }
+            tasks.register("generateAutolinkingPackageList")
+            apply(from = "$RN_BUNDLE_TASK_STUBS_SCRIPT")
             """.trimIndent(),
         )
 

@@ -17,11 +17,17 @@ struct ReactNativeViewRepresentable: UIViewControllerRepresentable {
   var moduleName: String
   var initialProperties: [String: Any] = [:]
   var host: BrownfieldSurfaceHost
+  var waitForFullDisplay = false
+  var collectThreadMetrics = false
+  var onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
 
   func makeUIViewController(context: Context) -> UIViewController {
     let controller = ReactNativeViewController(
       moduleName: moduleName,
-      initialProperties: initialProperties
+      initialProperties: initialProperties,
+      waitForFullDisplay: waitForFullDisplay,
+      collectThreadMetrics: collectThreadMetrics,
+      onMetrics: onMetrics
     )
     controller.isHostedBySwiftUI = true
     host.controller = controller
@@ -45,17 +51,29 @@ public struct ReactNativeView: View {
   @State private var host = BrownfieldSurfaceHost()
   var moduleName: String
   var initialProperties: [String: Any] = [:]
+  var waitForFullDisplay = false
+  var collectThreadMetrics = false
+  var onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
 
-  public init(moduleName: String, initialProperties: [String : Any] = [:]) {
+  public init(moduleName: String, initialProperties: [String : Any] = [:],
+              waitForFullDisplay: Bool = false,
+              collectThreadMetrics: Bool = false,
+              onMetrics: ((BrownfieldDisplayMetrics) -> Void)? = nil) {
     self.moduleName = moduleName
     self.initialProperties = initialProperties
+    self.waitForFullDisplay = waitForFullDisplay
+    self.collectThreadMetrics = collectThreadMetrics
+    self.onMetrics = onMetrics
   }
 
   public var body: some View {
     ReactNativeViewRepresentable(
       moduleName: moduleName,
       initialProperties: initialProperties,
-      host: host
+      host: host,
+      waitForFullDisplay: waitForFullDisplay,
+      collectThreadMetrics: collectThreadMetrics,
+      onMetrics: onMetrics
     )
     .ignoresSafeArea(.all)
     // `.popToNative` is public API and may be posted from any thread, while

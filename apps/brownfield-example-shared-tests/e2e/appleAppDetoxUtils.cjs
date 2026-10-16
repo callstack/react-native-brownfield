@@ -1,4 +1,4 @@
-const { device, element, by, waitFor, expect: detoxExpect } = require('detox');
+const { device, element, by, expect: detoxExpect } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
@@ -71,7 +71,6 @@ async function tapExpoTab(matchers) {
     });
     return;
   } catch {
-    // AppleApp can clip the native tab bar inside the embedded Expo surface.
     // Fall back to a direct native tap when the tab exists but does not meet
     // Detox visibility heuristics.
   }
@@ -86,184 +85,80 @@ async function tapExpoTab(matchers) {
   }
 }
 
-async function scrollToEmbeddedRnVanilla() {
+const OPEN_REACT_NATIVE_BUTTON = by.id(ids.appleAppOpenReactNative);
+
+/**
+ * Native SwiftUI shell is ready once the "Open React Native" button renders.
+ *
+ * Leaves synchronization off: the app preloads the JS bundle at launch, and DetoxSync
+ * stays busy on "React Native (bundle load)" until RN content appears. With sync on,
+ * the app never goes idle on the native shell. `openReactNative` turns sync on once
+ * the RN screen is visible.
+ */
+async function waitForAppleAppReady() {
+  await device.disableSynchronization();
+  await waitForVisible(OPEN_REACT_NATIVE_BUTTON, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
+}
+
+/**
+ * Tap the center of a SwiftUI control with a real (XCUITest) touch.
+ *
+ * Detox's element `tap()` injects a synthesized touch at the accessibility activation point.
+ * SwiftUI's NavigationLink ignores it: Detox reports success, but nothing is pushed.
+ * `device.tap` goes through XCUITest, which only accepts whole points in app coordinates.
+ */
+async function tapSwiftUIControl(matcher) {
+  const { frame } = await element(matcher).getAttributes();
+  await device.tap({
+    x: Math.round(frame.x + frame.width / 2),
+    y: Math.round(frame.y + frame.height / 2),
+  });
+}
+
+/** Push RNAppScreen from the native shell and wait until `isReady` resolves. */
+async function openReactNative(isReady) {
+  await device.disableSynchronization();
   try {
-    await element(by.type('UIScrollView')).atIndex(0).scroll(500, 'down');
-  } catch {
-    await element(by.type('UIScrollView')).atIndex(0).scrollTo('bottom');
+    await waitForVisible(OPEN_REACT_NATIVE_BUTTON, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
+    await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
+    await isReady();
+  } finally {
+    await device.enableSynchronization();
   }
 }
 
-async function scrollToEmbeddedRnExpo() {
-  if (
-    (await isVisible(EXPO_HOME_TAB_MATCHERS[0])) ||
-    (await isVisible(EXPO_HOME_TAB_MATCHERS[1])) ||
-    (await isVisible(EXPO_WELCOME_TITLE))
-  ) {
-    return;
-  }
-
-  const scrollView = element(by.type('UIScrollView')).atIndex(0);
-  try {
-    await scrollView.scroll(500, 'down');
-  } catch {
-    try {
-      await scrollView.scrollTo('bottom');
-    } catch {
-      try {
-        await scrollView.swipe('up', 'fast', 0.85);
-      } catch {
-        await withExpoTabMatcher(EXPO_HOME_TAB_MATCHERS, (matcher) =>
-          element(matcher).atIndex(0).swipe('up', 'fast', 0.85)
-        );
-      }
-    }
-  }
+async function openReactNativeVanilla() {
+  await openReactNative(() =>
+    waitForVisible(by.id(ids.rnAppHome), DETOX_TIMING.VISIBILITY_TIMEOUT_MS)
+  );
 }
 
-async function scrollToNativeShellVanilla() {
-  try {
-    await element(by.type('UIScrollView')).atIndex(0).scrollTo('top');
-  } catch {
-    await element(by.id(ids.rnAppHome)).swipe('down', 'fast', 0.85);
-  }
+async function openReactNativeExpo() {
+  await openReactNative(() =>
+    waitForAnyVisible(
+      [EXPO_HOME_TAB_MATCHERS[0], EXPO_HOME_TAB_MATCHERS[1], EXPO_WELCOME_TITLE],
+      60_000
+    )
+  );
 }
 
-async function scrollToNativeShellExpo() {
-  try {
-    await element(by.type('UIScrollView')).atIndex(0).scrollTo('top');
-  } catch {
-    await withExpoTabMatcher(EXPO_HOME_TAB_MATCHERS, (matcher) =>
-      element(matcher).atIndex(0).swipe('down', 'fast', 0.85)
-    );
-  }
-}
-
-async function waitForEmbeddedExpoMatcher(matcher, index = 0) {
-  try {
-    await waitForVisible(matcher, 5_000, index);
-    return;
-  } catch {
-    // The embedded Expo surface may already be mounted but off-screen.
-  }
-
-  try {
-    await scrollToEmbeddedRnExpo();
-  } catch {
-    // Embedded RN may already be on screen.
-  }
-
+async function waitForExpoMatcher(matcher, index = 0) {
+  await device.disableSynchronization();
   try {
     await waitForVisible(matcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS, index);
-    return;
-  } catch {
-    // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
-    // cannot safely call reloadReactNative() here. Fall back to manual scroll
-    // recovery while synchronization is disabled.
-  }
-
-  await device.disableSynchronization();
-  try {
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      try {
-        await scrollToEmbeddedRnExpo();
-      } catch {
-        // Continue polling visibility.
-      }
-
-      try {
-        await waitFor(element(matcher).atIndex(index))
-          .toBeVisible()
-          .withTimeout(10_000);
-        return;
-      } catch {
-        // Continue retry loop.
-      }
-    }
-
-    await waitFor(element(matcher).atIndex(index))
-      .toBeVisible()
-      .withTimeout(10_000);
-  } finally {
-    await device.enableSynchronization();
-  }
-}
-
-async function waitForAppleAppReadyVanilla() {
-  const rnHomeMatcher = by.id(ids.rnAppHome);
-
-  await device.disableSynchronization();
-
-  try {
-    try {
-      await scrollToEmbeddedRnVanilla();
-    } catch {
-      // Continue polling visibility.
-    }
-
-    try {
-      await waitForVisible(rnHomeMatcher, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
-      return;
-    } catch {
-      // AppleApp is a SwiftUI host, not an RCTAppDelegate-based shell, so Detox
-      // cannot safely call reloadReactNative() here. Fall back to scroll-based
-      // recovery when the embedded surface is mounted off-screen.
-    }
-
-    await scrollToEmbeddedRnVanilla();
-    await waitFor(element(rnHomeMatcher)).toBeVisible().withTimeout(20_000);
-  } finally {
-    await device.enableSynchronization();
-  }
-}
-
-async function waitForAppleAppReadyExpo() {
-  await device.disableSynchronization();
-
-  try {
-    try {
-      await waitForAnyVisible(
-        [
-          EXPO_HOME_TAB_MATCHERS[0],
-          EXPO_HOME_TAB_MATCHERS[1],
-          EXPO_WELCOME_TITLE,
-        ],
-        60_000
-      );
-      return;
-    } catch {
-      // Continue with scroll-based recovery when the embedded surface starts
-      // outside the initial viewport.
-    }
-
-    try {
-      await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[0], 0);
-      return;
-    } catch {
-      // Expo 55 does not expose tab IDs; fall back to the visible tab label.
-    }
-
-    try {
-      await waitForEmbeddedExpoMatcher(EXPO_HOME_TAB_MATCHERS[1], 0);
-      return;
-    } catch {
-      // Some Expo builds render the screen title before the tab labels settle.
-    }
-
-    await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE, 0);
   } finally {
     await device.enableSynchronization();
   }
 }
 
 async function openHomeTabExpo() {
-  await waitForAppleAppReadyExpo();
+  await openReactNativeExpo();
   await tapExpoTab(EXPO_HOME_TAB_MATCHERS);
-  await waitForEmbeddedExpoMatcher(EXPO_WELCOME_TITLE);
+  await waitForExpoMatcher(EXPO_WELCOME_TITLE);
 }
 
 async function openPostMessageTabExpo() {
-  await waitForAppleAppReadyExpo();
+  await openReactNativeExpo();
   await tapExpoTab(EXPO_POST_MESSAGE_TAB_MATCHERS);
   await waitForVisible(
     by.id(ids.sendMessageToNative),
@@ -276,7 +171,7 @@ async function sendPostMessageToNativeAndWaitForToast() {
     by.id(ids.sendMessageToNative),
     DETOX_TIMING.VISIBILITY_TIMEOUT_MS
   );
-  // Tap with sync off — embedded Expo can keep Detox busy while native UI is ready.
+  // Tap with sync off — Expo can keep Detox busy while native UI is ready.
   await device.disableSynchronization();
   try {
     await element(by.id(ids.sendMessageToNative)).tap();
@@ -293,13 +188,9 @@ async function sendPostMessageToNativeAndWaitForToast() {
 
 module.exports = {
   detoxLaunchArgs,
-  scrollToEmbeddedRnVanilla,
-  scrollToEmbeddedRnExpo,
-  scrollToNativeShellVanilla,
-  scrollToNativeShellExpo,
-  waitForEmbeddedExpoMatcher,
-  waitForAppleAppReadyVanilla,
-  waitForAppleAppReadyExpo,
+  waitForAppleAppReady,
+  openReactNativeVanilla,
+  openReactNativeExpo,
   openHomeTabExpo,
   openPostMessageTabExpo,
   sendPostMessageToNativeAndWaitForToast,

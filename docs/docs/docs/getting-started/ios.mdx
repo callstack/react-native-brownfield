@@ -219,8 +219,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         // Initialize React Native
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
-        ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: {
-            print("React Native bundle loaded")
+        ReactNativeBrownfield.shared.startReactNative(onBundleLoaded: { timings in
+            print("React Native bundle loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(String(describing: timings.jsBundleEvaluationTime))")
         })
 
         window = UIWindow(frame: UIScreen.main.bounds)
@@ -244,8 +244,8 @@ To do this work at the app launch, give `preloadBundle: true` to `startReactNati
 
 ```swift
 ReactNativeBrownfield.shared.bundle = ReactNativeBundle
-ReactNativeBrownfield.shared.startReactNative(launchOptions: launchOptions, preloadBundle: true) {
-    print("React Native bundle loaded")
+ReactNativeBrownfield.shared.startReactNative(launchOptions: launchOptions, preloadBundle: true) { timings in
+    print("React Native bundle loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(String(describing: timings.jsBundleEvaluationTime))")
 }
 ```
 
@@ -291,8 +291,8 @@ import <framework_target_name>
 struct MyApp: App {
     init() {
         ReactNativeBrownfield.shared.bundle = ReactNativeBundle
-        ReactNativeBrownfield.shared.startReactNative {
-            print("React Native bundle loaded")
+        ReactNativeBrownfield.shared.startReactNative { timings in
+            print("React Native bundle loaded jsBundleLoadTime=\(String(describing: timings.jsBundleLoadTime)) jsBundleEvaluationTime=\(String(describing: timings.jsBundleEvaluationTime))")
         }
     }
 

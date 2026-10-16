@@ -7,8 +7,13 @@ import {
 } from '@callstack/brownfield-example-shared-tests/runtime';
 
 import RNApp from './RNApp';
+import { useMarkFullyDisplayed } from './src/hooks/use-mark-fully-displayed';
 
-function App(props: BrownfieldRootProps) {
+function App(
+  props: BrownfieldRootProps & { brownfieldPresentationID?: string }
+) {
+  useMarkFullyDisplayed(props.brownfieldPresentationID);
+
   useEffect(() => {
     syncBrownfieldE2EModeFromRootProps(props.brownfieldE2E);
     return () => syncBrownfieldE2EModeFromRootProps(undefined);

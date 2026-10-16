@@ -1,8 +1,5 @@
 import UIKit
 internal import React
-#if canImport(EXUpdates)
-internal import EXUpdates
-#endif
 
 @objc public class ReactNativeViewController: UIViewController {
   private var moduleName: String
@@ -26,20 +23,29 @@ internal import EXUpdates
     guard let surfaceID else { return false }
     return BrownfieldSurfaceRegistry.shared.isPopTarget(surfaceID)
   }
+  private var waitForFullDisplay = false
+  private var collectThreadMetrics = false
+  private var onMetrics: ((BrownfieldDisplayMetrics) -> Void)?
+  private var isMeasured = false
+  private var displaySession: BrownfieldDisplaySession?
+  private var isVisible = false
 
-#if canImport(EXUpdates)
-  private let expoUpdatesDelegate = ReactNativeExpoUpdatesDelegate()
-#endif
-    
 
   @objc public init(moduleName: String, initialProperties: [String: Any]? = nil) {
     self.moduleName = moduleName
     self.initialProperties = initialProperties
-#if canImport(EXUpdates)
-    AppController.sharedInstance.delegate = expoUpdatesDelegate
-    AppController.sharedInstance.start()
-#endif
     super.init(nibName: nil, bundle: nil)
+  }
+
+  @objc public convenience init(moduleName: String, initialProperties: [String: Any]? = nil,
+                                waitForFullDisplay: Bool = false,
+                                collectThreadMetrics: Bool = false,
+                                onMetrics: ((BrownfieldDisplayMetrics) -> Void)?) {
+    self.init(moduleName: moduleName, initialProperties: initialProperties)
+    self.waitForFullDisplay = waitForFullDisplay
+    self.collectThreadMetrics = collectThreadMetrics
+    self.onMetrics = onMetrics
+    self.isMeasured = true
   }
 
   required init?(coder: NSCoder) {
@@ -48,16 +54,15 @@ internal import EXUpdates
 
   public override func viewDidLoad() {
     super.viewDidLoad()
-#if canImport(EXUpdates)
-    expoUpdatesDelegate.onDidStart = { [weak self] in
-      self?.renderReactNativeView()
+    if isMeasured {
+      displaySession = BrownfieldDisplaySession(moduleName: moduleName,
+        waitForFullDisplay: waitForFullDisplay, collectThreadMetrics: collectThreadMetrics,
+        callback: onMetrics)
     }
-#endif
+    onMetrics = nil
 
     if !moduleName.isEmpty {
-#if !canImport(EXUpdates)
       renderReactNativeView()
-#endif
 
       // Visibility is resolved live: SwiftUI recreates hosted controllers, so a
       // cached lifecycle flag is stale when the notification arrives.
@@ -100,7 +105,23 @@ internal import EXUpdates
     isDisappearing = true
   }
 
+  public override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    isVisible = true
+    // Expo Updates may not have created the RN root yet. The probe reports it when it arrives.
+    if displaySession?.hasRootView == true {
+      displaySession?.appeared()
+    }
+  }
+
+  public override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    isVisible = false
+    displaySession?.cancel()
+  }
+
   deinit {
+    displaySession?.cancel()
     NotificationCenter.default.removeObserver(self)
 
     if let surfaceID {
@@ -202,35 +223,16 @@ internal import EXUpdates
     
     DispatchQueue.main.async { [weak self] in
       guard let self else { return }
-      guard let reactView = ReactNativeBrownfield.shared.view(
+      let session = self.displaySession
+      guard let reactView = ReactNativeBrownfield.shared.makeView(
         moduleName: self.moduleName,
         initialProps: self.initialProperties,
-        launchOptions: nil
+        launchOptions: nil,
+        session: session,
+        isHostVisible: { [weak self] in self?.isVisible == true }
       ) else { return }
       self.view = reactView
+      if self.isVisible, session?.hasRootView == true { session?.appeared() }
     }
   }
 }
-
-#if canImport(EXUpdates)
-private final class ReactNativeExpoUpdatesDelegate: NSObject, AppControllerDelegate {
-  private var didStartSuccessfully = false
-  var onDidStart: (() -> Void)? {
-    didSet {
-      if didStartSuccessfully {
-        onDidStart?()
-      }
-    }
-  }
-
-  func appController(_ appController: any EXUpdates.AppControllerInterface, didStartWithSuccess success: Bool) {
-    guard success else {
-      NSLog("%@", "Expo Updates failed to start React Native.")
-      return
-    }
-
-    didStartSuccessfully = true
-    onDidStart?()
-  }
-}
-#endif
