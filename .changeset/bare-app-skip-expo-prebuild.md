@@ -11,3 +11,5 @@ Support Expo modules in React Native CLI apps. `brownfield package:*` no longer 
 `package:ios` now copies the expo-image dependency XCFrameworks (SDWebImage and libavif) as real files instead of symlinks into `node_modules`, so the package works when moved to another machine.
 
 Re-running `create-react-native-brownfield` after `pod install` no longer adds a second Sources build phase to the framework target, which made the next `pod install` fail.
+
+The `package:ios` script that `create-react-native-brownfield` adds now passes `--add-spm-package`, so the iOS app adds one local Swift package instead of every XCFramework. Existing scripts aren't changed.

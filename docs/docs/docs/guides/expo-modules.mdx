@@ -28,7 +28,9 @@ On iOS, Expo modules only work when React Native starts through Brownfield's Exp
 
 3. Package your app as a local Swift package:
 
-   <PackageManagerTabs command="run package:ios -- --add-spm-package" />
+   <PackageManagerTabs command="run package:ios" />
+
+   The `package:ios` script from the setup command passes `--add-spm-package`. If your script was added before that, run `npx brownfield package:ios --add-spm-package` instead.
 
    Expo's precompiled modules only work with the React Native version your Expo SDK targets. With a different version, Brownfield builds them from source. See [Expo Prebuilts](/docs/getting-started/ios#expo-prebuilts).
 
@@ -38,7 +40,7 @@ On iOS, Expo modules only work when React Native starts through Brownfield's Exp
    1. In Xcode, choose **File > Add Package Dependencies...**, click **Add Local...** and select `ios/.brownfield/package/build`.
    2. In your app target's **General** tab, add the `<framework_target_name>` product under **Frameworks, Libraries, and Embedded Content**.
 
-   If you'd rather add the XCFrameworks by hand, package without `--add-spm-package` and follow [Add the Framework to Your iOS App](/docs/getting-started/ios#7-add-the-framework-to-your-ios-app).
+   If you'd rather add the XCFrameworks by hand, run `npx brownfield package:ios` without `--add-spm-package` and follow [Add the Framework to Your iOS App](/docs/getting-started/ios#7-add-the-framework-to-your-ios-app).
 
 2. Call `ensureExpoModulesProvider()` before you start React Native:
 

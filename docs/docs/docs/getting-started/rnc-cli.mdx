@@ -66,7 +66,7 @@ After the setup command, install dependencies and run the packaging scripts it a
 
 <PackageManagerTabs command="run package:android" />
 
-`package:ios` writes the XCFramework to `ios/.brownfield/package/build/`; `package:android` builds the Fat-AAR. Both read their settings from `brownfield.config.json`, so no flags are needed. See [Configuration files](/docs/api-reference/configuration) to customize them.
+`package:ios` writes a local Swift package to `ios/.brownfield/package/build/`, which your iOS app adds in one step (see [Add as a Local Swift Package](/docs/getting-started/ios#optional-add-as-a-local-swift-package)). To get only the XCFrameworks, run `npx brownfield package:ios` instead. `package:android` builds the Fat-AAR. Both read their settings from `brownfield.config.json`, so no flags are needed. See [Configuration files](/docs/api-reference/configuration) to customize them.
 
 ## Integrate With Your Native App
 
