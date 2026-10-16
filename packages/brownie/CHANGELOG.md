@@ -1,5 +1,12 @@
 # @callstack/brownie
 
+## 6.0.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@6.0.0
+
 ## 5.3.0
 
 ### Patch Changes
