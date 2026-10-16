@@ -26,6 +26,7 @@ import {
   addFrameworkTarget,
   addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
+  raiseFrameworkDeploymentTarget,
 } from '../expo-config-plugin/ios/xcodeHelpers';
 import { createIosFramework } from '../expo-config-plugin/ios/withIosFrameworkFiles';
 import {
@@ -367,12 +368,24 @@ export async function scaffoldBrownfieldInRncCliProject(
       projectName: path.basename(xcodeprojPath, '.xcodeproj'),
     };
 
-    const { frameworkTargetUUID } = addFrameworkTarget(
+    const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
       resolvedIosConfig.ios,
       { useExpoHost: false }
     );
+
+    // A target created before Expo was added keeps its old deployment target.
+    if (
+      targetAlreadyExists &&
+      expoMajor !== undefined &&
+      expoMajor >= 56 &&
+      raiseFrameworkDeploymentTarget(project, frameworkTargetUUID, '16.4')
+    ) {
+      Logger.logInfo(
+        `Raised the ${iosFrameworkName} deployment target to iOS 16.4, which Expo SDK 56 and newer require.`
+      );
+    }
 
     copyBundleReactNativePhase(project, frameworkTargetUUID);
     addSourceFilesBuildPhase(

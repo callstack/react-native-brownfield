@@ -12,6 +12,7 @@ vi.mock('../withIosFrameworkFiles', async (importOriginal) => {
 import {
   addFrameworkTarget,
   addSourceFilesBuildPhase,
+  raiseFrameworkDeploymentTarget,
   getAppTargetDeploymentTarget,
   getFrameworkBuildSettings,
   rewriteBundleReactNativePhaseScriptForFrameworkTarget,
@@ -335,5 +336,66 @@ export ENTRY_FILE="index.js"
       'export EXTRA_PACKAGER_ARGS="$EXTRA_PACKAGER_ARGS --dev false"'
     );
     expect(rewritten).toContain('export ENTRY_FILE="index.js"');
+  });
+});
+
+describe('raiseFrameworkDeploymentTarget', () => {
+  function createProject(debugTarget: string, releaseTarget: string) {
+    return {
+      hash: {
+        project: {
+          objects: {
+            PBXNativeTarget: {
+              FRAMEWORK_UUID: {
+                isa: 'PBXNativeTarget',
+                buildConfigurationList: 'LIST_UUID',
+              },
+            },
+            XCConfigurationList: {
+              LIST_UUID: {
+                buildConfigurations: [
+                  { value: 'DEBUG_UUID', comment: 'Debug' },
+                  { value: 'RELEASE_UUID', comment: 'Release' },
+                ],
+              },
+            },
+            XCBuildConfiguration: {
+              DEBUG_UUID: {
+                buildSettings: { IPHONEOS_DEPLOYMENT_TARGET: debugTarget },
+              },
+              RELEASE_UUID: {
+                buildSettings: { IPHONEOS_DEPLOYMENT_TARGET: releaseTarget },
+              },
+            },
+          },
+        },
+      },
+    } as any;
+  }
+
+  function targets(project: any) {
+    const configs = project.hash.project.objects.XCBuildConfiguration;
+    return [
+      configs.DEBUG_UUID.buildSettings.IPHONEOS_DEPLOYMENT_TARGET,
+      configs.RELEASE_UUID.buildSettings.IPHONEOS_DEPLOYMENT_TARGET,
+    ];
+  }
+
+  it('raises a lower deployment target in every configuration', () => {
+    const project = createProject('15.0', '"15.1"');
+
+    expect(
+      raiseFrameworkDeploymentTarget(project, 'FRAMEWORK_UUID', '16.4')
+    ).toBe(true);
+    expect(targets(project)).toEqual(['16.4', '16.4']);
+  });
+
+  it('keeps a deployment target that is already high enough', () => {
+    const project = createProject('16.4', '17.0');
+
+    expect(
+      raiseFrameworkDeploymentTarget(project, 'FRAMEWORK_UUID', '16.4')
+    ).toBe(false);
+    expect(targets(project)).toEqual(['16.4', '17.0']);
   });
 });
