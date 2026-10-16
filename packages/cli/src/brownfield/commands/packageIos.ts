@@ -18,8 +18,11 @@ import { Command, Option } from 'commander';
 
 import { runExpoPrebuildIfNeeded } from '../utils/expo.js';
 import { findProjectRoot } from '../utils/paths.js';
-import { getProjectInfo } from '../utils/project.js';
-import { supportsPrebuiltExpo } from '../utils/supportsPrebuiltExpo.js';
+import { getProjectInfo, isExpoProject } from '../utils/project.js';
+import {
+  isPrecompiledExpoDisabledByPodfile,
+  supportsPrebuiltExpo,
+} from '../utils/supportsPrebuiltExpo.js';
 import { supportsPrebuiltRNCore } from '../utils/supportsPrebuiltRNCore.js';
 import {
   actionRunner,
@@ -75,9 +78,7 @@ export function parseUsePrebuiltRnCoreArgument(
   return parseBooleanOptionArgument('--use-prebuilt-rn-core', value);
 }
 
-export function parseUsePrebuiltExpoArgument(
-  value: string | boolean
-): boolean {
+export function parseUsePrebuiltExpoArgument(value: string | boolean): boolean {
   return parseBooleanOptionArgument('--use-prebuilt-expo', value);
 }
 
@@ -139,10 +140,68 @@ export const packageIosCommand = curryOptions(
         ? prebuiltRNCoreSupport.enabledByDefault
         : false;
 
-        // version-aware default when the flag is omitted
-      options.usePrebuiltExpo ??= prebuiltExpoSupport.supported
-        ? prebuiltExpoSupport.enabledByDefault
-        : false;
+      const usePrebuiltExpoWasPassed = options.usePrebuiltExpo !== undefined;
+      const precompiledExpoDisabledByPodfile =
+        isExpoProject(projectRoot) &&
+        isPrecompiledExpoDisabledByPodfile(projectRoot);
+
+      if (precompiledExpoDisabledByPodfile) {
+        if (options.usePrebuiltExpo) {
+          logger.warn(
+            'ios/Podfile.properties.json sets EXPO_USE_PRECOMPILED_MODULES to "false", so pod install builds Expo modules from source and --use-prebuilt-expo will fail. Remove that property or pass --use-prebuilt-expo false.'
+          );
+        } else if (!usePrebuiltExpoWasPassed) {
+          logger.info(
+            'ios/Podfile.properties.json turns Expo precompiled modules off. Building Expo modules from source.'
+          );
+          options.usePrebuiltExpo = false;
+        }
+      } else if (
+        !usePrebuiltExpoWasPassed &&
+        isExpoProject(projectRoot) &&
+        process.env.EXPO_USE_PRECOMPILED_MODULES === '0'
+      ) {
+        // Respect an exported opt-out, the same way Expo's Podfile does.
+        logger.info(
+          'EXPO_USE_PRECOMPILED_MODULES is set to 0. Building Expo modules from source.'
+        );
+        options.usePrebuiltExpo = false;
+      }
+
+      const usePrebuiltExpoWasChosen =
+        usePrebuiltExpoWasPassed || options.usePrebuiltExpo !== undefined;
+
+      // version-aware default when the flag is omitted; Expo's precompiled
+      // modules also need the prebuilt React Native core
+      if (options.usePrebuiltExpo === undefined) {
+        options.usePrebuiltExpo = prebuiltExpoSupport.supported
+          ? prebuiltExpoSupport.enabledByDefault && !!options.usePrebuiltRnCore
+          : false;
+
+        if (
+          prebuiltExpoSupport.enabledByDefault &&
+          !options.usePrebuiltRnCore
+        ) {
+          logger.info(
+            'Expo precompiled modules need the prebuilt React Native core, which is off. Building Expo modules from source.'
+          );
+        }
+      }
+
+      if (
+        prebuiltExpoSupport.supported &&
+        prebuiltExpoSupport.defaultDisabledReason
+      ) {
+        if (usePrebuiltExpoWasChosen && options.usePrebuiltExpo) {
+          logger.warn(
+            `${prebuiltExpoSupport.defaultDisabledReason} The packaged app will likely crash at runtime. Pass --use-prebuilt-expo false to build Expo modules from source.`
+          );
+        } else if (!usePrebuiltExpoWasChosen) {
+          logger.info(
+            `${prebuiltExpoSupport.defaultDisabledReason} Building Expo modules from source.`
+          );
+        }
+      }
 
       if (prebuiltRNCoreSupport) {
         logger.info(
@@ -165,6 +224,31 @@ export const packageIosCommand = curryOptions(
 
       if (options.usePrebuiltExpo && !prebuiltExpoSupport.supported) {
         throw new RockError(prebuiltExpoSupport.reason);
+      }
+
+      if (isExpoProject(projectRoot)) {
+        // Read by Expo's autolinking during `pod install`. Expo-generated
+        // Podfiles default it to on, but a React Native CLI app's Podfile
+        // never sets it, so the flag has to drive it.
+        process.env.EXPO_USE_PRECOMPILED_MODULES = options.usePrebuiltExpo
+          ? '1'
+          : '0';
+      }
+
+      if (
+        options.usePrebuiltExpo &&
+        !options.extraParams?.some((param) =>
+          param.startsWith('SWIFT_ENABLE_EXPLICIT_MODULES=')
+        )
+      ) {
+        // Precompiled Expo builds the React Native pods as static libraries.
+        // With explicit modules off (a leftover older React Native versions
+        // wrote into app projects), Xcode cannot find their module maps when
+        // verifying the framework's Swift interface.
+        options.extraParams = [
+          ...(options.extraParams ?? []),
+          'SWIFT_ENABLE_EXPLICIT_MODULES=YES',
+        ];
       }
 
       if (!userConfig.project.ios) {

@@ -74,6 +74,20 @@ describe('getFrameworkSourceFiles', () => {
     expect(frameworkInterface?.content).not.toContain('ExpoModulesProvider');
   });
 
+  it('adds ensureExpoModulesProvider to the vanilla interface when the app uses Expo modules', () => {
+    const vanilla = getFrameworkSourceFiles(iosConfig, { useExpoHost: false });
+    const withExpo = getFrameworkSourceFiles(iosConfig, {
+      useExpoHost: false,
+      withExpoModules: true,
+    });
+
+    expect(withExpo[0].content.startsWith(vanilla[0].content)).toBe(true);
+    expect(withExpo[0].content).toContain(
+      'public func ensureExpoModulesProvider()'
+    );
+    expect(withExpo[0].content).toContain('let _ = ExpoModulesProvider()');
+  });
+
   it('keeps the Info.plist bundle identifier for vanilla hosts', () => {
     const files = getFrameworkSourceFiles(iosConfig, { useExpoHost: false });
     const infoPlist = files.find((file) => file.relativePath === 'Info.plist');

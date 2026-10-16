@@ -26,9 +26,19 @@ export function getFrameworkSourceFiles(
      * opposite polarity: `false` here === 'vanilla' there.
      */
     useExpoHost?: boolean;
+    /**
+     * Vanilla template only: a React Native CLI app that uses Expo modules
+     * also needs `ensureExpoModulesProvider()` (the Expo template has it).
+     */
+    withExpoModules?: boolean;
   }
 ): RenderedTemplateFile[] {
   const useExpoHost = options?.useExpoHost ?? true;
+  const vanillaInterface =
+    renderTemplate('ios', 'FrameworkInterface.vanilla.swift', {}) +
+    (options?.withExpoModules
+      ? renderTemplate('ios', 'ExpoModulesProviderExtension.swift', {})
+      : '');
 
   return [
     {
@@ -37,7 +47,7 @@ export function getFrameworkSourceFiles(
         ? renderTemplate('ios', 'FrameworkInterface.swift', {
             '{{BUNDLE_IDENTIFIER}}': ios.bundleIdentifier,
           })
-        : renderTemplate('ios', 'FrameworkInterface.vanilla.swift', {}),
+        : vanillaInterface,
     },
     {
       relativePath: 'Info.plist',

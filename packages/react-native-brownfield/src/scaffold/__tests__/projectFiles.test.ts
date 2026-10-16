@@ -171,7 +171,9 @@ describe('scaffold project.json file helpers', () => {
       addBrownfieldPackageScripts(projectRoot);
 
       const pkg = readPackageJson();
-      expect(pkg.scripts['package:ios']).toBe('brownfield package:ios');
+      expect(pkg.scripts['package:ios']).toBe(
+        'brownfield package:ios --add-spm-package'
+      );
       expect(pkg.scripts['package:android']).toBe('brownfield package:android');
       expect(pkg.scripts.start).toBe('react-native start');
     });

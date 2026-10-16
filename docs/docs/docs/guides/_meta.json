@@ -1,6 +1,7 @@
 [
   "guidelines",
   "minification",
+  "expo-modules",
   "performance-metrics",
   "troubleshooting",
   {
