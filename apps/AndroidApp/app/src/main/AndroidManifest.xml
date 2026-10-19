@@ -3,11 +3,18 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+      gwpAsanMode="never": works around a Hermes V1 crash on x86_64 (e.g. the CI emulator).
+      GWP-ASan's stack walker crashes on Hermes' fiber stacks; it is not a memory bug in the app.
+      https://github.com/facebook/hermes/issues/1873
+      https://github.com/facebook/hermes/issues/2225
+    -->
     <application
         android:name=".BrownfieldApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:gwpAsanMode="never"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
