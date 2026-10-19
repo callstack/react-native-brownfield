@@ -141,7 +141,12 @@ async function openReactNative(isReady, totalTimeoutMs) {
         `[AppleApp] React Native screen not visible after attempt ${attempt - 1}/${OPEN_REACT_NATIVE_ATTEMPTS}, ${shouldTap ? 're-tapping' : 'button gone, still waiting'}`
       );
     }
-    if (shouldTap) {
+    // EXPERIMENT ONLY (never merge): simulate lost taps.
+    const simulate = process.env.E2E_SIMULATE_LOST_TAP;
+    const skipTap = simulate === 'all' || (simulate === 'first' && attempt === 1);
+    if (shouldTap && skipTap) {
+      console.warn(`[AppleApp] EXPERIMENT: skipping tap on attempt ${attempt}`);
+    } else if (shouldTap) {
       await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
     }
     try {

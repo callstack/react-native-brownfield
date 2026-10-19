@@ -259,6 +259,9 @@ runs:
         echo "::endgroup::"
       working-directory: apps/AppleApp
       shell: bash
+      env:
+        # EXPERIMENT ONLY (never merge)
+        E2E_SIMULATE_LOST_TAP: ${{ inputs.variant == 'expo57' && 'all' || 'first' }}
 
     - name: Upload Detox recordings on failure
       if: failure() && inputs.run-e2e == 'true'
