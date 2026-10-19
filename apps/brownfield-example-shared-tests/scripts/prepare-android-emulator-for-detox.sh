@@ -5,11 +5,6 @@
 set -euo pipefail
 
 BOOT_TIMEOUT_SEC="${ANDROID_EMULATOR_BOOT_TIMEOUT_SEC:-180}"
-# After boot, system apps keep the CPU saturated for a minute or more and some of
-# them hit ANRs; the resulting "System UI isn't responding" dialog covers the app.
-SETTLE_TIMEOUT_SEC="${ANDROID_EMULATOR_SETTLE_TIMEOUT_SEC:-300}"
-SETTLE_CPU_PRESSURE_MAX="${ANDROID_EMULATOR_SETTLE_CPU_PRESSURE_MAX:-40}"
-SETTLE_STABLE_CHECKS=3
 ADB=(adb)
 if [[ -n "${ANDROID_SERIAL:-}" ]]; then
   ADB=(adb -s "${ANDROID_SERIAL}")
@@ -47,35 +42,11 @@ if (( SECONDS >= deadline )); then
   exit 1
 fi
 
-# Suppress ANR / crash dialogs from system apps for the rest of the run.
+# Right after boot system apps (System UI, GMS) often hit ANRs, and the
+# "System UI isn't responding" dialog covers the app. Suppress ANR / crash
+# dialogs for the rest of the run; Android then closes the hung app instead.
 "${ADB[@]}" shell settings put global hide_error_dialogs 1 >/dev/null 2>&1 || true
 
-# Wait until CPU pressure (PSI "some avg10", % of time tasks stalled on CPU) stays
-# low for a few consecutive checks. Best-effort: continue on timeout.
-echo "==> Waiting for emulator to settle (cpu pressure avg10 < ${SETTLE_CPU_PRESSURE_MAX}, timeout: ${SETTLE_TIMEOUT_SEC}s)"
-settle_deadline=$((SECONDS + SETTLE_TIMEOUT_SEC))
-stable=0
-while (( SECONDS < settle_deadline )); do
-  pressure="$("${ADB[@]}" shell cat /proc/pressure/cpu 2>/dev/null | tr -d '\r' | awk '/^some/ { split($2, a, "="); print int(a[2]) }' || true)"
-  if [[ -z "${pressure}" ]]; then
-    echo "warning: /proc/pressure/cpu not readable, skipping settle wait" >&2
-    break
-  fi
-  if (( pressure < SETTLE_CPU_PRESSURE_MAX )); then
-    stable=$((stable + 1))
-    if (( stable >= SETTLE_STABLE_CHECKS )); then
-      echo "==> Emulator settled (cpu pressure avg10=${pressure}, ${SECONDS}s into prep)"
-      break
-    fi
-  else
-    stable=0
-  fi
-  echo "    cpu pressure avg10=${pressure}"
-  sleep 5
-done
-if (( SECONDS >= settle_deadline )); then
-  echo "warning: emulator did not settle within ${SETTLE_TIMEOUT_SEC}s, continuing" >&2
-fi
 # Dismiss any error dialog that was already showing before hide_error_dialogs took effect.
 "${ADB[@]}" shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1 || true
 
