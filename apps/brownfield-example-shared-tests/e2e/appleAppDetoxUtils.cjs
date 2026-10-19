@@ -120,13 +120,7 @@ const OPEN_REACT_NATIVE_ATTEMPTS = 3;
 /**
  * Push RNAppScreen from the native shell and wait until `isReady(timeoutMs)` resolves.
  *
- * On CI the XCUITest tap is sometimes delivered but the NavigationLink does not push, so
- * the tap is retried while the shell is still showing. `totalTimeoutMs` is split across
- * the attempts.
- *
- * Synchronization is only turned back on once RN is visible: DetoxSync keeps the app busy
- * on "React Native (bundle load)" until RN content appears, so enabling it on the shell
- * waits until the Jest test timeout instead of failing.
+ * The tap sometimes doesn't push on CI (#498): retry it up to 3 times, then fail fast.
  */
 async function openReactNative(isReady, totalTimeoutMs) {
   const attemptTimeoutMs = Math.round(
@@ -140,7 +134,7 @@ async function openReactNative(isReady, totalTimeoutMs) {
 
   let lastError;
   for (let attempt = 1; attempt <= OPEN_REACT_NATIVE_ATTEMPTS; attempt++) {
-    // After a successful push the shell is hidden; keep waiting instead of tapping RN content.
+    // Only re-tap while the shell is still showing.
     if (attempt === 1 || (await isVisible(OPEN_REACT_NATIVE_BUTTON))) {
       await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
     }
