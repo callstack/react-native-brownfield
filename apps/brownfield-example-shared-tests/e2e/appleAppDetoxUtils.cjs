@@ -132,24 +132,24 @@ async function openReactNative(isReady, totalTimeoutMs) {
     DETOX_TIMING.VISIBILITY_TIMEOUT_MS
   );
 
-  let lastError;
-  for (let attempt = 1; attempt <= OPEN_REACT_NATIVE_ATTEMPTS; attempt++) {
+  for (let attempt = 1; ; attempt++) {
     // Only re-tap while the shell is still showing.
     if (attempt === 1 || (await isVisible(OPEN_REACT_NATIVE_BUTTON))) {
       await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
     }
     try {
       await isReady(attemptTimeoutMs);
-      await device.enableSynchronization();
-      return;
+      break;
     } catch (error) {
-      lastError = error;
+      if (attempt === OPEN_REACT_NATIVE_ATTEMPTS) {
+        throw error;
+      }
       console.warn(
-        `[AppleApp] React Native screen not visible after attempt ${attempt}/${OPEN_REACT_NATIVE_ATTEMPTS}`
+        `[AppleApp] React Native screen not visible after attempt ${attempt}/${OPEN_REACT_NATIVE_ATTEMPTS}, retrying`
       );
     }
   }
-  throw lastError;
+  await device.enableSynchronization();
 }
 
 async function openReactNativeVanilla() {
