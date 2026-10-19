@@ -16,7 +16,8 @@ final class ExpoUpdatesStartup: NSObject {
     AppController.initializeWithoutStarting()
     let controller = AppController.sharedInstance
     guard controller.isActiveController else { completion(); return }
-    if updatesReady || controller.launchAssetUrl() != nil {
+    // expo-updates 57 traps in launchAssetUrl() until start() sets its startup procedure.
+    if updatesReady || (controller.isStarted && controller.launchAssetUrl() != nil) {
       completion()
       return
     }
