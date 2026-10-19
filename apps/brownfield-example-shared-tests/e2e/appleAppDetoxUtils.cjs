@@ -134,7 +134,14 @@ async function openReactNative(isReady, totalTimeoutMs) {
 
   for (let attempt = 1; ; attempt++) {
     // Only re-tap while the shell is still showing.
-    if (attempt === 1 || (await isVisible(OPEN_REACT_NATIVE_BUTTON))) {
+    const shouldTap =
+      attempt === 1 || (await isVisible(OPEN_REACT_NATIVE_BUTTON));
+    if (attempt > 1) {
+      console.warn(
+        `[AppleApp] React Native screen not visible after attempt ${attempt - 1}/${OPEN_REACT_NATIVE_ATTEMPTS}, ${shouldTap ? 're-tapping' : 'button gone, still waiting'}`
+      );
+    }
+    if (shouldTap) {
       await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
     }
     try {
@@ -144,9 +151,6 @@ async function openReactNative(isReady, totalTimeoutMs) {
       if (attempt === OPEN_REACT_NATIVE_ATTEMPTS) {
         throw error;
       }
-      console.warn(
-        `[AppleApp] React Native screen not visible after attempt ${attempt}/${OPEN_REACT_NATIVE_ATTEMPTS}, retrying`
-      );
     }
   }
   await device.enableSynchronization();
