@@ -6,14 +6,15 @@ React Native Brownfield provides first-class support for Kotlin.
 
 With react-native >= 0.80.0, an auto-generated file was added which is responsible to load your App's native libs. If you're consuming this library in a RN project, then you will have this file `ReactNativeApplicationEntryPoint` available. If you're consuming this library in a RN android library which is backed by `com.callstack.react:brownfield-gradle-plugin`, then this file will also be available.
 
-Below is the code you need to add before you call `ReactNativeBrownfield.initialize`:
+You don't need to call `loadReactNative` yourself. `ReactNativeBrownfield.initialize` loads the native libraries and the React Native feature flags on its own:
 
 ```kt
-import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
-
-loadReactNative(application)
 ReactNativeBrownfield.initialize(application, packages)
 ```
+
+:::warning Important
+Do not call `loadReactNative(application)` before `ReactNativeBrownfield.initialize`. Both load the React Native feature flags, and feature flags cannot be overridden more than once, so doing so crashes the app with `Feature flags cannot be overridden more than once`. If your app calls `loadReactNative` in `Application.onCreate` for its own React Native usage, don't initialize Brownfield on top of it in the same process.
+:::
 
 :::note
 Previously, you were required to implement `DefaultHardwareBackBtnHandler` in your calling Activity. Now with > 1.1.0 you are not required to do that step. If you're upgrading to the latest version then you can safely remove that interface implementation from your calling Activity.
