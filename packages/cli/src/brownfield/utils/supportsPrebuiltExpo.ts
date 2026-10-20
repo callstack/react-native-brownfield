@@ -4,7 +4,7 @@ import path from 'node:path';
 
 import { getReactNativeVersion } from '@rock-js/tools';
 
-import { getExpoSdkMajor, isExpoProject } from './project.js';
+import { getExpoIosUsePrecompiledModules, getExpoSdkMajor, isExpoProject } from './project.js';
 
 export const MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_EXPO = 56;
 
@@ -91,6 +91,14 @@ export function supportsPrebuiltExpo({
       supported: true,
       enabledByDefault: false,
       defaultDisabledReason: reactNativeMismatch,
+    };
+  }
+
+  if (getExpoIosUsePrecompiledModules(projectRoot) === false) {
+    return {
+      supported: false,
+      reason:
+        "--use-prebuilt-expo is unsupported: expo-build-properties sets ios.usePrecompiledModules to false in your Expo config, so prebuilt Expo XCFrameworks are never produced. Set it to true (or remove it) and run 'pod install', or pass --use-prebuilt-expo false to build Expo modules from source.",
     };
   }
 

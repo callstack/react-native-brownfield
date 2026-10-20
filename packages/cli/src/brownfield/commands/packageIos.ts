@@ -32,6 +32,10 @@ import {
 import { runBrownieCodegenIfApplicable } from '../../brownie/helpers/runBrownieCodegenIfApplicable.js';
 import { runNavigationCodegenIfApplicable } from '../../navigation/helpers/runNavigationCodegenIfApplicable.js';
 import { copyDebugBundleToSimulatorSlice } from '../utils/copyDebugBundleToSimulatorSlice.js';
+import {
+  collectFrameworkPaths,
+  resolveDestinationSdks,
+} from '../utils/destinationSdks.js';
 import { resolvePackagedFrameworkName } from '../utils/resolvePackagedFrameworkName.js';
 import { stripFrameworkBinary } from '../utils/stripFrameworkBinary.js';
 import type { PackageIosOptions } from '../../types.js';
@@ -126,6 +130,11 @@ export const packageIosCommand = curryOptions(
   .action(
     actionRunner(async (cliOptions: PackageIosOptions) => {
       const options = mergeBrownfieldConfigWithOptions(cliOptions, 'ios');
+      // captured before the version-aware default below, so that a value from
+      // brownfield.config.json counts as explicit
+      const usePrebuiltExpoExplicit = isUsePrebuiltExpoExplicit(
+        options.usePrebuiltExpo
+      );
       const projectRoot = findProjectRoot();
 
       await runExpoPrebuildIfNeeded({ projectRoot, platform: 'ios' });
@@ -281,6 +290,9 @@ export const packageIosCommand = curryOptions(
       // Reference: https://github.com/facebook/react-native/blob/490c5e8dcc6cdb19c334cc39e93a39a48ba71e96/packages/react-native/scripts/cocoapods/new_architecture.rb#L171
       const packageDir = path.join(dotBrownfieldDir, 'package', 'build');
       const configuration = options.configuration ?? 'Debug';
+      // `--destination` narrows which slices Xcode emits, so every path below has to
+      // look at those slices only instead of assuming a device + simulator pair
+      const sdks = resolveDestinationSdks(options.destination);
 
       const { hasBrownie } = await runBrownieCodegenIfApplicable(
         projectRoot,
@@ -309,6 +321,11 @@ export const packageIosCommand = curryOptions(
         projectRoot,
         packageDir,
         usePrebuiltExpo: options.usePrebuiltExpo,
+        usePrebuiltExpoExplicit,
+        // keep the generated SPM manifest consistent with the emitted XCFrameworks
+        onDegradeToSource: () => {
+          options.usePrebuiltExpo = false;
+        },
       });
 
       const productsPath = path.join(options.buildFolder, 'Build', 'Products');
@@ -317,6 +334,7 @@ export const packageIosCommand = curryOptions(
           explicitScheme: options.scheme,
           productsPath,
           configuration,
+          sdks,
         });
 
       if (!frameworkName && options.addSpmPackage) {
@@ -335,24 +353,19 @@ export const packageIosCommand = curryOptions(
           productsPath,
           configuration,
           frameworkName,
+          sdks,
         });
 
         if (configuration.includes('Debug')) {
           // Re-merge only Debug frameworks so the simulator slice includes main.jsbundle.
           await mergeFrameworks({
             sourceDir: userConfig.project.ios.sourceDir,
-            frameworkPaths: [
-              path.join(
-                productsPath,
-                `${configuration}-iphoneos`,
-                `${frameworkName}.framework`
-              ),
-              path.join(
-                productsPath,
-                `${configuration}-iphonesimulator`,
-                `${frameworkName}.framework`
-              ),
-            ],
+            frameworkPaths: collectFrameworkPaths({
+              productsPath,
+              configuration,
+              sdks,
+              frameworkName,
+            }),
             outputPath: path.join(packageDir, `${frameworkName}.xcframework`),
           });
         }
@@ -384,20 +397,13 @@ export const packageIosCommand = curryOptions(
 
         await mergeFrameworks({
           sourceDir: userConfig.project.ios.sourceDir,
-          frameworkPaths: [
-            path.join(
-              productsPath,
-              `${configuration}-iphoneos`,
-              'Brownie',
-              'Brownie.framework'
-            ),
-            path.join(
-              productsPath,
-              `${configuration}-iphonesimulator`,
-              'Brownie',
-              'Brownie.framework'
-            ),
-          ],
+          frameworkPaths: collectFrameworkPaths({
+            productsPath,
+            configuration,
+            sdks,
+            frameworkName: 'Brownie',
+            productSubDir: 'Brownie',
+          }),
           outputPath: brownieOutputPath,
         });
 
@@ -419,20 +425,13 @@ export const packageIosCommand = curryOptions(
 
         await mergeFrameworks({
           sourceDir: userConfig.project.ios.sourceDir,
-          frameworkPaths: [
-            path.join(
-              productsPath,
-              `${configuration}-iphoneos`,
-              'BrownfieldNavigation',
-              'BrownfieldNavigation.framework'
-            ),
-            path.join(
-              productsPath,
-              `${configuration}-iphonesimulator`,
-              'BrownfieldNavigation',
-              'BrownfieldNavigation.framework'
-            ),
-          ],
+          frameworkPaths: collectFrameworkPaths({
+            productsPath,
+            configuration,
+            sdks,
+            frameworkName: 'BrownfieldNavigation',
+            productSubDir: 'BrownfieldNavigation',
+          }),
           outputPath: brownfieldNavigationOutputPath,
         });
 
@@ -462,8 +461,19 @@ export const packageIosCommand = curryOptions(
           'In Xcode, choose File > Add Package Dependencies..., click Add Local..., and select that folder.'
         );
       }
+
+      // The dependency prints its own "Success" before the post-build steps above,
+      // so log a final line marking the true end of the run.
+      logger.success(
+        `package:ios finished. Artifacts are in ${colorLink(relativeToCwd(packageDir))}`
+      );
     })
   );
+
+/** Whether `--use-prebuilt-expo` was chosen (CLI or brownfield.config.json) rather than inferred. */
+export function isUsePrebuiltExpoExplicit(value: boolean | undefined) {
+  return value !== undefined;
+}
 
 export const packageIosExample = new ExampleUsage(
   'package:ios --scheme BrownfieldLib --configuration Release',

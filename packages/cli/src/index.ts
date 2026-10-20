@@ -15,6 +15,18 @@ import navigationCommands, {
   groupName as navigationCommandsGroupName,
 } from './navigation/index.js';
 
+// CocoaPods (spawned by Rock) raises Encoding::CompatibilityError under a non-UTF-8
+// locale. Ruby resolves the character encoding as LC_ALL > LC_CTYPE > LANG, so check
+// them in that precedence. Default to UTF-8 only when the effective value is missing
+// or non-UTF-8.
+const inheritedCharset =
+  process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '';
+if (!/utf-?8/i.test(inheritedCharset)) {
+  process.env.LANG = 'en_US.UTF-8';
+  process.env.LC_CTYPE = 'en_US.UTF-8';
+  process.env.LC_ALL = 'en_US.UTF-8';
+}
+
 const program = new Command();
 
 program

@@ -3,6 +3,7 @@ import * as rockTools from '@rock-js/tools';
 import { describe, expect, test } from 'vitest';
 
 import {
+  isUsePrebuiltExpoExplicit,
   packageIosCommand,
   parseUsePrebuiltExpoArgument,
   parseUsePrebuiltRnCoreArgument,
@@ -118,5 +119,16 @@ describe('--add-spm-package (Commander)', () => {
     expect(parsePackageIosArgv(['--add-spm-package']).addSpmPackage).toBe(
       true
     );
+  });
+});
+
+describe('isUsePrebuiltExpoExplicit', () => {
+  test('is false when the value is omitted (version-inferred later)', () => {
+    expect(isUsePrebuiltExpoExplicit(undefined)).toBe(false);
+  });
+
+  test('is true for explicit true and false (CLI or brownfield.config.json)', () => {
+    expect(isUsePrebuiltExpoExplicit(true)).toBe(true);
+    expect(isUsePrebuiltExpoExplicit(false)).toBe(true);
   });
 });
