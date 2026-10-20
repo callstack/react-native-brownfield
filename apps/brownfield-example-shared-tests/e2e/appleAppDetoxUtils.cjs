@@ -115,30 +115,66 @@ async function tapSwiftUIControl(matcher) {
   });
 }
 
-/** Push RNAppScreen from the native shell and wait until `isReady` resolves. */
-async function openReactNative(isReady) {
+const OPEN_REACT_NATIVE_ATTEMPTS = 3;
+
+/**
+ * Push RNAppScreen from the native shell and wait until `isReady(timeoutMs)` resolves.
+ *
+ * The tap sometimes doesn't push on CI (#498): retry it up to 3 times, then fail fast.
+ */
+async function openReactNative(isReady, totalTimeoutMs) {
+  const attemptTimeoutMs = Math.round(
+    totalTimeoutMs / OPEN_REACT_NATIVE_ATTEMPTS
+  );
   await device.disableSynchronization();
-  try {
-    await waitForVisible(OPEN_REACT_NATIVE_BUTTON, DETOX_TIMING.VISIBILITY_TIMEOUT_MS);
-    await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
-    await isReady();
-  } finally {
-    await device.enableSynchronization();
+  await waitForVisible(
+    OPEN_REACT_NATIVE_BUTTON,
+    DETOX_TIMING.VISIBILITY_TIMEOUT_MS
+  );
+
+  for (let attempt = 1; ; attempt++) {
+    // Only re-tap while the shell is still showing.
+    const shouldTap =
+      attempt === 1 || (await isVisible(OPEN_REACT_NATIVE_BUTTON));
+    if (attempt > 1) {
+      console.warn(
+        `[AppleApp] React Native screen not visible after attempt ${attempt - 1}/${OPEN_REACT_NATIVE_ATTEMPTS}, ${shouldTap ? 're-tapping' : 'button gone, still waiting'}`
+      );
+    }
+    if (shouldTap) {
+      await tapSwiftUIControl(OPEN_REACT_NATIVE_BUTTON);
+    }
+    try {
+      await isReady(attemptTimeoutMs);
+      break;
+    } catch (error) {
+      if (attempt === OPEN_REACT_NATIVE_ATTEMPTS) {
+        throw error;
+      }
+    }
   }
+  await device.enableSynchronization();
 }
 
 async function openReactNativeVanilla() {
-  await openReactNative(() =>
-    waitForVisible(by.id(ids.rnAppHome), DETOX_TIMING.VISIBILITY_TIMEOUT_MS)
+  await openReactNative(
+    (timeoutMs) => waitForVisible(by.id(ids.rnAppHome), timeoutMs),
+    DETOX_TIMING.VISIBILITY_TIMEOUT_MS
   );
 }
 
 async function openReactNativeExpo() {
-  await openReactNative(() =>
-    waitForAnyVisible(
-      [EXPO_HOME_TAB_MATCHERS[0], EXPO_HOME_TAB_MATCHERS[1], EXPO_WELCOME_TITLE],
-      60_000
-    )
+  await openReactNative(
+    (timeoutMs) =>
+      waitForAnyVisible(
+        [
+          EXPO_HOME_TAB_MATCHERS[0],
+          EXPO_HOME_TAB_MATCHERS[1],
+          EXPO_WELCOME_TITLE,
+        ],
+        timeoutMs
+      ),
+    60_000
   );
 }
 

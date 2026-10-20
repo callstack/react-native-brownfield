@@ -66,7 +66,7 @@ After the setup command, install dependencies and run the packaging scripts it a
 
 <PackageManagerTabs command="run package:android" />
 
-`package:ios` writes the XCFramework to `ios/.brownfield/package/build/`; `package:android` builds the Fat-AAR. Both read their settings from `brownfield.config.json`, so no flags are needed. See [Configuration files](/docs/api-reference/configuration) to customize them.
+`package:ios` writes a local Swift package to `ios/.brownfield/package/build/`, which your iOS app adds in one step (see [Add as a Local Swift Package](/docs/getting-started/ios#optional-add-as-a-local-swift-package)). To get only the XCFrameworks, run `npx brownfield package:ios` instead. `package:android` builds the Fat-AAR. Both read their settings from `brownfield.config.json`, so no flags are needed. See [Configuration files](/docs/api-reference/configuration) to customize them.
 
 ## Integrate With Your Native App
 
@@ -76,6 +76,10 @@ Embedding the artifact in your native app is a manual step, and the guides below
 - [**Android Integration**](/docs/getting-started/android) — package as AAR and integrate into your Android app. If you ran the automated setup, steps 1–7 are already done (library module, Gradle plugin, React Native dependencies, host manager, build config fields, Maven publishing, and configuration file). Continue from step 8, **Create the AAR**.
 
 Both guides also describe the manual alternative in full, so you can use them to check the generated wiring or to customize it beyond what the command offers.
+
+:::tip Using Expo modules?
+If your app uses Expo modules such as `expo-image`, complete the extra steps in [Expo Modules in React Native CLI Apps](/docs/guides/expo-modules) before you package.
+:::
 
 ## Next Steps
 

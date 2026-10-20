@@ -26,6 +26,7 @@ import {
   addFrameworkTarget,
   addSourceFilesBuildPhase,
   copyBundleReactNativePhase,
+  raiseFrameworkDeploymentTarget,
 } from '../expo-config-plugin/ios/xcodeHelpers';
 import { createIosFramework } from '../expo-config-plugin/ios/withIosFrameworkFiles';
 import {
@@ -167,6 +168,35 @@ function resolveReactNativeVersion(projectRoot: string): string {
   return rnPkg.version;
 }
 
+/**
+ * Major Expo SDK version when the app itself depends on `expo` (installed
+ * with `install-expo-modules`), otherwise undefined. Only the app's own
+ * package.json counts: in a monorepo, `expo` can resolve from a hoisted
+ * node_modules even though this app never set it up. Returns -1 when the
+ * dependency is declared but not installed, which modifyPodfile reports.
+ */
+function resolveExpoMajor(projectRoot: string): number | undefined {
+  const pkg = JSON.parse(
+    fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8')
+  );
+  if (!pkg.dependencies?.expo && !pkg.devDependencies?.expo) {
+    return undefined;
+  }
+
+  const localRequire: NodeRequire =
+    typeof require === 'undefined'
+      ? createRequire(path.join(process.cwd(), 'noop.js'))
+      : require;
+  try {
+    const expoPkg = localRequire(
+      localRequire.resolve('expo/package.json', { paths: [projectRoot] })
+    );
+    return Number.parseInt(String(expoPkg.version).split('.')[0] ?? '', 10);
+  } catch {
+    return -1;
+  }
+}
+
 export async function scaffoldBrownfieldInRncCliProject(
   options: BrownfieldScaffoldOptions = {}
 ): Promise<void> {
@@ -202,6 +232,12 @@ export async function scaffoldBrownfieldInRncCliProject(
     : path.join(projectRoot, iosSourceDir || 'ios');
 
   const rnVersion = resolveReactNativeVersion(projectRoot);
+  const expoMajor = resolveExpoMajor(projectRoot);
+  if (expoMajor !== undefined) {
+    Logger.logInfo(
+      'Expo modules detected. The iOS framework will start React Native through the Expo host.'
+    );
+  }
 
   const iosFrameworkName = options.iosFrameworkName ?? 'BrownfieldLib';
   const androidModuleName = options.androidModuleName ?? 'brownfieldlib';
@@ -306,7 +342,9 @@ export async function scaffoldBrownfieldInRncCliProject(
         // an iOS deployment target directly.
         // TODO: derive from the Podfile `platform :ios` line or RN's
         // min_ios_version_supported, or expose a flag.
-        deploymentTarget: '15.0',
+        // Expo SDK 56+ modules require iOS 16.4.
+        deploymentTarget:
+          expoMajor !== undefined && expoMajor >= 56 ? '16.4' : '15.0',
         // Standard CFBundleShortVersionString for the generated framework
         // (matches the Expo plugin default); unrelated to package versioning.
         frameworkVersion: '1',
@@ -330,12 +368,24 @@ export async function scaffoldBrownfieldInRncCliProject(
       projectName: path.basename(xcodeprojPath, '.xcodeproj'),
     };
 
-    const { frameworkTargetUUID } = addFrameworkTarget(
+    const { frameworkTargetUUID, targetAlreadyExists } = addFrameworkTarget(
       project,
       modRequest,
       resolvedIosConfig.ios,
       { useExpoHost: false }
     );
+
+    // A target created before Expo was added keeps its old deployment target.
+    if (
+      targetAlreadyExists &&
+      expoMajor !== undefined &&
+      expoMajor >= 56 &&
+      raiseFrameworkDeploymentTarget(project, frameworkTargetUUID, '16.4')
+    ) {
+      Logger.logInfo(
+        `Raised the ${iosFrameworkName} deployment target to iOS 16.4, which Expo SDK 56 and newer require.`
+      );
+    }
 
     copyBundleReactNativePhase(project, frameworkTargetUUID);
     addSourceFilesBuildPhase(
@@ -355,10 +405,16 @@ export async function scaffoldBrownfieldInRncCliProject(
     if (!podfile) {
       throw new Error(`Missing ${podfilePath}`);
     }
-    writeFileIfChanged(podfilePath, modifyPodfile(podfile, iosFrameworkName));
+    writeFileIfChanged(
+      podfilePath,
+      modifyPodfile(podfile, iosFrameworkName, expoMajor)
+    );
 
     currentStep = 'ios-sources';
-    createIosFramework(iosDir, resolvedIosConfig, { useExpoHost: false });
+    createIosFramework(iosDir, resolvedIosConfig, {
+      useExpoHost: false,
+      withExpoModules: expoMajor !== undefined,
+    });
 
     // --- App package wiring: Brownfield deps + package:* scripts ---
     // The scaffolded Kotlin host imports com.callstack.reactnativebrownfield.*,

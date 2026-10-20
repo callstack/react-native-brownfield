@@ -42,6 +42,14 @@ if (( SECONDS >= deadline )); then
   exit 1
 fi
 
+# Right after boot system apps (System UI, GMS) often hit ANRs, and the
+# "System UI isn't responding" dialog covers the app. Suppress ANR / crash
+# dialogs for the rest of the run; Android then closes the hung app instead.
+"${ADB[@]}" shell settings put global hide_error_dialogs 1 >/dev/null 2>&1 || true
+
+# Dismiss any error dialog that was already showing before hide_error_dialogs took effect.
+"${ADB[@]}" shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1 || true
+
 "${ADB[@]}" shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true
 "${ADB[@]}" shell wm dismiss-keyguard >/dev/null 2>&1 || true
 "${ADB[@]}" shell cmd statusbar collapse >/dev/null 2>&1 || true

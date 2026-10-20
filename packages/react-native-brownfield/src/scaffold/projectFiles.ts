@@ -120,15 +120,17 @@ export function addBrownfieldDependencies(projectRoot: string): string[] {
 
 /**
  * Adds the `package:ios` / `package:android` scripts from the docs' manual
- * steps (settings come from the generated brownfield.config.json, so no flags
- * are duplicated here). Existing scripts with the same names are kept.
+ * steps (settings come from the generated brownfield.config.json, so no other
+ * flags are duplicated here). Existing scripts with the same names are kept.
  */
 export function addBrownfieldPackageScripts(projectRoot: string): string[] {
   const pkg = readPackageJson(projectRoot);
   pkg.scripts = pkg.scripts ?? {};
 
   const desiredScripts: Record<string, string> = {
-    'package:ios': 'brownfield package:ios',
+    // Also emit a local Swift package, so the host app adds one package
+    // instead of every XCFramework.
+    'package:ios': 'brownfield package:ios --add-spm-package',
     'package:android': 'brownfield package:android',
   };
 

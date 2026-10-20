@@ -2,14 +2,26 @@ import * as appleHelpers from '@rock-js/platform-apple-helpers';
 import { packageIosAction } from '@rock-js/plugin-brownfield-ios';
 import * as rockTools from '@rock-js/tools';
 
-import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+  type Mock,
+} from 'vitest';
 
 import { packageIosCommand } from '../packageIos.js';
 import { copyDebugBundleToSimulatorSlice } from '../../utils/copyDebugBundleToSimulatorSlice.js';
 import { createLocalSpmPackage } from '../../utils/createLocalSpmPackage.js';
 import { emitExpoSupportXcframeworks } from '../../utils/emitExpoSupportXcframeworks.js';
 import { resolvePackagedFrameworkName } from '../../utils/resolvePackagedFrameworkName.js';
-import { supportsPrebuiltExpo } from '../../utils/supportsPrebuiltExpo.js';
+import { isExpoProject } from '../../utils/project.js';
+import {
+  isPrecompiledExpoDisabledByPodfile,
+  supportsPrebuiltExpo,
+} from '../../utils/supportsPrebuiltExpo.js';
 
 vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
   const actual = await importOriginal<typeof appleHelpers>();
@@ -23,6 +35,11 @@ vi.mock('@rock-js/platform-apple-helpers', async (importOriginal) => {
       {
         name: '--scheme <scheme>',
         description: 'test scheme option',
+      },
+      {
+        name: '--extra-params <string>',
+        description: 'test extra params option',
+        parse: (value: string) => value.split(' '),
       },
     ]),
     mergeFrameworks: vi.fn(),
@@ -64,6 +81,7 @@ vi.mock('../../utils/paths.js', () => ({
 }));
 
 vi.mock('../../utils/project.js', () => ({
+  isExpoProject: vi.fn(() => false),
   getProjectInfo: vi.fn(() => ({
     projectRoot: '/repo',
     platformConfig: {},
@@ -84,12 +102,13 @@ vi.mock('../../utils/project.js', () => ({
 vi.mock('../../utils/supportsPrebuiltRNCore.js', () => ({
   supportsPrebuiltRNCore: vi.fn(() => ({
     supported: true,
-    enabledByDefault: false,
+    enabledByDefault: true,
     reason: '',
   })),
 }));
 
 vi.mock('../../utils/supportsPrebuiltExpo.js', () => ({
+  isPrecompiledExpoDisabledByPodfile: vi.fn(() => false),
   supportsPrebuiltExpo: vi.fn(() => ({
     supported: true,
     enabledByDefault: true,
@@ -167,9 +186,17 @@ const mockEmitExpoSupportXcframeworks = emitExpoSupportXcframeworks as Mock;
 const mockResolvePackagedFrameworkName = resolvePackagedFrameworkName as Mock;
 const mockSupportsPrebuiltExpo = supportsPrebuiltExpo as Mock;
 
+const originalPrecompiledModules = process.env.EXPO_USE_PRECOMPILED_MODULES;
+
 describe('package:ios action --add-spm-package', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    delete process.env.EXPO_USE_PRECOMPILED_MODULES;
+    (isExpoProject as Mock).mockReturnValue(false);
+    (isPrecompiledExpoDisabledByPodfile as Mock).mockReturnValue(false);
+    for (const option of ['usePrebuiltExpo', 'extraParams']) {
+      packageIosCommand.setOptionValue(option, undefined);
+    }
 
     mockResolvePackagedFrameworkName.mockReturnValue({
       frameworkName: 'BrownfieldLib',
@@ -185,6 +212,14 @@ describe('package:ios action --add-spm-package', () => {
       packageManifestPath: '/repo/ios/.brownfield/package/build/Package.swift',
     });
     mockEmitExpoSupportXcframeworks.mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    if (originalPrecompiledModules === undefined) {
+      delete process.env.EXPO_USE_PRECOMPILED_MODULES;
+    } else {
+      process.env.EXPO_USE_PRECOMPILED_MODULES = originalPrecompiledModules;
+    }
   });
 
   test('calls createLocalSpmPackage with the resolved framework name', async () => {
@@ -293,5 +328,137 @@ describe('package:ios action --add-spm-package', () => {
     expect(
       mockEmitExpoSupportXcframeworks.mock.invocationCallOrder[0]
     ).toBeLessThan(mockCreateLocalSpmPackage.mock.invocationCallOrder[0] ?? 0);
+  });
+
+  test('turns on precompiled Expo modules and explicit modules when using prebuilt Expo', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'true',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('1');
+    expect(packageIosAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        extraParams: expect.arrayContaining([
+          'SWIFT_ENABLE_EXPLICIT_MODULES=YES',
+        ]),
+      }),
+      expect.anything(),
+      expect.anything()
+    );
+  });
+
+  test('turns off precompiled Expo modules when building Expo from source', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'false',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('0');
+  });
+  test('builds Expo from source by default when the React Native version does not match', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+    mockSupportsPrebuiltExpo.mockReturnValue({
+      supported: true,
+      enabledByDefault: false,
+      defaultDisabledReason: 'Version mismatch.',
+    });
+
+    await invokePackageIosAction(['--configuration', 'Release']);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('0');
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
+      'Version mismatch. Building Expo modules from source.'
+    );
+    expect(mockLoggerWarn).not.toHaveBeenCalled();
+  });
+
+  test('warns when prebuilt Expo is forced despite a React Native version mismatch', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+    mockSupportsPrebuiltExpo.mockReturnValue({
+      supported: true,
+      enabledByDefault: false,
+      defaultDisabledReason: 'Version mismatch.',
+    });
+
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'true',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('1');
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Version mismatch. The packaged app will likely crash'
+      )
+    );
+  });
+
+  test('builds Expo from source when Podfile.properties.json turns precompiled modules off', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+    (isPrecompiledExpoDisabledByPodfile as Mock).mockReturnValue(true);
+
+    await invokePackageIosAction(['--configuration', 'Release']);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('0');
+    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith(
+      expect.objectContaining({ usePrebuiltExpo: false })
+    );
+  });
+
+  test('warns when prebuilt Expo is forced but Podfile.properties.json turns it off', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+    (isPrecompiledExpoDisabledByPodfile as Mock).mockReturnValue(true);
+
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'true',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'ios/Podfile.properties.json sets EXPO_USE_PRECOMPILED_MODULES'
+      )
+    );
+  });
+
+  test('respects an exported EXPO_USE_PRECOMPILED_MODULES=0 when the flag is omitted', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+    process.env.EXPO_USE_PRECOMPILED_MODULES = '0';
+
+    await invokePackageIosAction(['--configuration', 'Release']);
+
+    expect(process.env.EXPO_USE_PRECOMPILED_MODULES).toBe('0');
+    expect(mockEmitExpoSupportXcframeworks).toHaveBeenCalledWith(
+      expect.objectContaining({ usePrebuiltExpo: false })
+    );
+  });
+
+  test('keeps a user-provided SWIFT_ENABLE_EXPLICIT_MODULES value', async () => {
+    (isExpoProject as Mock).mockReturnValue(true);
+
+    await invokePackageIosAction([
+      '--use-prebuilt-expo',
+      'true',
+      '--extra-params',
+      'SWIFT_ENABLE_EXPLICIT_MODULES=NO',
+      '--configuration',
+      'Release',
+    ]);
+
+    const [options] = (packageIosAction as Mock).mock.calls[0];
+    expect(options.extraParams).toEqual(['SWIFT_ENABLE_EXPLICIT_MODULES=NO']);
   });
 });

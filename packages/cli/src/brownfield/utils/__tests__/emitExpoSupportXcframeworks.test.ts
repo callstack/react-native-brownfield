@@ -133,6 +133,59 @@ describe('emitExpoSupportXcframeworks', () => {
     expect(childProcess.execFileSync).toHaveBeenCalled();
   });
 
+  it('copies symlinked XCFrameworks as real directories and leaves the link target untouched', () => {
+    vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
+    vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);
+
+    createAllRequiredExpoSupportXcframeworks(projectRoot);
+
+    // CocoaPods links expo-image's dependencies into node_modules.
+    const linkPath = path.join(
+      projectRoot,
+      'ios',
+      'Pods',
+      'ExpoImage',
+      'SDWebImage.xcframework'
+    );
+    const targetDir = path.join(
+      projectRoot,
+      'node_modules',
+      'expo-image',
+      'prebuilds',
+      'release'
+    );
+    fs.rmSync(linkPath, { recursive: true, force: true });
+    createSignedMockXcframework(targetDir, 'SDWebImage');
+    fs.symlinkSync(path.join(targetDir, 'SDWebImage.xcframework'), linkPath);
+
+    emitExpoSupportXcframeworks({ projectRoot, packageDir });
+
+    const copiedXcframework = path.join(packageDir, 'SDWebImage.xcframework');
+    expect(fs.lstatSync(copiedXcframework).isSymbolicLink()).toBe(false);
+    expect(
+      fs.existsSync(
+        path.join(
+          copiedXcframework,
+          'ios-arm64_x86_64-simulator',
+          'SDWebImage.framework',
+          'SDWebImage'
+        )
+      )
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          targetDir,
+          'SDWebImage.xcframework',
+          'ios-arm64_x86_64-simulator',
+          'SDWebImage.framework',
+          '_CodeSignature',
+          'CodeResources'
+        )
+      )
+    ).toBe(true);
+  });
+
   it('emits only ExpoModulesJSI when prebuilt Expo support is disabled', () => {
     vi.mocked(projectUtils.isExpoProject).mockReturnValue(true);
     vi.mocked(projectUtils.getExpoSdkMajor).mockReturnValue(56);

@@ -1,10 +1,68 @@
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+
+import { getReactNativeVersion } from '@rock-js/tools';
+
 import { getExpoSdkMajor, isExpoProject } from './project.js';
 
 export const MIN_EXPO_SDK_MAJOR_FOR_PREBUILT_EXPO = 56;
 
 export type PrebuiltExpoSupportResult =
-  | { supported: true; enabledByDefault: boolean; reason?: never }
+  | {
+      supported: true;
+      enabledByDefault: boolean;
+      /** Why prebuilts are off by default even though they are supported. */
+      defaultDisabledReason?: string;
+      reason?: never;
+    }
   | { supported: false; enabledByDefault?: never; reason: string };
+
+function majorMinor(version: string): string {
+  return version.split('.').slice(0, 2).join('.');
+}
+
+/**
+ * The React Native version the installed Expo SDK pins. Expo ships its
+ * precompiled modules built against this version.
+ */
+export function getExpoReactNativeVersion(projectRoot: string): string | null {
+  try {
+    const require = createRequire(path.join(projectRoot, 'package.json'));
+    const expoPackageJson = require.resolve('expo/package.json');
+    const bundledNativeModules = JSON.parse(
+      fs.readFileSync(
+        path.join(path.dirname(expoPackageJson), 'bundledNativeModules.json'),
+        'utf8'
+      )
+    ) as Record<string, string>;
+    return bundledNativeModules['react-native'] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Describes a React Native version the Expo prebuilts were not built for, or
+ * returns null when they match. Prebuilt Expo modules link against React
+ * Native's C++ API, which changes between minor versions, so a mismatch
+ * crashes at runtime.
+ */
+export function getPrebuiltExpoReactNativeMismatch(
+  projectRoot: string
+): string | null {
+  const expected = getExpoReactNativeVersion(projectRoot);
+  const found = getReactNativeVersion(projectRoot);
+  if (!expected || found === 'unknown') {
+    return null;
+  }
+
+  if (majorMinor(expected) === majorMinor(found)) {
+    return null;
+  }
+
+  return `Expo's precompiled modules are built for React Native ${majorMinor(expected)}, but this project uses ${found}.`;
+}
 
 export function supportsPrebuiltExpo({
   projectRoot,
@@ -27,8 +85,38 @@ export function supportsPrebuiltExpo({
     };
   }
 
+  const reactNativeMismatch = getPrebuiltExpoReactNativeMismatch(projectRoot);
+  if (reactNativeMismatch) {
+    return {
+      supported: true,
+      enabledByDefault: false,
+      defaultDisabledReason: reactNativeMismatch,
+    };
+  }
+
   return {
     supported: true,
     enabledByDefault: true,
   };
+}
+
+/**
+ * Whether the project's Podfile turns Expo's precompiled modules off. Expo
+ * Podfiles force `EXPO_USE_PRECOMPILED_MODULES` to '0' when
+ * `ios/Podfile.properties.json` sets it to "false", whatever the environment says.
+ */
+export function isPrecompiledExpoDisabledByPodfile(
+  projectRoot: string
+): boolean {
+  try {
+    const properties = JSON.parse(
+      fs.readFileSync(
+        path.join(projectRoot, 'ios', 'Podfile.properties.json'),
+        'utf8'
+      )
+    );
+    return properties.EXPO_USE_PRECOMPILED_MODULES === 'false';
+  } catch {
+    return false;
+  }
 }

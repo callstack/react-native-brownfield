@@ -216,19 +216,29 @@ export function addSourceFilesBuildPhase(
     (filePath) => !filePath.endsWith('.plist')
   );
 
-  // Idempotency: skip when the target already has a sources phase with this
-  // comment, so re-running scaffolding does not duplicate the build phase.
-  const nativeTargets = getRawProjectObjects(project).PBXNativeTarget as
+  // Idempotency: skip when the target already has a sources phase, so
+  // re-running scaffolding does not duplicate the build phase. CocoaPods
+  // rewrites the phase's comment to "Sources" on `pod install`, so match by
+  // the phase type as well as by our comment.
+  const rawObjects = getRawProjectObjects(project);
+  const nativeTargets = rawObjects.PBXNativeTarget as
     | Record<string, PbxNativeTarget>
     | undefined;
+  const sourcesPhases = (rawObjects.PBXSourcesBuildPhase ?? {}) as Record<
+    string,
+    unknown
+  >;
   const targetBuildPhases =
     nativeTargets?.[frameworkTargetUUID]?.buildPhases ?? [];
-  const alreadyHasSourcePhase = targetBuildPhases.some((phase) =>
-    hasBuildPhaseComment(
-      { comment: typeof phase === 'string' ? undefined : phase.comment },
-      options.frameworkName
-    )
-  );
+  const alreadyHasSourcePhase = targetBuildPhases.some((phase) => {
+    const phaseUuid = getReferencedUuid(phase);
+    return (
+      hasBuildPhaseComment(
+        { comment: typeof phase === 'string' ? undefined : phase.comment },
+        options.frameworkName
+      ) || Boolean(phaseUuid && sourcesPhases[phaseUuid])
+    );
+  });
   if (alreadyHasSourcePhase) {
     Logger.logDebug(
       `Sources build phase "${options.frameworkName}" already present on target ${frameworkTargetUUID}, skipping`
@@ -811,4 +821,52 @@ export function resolveFrameworkDeploymentTarget(
   );
 
   return appTargetDeploymentTarget ?? '15.0';
+}
+
+function isVersionLower(version: string, minimum: string): boolean {
+  const a = version.split('.').map(Number);
+  const b = minimum.split('.').map(Number);
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const diff = (a[i] ?? 0) - (b[i] ?? 0);
+    if (diff !== 0) {
+      return diff < 0;
+    }
+  }
+  return false;
+}
+
+/**
+ * Raises the framework target's iOS deployment target to `minimum` in every
+ * build configuration where it is lower. Returns whether anything changed.
+ */
+export function raiseFrameworkDeploymentTarget(
+  project: XcodeProject,
+  frameworkTargetUUID: string,
+  minimum: string
+): boolean {
+  const rawObjects = getRawProjectObjects(project);
+  const target = rawObjects.PBXNativeTarget?.[frameworkTargetUUID] as
+    | PbxNativeTarget
+    | undefined;
+  const configList = target?.buildConfigurationList
+    ? rawObjects.XCConfigurationList?.[target.buildConfigurationList]
+    : undefined;
+  const configs = rawObjects.XCBuildConfiguration ?? {};
+
+  let changed = false;
+  for (const ref of configList?.buildConfigurations ?? []) {
+    const uuid = getReferencedUuid(ref);
+    const buildSettings = uuid ? configs[uuid]?.buildSettings : undefined;
+    if (!buildSettings) {
+      continue;
+    }
+    const current = normalizeXcodeBuildSettingValue(
+      buildSettings.IPHONEOS_DEPLOYMENT_TARGET
+    );
+    if (!current || isVersionLower(current, minimum)) {
+      buildSettings.IPHONEOS_DEPLOYMENT_TARGET = minimum;
+      changed = true;
+    }
+  }
+  return changed;
 }
