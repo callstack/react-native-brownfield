@@ -255,8 +255,6 @@ describe('createAndroidModule', () => {
 
     const hostManager = readLibraryHostManager(androidDir);
     expect(hostManager).toContain('package com.example.brownfield');
-    // Host via factory + no loadReactNative: both would load the feature
-    // flags twice and crash on startup (issue #492).
     expect(hostManager).toContain(
       'ReactNativeBrownfield.initialize(application, onJSBundleLoaded)'
     );
