@@ -299,6 +299,7 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
       #if canImport(EXUpdates)
       if AppController.isInitialized(),
         AppController.sharedInstance.isActiveController,
+        AppController.sharedInstance.isStarted,
         let launchAssetURL = AppController.sharedInstance.launchAssetUrl()
       {
         return launchAssetURL
@@ -343,7 +344,8 @@ class ExpoHostRuntimeDelegate: ExpoReactNativeFactoryDelegate {
     #if canImport(EXUpdates)
     guard AppController.isInitialized() else { return false }
     return !AppController.sharedInstance.isActiveController
-      || AppController.sharedInstance.launchAssetUrl() != nil
+      || (AppController.sharedInstance.isStarted
+        && AppController.sharedInstance.launchAssetUrl() != nil)
     #else
     return true
     #endif
