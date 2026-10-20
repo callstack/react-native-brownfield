@@ -54,6 +54,17 @@ grep -qF "brownfield-gradle-plugin:$PLUGIN_VERSION" "$GRADLE_DIR/build.gradle" |
 grep -q "include ':brownfieldlib'" "$GRADLE_DIR/settings.gradle" || { echo "settings.gradle lacks ':brownfieldlib'"; exit 1; }
 echo "::endgroup::"
 
+echo "::group::Patch root build.gradle for CI snapshot plugin"
+# The Gradle plugin under test is not published to Maven Central yet. Like the
+# road-test CI, resolve it from Maven Local as <VERSION>-SNAPSHOT (the previous
+# step publishes it with `yarn brownfield:plugin:publish:local`). The script
+# also adds mavenLocal() to the buildscript repositories.
+node --experimental-strip-types --no-warnings \
+  "$REPO_ROOT/apps/scripts/prepare-android-build-gradle-for-ci.ts" "$WORKDIR/$APP_NAME"
+grep -q "mavenLocal()" "$GRADLE_DIR/build.gradle" || { echo "root build.gradle lacks mavenLocal()"; exit 1; }
+grep -q "brownfield-gradle-plugin:.*-SNAPSHOT" "$GRADLE_DIR/build.gradle" || { echo "root build.gradle lacks the SNAPSHOT Gradle plugin classpath"; exit 1; }
+echo "::endgroup::"
+
 echo "::group::Assemble Android packaging module"
 # The freshly generated app pins its own ndkVersion in buildscript ext; install
 # it if missing (CI runners carry a different preinstalled set). No-op locally
