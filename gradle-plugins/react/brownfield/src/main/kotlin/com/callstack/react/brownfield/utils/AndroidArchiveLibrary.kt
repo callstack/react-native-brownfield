@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.utils
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import org.gradle.api.Project
 import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
 
 class AndroidArchiveLibrary(
     private val project: Project,
@@ -59,6 +60,10 @@ class AndroidArchiveLibrary(
      * module declares no `namespace` in its `build.gradle`. The Android Gradle plugin itself
      * derives the namespace this way for such libraries, so they build fine as a regular
      * dependency but trip up [getNameSpaceFromBuildGradle]'s `build.gradle`-only regex.
+     *
+     * The manifest is parsed as XML and only the root `<manifest>` element's `package`
+     * attribute is read, so comments or child attributes such as `android:targetPackage`
+     * cannot be mistaken for the package name.
      */
     private fun getNameSpaceFromAndroidManifest(subProj: Project): String? {
         val candidateManifests =
@@ -66,10 +71,23 @@ class AndroidArchiveLibrary(
                 File(subProj.projectDir, "src/main/AndroidManifest.xml"),
                 File(subProj.projectDir, "AndroidManifest.xml"),
             )
-        val manifestFile = candidateManifests.firstOrNull { it.exists() } ?: return null
 
-        val regex = Regex("""package\s*=\s*["']([^"']+)["']""")
-        return regex.find(manifestFile.readText())?.groupValues?.get(1)
+        return candidateManifests
+            .filter { it.exists() }
+            .firstNotNullOfOrNull { manifestFile ->
+                runCatching {
+                    val document =
+                        DocumentBuilderFactory.newInstance().apply {
+                            isNamespaceAware = true
+                            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+                            setFeature("http://xml.org/sax/features/external-general-entities", false)
+                            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+                        }.newDocumentBuilder().parse(manifestFile)
+                    document.documentElement
+                        ?.getAttribute("package")
+                        ?.takeIf { it.isNotBlank() }
+                }.getOrNull()
+            }
     }
 
     fun getManifestFile() = File(getExplodedAarRootDir(), "AndroidManifest.xml")

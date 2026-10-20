@@ -79,6 +79,42 @@ class AndroidArchiveLibraryNamespaceFallbackTest {
     }
 
     @Test
+    fun `reads the package from the manifest root element and ignores comments and child attributes`() {
+        val root = ProjectBuilder.builder().build()
+        val subProject =
+            ProjectBuilder.builder()
+                .withParent(root)
+                .withName("react-native-legacy-manifest")
+                .build()
+
+        subProject.projectDir.mkdirs()
+        subProject.buildFile.writeText(
+            """
+            apply plugin: 'com.android.library'
+            """.trimIndent(),
+        )
+        subProject.projectDir.resolve("src/main").mkdirs()
+        subProject.projectDir.resolve("src/main/AndroidManifest.xml").writeText(
+            """
+            <!-- legacy location: package="com.example.stale" -->
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                      package="com.reactnativelegacymanifest">
+                <application>
+                    <activity
+                        android:name=".LegacyActivity"
+                        android:exported="false"
+                        android:targetPackage="com.example.target" />
+                </application>
+            </manifest>
+            """.trimIndent(),
+        )
+
+        val library = AndroidArchiveLibrary(root, artifactFor("react-native-legacy-manifest"), "devRelease")
+
+        assertEquals("com.reactnativelegacymanifest", library.getPackageName())
+    }
+
+    @Test
     fun `errors when neither build-gradle nor the manifest declare a namespace`() {
         val root = ProjectBuilder.builder().build()
         val subProject =
