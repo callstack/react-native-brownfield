@@ -21,7 +21,7 @@
     "ci:local:e2e:ios:expo57": "bash ../../scripts/ci-local-appleapp-ios-e2e.sh --variant expo57"
   },
   "devDependencies": {
-    "@callstack/brownfield-example-shared-tests": "workspace:^",
+    "@callstack/shared-tests": "workspace:^",
     "@rock-js/tools": "^0.13.5",
     "detox": "^20.27.0",
     "jest": "^29.7.0"

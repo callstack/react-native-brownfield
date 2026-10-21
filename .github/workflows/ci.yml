@@ -42,19 +42,24 @@ jobs:
               - 'packages/**'
             rnapp:
               - 'apps/RNApp/**'
-              - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/shared-tests/**'
+              - 'apps/shared-runtime/**'
             expo58:
               - 'apps/ExpoApp58/**'
-              - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/shared-tests/**'
+              - 'apps/shared-runtime/**'
             expo57:
               - 'apps/ExpoApp57/**'
-              - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/shared-tests/**'
+              - 'apps/shared-runtime/**'
             androidapp:
               - 'apps/AndroidApp/**'
-              - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/shared-tests/**'
+              - 'apps/shared-runtime/**'
             appleapp:
               - 'apps/AppleApp/**'
-              - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/shared-tests/**'
+              - 'apps/shared-runtime/**'
             gradle-plugins:
               - 'gradle-plugins/**'
             scripts:
