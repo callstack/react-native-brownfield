@@ -41,11 +41,20 @@ static ReactNativeBrownfieldModule *_sharedInstance = nil;
 }
 
 + (void)emitMessageFromNative:(NSString *)message {
-  if (_sharedInstance) {
-    [_sharedInstance emitOnBrownfieldMessage:@{ @"text": message }];
-  } else {
+  if (!_sharedInstance) {
     NSLog(@"ReactNativeBrownfieldModule is not initialized, dropping message");
+    return;
   }
+
+  // The event emitter callback is only set once JS has first required the
+  // module and getTurboModule: has built its JSI spec. Calling it empty throws
+  // std::bad_function_call.
+  if (!_sharedInstance->_eventEmitterCallback) {
+    NSLog(@"ReactNativeBrownfieldModule is not ready for JS yet, dropping message");
+    return;
+  }
+
+  [_sharedInstance emitOnBrownfieldMessage:@{ @"text": message }];
 }
 
 RCT_EXPORT_METHOD(setPopGestureRecognizerEnabled:(BOOL)enabled) {
