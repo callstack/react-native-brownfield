@@ -66,6 +66,10 @@ class VariantTaskProvider(val project: Project) {
             it.dependsOn(VariantHelper.getJavaCompileTask(project, capitalizedVariantName))
             it.variantName.set(variantName)
             it.inputClassesJars.from(aarLibraries.map { aarLibrary -> aarLibrary.getClassesJarFile() })
+            // libs/*.jar of each library (#489)
+            it.inputClassesJars.from(
+                aarLibraries.map { aarLibrary -> project.fileTree(aarLibrary.getLibsDir()) { tree -> tree.include("*.jar") } },
+            )
             it.outputDir.set(DirectoryManager.getMergeClassDirectory(variantName))
         }
     }
