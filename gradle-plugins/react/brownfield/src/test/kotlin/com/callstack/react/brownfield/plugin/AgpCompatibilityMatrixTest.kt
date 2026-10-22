@@ -7,6 +7,7 @@ import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -39,12 +40,19 @@ class AgpCompatibilityMatrixTest {
         // `--dry-run` still runs configuration in full — variant callbacks, source set wiring, task
         // graph construction — which is where every AGP API the plugin touches is exercised. It just
         // skips the task actions, which would need a real RN app to produce anything meaningful.
-        GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath(pluginClasspathFor(agpVersion))
-            .withArguments("assembleDebug", "--dry-run", "--stacktrace")
-            .forwardOutput()
-            .build()
+        val result =
+            GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath(pluginClasspathFor(agpVersion))
+                .withArguments("assembleDebug", "--dry-run", "--stacktrace")
+                .forwardOutput()
+                .build()
+
+        // AGP 9 turns resValues off by default and warns on every read of variant.resValues.
+        assertFalse(
+            result.output.contains("Accessing value resValues"),
+            "the plugin reads variant.resValues although the feature is disabled",
+        )
     }
 
     @Test
