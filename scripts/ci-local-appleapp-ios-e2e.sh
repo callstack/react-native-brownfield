@@ -47,7 +47,7 @@ ci_local_e2e_require_macos
 
 resolve_variant() {
   node <<NODE
-const { getAppleAppDetoxVariant } = require('${REPO_ROOT}/apps/brownfield-example-shared-tests/detox-appleapp-variants.cjs');
+const { getAppleAppDetoxVariant } = require('${REPO_ROOT}/apps/shared-tests/detox-appleapp-variants.cjs');
 const variant = getAppleAppDetoxVariant('${VARIANT}');
 console.log([
   variant.xcframeworkApp,

@@ -42,6 +42,7 @@
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
+    "@callstack/shared-runtime": "workspace:^",
     "expo": "58.0.0-preview.7",
     "expo-constants": "~58.0.7",
     "expo-device": "~58.0.2",
@@ -68,7 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.6",
-    "@callstack/brownfield-example-shared-tests": "workspace:^",
+    "@callstack/shared-tests": "workspace:^",
     "@react-native/jest-preset": "0.88.0-rc.1",
     "@react-native/metro-config": "0.88.0-rc.1",
     "@testing-library/react-native": "^13.3.3",

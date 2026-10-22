@@ -271,7 +271,7 @@ runs:
       if: steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'build' || steps.e2e.outputs.phase == 'test'
       run: |
         node <<'NODE'
-        const { getAndroidAppDetoxVariant } = require('./apps/brownfield-example-shared-tests/detox-androidapp-variants.cjs');
+        const { getAndroidAppDetoxVariant } = require('./apps/shared-tests/detox-androidapp-variants.cjs');
         const variant = getAndroidAppDetoxVariant(process.env.ANDROIDAPP_VARIANT);
         const append = (key, value) => {
           const fs = require('node:fs');
@@ -396,9 +396,9 @@ runs:
         # low on disk after Gradle/NDK builds (see ReactiveCircus/android-emulator-runner#455).
         script: |
           echo "==> Starting Detox tests at $(date -u +%H:%M:%S)"
-          bash apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh
+          bash apps/shared-tests/scripts/prepare-android-emulator-for-detox.sh
           cd apps/AndroidApp
-          bash apps/brownfield-example-shared-tests/scripts/run-with-android-logcat.sh apps/AndroidApp/e2e-artifacts/logcat-full.txt yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
+          bash ../shared-tests/scripts/run-with-android-logcat.sh e2e-artifacts/logcat-full.txt yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
       env:
         ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
 

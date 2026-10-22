@@ -3,5 +3,8 @@
   "references": [
     { "path": "../../packages/brownie" },
     { "path": "../../packages/react-native-brownfield" }
-  ]
+  ],
+  "compilerOptions": {
+    "preserveSymlinks": true
+  }
 }

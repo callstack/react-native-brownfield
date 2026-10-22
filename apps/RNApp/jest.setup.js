@@ -1,1 +1,1 @@
-require('@callstack/brownfield-example-shared-tests/jest/setup');
+require('@callstack/shared-tests/jest/setup');

@@ -2,7 +2,7 @@ import { ExpoRoot } from 'expo-router';
 import { AppRegistry } from 'react-native';
 
 import RNApp from './RNApp';
-import { useMarkFullyDisplayed } from './src/hooks/use-mark-fully-displayed';
+import { useMarkFullyDisplayed } from '@callstack/shared-runtime/useMarkFullyDisplayed';
 
 function App({
   brownfieldPresentationID,

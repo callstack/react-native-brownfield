@@ -24,6 +24,6 @@ module.exports = {
     ),
   },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@callstack/brownfield-example-shared-tests|@react-navigation|react-native-screens|react-native-safe-area-context)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@callstack/shared-runtime|@callstack/shared-tests|@react-navigation|react-native-screens|react-native-safe-area-context)/)',
   ],
 };

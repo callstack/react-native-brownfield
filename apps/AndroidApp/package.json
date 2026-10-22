@@ -19,7 +19,7 @@
     "ci:local:e2e:android:expo57": "bash ../../scripts/ci-local-androidapp-android-e2e.sh --variant expo57"
   },
   "devDependencies": {
-    "@callstack/brownfield-example-shared-tests": "workspace:^",
+    "@callstack/shared-tests": "workspace:^",
     "detox": "^20.27.0",
     "jest": "^29.7.0"
   }
