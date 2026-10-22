@@ -1,5 +1,13 @@
 # @callstack/react-native-brownfield
 
+## 6.0.2
+
+### Patch Changes
+
+- [#503](https://github.com/callstack/react-native-brownfield/pull/503) [`6a258da`](https://github.com/callstack/react-native-brownfield/commit/6a258da42f2bd2cbb112f56948108323aeba74d9) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - `ReactNativeBrownfield.onMessage` no longer calls the callback a second time, with the raw message text, when the callback throws. The error now propagates instead of being swallowed.
+- Updated dependencies []:
+  - @callstack/brownfield-cli@6.0.2
+
 ## 6.0.1
 
 ### Patch Changes
