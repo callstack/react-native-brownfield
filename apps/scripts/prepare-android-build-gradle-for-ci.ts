@@ -9,7 +9,7 @@ if (!projectDirName) {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const SNAPSHOT_VERSION = '2.0.0-alpha11-SNAPSHOT';
+const SNAPSHOT_VERSION = '2.0.0-alpha13-SNAPSHOT';
 // Accepts a repo-relative app dir (e.g. "ExpoApp58") or an absolute path (e.g.
 // the scaffold-smoke app created outside the repo).
 const projectDir = path.isAbsolute(projectDirName)
