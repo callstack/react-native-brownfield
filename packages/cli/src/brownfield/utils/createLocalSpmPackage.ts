@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import type { ExtraSpmXcframework } from '../../types.js';
 import {
   prepareLocalSpmArtifacts,
   SPM_ARTIFACTS_DIR_NAME,
@@ -14,6 +15,8 @@ type CreateLocalSpmPackageOptions = {
   packageDir: string;
   frameworkName?: string;
   usePrebuiltExpo?: boolean;
+  projectRoot?: string;
+  extraSpmXcframeworks?: ExtraSpmXcframework[];
 };
 
 type CreateLocalSpmPackageResult = {
@@ -56,6 +59,7 @@ function requireHermesXcframework(packageDir: string) {
 
 function resolveAppFrameworkName(
   packageDir: string,
+  reservedFrameworkNames: Set<string>,
   explicitFrameworkName?: string
 ) {
   if (explicitFrameworkName) {
@@ -68,7 +72,7 @@ function resolveAppFrameworkName(
       (entry) =>
         entry.isDirectory() &&
         entry.name.endsWith('.xcframework') &&
-        !RESERVED_FRAMEWORK_NAMES.has(path.basename(entry.name, '.xcframework'))
+        !reservedFrameworkNames.has(path.basename(entry.name, '.xcframework'))
     )
     .map((entry) => path.basename(entry.name, '.xcframework'))
     .sort();
@@ -86,6 +90,47 @@ function resolveAppFrameworkName(
   throw new Error(
     `Found multiple packaged app XCFramework candidates (${candidates.join(', ')}). Pass --scheme explicitly when packaging.`
   );
+}
+
+function resolveExtraSpmXcframeworkPath(
+  projectRoot: string,
+  entry: ExtraSpmXcframework
+) {
+  return path.isAbsolute(entry.path)
+    ? entry.path
+    : path.resolve(projectRoot, entry.path);
+}
+
+function stageExtraSpmXcframeworks({
+  packageDir,
+  projectRoot,
+  extraSpmXcframeworks,
+}: {
+  packageDir: string;
+  projectRoot: string;
+  extraSpmXcframeworks: ExtraSpmXcframework[];
+}) {
+  const stagedNames: string[] = [];
+
+  for (const entry of extraSpmXcframeworks) {
+    const sourcePath = resolveExtraSpmXcframeworkPath(projectRoot, entry);
+
+    if (!fs.existsSync(sourcePath)) {
+      throw new Error(
+        `Missing extra SPM XCFramework "${entry.name}" at ${entry.path}`
+      );
+    }
+
+    const destinationPath = path.join(
+      packageDir,
+      `${entry.name}.xcframework`
+    );
+    fs.rmSync(destinationPath, { recursive: true, force: true });
+    fs.cpSync(sourcePath, destinationPath, { recursive: true });
+    stagedNames.push(entry.name);
+  }
+
+  return stagedNames;
 }
 
 function renderPackageSwift({
@@ -176,25 +221,42 @@ export function createLocalSpmPackage({
   packageDir,
   frameworkName,
   usePrebuiltExpo = true,
+  projectRoot = process.cwd(),
+  extraSpmXcframeworks = [],
 }: CreateLocalSpmPackageOptions): CreateLocalSpmPackageResult {
+  const reservedFrameworkNames = new Set([
+    ...RESERVED_FRAMEWORK_NAMES,
+    ...extraSpmXcframeworks.map((entry) => entry.name),
+  ]);
+  const extraTargetNames = stageExtraSpmXcframeworks({
+    packageDir,
+    projectRoot,
+    extraSpmXcframeworks,
+  });
   const resolvedFrameworkName = resolveAppFrameworkName(
     packageDir,
+    reservedFrameworkNames,
     frameworkName
   );
   const expoSupportXcframeworkNames =
     getExpoSupportXcframeworkNames(usePrebuiltExpo);
   const targetNames = [
-    resolvedFrameworkName,
-    requireHermesXcframework(packageDir),
-    requireXcframework(packageDir, 'ReactBrownfield'),
-    optionalXcframework(packageDir, 'Brownie'),
-    optionalXcframework(packageDir, 'BrownfieldNavigation'),
-    ...expoSupportXcframeworkNames.map((frameworkName) =>
-      optionalXcframework(packageDir, frameworkName)
+    ...new Set(
+      [
+        resolvedFrameworkName,
+        requireHermesXcframework(packageDir),
+        requireXcframework(packageDir, 'ReactBrownfield'),
+        optionalXcframework(packageDir, 'Brownie'),
+        optionalXcframework(packageDir, 'BrownfieldNavigation'),
+        ...expoSupportXcframeworkNames.map((expoFrameworkName) =>
+          optionalXcframework(packageDir, expoFrameworkName)
+        ),
+        optionalXcframework(packageDir, 'React'),
+        optionalXcframework(packageDir, 'ReactNativeDependencies'),
+        ...extraTargetNames,
+      ].filter((targetName): targetName is string => targetName !== null)
     ),
-    optionalXcframework(packageDir, 'React'),
-    optionalXcframework(packageDir, 'ReactNativeDependencies'),
-  ].filter((targetName): targetName is string => targetName !== null);
+  ];
 
   const packageManifestPath = path.join(packageDir, 'Package.swift');
   const readmePath = path.join(packageDir, 'README.md');
