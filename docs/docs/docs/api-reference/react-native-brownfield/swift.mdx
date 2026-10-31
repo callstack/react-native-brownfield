@@ -119,7 +119,7 @@ let view = ReactNativeBrownfield.shared.view(
 
 ##### `postMessage`
 
-Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event and can be received using `ReactNativeBrownfield.onMessage()` on the JS side. If the Brownfield module exists but its JS emitter is not ready when delivery happens, the message is dropped and a log line is written. If the module does not exist yet, the message is dropped without a log line.
+Send a JSON string to the React Native JS layer. Messages can be received using `ReactNativeBrownfield.onMessage()`. If the Brownfield module exists but its JS emitter is not ready when delivery happens, the message is dropped and a log line is written. If the module does not exist yet, the message is dropped without a log line.
 
 | Param     | Required | Type     | Description                         |
 | --------- | -------- | -------- | ----------------------------------- |
