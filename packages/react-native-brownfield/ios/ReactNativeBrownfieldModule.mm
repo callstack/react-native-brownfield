@@ -47,8 +47,13 @@ static ReactNativeBrownfieldModule *_sharedInstance = nil;
   }
 
   // The event emitter callback is only set once JS has first required the
-  // module and getTurboModule: has built its JSI spec. Calling it empty throws
-  // std::bad_function_call.
+  // module and getTurboModule: has built its JSI spec. The codegen base class
+  // declares it:
+  // https://github.com/facebook/react-native/blob/4bc2473f5d0233ea5384c1ef24f6a55615de2220/packages/react-native-codegen/src/generators/modules/GenerateModuleObjCpp/index.js#L44
+  // and the generated constructor sets it:
+  // https://github.com/facebook/react-native/blob/4bc2473f5d0233ea5384c1ef24f6a55615de2220/packages/react-native-codegen/src/generators/modules/GenerateModuleObjCpp/source/serializeModule.js#L88
+  // Calling an empty std::function throws std::bad_function_call:
+  // https://en.cppreference.com/w/cpp/utility/functional/function/operator%28%29.html
   if (!_sharedInstance->_eventEmitterCallback) {
     NSLog(@"ReactNativeBrownfieldModule is not ready for JS yet, dropping message");
     return;

@@ -308,6 +308,7 @@ internal import Expo
   /**
    * Send a serialized JSON message to the React Native JS application.
    * The message is delivered as a `brownfieldMessage` DeviceEventEmitter event.
+   * If JS has not loaded the Brownfield module yet, the message is dropped and a log line is written.
    *
    * @param message - The serialized JSON message to send to the React Native JS application.
    * @example

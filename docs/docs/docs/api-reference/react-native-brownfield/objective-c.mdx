@@ -129,7 +129,7 @@ Returns: `BOOL` – return value is passed through from the runtime.
 
 ##### `postMessage`
 
-Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event.
+Send a JSON string to the React Native JS layer. The message is delivered as a `brownfieldMessage` DeviceEventEmitter event. If JS has not loaded the Brownfield module yet, the message is dropped and a log line is written.
 
 | Param     | Required | Type       | Description                         |
 | --------- | -------- | ---------- | ----------------------------------- |
