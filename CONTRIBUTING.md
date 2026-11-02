@@ -186,6 +186,7 @@ These live in a workspace, not in the root `package.json`. Run them with `yarn w
 `apps/AndroidApp` (`@callstack/brownfield-example-android-app`), one Gradle flavor per consumed RN app:
 
 - `build:example:android-consumer:vanilla` - consumes `apps/RNApp` (`assembleVanillaRelease`)
+- `build:example:android-consumer:rock` - consumes `apps/RockApp` (`assembleRockRelease`)
 - `build:example:android-consumer:expo58` - consumes `apps/ExpoApp58` (`assembleExpo58Release`)
 - `build:example:android-consumer:expo57` - consumes `apps/ExpoApp57` (`assembleExpo57Release`)
 - `build:example:android-consumer:expo` - alias for `build:example:android-consumer:expo57`
@@ -194,6 +195,7 @@ These live in a workspace, not in the root `package.json`. Run them with `yarn w
 `apps/AppleApp` (`@callstack/brownfield-example-ios-app`), each copies the XCFrameworks with `prepareXCFrameworks.js` and runs `xcodebuild`:
 
 - `build:example:ios-consumer:vanilla` - consumes `RNApp`, scheme **Brownfield Apple App Vanilla** (`Release Vanilla`)
+- `build:example:ios-consumer:rock` - consumes `RockApp`, scheme **Brownfield Apple App Rock**
 - `build:example:ios-consumer:expo58` - consumes `ExpoApp58`, scheme **Brownfield Apple App Expo 58** (`Release`)
 - `build:example:ios-consumer:expo57` - consumes `ExpoApp57`, scheme **Brownfield Apple App Expo 57** (`Release`)
 - `build:example:ios-consumer:expo` - alias for `build:example:ios-consumer:expo57`
@@ -226,10 +228,12 @@ There are 2 brownfield host apps.
   - `build:example:android-consumer:expo58` - consumes Expo 58
   - `build:example:android-consumer:expo57` (or `expo`) - consumes Expo 57
   - `build:example:android-consumer:vanilla` - consumes the vanilla `RNApp`
+  - `build:example:android-consumer:rock` - consumes `RockApp`
 - `apps/AppleApp` - for Apple (one Xcode target per consumed RN app, each with its own shared scheme)
   - `build:example:ios-consumer:expo58` — target `Brownfield Apple App (ExpoApp58)`, scheme **Brownfield Apple App Expo 58**
   - `build:example:ios-consumer:expo57` (or `expo`) — target `Brownfield Apple App (ExpoApp57)`, scheme **Brownfield Apple App Expo 57**
   - `build:example:ios-consumer:vanilla` — target `Brownfield Apple App (RNApp)`, scheme **Brownfield Apple App Vanilla**
+  - `build:example:ios-consumer:rock` — target `Brownfield Apple App (RNApp)`, scheme **Brownfield Apple App Rock**
 
 For iOS, these scripts validate the legacy direct-XCFramework integration path. Each script uses the previously packaged artifacts from the respective directory (`apps/RNApp`, `apps/ExpoApp58`, or `apps/ExpoApp57`), invokes `prepareXCFrameworks.js` to copy XCFrameworks into `apps/AppleApp/package`, then runs `xcodebuild` against the matching scheme. The Xcode project reads fixed paths under `package/` (for example `package/BrownfieldLib.xcframework`).
 

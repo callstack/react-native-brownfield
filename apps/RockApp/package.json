@@ -61,7 +61,7 @@
     "prettier": "^3.8.1",
     "react-native-monorepo-config": "^0.3.3",
     "react-test-renderer": "19.2.3",
-    "rock": "^0.15.1",
+    "rock": "^0.15.4",
     "typescript": "^5.9.3"
   },
   "brownie": {
