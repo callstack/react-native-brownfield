@@ -122,7 +122,7 @@ function buildTypeImportLine(
     return '';
   }
 
-  return `import type { ${names} } from './NativeBrownfieldNavigation';\n`;
+  return `import type { ${names} } from './NativeBrownfieldNavigation';`;
 }
 
 export function generateIndexTs(
@@ -151,8 +151,7 @@ export function generateIndexTs(
     .join(',\n');
 
   return `import NativeBrownfieldNavigation from './NativeBrownfieldNavigation';
-${typeImportLine}
-
+${typeImportLine ? `${typeImportLine}\n` : ''}
 const BrownfieldNavigation = {
 ${functionImplementations},
 };
@@ -223,7 +222,7 @@ export function generateIndexDts(
     })
     .join('\n');
 
-  return `${typeImportLine}declare const BrownfieldNavigation: {
+  return `${typeImportLine ? `${typeImportLine}\n` : ''}declare const BrownfieldNavigation: {
 ${methodSignatures}
 };
 
