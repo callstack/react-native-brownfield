@@ -2,12 +2,10 @@
  * @format
  */
 
-import 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
-import { it } from '@jest/globals';
-import App from '../App';
+import { App } from '@callstack/brownfield-example-shared';
 
-it('renders correctly', async () => {
+test('renders correctly', async () => {
   await ReactTestRenderer.act(() => {
     ReactTestRenderer.create(<App />);
   });
