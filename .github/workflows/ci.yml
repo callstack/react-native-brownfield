@@ -22,6 +22,7 @@ jobs:
     outputs:
       packages: ${{ steps.filter.outputs.packages }}
       rnapp: ${{ steps.filter.outputs.rnapp }}
+      rockapp: ${{ steps.filter.outputs.rockapp }}
       expo58: ${{ steps.filter.outputs.expo58 }}
       expo57: ${{ steps.filter.outputs.expo57 }}
       androidapp: ${{ steps.filter.outputs.androidapp }}
@@ -42,6 +43,11 @@ jobs:
               - 'packages/**'
             rnapp:
               - 'apps/RNApp/**'
+              - 'apps/brownfield-example-shared/**'
+              - 'apps/brownfield-example-shared-tests/**'
+            rockapp:
+              - 'apps/RockApp/**'
+              - 'apps/brownfield-example-shared/**'
               - 'apps/brownfield-example-shared-tests/**'
             expo58:
               - 'apps/ExpoApp58/**'
@@ -296,9 +302,20 @@ jobs:
           e2e-artifact-name: detox-androidapp-expo57
 
   android-androidapp-rock:
-    name: Android road test (RNApp & AndroidApp - Rock)
+    name: Android road test (RockApp & AndroidApp - Rock)
     runs-on: ubuntu-latest
-    needs: build-lint
+    timeout-minutes: 120
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.rockapp == 'true' ||
+        needs.filter.outputs.androidapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.gradle-plugins == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
 
     steps:
       - name: Checkout
@@ -403,15 +420,25 @@ jobs:
           e2e-artifact-name: detox-appleapp-expo${{ matrix.version }}
 
   ios-appleapp-rock:
-    name: iOS road test (RNApp & AppleApp - Rock)
+    name: iOS road test (RockApp & AppleApp - Rock)
     runs-on: macos-26
-    needs: build-lint
+    timeout-minutes: 60
+    needs: [filter, build-lint]
+    if: |
+      always() &&
+      (
+        needs.filter.outputs.rockapp == 'true' ||
+        needs.filter.outputs.appleapp == 'true' ||
+        needs.filter.outputs.packages == 'true' ||
+        needs.filter.outputs.ci == 'true'
+      ) &&
+      (needs.build-lint.result == 'success' || needs.build-lint.result == 'skipped')
 
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Run RNApp -> AppleApp road test (Rock)
+      - name: Run RockApp -> AppleApp road test (Rock)
         uses: ./.github/actions/appleapp-road-test
         with:
           variant: rock
