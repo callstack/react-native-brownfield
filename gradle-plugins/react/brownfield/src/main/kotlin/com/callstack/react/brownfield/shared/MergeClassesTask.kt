@@ -54,6 +54,8 @@ abstract class MergeClassesTask : DefaultTask() {
             copyTask.from(mergedOutputDir)
             copyTask.into(javacDir)
             copyTask.exclude("META-INF/")
+            // Root module descriptor of a library's local jar, not a class of the AAR.
+            copyTask.exclude("module-info.class")
         }
 
         project.copy { copyTask ->
