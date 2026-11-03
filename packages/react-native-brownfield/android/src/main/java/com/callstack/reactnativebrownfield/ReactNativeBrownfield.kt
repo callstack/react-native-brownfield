@@ -18,7 +18,6 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicBoolean
 
 fun interface OnJSBundleLoaded {
     operator fun invoke(timings: JSBundleTimings)
@@ -33,17 +32,15 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
 
     companion object {
         private lateinit var instance: ReactNativeBrownfield
-        private val initialized = AtomicBoolean()
-        private val nativeLibsLoaded = AtomicBoolean()
+        private val initialization = RetryableOnce()
+        private val nativeLibsLoading = RetryableOnce()
         private lateinit var applicationContext: Application
 
         @JvmStatic
         val shared: ReactNativeBrownfield get() = instance
 
         private fun loadNativeLibs(application: Application) {
-            if (!nativeLibsLoaded.getAndSet(true)) {
-                loadNativeLibsInternal(application)
-            }
+            nativeLibsLoading.run { loadNativeLibsInternal(application) }
         }
 
         private fun loadNativeLibsInternal(application: Application) {
@@ -65,11 +62,12 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             onJSBundleLoaded: OnJSBundleLoaded? = null
         ) {
             applicationContext = application
-            if (!initialized.getAndSet(true)) {
+            val ranNow = initialization.run {
                 AndroidJSBundleTimingObserver.install()
                 loadNativeLibs(application)
                 installAndPreload(reactHost, onJSBundleLoaded)
-            } else {
+            }
+            if (!ranNow) {
                 invokeWhenJSBundleLoaded(onJSBundleLoaded)
             }
         }
@@ -81,11 +79,12 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             reactHostFactory: () -> ReactHost
         ) {
             applicationContext = application
-            if (!initialized.getAndSet(true)) {
+            val ranNow = initialization.run {
                 AndroidJSBundleTimingObserver.install()
                 loadNativeLibs(application)
                 installAndPreload(reactHostFactory(), onJSBundleLoaded)
-            } else {
+            }
+            if (!ranNow) {
                 invokeWhenJSBundleLoaded(onJSBundleLoaded)
             }
         }
@@ -98,7 +97,7 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
             onJSBundleLoaded: OnJSBundleLoaded? = null
         ) {
             applicationContext = application
-            if (!initialized.getAndSet(true)) {
+            val ranNow = initialization.run {
                 AndroidJSBundleTimingObserver.install()
                 loadNativeLibs(application)
                 val reactHost = getDefaultReactHost(
@@ -114,7 +113,8 @@ class ReactNativeBrownfield private constructor(val reactHost: ReactHost) {
                     jsRuntimeFactory = null
                 )
                 installAndPreload(reactHost, onJSBundleLoaded)
-            } else {
+            }
+            if (!ranNow) {
                 invokeWhenJSBundleLoaded(onJSBundleLoaded)
             }
         }
