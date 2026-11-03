@@ -1,9 +1,9 @@
 const {
   createAppleAppIosSimDebugDetoxConfig,
-} = require('../brownfield-example-shared-tests/detox-rc-appleapp-ios-sim-debug.cjs');
+} = require('../shared-tests/detox-rc-appleapp-ios-sim-debug.cjs');
 const {
   getAppleAppDetoxVariant,
-} = require('../brownfield-example-shared-tests/detox-appleapp-variants.cjs');
+} = require('../shared-tests/detox-appleapp-variants.cjs');
 
 const variant = getAppleAppDetoxVariant('expo58');
 

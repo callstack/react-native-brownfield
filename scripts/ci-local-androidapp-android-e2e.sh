@@ -61,7 +61,7 @@ const {
   getAndroidEmulatorAvdName,
   getRunningEmulatorAvdName,
   listAvdNames,
-} = require('${REPO_ROOT}/apps/brownfield-example-shared-tests/detox-android-emulator-device.cjs');
+} = require('${REPO_ROOT}/apps/shared-tests/detox-android-emulator-device.cjs');
 
 const expected = getAndroidEmulatorAvdName();
 const running = getRunningEmulatorAvdName();
@@ -82,7 +82,7 @@ start_detox_emulator() {
 
   echo "==> Starting emulator: ${avd}"
   nohup emulator -avd "${avd}" -no-boot-anim -no-snapshot-load >/tmp/detox-emulator.log 2>&1 &
-  bash "${REPO_ROOT}/apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh"
+  bash "${REPO_ROOT}/apps/shared-tests/scripts/prepare-android-emulator-for-detox.sh"
 }
 
 ensure_android_emulator() {
@@ -114,7 +114,7 @@ ensure_android_emulator() {
 
 resolve_variant() {
   node <<NODE
-const { getAndroidAppDetoxVariant } = require('${REPO_ROOT}/apps/brownfield-example-shared-tests/detox-androidapp-variants.cjs');
+const { getAndroidAppDetoxVariant } = require('${REPO_ROOT}/apps/shared-tests/detox-androidapp-variants.cjs');
 const variant = getAndroidAppDetoxVariant('${VARIANT}');
 console.log([
   variant.rnAppDir,
@@ -184,7 +184,7 @@ if [[ "${BUILD_ONLY}" == "false" ]]; then
   ensure_android_emulator
 
   echo "==> Prepare Android emulator for Detox"
-  bash "${REPO_ROOT}/apps/brownfield-example-shared-tests/scripts/prepare-android-emulator-for-detox.sh"
+  bash "${REPO_ROOT}/apps/shared-tests/scripts/prepare-android-emulator-for-detox.sh"
 
   echo "==> Detox test (AndroidApp ${VARIANT}, emulator — Metro not required)"
   (cd "${ANDROID_APP_PATH}" && yarn "${E2E_TEST_SCRIPT}")

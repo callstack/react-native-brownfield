@@ -4,10 +4,10 @@ import { AppRegistry } from 'react-native';
 import {
   syncBrownfieldE2EModeFromRootProps,
   type BrownfieldRootProps,
-} from '@callstack/brownfield-example-shared-tests/runtime';
+} from '@callstack/shared-runtime';
 
 import RNApp from './RNApp';
-import { useMarkFullyDisplayed } from './src/hooks/use-mark-fully-displayed';
+import { useMarkFullyDisplayed } from '@callstack/shared-runtime/useMarkFullyDisplayed';
 
 function App(
   props: BrownfieldRootProps & { brownfieldPresentationID?: string }

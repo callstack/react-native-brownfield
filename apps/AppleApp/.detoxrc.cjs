@@ -1,6 +1,6 @@
 const {
   createAppleAppIosSimDebugDetoxConfig,
-} = require('../brownfield-example-shared-tests/detox-rc-appleapp-ios-sim-debug.cjs');
+} = require('../shared-tests/detox-rc-appleapp-ios-sim-debug.cjs');
 
 /** @type {import('detox').DetoxConfig} */
 module.exports = createAppleAppIosSimDebugDetoxConfig({

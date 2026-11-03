@@ -1873,7 +1873,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-android-app@workspace:apps/AndroidApp"
   dependencies:
-    "@callstack/brownfield-example-shared-tests": "workspace:^"
+    "@callstack/shared-tests": "workspace:^"
     detox: "npm:^20.27.0"
     jest: "npm:^29.7.0"
   languageName: unknown
@@ -1883,11 +1883,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-expo-app-57@workspace:apps/ExpoApp57"
   dependencies:
-    "@callstack/brownfield-example-shared-tests": "workspace:^"
+    "@babel/core": "npm:^7.29.6"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
+    "@callstack/shared-runtime": "workspace:^"
+    "@callstack/shared-tests": "workspace:^"
     "@expo/ui": "npm:~57.0.1"
+    "@react-native/jest-preset": "npm:0.86.0"
+    "@testing-library/react-native": "npm:^13.3.3"
+    "@types/jest": "npm:29.5.14"
     "@types/react": "npm:~19.2.2"
     eslint: "npm:~9.25.0"
     eslint-config-expo: "npm:~57.0.0"
@@ -1905,6 +1910,8 @@ __metadata:
     expo-system-ui: "npm:~57.0.0"
     expo-updates: "npm:^57.0.6"
     expo-web-browser: "npm:~57.0.0"
+    jest: "npm:^29.7.0"
+    jest-expo: "npm:~57.0.1"
     lottie-react-native: "npm:~7.3.8"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
@@ -1915,6 +1922,7 @@ __metadata:
     react-native-screens: "npm:4.25.2"
     react-native-web: "npm:~0.21.0"
     react-native-worklets: "npm:0.10.0"
+    react-test-renderer: "npm:19.2.3"
     typescript: "npm:~6.0.3"
   languageName: unknown
   linkType: soft
@@ -1924,10 +1932,11 @@ __metadata:
   resolution: "@callstack/brownfield-example-expo-app-58@workspace:apps/ExpoApp58"
   dependencies:
     "@babel/core": "npm:^7.29.6"
-    "@callstack/brownfield-example-shared-tests": "workspace:^"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
+    "@callstack/shared-runtime": "workspace:^"
+    "@callstack/shared-tests": "workspace:^"
     "@react-native/jest-preset": "npm:0.88.0-rc.1"
     "@react-native/metro-config": "npm:0.88.0-rc.1"
     "@testing-library/react-native": "npm:^13.3.3"
@@ -1970,7 +1979,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@callstack/brownfield-example-ios-app@workspace:apps/AppleApp"
   dependencies:
-    "@callstack/brownfield-example-shared-tests": "workspace:^"
+    "@callstack/shared-tests": "workspace:^"
     "@rock-js/tools": "npm:^0.13.5"
     detox: "npm:^20.27.0"
     jest: "npm:^29.7.0"
@@ -1984,10 +1993,11 @@ __metadata:
     "@babel/core": "npm:^7.29.6"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
-    "@callstack/brownfield-example-shared-tests": "workspace:^"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
+    "@callstack/shared-runtime": "workspace:^"
+    "@callstack/shared-tests": "workspace:^"
     "@react-native-community/cli": "npm:20.2.0"
     "@react-native-community/cli-platform-android": "npm:20.2.0"
     "@react-native-community/cli-platform-ios": "npm:20.2.0"
@@ -2013,25 +2023,6 @@ __metadata:
     react-native-screens: "npm:^4.27.0"
     react-test-renderer: "npm:19.2.3"
     typescript: "npm:^5.9.3"
-  languageName: unknown
-  linkType: soft
-
-"@callstack/brownfield-example-shared-tests@workspace:^, @callstack/brownfield-example-shared-tests@workspace:apps/brownfield-example-shared-tests":
-  version: 0.0.0-use.local
-  resolution: "@callstack/brownfield-example-shared-tests@workspace:apps/brownfield-example-shared-tests"
-  dependencies:
-    "@babel/runtime": "npm:^7.25.0"
-    "@callstack/brownfield-navigation": "workspace:^"
-    "@callstack/react-native-brownfield": "workspace:^"
-    "@testing-library/react-native": "npm:^13.3.3"
-    "@types/jest": "npm:^30.0.0"
-    "@types/react": "npm:^19.1.1"
-    typescript: "npm:5.9.3"
-  peerDependencies:
-    "@testing-library/react-native": ">=12"
-    react: ">=18"
-    react-native: ">=0.73"
-    react-test-renderer: ">=18"
   languageName: unknown
   linkType: soft
 
@@ -2200,6 +2191,74 @@ __metadata:
   checksum: 10/7c8486cb3132b21d0ccee7a4efaba059528044f2c3d679a6cc8bcf0905f3948986d905f96a4fcf6aa07efa441b559f6fc00ddf461f23a89eec52b0d41b7602f3
   languageName: node
   linkType: hard
+
+"@callstack/shared-runtime@workspace:^, @callstack/shared-runtime@workspace:apps/shared-runtime":
+  version: 0.0.0-use.local
+  resolution: "@callstack/shared-runtime@workspace:apps/shared-runtime"
+  dependencies:
+    "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-navigation": "workspace:^"
+    "@callstack/brownie": "workspace:^"
+    "@callstack/react-native-brownfield": "workspace:^"
+    "@types/react": "npm:^19.1.1"
+    eslint: "npm:^9.39.3"
+    typescript: "npm:5.9.3"
+  peerDependencies:
+    expo: "*"
+    expo-device: "*"
+    expo-image: "*"
+    expo-router: "*"
+    expo-symbols: "*"
+    expo-updates: "*"
+    expo-web-browser: "*"
+    react: ">=18"
+    react-native: ">=0.73"
+    react-native-reanimated: "*"
+    react-native-safe-area-context: "*"
+    react-native-worklets: "*"
+  peerDependenciesMeta:
+    expo:
+      optional: true
+    expo-device:
+      optional: true
+    expo-image:
+      optional: true
+    expo-router:
+      optional: true
+    expo-symbols:
+      optional: true
+    expo-updates:
+      optional: true
+    expo-web-browser:
+      optional: true
+    react-native-reanimated:
+      optional: true
+    react-native-safe-area-context:
+      optional: true
+    react-native-worklets:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@callstack/shared-tests@workspace:^, @callstack/shared-tests@workspace:apps/shared-tests":
+  version: 0.0.0-use.local
+  resolution: "@callstack/shared-tests@workspace:apps/shared-tests"
+  dependencies:
+    "@babel/runtime": "npm:^7.25.0"
+    "@callstack/brownfield-navigation": "workspace:^"
+    "@callstack/react-native-brownfield": "workspace:^"
+    "@callstack/shared-runtime": "workspace:^"
+    "@testing-library/react-native": "npm:^13.3.3"
+    "@types/jest": "npm:^30.0.0"
+    "@types/react": "npm:^19.1.1"
+    typescript: "npm:5.9.3"
+  peerDependencies:
+    "@testing-library/react-native": ">=12"
+    react: ">=18"
+    react-native: ">=0.73"
+    react-test-renderer: ">=18"
+  languageName: unknown
+  linkType: soft
 
 "@changesets/apply-release-plan@npm:^8.0.0":
   version: 8.0.0
@@ -6199,6 +6258,21 @@ __metadata:
   version: 0.88.0-rc.1
   resolution: "@react-native/gradle-plugin@npm:0.88.0-rc.1"
   checksum: 10/3e038fccd0da7a121ee87d01a6092632eae55bd66f141da081de1bb4ff9709965ac09183813c57488090cd75e023ce0518e546cf6124ef6bffc32e005a32ed0f
+  languageName: node
+  linkType: hard
+
+"@react-native/jest-preset@npm:0.86.0":
+  version: 0.86.0
+  resolution: "@react-native/jest-preset@npm:0.86.0"
+  dependencies:
+    "@jest/create-cache-key-function": "npm:^29.7.0"
+    "@react-native/js-polyfills": "npm:0.86.0"
+    babel-jest: "npm:^29.7.0"
+    jest-environment-node: "npm:^29.7.0"
+    regenerator-runtime: "npm:^0.13.2"
+  peerDependencies:
+    react: ^19.2.3
+  checksum: 10/4dbb2a000da21753203dbaa5dd37224add83463ee46be1ac120974a4b1dfd836cf91831921960699efcf4508eb191707fba3b2d38924367cd2d77635542c1620
   languageName: node
   linkType: hard
 
@@ -15067,6 +15141,38 @@ __metadata:
     jest-mock: "npm:^29.7.0"
     jest-util: "npm:^29.7.0"
   checksum: 10/9cf7045adf2307cc93aed2f8488942e39388bff47ec1df149a997c6f714bfc66b2056768973770d3f8b1bf47396c19aa564877eb10ec978b952c6018ed1bd637
+  languageName: node
+  linkType: hard
+
+"jest-expo@npm:~57.0.1":
+  version: 57.0.6
+  resolution: "jest-expo@npm:57.0.6"
+  dependencies:
+    "@jest/create-cache-key-function": "npm:^29.2.1"
+    "@jest/globals": "npm:^29.2.1"
+    babel-jest: "npm:^29.2.1"
+    jest-environment-jsdom: "npm:^29.2.1"
+    jest-snapshot: "npm:^29.2.1"
+    jest-watch-select-projects: "npm:^2.0.0"
+    jest-watch-typeahead: "npm:2.2.1"
+    json5: "npm:^2.2.3"
+    lodash: "npm:^4.17.19"
+    react-test-renderer: "npm:19.2.3"
+    server-only: "npm:^0.0.1"
+    stacktrace-js: "npm:^2.0.2"
+  peerDependencies:
+    "@react-native/jest-preset": ^0.86.3
+    expo: "*"
+    react-native: "*"
+    react-server-dom-webpack: ~19.0.4 || ~19.1.5 || ~19.2.4
+  peerDependenciesMeta:
+    expo:
+      optional: true
+    react-server-dom-webpack:
+      optional: true
+  bin:
+    jest: bin/jest.js
+  checksum: 10/502bb8ff46605e4991cd64752a95e864da567b86d27912e6e3cb1861b98baeee4d292bfc09b6687c1a1e0a48e7d798cebab4b071f1947bb697e067b1ff791844
   languageName: node
   linkType: hard
 

@@ -147,7 +147,7 @@ Root scripts run from the repository root with `yarn <script>`. Scripts marked _
 - `lint` - runs `lint` in all workspaces _[Turbo]_
 - `typecheck` - runs `typecheck` in all workspaces _[Turbo]_
 - `test:packages` - runs `test` in the workspaces under `packages/` _[Turbo]_
-- `test:apps` - runs `test` in the workspaces under `apps/`, including the Node test suite in `apps/brownfield-example-shared-tests` _[Turbo]_
+- `test:apps` - runs `test` in the workspaces under `apps/`, including the Node test suite in `apps/shared-tests` _[Turbo]_
 - `test:scripts` - runs the Node test runner on `scripts/__tests__/**/*.test.ts`
 
 ### Brownfield Gradle plugin
@@ -266,7 +266,9 @@ AppleApp now derives its native shell label from target build settings and uses 
 
 ## Tests
 
-The React Native example apps share Jest utilities and test suites from `apps/brownfield-example-shared-tests`. Tests exercise integration with `@callstack/react-native-brownfield`, `@callstack/brownfield-navigation`, and `@callstack/brownie` as used in each demo.
+Runtime code shared by the demo apps lives in [`apps/shared-runtime`](apps/shared-runtime/README.md). Keep test-only imports out of that package.
+
+The React Native example apps share Jest utilities and test suites from `apps/shared-tests`. Tests exercise integration with `@callstack/react-native-brownfield`, `@callstack/brownfield-navigation`, and `@callstack/brownie` as used in each demo.
 
 From the repository root:
 
@@ -280,14 +282,15 @@ Per example app (run from the repo root):
 | --------------------------------------------------------------- | --------------------------------- |
 | `yarn workspace @callstack/brownfield-example-rn-app test`      | Plain React Native (`apps/RNApp`) |
 | `yarn workspace @callstack/brownfield-example-expo-app-58 test` | Expo SDK 58 (`apps/ExpoApp58`)    |
+| `yarn workspace @callstack/brownfield-example-expo-app-57 test` | Expo SDK 57 (`apps/ExpoApp57`)    |
 
-Package-level scripts (`yarn test` inside `apps/RNApp` or `apps/ExpoApp58`) invoke Jest with each app’s `jest.config.js`.
+Package-level scripts (`yarn test` inside `apps/RNApp`, `apps/ExpoApp57`, or `apps/ExpoApp58`) invoke Jest with each app’s `jest.config.js`.
 
 The native-only sample apps (`apps/AppleApp`, `apps/AndroidApp`) use their platform test runners (Xcode / Gradle), not Jest.
 
 ## E2E tests (Detox)
 
-End-to-end tests use [Detox](https://wix.github.io/Detox/) on the iOS Simulator and Android emulator. Shared specs and helpers live in `apps/brownfield-example-shared-tests/e2e/`; each app wires them through its own `.detoxrc*.cjs` and `e2e/jest.config*.cjs`.
+End-to-end tests use [Detox](https://wix.github.io/Detox/) on the iOS Simulator and Android emulator. Shared specs and helpers live in `apps/shared-tests/e2e/`; each app wires them through its own `.detoxrc*.cjs` and `e2e/jest.config*.cjs`.
 
 E2E runs without Metro: release/debug host builds load the JS bundle embedded in the packaged brownfield artifact so the app matches CI.
 
@@ -369,4 +372,4 @@ Host-app scripts run `yarn install`, `yarn build`, brownfield codegen, `expo pre
 
 ### `e2e-artifacts/`
 
-Detox writes failure diagnostics under `<app>/e2e-artifacts/` (configured in `apps/brownfield-example-shared-tests/detox-artifacts-config.cjs`). Each run creates a timestamped subfolder, e.g. `e2e-artifacts/ios.sim.debug.<TIMESTAMP>/`.
+Detox writes failure diagnostics under `<app>/e2e-artifacts/` (configured in `apps/shared-tests/detox-artifacts-config.cjs`). Each run creates a timestamped subfolder, e.g. `e2e-artifacts/ios.sim.debug.<TIMESTAMP>/`.

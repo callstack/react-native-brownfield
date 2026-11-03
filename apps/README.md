@@ -15,3 +15,10 @@ This directory contains demo projects showcasing the usage of the `react-native-
   - `Brownfield Apple App (ExpoApp57)` — uses the artifact from `ExpoApp57` (scheme **Brownfield Apple App Expo 57**, configuration `Release`)
   - `Brownfield Apple App (ExpoAppPreview)` — uses the artifact from `ExpoAppPreview` (scheme **Brownfield Apple App Expo Preview**, configuration `Release`)
   From `apps/AppleApp`, run `yarn build:example:ios-consumer:vanilla`, `yarn build:example:ios-consumer:expo58`, `yarn build:example:ios-consumer:expo57`, or `yarn build:example:ios-consumer:expopreview` to copy XCFrameworks into `package/` and build the matching target. `yarn build:example:ios-consumer:expo` is an alias for `expo57`.
+
+## Shared JavaScript
+
+`shared-runtime` contains the demo runtime used by RNApp and both Expo apps.
+`shared-tests` contains Jest suites, setup, and Detox helpers. See
+[shared-runtime/README.md](shared-runtime/README.md) for the package boundary and
+what stays local to each app.

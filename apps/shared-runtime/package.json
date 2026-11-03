@@ -1,0 +1,79 @@
+{
+  "name": "@callstack/shared-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Runtime code shared by RNApp, ExpoApp57 and ExpoApp58.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./e2eTestIds": "./src/e2eTestIds.ts",
+    "./counter": "./src/components/counter.tsx",
+    "./expo/RNApp": "./src/expo/RNApp.tsx",
+    "./expo/app/layout": "./src/expo/app/layout.tsx",
+    "./expo/app/home": "./src/expo/app/home.tsx",
+    "./expo/app/explore": "./src/expo/app/explore.tsx",
+    "./expo/app/postMessage": "./src/expo/app/postMessage.tsx",
+    "./useMarkFullyDisplayed": "./src/useMarkFullyDisplayed.ts"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "expo-device": "*",
+    "expo-image": "*",
+    "expo-router": "*",
+    "expo-symbols": "*",
+    "expo-updates": "*",
+    "expo-web-browser": "*",
+    "react": ">=18",
+    "react-native": ">=0.73",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-worklets": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo": {
+      "optional": true
+    },
+    "expo-device": {
+      "optional": true
+    },
+    "expo-image": {
+      "optional": true
+    },
+    "expo-router": {
+      "optional": true
+    },
+    "expo-symbols": {
+      "optional": true
+    },
+    "expo-updates": {
+      "optional": true
+    },
+    "expo-web-browser": {
+      "optional": true
+    },
+    "react-native-reanimated": {
+      "optional": true
+    },
+    "react-native-safe-area-context": {
+      "optional": true
+    },
+    "react-native-worklets": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@callstack/brownfield-navigation": "workspace:^",
+    "@callstack/brownie": "workspace:^",
+    "@callstack/react-native-brownfield": "workspace:^",
+    "@types/react": "^19.1.1",
+    "eslint": "^9.39.3",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.25.0"
+  }
+}

@@ -9,7 +9,12 @@
       "@/assets/*": [
         "./assets/*"
       ]
-    }
+    },
+    "preserveSymlinks": true,
+    "types": [
+      "expo/types",
+      "jest"
+    ]
   },
   "include": [
     "**/*.ts",

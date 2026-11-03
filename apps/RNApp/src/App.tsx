@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import {
   syncBrownfieldE2EModeFromRootProps,
   type BrownfieldRootProps,
-} from '@callstack/brownfield-example-shared-tests/runtime';
+} from '@callstack/shared-runtime';
 
 import { HomeScreen } from './HomeScreen';
 import { NativeOsVersionLabelContext } from './nativeHostContext';

@@ -10,14 +10,14 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ReactNativeBrownfield from '@callstack/react-native-brownfield';
-import { brownfieldE2ETestIds } from '@callstack/brownfield-example-shared-tests/e2eTestIds';
+import { brownfieldE2ETestIds } from '@callstack/shared-runtime/e2eTestIds';
 import BrownfieldNavigation from '@callstack/brownfield-navigation';
 
 import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
-import Counter from './components/counter';
+import Counter from '@callstack/shared-runtime/counter';
 import { useNativeOsVersionLabel } from './nativeHostContext';
-import { useMarkFullyDisplayed } from './hooks/useMarkFullyDisplayed';
+import { useMarkFullyDisplayed } from '@callstack/shared-runtime/useMarkFullyDisplayed';
 
 interface Message {
   id: string;

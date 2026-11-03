@@ -1,19 +1,16 @@
 const path = require('node:path');
 const {
   createDetoxJestConfig,
-} = require('../../brownfield-example-shared-tests/e2e/createDetoxJestConfig.cjs');
+} = require('../../shared-tests/e2e/createDetoxJestConfig.cjs');
 const {
   getAppleAppDetoxVariant,
-} = require('../../brownfield-example-shared-tests/detox-appleapp-variants.cjs');
+} = require('../../shared-tests/detox-appleapp-variants.cjs');
 
 const variant = getAppleAppDetoxVariant('expo57');
 
 module.exports = createDetoxJestConfig({
   e2eDir: __dirname,
   testMatch: [
-    path.join(
-      __dirname,
-      `../../brownfield-example-shared-tests/e2e/${variant.e2eTestFile}`
-    ),
+    path.join(__dirname, `../../shared-tests/e2e/${variant.e2eTestFile}`),
   ],
 });
