@@ -1,5 +1,17 @@
 # @callstack/react-native-brownfield
 
+## 6.0.2
+
+### Patch Changes
+
+- [#512](https://github.com/callstack/react-native-brownfield/pull/512) [`520811c`](https://github.com/callstack/react-native-brownfield/commit/520811c47a122cacd1ec15f1b064ad08d699eebb) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - fix: package classes from libraries' local jars (`libs/*.jar`) into the Android AAR; previously host apps crashed with NoClassDefFoundError. If your app also has those classes, because it added the jar itself as a workaround or depends on a library that the jar bundles, the build now fails with duplicate classes: remove the app's copy
+
+- [#513](https://github.com/callstack/react-native-brownfield/pull/513) [`f3dbbd1`](https://github.com/callstack/react-native-brownfield/commit/f3dbbd1c2579f905a358faac0ad1677b3740cebc) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - fix: keep the resources of every library embedded in the Android AAR; previously only one library's `res/values` survived and host apps failed at resource linking. As in a regular app, the module's own `res` and `resValue`s win over a library's, and when two libraries define the same resource the first one wins (previously the last one won for files such as drawables)
+
+- [#503](https://github.com/callstack/react-native-brownfield/pull/503) [`6a258da`](https://github.com/callstack/react-native-brownfield/commit/6a258da42f2bd2cbb112f56948108323aeba74d9) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - `ReactNativeBrownfield.onMessage` no longer calls the callback a second time, with the raw message text, when the callback throws. The error now propagates instead of being swallowed.
+- Updated dependencies []:
+  - @callstack/brownfield-cli@6.0.2
+
 ## 6.0.1
 
 ### Patch Changes
