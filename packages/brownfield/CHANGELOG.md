@@ -1,5 +1,12 @@
 # brownfield
 
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/brownfield-cli@6.0.2
+
 ## 6.0.1
 
 ### Patch Changes
