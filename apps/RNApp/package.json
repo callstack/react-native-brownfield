@@ -17,9 +17,10 @@
     "e2e:test:ios": "detox test --configuration ios.sim.debug",
     "ci:local:e2e:ios": "bash ../../scripts/ci-local-rnapp-ios-e2e.sh",
     "codegen": "brownfield codegen",
-    "codegen:navigation": "brownfield navigation:codegen brownfield.navigation.ts"
+    "codegen:navigation": "yarn workspace @callstack/brownfield-example-shared codegen:navigation"
   },
   "dependencies": {
+    "@callstack/brownfield-example-shared": "workspace:^",
     "@callstack/brownfield-example-shared-tests": "workspace:^",
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",

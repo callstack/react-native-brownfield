@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Local-only Detox E2E for apps/AndroidApp (mirrors CI android-androidapp-vanilla / expo58 / expo57).
+# Local-only Detox E2E for apps/AndroidApp (mirrors CI android-androidapp-vanilla / expo58 / expo57;
+# the rock variant is local-only, CI android-androidapp-rock only builds).
 #
 # Usage (from repo root):
 #   yarn ci:local:androidapp:e2e:android
+#   yarn ci:local:androidapp:e2e:android:rock
 #   yarn ci:local:androidapp:e2e:android:expo58
 #   yarn ci:local:androidapp:e2e:android:expo57
+#   yarn ci:local:androidapp:e2e:android --variant rock
 #   yarn ci:local:androidapp:e2e:android --variant expo58
 #   yarn ci:local:androidapp:e2e:android --variant expo57
 #   yarn ci:local:androidapp:e2e:android --skip-install
@@ -32,7 +35,7 @@ while [[ $# -gt 0 ]]; do
     --) shift; break ;;
     --variant=*) VARIANT="${1#*=}"; shift ;;
     --variant)
-      VARIANT="${2:?--variant requires a value (vanilla, expo58, or expo57)}"
+      VARIANT="${2:?--variant requires a value (vanilla, rock, expo58, or expo57)}"
       shift 2
       ;;
     --avd=*) DETOX_AVD="${1#*=}"; shift ;;
@@ -45,7 +48,7 @@ while [[ $# -gt 0 ]]; do
     --rebuild) REBUILD_ONLY=true; SKIP_INSTALL=true; shift ;;
     --build-only) BUILD_ONLY=true; shift ;;
     -h|--help)
-      sed -n '2,17p' "$0"
+      sed -n '2,20p' "$0"
       exit 0
       ;;
     *)
