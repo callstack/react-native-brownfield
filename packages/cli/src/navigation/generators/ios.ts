@@ -16,6 +16,13 @@ const TS_TO_SWIFT_TYPE: Record<string, string> = {
   Object: '[String: Any]',
 };
 
+/**
+ * Optional `number` and `boolean` values are boxed in `NSNumber`, both in the
+ * React Native codegen spec and because Swift `Double?` and `Bool?` can't be
+ * represented in an `@objc` protocol.
+ */
+const BOXED_OPTIONAL_TS_TYPES = new Set(['number', 'boolean']);
+
 interface ObjCTypeMappingOptions {
   modelTypeNames?: string[];
 }
@@ -31,6 +38,10 @@ function mapTsTypeToObjC(
 
   if (options.modelTypeNames?.includes(tsType)) {
     return nullable ? 'NSDictionary * _Nullable' : 'NSDictionary *';
+  }
+
+  if (nullable && BOXED_OPTIONAL_TS_TYPES.has(tsType)) {
+    return 'NSNumber * _Nullable';
   }
 
   const mapped = TS_TO_OBJC_TYPE[tsType];
@@ -71,6 +82,10 @@ function mapTsTypeToSwift(
   if (tsType.startsWith('Promise<')) {
     const inner = tsType.slice(8, -1);
     return mapTsTypeToSwift(inner, optional, options);
+  }
+
+  if (optional && BOXED_OPTIONAL_TS_TYPES.has(tsType)) {
+    return 'NSNumber?';
   }
 
   const mapped = TS_TO_SWIFT_TYPE[tsType];
