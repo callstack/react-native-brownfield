@@ -395,6 +395,63 @@ describe('createAndroidModule', () => {
     expect(buildGradle).toContain('missingDimensionStrategy("type", "alpha")');
   });
 
+  it('omits the configurations block when no dependencies are excluded', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig(),
+      rnVersion: '0.85.3',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).not.toContain(
+      'configurations.all'
+    );
+  });
+
+  it('renders excludeDependencies as Gradle excludes in the generated build.gradle', () => {
+    const androidDir = createAndroidDir();
+
+    createAndroidModule({
+      androidDir,
+      config: createConfig({
+        android: {
+          excludeDependencies: [
+            'com.caverock:androidsvg',
+            'com.example.legacy',
+          ],
+        },
+      }),
+      rnVersion: '0.85.3',
+    });
+
+    expect(readLibraryBuildGradle(androidDir)).toContain(
+      [
+        'configurations.all {',
+        '    exclude(group = "com.caverock", module = "androidsvg")',
+        '    exclude(group = "com.example.legacy")',
+        '}',
+      ].join('\n')
+    );
+  });
+
+  it.each([
+    'com.caverock:androidsvg:1.4',
+    ':androidsvg',
+    'com.caverock:',
+    'com.caverock:"androidsvg"',
+  ])('rejects the excludeDependencies entry %s', (entry) => {
+    const androidDir = createAndroidDir();
+
+    expect(() =>
+      createAndroidModule({
+        androidDir,
+        config: createConfig({ android: { excludeDependencies: [entry] } }),
+        rnVersion: '0.85.3',
+      })
+    ).toThrow(entry);
+  });
+
   it('uses api dependencies and the installed React Native Hermes artifact for newer Expo projects', () => {
     const androidDir = createAndroidDir();
     const projectRoot = path.dirname(androidDir);
@@ -478,6 +535,7 @@ HERMES_V1_VERSION_NAME=250829098.0.10
         useLocalGradlePlugin: false,
         useLocalMaven: false,
         missingDimensionStrategies: [],
+        excludeDependencies: [],
         ...(overrides.android ?? {}),
       },
     };

@@ -40,6 +40,37 @@ function renderMissingDimensionStrategyBlock(
   return `        missingDimensionStrategy(${args})`;
 }
 
+const COORDINATE_PART = /^[A-Za-z0-9._-]+$/;
+
+/**
+ * Renders `excludeDependencies` as a `configurations.all` block. The Brownfield Gradle plugin
+ * leaves anything excluded this way out of the published POM and module.json. Entries become
+ * Kotlin string literals, so anything but a plain coordinate is rejected.
+ */
+function renderExcludeDependenciesBlock(excludeDependencies: string[]): string {
+  if (excludeDependencies.length === 0) {
+    return '';
+  }
+
+  const lines = excludeDependencies.map((entry) => {
+    const parts = entry.split(':');
+    if (
+      parts.length > 2 ||
+      !parts.every((part) => COORDINATE_PART.test(part))
+    ) {
+      throw new Error(
+        `android.excludeDependencies: '${entry}' is not in the form "group:module" or "group".`
+      );
+    }
+    const [group, module] = parts;
+    return module
+      ? `    exclude(group = "${group}", module = "${module}")`
+      : `    exclude(group = "${group}")`;
+  });
+
+  return `configurations.all {\n${lines.join('\n')}\n}\n\n`;
+}
+
 export function resolveCompileSdkVersionExpression(
   config: ResolvedBrownfieldPluginConfigWithAndroid
 ): string {
@@ -154,6 +185,10 @@ export function createAndroidModule({
     android.missingDimensionStrategies
   );
 
+  const excludeDependenciesBlock = renderExcludeDependenciesBlock(
+    android.excludeDependencies
+  );
+
   // generate module files
   const files: RenderedTemplateFile[] = [
     {
@@ -171,6 +206,7 @@ export function createAndroidModule({
         '{{IS_MINIFY_ENABLED}}': minifyEnabled.toString(),
         '{{MISSING_DIMENSION_STRATEGIES}}': missingDimensionStrategiesList,
         '{{MISSING_DIMENSION_STRATEGY_BLOCK}}': missingDimensionStrategyBlock,
+        '{{EXCLUDE_DEPENDENCIES_BLOCK}}': excludeDependenciesBlock,
       }),
     },
     {

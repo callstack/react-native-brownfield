@@ -57,6 +57,13 @@
           "description": "Compile SDK version for the Android library. Defaults to 37 on Expo SDK 58 and later, otherwise 35.",
           "type": "number"
         },
+        "excludeDependencies": {
+          "description": "Dependencies to keep out of the published AAR's POM and module.json, as \"group:module\" or \"group\" for a whole group. Written as Gradle excludes into the generated module, e.g. \"com.caverock:androidsvg\".",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "extraProguardRules": {
           "description": "Extra Proguard rules appended to the default rules.",
           "items": {

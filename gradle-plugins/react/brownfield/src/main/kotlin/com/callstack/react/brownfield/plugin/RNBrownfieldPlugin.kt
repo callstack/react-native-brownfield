@@ -24,6 +24,7 @@ import com.callstack.react.brownfield.shared.PublishingMetadataInjector
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
 import com.callstack.react.brownfield.shared.dropHardExcludedDependencies
+import com.callstack.react.brownfield.shared.gradleExcludesPredicate
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
@@ -140,10 +141,12 @@ class RNBrownfieldPlugin : Plugin<Project> {
             // Coordinates that must never be published: they're embedded in the AAR, not
             // resolvable from Maven. Distinct from "superseded" coordinates, which ARE re-injected
             // (replacing a stale entry) and so must not be dropped here.
+            val gradleExcluded = gradleExcludesPredicate(project)
             val hardExcludePredicate: (String, String) -> Boolean = { groupId, artifactId ->
                 (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
                     artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId } ||
-                    expoProjects.any { it.publication?.groupId == groupId && it.publication?.artifactId == artifactId }
+                    expoProjects.any { it.publication?.groupId == groupId && it.publication?.artifactId == artifactId } ||
+                    gradleExcluded(groupId, artifactId)
             }
             dropHardExcludedDependencies(transitiveDeps, hardExcludePredicate)
 

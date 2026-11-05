@@ -47,7 +47,7 @@ reactBrownfield {
     missingDimensionStrategies = listOf({{MISSING_DIMENSION_STRATEGIES}})
 }
 
-react {
+{{EXCLUDE_DEPENDENCIES_BLOCK}}react {
     autolinkLibrariesWithApp()
 }
 
