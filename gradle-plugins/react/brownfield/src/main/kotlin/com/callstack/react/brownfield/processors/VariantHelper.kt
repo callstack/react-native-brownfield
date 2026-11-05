@@ -1,5 +1,6 @@
 package com.callstack.react.brownfield.processors
 
+import com.android.build.api.variant.LibraryVariant
 import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -37,6 +38,12 @@ object VariantHelper {
         } else {
             "release"
         }
+    }
+
+    /** RNGP's `createBundle<Variant>JsAndAssets` task in the app project for [variant]. */
+    fun getMetroBundleTaskName(variant: LibraryVariant): String {
+        val bundledAssetsVariantName = getBundledAssetsVariantName(variant.name, variant.buildType, variant.debuggable)
+        return "createBundle${bundledAssetsVariantName.capitalized()}JsAndAssets"
     }
 
     fun getExpoUpdatesResourcesTaskName(variantName: String): String {

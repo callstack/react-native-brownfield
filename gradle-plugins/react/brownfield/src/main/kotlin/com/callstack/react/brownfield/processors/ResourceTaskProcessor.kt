@@ -8,13 +8,12 @@ import com.android.ide.common.resources.MergeConsumer
 import com.android.ide.common.resources.ResourceMerger
 import com.android.ide.common.resources.ResourceMergerItem
 import com.android.ide.common.resources.ResourceSet
-import com.callstack.react.brownfield.plugin.directoryGetter
-import com.callstack.react.brownfield.plugin.metroBundleTaskName
 import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.shared.GradleILogger
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
+import com.callstack.react.brownfield.utils.directoryGetter
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -242,7 +241,7 @@ object ResourceTaskProcessor {
                 }
                 variant.sources.res?.static?.let { static -> task.moduleResDirs.from(static.map { layers -> layers.flatten() }) }
                 task.libraryOrder.set(aarLibraries.map { it.getExplodedAarRootDir().relativeTo(buildDir).invariantSeparatorsPath })
-                wireMetroResDir(task, appProject, metroBundleTaskName(variant))
+                wireMetroResDir(task, appProject, VariantHelper.getMetroBundleTaskName(variant))
                 task.dependsOn(explodeTask)
             }
 
