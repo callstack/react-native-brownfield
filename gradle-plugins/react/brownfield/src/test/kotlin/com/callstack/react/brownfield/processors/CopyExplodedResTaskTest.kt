@@ -164,6 +164,22 @@ class CopyExplodedResTaskTest {
     }
 
     @Test
+    fun `drops a library's copy of a Metro asset`() {
+        val metro = File(tempDir, "app/generated/res/react/release")
+        File(metro, "drawable-mdpi").mkdirs()
+        File(metro, "drawable-mdpi/node_modules_sdk_assets_icon.png").writeBytes(byteArrayOf(1))
+        val lib = libraryRes("flagship-sdk", "")
+        File(lib, "drawable-mdpi-v4").mkdirs()
+        File(lib, "drawable-mdpi-v4/node_modules_sdk_assets_icon.png").writeBytes(byteArrayOf(2))
+        File(lib, "drawable-mdpi-v4/sdk_only.png").writeBytes(byteArrayOf(3))
+
+        val out = runCopy(lib, moduleResDirs = listOf(metro))
+
+        assertTrue(!File(out, "drawable-mdpi-v4/node_modules_sdk_assets_icon.png").exists())
+        assertTrue(File(out, "drawable-mdpi-v4/sdk_only.png").exists())
+    }
+
+    @Test
     fun `matches the module's qualifiers with the normalized ones of an AAR`() {
         val module = File(tempDir, "module/res")
         File(module, "values-night").mkdirs()
