@@ -195,6 +195,7 @@ All file-based platform options mirror CLI flags, but they use camelCase propert
 | `android.expo.minifyEnabled`        | `boolean` | Controls `minifyEnabled` for the generated Android library build. Disabled by default.                                                   |
 | `android.expo.extraProguardRules`   | `string[]`| Additional Proguard rules appended to the generated `proguard-rules.pro`.                                                                |
 | `android.expo.useLocalMaven`        | `boolean` | Load the Brownfield Gradle plugin published to local maven instead of using from remote. Disabled by default.                                                         |
+| `android.expo.excludeDependencies` | `string[]` | Dependencies to keep out of the published AAR's POM and `module.json`, as `group:module` or `group` for a whole group. Written into the generated module as Gradle `exclude` rules. |
 
 Example:
 

@@ -113,10 +113,17 @@ export type BrownfieldExpoAndroidConfig = {
    */
   useLocalMaven?: boolean;
 
-  /**   
+  /**
    * Missing dimension strategies as dimension + flavor(s), e.g. "type, alpha".
    */
   missingDimensionStrategies?: string[];
+
+  /**
+   * Dependencies to keep out of the published AAR's POM and module.json, as
+   * "group:module" or "group" for a whole group. Written as Gradle excludes
+   * into the generated module, e.g. "com.caverock:androidsvg".
+   */
+  excludeDependencies?: string[];
 };
 
 /**

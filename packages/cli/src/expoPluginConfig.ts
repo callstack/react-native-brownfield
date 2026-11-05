@@ -28,6 +28,7 @@ export type BrownfieldPluginProps = {
     extraProguardRules?: string[];
     useLocalMaven?: boolean;
     missingDimensionStrategies?: string[];
+    excludeDependencies?: string[];
   };
 };
 
@@ -45,6 +46,7 @@ export type ResolvedBrownfieldPluginAndroidConfig = {
   extraProguardRules: string[];
   useLocalMaven: boolean;
   missingDimensionStrategies: string[];
+  excludeDependencies: string[];
 };
 
 export type ResolvedBrownfieldPluginIosConfig = {
@@ -214,6 +216,8 @@ export function resolveBrownfieldPluginConfig(
           useLocalMaven: effectiveProps.android?.useLocalMaven ?? false,
           missingDimensionStrategies:
             effectiveProps.android?.missingDimensionStrategies ?? [],
+          excludeDependencies:
+            effectiveProps.android?.excludeDependencies ?? [],
           ...(effectiveProps.android?.targetSdkVersion != null
             ? { targetSdkVersion: effectiveProps.android.targetSdkVersion }
             : {}),

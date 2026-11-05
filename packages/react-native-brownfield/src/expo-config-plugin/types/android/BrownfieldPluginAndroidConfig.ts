@@ -69,6 +69,13 @@ export interface BrownfieldPluginAndroidConfig {
    * @default []
    */
   missingDimensionStrategies?: string[];
+
+  /**
+   * Dependencies to keep out of the published AAR's POM and module.json, as
+   * "group:module" or "group" for a whole group, e.g. "com.caverock:androidsvg".
+   * @default []
+   */
+  excludeDependencies?: string[];
 }
 
 /**
