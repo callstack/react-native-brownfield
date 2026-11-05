@@ -14,7 +14,9 @@ open class Extension {
     var appProjectName = "app"
 
     /**
-     * Whether to use stripped .so files.
+     * Whether to take the .so files from the app module's stripped or unstripped native output. It
+     * does not change which .so files are embedded. AGP still strips the AAR's native libs when it
+     * packages the library.
      *
      * Default is `true`.
      */
@@ -53,6 +55,17 @@ open class Extension {
      * listOf("libdatadog-ndk.so")
      */
     var ignoreEmbeddedLibs = listOf<String>()
+
+    /**
+     * Exact .so file names, taken from the app module's native output, to embed in the AAR on top
+     * of the app's own libs and the embedded libraries' libs. Use it for a .so the host app cannot
+     * get any other way: one the app module builds or ships itself, or one from a dependency the
+     * published AAR does not declare.
+     *
+     * Provide in this format:
+     * listOf("libmmkv.so")
+     */
+    var dynamicLibs = listOf<String>()
 
     /**
      * Whether to publish embedded native modules' third-party dependencies into the generated POM

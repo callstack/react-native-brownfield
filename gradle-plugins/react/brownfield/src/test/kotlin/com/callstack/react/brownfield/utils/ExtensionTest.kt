@@ -8,4 +8,9 @@ class ExtensionTest {
     fun `experimentalIncludeTransitiveDependencies defaults to true`() {
         assertTrue(Extension().experimentalIncludeTransitiveDependencies)
     }
+
+    @Test
+    fun `dynamicLibs defaults to an empty list`() {
+        assertTrue(Extension().dynamicLibs.isEmpty())
+    }
 }
