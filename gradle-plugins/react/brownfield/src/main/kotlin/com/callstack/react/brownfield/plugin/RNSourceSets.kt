@@ -3,6 +3,7 @@ package com.callstack.react.brownfield.plugin
 import com.android.build.api.dsl.AndroidSourceSet
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.LibraryVariant
 import com.android.build.api.variant.SourceDirectories
 import com.callstack.react.brownfield.exceptions.NameSpaceNotFound
 import com.callstack.react.brownfield.processors.VariantHelper
@@ -15,6 +16,52 @@ import org.gradle.api.Task
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.Copy
 import java.io.File
+import java.lang.reflect.Method
+
+/** RNGP's `createBundle<Variant>JsAndAssets` task in the app project for [variant]. */
+internal fun metroBundleTaskName(variant: LibraryVariant): String {
+    val bundledAssetsVariantName =
+        VariantHelper.getBundledAssetsVariantName(
+            variantName = variant.name,
+            buildTypeName = variant.buildType,
+            isDebuggable = variant.debuggable,
+        )
+    return "createBundle${bundledAssetsVariantName.capitalized()}JsAndAssets"
+}
+
+/**
+ * Finds `taskName`'s `getterName()` that returns a `DirectoryProperty`. Resolving the task by name
+ * (rather than importing its class) keeps this plugin from depending on RNGP's/expo-updates'
+ * internal task types. If the task, or the property, isn't there, this fails the build with a
+ * clear message instead of silently producing an empty or stale directory.
+ */
+internal fun directoryGetter(
+    appProject: Project,
+    taskName: String,
+    getterName: String,
+): Method {
+    val task =
+        appProject.tasks.findByName(taskName)
+            ?: throw GradleException(
+                "brownfield: expected task '$taskName' was not found in project " +
+                    "'${appProject.path}'. Check that the plugin producing it is applied there.",
+            )
+
+    val getter =
+        runCatching { task.javaClass.getMethod(getterName) }.getOrElse {
+            throw GradleException(
+                "brownfield: task '$taskName' (${task.javaClass.name}) does not expose " +
+                    "'$getterName()'. The plugin that registers it most likely changed its " +
+                    "API; the brownfield Gradle plugin needs updating to match.",
+                it,
+            )
+        }
+
+    check(DirectoryProperty::class.java.isAssignableFrom(getter.returnType)) {
+        "brownfield: '$taskName.$getterName()' no longer returns a DirectoryProperty."
+    }
+    return getter
+}
 
 object RNSourceSets {
     private lateinit var project: Project
@@ -57,16 +104,9 @@ object RNSourceSets {
         // 2. Use the onVariants block to wire RN bundle outputs via the Variant Sources API
         componentsExtension.onVariants { variant ->
             val variantName = variant.name
-            val bundledAssetsVariantName =
-                VariantHelper.getBundledAssetsVariantName(
-                    variantName = variantName,
-                    buildTypeName = variant.buildType,
-                    isDebuggable = variant.debuggable,
-                )
-            val capitalizedBundledAssetsVariantName = bundledAssetsVariantName.capitalized()
             val appProject = getAppProject()
 
-            val jsBundleTaskName = "createBundle${capitalizedBundledAssetsVariantName}JsAndAssets"
+            val jsBundleTaskName = metroBundleTaskName(variant)
 
             /**
              * Wire the bundle task's own `jsBundleDir`/`resourcesDir` outputs as *generated*
@@ -89,12 +129,7 @@ object RNSourceSets {
 
     /**
      * Wires `taskName`'s `getterName` output (expected to be a `DirectoryProperty`) as a
-     * generated source directory for `sources`.
-     *
-     * Resolving the task by name (rather than importing its class) keeps this plugin from
-     * depending on RNGP's/expo-updates' internal task types. If the task, or its expected output
-     * property, isn't there, this fails the build immediately with a clear message instead of
-     * silently producing an empty/stale source directory.
+     * generated source directory for `sources`. See [directoryGetter] for the checks.
      */
     private fun wireGeneratedSourceDirectory(
         appProject: Project,
@@ -104,27 +139,7 @@ object RNSourceSets {
     ) {
         if (sources == null) return
 
-        val task =
-            appProject.tasks.findByName(taskName)
-                ?: throw GradleException(
-                    "brownfield: expected task '$taskName' was not found in project " +
-                        "'${appProject.path}'. Check that the plugin producing it is applied there.",
-                )
-
-        val getter =
-            runCatching { task.javaClass.getMethod(getterName) }.getOrElse {
-                throw GradleException(
-                    "brownfield: task '$taskName' (${task.javaClass.name}) does not expose " +
-                        "'$getterName()'. The plugin that registers it most likely changed its " +
-                        "API; the brownfield Gradle plugin needs updating to match.",
-                    it,
-                )
-            }
-
-        check(DirectoryProperty::class.java.isAssignableFrom(getter.returnType)) {
-            "brownfield: '$taskName.$getterName()' no longer returns a DirectoryProperty."
-        }
-
+        val getter = directoryGetter(appProject, taskName, getterName)
         val taskProvider = appProject.tasks.named(taskName)
         sources.addGeneratedSourceDirectory(taskProvider) { t -> getter.invoke(t) as DirectoryProperty }
     }
