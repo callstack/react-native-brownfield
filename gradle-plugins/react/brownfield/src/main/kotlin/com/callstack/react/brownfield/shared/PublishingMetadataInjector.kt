@@ -148,7 +148,7 @@ class PublishingMetadataInjector(private val project: Project) {
     internal fun configure(
         dependencies: VersionMediatingDependencySet,
         shouldExclude: (groupId: String, artifactId: String) -> Boolean,
-        excludes: List<GradleExclude> = emptyList(),
+        excludes: List<GradleExclude>,
     ) {
         this.dependencies = dependencies
         this.shouldExclude = shouldExclude

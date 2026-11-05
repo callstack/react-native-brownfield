@@ -27,15 +27,19 @@ class GradleExcludesTest {
         config.exclude(listOfNotNull("group" to group, module?.let { "module" to it }).toMap())
     }
 
+    private fun excluded(
+        project: Project,
+        groupId: String,
+        artifactId: String,
+    ) = gradleExcludes(project).any { it.matches(groupId, artifactId) }
+
     @Test
     fun `honors an exclude declared on every configuration`() {
         val lib = project("lib", "implementation", "releaseRuntimeClasspath")
         lib.excludeEverywhere("com.caverock", "androidsvg")
 
-        val excluded = gradleExcludesPredicate(lib)
-
-        assertTrue(excluded("com.caverock", "androidsvg"))
-        assertFalse(excluded("com.caverock", "androidsvg-aar"))
+        assertTrue(excluded(lib, "com.caverock", "androidsvg"))
+        assertFalse(excluded(lib, "com.caverock", "androidsvg-aar"))
     }
 
     @Test
@@ -43,7 +47,7 @@ class GradleExcludesTest {
         val lib = project("lib", "api")
         lib.excludeEverywhere("com.caverock")
 
-        assertTrue(gradleExcludesPredicate(lib)("com.caverock", "androidsvg-aar"))
+        assertTrue(excluded(lib, "com.caverock", "androidsvg-aar"))
     }
 
     @Test
@@ -51,7 +55,7 @@ class GradleExcludesTest {
         val lib = project("lib", "implementation", "debugRuntimeClasspath")
         lib.configurations.getByName("debugRuntimeClasspath").exclude(mapOf("group" to "com.caverock"))
 
-        assertFalse(gradleExcludesPredicate(lib)("com.caverock", "androidsvg"))
+        assertFalse(excluded(lib, "com.caverock", "androidsvg"))
     }
 
     @Test
@@ -59,7 +63,7 @@ class GradleExcludesTest {
         val lib = project("lib", "embed")
         lib.configurations.getByName("embed").exclude(mapOf("group" to "com.caverock", "module" to "androidsvg"))
 
-        assertTrue(gradleExcludesPredicate(lib)("com.caverock", "androidsvg"))
+        assertTrue(excluded(lib, "com.caverock", "androidsvg"))
     }
 
     @Test
@@ -67,11 +71,11 @@ class GradleExcludesTest {
         val lib = project("lib", "implementation", "detekt")
         lib.configurations.getByName("detekt").exclude(mapOf("group" to "org.jetbrains.kotlin"))
 
-        assertFalse(gradleExcludesPredicate(lib)("org.jetbrains.kotlin", "kotlin-stdlib"))
+        assertFalse(excluded(lib, "org.jetbrains.kotlin", "kotlin-stdlib"))
     }
 
     @Test
     fun `matches nothing without excludes`() {
-        assertFalse(gradleExcludesPredicate(project("lib", "implementation"))("com.caverock", "androidsvg"))
+        assertFalse(excluded(project("lib", "implementation"), "com.caverock", "androidsvg"))
     }
 }
