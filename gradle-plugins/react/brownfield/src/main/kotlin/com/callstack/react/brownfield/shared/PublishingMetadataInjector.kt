@@ -19,6 +19,7 @@ import org.gradle.api.publish.tasks.GenerateModuleMetadata
 internal fun mutatePomDependenciesNode(
     dependenciesNode: Node,
     dependencies: VersionMediatingDependencySet,
+    excludes: List<GradleExclude> = emptyList(),
     shouldExclude: (groupId: String, artifactId: String) -> Boolean,
 ) {
     dependenciesNode.children()
@@ -49,6 +50,21 @@ internal fun mutatePomDependenciesNode(
             childTags.forEach { (tagName, tagValue) ->
                 newDepNode.appendNode(tagName, tagValue)
             }
+            appendExclusions(newDepNode, excludes)
+        }
+    }
+}
+
+private fun appendExclusions(
+    dependencyNode: Node,
+    excludes: List<GradleExclude>,
+) {
+    if (excludes.isEmpty()) return
+    val exclusionsNode = dependencyNode.appendNode("exclusions")
+    excludes.forEach { exclude ->
+        exclusionsNode.appendNode("exclusion").apply {
+            appendNode("groupId", exclude.group ?: "*")
+            appendNode("artifactId", exclude.module ?: "*")
         }
     }
 }
@@ -69,6 +85,7 @@ internal fun resolveOrCreateDependenciesNode(root: Node): Node =
 internal fun mutateModuleJsonVariants(
     json: Map<*, *>,
     dependencies: VersionMediatingDependencySet,
+    excludes: List<GradleExclude> = emptyList(),
     shouldExclude: (groupId: String, artifactId: String) -> Boolean,
 ) {
     @Suppress("UNCHECKED_CAST")
@@ -98,6 +115,9 @@ internal fun mutateModuleJsonVariants(
                     dependencyToAdd.version?.let { version ->
                         put("version", mapOf("requires" to version))
                     }
+                    if (excludes.isNotEmpty()) {
+                        put("excludes", excludes.map { mapOf("group" to (it.group ?: "*"), "module" to (it.module ?: "*")) })
+                    }
                 },
             )
         }
@@ -116,6 +136,7 @@ internal fun mutateModuleJsonVariants(
 class PublishingMetadataInjector(private val project: Project) {
     private var dependencies = VersionMediatingDependencySet()
     private var shouldExclude: (groupId: String, artifactId: String) -> Boolean = { _, _ -> false }
+    private var excludes: List<GradleExclude> = emptyList()
     private var enabled = false
 
     init {
@@ -124,12 +145,16 @@ class PublishingMetadataInjector(private val project: Project) {
     }
 
     /** Supplies the dependencies to inject and enables injection on the hooks registered in [init]. */
-    fun configure(
+    internal fun configure(
         dependencies: VersionMediatingDependencySet,
         shouldExclude: (groupId: String, artifactId: String) -> Boolean,
+        excludes: List<GradleExclude> = emptyList(),
     ) {
         this.dependencies = dependencies
         this.shouldExclude = shouldExclude
+        // Gradle writes the module's excludes onto the dependencies it declares; these are injected
+        // later, so they need them too, or an excluded library could still arrive through one.
+        this.excludes = excludes
         this.enabled = true
     }
 
@@ -148,7 +173,7 @@ class PublishingMetadataInjector(private val project: Project) {
                     if (!moduleFile.exists()) return@forEach
 
                     val json = moduleFile.inputStream().use { JsonSlurper().parse(it) as Map<*, *> }
-                    mutateModuleJsonVariants(json, dependencies, shouldExclude)
+                    mutateModuleJsonVariants(json, dependencies, excludes, shouldExclude)
                     moduleFile.writer().use {
                         it.write(JsonOutput.prettyPrint(JsonOutput.toJson(json)))
                     }
@@ -172,7 +197,7 @@ class PublishingMetadataInjector(private val project: Project) {
 
                             val root = it.asNode()
                             val dependenciesNode = resolveOrCreateDependenciesNode(root)
-                            mutatePomDependenciesNode(dependenciesNode, dependencies, shouldExclude)
+                            mutatePomDependenciesNode(dependenciesNode, dependencies, excludes, shouldExclude)
                         }
                     }
             }

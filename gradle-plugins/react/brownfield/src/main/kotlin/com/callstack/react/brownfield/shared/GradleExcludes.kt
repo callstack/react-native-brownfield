@@ -15,11 +15,22 @@ private val PUBLISHED_CONFIG_NAMES = TRANSITIVE_DEPENDENCY_CONFIG_NAMES + "embed
  * this an excluded dependency would still be published and the host app would resolve it. `:app`'s
  * rules are not read: they describe the standalone RN app, which may drop things the host needs.
  */
+internal fun gradleExcludes(project: Project): List<GradleExclude> =
+    project.configurations
+        .filter { it.name in PUBLISHED_CONFIG_NAMES }
+        .flatMap { it.excludeRules }
+        .map { GradleExclude(it.group, it.module) }
+        .distinct()
+
 internal fun gradleExcludesPredicate(project: Project): (groupId: String, artifactId: String) -> Boolean {
-    val excludeRules = project.configurations.filter { it.name in PUBLISHED_CONFIG_NAMES }.flatMap { it.excludeRules }
-    // Gradle declares these non-null, but an exclude without a group or module leaves it null.
-    val rules = excludeRules.map { Pair<String?, String?>(it.group, it.module) }.toSet()
-    return { groupId, artifactId ->
-        rules.any { (group, module) -> (group == null || group == groupId) && (module == null || module == artifactId) }
-    }
+    val excludes = gradleExcludes(project)
+    return { groupId, artifactId -> excludes.any { it.matches(groupId, artifactId) } }
+}
+
+/** One exclude rule. Gradle types both parts as non-null, but a rule without one leaves it null. */
+internal data class GradleExclude(val group: String?, val module: String?) {
+    fun matches(
+        groupId: String,
+        artifactId: String,
+    ) = (group == null || group == groupId) && (module == null || module == artifactId)
 }

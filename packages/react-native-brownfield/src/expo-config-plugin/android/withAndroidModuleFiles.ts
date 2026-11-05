@@ -48,6 +48,12 @@ const COORDINATE_PART = /^[A-Za-z0-9._-]+$/;
  * Kotlin string literals, so anything but a plain coordinate is rejected.
  */
 function renderExcludeDependenciesBlock(excludeDependencies: string[]): string {
+  // It comes from user JSON, so the type isn't guaranteed.
+  if (!Array.isArray(excludeDependencies)) {
+    throw new Error(
+      'android.excludeDependencies must be a list of "group:module" or "group" strings.'
+    );
+  }
   if (excludeDependencies.length === 0) {
     return '';
   }

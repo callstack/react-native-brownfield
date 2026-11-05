@@ -163,6 +163,36 @@ class MutatePomDependenciesNodeTest {
 
         assertEquals(listOf("1.7.1"), versionsFor(dependenciesNode, "androidx.appcompat", "appcompat"))
     }
+
+    @Test
+    fun `writes the brownfield module's excludes onto every injected dependency`() {
+        val dependenciesNode = dependenciesNodeFrom("<project><dependencies/></project>")
+        val toInject = VersionMediatingDependencySet()
+        toInject.add(DependencyInfo("com.foo", "charts", "1.0", "compile", false))
+        val excludes = listOf(GradleExclude("com.caverock", "androidsvg"), GradleExclude("com.legacy", null))
+
+        mutatePomDependenciesNode(dependenciesNode, toInject, excludes) { _, _ -> false }
+
+        val dependency = dependenciesNode.children().filterIsInstance<groovy.util.Node>().single()
+        val exclusions =
+            ((dependency["exclusions"] as NodeList).single() as groovy.util.Node).children().filterIsInstance<groovy.util.Node>()
+        assertEquals(
+            listOf("com.caverock" to "androidsvg", "com.legacy" to "*"),
+            exclusions.map { (it["groupId"] as NodeList).text() to (it["artifactId"] as NodeList).text() },
+        )
+    }
+
+    @Test
+    fun `writes no exclusions element without excludes`() {
+        val dependenciesNode = dependenciesNodeFrom("<project><dependencies/></project>")
+        val toInject = VersionMediatingDependencySet()
+        toInject.add(DependencyInfo("com.foo", "charts", "1.0", "compile", false))
+
+        mutatePomDependenciesNode(dependenciesNode, toInject) { _, _ -> false }
+
+        val dependency = dependenciesNode.children().filterIsInstance<groovy.util.Node>().single()
+        assertTrue((dependency["exclusions"] as NodeList).isEmpty())
+    }
 }
 
 class MutateModuleJsonVariantsTest {
@@ -218,5 +248,31 @@ class MutateModuleJsonVariantsTest {
         @Suppress("UNCHECKED_CAST")
         val version = (deps.first()["version"] as? Map<String, Any>)?.get("requires")
         assertEquals("1.7.1", version)
+    }
+
+    @Test
+    fun `writes the brownfield module's excludes onto every injected dependency`() {
+        val json = jsonWithVariant(mutableListOf())
+        val toInject = VersionMediatingDependencySet()
+        toInject.add(DependencyInfo("com.foo", "charts", "1.0", "compile", false))
+        val excludes = listOf(GradleExclude("com.caverock", "androidsvg"), GradleExclude("com.legacy", null))
+
+        mutateModuleJsonVariants(json, toInject, excludes) { _, _ -> false }
+
+        assertEquals(
+            listOf(mapOf("group" to "com.caverock", "module" to "androidsvg"), mapOf("group" to "com.legacy", "module" to "*")),
+            dependenciesOf(json).single()["excludes"],
+        )
+    }
+
+    @Test
+    fun `writes no excludes field without excludes`() {
+        val json = jsonWithVariant(mutableListOf())
+        val toInject = VersionMediatingDependencySet()
+        toInject.add(DependencyInfo("com.foo", "charts", "1.0", "compile", false))
+
+        mutateModuleJsonVariants(json, toInject) { _, _ -> false }
+
+        assertNull(dependenciesOf(json).single()["excludes"])
     }
 }

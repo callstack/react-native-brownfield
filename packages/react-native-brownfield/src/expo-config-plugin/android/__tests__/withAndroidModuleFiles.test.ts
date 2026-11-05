@@ -435,6 +435,23 @@ describe('createAndroidModule', () => {
     );
   });
 
+  it('rejects an excludeDependencies value that is not a list', () => {
+    const androidDir = createAndroidDir();
+
+    expect(() =>
+      createAndroidModule({
+        androidDir,
+        config: createConfig({
+          android: {
+            excludeDependencies:
+              'com.caverock:androidsvg' as unknown as string[],
+          },
+        }),
+        rnVersion: '0.85.3',
+      })
+    ).toThrow('android.excludeDependencies must be a list');
+  });
+
   it.each([
     'com.caverock:androidsvg:1.4',
     ':androidsvg',
