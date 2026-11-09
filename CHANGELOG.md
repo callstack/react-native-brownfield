@@ -2,6 +2,30 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 6.1.0
+
+### Minor Changes
+
+- [#522](https://github.com/callstack/react-native-brownfield/pull/522) [`20776bb`](https://github.com/callstack/react-native-brownfield/commit/20776bb714c2de1e962515aa7c88235b60c7dabf) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - feat: the published POM and `module.json` now follow the brownfield module's Gradle exclude rules (`configurations.all { exclude(...) }`). Before, the plugin re-added an excluded dependency when it injected the embedded libraries' dependencies, so the host app still resolved it. The excludes are also written onto every dependency the plugin injects, so the excluded library can't arrive through one of them. On Expo, list them in `android.excludeDependencies` (as `group:module` or `group`), which the config plugin writes into the generated module.
+
+- [#520](https://github.com/callstack/react-native-brownfield/pull/520) [`b87cdff`](https://github.com/callstack/react-native-brownfield/commit/b87cdff0de1cb147289a7497973b6f191dc74134) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - fix: pick the right `.so` files for the Android AAR. With `useStrippedSoFiles = false`, the AAR now has `libappmodules.so` and `libreact_codegen_*.so`. Before this fix, those libs were missing and host apps crashed. The AAR also stops embedding the `.so` files of Maven dependencies. The host already gets those through the POM, so its build no longer fails with `2 files found with path 'lib/<abi>/<name>.so'`. If your app module builds or ships a `.so` of its own, list it in `reactBrownfield.dynamicLibs`, which is back. The build lists the `.so` files it left out in `<brownfield module>/build/reports/brownfield/<variant>/skipped-so.txt`. After upgrading, check that file: it lists the `.so` files that used to be in the AAR and now aren't.
+
+### Patch Changes
+
+- Updated dependencies [[`20776bb`](https://github.com/callstack/react-native-brownfield/commit/20776bb714c2de1e962515aa7c88235b60c7dabf)]:
+  - @callstack/brownfield-cli@6.1.0
+
+- Updated dependencies [[`520811c`](https://github.com/callstack/react-native-brownfield/commit/520811c47a122cacd1ec15f1b064ad08d699eebb), [`f3dbbd1`](https://github.com/callstack/react-native-brownfield/commit/f3dbbd1c2579f905a358faac0ad1677b3740cebc), [`b87cdff`](https://github.com/callstack/react-native-brownfield/commit/b87cdff0de1cb147289a7497973b6f191dc74134), [`20776bb`](https://github.com/callstack/react-native-brownfield/commit/20776bb714c2de1e962515aa7c88235b60c7dabf), [`58aedad`](https://github.com/callstack/react-native-brownfield/commit/58aedad94f38098424937533f2ce0b0c3df62067), [`6a258da`](https://github.com/callstack/react-native-brownfield/commit/6a258da42f2bd2cbb112f56948108323aeba74d9)]:
+  - @callstack/react-native-brownfield@6.1.0
+
+- [#512](https://github.com/callstack/react-native-brownfield/pull/512) [`520811c`](https://github.com/callstack/react-native-brownfield/commit/520811c47a122cacd1ec15f1b064ad08d699eebb) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - fix: package classes from libraries' local jars (`libs/*.jar`) into the Android AAR; previously host apps crashed with NoClassDefFoundError. If your app also has those classes, because it added the jar itself as a workaround or depends on a library that the jar bundles, the build now fails with duplicate classes: remove the app's copy
+
+- [#513](https://github.com/callstack/react-native-brownfield/pull/513) [`f3dbbd1`](https://github.com/callstack/react-native-brownfield/commit/f3dbbd1c2579f905a358faac0ad1677b3740cebc) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - fix: keep the resources of every library embedded in the Android AAR; previously only one library's `res/values` survived and host apps failed at resource linking. As in a regular app, the module's own `res` and `resValue`s win over a library's, and when two libraries define the same resource the first one wins (previously the last one won for files such as drawables)
+
+- [#521](https://github.com/callstack/react-native-brownfield/pull/521) [`58aedad`](https://github.com/callstack/react-native-brownfield/commit/58aedad94f38098424937533f2ce0b0c3df62067) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - fix: the AAR build no longer fails with duplicate resources when an embedded library ships the same drawables Metro generates for the app's bundle. Metro's copy wins.
+
+- [#503](https://github.com/callstack/react-native-brownfield/pull/503) [`6a258da`](https://github.com/callstack/react-native-brownfield/commit/6a258da42f2bd2cbb112f56948108323aeba74d9) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - `ReactNativeBrownfield.onMessage` no longer calls the callback a second time, with the raw message text, when the callback throws. The error now propagates instead of being swallowed.
+
 ## 6.0.1
 
 ### Patch Changes
