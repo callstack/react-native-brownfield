@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 6.1.0
+
+### Minor Changes
+
+- [#522](https://github.com/callstack/react-native-brownfield/pull/522) [`20776bb`](https://github.com/callstack/react-native-brownfield/commit/20776bb714c2de1e962515aa7c88235b60c7dabf) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - feat: the published POM and `module.json` now follow the brownfield module's Gradle exclude rules (`configurations.all { exclude(...) }`). Before, the plugin re-added an excluded dependency when it injected the embedded libraries' dependencies, so the host app still resolved it. The excludes are also written onto every dependency the plugin injects, so the excluded library can't arrive through one of them. On Expo, list them in `android.excludeDependencies` (as `group:module` or `group`), which the config plugin writes into the generated module.
+
 ## 6.0.1
 
 ### Patch Changes
