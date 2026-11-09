@@ -11,7 +11,9 @@ import com.android.ide.common.resources.ResourceSet
 import com.callstack.react.brownfield.shared.ExplodeAarTask
 import com.callstack.react.brownfield.shared.GradleILogger
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
+import com.callstack.react.brownfield.utils.Extension
 import com.callstack.react.brownfield.utils.capitalized
+import com.callstack.react.brownfield.utils.directoryGetter
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -198,6 +200,21 @@ private class LibraryResWriter(
     }
 }
 
+/**
+ * Some libraries commit the drawables Metro generates for their JS assets to their own `res`, and
+ * the app's bundle writes the same files to `generated/res/react`. Both end up as generated res of
+ * this module, where AGP fails on the duplicates, so Metro's copy is treated as the module's own and
+ * wins. Reading the bundle task's output also orders the copy after it, and keys the cache on it.
+ */
+internal fun wireMetroResDir(
+    task: CopyExplodedResTask,
+    appProject: Project,
+    bundleTaskName: String,
+) {
+    val getter = directoryGetter(appProject, bundleTaskName, "getResourcesDir")
+    task.moduleResDirs.from(appProject.tasks.named(bundleTaskName).flatMap { getter.invoke(it) as DirectoryProperty })
+}
+
 object ResourceTaskProcessor {
     private const val RES_VALUES_OFF_BY_DEFAULT_SINCE_AGP = 9
 
@@ -210,6 +227,7 @@ object ResourceTaskProcessor {
         val capitalized = variant.name.capitalized()
         val resDirs = aarLibraries.map { it.getResDir() }
         val buildDir = project.layout.buildDirectory.get().asFile
+        val appProject = project.rootProject.project(project.extensions.getByType(Extension::class.java).appProjectName)
         val copyResTask =
             project.tasks.register(
                 "copyExplodedResFor$capitalized",
@@ -223,6 +241,7 @@ object ResourceTaskProcessor {
                 }
                 variant.sources.res?.static?.let { static -> task.moduleResDirs.from(static.map { layers -> layers.flatten() }) }
                 task.libraryOrder.set(aarLibraries.map { it.getExplodedAarRootDir().relativeTo(buildDir).invariantSeparatorsPath })
+                wireMetroResDir(task, appProject, VariantHelper.getMetroBundleTaskName(variant))
                 task.dependsOn(explodeTask)
             }
 
