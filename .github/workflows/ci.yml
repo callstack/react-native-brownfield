@@ -105,7 +105,7 @@ jobs:
         run: yarn build
 
       - name: Generate Brownfield Navigation bindings
-        run: yarn workspace @callstack/brownfield-example-shared codegen:navigation
+        run: yarn workspace @callstack/brownfield-example-rn-app codegen:navigation
 
       - name: Lint files
         run: yarn lint
