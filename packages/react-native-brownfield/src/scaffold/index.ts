@@ -301,6 +301,7 @@ export async function scaffoldBrownfieldInRncCliProject(
         useLocalGradlePlugin: false,
         useLocalMaven: false,
         missingDimensionStrategies: [],
+        excludeDependencies: [],
       },
       ios: null,
       debug: options.debug ?? false,

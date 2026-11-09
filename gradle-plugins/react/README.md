@@ -178,6 +178,27 @@ dependencies {
 ```
 
 <hr/>
+
+The published POM and `module.json` follow the brownfield module's Gradle exclude rules. Put the exclude in the brownfield module's `build.gradle.kts`, for example when two libraries ship the same classes under different artifacts:
+
+```kts
+configurations.all {
+    exclude(group = "com.caverock", module = "androidsvg")
+}
+```
+
+The excluded dependency is left out of the published files, and is written as an exclusion on every published dependency, so the host app doesn't get it through one of them either. Use this instead of a custom task that edits the published files: the plugin rewrites them after Gradle generates them, so an earlier edit would be lost.
+
+Only `exclude` rules on the `implementation`, `api`, `runtimeOnly` and `embed` configurations count. These are not read:
+
+- excludes in `:app`: they describe the standalone React Native app, which may leave out things the host app needs
+- excludes on a variant's configuration (`debugRuntimeClasspath`): every variant publishes the same list
+- excludes on a single dependency (`implementation("x") { exclude(...) }`): they only apply under that dependency
+- `resolutionStrategy` substitutions and capability rules
+
+On Expo, prebuild regenerates the brownfield module, so list the dependencies in `brownfield.config.json` under `android.expo.excludeDependencies` (or under `android.excludeDependencies` in the plugin's options in `app.json`), as `group:module` or `group`. Prebuild writes them into the module as the `configurations.all` block above.
+
+<hr/>
 <br/>
 
 **Expo Support**
