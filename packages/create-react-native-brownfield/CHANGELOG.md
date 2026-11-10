@@ -1,5 +1,12 @@
 # @callstack/create-react-native-brownfield
 
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`66ac701`](https://github.com/callstack/react-native-brownfield/commit/66ac701d71cb3990732e701a0ab1abd40a7bd271), [`5884ce9`](https://github.com/callstack/react-native-brownfield/commit/5884ce96bcccf73de33835e7db2785aa3ab8c2a9)]:
+  - @callstack/react-native-brownfield@6.1.1
+
 ## 6.1.0
 
 ### Patch Changes

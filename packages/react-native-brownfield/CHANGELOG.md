@@ -1,5 +1,15 @@
 # @callstack/react-native-brownfield
 
+## 6.1.1
+
+### Patch Changes
+
+- [#516](https://github.com/callstack/react-native-brownfield/pull/516) [`66ac701`](https://github.com/callstack/react-native-brownfield/commit/66ac701d71cb3990732e701a0ab1abd40a7bd271) Thanks [@malopezr7](https://github.com/malopezr7)! - Android: `ReactNativeBrownfield.initialize` can now be called again after it throws. Before, a failure while loading native libraries or creating the `ReactHost` left it marked as initialized, so the next call returned without error and `ReactNativeBrownfield.shared` was never set.
+
+- [#517](https://github.com/callstack/react-native-brownfield/pull/517) [`5884ce9`](https://github.com/callstack/react-native-brownfield/commit/5884ce96bcccf73de33835e7db2785aa3ab8c2a9) Thanks [@tlq5l](https://github.com/tlq5l)! - Fix an iOS crash (`std::bad_function_call`) when native code posts a message to JS while the Brownfield module's JS emitter is still being set up. If the Brownfield module exists but its JS emitter is not ready when delivery happens, the message is dropped and a log line is written. If the module does not exist yet, the message is dropped without a log line.
+- Updated dependencies [[`a9726c1`](https://github.com/callstack/react-native-brownfield/commit/a9726c137c61fe2e59c039555a955632a5d86aec)]:
+  - @callstack/brownfield-cli@6.1.1
+
 ## 6.1.0
 
 ### Minor Changes
