@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 6.1.1
+
+### Patch Changes
+
+- [#519](https://github.com/callstack/react-native-brownfield/pull/519) [`a9726c1`](https://github.com/callstack/react-native-brownfield/commit/a9726c137c61fe2e59c039555a955632a5d86aec) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - `brownfield navigation:codegen` now generates `NSNumber` for optional `number` and `boolean` method parameters on iOS. Previously, the generated Swift delegate used `Double?` and `Bool?`, which can't be represented in an `@objc` protocol, so the iOS build failed.
+
 ## 6.1.0
 
 ### Minor Changes

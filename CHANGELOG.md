@@ -2,6 +2,22 @@
 
 _History prior to 3.7.0 is available in the per-package CHANGELOG files._
 
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`a9726c1`](https://github.com/callstack/react-native-brownfield/commit/a9726c137c61fe2e59c039555a955632a5d86aec)]:
+  - @callstack/brownfield-cli@6.1.1
+
+- [#519](https://github.com/callstack/react-native-brownfield/pull/519) [`a9726c1`](https://github.com/callstack/react-native-brownfield/commit/a9726c137c61fe2e59c039555a955632a5d86aec) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - `brownfield navigation:codegen` now generates `NSNumber` for optional `number` and `boolean` method parameters on iOS. Previously, the generated Swift delegate used `Double?` and `Bool?`, which can't be represented in an `@objc` protocol, so the iOS build failed.
+
+- Updated dependencies [[`66ac701`](https://github.com/callstack/react-native-brownfield/commit/66ac701d71cb3990732e701a0ab1abd40a7bd271), [`5884ce9`](https://github.com/callstack/react-native-brownfield/commit/5884ce96bcccf73de33835e7db2785aa3ab8c2a9)]:
+  - @callstack/react-native-brownfield@6.1.1
+
+- [#516](https://github.com/callstack/react-native-brownfield/pull/516) [`66ac701`](https://github.com/callstack/react-native-brownfield/commit/66ac701d71cb3990732e701a0ab1abd40a7bd271) Thanks [@malopezr7](https://github.com/malopezr7)! - Android: `ReactNativeBrownfield.initialize` can now be called again after it throws. Before, a failure while loading native libraries or creating the `ReactHost` left it marked as initialized, so the next call returned without error and `ReactNativeBrownfield.shared` was never set.
+
+- [#517](https://github.com/callstack/react-native-brownfield/pull/517) [`5884ce9`](https://github.com/callstack/react-native-brownfield/commit/5884ce96bcccf73de33835e7db2785aa3ab8c2a9) Thanks [@tlq5l](https://github.com/tlq5l)! - Fix an iOS crash (`std::bad_function_call`) when native code posts a message to JS while the Brownfield module's JS emitter is still being set up. If the Brownfield module exists but its JS emitter is not ready when delivery happens, the message is dropped and a log line is written. If the module does not exist yet, the message is dropped without a log line.
+
 ## 6.1.0
 
 ### Minor Changes
