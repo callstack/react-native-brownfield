@@ -261,6 +261,21 @@ describe('validateBrownfieldCLIConfig', () => {
       'Brownfield configuration has some issues:'
     );
   });
+
+  it('warns when an ios.extraSpmXcframeworks name is not a safe target identifier', () => {
+    validateBrownfieldCLIConfig({
+      ios: {
+        extraSpmXcframeworks: [
+          { name: '../Injected', path: './artifacts/Injected.xcframework' },
+        ],
+      },
+    });
+
+    expect(mockLoggerWarn).toHaveBeenCalledTimes(1);
+    expect(mockLoggerWarn.mock.calls[0]?.[0]).toContain(
+      'Brownfield configuration has some issues:'
+    );
+  });
 });
 
 describe('mergeBrownfieldConfigWithOptions', () => {

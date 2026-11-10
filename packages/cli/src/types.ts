@@ -36,6 +36,7 @@ export type BrownieConfig = {
 export type ExtraSpmXcframework = {
   /**
    * Binary target / module name used in Package.swift.
+   * @pattern ^[A-Za-z_][A-Za-z0-9_]*$
    */
   name: string;
 

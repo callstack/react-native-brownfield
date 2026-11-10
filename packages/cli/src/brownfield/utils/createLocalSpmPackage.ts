@@ -34,6 +34,11 @@ const RESERVED_FRAMEWORK_NAMES = new Set([
   ...ALL_EXPO_SUPPORT_XCFRAMEWORK_NAMES,
 ]);
 
+const SWIFT_TARGET_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const RESERVED_FRAMEWORK_NAME_KEYS = new Set(
+  [...RESERVED_FRAMEWORK_NAMES].map((name) => name.toLowerCase())
+);
+
 function requireXcframework(packageDir: string, name: string) {
   const xcframeworkPath = path.join(packageDir, `${name}.xcframework`);
 
@@ -101,6 +106,37 @@ function resolveExtraSpmXcframeworkPath(
     : path.resolve(projectRoot, entry.path);
 }
 
+function validateExtraSpmXcframeworks(
+  extraSpmXcframeworks: ExtraSpmXcframework[],
+  frameworkName?: string
+) {
+  const nameKeys = new Set<string>();
+
+  for (const entry of extraSpmXcframeworks) {
+    if (!SWIFT_TARGET_NAME_PATTERN.test(entry.name)) {
+      throw new Error(
+        `Invalid extra SPM XCFramework name "${entry.name}". Names must start with a letter or underscore and contain only letters, numbers, and underscores.`
+      );
+    }
+
+    const nameKey = entry.name.toLowerCase();
+    if (
+      RESERVED_FRAMEWORK_NAME_KEYS.has(nameKey) ||
+      nameKey === frameworkName?.toLowerCase()
+    ) {
+      throw new Error(
+        `Extra SPM XCFramework name "${entry.name}" conflicts with a generated package target.`
+      );
+    }
+
+    if (nameKeys.has(nameKey)) {
+      throw new Error(`Duplicate extra SPM XCFramework name: ${entry.name}`);
+    }
+
+    nameKeys.add(nameKey);
+  }
+}
+
 function stageExtraSpmXcframeworks({
   packageDir,
   projectRoot,
@@ -121,12 +157,12 @@ function stageExtraSpmXcframeworks({
       );
     }
 
-    const destinationPath = path.join(
-      packageDir,
-      `${entry.name}.xcframework`
-    );
+    const destinationPath = path.join(packageDir, `${entry.name}.xcframework`);
     fs.rmSync(destinationPath, { recursive: true, force: true });
-    fs.cpSync(sourcePath, destinationPath, { recursive: true });
+    fs.cpSync(fs.realpathSync(sourcePath), destinationPath, {
+      recursive: true,
+      verbatimSymlinks: true,
+    });
     stagedNames.push(entry.name);
   }
 
@@ -224,6 +260,7 @@ export function createLocalSpmPackage({
   projectRoot = process.cwd(),
   extraSpmXcframeworks = [],
 }: CreateLocalSpmPackageOptions): CreateLocalSpmPackageResult {
+  validateExtraSpmXcframeworks(extraSpmXcframeworks, frameworkName);
   const reservedFrameworkNames = new Set([
     ...RESERVED_FRAMEWORK_NAMES,
     ...extraSpmXcframeworks.map((entry) => entry.name),

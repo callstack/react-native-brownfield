@@ -63,7 +63,7 @@ If you are using the brownfield-navigation package, you will also need to embed 
 
 If you pass `--add-spm-package`, the CLI also writes `Package.swift` into the same `package/build` directory and prints the folder path in the terminal. In Xcode, use **File > Add Package Dependencies...**, click **Add Local...**, and select that `package/build` folder to consume the generated XCFrameworks as a local Swift package instead of dragging them in manually.
 
-Projects that need the host to import additional XCFrameworks beside the packaged RN framework can declare them in `brownfield.config.js` as `ios.extraSpmXcframeworks`. Those entries are copied into the generated local SPM package as extra binary targets when `--add-spm-package` is set.
+Projects that need the host to import additional XCFrameworks beside the packaged RN framework can declare them in `brownfield.config.js` as `ios.extraSpmXcframeworks`. Those entries are copied into the generated local SPM package as extra binary targets when `--add-spm-package` is set. Each `name` must be a unique Swift target identifier (letters, numbers, and underscores, without a leading number) and must not conflict with a generated package target.
 
 ## Android
 
