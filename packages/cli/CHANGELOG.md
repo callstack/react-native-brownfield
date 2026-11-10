@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 6.2.0
+
+### Minor Changes
+
+- [#514](https://github.com/callstack/react-native-brownfield/pull/514) [`6517ec5`](https://github.com/callstack/react-native-brownfield/commit/6517ec5666269007f10c28efb7a748beba476998) Thanks [@DanielPotorCK](https://github.com/DanielPotorCK)! - Allow `ios.extraSpmXcframeworks` in brownfield config so `package:ios --add-spm-package` can include project-declared XCFrameworks as additional SPM binary targets.
+
 ## 6.1.1
 
 ### Patch Changes
