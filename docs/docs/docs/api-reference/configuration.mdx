@@ -225,6 +225,7 @@ Example:
 | `ios.newArch`            | `boolean`  | Controls React Native new architecture support. Set `false` to match `--no-new-arch`.                                  |
 | `ios.usePrebuiltRnCore`  | `boolean`  | Controls whether iOS packaging uses React Native Apple prebuilts. Omit it to keep Brownfield's version-aware defaults. |
 | `ios.addSpmPackage`      | `boolean`  | Generates a local Swift Package Manager manifest next to the packaged XCFramework outputs.                             |
+| `ios.extraSpmXcframeworks` | `{ name: string, path: string }[]` | Extra XCFrameworks copied into the generated local SPM package as binary targets. Only used when `--add-spm-package` is set. Defaults to `[]`. |
 
 #### iOS Expo keys
 
