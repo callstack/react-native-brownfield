@@ -303,6 +303,33 @@ describe('navigation code generators', () => {
     );
   });
 
+  it('boxes optional number and boolean parameters in NSNumber on iOS', () => {
+    const optionalPrimitiveMethods: MethodSignature[] = [
+      {
+        name: 'openFeed',
+        params: [
+          { name: 'page', type: 'number', optional: true },
+          { name: 'animated', type: 'boolean', optional: true },
+          { name: 'limit', type: 'number', optional: false },
+        ],
+        returnType: 'void',
+        isAsync: false,
+      },
+    ];
+
+    const swiftDelegate = generateSwiftDelegate(optionalPrimitiveMethods);
+    const objcImplementation = generateObjCImplementation(
+      optionalPrimitiveMethods
+    );
+
+    expect(swiftDelegate).toContain(
+      '@objc func openFeed(_ page: NSNumber?, animated animated: NSNumber?, limit limit: Double)'
+    );
+    expect(objcImplementation).toContain(
+      '- (void)openFeed:(NSNumber * _Nullable)page animated:(NSNumber * _Nullable)animated limit:(double)limit'
+    );
+  });
+
   it('generates iOS async bindings that forward to the delegate instead of the not_implemented stub', () => {
     const swiftDelegate = generateSwiftDelegate(asyncMethods);
     const objcImplementation = generateObjCImplementation(asyncMethods);
