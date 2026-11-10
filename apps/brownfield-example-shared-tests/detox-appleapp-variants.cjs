@@ -5,7 +5,7 @@ const path = require('node:path');
 /** @typedef {import('detox').DetoxConfig} DetoxConfig */
 
 /**
- * AppleApp Detox / E2E settings per packaged RN host (RNApp, ExpoApp57, ExpoApp58).
+ * AppleApp Detox / E2E settings per packaged RN host (RNApp, RockApp, ExpoApp57, ExpoApp58).
  *
  * @type {Record<string, {
  *   xcframeworkApp: string,
@@ -32,6 +32,18 @@ const appleAppDetoxVariants = {
     e2eTestScript: 'e2e:test:ios',
     e2eTestFile: 'appleAppBrownfield.e2e.js',
     nativeGreetingPattern: /Hello native iOS Vanilla/,
+  },
+  rock: {
+    xcframeworkApp: 'RockApp',
+    scheme: 'Brownfield Apple App Rock',
+    configuration: 'Debug Rock',
+    appBinaryName: 'Brownfield Apple App (RNApp)',
+    detoxConfiguration: 'ios.sim.debug.rock',
+    detoxRcFile: '.detoxrc.rock.cjs',
+    e2eBuildScript: 'e2e:build:ios:rock',
+    e2eTestScript: 'e2e:test:ios:rock',
+    e2eTestFile: 'appleAppBrownfield.e2e.js',
+    nativeGreetingPattern: /Hello native iOS Rock/,
   },
   expo58: {
     xcframeworkApp: 'ExpoApp58',
@@ -60,7 +72,7 @@ const appleAppDetoxVariants = {
 };
 
 /**
- * @param {string} variant AppleApp road-test variant (`vanilla`, `expo57`, `expo58`).
+ * @param {string} variant AppleApp road-test variant (`vanilla`, `rock`, `expo57`, `expo58`).
  */
 function getAppleAppDetoxVariant(variant) {
   const config = appleAppDetoxVariants[variant];

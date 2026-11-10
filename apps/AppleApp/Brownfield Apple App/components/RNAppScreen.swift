@@ -6,6 +6,9 @@ import UIKit
 private let reactNativeModuleName = "main"
 // The Expo example bundles do not yet send the JS full-display marker.
 private let waitForFullDisplay = false
+#elseif USE_ROCK_HOST
+private let reactNativeModuleName = "RockApp"
+private let waitForFullDisplay = true
 #else
 private let reactNativeModuleName = "RNApp"
 private let waitForFullDisplay = true

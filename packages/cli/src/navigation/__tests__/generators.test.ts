@@ -92,6 +92,10 @@ describe('navigation code generators', () => {
     expect(turboModuleSpec).toContain('export interface Spec extends TurboModule');
     expect(turboModuleSpec).toContain('openScreen(route: string, params?: Object): void;');
 
+    expect(indexTs).toContain(
+      "import NativeBrownfieldNavigation from './NativeBrownfieldNavigation';\n\n" +
+        'const BrownfieldNavigation'
+    );
     expect(indexTs).toContain('openScreen: (route: string, params?: Object)');
     expect(indexTs).toContain('NativeBrownfieldNavigation.openScreen(route, params)');
 
@@ -151,7 +155,9 @@ describe('navigation code generators', () => {
     );
 
     expect(indexTs).toContain(
-      "import type { UserType } from './NativeBrownfieldNavigation';"
+      "import NativeBrownfieldNavigation from './NativeBrownfieldNavigation';\n" +
+        "import type { UserType } from './NativeBrownfieldNavigation';\n\n" +
+        'const BrownfieldNavigation'
     );
     expect(indexTs).toContain('navigateToSettings: (user: UserType)');
     expect(indexDts).toContain(

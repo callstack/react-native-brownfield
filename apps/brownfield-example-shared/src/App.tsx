@@ -1,0 +1,39 @@
+import {
+  syncBrownfieldE2EModeFromRootProps,
+  type BrownfieldRootProps,
+} from '@callstack/brownfield-example-shared-tests/runtime';
+import { NavigationContainer } from '@react-navigation/native';
+import { useEffect } from 'react';
+
+import { HomeScreen } from './HomeScreen';
+import { NativeOsVersionLabelContext } from './nativeHostContext';
+import { Stack } from './navigation/RootStack';
+
+type AppProps = BrownfieldRootProps & {
+  brownfieldPresentationID?: string;
+};
+
+export default function App({
+  nativeOsVersionLabel,
+  brownfieldE2E,
+  brownfieldPresentationID,
+}: AppProps) {
+  useEffect(() => {
+    syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
+    return () => syncBrownfieldE2EModeFromRootProps(undefined);
+  }, [brownfieldE2E]);
+
+  return (
+    <NativeOsVersionLabelContext.Provider value={nativeOsVersionLabel}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            initialParams={{ brownfieldPresentationID }}
+            component={HomeScreen}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </NativeOsVersionLabelContext.Provider>
+  );
+}
