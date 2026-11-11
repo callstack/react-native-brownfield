@@ -10,6 +10,8 @@ const {
   waitForAppleAppReady,
   openHomeTabExpo,
   openPostMessageTabExpo,
+  openURLThroughSystem,
+  waitForExploreTabExpo,
   sendPostMessageToNativeAndWaitForToast,
 } = require('@callstack/brownfield-example-shared-tests/e2e/appleAppDetoxUtils');
 
@@ -24,6 +26,12 @@ describe('Brownfield (AppleApp — Expo)', () => {
     await detoxExpect(greeting).toBeVisible();
     await assertDetoxTextMatches(greeting, /Hello native iOS Expo/);
     await openHomeTabExpo();
+  });
+
+  it('routes a deep link that arrives while the app is running', async () => {
+    await openHomeTabExpo();
+    await openURLThroughSystem('brownfield-apple-app://explore');
+    await waitForExploreTabExpo();
   });
 
   it('shows a native toast when Expo RN sends postMessage', async () => {

@@ -175,7 +175,7 @@ final class ReactNativeHostRuntime {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    return RCTLinkingManager.application(app, open: url, options: options)
+    return BrownfieldLinking.open(app, url: url, options: options)
   }
 
   public func application(
@@ -183,7 +183,7 @@ final class ReactNativeHostRuntime {
     continue userActivity: NSUserActivity,
     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
   ) -> Bool {
-    return RCTLinkingManager.application(application, continue: userActivity, restorationHandler: restorationHandler)
+    return BrownfieldLinking.continueUserActivity(application, userActivity: userActivity, restorationHandler: restorationHandler)
   }
 
   /**
