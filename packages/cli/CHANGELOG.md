@@ -1,5 +1,23 @@
 # @callstack/brownfield-cli
 
+## 6.2.0
+
+### Minor Changes
+
+- [#514](https://github.com/callstack/react-native-brownfield/pull/514) [`6517ec5`](https://github.com/callstack/react-native-brownfield/commit/6517ec5666269007f10c28efb7a748beba476998) Thanks [@DanielPotorCK](https://github.com/DanielPotorCK)! - Allow `ios.extraSpmXcframeworks` in brownfield config so `package:ios --add-spm-package` can include project-declared XCFrameworks as additional SPM binary targets.
+
+## 6.1.1
+
+### Patch Changes
+
+- [#519](https://github.com/callstack/react-native-brownfield/pull/519) [`a9726c1`](https://github.com/callstack/react-native-brownfield/commit/a9726c137c61fe2e59c039555a955632a5d86aec) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - `brownfield navigation:codegen` now generates `NSNumber` for optional `number` and `boolean` method parameters on iOS. Previously, the generated Swift delegate used `Double?` and `Bool?`, which can't be represented in an `@objc` protocol, so the iOS build failed.
+
+## 6.1.0
+
+### Minor Changes
+
+- [#522](https://github.com/callstack/react-native-brownfield/pull/522) [`20776bb`](https://github.com/callstack/react-native-brownfield/commit/20776bb714c2de1e962515aa7c88235b60c7dabf) Thanks [@KisaneNeko](https://github.com/KisaneNeko)! - feat: the published POM and `module.json` now follow the brownfield module's Gradle exclude rules (`configurations.all { exclude(...) }`). Before, the plugin re-added an excluded dependency when it injected the embedded libraries' dependencies, so the host app still resolved it. The excludes are also written onto every dependency the plugin injects, so the excluded library can't arrive through one of them. On Expo, list them in `android.excludeDependencies` (as `group:module` or `group`), which the config plugin writes into the generated module.
+
 ## 6.0.1
 
 ### Patch Changes

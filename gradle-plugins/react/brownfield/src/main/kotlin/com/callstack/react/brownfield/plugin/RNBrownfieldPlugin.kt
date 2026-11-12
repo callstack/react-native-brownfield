@@ -19,11 +19,13 @@ import com.callstack.react.brownfield.processors.VariantTaskProvider
 import com.callstack.react.brownfield.shared.BaseProject
 import com.callstack.react.brownfield.shared.Constants
 import com.callstack.react.brownfield.shared.Constants.PROJECT_ID
+import com.callstack.react.brownfield.shared.GradleExclude
 import com.callstack.react.brownfield.shared.Logging
 import com.callstack.react.brownfield.shared.PublishingMetadataInjector
 import com.callstack.react.brownfield.shared.UnresolvedArtifactInfo
 import com.callstack.react.brownfield.shared.VersionMediatingDependencySet
 import com.callstack.react.brownfield.shared.dropHardExcludedDependencies
+import com.callstack.react.brownfield.shared.gradleExcludes
 import com.callstack.react.brownfield.utils.AndroidArchiveLibrary
 import com.callstack.react.brownfield.utils.DirectoryManager
 import com.callstack.react.brownfield.utils.Extension
@@ -32,6 +34,24 @@ import com.callstack.react.brownfield.utils.capitalized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
+
+/**
+ * Coordinates that must never be published: embedded in the AAR (not resolvable from Maven), or
+ * excluded by the brownfield module's own Gradle rules.
+ */
+internal fun hardExcludePredicate(
+    project: Project,
+    expoPublishingHelper: ExpoPublishingHelper?,
+    artifacts: List<UnresolvedArtifactInfo>,
+    expoProjects: List<ExpoGradleProjectProjection>,
+    excludes: List<GradleExclude>,
+): (String, String) -> Boolean =
+    { groupId, artifactId ->
+        (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
+            artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId } ||
+            expoProjects.any { it.publication?.groupId == groupId && it.publication?.artifactId == artifactId } ||
+            excludes.any { it.matches(groupId, artifactId) }
+    }
 
 class RNBrownfieldPlugin : Plugin<Project> {
     private lateinit var extension: Extension
@@ -140,11 +160,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
             // Coordinates that must never be published: they're embedded in the AAR, not
             // resolvable from Maven. Distinct from "superseded" coordinates, which ARE re-injected
             // (replacing a stale entry) and so must not be dropped here.
-            val hardExcludePredicate: (String, String) -> Boolean = { groupId, artifactId ->
-                (expoPublishingHelper?.shouldExcludeDependency(groupId, artifactId) ?: (groupId == project.rootProject.name)) ||
-                    artifacts.any { it.moduleGroup == groupId && it.moduleName == artifactId } ||
-                    expoProjects.any { it.publication?.groupId == groupId && it.publication?.artifactId == artifactId }
-            }
+            val excludes = gradleExcludes(project)
+            val hardExcludePredicate = hardExcludePredicate(project, expoPublishingHelper, artifacts, expoProjects, excludes)
             dropHardExcludedDependencies(transitiveDeps, hardExcludePredicate)
 
             Logging.log(
@@ -155,7 +172,7 @@ class RNBrownfieldPlugin : Plugin<Project> {
                 hardExcludePredicate(groupId, artifactId) || rncSupersededCoordinates.contains(groupId to artifactId)
             }
 
-            injector.configure(transitiveDeps, removalPredicate)
+            injector.configure(transitiveDeps, removalPredicate, excludes)
             Logging.log("PublishingMetadataInjector ran: injected merged transitive dependencies into POM and Gradle Module Metadata")
 
             // Informational only — throwing would recreate the upgrade break that the namespaced
@@ -277,7 +294,7 @@ class RNBrownfieldPlugin : Plugin<Project> {
 
         /** ===== jniLibsProcessor ===== */
         val jniLibsProcessor = JNILibsProcessor(project)
-        jniLibsProcessor.processJniLibs(aarLibraries, variant)
+        jniLibsProcessor.processJniLibs(aarLibraries, variant, explodeTask)
 
         /** ===== proguardProcessor ===== */
         val proguardProcessor = ProguardProcessor(project)

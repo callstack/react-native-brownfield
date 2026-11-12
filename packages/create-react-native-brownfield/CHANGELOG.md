@@ -1,5 +1,26 @@
 # @callstack/create-react-native-brownfield
 
+## 6.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @callstack/react-native-brownfield@6.2.0
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`66ac701`](https://github.com/callstack/react-native-brownfield/commit/66ac701d71cb3990732e701a0ab1abd40a7bd271), [`5884ce9`](https://github.com/callstack/react-native-brownfield/commit/5884ce96bcccf73de33835e7db2785aa3ab8c2a9)]:
+  - @callstack/react-native-brownfield@6.1.1
+
+## 6.1.0
+
+### Patch Changes
+
+- Updated dependencies [[`520811c`](https://github.com/callstack/react-native-brownfield/commit/520811c47a122cacd1ec15f1b064ad08d699eebb), [`f3dbbd1`](https://github.com/callstack/react-native-brownfield/commit/f3dbbd1c2579f905a358faac0ad1677b3740cebc), [`b87cdff`](https://github.com/callstack/react-native-brownfield/commit/b87cdff0de1cb147289a7497973b6f191dc74134), [`20776bb`](https://github.com/callstack/react-native-brownfield/commit/20776bb714c2de1e962515aa7c88235b60c7dabf), [`58aedad`](https://github.com/callstack/react-native-brownfield/commit/58aedad94f38098424937533f2ce0b0c3df62067), [`6a258da`](https://github.com/callstack/react-native-brownfield/commit/6a258da42f2bd2cbb112f56948108323aeba74d9)]:
+  - @callstack/react-native-brownfield@6.1.0
+
 ## 6.0.1
 
 ### Patch Changes

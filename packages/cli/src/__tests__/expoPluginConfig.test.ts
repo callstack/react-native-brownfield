@@ -209,6 +209,7 @@ describe('resolveBrownfieldPluginConfig', () => {
         extraProguardRules: [],
         useLocalMaven: false,
         missingDimensionStrategies: [],
+        excludeDependencies: [],
       },
     });
   });
@@ -509,6 +510,23 @@ describe('resolveBrownfieldPluginConfig', () => {
     expect(resolved.android?.missingDimensionStrategies).toEqual([
       'type',
       'alpha',
+    ]);
+  });
+
+  it('maps android.excludeDependencies from app.json plugin props', () => {
+    const resolved = resolveBrownfieldPluginConfig(
+      {
+        android: {
+          moduleName: 'mylib',
+          excludeDependencies: ['com.caverock:androidsvg'],
+        },
+      },
+      null,
+      baseExpoConfig
+    );
+
+    expect(resolved.android?.excludeDependencies).toEqual([
+      'com.caverock:androidsvg',
     ]);
   });
 });

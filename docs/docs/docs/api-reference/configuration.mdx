@@ -195,6 +195,7 @@ All file-based platform options mirror CLI flags, but they use camelCase propert
 | `android.expo.minifyEnabled`        | `boolean` | Controls `minifyEnabled` for the generated Android library build. Disabled by default.                                                   |
 | `android.expo.extraProguardRules`   | `string[]`| Additional Proguard rules appended to the generated `proguard-rules.pro`.                                                                |
 | `android.expo.useLocalMaven`        | `boolean` | Load the Brownfield Gradle plugin published to local maven instead of using from remote. Disabled by default.                                                         |
+| `android.expo.excludeDependencies` | `string[]` | Dependencies to keep out of the published AAR's POM and `module.json`, as `group:module` or `group` for a whole group. Written into the generated module as Gradle `exclude` rules. |
 
 Example:
 
@@ -224,6 +225,7 @@ Example:
 | `ios.newArch`            | `boolean`  | Controls React Native new architecture support. Set `false` to match `--no-new-arch`.                                  |
 | `ios.usePrebuiltRnCore`  | `boolean`  | Controls whether iOS packaging uses React Native Apple prebuilts. Omit it to keep Brownfield's version-aware defaults. |
 | `ios.addSpmPackage`      | `boolean`  | Generates a local Swift Package Manager manifest next to the packaged XCFramework outputs.                             |
+| `ios.extraSpmXcframeworks` | `{ name: string, path: string }[]` | Extra XCFrameworks copied into the generated local SPM package as binary targets. Only used when `--add-spm-package` is set. Defaults to `[]`. |
 
 #### iOS Expo keys
 

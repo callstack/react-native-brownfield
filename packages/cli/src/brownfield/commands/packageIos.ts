@@ -449,6 +449,8 @@ export const packageIosCommand = curryOptions(
           packageDir,
           frameworkName: frameworkName ?? undefined,
           usePrebuiltExpo: options.usePrebuiltExpo,
+          projectRoot,
+          extraSpmXcframeworks: options.extraSpmXcframeworks ?? [],
         });
 
         logger.success(

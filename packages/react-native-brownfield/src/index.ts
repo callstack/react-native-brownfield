@@ -96,11 +96,13 @@ const ReactNativeBrownfield = {
   ): { remove: () => void } => {
     const subscription = ReactNativeBrownfieldModule.onBrownfieldMessage(
       (payload) => {
+        let data: unknown;
         try {
-          callback({ data: JSON.parse(payload.text) });
+          data = JSON.parse(payload.text);
         } catch {
-          callback({ data: payload.text });
+          data = payload.text;
         }
+        callback({ data });
       }
     );
     return { remove: () => subscription.remove() };

@@ -15,7 +15,9 @@ static ReactNativeBrownfieldModule *_sharedInstance = nil;
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _sharedInstance = self;
+    @synchronized (ReactNativeBrownfieldModule.class) {
+      _sharedInstance = self;
+    }
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleNativeToJSMessage:)
@@ -28,8 +30,18 @@ static ReactNativeBrownfieldModule *_sharedInstance = nil;
 - (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-  if (_sharedInstance == self) {
-    _sharedInstance = nil;
+  @synchronized (ReactNativeBrownfieldModule.class) {
+    if (_sharedInstance == self) {
+      _sharedInstance = nil;
+    }
+  }
+}
+
+// React Native calls invalidate during teardown; clearing the callback sends
+// later messages down the not-ready drop path.
+- (void)invalidate {
+  @synchronized (ReactNativeBrownfieldModule.class) {
+    _eventEmitterCallback = nullptr;
   }
 }
 
@@ -41,10 +53,22 @@ static ReactNativeBrownfieldModule *_sharedInstance = nil;
 }
 
 + (void)emitMessageFromNative:(NSString *)message {
-  if (_sharedInstance) {
+  // Keep singleton and callback access under one lock because getTurboModule:
+  // installs the callback when JS first requires the module.
+  @synchronized (ReactNativeBrownfieldModule.class) {
+    if (!_sharedInstance) {
+      NSLog(@"ReactNativeBrownfieldModule is not initialized, dropping message");
+      return;
+    }
+
+    // The codegen base class exposes this callback as a protected std::function;
+    // invoking it while empty would throw std::bad_function_call.
+    if (!_sharedInstance->_eventEmitterCallback) {
+      NSLog(@"ReactNativeBrownfieldModule is not ready for JS yet, dropping message");
+      return;
+    }
+
     [_sharedInstance emitOnBrownfieldMessage:@{ @"text": message }];
-  } else {
-    NSLog(@"ReactNativeBrownfieldModule is not initialized, dropping message");
   }
 }
 
@@ -65,7 +89,11 @@ RCT_EXPORT_METHOD(addListener:(NSString *)eventName) {}
 RCT_EXPORT_METHOD(removeListeners:(double)count) {}
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::NativeReactNativeBrownfieldModuleSpecJSI>(params);
+  // Building the spec installs _eventEmitterCallback; use the same lock as
+  // emitMessageFromNative: to prevent the callback read and write from racing.
+  @synchronized (ReactNativeBrownfieldModule.class) {
+    return std::make_shared<facebook::react::NativeReactNativeBrownfieldModuleSpecJSI>(params);
+  }
 }
 
 @end

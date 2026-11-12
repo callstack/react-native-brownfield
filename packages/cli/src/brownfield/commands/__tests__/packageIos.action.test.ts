@@ -240,6 +240,8 @@ describe('package:ios action --add-spm-package', () => {
       packageDir: '/repo/ios/.brownfield/package/build',
       frameworkName: 'BrownfieldLib',
       usePrebuiltExpo: true,
+      projectRoot: '/repo',
+      extraSpmXcframeworks: [],
     });
     expect(mockLoggerSuccess).toHaveBeenCalledWith(
       'Local SPM package manifest created at /repo/ios/.brownfield/package/build/Package.swift'
@@ -270,6 +272,37 @@ describe('package:ios action --add-spm-package', () => {
       packageDir: '/repo/ios/.brownfield/package/build',
       frameworkName: 'BrownfieldLib',
       usePrebuiltExpo: false,
+      projectRoot: '/repo',
+      extraSpmXcframeworks: [],
+    });
+  });
+
+  test('forwards ios.extraSpmXcframeworks from merged config to createLocalSpmPackage', async () => {
+    const { mergeBrownfieldConfigWithOptions } = await import(
+      '../../../config.js'
+    );
+    const extraSpmXcframeworks = [
+      { name: 'MyHostModule', path: './artifacts/MyHostModule.xcframework' },
+    ];
+    vi.mocked(mergeBrownfieldConfigWithOptions).mockImplementationOnce(
+      (options) => ({
+        ...options,
+        extraSpmXcframeworks,
+      })
+    );
+
+    await invokePackageIosAction([
+      '--add-spm-package',
+      '--configuration',
+      'Release',
+    ]);
+
+    expect(mockCreateLocalSpmPackage).toHaveBeenCalledWith({
+      packageDir: '/repo/ios/.brownfield/package/build',
+      frameworkName: 'BrownfieldLib',
+      usePrebuiltExpo: true,
+      projectRoot: '/repo',
+      extraSpmXcframeworks,
     });
   });
 

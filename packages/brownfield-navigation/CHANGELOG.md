@@ -1,5 +1,26 @@
 # @callstack/brownfield-navigation
 
+## 6.2.0
+
+### Patch Changes
+
+- Updated dependencies [[`6517ec5`](https://github.com/callstack/react-native-brownfield/commit/6517ec5666269007f10c28efb7a748beba476998)]:
+  - @callstack/brownfield-cli@6.2.0
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`a9726c1`](https://github.com/callstack/react-native-brownfield/commit/a9726c137c61fe2e59c039555a955632a5d86aec)]:
+  - @callstack/brownfield-cli@6.1.1
+
+## 6.1.0
+
+### Patch Changes
+
+- Updated dependencies [[`20776bb`](https://github.com/callstack/react-native-brownfield/commit/20776bb714c2de1e962515aa7c88235b60c7dabf)]:
+  - @callstack/brownfield-cli@6.1.0
+
 ## 6.0.1
 
 ### Patch Changes

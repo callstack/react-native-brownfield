@@ -222,9 +222,53 @@ describe('validateBrownfieldCLIConfig', () => {
     expect(mockLoggerWarn).not.toHaveBeenCalled();
   });
 
+  it('does not warn for a valid ios.extraSpmXcframeworks config', () => {
+    validateBrownfieldCLIConfig({
+      ios: {
+        scheme: 'AppScheme',
+        extraSpmXcframeworks: [
+          {
+            name: 'MyHostModule',
+            path: './artifacts/MyHostModule.xcframework',
+          },
+        ],
+      },
+    });
+
+    expect(mockLoggerWarn).not.toHaveBeenCalled();
+  });
+
   it('warns for a schema-invalid config', () => {
     validateBrownfieldCLIConfig({
       unsupportedOption: true,
+    });
+
+    expect(mockLoggerWarn).toHaveBeenCalledTimes(1);
+    expect(mockLoggerWarn.mock.calls[0]?.[0]).toContain(
+      'Brownfield configuration has some issues:'
+    );
+  });
+
+  it('warns when ios.extraSpmXcframeworks entries are malformed', () => {
+    validateBrownfieldCLIConfig({
+      ios: {
+        extraSpmXcframeworks: [{ name: 'MissingPath' }],
+      },
+    });
+
+    expect(mockLoggerWarn).toHaveBeenCalledTimes(1);
+    expect(mockLoggerWarn.mock.calls[0]?.[0]).toContain(
+      'Brownfield configuration has some issues:'
+    );
+  });
+
+  it('warns when an ios.extraSpmXcframeworks name is not a safe target identifier', () => {
+    validateBrownfieldCLIConfig({
+      ios: {
+        extraSpmXcframeworks: [
+          { name: '../Injected', path: './artifacts/Injected.xcframework' },
+        ],
+      },
     });
 
     expect(mockLoggerWarn).toHaveBeenCalledTimes(1);

@@ -178,6 +178,27 @@ dependencies {
 ```
 
 <hr/>
+
+The published POM and `module.json` follow the brownfield module's Gradle exclude rules. Put the exclude in the brownfield module's `build.gradle.kts`, for example when two libraries ship the same classes under different artifacts:
+
+```kts
+configurations.all {
+    exclude(group = "com.caverock", module = "androidsvg")
+}
+```
+
+The excluded dependency is left out of the published files, and is written as an exclusion on every published dependency, so the host app doesn't get it through one of them either. Use this instead of a custom task that edits the published files: the plugin rewrites them after Gradle generates them, so an earlier edit would be lost.
+
+Only `exclude` rules on the `implementation`, `api`, `runtimeOnly` and `embed` configurations count. These are not read:
+
+- excludes in `:app`: they describe the standalone React Native app, which may leave out things the host app needs
+- excludes on a variant's configuration (`debugRuntimeClasspath`): every variant publishes the same list
+- excludes on a single dependency (`implementation("x") { exclude(...) }`): they only apply under that dependency
+- `resolutionStrategy` substitutions and capability rules
+
+On Expo, prebuild regenerates the brownfield module, so list the dependencies in `brownfield.config.json` under `android.expo.excludeDependencies` (or under `android.excludeDependencies` in the plugin's options in `app.json`), as `group:module` or `group`. Prebuild writes them into the module as the `configurations.all` block above.
+
+<hr/>
 <br/>
 
 **Expo Support**
@@ -189,13 +210,30 @@ The plugin supports Expo projects out of the box. Publishing the AAR to Maven Lo
 
 **Dynamic libs**
 
-By default only `libappmodules.so` and `libreact_codegen*.so` are bundled with the aar. If you would like to bundle other dynamic libs, you can define those in the `reactBrownfield` extension as shown below:
+The AAR contains two kinds of native libs (`.so` files):
+
+- the app module's own libs: `libappmodules.so` and `libreact_codegen_*.so`
+- the libs of every library you embed
+
+The `.so` files of Maven dependencies stay out of the AAR. The host app gets them through the AAR's POM, together with the rest of those libraries. Embedding them too would give the host two copies and fail its build. If you set `experimentalIncludeTransitiveDependencies = false`, the POM doesn't list those dependencies, so the host app must declare them itself. The same goes for any dependency the POM can't list: one with no version (managed by a BOM) or a dynamic version, one declared only for a flavor or build type, or one declared only in the app module. The host app needs that library's classes as well, so it has to declare the library either way, and that also brings its `.so` files. A `.so` from a local file dependency has no Maven artifact the host could declare; add it to `dynamicLibs`.
+
+The AAR only has the ABIs (CPU architectures) your app module builds. If the app module uses `abiFilters`, ABIs it leaves out are dropped from the embedded libraries too. A device would otherwise pick an ABI folder that has no `libappmodules.so`, and the app would crash.
+
+`useStrippedSoFiles` (default `true`) picks which copy the plugin starts from: the app module's stripped output or its unstripped output. It does not change which libs are embedded. AGP still runs its own strip step on the AAR's native libs during packaging.
+
+To change the set:
+
+- `dynamicLibs` adds libs, by exact file name. Use it for a `.so` the host app cannot get any other way: one your app module builds or ships itself (for example from `app/src/main/jniLibs`), or one from a dependency the published AAR does not declare.
+- `ignoreEmbeddedLibs` keeps libs out. A lib is left out when its name contains an entry. It never removes `libappmodules.so` or `libreact_codegen_*.so`. It does win over `dynamicLibs`, and the build warns when that happens.
 
 ```kts
 reactBrownfield {
-    dynamicLibs = listOf("libreact-native-mmkv.so", "libreact-native-fs-turbo.so")
+    dynamicLibs = listOf("libmy-prebuilt.so")
+    ignoreEmbeddedLibs = listOf("libdatadog-ndk.so")
 }
 ```
+
+If the host app crashes with `dlopen failed: library "libX.so" not found`, open `<brownfield module>/build/reports/brownfield/<variant>/skipped-so.txt`. It lists every `.so` that was left out of the AAR and why. The build also prints a `Brownfield: left … out of the AAR` line, but only when that task runs, not when Gradle reuses a cached result. If the missing lib is there and the host can't get it from a Maven dependency, add it to `dynamicLibs`.
 
 <hr/>
 

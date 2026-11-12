@@ -220,4 +220,337 @@ describe('createLocalSpmPackage', () => {
     expect(manifest).toContain('library(name: "BrownfieldLib"');
     expect(manifest).toContain('binaryTarget(name: "BrownfieldLib"');
   });
+
+  it('copies declared extra SPM XCFrameworks into the package as binary targets', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+
+    const projectRoot = path.join(tempDir, 'project');
+    const extraSourcePath = path.join(
+      projectRoot,
+      'artifacts',
+      'MyHostModule.xcframework'
+    );
+    fs.mkdirSync(extraSourcePath, { recursive: true });
+    fs.writeFileSync(path.join(extraSourcePath, 'Info.plist'), 'extra');
+
+    const result = createLocalSpmPackage({
+      packageDir: tempDir,
+      frameworkName: 'BrownfieldLib',
+      projectRoot,
+      extraSpmXcframeworks: [
+        { name: 'MyHostModule', path: './artifacts/MyHostModule.xcframework' },
+      ],
+    });
+
+    const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
+
+    expect(manifest).toContain('binaryTarget(name: "MyHostModule"');
+    expect(manifest).toContain(
+      'path: "./spm-artifacts/MyHostModule.xcframework"'
+    );
+    expect(manifest).toContain('"MyHostModule"');
+    expect(
+      fs.existsSync(
+        path.join(tempDir, 'spm-artifacts', 'MyHostModule.xcframework', 'Info.plist')
+      )
+    ).toBe(true);
+    expect(fs.existsSync(path.join(tempDir, 'MyHostModule.xcframework'))).toBe(
+      false
+    );
+    expect(
+      fs.readFileSync(
+        path.join(
+          tempDir,
+          'spm-artifacts',
+          'MyHostModule.xcframework',
+          'Info.plist'
+        ),
+        'utf8'
+      )
+    ).toBe('extra');
+  });
+
+  it('reserves extra SPM XCFramework names during app-framework auto-detection', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+    createXcframework(tempDir, 'MyHostModule');
+
+    const projectRoot = path.join(tempDir, 'project');
+    const extraSourcePath = path.join(
+      projectRoot,
+      'artifacts',
+      'MyHostModule.xcframework'
+    );
+    fs.mkdirSync(extraSourcePath, { recursive: true });
+
+    const result = createLocalSpmPackage({
+      packageDir: tempDir,
+      projectRoot,
+      extraSpmXcframeworks: [
+        { name: 'MyHostModule', path: './artifacts/MyHostModule.xcframework' },
+      ],
+    });
+
+    const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
+
+    expect(manifest).toContain('name: "BrownfieldLibPackage"');
+    expect(manifest).toContain('library(name: "BrownfieldLib"');
+    expect(manifest).toContain('binaryTarget(name: "MyHostModule"');
+  });
+
+  it('throws a clear error when an extra SPM XCFramework path is missing', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+
+    expect(() =>
+      createLocalSpmPackage({
+        packageDir: tempDir,
+        frameworkName: 'BrownfieldLib',
+        projectRoot: tempDir,
+        extraSpmXcframeworks: [
+          {
+            name: 'MyHostModule',
+            path: './missing/MyHostModule.xcframework',
+          },
+        ],
+      })
+    ).toThrowError(
+      'Missing extra SPM XCFramework "MyHostModule" at ./missing/MyHostModule.xcframework'
+    );
+  });
+
+  it('keeps Package.swift identical when extraSpmXcframeworks is empty', () => {
+    const baselineDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'create-local-spm-package-baseline-')
+    );
+
+    try {
+      for (const dir of [tempDir, baselineDir]) {
+        createXcframework(dir, 'BrownfieldLib');
+        createXcframework(dir, 'hermesvm');
+        createXcframework(dir, 'ReactBrownfield');
+        createXcframework(dir, 'Brownie');
+      }
+
+      const baseline = createLocalSpmPackage({
+        packageDir: baselineDir,
+        frameworkName: 'BrownfieldLib',
+      });
+      const withEmptyExtras = createLocalSpmPackage({
+        packageDir: tempDir,
+        frameworkName: 'BrownfieldLib',
+        extraSpmXcframeworks: [],
+      });
+
+      expect(fs.readFileSync(withEmptyExtras.packageManifestPath, 'utf8')).toBe(
+        fs.readFileSync(baseline.packageManifestPath, 'utf8')
+      );
+      expect(fs.readFileSync(path.join(tempDir, 'README.md'), 'utf8')).toBe(
+        fs.readFileSync(path.join(baselineDir, 'README.md'), 'utf8')
+      );
+    } finally {
+      fs.rmSync(baselineDir, { recursive: true, force: true });
+    }
+  });
+
+  it('includes multiple declared extra SPM XCFrameworks', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+
+    const projectRoot = path.join(tempDir, 'project');
+    for (const name of ['MyHostModule', 'DesignSystem']) {
+      fs.mkdirSync(path.join(projectRoot, 'artifacts', `${name}.xcframework`), {
+        recursive: true,
+      });
+    }
+
+    const result = createLocalSpmPackage({
+      packageDir: tempDir,
+      frameworkName: 'BrownfieldLib',
+      projectRoot,
+      extraSpmXcframeworks: [
+        { name: 'MyHostModule', path: './artifacts/MyHostModule.xcframework' },
+        { name: 'DesignSystem', path: './artifacts/DesignSystem.xcframework' },
+      ],
+    });
+
+    const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
+
+    expect(manifest).toContain('binaryTarget(name: "MyHostModule"');
+    expect(manifest).toContain('binaryTarget(name: "DesignSystem"');
+    expect(manifest).toContain(
+      'targets: ["BrownfieldLib", "hermesvm", "ReactBrownfield", "MyHostModule", "DesignSystem"]'
+    );
+    expect(
+      fs.existsSync(
+        path.join(tempDir, 'spm-artifacts', 'MyHostModule.xcframework')
+      )
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(tempDir, 'spm-artifacts', 'DesignSystem.xcframework')
+      )
+    ).toBe(true);
+  });
+
+  it('resolves absolute extra SPM XCFramework paths', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+
+    const absoluteExtraPath = path.join(
+      tempDir,
+      'absolute-artifacts',
+      'MyHostModule.xcframework'
+    );
+    fs.mkdirSync(absoluteExtraPath, { recursive: true });
+    fs.writeFileSync(path.join(absoluteExtraPath, 'marker.txt'), 'absolute');
+
+    const result = createLocalSpmPackage({
+      packageDir: tempDir,
+      frameworkName: 'BrownfieldLib',
+      projectRoot: path.join(tempDir, 'unused-project-root'),
+      extraSpmXcframeworks: [
+        { name: 'MyHostModule', path: absoluteExtraPath },
+      ],
+    });
+
+    const manifest = fs.readFileSync(result.packageManifestPath, 'utf8');
+
+    expect(manifest).toContain('binaryTarget(name: "MyHostModule"');
+    expect(
+      fs.readFileSync(
+        path.join(
+          tempDir,
+          'spm-artifacts',
+          'MyHostModule.xcframework',
+          'marker.txt'
+        ),
+        'utf8'
+      )
+    ).toBe('absolute');
+  });
+
+  it('dereferences an extra XCFramework symlink when staging it', () => {
+    createXcframework(tempDir, 'BrownfieldLib');
+    createXcframework(tempDir, 'hermesvm');
+    createXcframework(tempDir, 'ReactBrownfield');
+
+    const projectRoot = path.join(tempDir, 'project');
+    const actualSourcePath = path.join(
+      projectRoot,
+      'actual',
+      'MyHostModule.xcframework'
+    );
+    const symlinkPath = path.join(
+      projectRoot,
+      'artifacts',
+      'MyHostModule.xcframework'
+    );
+    fs.mkdirSync(actualSourcePath, { recursive: true });
+    fs.mkdirSync(path.dirname(symlinkPath), { recursive: true });
+    fs.writeFileSync(path.join(actualSourcePath, 'marker.txt'), 'symlink');
+    fs.symlinkSync(actualSourcePath, symlinkPath, 'dir');
+
+    createLocalSpmPackage({
+      packageDir: tempDir,
+      frameworkName: 'BrownfieldLib',
+      projectRoot,
+      extraSpmXcframeworks: [
+        { name: 'MyHostModule', path: './artifacts/MyHostModule.xcframework' },
+      ],
+    });
+
+    const stagedPath = path.join(
+      tempDir,
+      'spm-artifacts',
+      'MyHostModule.xcframework'
+    );
+    expect(fs.lstatSync(stagedPath).isSymbolicLink()).toBe(false);
+    expect(fs.readFileSync(path.join(stagedPath, 'marker.txt'), 'utf8')).toBe(
+      'symlink'
+    );
+  });
+
+  it.each(['../Injected', 'Bad-Name', 'Bad"Name', '1StartsWithNumber'])(
+    'rejects unsafe extra SPM XCFramework name %s',
+    (name) => {
+      expect(() =>
+        createLocalSpmPackage({
+          packageDir: tempDir,
+          frameworkName: 'BrownfieldLib',
+          extraSpmXcframeworks: [{ name, path: './unused.xcframework' }],
+        })
+      ).toThrowError('Invalid extra SPM XCFramework name');
+    }
+  );
+
+  it.each(['ReactBrownfield', 'hermesvm', 'Brownie'])(
+    'rejects reserved extra SPM XCFramework name %s',
+    (name) => {
+      expect(() =>
+        createLocalSpmPackage({
+          packageDir: tempDir,
+          frameworkName: 'BrownfieldLib',
+          extraSpmXcframeworks: [{ name, path: './unused.xcframework' }],
+        })
+      ).toThrowError(
+        `Extra SPM XCFramework name "${name}" conflicts with a generated package target.`
+      );
+    }
+  );
+
+  it('rejects reserved names case-insensitively for portable filesystem paths', () => {
+    expect(() =>
+      createLocalSpmPackage({
+        packageDir: tempDir,
+        frameworkName: 'BrownfieldLib',
+        extraSpmXcframeworks: [
+          { name: 'reactbrownfield', path: './unused.xcframework' },
+        ],
+      })
+    ).toThrowError(
+      'Extra SPM XCFramework name "reactbrownfield" conflicts with a generated package target.'
+    );
+  });
+
+  it('rejects an extra SPM XCFramework matching the app target name', () => {
+    expect(() =>
+      createLocalSpmPackage({
+        packageDir: tempDir,
+        frameworkName: 'BrownfieldLib',
+        extraSpmXcframeworks: [
+          { name: 'BrownfieldLib', path: './unused.xcframework' },
+        ],
+      })
+    ).toThrowError(
+      'Extra SPM XCFramework name "BrownfieldLib" conflicts with a generated package target.'
+    );
+  });
+
+  it('rejects duplicate extra SPM XCFramework names before staging', () => {
+    const existingDestination = path.join(tempDir, 'MyHostModule.xcframework');
+    fs.mkdirSync(existingDestination, { recursive: true });
+    fs.writeFileSync(path.join(existingDestination, 'marker.txt'), 'original');
+
+    expect(() =>
+      createLocalSpmPackage({
+        packageDir: tempDir,
+        frameworkName: 'BrownfieldLib',
+        extraSpmXcframeworks: [
+          { name: 'MyHostModule', path: './first.xcframework' },
+          { name: 'myhostmodule', path: './second.xcframework' },
+        ],
+      })
+    ).toThrowError('Duplicate extra SPM XCFramework name: myhostmodule');
+
+    expect(
+      fs.readFileSync(path.join(existingDestination, 'marker.txt'), 'utf8')
+    ).toBe('original');
+  });
 });
