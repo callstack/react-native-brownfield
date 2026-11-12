@@ -158,7 +158,8 @@ final class ExpoHostRuntime {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    return (expoDelegate?.application(app, open: url, options: options) ?? false) || RCTLinkingManager.application(app, open: url, options: options)
+    let result = RCTLinkingManager.application(app, open: url, options: options)
+    return (expoDelegate?.application(app, open: url, options: options) ?? false) || result
   }
 
   // Universal Links; base implementation courtesy of Expo, licensed under the MIT License - changes were made to call the method on expo delegate - https://github.com/expo/expo/blob/main/apps/bare-expo/ios/AppDelegate.swift
