@@ -182,7 +182,7 @@ runs:
       if: inputs.run-e2e == 'true'
       run: |
         node <<'NODE'
-        const { getAppleAppDetoxVariant } = require('./apps/brownfield-example-shared-tests/detox-appleapp-variants.cjs');
+        const { getAppleAppDetoxVariant } = require('./apps/shared-tests/detox-appleapp-variants.cjs');
         const variant = getAppleAppDetoxVariant(process.env.APPLEAPP_VARIANT);
         const append = (key, value) => {
           const fs = require('node:fs');
@@ -208,7 +208,7 @@ runs:
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: apps/AppleApp/build
-        key: ${{ runner.os }}-e2e-appleapp-${{ inputs.variant }}-build-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path), 'apps/AppleApp/Brownfield Apple App.xcodeproj/project.pbxproj', 'apps/brownfield-example-shared-tests/e2e/**') }}-${{ hashFiles('apps/AppleApp/package/**/*.swiftinterface') }}
+        key: ${{ runner.os }}-e2e-appleapp-${{ inputs.variant }}-build-${{ hashFiles(format('{0}/ios/Podfile.lock', inputs.rn-project-path), 'apps/AppleApp/Brownfield Apple App.xcodeproj/project.pbxproj', 'apps/shared-tests/e2e/**') }}-${{ hashFiles('apps/AppleApp/package/**/*.swiftinterface') }}
 
     - name: Install Detox iOS artifacts
       if: inputs.run-e2e == 'true'

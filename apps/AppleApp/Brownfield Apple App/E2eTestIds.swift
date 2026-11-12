@@ -1,6 +1,6 @@
 import Foundation
 
-/// Keep in sync with `@callstack/brownfield-example-shared-tests` `e2eTestIds`.
+/// Keep in sync with `@callstack/shared-tests` `e2eTestIds`.
 enum E2eTestIds {
     static let appleAppGreeting = "brownfield-e2e-appleapp-greeting"
     static let appleAppOpenReactNative = "brownfield-e2e-appleapp-open-react-native"

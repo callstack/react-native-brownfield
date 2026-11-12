@@ -1,4 +1,4 @@
-require('@callstack/brownfield-example-shared-tests/jest/setup');
+require('@callstack/shared-tests/jest/setup');
 
 // postMessage tab reads safe-area insets; tests render it without a SafeAreaProvider.
 jest.mock(
