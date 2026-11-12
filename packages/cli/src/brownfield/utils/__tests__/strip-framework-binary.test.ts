@@ -110,69 +110,49 @@ describe('stripFrameworkBinary', () => {
       const archInfo = execSync(`xcrun lipo -info "${binaryPath}"`, {
         encoding: 'utf-8',
       });
-
-      it.skipIf(!isDarwin)('handles multiple slices', () => {
-        const xcframeworkPath = createMockXcframework(
-          tempDir,
-          'TestFramework',
-          ['ios-arm64', 'ios-arm64_x86_64-simulator']
-        );
-
-        stripFrameworkBinary(xcframeworkPath);
-
-        const newContent = fs.readFileSync(binaryPath);
-        expect(newContent.toString()).not.toBe(originalContent);
-
-        const archInfo = execSync(`xcrun lipo -info "${binaryPath}"`, {
-          encoding: 'utf-8',
-        });
-        expect(archInfo).toContain('arm64');
-        expect(archInfo).toContain('x86_64');
-      });
-
-      it('handles multiple slices', () => {
-        const xcframeworkPath = createMockXcframework(
-          tempDir,
-          'TestFramework',
-          ['ios-arm64', 'ios-arm64_x86_64-simulator']
-        );
-
-        stripFrameworkBinary(xcframeworkPath);
-
-        const deviceBinary = path.join(
-          xcframeworkPath,
-          'ios-arm64',
-          'TestFramework.framework',
-          'TestFramework'
-        );
-        const simBinary = path.join(
-          xcframeworkPath,
-          'ios-arm64_x86_64-simulator',
-          'TestFramework.framework',
-          'TestFramework'
-        );
-
-        expect(fs.existsSync(deviceBinary)).toBe(true);
-        expect(fs.existsSync(simBinary)).toBe(true);
-        expect(mockLoggerSuccess).toHaveBeenCalledOnce();
-      });
-
-      it('ignores non-ios directories', () => {
-        const xcframeworkPath = createMockXcframework(
-          tempDir,
-          'TestFramework',
-          ['ios-arm64']
-        );
-        fs.mkdirSync(path.join(xcframeworkPath, 'macos-arm64'), {
-          recursive: true,
-        });
-
-        stripFrameworkBinary(xcframeworkPath);
-
-        expect(mockLoggerSuccess).toHaveBeenCalledOnce();
-      });
+      expect(archInfo).toContain('arm64');
+      expect(archInfo).toContain('x86_64');
     }
   );
+
+  it.skipIf(!isDarwin)('handles multiple slices', () => {
+    const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
+      'ios-arm64',
+      'ios-arm64_x86_64-simulator',
+    ]);
+
+    stripFrameworkBinary(xcframeworkPath);
+
+    const deviceBinary = path.join(
+      xcframeworkPath,
+      'ios-arm64',
+      'TestFramework.framework',
+      'TestFramework'
+    );
+    const simBinary = path.join(
+      xcframeworkPath,
+      'ios-arm64_x86_64-simulator',
+      'TestFramework.framework',
+      'TestFramework'
+    );
+
+    expect(fs.existsSync(deviceBinary)).toBe(true);
+    expect(fs.existsSync(simBinary)).toBe(true);
+    expect(mockLoggerSuccess).toHaveBeenCalledOnce();
+  });
+
+  it.skipIf(!isDarwin)('ignores non-ios directories', () => {
+    const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
+      'ios-arm64',
+    ]);
+    fs.mkdirSync(path.join(xcframeworkPath, 'macos-arm64'), {
+      recursive: true,
+    });
+
+    stripFrameworkBinary(xcframeworkPath);
+
+    expect(mockLoggerSuccess).toHaveBeenCalledOnce();
+  });
 
   it('warns and skips unknown slice types', () => {
     const xcframeworkPath = createMockXcframework(tempDir, 'TestFramework', [
