@@ -1911,7 +1911,7 @@ __metadata:
     expo-updates: "npm:^57.0.6"
     expo-web-browser: "npm:~57.0.0"
     jest: "npm:^29.7.0"
-    jest-expo: "npm:~57.0.1"
+    jest-expo: "npm:57.0.1"
     lottie-react-native: "npm:~7.3.8"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
@@ -15144,9 +15144,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-expo@npm:~57.0.1":
-  version: 57.0.6
-  resolution: "jest-expo@npm:57.0.6"
+"jest-expo@npm:57.0.1":
+  version: 57.0.1
+  resolution: "jest-expo@npm:57.0.1"
   dependencies:
     "@jest/create-cache-key-function": "npm:^29.2.1"
     "@jest/globals": "npm:^29.2.1"
@@ -15161,7 +15161,7 @@ __metadata:
     server-only: "npm:^0.0.1"
     stacktrace-js: "npm:^2.0.2"
   peerDependencies:
-    "@react-native/jest-preset": ^0.86.3
+    "@react-native/jest-preset": ^0.86.0
     expo: "*"
     react-native: "*"
     react-server-dom-webpack: ~19.0.4 || ~19.1.5 || ~19.2.4
@@ -15172,7 +15172,7 @@ __metadata:
       optional: true
   bin:
     jest: bin/jest.js
-  checksum: 10/502bb8ff46605e4991cd64752a95e864da567b86d27912e6e3cb1861b98baeee4d292bfc09b6687c1a1e0a48e7d798cebab4b071f1947bb697e067b1ff791844
+  checksum: 10/b28f377d698cf64ee841ad08603705b4fabb8ae950fe7c5a8aff957a45d4ef280742836989dbb23c070486faf200d4315b0f287e66ee6effcfedb17efc6615d0
   languageName: node
   linkType: hard
 

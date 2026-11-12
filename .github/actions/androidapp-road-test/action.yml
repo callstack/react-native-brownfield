@@ -397,8 +397,9 @@ runs:
         script: |
           echo "==> Starting Detox tests at $(date -u +%H:%M:%S)"
           bash apps/shared-tests/scripts/prepare-android-emulator-for-detox.sh
-          cd apps/AndroidApp
-          bash ../shared-tests/scripts/run-with-android-logcat.sh e2e-artifacts/logcat-full.txt yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"
+          bash apps/shared-tests/scripts/run-with-android-logcat.sh \
+            apps/AndroidApp/e2e-artifacts/logcat-full.txt \
+            bash -c 'cd apps/AndroidApp && yarn "$ANDROIDAPP_E2E_TEST_SCRIPT"'
       env:
         ANDROIDAPP_E2E_TEST_SCRIPT: ${{ env.ANDROIDAPP_E2E_TEST_SCRIPT }}
 
