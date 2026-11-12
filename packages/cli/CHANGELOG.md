@@ -1,5 +1,11 @@
 # @callstack/brownfield-cli
 
+## 6.2.1
+
+### Patch Changes
+
+- [#526](https://github.com/callstack/react-native-brownfield/pull/526) [`3b708ff`](https://github.com/callstack/react-native-brownfield/commit/3b708ff374e5853670b1615cce5facd5ac7cd85f) Thanks [@hurali97](https://github.com/hurali97)! - fix: dependencies versions and vulnerabilities
+
 ## 6.2.0
 
 ### Minor Changes
