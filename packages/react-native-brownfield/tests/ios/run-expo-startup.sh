@@ -10,7 +10,15 @@ public protocol AppControllerInterface {}
 public protocol AppControllerDelegate: AnyObject {
   func appController(_ controller: any AppControllerInterface, didStartWithSuccess success: Bool)
 }
-public final class AppController: AppControllerInterface {
+public protocol InternalAppControllerInterface: AppControllerInterface {
+  func launchAssetUrl() -> URL?
+  func getConstantsForModule() -> UpdatesModuleConstants
+}
+public struct UpdatesModuleConstants {
+  let launchDuration: Double?
+  public func toModuleConstantsMap() -> [String: Any?] { ["launchDuration": launchDuration] }
+}
+public final class AppController: InternalAppControllerInterface {
   public static var initialized = false
   public static var controller = AppController()
   public static var sharedInstance: AppController {
@@ -22,9 +30,20 @@ public final class AppController: AppControllerInterface {
   public var isStarted = false
   public var starts = 0
   public var asset: URL?
-  public weak var delegate: (any AppControllerDelegate)?
+  public var launched = false
+  public var beforeDelegateAssignment: (() -> Void)?
+  public weak var delegate: (any AppControllerDelegate)? {
+    willSet {
+      let hook = beforeDelegateAssignment
+      beforeDelegateAssignment = nil
+      hook?()
+    }
+  }
   public init() {}
   public func launchAssetUrl() -> URL? { asset }
+  public func getConstantsForModule() -> UpdatesModuleConstants {
+    UpdatesModuleConstants(launchDuration: launched ? 1 : nil)
+  }
   public func start() {
     precondition(isActiveController, "Cannot start a dev launcher controller")
     precondition(!isStarted, "Cannot start twice")
@@ -33,6 +52,7 @@ public final class AppController: AppControllerInterface {
   }
   public func finish(_ success: Bool = true) {
     if success { asset = URL(fileURLWithPath: "/update.jsbundle") }
+    launched = true
     delegate?.appController(self, didStartWithSuccess: success)
   }
 }
@@ -82,6 +102,26 @@ AppController.controller.finish(false)
 drain()
 failed.prepareReactNative { fallback += 1 }
 precondition(fallback == 2 && AppController.controller.starts == 1)
+reset()
+AppController.initializeWithoutStarting()
+AppController.controller.start()
+AppController.controller.finish(false)
+let alreadyFailed = ExpoUpdatesStartup()
+var afterFailure = 0
+alreadyFailed.prepareReactNative { afterFailure += 1 }
+drain()
+precondition(afterFailure == 1 && AppController.controller.starts == 1)
+for success in [true, false] {
+  reset()
+  AppController.initializeWithoutStarting()
+  AppController.controller.start()
+  AppController.controller.beforeDelegateAssignment = { AppController.controller.finish(success) }
+  let raced = ExpoUpdatesStartup()
+  var afterRace = 0
+  raced.prepareReactNative { afterRace += 1 }
+  drain()
+  precondition(afterRace == 1 && AppController.controller.starts == 1)
+}
 // Verify the shared preload path waits, preserves launch options and honors cancellation.
 final class JSBundleTimings {}
 final class JSBundleLoadObserver {
@@ -120,7 +160,7 @@ cancelled.preloadState.reset()
 AppController.controller.finish()
 drain()
 precondition(BrownfieldReactHostPreloader.loads == 1)
-print("PASS: initialization, inactive controllers, concurrent waiters, remount, stop/restart, failure")
+print("PASS: initialization, inactive controllers, concurrent waiters, remount, stop/restart, failure, launch finished before the request, launch finished before the delegate")
 SWIFT
 xcrun swiftc -module-cache-path "$test_dir/cache" -emit-library -emit-module -module-name EXUpdates \
   "$test_dir/EXUpdates.swift" -o "$test_dir/libEXUpdates.dylib" \
