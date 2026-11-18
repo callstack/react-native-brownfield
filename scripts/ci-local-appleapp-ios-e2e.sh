@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Local-only Detox E2E for apps/AppleApp (mirrors CI ios-appleapp-vanilla / ios-appleapp-expo jobs).
+# Local-only Detox E2E for apps/AppleApp (mirrors CI ios-appleapp-vanilla / ios-appleapp-expo jobs;
+# the rock variant is local-only, CI ios-appleapp-rock only builds).
 #
 # Usage (from repo root):
 #   yarn ci:local:appleapp:e2e:ios
+#   yarn ci:local:appleapp:e2e:ios --variant rock
 #   yarn ci:local:appleapp:e2e:ios --variant expo57
 #   yarn ci:local:appleapp:e2e:ios --variant expo58
 #   yarn ci:local:appleapp:e2e:ios --clean-ios
@@ -12,9 +14,9 @@
 #   yarn ci:local:appleapp:e2e:ios --build-only
 #   yarn ci:local:appleapp:e2e:ios --no-restore-pods   # keep E2E Pods.xcodeproj patches after exit
 #
-# Local runs auto-run `pod install` on exit to restore Brownfield pod Debug settings (vanilla RN host).
+# Local runs auto-run `pod install` on exit to restore Brownfield pod Debug settings (vanilla and rock RN hosts).
 # From apps/AppleApp: yarn ci:local:e2e:ios [--flags]
-#   yarn ci:local:e2e:ios:expo57 / yarn ci:local:e2e:ios:expo58
+#   yarn ci:local:e2e:ios:rock / yarn ci:local:e2e:ios:expo57 / yarn ci:local:e2e:ios:expo58
 #
 set -euo pipefail
 
@@ -29,11 +31,11 @@ while [[ $# -gt 0 ]]; do
     --) shift; break ;;
     --variant=*) VARIANT="${1#*=}"; shift ;;
     --variant)
-      VARIANT="${2:?--variant requires a value (vanilla, expo57, or expo58)}"
+      VARIANT="${2:?--variant requires a value (vanilla, rock, expo57, or expo58)}"
       shift 2
       ;;
     -h|--help)
-      sed -n '2,15p' "$0"
+      sed -n '2,19p' "$0"
       exit 0
       ;;
     *)
@@ -77,11 +79,11 @@ if [[ "${CLEAN_IOS}" == "true" ]]; then
 fi
 
 if ci_local_e2e_should_build "${TEST_ONLY}" && [[ "${REBUILD_ONLY}" != "true" ]]; then
-  if [[ "${VARIANT}" == "vanilla" ]]; then
-    echo "==> brownfield codegen (RNApp)"
+  if [[ "${VARIANT}" == "vanilla" || "${VARIANT}" == "rock" ]]; then
+    echo "==> brownfield codegen (${XCFRAMEWORK_APP})"
     (cd "${RN_PROJECT_PATH}" && yarn codegen)
 
-    echo "==> pod install (RNApp — build RN from source for RNScreens)"
+    echo "==> pod install (${XCFRAMEWORK_APP} — build RN from source for RNScreens)"
     (cd "${RN_PROJECT_IOS_PATH}" && RCT_USE_PREBUILT_RNCORE=0 pod install)
     ci_local_e2e_apply_brownfield_debug_pod_settings "${RN_PROJECT_IOS_PATH}"
   fi

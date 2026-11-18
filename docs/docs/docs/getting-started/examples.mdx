@@ -5,17 +5,21 @@ You can find example projects demonstrating the usage of React Native Brownfield
 It contains the following apps:
 
 - `RNApp` - a React Native app that is packaged using React Native Brownfield to an artifact consumed in native apps, in which you can refer to an exemplar usage of the library for packaging a React Native app to a consumable artifact
+- `RockApp` - the same React Native app as `RNApp`, built with [Rock](https://rockjs.dev) instead of the React Native Community CLI and packaged using Rock's [brownfield plugins](https://www.rockjs.dev/docs/brownfield/intro)
+- `brownfield-example-shared` - a workspace package with the React Native UI shared by `RNApp` and `RockApp`
 - `ExpoApp58` - Expo application using Expo SDK v58
 - `ExpoApp57` - Expo application using Expo SDK v57
-- `AndroidApp` - an Android app consuming the packaged artifact from `RNApp` or an Expo app, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native Android app; this app comes in flavors:
+- `AndroidApp` - an Android app consuming the packaged artifact from `RNApp`, `RockApp` or an Expo app, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native Android app; this app comes in flavors:
   - `expo58` / `expo57` - which use the artifacts produced from `ExpoApp58` / `ExpoApp57`
   - `vanilla` - which uses the artifact produced from `RNApp`
+  - `rock` - which uses the artifact produced from `RockApp`
 - `AppleApp` - an iOS app consuming packaged XCFrameworks, in which you can refer to an exemplar usage of the library for integrating React Native Brownfield into a native iOS app; the Xcode project has one target per consumed RN app:
   - `Brownfield Apple App (RNApp)` — vanilla; uses the artifact from `RNApp` (scheme **Brownfield Apple App Vanilla**, configuration `Release Vanilla`)
+  - `Brownfield Apple App (RNApp)` — Rock; the same target, using the artifact from `RockApp` (scheme **Brownfield Apple App Rock**, configuration `Release Rock`)
   - `Brownfield Apple App (ExpoApp58)` — uses the artifact from `ExpoApp58` (scheme **Brownfield Apple App Expo 58**, configuration `Release`)
   - `Brownfield Apple App (ExpoApp57)` — uses the artifact from `ExpoApp57` (scheme **Brownfield Apple App Expo 57**, configuration `Release`)
 
-  From `apps/AppleApp`, run `yarn build:example:ios-consumer:vanilla`, `yarn build:example:ios-consumer:expo58`, or `yarn build:example:ios-consumer:expo57` to copy XCFrameworks into `package/` and build the matching target. `yarn build:example:ios-consumer:expo` is an alias for `expo57`.
+  From `apps/AppleApp`, run `yarn build:example:ios-consumer:vanilla`, `yarn build:example:ios-consumer:rock`, `yarn build:example:ios-consumer:expo58`, or `yarn build:example:ios-consumer:expo57` to copy XCFrameworks into `package/` and build the matching target. `yarn build:example:ios-consumer:expo` is an alias for `expo57`.
 
 ## Additional notes
 

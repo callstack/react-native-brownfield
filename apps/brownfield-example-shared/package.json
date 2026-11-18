@@ -1,0 +1,53 @@
+{
+  "name": "@callstack/brownfield-example-shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "node -e \"process.exit(0)\""
+  },
+  "peerDependencies": {
+    "@callstack/brownfield-example-shared-tests": "workspace:^",
+    "@callstack/brownfield-navigation": "workspace:^",
+    "@callstack/brownie": "workspace:^",
+    "@callstack/react-native-brownfield": "workspace:^",
+    "@react-navigation/native": "*",
+    "@react-navigation/native-stack": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-screens": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.6",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@callstack/brownfield-example-shared-tests": "workspace:^",
+    "@callstack/brownfield-navigation": "workspace:^",
+    "@callstack/brownie": "workspace:^",
+    "@callstack/react-native-brownfield": "workspace:^",
+    "@react-native-community/cli": "20.2.0",
+    "@react-native-community/cli-platform-android": "20.2.0",
+    "@react-native-community/cli-platform-ios": "20.2.0",
+    "@react-native/babel-preset": "0.87.0",
+    "@react-native/eslint-config": "0.87.0",
+    "@react-native/jest-preset": "0.87.0",
+    "@react-native/metro-config": "0.87.0",
+    "@react-native/typescript-config": "0.87.0",
+    "@react-navigation/native": "^7.1.33",
+    "@react-navigation/native-stack": "^7.14.5",
+    "@types/react": "^19.2.0",
+    "eslint": "^9.39.3",
+    "react": "19.2.3",
+    "react-native": "0.87.0",
+    "react-native-safe-area-context": "^5.9.1",
+    "react-native-screens": "^4.27.0",
+    "typescript": "5.9.3"
+  }
+}
