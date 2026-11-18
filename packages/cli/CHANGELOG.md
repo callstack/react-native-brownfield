@@ -1,5 +1,13 @@
 # @callstack/brownfield-cli
 
+## 6.2.1
+
+### Patch Changes
+
+- [#338](https://github.com/callstack/react-native-brownfield/pull/338) [`3003b62`](https://github.com/callstack/react-native-brownfield/commit/3003b6271010006e53646755ca07ebb80c358de8) Thanks [@Juozas-Petkelis](https://github.com/Juozas-Petkelis)! - The navigation codegen no longer adds an extra blank line after the imports in the generated `index.ts`, which made the file fail Prettier.
+
+- [#526](https://github.com/callstack/react-native-brownfield/pull/526) [`3b708ff`](https://github.com/callstack/react-native-brownfield/commit/3b708ff374e5853670b1615cce5facd5ac7cd85f) Thanks [@hurali97](https://github.com/hurali97)! - fix: dependencies versions and vulnerabilities
+
 ## 6.2.0
 
 ### Minor Changes
