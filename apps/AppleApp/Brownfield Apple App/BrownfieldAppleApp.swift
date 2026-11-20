@@ -152,6 +152,16 @@ struct BrownfieldAppleApp: App {
     var body: some Scene {
         WindowGroup {
             RootContentView(appDelegate: appDelegate)
+                .onOpenURL { url in
+                    _ = ReactNativeBrownfield.shared.application(UIApplication.shared, open: url)
+                }
+                .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { userActivity in
+                    _ = ReactNativeBrownfield.shared.application(
+                        UIApplication.shared,
+                        continue: userActivity,
+                        restorationHandler: { _ in }
+                    )
+                }
         }
     }
 }

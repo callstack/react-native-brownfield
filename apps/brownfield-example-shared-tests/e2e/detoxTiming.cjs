@@ -14,6 +14,9 @@ const DETOX_TIMING = {
   /** Timeout for the visibility of toasts. */
   TOAST_VISIBILITY_TIMEOUT_MS: 60_000,
 
+  /** How long to wait for the system "Open in ...?" prompt after opening a URL. */
+  OPEN_URL_PROMPT_TIMEOUT_MS: 5_000,
+
   /** Timeout for the entire E2E test suite (detox + Jest + Maestro). */
   TEST_TIMEOUT_MS: 720_000,
 };

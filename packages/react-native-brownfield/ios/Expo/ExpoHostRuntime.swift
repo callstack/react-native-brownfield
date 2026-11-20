@@ -158,7 +158,7 @@ final class ExpoHostRuntime {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    return (expoDelegate?.application(app, open: url, options: options) ?? false) || RCTLinkingManager.application(app, open: url, options: options)
+    return (expoDelegate?.application(app, open: url, options: options) ?? false) || BrownfieldLinking.open(app, url: url, options: options)
   }
 
   // Universal Links; base implementation courtesy of Expo, licensed under the MIT License - changes were made to call the method on expo delegate - https://github.com/expo/expo/blob/main/apps/bare-expo/ios/AppDelegate.swift
@@ -167,7 +167,7 @@ final class ExpoHostRuntime {
     continue userActivity: NSUserActivity,
     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
   ) -> Bool {
-    let result = RCTLinkingManager.application(application, continue: userActivity, restorationHandler: restorationHandler)
+    let result = BrownfieldLinking.continueUserActivity(application, userActivity: userActivity, restorationHandler: restorationHandler)
     return (expoDelegate?.application(application, continue: userActivity, restorationHandler: restorationHandler) ?? false) || result
   }
 

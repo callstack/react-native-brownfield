@@ -1,4 +1,5 @@
-const { device, element, by, expect: detoxExpect } = require('detox');
+const { execFileSync } = require('node:child_process');
+const { device, element, by, system, expect: detoxExpect } = require('detox');
 const {
   brownfieldE2ETestIds: ids,
 } = require('@callstack/brownfield-example-shared-tests/e2e/e2eTestIds');
@@ -222,6 +223,41 @@ async function sendPostMessageToNativeAndWaitForToast() {
   );
 }
 
+/**
+ * Open `url` in the running app the way the system does, so it arrives through the
+ * scene (`scene(_:openURLContexts:)`) rather than a call Detox makes on the app delegate.
+ * The simulator may ask before handing a custom-scheme URL to an app; accept that prompt
+ * when it shows up.
+ */
+async function openURLThroughSystem(url) {
+  execFileSync('xcrun', ['simctl', 'openurl', device.id, url]);
+  await acceptOpenURLPromptIfShown();
+}
+
+async function acceptOpenURLPromptIfShown() {
+  const openButton = by.system.label('Open');
+  const deadline = Date.now() + DETOX_TIMING.OPEN_URL_PROMPT_TIMEOUT_MS;
+  let lastError;
+  while (Date.now() < deadline) {
+    try {
+      await system.element(openButton).tap();
+      return;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) =>
+        setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
+      );
+    }
+  }
+  console.warn(
+    `[AppleApp] No "Open" prompt accepted after opening a URL: ${lastError?.message ?? 'no attempt made'}`
+  );
+}
+
+async function waitForExploreTabExpo() {
+  await waitForExpoMatcher(by.text('Expo documentation'));
+}
+
 module.exports = {
   detoxLaunchArgs,
   waitForAppleAppReady,
@@ -229,5 +265,7 @@ module.exports = {
   openReactNativeExpo,
   openHomeTabExpo,
   openPostMessageTabExpo,
+  openURLThroughSystem,
+  waitForExploreTabExpo,
   sendPostMessageToNativeAndWaitForToast,
 };
