@@ -17,7 +17,7 @@ final class ExpoUpdatesStartup: NSObject {
     let controller = AppController.sharedInstance
     guard controller.isActiveController else { completion(); return }
     // expo-updates 57 traps in launchAssetUrl() until start() sets its startup procedure.
-    if updatesReady || (controller.isStarted && controller.launchAssetUrl() != nil) {
+    if updatesReady || (controller.isStarted && Self.hasFinishedLaunching(controller)) {
       completion()
       return
     }
@@ -25,10 +25,27 @@ final class ExpoUpdatesStartup: NSObject {
     controller.delegate = self
     if !controller.isStarted {
       controller.start()
+    } else if Self.hasFinishedLaunching(controller) {
+      releaseCallbacks()
     }
   }
 
   func cancelPendingRequests() { updatesCallbacks.removeAll() }
+
+  private func releaseCallbacks() {
+    updatesReady = true
+    let callbacks = updatesCallbacks
+    updatesCallbacks.removeAll()
+    callbacks.forEach { $0() }
+  }
+
+  private static func hasFinishedLaunching(_ controller: InternalAppControllerInterface) -> Bool {
+    if controller.launchAssetUrl() != nil {
+      return true
+    }
+    let constants = controller.getConstantsForModule().toModuleConstantsMap()
+    return (constants["launchDuration"] ?? nil) != nil
+  }
 }
 #endif
 
@@ -37,13 +54,10 @@ extension ExpoUpdatesStartup: AppControllerDelegate {
   func appController(_ appController: any AppControllerInterface, didStartWithSuccess success: Bool) {
     DispatchQueue.main.async { [weak self] in
       guard let self else { return }
-      self.updatesReady = true
       if !success {
         NSLog("%@", "Expo Updates failed to select a launch asset; using the bundle resolver fallback.")
       }
-      let callbacks = self.updatesCallbacks
-      self.updatesCallbacks.removeAll()
-      callbacks.forEach { $0() }
+      self.releaseCallbacks()
     }
   }
 }
